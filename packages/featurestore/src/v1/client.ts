@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateOnlineStoreRequest,
@@ -69,10 +63,7 @@ export class Client {
   }
 
   /** Create an Online Feature Store. */
-  async createOnlineStore(
-    req: CreateOnlineStoreRequest,
-    options?: CallOptions
-  ): Promise<OnlineStore> {
+  async createOnlineStore(req: CreateOnlineStoreRequest, options?: CallOptions): Promise<OnlineStore> {
     const url = `${this.host}/api/2.0/feature-store/online-stores`;
     const body = marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
     let resp: OnlineStore | undefined;
@@ -80,11 +71,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
     };
     await executeCall(call, options);
@@ -95,59 +82,38 @@ export class Client {
   }
 
   /** Delete an Online Feature Store. */
-  async deleteOnlineStore(
-    req: DeleteOnlineStoreRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteOnlineStore(req: DeleteOnlineStoreRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/feature-store/online-stores/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete online table. */
-  async deleteOnlineTable(
-    req: DeleteOnlineTableRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteOnlineTable(req: DeleteOnlineTableRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/feature-store/online-tables/${req.onlineTableName ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get an Online Feature Store. */
-  async getOnlineStore(
-    req: GetOnlineStoreRequest,
-    options?: CallOptions
-  ): Promise<OnlineStore> {
+  async getOnlineStore(req: GetOnlineStoreRequest, options?: CallOptions): Promise<OnlineStore> {
     const url = `${this.host}/api/2.0/feature-store/online-stores/${req.name ?? ''}`;
     let resp: OnlineStore | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
     };
     await executeCall(call, options);
@@ -158,10 +124,7 @@ export class Client {
   }
 
   /** List Online Feature Stores. */
-  async listOnlineStores(
-    req: ListOnlineStoresRequest,
-    options?: CallOptions
-  ): Promise<ListOnlineStoresResponse> {
+  async listOnlineStores(req: ListOnlineStoresRequest, options?: CallOptions): Promise<ListOnlineStoresResponse> {
     const url = `${this.host}/api/2.0/feature-store/online-stores`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -177,11 +140,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListOnlineStoresResponseSchema);
     };
     await executeCall(call, options);
@@ -191,10 +150,8 @@ export class Client {
     return resp;
   }
 
-  async *listOnlineStoresIter(
-    req: ListOnlineStoresRequest,
-    options?: CallOptions
-  ): AsyncGenerator<OnlineStore> {
+
+  async *listOnlineStoresIter(req: ListOnlineStoresRequest, options?: CallOptions): AsyncGenerator<OnlineStore> {
     const pageReq: ListOnlineStoresRequest = {...req};
     for (;;) {
       const resp = await this.listOnlineStores(pageReq, options);
@@ -208,11 +165,9 @@ export class Client {
     }
   }
 
+
   /** Publish features. */
-  async publishTable(
-    req: PublishTableRequest,
-    options?: CallOptions
-  ): Promise<PublishTableResponse> {
+  async publishTable(req: PublishTableRequest, options?: CallOptions): Promise<PublishTableResponse> {
     const url = `${this.host}/api/2.0/feature-store/tables/${req.sourceTableName ?? ''}/publish`;
     const body = marshalRequest(req, marshalPublishTableRequestSchema);
     let resp: PublishTableResponse | undefined;
@@ -220,11 +175,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPublishTableResponseSchema);
     };
     await executeCall(call, options);
@@ -235,10 +186,7 @@ export class Client {
   }
 
   /** Update an Online Feature Store. */
-  async updateOnlineStore(
-    req: UpdateOnlineStoreRequest,
-    options?: CallOptions
-  ): Promise<OnlineStore> {
+  async updateOnlineStore(req: UpdateOnlineStoreRequest, options?: CallOptions): Promise<OnlineStore> {
     const url = `${this.host}/api/2.0/feature-store/online-stores/${req.onlineStore?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -251,18 +199,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
     };
     await executeCall(call, options);

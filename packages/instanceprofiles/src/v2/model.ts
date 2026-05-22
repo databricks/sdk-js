@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export interface AddInstanceProfileRequest {
   /**
    * By default, <Databricks> validates that it has sufficient permissions to launch
@@ -27,7 +28,7 @@ export interface AddInstanceProfileRequest {
    * This field is required if your role name and instance profile name do
    * not match and you want to use the instance profile with
    * [Databricks SQL Serverless](/sql/admin/serverless.html).
-   *
+   * 
    * Otherwise, this field is optional.
    */
   iamRoleArn?: string | undefined;
@@ -52,7 +53,7 @@ export interface EditInstanceProfileRequest {
    * This field is required if your role name and instance profile name do
    * not match and you want to use the instance profile with
    * [Databricks SQL Serverless](/sql/admin/serverless.html).
-   *
+   * 
    * Otherwise, this field is optional.
    */
   iamRoleArn?: string | undefined;
@@ -77,7 +78,7 @@ export interface InstanceProfile {
    * This field is required if your role name and instance profile name do
    * not match and you want to use the instance profile with
    * [Databricks SQL Serverless](/sql/admin/serverless.html).
-   *
+   * 
    * Otherwise, this field is optional.
    */
   iamRoleArn?: string | undefined;
@@ -101,12 +102,14 @@ export interface RemoveInstanceProfileRequest {
 export interface RemoveInstanceProfileRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAddInstanceProfileRequest_ResponseSchema: z.ZodType<AddInstanceProfileRequest_Response> =
-  z.object({});
+export const unmarshalAddInstanceProfileRequest_ResponseSchema: z.ZodType<AddInstanceProfileRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditInstanceProfileRequest_ResponseSchema: z.ZodType<EditInstanceProfileRequest_Response> =
-  z.object({});
+export const unmarshalEditInstanceProfileRequest_ResponseSchema: z.ZodType<EditInstanceProfileRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
   .object({
@@ -121,20 +124,18 @@ export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInstanceProfilesRequest_ResponseSchema: z.ZodType<ListInstanceProfilesRequest_Response> =
-  z
-    .object({
-      instance_profiles: z
-        .array(z.lazy(() => unmarshalInstanceProfileSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      instanceProfiles: d.instance_profiles,
-    }));
+export const unmarshalListInstanceProfilesRequest_ResponseSchema: z.ZodType<ListInstanceProfilesRequest_Response> = z
+  .object({
+    instance_profiles: z.array(z.lazy(() => unmarshalInstanceProfileSchema)).optional(),
+  })
+  .transform(d => ({
+    instanceProfiles: d.instance_profiles,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRemoveInstanceProfileRequest_ResponseSchema: z.ZodType<RemoveInstanceProfileRequest_Response> =
-  z.object({});
+export const unmarshalRemoveInstanceProfileRequest_ResponseSchema: z.ZodType<RemoveInstanceProfileRequest_Response> = z
+  .object({
+  });
 
 export const marshalAddInstanceProfileRequestSchema: z.ZodType = z
   .object({

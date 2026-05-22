@@ -2,19 +2,20 @@
 
 import {z} from 'zod';
 
+
 /**
  * An action that a user (with sufficient permissions) could take on an activity or comment.
- *
+ * 
  * For activities, valid values are:
  * * `APPROVE_TRANSITION_REQUEST`: Approve a transition request
- *
+ * 
  * * `REJECT_TRANSITION_REQUEST`: Reject a transition request
- *
+ * 
  * * `CANCEL_TRANSITION_REQUEST`: Cancel (delete) a transition request
- *
+ * 
  * For comments, valid values are:
  * * `EDIT_COMMENT`: Edit the comment
- *
+ * 
  * * `DELETE_COMMENT`: Delete the comment
  */
 export enum ActivityAction {
@@ -33,15 +34,15 @@ export enum ActivityAction {
 /**
  * Type of activity. Valid values are:
  * * `APPLIED_TRANSITION`: User applied the corresponding stage transition.
- *
+ * 
  * * `REQUESTED_TRANSITION`: User requested the corresponding stage transition.
- *
+ * 
  * * `CANCELLED_REQUEST`: User cancelled an existing transition request.
- *
+ * 
  * * `APPROVED_REQUEST`: User approved the corresponding stage transition.
- *
+ * 
  * * `REJECTED_REQUEST`: User rejected the coressponding stage transition.
- *
+ * 
  * * `SYSTEM_TRANSITION`: For events performed as a side effect, such as archiving existing model versions in a stage.
  */
 export enum ActivityType {
@@ -64,9 +65,9 @@ export enum ActivityType {
 /**
  * The status of the model version. Valid values are:
  * * `PENDING_REGISTRATION`: Request to register a new model version is pending as server performs background tasks.
- *
+ * 
  * * `FAILED_REGISTRATION`: Request to register a new model version has failed.
- *
+ * 
  * * `READY`: Model version is ready for use.
  */
 export enum ModelVersionStatus {
@@ -128,9 +129,9 @@ export enum RegistryWebhookEvent {
 /**
  * Enable or disable triggering the webhook, or put the webhook into test mode. The default is `ACTIVE`:
  * * `ACTIVE`: Webhook is triggered when an associated event happens.
- *
+ * 
  * * `DISABLED`: Webhook is not triggered.
- *
+ * 
  * * `TEST_MODE`: Webhook can be triggered through the test endpoint, but is not triggered on a real event.
  */
 export enum RegistryWebhookStatus {
@@ -159,25 +160,25 @@ export interface Activity {
   lastUpdatedTimestamp?: number | undefined;
   /**
    * Source stage of the transition (if the activity is stage transition related). Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   fromStage?: string | undefined;
   /**
    * Target stage of the transition (if the activity is stage transition related). Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   toStage?: string | undefined;
@@ -197,13 +198,13 @@ export interface ApproveTransitionRequest {
   version?: string | undefined;
   /**
    * Target stage of the transition. Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   stage?: string | undefined;
@@ -236,25 +237,25 @@ export interface CommentObject {
   lastUpdatedTimestamp?: number | undefined;
   /**
    * Source stage of the transition (if the activity is stage transition related). Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   fromStage?: string | undefined;
   /**
    * Target stage of the transition (if the activity is stage transition related). Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   toStage?: string | undefined;
@@ -330,27 +331,27 @@ export interface CreateRegistryWebhookRequest {
   /**
    * Events that can trigger a registry webhook:
    * * `MODEL_VERSION_CREATED`: A new model version was created for the associated model.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_STAGE`: A model version’s stage was changed.
-   *
+   * 
    * * `TRANSITION_REQUEST_CREATED`: A user requested a model version’s stage be transitioned.
-   *
+   * 
    * * `COMMENT_CREATED`: A user wrote a comment on a registered model.
-   *
+   * 
    * * `REGISTERED_MODEL_CREATED`: A new registered model was created. This event type can only be specified for a registry-wide webhook, which can be created by not specifying a model name in the create request.
-   *
+   * 
    * * `MODEL_VERSION_TAG_SET`: A user set a tag on the model version.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_STAGING`: A model version was transitioned to staging.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_PRODUCTION`: A model version was transitioned to production.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_ARCHIVED`: A model version was archived.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_STAGING_CREATED`: A user requested a model version be transitioned to staging.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_PRODUCTION_CREATED`: A user requested a model version be transitioned to production.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_ARCHIVED_CREATED`: A user requested a model version be archived.
    */
   events?: RegistryWebhookEvent[] | undefined;
@@ -359,9 +360,9 @@ export interface CreateRegistryWebhookRequest {
   /**
    * Enable or disable triggering the webhook, or put the webhook into test mode. The default is `ACTIVE`:
    * * `ACTIVE`: Webhook is triggered when an associated event happens.
-   *
+   * 
    * * `DISABLED`: Webhook is not triggered.
-   *
+   * 
    * * `TEST_MODE`: Webhook can be triggered through the test endpoint, but is not triggered on a real event.
    */
   status?: RegistryWebhookStatus | undefined;
@@ -384,13 +385,13 @@ export interface CreateTransitionRequest {
   version?: string | undefined;
   /**
    * Target stage of the transition. Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   stage?: string | undefined;
@@ -471,13 +472,13 @@ export interface DeleteTransitionRequest {
   version?: string | undefined;
   /**
    * Target stage of the transition request. Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   stage?: string | undefined;
@@ -602,29 +603,29 @@ export interface ListRegistryWebhooksRequest {
   /**
    * Events that trigger the webhook.
    * * `MODEL_VERSION_CREATED`: A new model version was created for the associated model.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_STAGE`: A model version’s stage was changed.
-   *
+   * 
    * * `TRANSITION_REQUEST_CREATED`: A user requested a model version’s stage be transitioned.
-   *
+   * 
    * * `COMMENT_CREATED`: A user wrote a comment on a registered model.
-   *
+   * 
    * * `REGISTERED_MODEL_CREATED`: A new registered model was created. This event type can only be specified for a registry-wide webhook, which can be created by not specifying a model name in the create request.
-   *
+   * 
    * * `MODEL_VERSION_TAG_SET`: A user set a tag on the model version.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_STAGING`: A model version was transitioned to staging.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_PRODUCTION`: A model version was transitioned to production.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_ARCHIVED`: A model version was archived.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_STAGING_CREATED`: A user requested a model version be transitioned to staging.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_PRODUCTION_CREATED`: A user requested a model version be transitioned to production.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_ARCHIVED_CREATED`: A user requested a model version be archived.
-   *
+   * 
    * If `events` is specified, any webhook with one or more of the specified trigger events is included in the output.
    * If `events` is not specified, webhooks of all event types are included in the output.
    */
@@ -790,27 +791,27 @@ export interface RegistryWebhook {
   /**
    * Events that can trigger a registry webhook:
    * * `MODEL_VERSION_CREATED`: A new model version was created for the associated model.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_STAGE`: A model version’s stage was changed.
-   *
+   * 
    * * `TRANSITION_REQUEST_CREATED`: A user requested a model version’s stage be transitioned.
-   *
+   * 
    * * `COMMENT_CREATED`: A user wrote a comment on a registered model.
-   *
+   * 
    * * `REGISTERED_MODEL_CREATED`: A new registered model was created. This event type can only be specified for a registry-wide webhook, which can be created by not specifying a model name in the create request.
-   *
+   * 
    * * `MODEL_VERSION_TAG_SET`: A user set a tag on the model version.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_STAGING`: A model version was transitioned to staging.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_PRODUCTION`: A model version was transitioned to production.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_ARCHIVED`: A model version was archived.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_STAGING_CREATED`: A user requested a model version be transitioned to staging.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_PRODUCTION_CREATED`: A user requested a model version be transitioned to production.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_ARCHIVED_CREATED`: A user requested a model version be archived.
    */
   events?: RegistryWebhookEvent[] | undefined;
@@ -835,13 +836,13 @@ export interface RejectTransitionRequest {
   version?: string | undefined;
   /**
    * Target stage of the transition. Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   stage?: string | undefined;
@@ -985,13 +986,13 @@ export interface TransitionModelVersionStageDatabricksRequest {
   version?: string | undefined;
   /**
    * Target stage of the transition. Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   stage?: string | undefined;
@@ -1024,25 +1025,25 @@ export interface TransitionRequest {
   lastUpdatedTimestamp?: number | undefined;
   /**
    * Source stage of the transition (if the activity is stage transition related). Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   fromStage?: string | undefined;
   /**
    * Target stage of the transition (if the activity is stage transition related). Valid values are:
-   *
+   * 
    * * `None`: The initial stage of a model version.
-   *
+   * 
    * * `Staging`: Staging or pre-production stage.
-   *
+   * 
    * * `Production`: Production stage.
-   *
+   * 
    * * `Archived`: Archived stage.
    */
   toStage?: string | undefined;
@@ -1102,27 +1103,27 @@ export interface UpdateRegistryWebhookRequest {
   /**
    * Events that can trigger a registry webhook:
    * * `MODEL_VERSION_CREATED`: A new model version was created for the associated model.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_STAGE`: A model version’s stage was changed.
-   *
+   * 
    * * `TRANSITION_REQUEST_CREATED`: A user requested a model version’s stage be transitioned.
-   *
+   * 
    * * `COMMENT_CREATED`: A user wrote a comment on a registered model.
-   *
+   * 
    * * `REGISTERED_MODEL_CREATED`: A new registered model was created. This event type can only be specified for a registry-wide webhook, which can be created by not specifying a model name in the create request.
-   *
+   * 
    * * `MODEL_VERSION_TAG_SET`: A user set a tag on the model version.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_STAGING`: A model version was transitioned to staging.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_PRODUCTION`: A model version was transitioned to production.
-   *
+   * 
    * * `MODEL_VERSION_TRANSITIONED_TO_ARCHIVED`: A model version was archived.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_STAGING_CREATED`: A user requested a model version be transitioned to staging.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_PRODUCTION_CREATED`: A user requested a model version be transitioned to production.
-   *
+   * 
    * * `TRANSITION_REQUEST_TO_ARCHIVED_CREATED`: A user requested a model version be archived.
    */
   events?: RegistryWebhookEvent[] | undefined;
@@ -1165,14 +1166,13 @@ export const unmarshalActivitySchema: z.ZodType<Activity> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalApproveTransitionRequest_ResponseSchema: z.ZodType<ApproveTransitionRequest_Response> =
-  z
-    .object({
-      activity: z.lazy(() => unmarshalActivitySchema).optional(),
-    })
-    .transform(d => ({
-      activity: d.activity,
-    }));
+export const unmarshalApproveTransitionRequest_ResponseSchema: z.ZodType<ApproveTransitionRequest_Response> = z
+  .object({
+    activity: z.lazy(() => unmarshalActivitySchema).optional(),
+  })
+  .transform(d => ({
+    activity: d.activity,
+  }));
 
 export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
   .object({
@@ -1201,88 +1201,88 @@ export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCommentRequest_ResponseSchema: z.ZodType<CreateCommentRequest_Response> =
-  z
-    .object({
-      comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
-    })
-    .transform(d => ({
-      comment: d.comment,
-    }));
+export const unmarshalCreateCommentRequest_ResponseSchema: z.ZodType<CreateCommentRequest_Response> = z
+  .object({
+    comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
+  })
+  .transform(d => ({
+    comment: d.comment,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateModelVersionRequest_ResponseSchema: z.ZodType<CreateModelVersionRequest_Response> =
-  z
-    .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
-    })
-    .transform(d => ({
-      modelVersion: d.model_version,
-    }));
+export const unmarshalCreateModelVersionRequest_ResponseSchema: z.ZodType<CreateModelVersionRequest_Response> = z
+  .object({
+    model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+  })
+  .transform(d => ({
+    modelVersion: d.model_version,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRegisteredModelRequest_ResponseSchema: z.ZodType<CreateRegisteredModelRequest_Response> =
-  z
-    .object({
-      registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
-    })
-    .transform(d => ({
-      registeredModel: d.registered_model,
-    }));
+export const unmarshalCreateRegisteredModelRequest_ResponseSchema: z.ZodType<CreateRegisteredModelRequest_Response> = z
+  .object({
+    registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
+  })
+  .transform(d => ({
+    registeredModel: d.registered_model,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRegistryWebhookRequest_ResponseSchema: z.ZodType<CreateRegistryWebhookRequest_Response> =
-  z
-    .object({
-      webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
-    })
-    .transform(d => ({
-      webhook: d.webhook,
-    }));
+export const unmarshalCreateRegistryWebhookRequest_ResponseSchema: z.ZodType<CreateRegistryWebhookRequest_Response> = z
+  .object({
+    webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
+  })
+  .transform(d => ({
+    webhook: d.webhook,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateTransitionRequest_ResponseSchema: z.ZodType<CreateTransitionRequest_Response> =
-  z
-    .object({
-      request: z.lazy(() => unmarshalTransitionRequestSchema).optional(),
-    })
-    .transform(d => ({
-      request: d.request,
-    }));
+export const unmarshalCreateTransitionRequest_ResponseSchema: z.ZodType<CreateTransitionRequest_Response> = z
+  .object({
+    request: z.lazy(() => unmarshalTransitionRequestSchema).optional(),
+  })
+  .transform(d => ({
+    request: d.request,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCommentRequest_ResponseSchema: z.ZodType<DeleteCommentRequest_Response> =
-  z.object({});
+export const unmarshalDeleteCommentRequest_ResponseSchema: z.ZodType<DeleteCommentRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> =
-  z.object({});
+export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersionTagRequest_ResponseSchema: z.ZodType<DeleteModelVersionTagRequest_Response> =
-  z.object({});
+export const unmarshalDeleteModelVersionTagRequest_ResponseSchema: z.ZodType<DeleteModelVersionTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelTagRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelTagRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRegisteredModelTagRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegistryWebhookRequest_ResponseSchema: z.ZodType<DeleteRegistryWebhookRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRegistryWebhookRequest_ResponseSchema: z.ZodType<DeleteRegistryWebhookRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTransitionRequest_ResponseSchema: z.ZodType<DeleteTransitionRequest_Response> =
-  z
-    .object({
-      activity: z.lazy(() => unmarshalActivitySchema).optional(),
-    })
-    .transform(d => ({
-      activity: d.activity,
-    }));
+export const unmarshalDeleteTransitionRequest_ResponseSchema: z.ZodType<DeleteTransitionRequest_Response> = z
+  .object({
+    activity: z.lazy(() => unmarshalActivitySchema).optional(),
+  })
+  .transform(d => ({
+    activity: d.activity,
+  }));
 
 export const unmarshalFeatureListSchema: z.ZodType<FeatureList> = z
   .object({
@@ -1293,48 +1293,40 @@ export const unmarshalFeatureListSchema: z.ZodType<FeatureList> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLatestVersionsRequest_ResponseSchema: z.ZodType<GetLatestVersionsRequest_Response> =
-  z
-    .object({
-      model_versions: z
-        .array(z.lazy(() => unmarshalModelVersionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      modelVersions: d.model_versions,
-    }));
+export const unmarshalGetLatestVersionsRequest_ResponseSchema: z.ZodType<GetLatestVersionsRequest_Response> = z
+  .object({
+    model_versions: z.array(z.lazy(() => unmarshalModelVersionSchema)).optional(),
+  })
+  .transform(d => ({
+    modelVersions: d.model_versions,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetModelVersionDownloadUriRequest_ResponseSchema: z.ZodType<GetModelVersionDownloadUriRequest_Response> =
-  z
-    .object({
-      artifact_uri: z.string().optional(),
-    })
-    .transform(d => ({
-      artifactUri: d.artifact_uri,
-    }));
+export const unmarshalGetModelVersionDownloadUriRequest_ResponseSchema: z.ZodType<GetModelVersionDownloadUriRequest_Response> = z
+  .object({
+    artifact_uri: z.string().optional(),
+  })
+  .transform(d => ({
+    artifactUri: d.artifact_uri,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetModelVersionRequest_ResponseSchema: z.ZodType<GetModelVersionRequest_Response> =
-  z
-    .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
-    })
-    .transform(d => ({
-      modelVersion: d.model_version,
-    }));
+export const unmarshalGetModelVersionRequest_ResponseSchema: z.ZodType<GetModelVersionRequest_Response> = z
+  .object({
+    model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+  })
+  .transform(d => ({
+    modelVersion: d.model_version,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRegisteredModelDatabricksRequest_ResponseSchema: z.ZodType<GetRegisteredModelDatabricksRequest_Response> =
-  z
-    .object({
-      registered_model_databricks: z
-        .lazy(() => unmarshalRegisteredModelDatabricksSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      registeredModelDatabricks: d.registered_model_databricks,
-    }));
+export const unmarshalGetRegisteredModelDatabricksRequest_ResponseSchema: z.ZodType<GetRegisteredModelDatabricksRequest_Response> = z
+  .object({
+    registered_model_databricks: z.lazy(() => unmarshalRegisteredModelDatabricksSchema).optional(),
+  })
+  .transform(d => ({
+    registeredModelDatabricks: d.registered_model_databricks,
+  }));
 
 export const unmarshalHttpUrlSpecSchema: z.ZodType<HttpUrlSpec> = z
   .object({
@@ -1375,42 +1367,35 @@ export const unmarshalLinkedFeatureSchema: z.ZodType<LinkedFeature> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> =
-  z
-    .object({
-      registered_models: z
-        .array(z.lazy(() => unmarshalRegisteredModelSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      registeredModels: d.registered_models,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> = z
+  .object({
+    registered_models: z.array(z.lazy(() => unmarshalRegisteredModelSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    registeredModels: d.registered_models,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegistryWebhooksRequest_ResponseSchema: z.ZodType<ListRegistryWebhooksRequest_Response> =
-  z
-    .object({
-      webhooks: z
-        .array(z.lazy(() => unmarshalRegistryWebhookSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      webhooks: d.webhooks,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListRegistryWebhooksRequest_ResponseSchema: z.ZodType<ListRegistryWebhooksRequest_Response> = z
+  .object({
+    webhooks: z.array(z.lazy(() => unmarshalRegistryWebhookSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    webhooks: d.webhooks,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTransitionRequest_ResponseSchema: z.ZodType<ListTransitionRequest_Response> =
-  z
-    .object({
-      requests: z.array(z.lazy(() => unmarshalActivitySchema)).optional(),
-    })
-    .transform(d => ({
-      requests: d.requests,
-    }));
+export const unmarshalListTransitionRequest_ResponseSchema: z.ZodType<ListTransitionRequest_Response> = z
+  .object({
+    requests: z.array(z.lazy(() => unmarshalActivitySchema)).optional(),
+  })
+  .transform(d => ({
+    requests: d.requests,
+  }));
 
 export const unmarshalModelVersionSchema: z.ZodType<ModelVersion> = z
   .object({
@@ -1444,48 +1429,45 @@ export const unmarshalModelVersionSchema: z.ZodType<ModelVersion> = z
     runLink: d.run_link,
   }));
 
-export const unmarshalModelVersionDatabricksSchema: z.ZodType<ModelVersionDatabricks> =
-  z
-    .object({
-      name: z.string().optional(),
-      version: z.string().optional(),
-      creation_timestamp: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
-      user_id: z.string().optional(),
-      current_stage: z.string().optional(),
-      description: z.string().optional(),
-      source: z.string().optional(),
-      run_id: z.string().optional(),
-      status: z.enum(ModelVersionStatus).optional(),
-      status_message: z.string().optional(),
-      open_requests: z.array(z.lazy(() => unmarshalActivitySchema)).optional(),
-      permission_level: z.enum(PermissionLevel).optional(),
-      tags: z.array(z.lazy(() => unmarshalModelVersionTagSchema)).optional(),
-      run_link: z.string().optional(),
-      email_subscription_status: z
-        .enum(RegistryEmailSubscriptionType)
-        .optional(),
-      feature_list: z.lazy(() => unmarshalFeatureListSchema).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      version: d.version,
-      creationTimestamp: d.creation_timestamp,
-      lastUpdatedTimestamp: d.last_updated_timestamp,
-      userId: d.user_id,
-      currentStage: d.current_stage,
-      description: d.description,
-      source: d.source,
-      runId: d.run_id,
-      status: d.status,
-      statusMessage: d.status_message,
-      openRequests: d.open_requests,
-      permissionLevel: d.permission_level,
-      tags: d.tags,
-      runLink: d.run_link,
-      emailSubscriptionStatus: d.email_subscription_status,
-      featureList: d.feature_list,
-    }));
+export const unmarshalModelVersionDatabricksSchema: z.ZodType<ModelVersionDatabricks> = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+    creation_timestamp: z.number().optional(),
+    last_updated_timestamp: z.number().optional(),
+    user_id: z.string().optional(),
+    current_stage: z.string().optional(),
+    description: z.string().optional(),
+    source: z.string().optional(),
+    run_id: z.string().optional(),
+    status: z.enum(ModelVersionStatus).optional(),
+    status_message: z.string().optional(),
+    open_requests: z.array(z.lazy(() => unmarshalActivitySchema)).optional(),
+    permission_level: z.enum(PermissionLevel).optional(),
+    tags: z.array(z.lazy(() => unmarshalModelVersionTagSchema)).optional(),
+    run_link: z.string().optional(),
+    email_subscription_status: z.enum(RegistryEmailSubscriptionType).optional(),
+    feature_list: z.lazy(() => unmarshalFeatureListSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    creationTimestamp: d.creation_timestamp,
+    lastUpdatedTimestamp: d.last_updated_timestamp,
+    userId: d.user_id,
+    currentStage: d.current_stage,
+    description: d.description,
+    source: d.source,
+    runId: d.run_id,
+    status: d.status,
+    statusMessage: d.status_message,
+    openRequests: d.open_requests,
+    permissionLevel: d.permission_level,
+    tags: d.tags,
+    runLink: d.run_link,
+    emailSubscriptionStatus: d.email_subscription_status,
+    featureList: d.feature_list,
+  }));
 
 export const unmarshalModelVersionTagSchema: z.ZodType<ModelVersionTag> = z
   .object({
@@ -1504,9 +1486,7 @@ export const unmarshalRegisteredModelSchema: z.ZodType<RegisteredModel> = z
     last_updated_timestamp: z.number().optional(),
     user_id: z.string().optional(),
     description: z.string().optional(),
-    latest_versions: z
-      .array(z.lazy(() => unmarshalModelVersionSchema))
-      .optional(),
+    latest_versions: z.array(z.lazy(() => unmarshalModelVersionSchema)).optional(),
     tags: z.array(z.lazy(() => unmarshalRegisteredModelTagSchema)).optional(),
   })
   .transform(d => ({
@@ -1519,43 +1499,39 @@ export const unmarshalRegisteredModelSchema: z.ZodType<RegisteredModel> = z
     tags: d.tags,
   }));
 
-export const unmarshalRegisteredModelDatabricksSchema: z.ZodType<RegisteredModelDatabricks> =
-  z
-    .object({
-      name: z.string().optional(),
-      creation_timestamp: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
-      user_id: z.string().optional(),
-      description: z.string().optional(),
-      latest_versions: z
-        .array(z.lazy(() => unmarshalModelVersionSchema))
-        .optional(),
-      id: z.string().optional(),
-      permission_level: z.enum(PermissionLevel).optional(),
-      tags: z.array(z.lazy(() => unmarshalRegisteredModelTagSchema)).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      creationTimestamp: d.creation_timestamp,
-      lastUpdatedTimestamp: d.last_updated_timestamp,
-      userId: d.user_id,
-      description: d.description,
-      latestVersions: d.latest_versions,
-      id: d.id,
-      permissionLevel: d.permission_level,
-      tags: d.tags,
-    }));
+export const unmarshalRegisteredModelDatabricksSchema: z.ZodType<RegisteredModelDatabricks> = z
+  .object({
+    name: z.string().optional(),
+    creation_timestamp: z.number().optional(),
+    last_updated_timestamp: z.number().optional(),
+    user_id: z.string().optional(),
+    description: z.string().optional(),
+    latest_versions: z.array(z.lazy(() => unmarshalModelVersionSchema)).optional(),
+    id: z.string().optional(),
+    permission_level: z.enum(PermissionLevel).optional(),
+    tags: z.array(z.lazy(() => unmarshalRegisteredModelTagSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creationTimestamp: d.creation_timestamp,
+    lastUpdatedTimestamp: d.last_updated_timestamp,
+    userId: d.user_id,
+    description: d.description,
+    latestVersions: d.latest_versions,
+    id: d.id,
+    permissionLevel: d.permission_level,
+    tags: d.tags,
+  }));
 
-export const unmarshalRegisteredModelTagSchema: z.ZodType<RegisteredModelTag> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalRegisteredModelTagSchema: z.ZodType<RegisteredModelTag> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
   .object({
@@ -1582,84 +1558,74 @@ export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRejectTransitionRequest_ResponseSchema: z.ZodType<RejectTransitionRequest_Response> =
-  z
-    .object({
-      activity: z.lazy(() => unmarshalActivitySchema).optional(),
-    })
-    .transform(d => ({
-      activity: d.activity,
-    }));
+export const unmarshalRejectTransitionRequest_ResponseSchema: z.ZodType<RejectTransitionRequest_Response> = z
+  .object({
+    activity: z.lazy(() => unmarshalActivitySchema).optional(),
+  })
+  .transform(d => ({
+    activity: d.activity,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRenameRegisteredModelRequest_ResponseSchema: z.ZodType<RenameRegisteredModelRequest_Response> =
-  z
-    .object({
-      registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
-    })
-    .transform(d => ({
-      registeredModel: d.registered_model,
-    }));
+export const unmarshalRenameRegisteredModelRequest_ResponseSchema: z.ZodType<RenameRegisteredModelRequest_Response> = z
+  .object({
+    registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
+  })
+  .transform(d => ({
+    registeredModel: d.registered_model,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchModelVersionsRequest_ResponseSchema: z.ZodType<SearchModelVersionsRequest_Response> =
-  z
-    .object({
-      model_versions: z
-        .array(z.lazy(() => unmarshalModelVersionSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      modelVersions: d.model_versions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalSearchModelVersionsRequest_ResponseSchema: z.ZodType<SearchModelVersionsRequest_Response> = z
+  .object({
+    model_versions: z.array(z.lazy(() => unmarshalModelVersionSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    modelVersions: d.model_versions,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchRegisteredModelsRequest_ResponseSchema: z.ZodType<SearchRegisteredModelsRequest_Response> =
-  z
-    .object({
-      registered_models: z
-        .array(z.lazy(() => unmarshalRegisteredModelSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      registeredModels: d.registered_models,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalSearchRegisteredModelsRequest_ResponseSchema: z.ZodType<SearchRegisteredModelsRequest_Response> = z
+  .object({
+    registered_models: z.array(z.lazy(() => unmarshalRegisteredModelSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    registeredModels: d.registered_models,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetModelVersionTagRequest_ResponseSchema: z.ZodType<SetModelVersionTagRequest_Response> =
-  z.object({});
+export const unmarshalSetModelVersionTagRequest_ResponseSchema: z.ZodType<SetModelVersionTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetRegisteredModelTagRequest_ResponseSchema: z.ZodType<SetRegisteredModelTagRequest_Response> =
-  z.object({});
+export const unmarshalSetRegisteredModelTagRequest_ResponseSchema: z.ZodType<SetRegisteredModelTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTestRegistryWebhookRequest_ResponseSchema: z.ZodType<TestRegistryWebhookRequest_Response> =
-  z
-    .object({
-      status_code: z.number().optional(),
-      body: z.string().optional(),
-    })
-    .transform(d => ({
-      statusCode: d.status_code,
-      body: d.body,
-    }));
+export const unmarshalTestRegistryWebhookRequest_ResponseSchema: z.ZodType<TestRegistryWebhookRequest_Response> = z
+  .object({
+    status_code: z.number().optional(),
+    body: z.string().optional(),
+  })
+  .transform(d => ({
+    statusCode: d.status_code,
+    body: d.body,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTransitionModelVersionStageDatabricksRequest_ResponseSchema: z.ZodType<TransitionModelVersionStageDatabricksRequest_Response> =
-  z
-    .object({
-      model_version_databricks: z
-        .lazy(() => unmarshalModelVersionDatabricksSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      modelVersionDatabricks: d.model_version_databricks,
-    }));
+export const unmarshalTransitionModelVersionStageDatabricksRequest_ResponseSchema: z.ZodType<TransitionModelVersionStageDatabricksRequest_Response> = z
+  .object({
+    model_version_databricks: z.lazy(() => unmarshalModelVersionDatabricksSchema).optional(),
+  })
+  .transform(d => ({
+    modelVersionDatabricks: d.model_version_databricks,
+  }));
 
 export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
   .object({
@@ -1688,44 +1654,40 @@ export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCommentRequest_ResponseSchema: z.ZodType<UpdateCommentRequest_Response> =
-  z
-    .object({
-      comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
-    })
-    .transform(d => ({
-      comment: d.comment,
-    }));
+export const unmarshalUpdateCommentRequest_ResponseSchema: z.ZodType<UpdateCommentRequest_Response> = z
+  .object({
+    comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
+  })
+  .transform(d => ({
+    comment: d.comment,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateModelVersionRequest_ResponseSchema: z.ZodType<UpdateModelVersionRequest_Response> =
-  z
-    .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
-    })
-    .transform(d => ({
-      modelVersion: d.model_version,
-    }));
+export const unmarshalUpdateModelVersionRequest_ResponseSchema: z.ZodType<UpdateModelVersionRequest_Response> = z
+  .object({
+    model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+  })
+  .transform(d => ({
+    modelVersion: d.model_version,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRegisteredModelRequest_ResponseSchema: z.ZodType<UpdateRegisteredModelRequest_Response> =
-  z
-    .object({
-      registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
-    })
-    .transform(d => ({
-      registeredModel: d.registered_model,
-    }));
+export const unmarshalUpdateRegisteredModelRequest_ResponseSchema: z.ZodType<UpdateRegisteredModelRequest_Response> = z
+  .object({
+    registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
+  })
+  .transform(d => ({
+    registeredModel: d.registered_model,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRegistryWebhookRequest_ResponseSchema: z.ZodType<UpdateRegistryWebhookRequest_Response> =
-  z
-    .object({
-      webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
-    })
-    .transform(d => ({
-      webhook: d.webhook,
-    }));
+export const unmarshalUpdateRegistryWebhookRequest_ResponseSchema: z.ZodType<UpdateRegistryWebhookRequest_Response> = z
+  .object({
+    webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
+  })
+  .transform(d => ({
+    webhook: d.webhook,
+  }));
 
 export const marshalApproveTransitionRequestSchema: z.ZodType = z
   .object({
@@ -1933,22 +1895,21 @@ export const marshalTestRegistryWebhookRequestSchema: z.ZodType = z
     event: d.event,
   }));
 
-export const marshalTransitionModelVersionStageDatabricksRequestSchema: z.ZodType =
-  z
-    .object({
-      name: z.string().optional(),
-      version: z.string().optional(),
-      stage: z.string().optional(),
-      archiveExistingVersions: z.boolean().optional(),
-      comment: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      version: d.version,
-      stage: d.stage,
-      archive_existing_versions: d.archiveExistingVersions,
-      comment: d.comment,
-    }));
+export const marshalTransitionModelVersionStageDatabricksRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+    stage: z.string().optional(),
+    archiveExistingVersions: z.boolean().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    stage: d.stage,
+    archive_existing_versions: d.archiveExistingVersions,
+    comment: d.comment,
+  }));
 
 export const marshalUpdateCommentRequestSchema: z.ZodType = z
   .object({

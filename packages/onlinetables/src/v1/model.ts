@@ -3,6 +3,7 @@
 import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
+
 /** The state of an online table. */
 export enum OnlineTableState {
   /** The default state. It should not be reported by any online tables. */
@@ -185,16 +186,10 @@ export interface OnlineTableStatus {
   message?: string | undefined;
   /** The detailed status based on the online table state. */
   detailedStatus?:
-    | {$case: 'provisioningStatus'; provisioningStatus: ProvisioningStatus}
-    | {
-        $case: 'continuousUpdateStatus';
-        continuousUpdateStatus: ContinuousUpdateStatus;
-      }
-    | {
-        $case: 'triggeredUpdateStatus';
-        triggeredUpdateStatus: TriggeredUpdateStatus;
-      }
-    | {$case: 'failedStatus'; failedStatus: FailedStatus}
+    | { $case: 'provisioningStatus'; provisioningStatus: ProvisioningStatus }
+    | { $case: 'continuousUpdateStatus'; continuousUpdateStatus: ContinuousUpdateStatus }
+    | { $case: 'triggeredUpdateStatus'; triggeredUpdateStatus: TriggeredUpdateStatus }
+    | { $case: 'failedStatus'; failedStatus: FailedStatus }
     | undefined;
 }
 
@@ -250,31 +245,22 @@ export interface TriggeredUpdateStatus {
   triggeredUpdateProgress?: PipelineProgress | undefined;
 }
 
-export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateStatus> =
-  z
-    .object({
-      last_processed_commit_version: z.number().optional(),
-      timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      initial_pipeline_sync_progress: z
-        .lazy(() => unmarshalPipelineProgressSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      lastProcessedCommitVersion: d.last_processed_commit_version,
-      timestamp: d.timestamp,
-      initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
-    }));
+export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateStatus> = z
+  .object({
+    last_processed_commit_version: z.number().optional(),
+    timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    initial_pipeline_sync_progress: z.lazy(() => unmarshalPipelineProgressSchema).optional(),
+  })
+  .transform(d => ({
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    timestamp: d.timestamp,
+    initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
+  }));
 
 export const unmarshalFailedStatusSchema: z.ZodType<FailedStatus> = z
   .object({
     last_processed_commit_version: z.number().optional(),
-    timestamp: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     lastProcessedCommitVersion: d.last_processed_commit_version,
@@ -299,12 +285,8 @@ export const unmarshalOnlineTableSchema: z.ZodType<OnlineTable> = z
 
 export const unmarshalOnlineTableSpecSchema: z.ZodType<OnlineTableSpec> = z
   .object({
-    run_continuously: z
-      .lazy(() => unmarshalOnlineTableSpec_ContinuousSchedulingPolicySchema)
-      .optional(),
-    run_triggered: z
-      .lazy(() => unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema)
-      .optional(),
+    run_continuously: z.lazy(() => unmarshalOnlineTableSpec_ContinuousSchedulingPolicySchema).optional(),
+    run_triggered: z.lazy(() => unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema).optional(),
     source_table_full_name: z.string().optional(),
     primary_key_columns: z.array(z.string()).optional(),
     timeseries_key: z.string().optional(),
@@ -312,15 +294,7 @@ export const unmarshalOnlineTableSpecSchema: z.ZodType<OnlineTableSpec> = z
     pipeline_id: z.string().optional(),
   })
   .transform(d => ({
-    schedulingPolicy:
-      d.run_continuously !== undefined
-        ? {
-            $case: 'runContinuously' as const,
-            runContinuously: d.run_continuously,
-          }
-        : d.run_triggered !== undefined
-          ? {$case: 'runTriggered' as const, runTriggered: d.run_triggered}
-          : undefined,
+    schedulingPolicy: d.run_continuously !== undefined ? { $case: 'runContinuously' as const, runContinuously: d.run_continuously } : d.run_triggered !== undefined ? { $case: 'runTriggered' as const, runTriggered: d.run_triggered } : undefined,
     sourceTableFullName: d.source_table_full_name,
     primaryKeyColumns: d.primary_key_columns,
     timeseriesKey: d.timeseries_key,
@@ -329,50 +303,28 @@ export const unmarshalOnlineTableSpecSchema: z.ZodType<OnlineTableSpec> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalOnlineTableSpec_ContinuousSchedulingPolicySchema: z.ZodType<OnlineTableSpec_ContinuousSchedulingPolicy> =
-  z.object({});
+export const unmarshalOnlineTableSpec_ContinuousSchedulingPolicySchema: z.ZodType<OnlineTableSpec_ContinuousSchedulingPolicy> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema: z.ZodType<OnlineTableSpec_TriggeredSchedulingPolicy> =
-  z.object({});
+export const unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema: z.ZodType<OnlineTableSpec_TriggeredSchedulingPolicy> = z
+  .object({
+  });
 
 export const unmarshalOnlineTableStatusSchema: z.ZodType<OnlineTableStatus> = z
   .object({
     detailed_state: z.enum(OnlineTableState).optional(),
     message: z.string().optional(),
-    provisioning_status: z
-      .lazy(() => unmarshalProvisioningStatusSchema)
-      .optional(),
-    continuous_update_status: z
-      .lazy(() => unmarshalContinuousUpdateStatusSchema)
-      .optional(),
-    triggered_update_status: z
-      .lazy(() => unmarshalTriggeredUpdateStatusSchema)
-      .optional(),
+    provisioning_status: z.lazy(() => unmarshalProvisioningStatusSchema).optional(),
+    continuous_update_status: z.lazy(() => unmarshalContinuousUpdateStatusSchema).optional(),
+    triggered_update_status: z.lazy(() => unmarshalTriggeredUpdateStatusSchema).optional(),
     failed_status: z.lazy(() => unmarshalFailedStatusSchema).optional(),
   })
   .transform(d => ({
     detailedState: d.detailed_state,
     message: d.message,
-    detailedStatus:
-      d.provisioning_status !== undefined
-        ? {
-            $case: 'provisioningStatus' as const,
-            provisioningStatus: d.provisioning_status,
-          }
-        : d.continuous_update_status !== undefined
-          ? {
-              $case: 'continuousUpdateStatus' as const,
-              continuousUpdateStatus: d.continuous_update_status,
-            }
-          : d.triggered_update_status !== undefined
-            ? {
-                $case: 'triggeredUpdateStatus' as const,
-                triggeredUpdateStatus: d.triggered_update_status,
-              }
-            : d.failed_status !== undefined
-              ? {$case: 'failedStatus' as const, failedStatus: d.failed_status}
-              : undefined,
+    detailedStatus: d.provisioning_status !== undefined ? { $case: 'provisioningStatus' as const, provisioningStatus: d.provisioning_status } : d.continuous_update_status !== undefined ? { $case: 'continuousUpdateStatus' as const, continuousUpdateStatus: d.continuous_update_status } : d.triggered_update_status !== undefined ? { $case: 'triggeredUpdateStatus' as const, triggeredUpdateStatus: d.triggered_update_status } : d.failed_status !== undefined ? { $case: 'failedStatus' as const, failedStatus: d.failed_status } : undefined,
   }));
 
 export const unmarshalPipelineProgressSchema: z.ZodType<PipelineProgress> = z
@@ -391,45 +343,31 @@ export const unmarshalPipelineProgressSchema: z.ZodType<PipelineProgress> = z
     estimatedCompletionTimeSeconds: d.estimated_completion_time_seconds,
   }));
 
-export const unmarshalProvisioningStatusSchema: z.ZodType<ProvisioningStatus> =
-  z
-    .object({
-      initial_pipeline_sync_progress: z
-        .lazy(() => unmarshalPipelineProgressSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
-    }));
+export const unmarshalProvisioningStatusSchema: z.ZodType<ProvisioningStatus> = z
+  .object({
+    initial_pipeline_sync_progress: z.lazy(() => unmarshalPipelineProgressSchema).optional(),
+  })
+  .transform(d => ({
+    initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
+  }));
 
-export const unmarshalTriggeredUpdateStatusSchema: z.ZodType<TriggeredUpdateStatus> =
-  z
-    .object({
-      last_processed_commit_version: z.number().optional(),
-      timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      triggered_update_progress: z
-        .lazy(() => unmarshalPipelineProgressSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      lastProcessedCommitVersion: d.last_processed_commit_version,
-      timestamp: d.timestamp,
-      triggeredUpdateProgress: d.triggered_update_progress,
-    }));
+export const unmarshalTriggeredUpdateStatusSchema: z.ZodType<TriggeredUpdateStatus> = z
+  .object({
+    last_processed_commit_version: z.number().optional(),
+    timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    triggered_update_progress: z.lazy(() => unmarshalPipelineProgressSchema).optional(),
+  })
+  .transform(d => ({
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    timestamp: d.timestamp,
+    triggeredUpdateProgress: d.triggered_update_progress,
+  }));
 
 export const marshalContinuousUpdateStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.number().optional(),
-    timestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    initialPipelineSyncProgress: z
-      .lazy(() => marshalPipelineProgressSchema)
-      .optional(),
+    timestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    initialPipelineSyncProgress: z.lazy(() => marshalPipelineProgressSchema).optional(),
   })
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,
@@ -440,10 +378,7 @@ export const marshalContinuousUpdateStatusSchema: z.ZodType = z
 export const marshalFailedStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.number().optional(),
-    timestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    timestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,
@@ -468,22 +403,7 @@ export const marshalOnlineTableSchema: z.ZodType = z
 
 export const marshalOnlineTableSpecSchema: z.ZodType = z
   .object({
-    schedulingPolicy: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('runContinuously'),
-          runContinuously: z.lazy(
-            () => marshalOnlineTableSpec_ContinuousSchedulingPolicySchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('runTriggered'),
-          runTriggered: z.lazy(
-            () => marshalOnlineTableSpec_TriggeredSchedulingPolicySchema
-          ),
-        }),
-      ])
-      .optional(),
+    schedulingPolicy: z.discriminatedUnion('$case', [z.object({ $case: z.literal('runContinuously'), runContinuously: z.lazy(() => marshalOnlineTableSpec_ContinuousSchedulingPolicySchema) }), z.object({ $case: z.literal('runTriggered'), runTriggered: z.lazy(() => marshalOnlineTableSpec_TriggeredSchedulingPolicySchema) })]).optional(),
     sourceTableFullName: z.string().optional(),
     primaryKeyColumns: z.array(z.string()).optional(),
     timeseriesKey: z.string().optional(),
@@ -491,12 +411,8 @@ export const marshalOnlineTableSpecSchema: z.ZodType = z
     pipelineId: z.string().optional(),
   })
   .transform(d => ({
-    ...(d.schedulingPolicy?.$case === 'runContinuously' && {
-      run_continuously: d.schedulingPolicy.runContinuously,
-    }),
-    ...(d.schedulingPolicy?.$case === 'runTriggered' && {
-      run_triggered: d.schedulingPolicy.runTriggered,
-    }),
+    ...(d.schedulingPolicy?.$case === 'runContinuously' && { run_continuously: d.schedulingPolicy.runContinuously }),
+    ...(d.schedulingPolicy?.$case === 'runTriggered' && { run_triggered: d.schedulingPolicy.runTriggered }),
     source_table_full_name: d.sourceTableFullName,
     primary_key_columns: d.primaryKeyColumns,
     timeseries_key: d.timeseriesKey,
@@ -505,57 +421,28 @@ export const marshalOnlineTableSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalOnlineTableSpec_ContinuousSchedulingPolicySchema: z.ZodType =
-  z.object({});
+export const marshalOnlineTableSpec_ContinuousSchedulingPolicySchema: z.ZodType = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalOnlineTableSpec_TriggeredSchedulingPolicySchema: z.ZodType =
-  z.object({});
+export const marshalOnlineTableSpec_TriggeredSchedulingPolicySchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalOnlineTableStatusSchema: z.ZodType = z
   .object({
     detailedState: z.enum(OnlineTableState).optional(),
     message: z.string().optional(),
-    detailedStatus: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('provisioningStatus'),
-          provisioningStatus: z.lazy(() => marshalProvisioningStatusSchema),
-        }),
-        z.object({
-          $case: z.literal('continuousUpdateStatus'),
-          continuousUpdateStatus: z.lazy(
-            () => marshalContinuousUpdateStatusSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('triggeredUpdateStatus'),
-          triggeredUpdateStatus: z.lazy(
-            () => marshalTriggeredUpdateStatusSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('failedStatus'),
-          failedStatus: z.lazy(() => marshalFailedStatusSchema),
-        }),
-      ])
-      .optional(),
+    detailedStatus: z.discriminatedUnion('$case', [z.object({ $case: z.literal('provisioningStatus'), provisioningStatus: z.lazy(() => marshalProvisioningStatusSchema) }), z.object({ $case: z.literal('continuousUpdateStatus'), continuousUpdateStatus: z.lazy(() => marshalContinuousUpdateStatusSchema) }), z.object({ $case: z.literal('triggeredUpdateStatus'), triggeredUpdateStatus: z.lazy(() => marshalTriggeredUpdateStatusSchema) }), z.object({ $case: z.literal('failedStatus'), failedStatus: z.lazy(() => marshalFailedStatusSchema) })]).optional(),
   })
   .transform(d => ({
     detailed_state: d.detailedState,
     message: d.message,
-    ...(d.detailedStatus?.$case === 'provisioningStatus' && {
-      provisioning_status: d.detailedStatus.provisioningStatus,
-    }),
-    ...(d.detailedStatus?.$case === 'continuousUpdateStatus' && {
-      continuous_update_status: d.detailedStatus.continuousUpdateStatus,
-    }),
-    ...(d.detailedStatus?.$case === 'triggeredUpdateStatus' && {
-      triggered_update_status: d.detailedStatus.triggeredUpdateStatus,
-    }),
-    ...(d.detailedStatus?.$case === 'failedStatus' && {
-      failed_status: d.detailedStatus.failedStatus,
-    }),
+    ...(d.detailedStatus?.$case === 'provisioningStatus' && { provisioning_status: d.detailedStatus.provisioningStatus }),
+    ...(d.detailedStatus?.$case === 'continuousUpdateStatus' && { continuous_update_status: d.detailedStatus.continuousUpdateStatus }),
+    ...(d.detailedStatus?.$case === 'triggeredUpdateStatus' && { triggered_update_status: d.detailedStatus.triggeredUpdateStatus }),
+    ...(d.detailedStatus?.$case === 'failedStatus' && { failed_status: d.detailedStatus.failedStatus }),
   }));
 
 export const marshalPipelineProgressSchema: z.ZodType = z
@@ -576,9 +463,7 @@ export const marshalPipelineProgressSchema: z.ZodType = z
 
 export const marshalProvisioningStatusSchema: z.ZodType = z
   .object({
-    initialPipelineSyncProgress: z
-      .lazy(() => marshalPipelineProgressSchema)
-      .optional(),
+    initialPipelineSyncProgress: z.lazy(() => marshalPipelineProgressSchema).optional(),
   })
   .transform(d => ({
     initial_pipeline_sync_progress: d.initialPipelineSyncProgress,
@@ -587,13 +472,8 @@ export const marshalProvisioningStatusSchema: z.ZodType = z
 export const marshalTriggeredUpdateStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.number().optional(),
-    timestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    triggeredUpdateProgress: z
-      .lazy(() => marshalPipelineProgressSchema)
-      .optional(),
+    timestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    triggeredUpdateProgress: z.lazy(() => marshalPipelineProgressSchema).optional(),
   })
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,

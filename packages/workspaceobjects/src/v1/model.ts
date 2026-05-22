@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** The format for workspace import and export. */
 export enum ExportFormat {
   /** The notebook will be imported/exported as source code. */
@@ -74,9 +75,9 @@ export interface ExportRequest {
   path?: string | undefined;
   /**
    * This specifies the format of the exported file. By default, this is `SOURCE`.
-   *
+   * 
    * The value is case sensitive.
-   *
+   * 
    * - `SOURCE`: The notebook is exported as source code. Directory exports will not include non-notebook entries.
    * - `HTML`: The notebook is exported as an HTML file.
    * - `JUPYTER`: The notebook is exported as a Jupyter/IPython Notebook file.
@@ -114,9 +115,9 @@ export interface ImportRequest {
   path?: string | undefined;
   /**
    * This specifies the format of the file to be imported.
-   *
+   * 
    * The value is case sensitive.
-   *
+   * 
    * - `AUTO`: The item is imported depending on an analysis of the item's extension and
    * the header content provided in the request. If the item is imported as a notebook,
    * then the item's extension is automatically removed.
@@ -131,7 +132,7 @@ export interface ImportRequest {
   language?: Language | undefined;
   /**
    * The base64-encoded content. This has a limit of 10 MB.
-   *
+   * 
    * If the limit (10MB) is exceeded, exception with error code **MAX_NOTEBOOK_SIZE_EXCEEDED** is thrown.
    * This parameter might be absent, and instead a posted file is used.
    */
@@ -174,7 +175,7 @@ export interface MkdirsRequest_Response {}
 export interface ObjectInfo {
   /**
    * The type of the object in workspace.
-   *
+   * 
    * - `NOTEBOOK`: document that contains runnable code, visualizations, and explanatory text.
    * - `DIRECTORY`: directory
    * - `LIBRARY`: library
@@ -200,41 +201,39 @@ export interface ObjectInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExportRequest_ResponseSchema: z.ZodType<ExportRequest_Response> =
-  z
-    .object({
-      content: z
-        .string()
-        .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-        .optional(),
-      file_type: z.string().optional(),
-    })
-    .transform(d => ({
-      content: d.content,
-      fileType: d.file_type,
-    }));
+export const unmarshalExportRequest_ResponseSchema: z.ZodType<ExportRequest_Response> = z
+  .object({
+    content: z.string().transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0))).optional(),
+    file_type: z.string().optional(),
+  })
+  .transform(d => ({
+    content: d.content,
+    fileType: d.file_type,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalImportRequest_ResponseSchema: z.ZodType<ImportRequest_Response> =
-  z.object({});
+export const unmarshalImportRequest_ResponseSchema: z.ZodType<ImportRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRequest_ResponseSchema: z.ZodType<ListRequest_Response> =
-  z
-    .object({
-      objects: z.array(z.lazy(() => unmarshalObjectInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      objects: d.objects,
-    }));
+export const unmarshalListRequest_ResponseSchema: z.ZodType<ListRequest_Response> = z
+  .object({
+    objects: z.array(z.lazy(() => unmarshalObjectInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    objects: d.objects,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalMkdirsRequest_ResponseSchema: z.ZodType<MkdirsRequest_Response> =
-  z.object({});
+export const unmarshalMkdirsRequest_ResponseSchema: z.ZodType<MkdirsRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalObjectInfoSchema: z.ZodType<ObjectInfo> = z
   .object({
@@ -273,12 +272,7 @@ export const marshalImportRequestSchema: z.ZodType = z
     path: z.string().optional(),
     format: z.enum(ExportFormat).optional(),
     language: z.enum(Language).optional(),
-    content: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+    content: z.any().transform((d: Uint8Array) => btoa(Array.from(d, b => String.fromCharCode(b)).join(''))).optional(),
     overwrite: z.boolean().optional(),
   })
   .transform(d => ({

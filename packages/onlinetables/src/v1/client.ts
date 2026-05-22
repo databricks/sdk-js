@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateOnlineTableRequest,
@@ -64,10 +58,7 @@ export class Client {
   }
 
   /** Create a new Online Table. */
-  async createOnlineTable(
-    req: CreateOnlineTableRequest,
-    options?: CallOptions
-  ): Promise<OnlineTable> {
+  async createOnlineTable(req: CreateOnlineTableRequest, options?: CallOptions): Promise<OnlineTable> {
     const url = `${this.host}/api/2.0/online-tables`;
     const body = marshalRequest(req.table, marshalOnlineTableSchema);
     let resp: OnlineTable | undefined;
@@ -75,11 +66,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOnlineTableSchema);
     };
     await executeCall(call, options);
@@ -89,15 +76,20 @@ export class Client {
     return resp;
   }
 
-  async createOnlineTableWaiter(
+async createOnlineTableWaiter(
     req: CreateOnlineTableRequest,
     options?: CallOptions
   ): Promise<CreateOnlineTableWaiter> {
     const resp = await this.createOnlineTable(req, options);
     if (resp.name === undefined) {
-      throw new Error('response field name required for polling is missing');
+      throw new Error(
+        'response field name required for polling is missing'
+      );
     }
-    return new CreateOnlineTableWaiter(this, resp.name);
+    return new CreateOnlineTableWaiter(
+      this,
+      resp.name,
+    );
   }
 
   /**
@@ -105,40 +97,26 @@ export class Client {
    * Warning: This will delete all the data in the online table. If the source Delta table was
    * deleted or modified since this Online Table was created, this will lose the data forever!
    */
-  async deleteOnlineTable(
-    req: DeleteOnlineTableRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteOnlineTable(req: DeleteOnlineTableRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/online-tables/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get information about an existing online table and its status. */
-  async getOnlineTable(
-    req: GetOnlineTableRequest,
-    options?: CallOptions
-  ): Promise<OnlineTable> {
+  async getOnlineTable(req: GetOnlineTableRequest, options?: CallOptions): Promise<OnlineTable> {
     const url = `${this.host}/api/2.0/online-tables/${req.name ?? ''}`;
     let resp: OnlineTable | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOnlineTableSchema);
     };
     await executeCall(call, options);
@@ -152,7 +130,7 @@ export class Client {
 export class CreateOnlineTableWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -180,7 +158,8 @@ export class CreateOnlineTableWaiter {
         case ProvisioningInfo_State.ACTIVE:
           result = pollResp;
           return;
-        case ProvisioningInfo_State.FAILED: {
+        case ProvisioningInfo_State.FAILED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

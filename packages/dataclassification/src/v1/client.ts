@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CatalogConfig,
@@ -62,15 +56,12 @@ export class Client {
 
   /**
    * Create Data Classification configuration for a catalog.
-   *
+   * 
    * Creates a new config resource, which enables Data Classification
    * for the specified catalog.
    * - The config must not already exist for the catalog.
    */
-  async createCatalogConfig(
-    req: CreateCatalogConfigRequest,
-    options?: CallOptions
-  ): Promise<CatalogConfig> {
+  async createCatalogConfig(req: CreateCatalogConfigRequest, options?: CallOptions): Promise<CatalogConfig> {
     const url = `${this.host}/api/data-classification/v1/${req.parent ?? ''}/config`;
     const body = marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
     let resp: CatalogConfig | undefined;
@@ -78,11 +69,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
     await executeCall(call, options);
@@ -93,40 +80,26 @@ export class Client {
   }
 
   /** Delete Data Classification configuration for a catalog. */
-  async deleteCatalogConfig(
-    req: DeleteCatalogConfigRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteCatalogConfig(req: DeleteCatalogConfigRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/data-classification/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get the Data Classification configuration for a catalog. */
-  async getCatalogConfig(
-    req: GetCatalogConfigRequest,
-    options?: CallOptions
-  ): Promise<CatalogConfig> {
+  async getCatalogConfig(req: GetCatalogConfigRequest, options?: CallOptions): Promise<CatalogConfig> {
     const url = `${this.host}/api/data-classification/v1/${req.name ?? ''}`;
     let resp: CatalogConfig | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
     await executeCall(call, options);
@@ -141,10 +114,7 @@ export class Client {
    * - The config must already exist for the catalog.
    * - Updates fields specified in the update_mask.  Use update_mask field to perform partial updates of the configuration.
    */
-  async updateCatalogConfig(
-    req: UpdateCatalogConfigRequest,
-    options?: CallOptions
-  ): Promise<CatalogConfig> {
+  async updateCatalogConfig(req: UpdateCatalogConfigRequest, options?: CallOptions): Promise<CatalogConfig> {
     const url = `${this.host}/api/data-classification/v1/${req.catalogConfig?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -157,18 +127,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
     await executeCall(call, options);

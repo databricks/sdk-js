@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CompleteVersionRequest,
@@ -92,17 +86,14 @@ export class Client {
 
   /**
    * Marks a version as complete and releases the deployment lock.
-   *
+   * 
    * The server atomically:
    * 1. Sets the version status to the provided terminal status.
    * 2. Sets `complete_time` to the current server timestamp.
    * 3. Releases the lock on the parent deployment.
    * 4. Updates the parent deployment's `status` and `last_version_id`.
    */
-  async completeVersion(
-    req: CompleteVersionRequest,
-    options?: CallOptions
-  ): Promise<Version> {
+  async completeVersion(req: CompleteVersionRequest, options?: CallOptions): Promise<Version> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}/complete`;
     const body = marshalRequest(req, marshalCompleteVersionRequestSchema);
     let resp: Version | undefined;
@@ -110,11 +101,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalVersionSchema);
     };
     await executeCall(call, options);
@@ -126,15 +113,12 @@ export class Client {
 
   /**
    * Creates a new deployment in the workspace.
-   *
+   * 
    * The caller must provide a `deployment_id` which becomes the final
    * component of the deployment's resource name. If a deployment with the
    * same ID already exists, the server returns `ALREADY_EXISTS`.
    */
-  async createDeployment(
-    req: CreateDeploymentRequest,
-    options?: CallOptions
-  ): Promise<Deployment> {
+  async createDeployment(req: CreateDeploymentRequest, options?: CallOptions): Promise<Deployment> {
     const url = `${this.host}/api/2.0/bundle/deployments`;
     const params = new URLSearchParams();
     if (req.deploymentId !== undefined) {
@@ -147,18 +131,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDeploymentSchema);
     };
     await executeCall(call, options);
@@ -170,19 +144,16 @@ export class Client {
 
   /**
    * Creates a resource operation under a version.
-   *
+   * 
    * The caller must provide a `resource_key` which becomes the final
    * component of the operation's name. If an operation with the same key
    * already exists under the version, the server returns `ALREADY_EXISTS`.
-   *
+   * 
    * On success the server also updates the corresponding deployment-level
    * Resource (creating it if this is the first operation for that
    * resource_key, or removing it if action_type is DELETE).
    */
-  async createOperation(
-    req: CreateOperationRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async createOperation(req: CreateOperationRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/2.0/bundle/${req.parent ?? ''}/operations`;
     const params = new URLSearchParams();
     if (req.resourceKey !== undefined) {
@@ -195,18 +166,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -218,16 +179,13 @@ export class Client {
 
   /**
    * Creates a new version under a deployment.
-   *
+   * 
    * Creating a version acquires an exclusive lock on the deployment,
    * preventing concurrent deploys. The caller provides a `version_id`
    * which the server validates equals `last_version_id + 1` on the
    * deployment.
    */
-  async createVersion(
-    req: CreateVersionRequest,
-    options?: CallOptions
-  ): Promise<Version> {
+  async createVersion(req: CreateVersionRequest, options?: CallOptions): Promise<Version> {
     const url = `${this.host}/api/2.0/bundle/${req.parent ?? ''}/versions`;
     const params = new URLSearchParams();
     if (req.versionId !== undefined) {
@@ -240,18 +198,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalVersionSchema);
     };
     await executeCall(call, options);
@@ -263,46 +211,32 @@ export class Client {
 
   /**
    * Deletes a deployment.
-   *
+   * 
    * The deployment is marked as deleted. It and all its children (versions
    * and their operations) will be permanently deleted after the retention
    * policy expires. If the deployment has an in-progress version, the
    * server returns `RESOURCE_CONFLICT`.
    */
-  async deleteDeployment(
-    req: DeleteDeploymentRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteDeployment(req: DeleteDeploymentRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Retrieves a deployment by its resource name. */
-  async getDeployment(
-    req: GetDeploymentRequest,
-    options?: CallOptions
-  ): Promise<Deployment> {
+  async getDeployment(req: GetDeploymentRequest, options?: CallOptions): Promise<Deployment> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}`;
     let resp: Deployment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDeploymentSchema);
     };
     await executeCall(call, options);
@@ -313,21 +247,14 @@ export class Client {
   }
 
   /** Retrieves a resource operation by its resource name. */
-  async getOperation(
-    req: GetOperationRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async getOperation(req: GetOperationRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -338,21 +265,14 @@ export class Client {
   }
 
   /** Retrieves a deployment resource by its resource name. */
-  async getResource(
-    req: GetResourceRequest,
-    options?: CallOptions
-  ): Promise<Resource> {
+  async getResource(req: GetResourceRequest, options?: CallOptions): Promise<Resource> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}`;
     let resp: Resource | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalResourceSchema);
     };
     await executeCall(call, options);
@@ -363,21 +283,14 @@ export class Client {
   }
 
   /** Retrieves a version by its resource name. */
-  async getVersion(
-    req: GetVersionRequest,
-    options?: CallOptions
-  ): Promise<Version> {
+  async getVersion(req: GetVersionRequest, options?: CallOptions): Promise<Version> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}`;
     let resp: Version | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalVersionSchema);
     };
     await executeCall(call, options);
@@ -389,16 +302,13 @@ export class Client {
 
   /**
    * Sends a heartbeat to renew the lock held by a version.
-   *
+   * 
    * The server validates that the version is the active (non-terminal)
    * version on the parent deployment and resets the lock expiry. If the
    * lock has already expired or the version is no longer active, the
    * server returns `ABORTED`.
    */
-  async heartbeat(
-    req: HeartbeatRequest,
-    options?: CallOptions
-  ): Promise<HeartbeatResponse> {
+  async heartbeat(req: HeartbeatRequest, options?: CallOptions): Promise<HeartbeatResponse> {
     const url = `${this.host}/api/2.0/bundle/${req.name ?? ''}/heartbeat`;
     const body = marshalRequest(req, marshalHeartbeatRequestSchema);
     let resp: HeartbeatResponse | undefined;
@@ -406,11 +316,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalHeartbeatResponseSchema);
     };
     await executeCall(call, options);
@@ -421,10 +327,7 @@ export class Client {
   }
 
   /** Lists deployments in the workspace. */
-  async listDeployments(
-    req: ListDeploymentsRequest,
-    options?: CallOptions
-  ): Promise<ListDeploymentsResponse> {
+  async listDeployments(req: ListDeploymentsRequest, options?: CallOptions): Promise<ListDeploymentsResponse> {
     const url = `${this.host}/api/2.0/bundle/deployments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -440,11 +343,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListDeploymentsResponseSchema);
     };
     await executeCall(call, options);
@@ -454,10 +353,8 @@ export class Client {
     return resp;
   }
 
-  async *listDeploymentsIter(
-    req: ListDeploymentsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Deployment> {
+
+  async *listDeploymentsIter(req: ListDeploymentsRequest, options?: CallOptions): AsyncGenerator<Deployment> {
     const pageReq: ListDeploymentsRequest = {...req};
     for (;;) {
       const resp = await this.listDeployments(pageReq, options);
@@ -471,11 +368,9 @@ export class Client {
     }
   }
 
+
   /** Lists resource operations under a version. */
-  async listOperations(
-    req: ListOperationsRequest,
-    options?: CallOptions
-  ): Promise<ListOperationsResponse> {
+  async listOperations(req: ListOperationsRequest, options?: CallOptions): Promise<ListOperationsResponse> {
     const url = `${this.host}/api/2.0/bundle/${req.parent ?? ''}/operations`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -491,11 +386,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListOperationsResponseSchema);
     };
     await executeCall(call, options);
@@ -505,10 +396,8 @@ export class Client {
     return resp;
   }
 
-  async *listOperationsIter(
-    req: ListOperationsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Operation> {
+
+  async *listOperationsIter(req: ListOperationsRequest, options?: CallOptions): AsyncGenerator<Operation> {
     const pageReq: ListOperationsRequest = {...req};
     for (;;) {
       const resp = await this.listOperations(pageReq, options);
@@ -522,11 +411,9 @@ export class Client {
     }
   }
 
+
   /** Lists resources under a deployment. */
-  async listResources(
-    req: ListResourcesRequest,
-    options?: CallOptions
-  ): Promise<ListResourcesResponse> {
+  async listResources(req: ListResourcesRequest, options?: CallOptions): Promise<ListResourcesResponse> {
     const url = `${this.host}/api/2.0/bundle/${req.parent ?? ''}/resources`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -542,11 +429,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListResourcesResponseSchema);
     };
     await executeCall(call, options);
@@ -556,10 +439,8 @@ export class Client {
     return resp;
   }
 
-  async *listResourcesIter(
-    req: ListResourcesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Resource> {
+
+  async *listResourcesIter(req: ListResourcesRequest, options?: CallOptions): AsyncGenerator<Resource> {
     const pageReq: ListResourcesRequest = {...req};
     for (;;) {
       const resp = await this.listResources(pageReq, options);
@@ -573,14 +454,12 @@ export class Client {
     }
   }
 
+
   /**
    * Lists versions under a deployment, ordered by version_id descending
    * (most recent first).
    */
-  async listVersions(
-    req: ListVersionsRequest,
-    options?: CallOptions
-  ): Promise<ListVersionsResponse> {
+  async listVersions(req: ListVersionsRequest, options?: CallOptions): Promise<ListVersionsResponse> {
     const url = `${this.host}/api/2.0/bundle/${req.parent ?? ''}/versions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -596,11 +475,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListVersionsResponseSchema);
     };
     await executeCall(call, options);
@@ -610,10 +485,8 @@ export class Client {
     return resp;
   }
 
-  async *listVersionsIter(
-    req: ListVersionsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Version> {
+
+  async *listVersionsIter(req: ListVersionsRequest, options?: CallOptions): AsyncGenerator<Version> {
     const pageReq: ListVersionsRequest = {...req};
     for (;;) {
       const resp = await this.listVersions(pageReq, options);
@@ -626,4 +499,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

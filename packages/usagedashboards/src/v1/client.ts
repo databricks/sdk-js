@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateBillingUsageDashboardRequest,
@@ -65,29 +59,16 @@ export class Client {
   }
 
   /** Create a usage dashboard specified by workspaceId, accountId, and dashboard type. */
-  async createBillingUsageDashboard(
-    req: CreateBillingUsageDashboardRequest,
-    options?: CallOptions
-  ): Promise<CreateBillingUsageDashboardRequest_Response> {
+  async createBillingUsageDashboard(req: CreateBillingUsageDashboardRequest, options?: CallOptions): Promise<CreateBillingUsageDashboardRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
-    const body = marshalRequest(
-      req,
-      marshalCreateBillingUsageDashboardRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateBillingUsageDashboardRequestSchema);
     let resp: CreateBillingUsageDashboardRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateBillingUsageDashboardRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateBillingUsageDashboardRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -97,10 +78,7 @@ export class Client {
   }
 
   /** Get a usage dashboard specified by workspaceId, accountId, and dashboard type. */
-  async getBillingUsageDashboard(
-    req: GetBillingUsageDashboardRequest,
-    options?: CallOptions
-  ): Promise<GetBillingUsageDashboardRequest_Response> {
+  async getBillingUsageDashboard(req: GetBillingUsageDashboardRequest, options?: CallOptions): Promise<GetBillingUsageDashboardRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
     const params = new URLSearchParams();
     if (req.workspaceId !== undefined) {
@@ -116,15 +94,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetBillingUsageDashboardRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetBillingUsageDashboardRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

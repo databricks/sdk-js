@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum SortSpec_Field {
   /** If unspecified, the server will decide the default field to sort on. */
@@ -116,7 +117,7 @@ export interface ListBudgetPoliciesRequest {
    * A page token, received from a previous `ListServerlessPolicies` call.
    * Provide this to retrieve the subsequent page.
    * If unspecified, the first page will be returned.
-   *
+   * 
    * When paginating, all other parameters provided to `ListServerlessPoliciesRequest` must match
    * the call that provided the page token.
    */
@@ -169,9 +170,7 @@ export const unmarshalBudgetPolicySchema: z.ZodType<BudgetPolicy> = z
   .object({
     policy_id: z.string().optional(),
     policy_name: z.string().optional(),
-    custom_tags: z
-      .array(z.lazy(() => unmarshalCustomPolicyTagSchema))
-      .optional(),
+    custom_tags: z.array(z.lazy(() => unmarshalCustomPolicyTagSchema)).optional(),
     binding_workspace_ids: z.array(z.number()).optional(),
   })
   .transform(d => ({
@@ -191,18 +190,17 @@ export const unmarshalCustomPolicyTagSchema: z.ZodType<CustomPolicyTag> = z
     value: d.value,
   }));
 
-export const unmarshalListBudgetPoliciesResponseSchema: z.ZodType<ListBudgetPoliciesResponse> =
-  z
-    .object({
-      policies: z.array(z.lazy(() => unmarshalBudgetPolicySchema)).optional(),
-      next_page_token: z.string().optional(),
-      previous_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-      nextPageToken: d.next_page_token,
-      previousPageToken: d.previous_page_token,
-    }));
+export const unmarshalListBudgetPoliciesResponseSchema: z.ZodType<ListBudgetPoliciesResponse> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalBudgetPolicySchema)).optional(),
+    next_page_token: z.string().optional(),
+    previous_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    nextPageToken: d.next_page_token,
+    previousPageToken: d.previous_page_token,
+  }));
 
 export const marshalBudgetPolicySchema: z.ZodType = z
   .object({
@@ -252,7 +250,9 @@ export const marshalFilterSchema: z.ZodType = z
     creator_user_name: d.creatorUserName,
   }));
 
-export const marshalLimitConfigSchema: z.ZodType = z.object({});
+export const marshalLimitConfigSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalSortSpecSchema: z.ZodType = z
   .object({

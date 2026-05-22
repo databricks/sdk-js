@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateInstancePoolRequest,
@@ -72,10 +66,7 @@ export class Client {
   }
 
   /** Creates a new instance pool using idle and ready-to-use cloud instances. */
-  async createInstancePool(
-    req: CreateInstancePoolRequest,
-    options?: CallOptions
-  ): Promise<CreateInstancePoolRequest_Response> {
+  async createInstancePool(req: CreateInstancePoolRequest, options?: CallOptions): Promise<CreateInstancePoolRequest_Response> {
     const url = `${this.host}/api/2.0/instance-pools/create`;
     const body = marshalRequest(req, marshalCreateInstancePoolRequestSchema);
     let resp: CreateInstancePoolRequest_Response | undefined;
@@ -83,15 +74,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateInstancePoolRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateInstancePoolRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -101,10 +85,7 @@ export class Client {
   }
 
   /** Deletes the instance pool permanently. The idle instances in the pool are terminated asynchronously. */
-  async deleteInstancePool(
-    req: DeleteInstancePoolRequest,
-    options?: CallOptions
-  ): Promise<DeleteInstancePoolRequest_Response> {
+  async deleteInstancePool(req: DeleteInstancePoolRequest, options?: CallOptions): Promise<DeleteInstancePoolRequest_Response> {
     const url = `${this.host}/api/2.0/instance-pools/delete`;
     const body = marshalRequest(req, marshalDeleteInstancePoolRequestSchema);
     let resp: DeleteInstancePoolRequest_Response | undefined;
@@ -112,15 +93,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteInstancePoolRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteInstancePoolRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -130,10 +104,7 @@ export class Client {
   }
 
   /** Modifies the configuration of an existing instance pool. */
-  async editInstancePool(
-    req: EditInstancePoolRequest,
-    options?: CallOptions
-  ): Promise<EditInstancePoolRequest_Response> {
+  async editInstancePool(req: EditInstancePoolRequest, options?: CallOptions): Promise<EditInstancePoolRequest_Response> {
     const url = `${this.host}/api/2.0/instance-pools/edit`;
     const body = marshalRequest(req, marshalEditInstancePoolRequestSchema);
     let resp: EditInstancePoolRequest_Response | undefined;
@@ -141,15 +112,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalEditInstancePoolRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalEditInstancePoolRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -159,10 +123,7 @@ export class Client {
   }
 
   /** Retrieve the information for an instance pool based on its identifier. */
-  async getInstancePool(
-    req: GetInstancePoolRequest,
-    options?: CallOptions
-  ): Promise<GetInstancePoolRequest_Response> {
+  async getInstancePool(req: GetInstancePoolRequest, options?: CallOptions): Promise<GetInstancePoolRequest_Response> {
     const url = `${this.host}/api/2.0/instance-pools/get`;
     const params = new URLSearchParams();
     if (req.instancePoolId !== undefined) {
@@ -175,15 +136,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetInstancePoolRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetInstancePoolRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -193,25 +147,15 @@ export class Client {
   }
 
   /** Gets a list of instance pools with their statistics. */
-  async listInstancePools(
-    _req: ListInstancePoolsRequest,
-    options?: CallOptions
-  ): Promise<ListInstancePoolsRequest_Response> {
+  async listInstancePools(_req: ListInstancePoolsRequest, options?: CallOptions): Promise<ListInstancePoolsRequest_Response> {
     const url = `${this.host}/api/2.0/instance-pools/list`;
     let resp: ListInstancePoolsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListInstancePoolsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListInstancePoolsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

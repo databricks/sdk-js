@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateTagAssignmentRequest,
@@ -64,10 +58,7 @@ export class Client {
   }
 
   /** Create a tag assignment */
-  async createTagAssignment(
-    req: CreateTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<TagAssignment> {
+  async createTagAssignment(req: CreateTagAssignmentRequest, options?: CallOptions): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments`;
     const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
     let resp: TagAssignment | undefined;
@@ -75,11 +66,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
     await executeCall(call, options);
@@ -90,40 +77,26 @@ export class Client {
   }
 
   /** Delete a tag assignment */
-  async deleteTagAssignment(
-    req: DeleteTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteTagAssignment(req: DeleteTagAssignmentRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get a tag assignment */
-  async getTagAssignment(
-    req: GetTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<TagAssignment> {
+  async getTagAssignment(req: GetTagAssignmentRequest, options?: CallOptions): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: TagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
     await executeCall(call, options);
@@ -134,10 +107,7 @@ export class Client {
   }
 
   /** List the tag assignments for an entity */
-  async listTagAssignments(
-    req: ListTagAssignmentsRequest,
-    options?: CallOptions
-  ): Promise<ListTagAssignmentsResponse> {
+  async listTagAssignments(req: ListTagAssignmentsRequest, options?: CallOptions): Promise<ListTagAssignmentsResponse> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -153,11 +123,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListTagAssignmentsResponseSchema);
     };
     await executeCall(call, options);
@@ -167,10 +133,8 @@ export class Client {
     return resp;
   }
 
-  async *listTagAssignmentsIter(
-    req: ListTagAssignmentsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<TagAssignment> {
+
+  async *listTagAssignmentsIter(req: ListTagAssignmentsRequest, options?: CallOptions): AsyncGenerator<TagAssignment> {
     const pageReq: ListTagAssignmentsRequest = {...req};
     for (;;) {
       const resp = await this.listTagAssignments(pageReq, options);
@@ -184,11 +148,9 @@ export class Client {
     }
   }
 
+
   /** Update a tag assignment */
-  async updateTagAssignment(
-    req: UpdateTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<TagAssignment> {
+  async updateTagAssignment(req: UpdateTagAssignmentRequest, options?: CallOptions): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.tagAssignment?.entityType ?? ''}/${req.tagAssignment?.entityId ?? ''}/tags/${req.tagAssignment?.tagKey ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -201,18 +163,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
     await executeCall(call, options);

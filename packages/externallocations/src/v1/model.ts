@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum IsolationMode {
   ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
   ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
@@ -169,14 +170,14 @@ export interface ExternalLocationInfo {
 
 export interface FileEventQueue {
   provided?:
-    | {$case: 'providedAqs'; providedAqs: AzureQueueStorage}
-    | {$case: 'providedSqs'; providedSqs: AwsSqsQueue}
-    | {$case: 'providedPubsub'; providedPubsub: GcpPubsub}
+    | { $case: 'providedAqs'; providedAqs: AzureQueueStorage }
+    | { $case: 'providedSqs'; providedSqs: AwsSqsQueue }
+    | { $case: 'providedPubsub'; providedPubsub: GcpPubsub }
     | undefined;
   managed?:
-    | {$case: 'managedAqs'; managedAqs: AzureQueueStorage}
-    | {$case: 'managedSqs'; managedSqs: AwsSqsQueue}
-    | {$case: 'managedPubsub'; managedPubsub: GcpPubsub}
+    | { $case: 'managedAqs'; managedAqs: AzureQueueStorage }
+    | { $case: 'managedSqs'; managedSqs: AwsSqsQueue }
+    | { $case: 'managedPubsub'; managedPubsub: GcpPubsub }
     | undefined;
 }
 
@@ -321,75 +322,63 @@ export const unmarshalAzureQueueStorageSchema: z.ZodType<AzureQueueStorage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteExternalLocationRequest_ResponseSchema: z.ZodType<DeleteExternalLocationRequest_Response> =
-  z.object({});
+export const unmarshalDeleteExternalLocationRequest_ResponseSchema: z.ZodType<DeleteExternalLocationRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
   .object({
-    sse_encryption_details: z
-      .lazy(() => unmarshalSseEncryptionDetailsSchema)
-      .optional(),
+    sse_encryption_details: z.lazy(() => unmarshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
-    encryptionDetailsType:
-      d.sse_encryption_details !== undefined
-        ? {
-            $case: 'sseEncryptionDetails' as const,
-            sseEncryptionDetails: d.sse_encryption_details,
-          }
-        : undefined,
+    encryptionDetailsType: d.sse_encryption_details !== undefined ? { $case: 'sseEncryptionDetails' as const, sseEncryptionDetails: d.sse_encryption_details } : undefined,
   }));
 
-export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> =
-  z
-    .object({
-      name: z.string().optional(),
-      url: z.string().optional(),
-      credential_name: z.string().optional(),
-      read_only: z.boolean().optional(),
-      comment: z.string().optional(),
-      enable_file_events: z.boolean().optional(),
-      file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
-      owner: z.string().optional(),
-      encryption_details: z
-        .lazy(() => unmarshalEncryptionDetailsSchema)
-        .optional(),
-      metastore_id: z.string().optional(),
-      credential_id: z.string().optional(),
-      created_at: z.number().optional(),
-      created_by: z.string().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.string().optional(),
-      browse_only: z.boolean().optional(),
-      isolation_mode: z.enum(IsolationMode).optional(),
-      fallback: z.boolean().optional(),
-      effective_enable_file_events: z.boolean().optional(),
-      effective_file_event_queue: z
-        .lazy(() => unmarshalFileEventQueueSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      url: d.url,
-      credentialName: d.credential_name,
-      readOnly: d.read_only,
-      comment: d.comment,
-      enableFileEvents: d.enable_file_events,
-      fileEventQueue: d.file_event_queue,
-      owner: d.owner,
-      encryptionDetails: d.encryption_details,
-      metastoreId: d.metastore_id,
-      credentialId: d.credential_id,
-      createdAt: d.created_at,
-      createdBy: d.created_by,
-      updatedAt: d.updated_at,
-      updatedBy: d.updated_by,
-      browseOnly: d.browse_only,
-      isolationMode: d.isolation_mode,
-      fallback: d.fallback,
-      effectiveEnableFileEvents: d.effective_enable_file_events,
-      effectiveFileEventQueue: d.effective_file_event_queue,
-    }));
+export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> = z
+  .object({
+    name: z.string().optional(),
+    url: z.string().optional(),
+    credential_name: z.string().optional(),
+    read_only: z.boolean().optional(),
+    comment: z.string().optional(),
+    enable_file_events: z.boolean().optional(),
+    file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
+    owner: z.string().optional(),
+    encryption_details: z.lazy(() => unmarshalEncryptionDetailsSchema).optional(),
+    metastore_id: z.string().optional(),
+    credential_id: z.string().optional(),
+    created_at: z.number().optional(),
+    created_by: z.string().optional(),
+    updated_at: z.number().optional(),
+    updated_by: z.string().optional(),
+    browse_only: z.boolean().optional(),
+    isolation_mode: z.enum(IsolationMode).optional(),
+    fallback: z.boolean().optional(),
+    effective_enable_file_events: z.boolean().optional(),
+    effective_file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    url: d.url,
+    credentialName: d.credential_name,
+    readOnly: d.read_only,
+    comment: d.comment,
+    enableFileEvents: d.enable_file_events,
+    fileEventQueue: d.file_event_queue,
+    owner: d.owner,
+    encryptionDetails: d.encryption_details,
+    metastoreId: d.metastore_id,
+    credentialId: d.credential_id,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
+    updatedAt: d.updated_at,
+    updatedBy: d.updated_by,
+    browseOnly: d.browse_only,
+    isolationMode: d.isolation_mode,
+    fallback: d.fallback,
+    effectiveEnableFileEvents: d.effective_enable_file_events,
+    effectiveFileEventQueue: d.effective_file_event_queue,
+  }));
 
 export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
   .object({
@@ -401,25 +390,8 @@ export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
     managed_pubsub: z.lazy(() => unmarshalGcpPubsubSchema).optional(),
   })
   .transform(d => ({
-    provided:
-      d.provided_aqs !== undefined
-        ? {$case: 'providedAqs' as const, providedAqs: d.provided_aqs}
-        : d.provided_sqs !== undefined
-          ? {$case: 'providedSqs' as const, providedSqs: d.provided_sqs}
-          : d.provided_pubsub !== undefined
-            ? {
-                $case: 'providedPubsub' as const,
-                providedPubsub: d.provided_pubsub,
-              }
-            : undefined,
-    managed:
-      d.managed_aqs !== undefined
-        ? {$case: 'managedAqs' as const, managedAqs: d.managed_aqs}
-        : d.managed_sqs !== undefined
-          ? {$case: 'managedSqs' as const, managedSqs: d.managed_sqs}
-          : d.managed_pubsub !== undefined
-            ? {$case: 'managedPubsub' as const, managedPubsub: d.managed_pubsub}
-            : undefined,
+    provided: d.provided_aqs !== undefined ? { $case: 'providedAqs' as const, providedAqs: d.provided_aqs } : d.provided_sqs !== undefined ? { $case: 'providedSqs' as const, providedSqs: d.provided_sqs } : d.provided_pubsub !== undefined ? { $case: 'providedPubsub' as const, providedPubsub: d.provided_pubsub } : undefined,
+    managed: d.managed_aqs !== undefined ? { $case: 'managedAqs' as const, managedAqs: d.managed_aqs } : d.managed_sqs !== undefined ? { $case: 'managedSqs' as const, managedSqs: d.managed_sqs } : d.managed_pubsub !== undefined ? { $case: 'managedPubsub' as const, managedPubsub: d.managed_pubsub } : undefined,
   }));
 
 export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
@@ -433,29 +405,25 @@ export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListExternalLocationsRequest_ResponseSchema: z.ZodType<ListExternalLocationsRequest_Response> =
-  z
-    .object({
-      external_locations: z
-        .array(z.lazy(() => unmarshalExternalLocationInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      externalLocations: d.external_locations,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListExternalLocationsRequest_ResponseSchema: z.ZodType<ListExternalLocationsRequest_Response> = z
+  .object({
+    external_locations: z.array(z.lazy(() => unmarshalExternalLocationInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    externalLocations: d.external_locations,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
-  z
-    .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
-      aws_kms_key_arn: z.string().optional(),
-    })
-    .transform(d => ({
-      algorithm: d.algorithm,
-      awsKmsKeyArn: d.aws_kms_key_arn,
-    }));
+export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> = z
+  .object({
+    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    aws_kms_key_arn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    awsKmsKeyArn: d.aws_kms_key_arn,
+  }));
 
 export const marshalAwsSqsQueueSchema: z.ZodType = z
   .object({
@@ -503,9 +471,7 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
     isolationMode: z.enum(IsolationMode).optional(),
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
-    effectiveFileEventQueue: z
-      .lazy(() => marshalFileEventQueueSchema)
-      .optional(),
+    effectiveFileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
   })
   .transform(d => ({
     skip_validation: d.skipValidation,
@@ -533,75 +499,24 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    encryptionDetailsType: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('sseEncryptionDetails'),
-          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
-        }),
-      ])
-      .optional(),
+    encryptionDetailsType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('sseEncryptionDetails'), sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
-      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
-    }),
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && { sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails }),
   }));
 
 export const marshalFileEventQueueSchema: z.ZodType = z
   .object({
-    provided: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('providedAqs'),
-          providedAqs: z.lazy(() => marshalAzureQueueStorageSchema),
-        }),
-        z.object({
-          $case: z.literal('providedSqs'),
-          providedSqs: z.lazy(() => marshalAwsSqsQueueSchema),
-        }),
-        z.object({
-          $case: z.literal('providedPubsub'),
-          providedPubsub: z.lazy(() => marshalGcpPubsubSchema),
-        }),
-      ])
-      .optional(),
-    managed: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('managedAqs'),
-          managedAqs: z.lazy(() => marshalAzureQueueStorageSchema),
-        }),
-        z.object({
-          $case: z.literal('managedSqs'),
-          managedSqs: z.lazy(() => marshalAwsSqsQueueSchema),
-        }),
-        z.object({
-          $case: z.literal('managedPubsub'),
-          managedPubsub: z.lazy(() => marshalGcpPubsubSchema),
-        }),
-      ])
-      .optional(),
+    provided: z.discriminatedUnion('$case', [z.object({ $case: z.literal('providedAqs'), providedAqs: z.lazy(() => marshalAzureQueueStorageSchema) }), z.object({ $case: z.literal('providedSqs'), providedSqs: z.lazy(() => marshalAwsSqsQueueSchema) }), z.object({ $case: z.literal('providedPubsub'), providedPubsub: z.lazy(() => marshalGcpPubsubSchema) })]).optional(),
+    managed: z.discriminatedUnion('$case', [z.object({ $case: z.literal('managedAqs'), managedAqs: z.lazy(() => marshalAzureQueueStorageSchema) }), z.object({ $case: z.literal('managedSqs'), managedSqs: z.lazy(() => marshalAwsSqsQueueSchema) }), z.object({ $case: z.literal('managedPubsub'), managedPubsub: z.lazy(() => marshalGcpPubsubSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.provided?.$case === 'providedAqs' && {
-      provided_aqs: d.provided.providedAqs,
-    }),
-    ...(d.provided?.$case === 'providedSqs' && {
-      provided_sqs: d.provided.providedSqs,
-    }),
-    ...(d.provided?.$case === 'providedPubsub' && {
-      provided_pubsub: d.provided.providedPubsub,
-    }),
-    ...(d.managed?.$case === 'managedAqs' && {
-      managed_aqs: d.managed.managedAqs,
-    }),
-    ...(d.managed?.$case === 'managedSqs' && {
-      managed_sqs: d.managed.managedSqs,
-    }),
-    ...(d.managed?.$case === 'managedPubsub' && {
-      managed_pubsub: d.managed.managedPubsub,
-    }),
+    ...(d.provided?.$case === 'providedAqs' && { provided_aqs: d.provided.providedAqs }),
+    ...(d.provided?.$case === 'providedSqs' && { provided_sqs: d.provided.providedSqs }),
+    ...(d.provided?.$case === 'providedPubsub' && { provided_pubsub: d.provided.providedPubsub }),
+    ...(d.managed?.$case === 'managedAqs' && { managed_aqs: d.managed.managedAqs }),
+    ...(d.managed?.$case === 'managedSqs' && { managed_sqs: d.managed.managedSqs }),
+    ...(d.managed?.$case === 'managedPubsub' && { managed_pubsub: d.managed.managedPubsub }),
   }));
 
 export const marshalGcpPubsubSchema: z.ZodType = z
@@ -649,9 +564,7 @@ export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
     isolationMode: z.enum(IsolationMode).optional(),
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
-    effectiveFileEventQueue: z
-      .lazy(() => marshalFileEventQueueSchema)
-      .optional(),
+    effectiveFileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
   })
   .transform(d => ({
     name_arg: d.nameArg,

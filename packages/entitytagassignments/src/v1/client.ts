@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateEntityTagAssignmentRequest,
@@ -65,33 +59,23 @@ export class Client {
 
   /**
    * Creates a tag assignment for an Unity Catalog entity.
-   *
+   * 
    * To add tags to Unity Catalog entities, you must own the entity or have the following privileges:
    * - **APPLY TAG** on the entity
    * - **USE SCHEMA** on the entity's parent schema
    * - **USE CATALOG** on the entity's parent catalog
-   *
+   * 
    * To add a governed tag to Unity Catalog entities, you must also have the **ASSIGN** or **MANAGE** permission on the tag policy. See [Manage tag policy permissions](https://docs.databricks.com/aws/en/admin/tag-policies/manage-permissions).
    */
-  async createEntityTagAssignment(
-    req: CreateEntityTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<EntityTagAssignment> {
+  async createEntityTagAssignment(req: CreateEntityTagAssignmentRequest, options?: CallOptions): Promise<EntityTagAssignment> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments`;
-    const body = marshalRequest(
-      req.tagAssignment,
-      marshalEntityTagAssignmentSchema
-    );
+    const body = marshalRequest(req.tagAssignment, marshalEntityTagAssignmentSchema);
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEntityTagAssignmentSchema);
     };
     await executeCall(call, options);
@@ -103,48 +87,34 @@ export class Client {
 
   /**
    * Deletes a tag assignment for an Unity Catalog entity by its key.
-   *
+   * 
    * To delete tags from Unity Catalog entities, you must own the entity or have the following privileges:
    * - **APPLY TAG** on the entity
    * - **USE_SCHEMA** on the entity's parent schema
    * - **USE_CATALOG** on the entity's parent catalog
-   *
+   * 
    * To delete a governed tag from Unity Catalog entities, you must also have the **ASSIGN** or **MANAGE** permission on the tag policy. See [Manage tag policy permissions](https://docs.databricks.com/aws/en/admin/tag-policies/manage-permissions).
    */
-  async deleteEntityTagAssignment(
-    req: DeleteEntityTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteEntityTagAssignment(req: DeleteEntityTagAssignmentRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments/${req.entityType ?? ''}/${req.entityName ?? ''}/tags/${req.tagKey ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets a tag assignment for an Unity Catalog entity by tag key. */
-  async getEntityTagAssignment(
-    req: GetEntityTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<EntityTagAssignment> {
+  async getEntityTagAssignment(req: GetEntityTagAssignmentRequest, options?: CallOptions): Promise<EntityTagAssignment> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments/${req.entityType ?? ''}/${req.entityName ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEntityTagAssignmentSchema);
     };
     await executeCall(call, options);
@@ -156,14 +126,11 @@ export class Client {
 
   /**
    * List tag assignments for an Unity Catalog entity
-   *
+   * 
    * PAGINATION BEHAVIOR: The API is by default paginated, a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listEntityTagAssignments(
-    req: ListEntityTagAssignmentsRequest,
-    options?: CallOptions
-  ): Promise<ListEntityTagAssignmentsResponse> {
+  async listEntityTagAssignments(req: ListEntityTagAssignmentsRequest, options?: CallOptions): Promise<ListEntityTagAssignmentsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments/${req.entityType ?? ''}/${req.entityName ?? ''}/tags`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -179,15 +146,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListEntityTagAssignmentsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListEntityTagAssignmentsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -196,10 +156,8 @@ export class Client {
     return resp;
   }
 
-  async *listEntityTagAssignmentsIter(
-    req: ListEntityTagAssignmentsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<EntityTagAssignment> {
+
+  async *listEntityTagAssignmentsIter(req: ListEntityTagAssignmentsRequest, options?: CallOptions): AsyncGenerator<EntityTagAssignment> {
     const pageReq: ListEntityTagAssignmentsRequest = {...req};
     for (;;) {
       const resp = await this.listEntityTagAssignments(pageReq, options);
@@ -213,20 +171,18 @@ export class Client {
     }
   }
 
+
   /**
    * Updates an existing tag assignment for an Unity Catalog entity.
-   *
+   * 
    * To update tags to Unity Catalog entities, you must own the entity or have the following privileges:
    * - **APPLY TAG** on the entity
    * - **USE SCHEMA** on the entity's parent schema
    * - **USE CATALOG** on the entity's parent catalog
-   *
+   * 
    * To update a governed tag to Unity Catalog entities, you must also have the **ASSIGN** or **MANAGE** permission on the tag policy. See [Manage tag policy permissions](https://docs.databricks.com/aws/en/admin/tag-policies/manage-permissions).
    */
-  async updateEntityTagAssignment(
-    req: UpdateEntityTagAssignmentRequest,
-    options?: CallOptions
-  ): Promise<EntityTagAssignment> {
+  async updateEntityTagAssignment(req: UpdateEntityTagAssignmentRequest, options?: CallOptions): Promise<EntityTagAssignment> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments/${req.tagAssignment?.entityType ?? ''}/${req.tagAssignment?.entityName ?? ''}/tags/${req.tagAssignment?.tagKey ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -234,26 +190,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.tagAssignment,
-      marshalEntityTagAssignmentSchema
-    );
+    const body = marshalRequest(req.tagAssignment, marshalEntityTagAssignmentSchema);
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEntityTagAssignmentSchema);
     };
     await executeCall(call, options);

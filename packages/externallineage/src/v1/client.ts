@@ -9,14 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-  flattenQueryParams,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse, flattenQueryParams} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExternalLineageRelationshipRequest,
@@ -68,29 +61,16 @@ export class Client {
   }
 
   /** Creates an external lineage relationship between a <Databricks> or external metadata object and another external metadata object. */
-  async createExternalLineageRelationship(
-    req: CreateExternalLineageRelationshipRequest,
-    options?: CallOptions
-  ): Promise<ExternalLineageRelationship> {
+  async createExternalLineageRelationship(req: CreateExternalLineageRelationshipRequest, options?: CallOptions): Promise<ExternalLineageRelationship> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-lineage`;
-    const body = marshalRequest(
-      req.externalLineageRelationship,
-      marshalCreateRequestExternalLineageSchema
-    );
+    const body = marshalRequest(req.externalLineageRelationship, marshalCreateRequestExternalLineageSchema);
     let resp: ExternalLineageRelationship | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalExternalLineageRelationshipSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalExternalLineageRelationshipSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -100,20 +80,11 @@ export class Client {
   }
 
   /** Deletes an external lineage relationship between a <Databricks> or external metadata object and another external metadata object. */
-  async deleteExternalLineageRelationship(
-    req: DeleteExternalLineageRelationshipRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteExternalLineageRelationship(req: DeleteExternalLineageRelationshipRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-lineage`;
     const params = new URLSearchParams();
     if (req.externalLineageRelationship !== undefined) {
-      flattenQueryParams(
-        'external_lineage_relationship',
-        marshalDeleteRequestExternalLineageSchema.parse(
-          req.externalLineageRelationship
-        ),
-        params
-      );
+      flattenQueryParams('external_lineage_relationship', marshalDeleteRequestExternalLineageSchema.parse(req.externalLineageRelationship), params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -121,28 +92,17 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Lists external lineage relationships of a <Databricks> object or external metadata given a supplied direction. */
-  async listExternalLineageRelationships(
-    req: ListExternalLineageRelationshipsRequest,
-    options?: CallOptions
-  ): Promise<ListExternalLineageRelationshipsResponse> {
+  async listExternalLineageRelationships(req: ListExternalLineageRelationshipsRequest, options?: CallOptions): Promise<ListExternalLineageRelationshipsResponse> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-lineage`;
     const params = new URLSearchParams();
     if (req.objectInfo !== undefined) {
-      flattenQueryParams(
-        'object_info',
-        marshalExternalLineageRelationshipObjectSchema.parse(req.objectInfo),
-        params
-      );
+      flattenQueryParams('object_info', marshalExternalLineageRelationshipObjectSchema.parse(req.objectInfo), params);
     }
     if (req.lineageDirection !== undefined) {
       params.append('lineage_direction', req.lineageDirection);
@@ -160,15 +120,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListExternalLineageRelationshipsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListExternalLineageRelationshipsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -177,16 +130,11 @@ export class Client {
     return resp;
   }
 
-  async *listExternalLineageRelationshipsIter(
-    req: ListExternalLineageRelationshipsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ExternalLineageInfo> {
+
+  async *listExternalLineageRelationshipsIter(req: ListExternalLineageRelationshipsRequest, options?: CallOptions): AsyncGenerator<ExternalLineageInfo> {
     const pageReq: ListExternalLineageRelationshipsRequest = {...req};
     for (;;) {
-      const resp = await this.listExternalLineageRelationships(
-        pageReq,
-        options
-      );
+      const resp = await this.listExternalLineageRelationships(pageReq, options);
       for (const item of resp.externalLineageRelationships ?? []) {
         yield item;
       }
@@ -197,11 +145,9 @@ export class Client {
     }
   }
 
+
   /** Updates an external lineage relationship between a <Databricks> or external metadata object and another external metadata object. */
-  async updateExternalLineageRelationship(
-    req: UpdateExternalLineageRelationshipRequest,
-    options?: CallOptions
-  ): Promise<ExternalLineageRelationship> {
+  async updateExternalLineageRelationship(req: UpdateExternalLineageRelationshipRequest, options?: CallOptions): Promise<ExternalLineageRelationship> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-lineage`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -209,30 +155,14 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.externalLineageRelationship,
-      marshalUpdateRequestExternalLineageSchema
-    );
+    const body = marshalRequest(req.externalLineageRelationship, marshalUpdateRequestExternalLineageSchema);
     let resp: ExternalLineageRelationship | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalExternalLineageRelationshipSchema
-      );
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalExternalLineageRelationshipSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

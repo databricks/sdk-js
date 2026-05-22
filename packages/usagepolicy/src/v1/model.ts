@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum SortSpec_Field {
   /** If unspecified, the server will decide the default field to sort on. */
@@ -139,26 +140,23 @@ export const unmarshalCustomPolicyTagSchema: z.ZodType<CustomPolicyTag> = z
     value: d.value,
   }));
 
-export const unmarshalListUsagePoliciesResponseSchema: z.ZodType<ListUsagePoliciesResponse> =
-  z
-    .object({
-      policies: z.array(z.lazy(() => unmarshalUsagePolicySchema)).optional(),
-      next_page_token: z.string().optional(),
-      previous_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-      nextPageToken: d.next_page_token,
-      previousPageToken: d.previous_page_token,
-    }));
+export const unmarshalListUsagePoliciesResponseSchema: z.ZodType<ListUsagePoliciesResponse> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalUsagePolicySchema)).optional(),
+    next_page_token: z.string().optional(),
+    previous_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    nextPageToken: d.next_page_token,
+    previousPageToken: d.previous_page_token,
+  }));
 
 export const unmarshalUsagePolicySchema: z.ZodType<UsagePolicy> = z
   .object({
     policy_id: z.string().optional(),
     policy_name: z.string().optional(),
-    custom_tags: z
-      .array(z.lazy(() => unmarshalCustomPolicyTagSchema))
-      .optional(),
+    custom_tags: z.array(z.lazy(() => unmarshalCustomPolicyTagSchema)).optional(),
     binding_workspace_ids: z.array(z.number()).optional(),
   })
   .transform(d => ({
@@ -202,7 +200,9 @@ export const marshalFilterSchema: z.ZodType = z
     creator_user_name: d.creatorUserName,
   }));
 
-export const marshalLimitConfigSchema: z.ZodType = z.object({});
+export const marshalLimitConfigSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalSortSpecSchema: z.ZodType = z
   .object({

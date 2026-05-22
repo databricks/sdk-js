@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** Enum representing the source type of a tag assignment */
 export enum TagAssignmentSourceType {
   /** Includes (but not limited to) tags manually assigned by users */
@@ -81,42 +82,35 @@ export interface UpdateEntityTagAssignmentRequest {
   updateMask?: FieldMask<EntityTagAssignment> | undefined;
 }
 
-export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> =
-  z
-    .object({
-      entity_name: z.string().optional(),
-      tag_key: z.string().optional(),
-      tag_value: z.string().optional(),
-      entity_type: z.string().optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      updated_by: z.string().optional(),
-      source_type: z.enum(TagAssignmentSourceType).optional(),
-    })
-    .transform(d => ({
-      entityName: d.entity_name,
-      tagKey: d.tag_key,
-      tagValue: d.tag_value,
-      entityType: d.entity_type,
-      updateTime: d.update_time,
-      updatedBy: d.updated_by,
-      sourceType: d.source_type,
-    }));
+export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> = z
+  .object({
+    entity_name: z.string().optional(),
+    tag_key: z.string().optional(),
+    tag_value: z.string().optional(),
+    entity_type: z.string().optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    updated_by: z.string().optional(),
+    source_type: z.enum(TagAssignmentSourceType).optional(),
+  })
+  .transform(d => ({
+    entityName: d.entity_name,
+    tagKey: d.tag_key,
+    tagValue: d.tag_value,
+    entityType: d.entity_type,
+    updateTime: d.update_time,
+    updatedBy: d.updated_by,
+    sourceType: d.source_type,
+  }));
 
-export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEntityTagAssignmentsResponse> =
-  z
-    .object({
-      tag_assignments: z
-        .array(z.lazy(() => unmarshalEntityTagAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      tagAssignments: d.tag_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEntityTagAssignmentsResponse> = z
+  .object({
+    tag_assignments: z.array(z.lazy(() => unmarshalEntityTagAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    tagAssignments: d.tag_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const marshalEntityTagAssignmentSchema: z.ZodType = z
   .object({
@@ -124,10 +118,7 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
     tagKey: z.string().optional(),
     tagValue: z.string().optional(),
     entityType: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     updatedBy: z.string().optional(),
     sourceType: z.enum(TagAssignmentSourceType).optional(),
   })
@@ -151,11 +142,6 @@ const entityTagAssignmentFieldMaskSchema: FieldMaskSchema = {
   updatedBy: {wire: 'updated_by'},
 };
 
-export function entityTagAssignmentFieldMask(
-  ...paths: string[]
-): FieldMask<EntityTagAssignment> {
-  return FieldMask.build<EntityTagAssignment>(
-    paths,
-    entityTagAssignmentFieldMaskSchema
-  );
+export function entityTagAssignmentFieldMask(...paths: string[]): FieldMask<EntityTagAssignment> {
+  return FieldMask.build<EntityTagAssignment>(paths, entityTagAssignmentFieldMaskSchema);
 }

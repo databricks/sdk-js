@@ -4,15 +4,9 @@ import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
-  z.union([
-    z.null(),
-    z.number(),
-    z.string(),
-    z.boolean(),
-    z.record(z.string(), jsonValueSchema),
-    z.array(jsonValueSchema),
-  ])
+  z.union([z.null(), z.number(), z.string(), z.boolean(), z.record(z.string(), jsonValueSchema), z.array(jsonValueSchema)])
 );
+
 
 /** The role of the message. One of [system, user, assistant]. */
 export enum ChatMessageRole {
@@ -205,81 +199,71 @@ export const unmarshalChatMessageSchema: z.ZodType<ChatMessage> = z
     content: d.content,
   }));
 
-export const unmarshalEmbeddingsV1ResponseEmbeddingElementSchema: z.ZodType<EmbeddingsV1ResponseEmbeddingElement> =
-  z
-    .object({
-      embedding: z.array(z.number()).optional(),
-      index: z.number().optional(),
-      object: z.enum(EmbeddingsV1ResponseEmbeddingElementObject).optional(),
-    })
-    .transform(d => ({
-      embedding: d.embedding,
-      index: d.index,
-      object: d.object,
-    }));
+export const unmarshalEmbeddingsV1ResponseEmbeddingElementSchema: z.ZodType<EmbeddingsV1ResponseEmbeddingElement> = z
+  .object({
+    embedding: z.array(z.number()).optional(),
+    index: z.number().optional(),
+    object: z.enum(EmbeddingsV1ResponseEmbeddingElementObject).optional(),
+  })
+  .transform(d => ({
+    embedding: d.embedding,
+    index: d.index,
+    object: d.object,
+  }));
 
-export const unmarshalExternalModelUsageElementSchema: z.ZodType<ExternalModelUsageElement> =
-  z
-    .object({
-      prompt_tokens: z.number().optional(),
-      completion_tokens: z.number().optional(),
-      total_tokens: z.number().optional(),
-    })
-    .transform(d => ({
-      promptTokens: d.prompt_tokens,
-      completionTokens: d.completion_tokens,
-      totalTokens: d.total_tokens,
-    }));
+export const unmarshalExternalModelUsageElementSchema: z.ZodType<ExternalModelUsageElement> = z
+  .object({
+    prompt_tokens: z.number().optional(),
+    completion_tokens: z.number().optional(),
+    total_tokens: z.number().optional(),
+  })
+  .transform(d => ({
+    promptTokens: d.prompt_tokens,
+    completionTokens: d.completion_tokens,
+    totalTokens: d.total_tokens,
+  }));
 
-export const unmarshalQueryEndpointResponseSchema: z.ZodType<QueryEndpointResponse> =
-  z
-    .object({
-      choices: z
-        .array(z.lazy(() => unmarshalV1ResponseChoiceElementSchema))
-        .optional(),
-      data: z
-        .array(
-          z.lazy(() => unmarshalEmbeddingsV1ResponseEmbeddingElementSchema)
-        )
-        .optional(),
-      model: z.string().optional(),
-      usage: z.lazy(() => unmarshalExternalModelUsageElementSchema).optional(),
-      id: z.string().optional(),
-      created: z.number().optional(),
-      object: z.enum(QueryEndpointResponseObject).optional(),
-      predictions: z.array(jsonValueSchema).optional(),
-      outputs: z.array(jsonValueSchema).optional(),
-      'served-model-name': z.string().optional(),
-    })
-    .transform(d => ({
-      choices: d.choices,
-      data: d.data,
-      model: d.model,
-      usage: d.usage,
-      id: d.id,
-      created: d.created,
-      object: d.object,
-      predictions: d.predictions,
-      outputs: d.outputs,
-      servedModelName: d['served-model-name'],
-    }));
+export const unmarshalQueryEndpointResponseSchema: z.ZodType<QueryEndpointResponse> = z
+  .object({
+    choices: z.array(z.lazy(() => unmarshalV1ResponseChoiceElementSchema)).optional(),
+    data: z.array(z.lazy(() => unmarshalEmbeddingsV1ResponseEmbeddingElementSchema)).optional(),
+    model: z.string().optional(),
+    usage: z.lazy(() => unmarshalExternalModelUsageElementSchema).optional(),
+    id: z.string().optional(),
+    created: z.number().optional(),
+    object: z.enum(QueryEndpointResponseObject).optional(),
+    predictions: z.array(jsonValueSchema).optional(),
+    outputs: z.array(jsonValueSchema).optional(),
+    "served-model-name": z.string().optional(),
+  })
+  .transform(d => ({
+    choices: d.choices,
+    data: d.data,
+    model: d.model,
+    usage: d.usage,
+    id: d.id,
+    created: d.created,
+    object: d.object,
+    predictions: d.predictions,
+    outputs: d.outputs,
+    servedModelName: d["served-model-name"],
+  }));
 
-export const unmarshalV1ResponseChoiceElementSchema: z.ZodType<V1ResponseChoiceElement> =
-  z
-    .object({
-      text: z.string().optional(),
-      message: z.lazy(() => unmarshalChatMessageSchema).optional(),
-      index: z.number().optional(),
-      finishReason: z.string().optional(),
-      logprobs: z.number().optional(),
-    })
-    .transform(d => ({
-      text: d.text,
-      message: d.message,
-      index: d.index,
-      finishReason: d.finishReason,
-      logprobs: d.logprobs,
-    }));
+export const unmarshalV1ResponseChoiceElementSchema: z.ZodType<V1ResponseChoiceElement> = z
+  .object({
+    text: z.string().optional(),
+    message: z.lazy(() => unmarshalChatMessageSchema).optional(),
+    index: z.number().optional(),
+    finishReason: z.string().optional(),
+    logprobs: z.number().optional(),
+  })
+  .transform(d => ({
+    text: d.text,
+    message: d.message,
+    index: d.index,
+    finishReason: d.finishReason,
+    logprobs: d.logprobs,
+  }));
 
 export const marshalChatMessageSchema: z.ZodType = z
   .object({

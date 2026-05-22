@@ -2,10 +2,11 @@
 
 import {z} from 'zod';
 
+
 /**
  * *
  * Log Delivery Status
- *
+ * 
  * `ENABLED`: All dependencies have executed and succeeded
  * `DISABLED`: At least one dependency has succeeded
  */
@@ -240,79 +241,67 @@ export interface UpdateLogDeliveryConfigurationRequest {
 export interface UpdateLogDeliveryConfigurationRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<CreateLogDeliveryConfigurationRequest_Response> =
-  z
-    .object({
-      log_delivery_configuration: z
-        .lazy(() => unmarshalLogDeliveryConfigurationSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      logDeliveryConfiguration: d.log_delivery_configuration,
-    }));
+export const unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<CreateLogDeliveryConfigurationRequest_Response> = z
+  .object({
+    log_delivery_configuration: z.lazy(() => unmarshalLogDeliveryConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    logDeliveryConfiguration: d.log_delivery_configuration,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<GetLogDeliveryConfigurationRequest_Response> =
-  z
-    .object({
-      log_delivery_configuration: z
-        .lazy(() => unmarshalLogDeliveryConfigurationSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      logDeliveryConfiguration: d.log_delivery_configuration,
-    }));
+export const unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<GetLogDeliveryConfigurationRequest_Response> = z
+  .object({
+    log_delivery_configuration: z.lazy(() => unmarshalLogDeliveryConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    logDeliveryConfiguration: d.log_delivery_configuration,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<ListLogDeliveryConfigurationRequest_Response> =
-  z
-    .object({
-      log_delivery_configurations: z
-        .array(z.lazy(() => unmarshalLogDeliveryConfigurationSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      logDeliveryConfigurations: d.log_delivery_configurations,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<ListLogDeliveryConfigurationRequest_Response> = z
+  .object({
+    log_delivery_configurations: z.array(z.lazy(() => unmarshalLogDeliveryConfigurationSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    logDeliveryConfigurations: d.log_delivery_configurations,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfiguration> =
-  z
-    .object({
-      config_id: z.string().optional(),
-      config_name: z.string().optional(),
-      log_type: z.enum(LogDeliveryType).optional(),
-      output_format: z.enum(LogDeliveryOutputFormat).optional(),
-      account_id: z.string().optional(),
-      credentials_id: z.string().optional(),
-      storage_configuration_id: z.string().optional(),
-      workspace_ids_filter: z.array(z.number()).optional(),
-      delivery_path_prefix: z.string().optional(),
-      delivery_start_time: z.string().optional(),
-      status: z.enum(LogDeliveryConfigStatus).optional(),
-      creation_time: z.number().optional(),
-      update_time: z.number().optional(),
-      log_delivery_status: z
-        .lazy(() => unmarshalLogDeliveryStatusSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      configId: d.config_id,
-      configName: d.config_name,
-      logType: d.log_type,
-      outputFormat: d.output_format,
-      accountId: d.account_id,
-      credentialsId: d.credentials_id,
-      storageConfigurationId: d.storage_configuration_id,
-      workspaceIdsFilter: d.workspace_ids_filter,
-      deliveryPathPrefix: d.delivery_path_prefix,
-      deliveryStartTime: d.delivery_start_time,
-      status: d.status,
-      creationTime: d.creation_time,
-      updateTime: d.update_time,
-      logDeliveryStatus: d.log_delivery_status,
-    }));
+export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfiguration> = z
+  .object({
+    config_id: z.string().optional(),
+    config_name: z.string().optional(),
+    log_type: z.enum(LogDeliveryType).optional(),
+    output_format: z.enum(LogDeliveryOutputFormat).optional(),
+    account_id: z.string().optional(),
+    credentials_id: z.string().optional(),
+    storage_configuration_id: z.string().optional(),
+    workspace_ids_filter: z.array(z.number()).optional(),
+    delivery_path_prefix: z.string().optional(),
+    delivery_start_time: z.string().optional(),
+    status: z.enum(LogDeliveryConfigStatus).optional(),
+    creation_time: z.number().optional(),
+    update_time: z.number().optional(),
+    log_delivery_status: z.lazy(() => unmarshalLogDeliveryStatusSchema).optional(),
+  })
+  .transform(d => ({
+    configId: d.config_id,
+    configName: d.config_name,
+    logType: d.log_type,
+    outputFormat: d.output_format,
+    accountId: d.account_id,
+    credentialsId: d.credentials_id,
+    storageConfigurationId: d.storage_configuration_id,
+    workspaceIdsFilter: d.workspace_ids_filter,
+    deliveryPathPrefix: d.delivery_path_prefix,
+    deliveryStartTime: d.delivery_start_time,
+    status: d.status,
+    creationTime: d.creation_time,
+    updateTime: d.update_time,
+    logDeliveryStatus: d.log_delivery_status,
+  }));
 
 export const unmarshalLogDeliveryStatusSchema: z.ZodType<LogDeliveryStatus> = z
   .object({
@@ -329,8 +318,9 @@ export const unmarshalLogDeliveryStatusSchema: z.ZodType<LogDeliveryStatus> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<UpdateLogDeliveryConfigurationRequest_Response> =
-  z.object({});
+export const unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<UpdateLogDeliveryConfigurationRequest_Response> = z
+  .object({
+  });
 
 export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
   .object({
@@ -368,9 +358,7 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
 
 export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
-    logDeliveryConfiguration: z
-      .lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema)
-      .optional(),
+    logDeliveryConfiguration: z.lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema).optional(),
   })
   .transform(d => ({
     log_delivery_configuration: d.logDeliveryConfiguration,

@@ -1,12 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {
-  Client,
-  CreateWarehouseWaiter,
-  EditWarehouseWaiter,
-  StartWarehouseWaiter,
-  StopWarehouseWaiter,
-} from './client';
+
+export {Client, CreateWarehouseWaiter, EditWarehouseWaiter, StartWarehouseWaiter, StopWarehouseWaiter} from './client';
 
 export {
   ChannelName,

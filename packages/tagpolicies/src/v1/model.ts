@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export interface CreateTagPolicyRequest {
   tagPolicy?: TagPolicy | undefined;
 }
@@ -53,16 +54,15 @@ export interface Value {
   name?: string | undefined;
 }
 
-export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesResponse> =
-  z
-    .object({
-      tag_policies: z.array(z.lazy(() => unmarshalTagPolicySchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      tagPolicies: d.tag_policies,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesResponse> = z
+  .object({
+    tag_policies: z.array(z.lazy(() => unmarshalTagPolicySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    tagPolicies: d.tag_policies,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
   .object({
@@ -70,14 +70,8 @@ export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
     id: z.string().optional(),
     description: z.string().optional(),
     values: z.array(z.lazy(() => unmarshalValueSchema)).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     tagKey: d.tag_key,
@@ -102,14 +96,8 @@ export const marshalTagPolicySchema: z.ZodType = z
     id: z.string().optional(),
     description: z.string().optional(),
     values: z.array(z.lazy(() => marshalValueSchema)).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     tag_key: d.tagKey,

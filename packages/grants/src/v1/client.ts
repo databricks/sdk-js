@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetEffectivePermissionsRequest,
@@ -65,16 +59,13 @@ export class Client {
 
   /**
    * Gets the effective permissions for a securable. Includes inherited permissions from any parent securables.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async getEffectivePermissions(
-    req: GetEffectivePermissionsRequest,
-    options?: CallOptions
-  ): Promise<GetEffectivePermissionsRequest_Response> {
+  async getEffectivePermissions(req: GetEffectivePermissionsRequest, options?: CallOptions): Promise<GetEffectivePermissionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/effective-permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
@@ -93,15 +84,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetEffectivePermissionsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetEffectivePermissionsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -112,16 +96,13 @@ export class Client {
 
   /**
    * Gets the permissions for a securable. Does not include inherited permissions.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async getPermissions(
-    req: GetPermissionsRequest,
-    options?: CallOptions
-  ): Promise<GetPermissionsRequest_Response> {
+  async getPermissions(req: GetPermissionsRequest, options?: CallOptions): Promise<GetPermissionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
@@ -140,15 +121,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetPermissionsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetPermissionsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -158,10 +132,7 @@ export class Client {
   }
 
   /** Updates the permissions for a securable. */
-  async updatePermissions(
-    req: UpdatePermissionsRequest,
-    options?: CallOptions
-  ): Promise<UpdatePermissionsRequest_Response> {
+  async updatePermissions(req: UpdatePermissionsRequest, options?: CallOptions): Promise<UpdatePermissionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const body = marshalRequest(req, marshalUpdatePermissionsRequestSchema);
     let resp: UpdatePermissionsRequest_Response | undefined;
@@ -169,15 +140,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdatePermissionsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdatePermissionsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

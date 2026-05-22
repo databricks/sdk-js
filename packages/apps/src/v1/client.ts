@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
@@ -118,10 +112,7 @@ export class Client {
   }
 
   /** Creates an app update and starts the update process. The update process is asynchronous and the status of the update can be checked with the GetAppUpdate method. */
-  async asyncUpdateApp(
-    req: AsyncUpdateAppRequest,
-    options?: CallOptions
-  ): Promise<AppUpdate> {
+  async asyncUpdateApp(req: AsyncUpdateAppRequest, options?: CallOptions): Promise<AppUpdate> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/update`;
     const body = marshalRequest(req, marshalAsyncUpdateAppRequestSchema);
     let resp: AppUpdate | undefined;
@@ -129,11 +120,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppUpdateSchema);
     };
     await executeCall(call, options);
@@ -143,15 +130,20 @@ export class Client {
     return resp;
   }
 
-  async asyncUpdateAppWaiter(
+async asyncUpdateAppWaiter(
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AsyncUpdateAppWaiter> {
     await this.asyncUpdateApp(req, options);
     if (req.appName === undefined) {
-      throw new Error('request field appName required for polling is missing');
+      throw new Error(
+        'request field appName required for polling is missing'
+      );
     }
-    return new AsyncUpdateAppWaiter(this, req.appName);
+    return new AsyncUpdateAppWaiter(
+      this,
+      req.appName,
+    );
   }
 
   /** Creates a new app. */
@@ -168,18 +160,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
     await executeCall(call, options);
@@ -189,22 +171,24 @@ export class Client {
     return resp;
   }
 
-  async createAppWaiter(
+async createAppWaiter(
     req: CreateAppRequest,
     options?: CallOptions
   ): Promise<CreateAppWaiter> {
     const resp = await this.createApp(req, options);
     if (resp.name === undefined) {
-      throw new Error('response field name required for polling is missing');
+      throw new Error(
+        'response field name required for polling is missing'
+      );
     }
-    return new CreateAppWaiter(this, resp.name);
+    return new CreateAppWaiter(
+      this,
+      resp.name,
+    );
   }
 
   /** Creates an app deployment for the app with the supplied name. */
-  async createAppDeployment(
-    req: CreateAppDeploymentRequest,
-    options?: CallOptions
-  ): Promise<AppDeployment> {
+  async createAppDeployment(req: CreateAppDeploymentRequest, options?: CallOptions): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
     const body = marshalRequest(req.appDeployment, marshalAppDeploymentSchema);
     let resp: AppDeployment | undefined;
@@ -212,11 +196,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppDeploymentSchema);
     };
     await executeCall(call, options);
@@ -226,7 +206,7 @@ export class Client {
     return resp;
   }
 
-  async createAppDeploymentWaiter(
+async createAppDeploymentWaiter(
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<CreateAppDeploymentWaiter> {
@@ -237,16 +217,19 @@ export class Client {
       );
     }
     if (req.appName === undefined) {
-      throw new Error('request field appName required for polling is missing');
+      throw new Error(
+        'request field appName required for polling is missing'
+      );
     }
-    return new CreateAppDeploymentWaiter(this, resp.deploymentId, req.appName);
+    return new CreateAppDeploymentWaiter(
+      this,
+      resp.deploymentId,
+      req.appName,
+    );
   }
 
   /** Creates a custom template. */
-  async createCustomTemplate(
-    req: CreateCustomTemplateRequest,
-    options?: CallOptions
-  ): Promise<CustomTemplate> {
+  async createCustomTemplate(req: CreateCustomTemplateRequest, options?: CallOptions): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates`;
     const body = marshalRequest(req.template, marshalCustomTemplateSchema);
     let resp: CustomTemplate | undefined;
@@ -254,11 +237,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
     await executeCall(call, options);
@@ -269,10 +248,7 @@ export class Client {
   }
 
   /** Creates a new app space. */
-  async createSpace(
-    req: CreateSpaceRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async createSpace(req: CreateSpaceRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces`;
     const body = marshalRequest(req.space, marshalSpaceSchema);
     let resp: Operation | undefined;
@@ -280,11 +256,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -294,13 +266,13 @@ export class Client {
     return resp;
   }
 
-  async createSpaceOperation(
-    req: CreateSpaceRequest,
-    options?: CallOptions
-  ): Promise<CreateSpaceOperation> {
-    const op = await this.createSpace(req, options);
-    return new CreateSpaceOperation(this, op);
-  }
+async createSpaceOperation(
+  req: CreateSpaceRequest,
+  options?: CallOptions
+): Promise<CreateSpaceOperation> {
+  const op = await this.createSpace(req, options);
+  return new CreateSpaceOperation(this, op);
+}
 
   /** Deletes an app. */
   async deleteApp(req: DeleteAppRequest, options?: CallOptions): Promise<App> {
@@ -310,11 +282,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
     await executeCall(call, options);
@@ -325,40 +293,26 @@ export class Client {
   }
 
   /** Deletes the thumbnail for an app. */
-  async deleteAppThumbnail(
-    req: DeleteAppThumbnailRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteAppThumbnail(req: DeleteAppThumbnailRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes the custom template with the specified name. */
-  async deleteCustomTemplate(
-    req: DeleteCustomTemplateRequest,
-    options?: CallOptions
-  ): Promise<CustomTemplate> {
+  async deleteCustomTemplate(req: DeleteCustomTemplateRequest, options?: CallOptions): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
     let resp: CustomTemplate | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
     await executeCall(call, options);
@@ -369,21 +323,14 @@ export class Client {
   }
 
   /** Deletes an app space. */
-  async deleteSpace(
-    req: DeleteSpaceRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async deleteSpace(req: DeleteSpaceRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -393,13 +340,13 @@ export class Client {
     return resp;
   }
 
-  async deleteSpaceOperation(
-    req: DeleteSpaceRequest,
-    options?: CallOptions
-  ): Promise<DeleteSpaceOperation> {
-    const op = await this.deleteSpace(req, options);
-    return new DeleteSpaceOperation(this, op);
-  }
+async deleteSpaceOperation(
+  req: DeleteSpaceRequest,
+  options?: CallOptions
+): Promise<DeleteSpaceOperation> {
+  const op = await this.deleteSpace(req, options);
+  return new DeleteSpaceOperation(this, op);
+}
 
   /** Retrieves information for the app with the supplied name. */
   async getApp(req: GetAppRequest, options?: CallOptions): Promise<App> {
@@ -409,11 +356,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
     await executeCall(call, options);
@@ -424,21 +367,14 @@ export class Client {
   }
 
   /** Retrieves information for the app deployment with the supplied name and deployment id. */
-  async getAppDeployment(
-    req: GetAppDeploymentRequest,
-    options?: CallOptions
-  ): Promise<AppDeployment> {
+  async getAppDeployment(req: GetAppDeploymentRequest, options?: CallOptions): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments/${req.deploymentId ?? ''}`;
     let resp: AppDeployment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppDeploymentSchema);
     };
     await executeCall(call, options);
@@ -449,21 +385,14 @@ export class Client {
   }
 
   /** Gets the status of an app update. */
-  async getAppUpdate(
-    req: GetAppUpdateRequest,
-    options?: CallOptions
-  ): Promise<AppUpdate> {
+  async getAppUpdate(req: GetAppUpdateRequest, options?: CallOptions): Promise<AppUpdate> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/update`;
     let resp: AppUpdate | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppUpdateSchema);
     };
     await executeCall(call, options);
@@ -474,21 +403,14 @@ export class Client {
   }
 
   /** Gets the custom template with the specified name. */
-  async getCustomTemplate(
-    req: GetCustomTemplateRequest,
-    options?: CallOptions
-  ): Promise<CustomTemplate> {
+  async getCustomTemplate(req: GetCustomTemplateRequest, options?: CallOptions): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
     let resp: CustomTemplate | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
     await executeCall(call, options);
@@ -506,11 +428,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSpaceSchema);
     };
     await executeCall(call, options);
@@ -521,21 +439,14 @@ export class Client {
   }
 
   /** Gets the status of an app space update operation. */
-  async getSpaceOperation(
-    req: GetOperationRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async getSpaceOperation(req: GetOperationRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}/operation`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -546,10 +457,7 @@ export class Client {
   }
 
   /** Lists all app deployments for the app with the supplied name. */
-  async listAppDeployments(
-    req: ListAppDeploymentsRequest,
-    options?: CallOptions
-  ): Promise<ListAppDeploymentsResponse> {
+  async listAppDeployments(req: ListAppDeploymentsRequest, options?: CallOptions): Promise<ListAppDeploymentsResponse> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -565,11 +473,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListAppDeploymentsResponseSchema);
     };
     await executeCall(call, options);
@@ -579,10 +483,8 @@ export class Client {
     return resp;
   }
 
-  async *listAppDeploymentsIter(
-    req: ListAppDeploymentsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<AppDeployment> {
+
+  async *listAppDeploymentsIter(req: ListAppDeploymentsRequest, options?: CallOptions): AsyncGenerator<AppDeployment> {
     const pageReq: ListAppDeploymentsRequest = {...req};
     for (;;) {
       const resp = await this.listAppDeployments(pageReq, options);
@@ -596,11 +498,9 @@ export class Client {
     }
   }
 
+
   /** Lists all apps in the workspace. */
-  async listApps(
-    req: ListAppsRequest,
-    options?: CallOptions
-  ): Promise<ListAppsResponse> {
+  async listApps(req: ListAppsRequest, options?: CallOptions): Promise<ListAppsResponse> {
     const url = `${this.host}/api/2.0/apps`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -619,11 +519,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListAppsResponseSchema);
     };
     await executeCall(call, options);
@@ -633,10 +529,8 @@ export class Client {
     return resp;
   }
 
-  async *listAppsIter(
-    req: ListAppsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<App> {
+
+  async *listAppsIter(req: ListAppsRequest, options?: CallOptions): AsyncGenerator<App> {
     const pageReq: ListAppsRequest = {...req};
     for (;;) {
       const resp = await this.listApps(pageReq, options);
@@ -650,11 +544,9 @@ export class Client {
     }
   }
 
+
   /** Lists all custom templates in the workspace. */
-  async listCustomTemplates(
-    req: ListCustomTemplatesRequest,
-    options?: CallOptions
-  ): Promise<ListCustomTemplatesResponse> {
+  async listCustomTemplates(req: ListCustomTemplatesRequest, options?: CallOptions): Promise<ListCustomTemplatesResponse> {
     const url = `${this.host}/api/2.0/apps-settings/templates`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -670,15 +562,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCustomTemplatesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCustomTemplatesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -687,10 +572,8 @@ export class Client {
     return resp;
   }
 
-  async *listCustomTemplatesIter(
-    req: ListCustomTemplatesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CustomTemplate> {
+
+  async *listCustomTemplatesIter(req: ListCustomTemplatesRequest, options?: CallOptions): AsyncGenerator<CustomTemplate> {
     const pageReq: ListCustomTemplatesRequest = {...req};
     for (;;) {
       const resp = await this.listCustomTemplates(pageReq, options);
@@ -704,11 +587,9 @@ export class Client {
     }
   }
 
+
   /** Lists all app spaces in the workspace. */
-  async listSpaces(
-    req: ListSpacesRequest,
-    options?: CallOptions
-  ): Promise<ListSpacesResponse> {
+  async listSpaces(req: ListSpacesRequest, options?: CallOptions): Promise<ListSpacesResponse> {
     const url = `${this.host}/api/2.0/app-spaces`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -724,11 +605,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListSpacesResponseSchema);
     };
     await executeCall(call, options);
@@ -738,10 +615,8 @@ export class Client {
     return resp;
   }
 
-  async *listSpacesIter(
-    req: ListSpacesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Space> {
+
+  async *listSpacesIter(req: ListSpacesRequest, options?: CallOptions): AsyncGenerator<Space> {
     const pageReq: ListSpacesRequest = {...req};
     for (;;) {
       const resp = await this.listSpaces(pageReq, options);
@@ -755,6 +630,7 @@ export class Client {
     }
   }
 
+
   /** Start the last active deployment of the app in the workspace. */
   async startApp(req: StartAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/start`;
@@ -764,11 +640,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
     await executeCall(call, options);
@@ -778,15 +650,20 @@ export class Client {
     return resp;
   }
 
-  async startAppWaiter(
+async startAppWaiter(
     req: StartAppRequest,
     options?: CallOptions
   ): Promise<StartAppWaiter> {
     await this.startApp(req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
-    return new StartAppWaiter(this, req.name);
+    return new StartAppWaiter(
+      this,
+      req.name,
+    );
   }
 
   /** Stops the active deployment of the app in the workspace. */
@@ -798,11 +675,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
     await executeCall(call, options);
@@ -812,15 +685,20 @@ export class Client {
     return resp;
   }
 
-  async stopAppWaiter(
+async stopAppWaiter(
     req: StopAppRequest,
     options?: CallOptions
   ): Promise<StopAppWaiter> {
     await this.stopApp(req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
-    return new StopAppWaiter(this, req.name);
+    return new StopAppWaiter(
+      this,
+      req.name,
+    );
   }
 
   /** Updates the app with the supplied name. */
@@ -832,11 +710,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
     await executeCall(call, options);
@@ -847,10 +721,7 @@ export class Client {
   }
 
   /** Updates the thumbnail for an app. */
-  async updateAppThumbnail(
-    req: UpdateAppThumbnailRequest,
-    options?: CallOptions
-  ): Promise<AppThumbnail> {
+  async updateAppThumbnail(req: UpdateAppThumbnailRequest, options?: CallOptions): Promise<AppThumbnail> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
     const body = marshalRequest(req, marshalUpdateAppThumbnailRequestSchema);
     let resp: AppThumbnail | undefined;
@@ -858,11 +729,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAppThumbnailSchema);
     };
     await executeCall(call, options);
@@ -873,10 +740,7 @@ export class Client {
   }
 
   /** Updates the custom template with the specified name. Note that the template name cannot be updated. */
-  async updateCustomTemplate(
-    req: UpdateCustomTemplateRequest,
-    options?: CallOptions
-  ): Promise<CustomTemplate> {
+  async updateCustomTemplate(req: UpdateCustomTemplateRequest, options?: CallOptions): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.template?.name ?? ''}`;
     const body = marshalRequest(req.template, marshalCustomTemplateSchema);
     let resp: CustomTemplate | undefined;
@@ -884,11 +748,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
     await executeCall(call, options);
@@ -899,10 +759,7 @@ export class Client {
   }
 
   /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
-  async updateSpace(
-    req: UpdateSpaceRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async updateSpace(req: UpdateSpaceRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.space?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -915,18 +772,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -936,13 +783,13 @@ export class Client {
     return resp;
   }
 
-  async updateSpaceOperation(
-    req: UpdateSpaceRequest,
-    options?: CallOptions
-  ): Promise<UpdateSpaceOperation> {
-    const op = await this.updateSpace(req, options);
-    return new UpdateSpaceOperation(this, op);
-  }
+async updateSpaceOperation(
+  req: UpdateSpaceRequest,
+  options?: CallOptions
+): Promise<UpdateSpaceOperation> {
+  const op = await this.updateSpace(req, options);
+  return new UpdateSpaceOperation(this, op);
+}
 }
 
 export class CreateSpaceOperation {
@@ -997,7 +844,9 @@ export class CreateSpaceOperation {
             ? err.message
             : 'unknown error';
         const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+          err.errorCode !== undefined
+            ? `[${err.errorCode}] ${msg}`
+            : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
           cause: err,
         });
@@ -1086,7 +935,9 @@ export class DeleteSpaceOperation {
             ? err.message
             : 'unknown error';
         const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+          err.errorCode !== undefined
+            ? `[${err.errorCode}] ${msg}`
+            : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
           cause: err,
         });
@@ -1166,7 +1017,9 @@ export class UpdateSpaceOperation {
             ? err.message
             : 'unknown error';
         const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+          err.errorCode !== undefined
+            ? `[${err.errorCode}] ${msg}`
+            : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
           cause: err,
         });
@@ -1207,7 +1060,7 @@ export class UpdateSpaceOperation {
 export class AsyncUpdateAppWaiter {
   constructor(
     private readonly client: Client,
-    readonly appName: string
+    readonly appName: string,
   ) {}
 
   /**
@@ -1235,7 +1088,8 @@ export class AsyncUpdateAppWaiter {
         case AppUpdate_UpdateStatus_UpdateState.SUCCEEDED:
           result = pollResp;
           return;
-        case AppUpdate_UpdateStatus_UpdateState.FAILED: {
+        case AppUpdate_UpdateStatus_UpdateState.FAILED:
+        {
           const msg = pollResp.status?.message ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -1285,7 +1139,7 @@ export class AsyncUpdateAppWaiter {
 export class CreateAppWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -1314,7 +1168,8 @@ export class CreateAppWaiter {
           result = pollResp;
           return;
         case ComputeStatus_ComputeState.ERROR:
-        case ComputeStatus_ComputeState.STOPPED: {
+        case ComputeStatus_ComputeState.STOPPED:
+        {
           const msg = pollResp.computeStatus?.message ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -1366,7 +1221,7 @@ export class CreateAppDeploymentWaiter {
   constructor(
     private readonly client: Client,
     readonly deploymentId: string,
-    readonly appName: string
+    readonly appName: string,
   ) {}
 
   /**
@@ -1395,7 +1250,8 @@ export class CreateAppDeploymentWaiter {
         case AppDeployment_State.SUCCEEDED:
           result = pollResp;
           return;
-        case AppDeployment_State.FAILED: {
+        case AppDeployment_State.FAILED:
+        {
           const msg = pollResp.status?.message ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -1446,7 +1302,7 @@ export class CreateAppDeploymentWaiter {
 export class StartAppWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -1475,7 +1331,8 @@ export class StartAppWaiter {
           result = pollResp;
           return;
         case ComputeStatus_ComputeState.ERROR:
-        case ComputeStatus_ComputeState.STOPPED: {
+        case ComputeStatus_ComputeState.STOPPED:
+        {
           const msg = pollResp.computeStatus?.message ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -1526,7 +1383,7 @@ export class StartAppWaiter {
 export class StopAppWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -1554,7 +1411,8 @@ export class StopAppWaiter {
         case ComputeStatus_ComputeState.STOPPED:
           result = pollResp;
           return;
-        case ComputeStatus_ComputeState.ERROR: {
+        case ComputeStatus_ComputeState.ERROR:
+        {
           const msg = pollResp.computeStatus?.message ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

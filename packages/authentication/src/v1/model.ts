@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export interface CreateAccountFederationPolicyRequest {
   /** The account id for the federation policy. */
   accountId?: string | undefined;
@@ -101,7 +102,9 @@ export interface FederationPolicy {
   name?: string | undefined;
   /** Description of the federation policy. */
   description?: string | undefined;
-  policy?: {$case: 'oidcPolicy'; oidcPolicy: OidcFederationPolicy} | undefined;
+  policy?:
+    | { $case: 'oidcPolicy'; oidcPolicy: OidcFederationPolicy }
+    | undefined;
   /** Creation time of the federation policy. */
   createTime?: Temporal.Instant | undefined;
   /** Last update time of the federation policy. */
@@ -272,47 +275,38 @@ export interface UpdateServicePrincipalFederationPolicyRequest {
   updateMask?: FieldMask<FederationPolicy> | undefined;
 }
 
-export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<CreateServicePrincipalSecretResponse> =
-  z
-    .object({
-      id: z.string().optional(),
-      secret: z.string().optional(),
-      secret_hash: z.string().optional(),
-      create_time: z.string().optional(),
-      update_time: z.string().optional(),
-      status: z.string().optional(),
-      expire_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      secret: d.secret,
-      secretHash: d.secret_hash,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      status: d.status,
-      expireTime: d.expire_time,
-    }));
+export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<CreateServicePrincipalSecretResponse> = z
+  .object({
+    id: z.string().optional(),
+    secret: z.string().optional(),
+    secret_hash: z.string().optional(),
+    create_time: z.string().optional(),
+    update_time: z.string().optional(),
+    status: z.string().optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    secret: d.secret,
+    secretHash: d.secret_hash,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    status: d.status,
+    expireTime: d.expire_time,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema: z.ZodType<DeleteServicePrincipalSecretRequest_Response> =
-  z.object({});
+export const unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema: z.ZodType<DeleteServicePrincipalSecretRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
     oidc_policy: z.lazy(() => unmarshalOidcFederationPolicySchema).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     uid: z.string().optional(),
     service_principal_id: z.number().optional(),
     policy_id: z.string().optional(),
@@ -320,10 +314,7 @@ export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
   .transform(d => ({
     name: d.name,
     description: d.description,
-    policy:
-      d.oidc_policy !== undefined
-        ? {$case: 'oidcPolicy' as const, oidcPolicy: d.oidc_policy}
-        : undefined,
+    policy: d.oidc_policy !== undefined ? { $case: 'oidcPolicy' as const, oidcPolicy: d.oidc_policy } : undefined,
     createTime: d.create_time,
     updateTime: d.update_time,
     uid: d.uid,
@@ -331,84 +322,70 @@ export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
     policyId: d.policy_id,
   }));
 
-export const unmarshalListFederationPoliciesResponseSchema: z.ZodType<ListFederationPoliciesResponse> =
-  z
-    .object({
-      policies: z
-        .array(z.lazy(() => unmarshalFederationPolicySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListFederationPoliciesResponseSchema: z.ZodType<ListFederationPoliciesResponse> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalFederationPolicySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListServicePrincipalSecretsRequest_ResponseSchema: z.ZodType<ListServicePrincipalSecretsRequest_Response> =
-  z
-    .object({
-      secrets: z
-        .array(z.lazy(() => unmarshalServicePrincipalSecretSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      secrets: d.secrets,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListServicePrincipalSecretsRequest_ResponseSchema: z.ZodType<ListServicePrincipalSecretsRequest_Response> = z
+  .object({
+    secrets: z.array(z.lazy(() => unmarshalServicePrincipalSecretSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    secrets: d.secrets,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalOidcFederationPolicySchema: z.ZodType<OidcFederationPolicy> =
-  z
-    .object({
-      issuer: z.string().optional(),
-      subject: z.string().optional(),
-      audiences: z.array(z.string()).optional(),
-      subject_claim: z.string().optional(),
-      jwks_uri: z.string().optional(),
-      jwks_json: z.string().optional(),
-    })
-    .transform(d => ({
-      issuer: d.issuer,
-      subject: d.subject,
-      audiences: d.audiences,
-      subjectClaim: d.subject_claim,
-      jwksUri: d.jwks_uri,
-      jwksJson: d.jwks_json,
-    }));
+export const unmarshalOidcFederationPolicySchema: z.ZodType<OidcFederationPolicy> = z
+  .object({
+    issuer: z.string().optional(),
+    subject: z.string().optional(),
+    audiences: z.array(z.string()).optional(),
+    subject_claim: z.string().optional(),
+    jwks_uri: z.string().optional(),
+    jwks_json: z.string().optional(),
+  })
+  .transform(d => ({
+    issuer: d.issuer,
+    subject: d.subject,
+    audiences: d.audiences,
+    subjectClaim: d.subject_claim,
+    jwksUri: d.jwks_uri,
+    jwksJson: d.jwks_json,
+  }));
 
-export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSecret> =
-  z
-    .object({
-      id: z.string().optional(),
-      secret: z.string().optional(),
-      secret_hash: z.string().optional(),
-      create_time: z.string().optional(),
-      update_time: z.string().optional(),
-      status: z.string().optional(),
-      expire_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      secret: d.secret,
-      secretHash: d.secret_hash,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      status: d.status,
-      expireTime: d.expire_time,
-    }));
+export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSecret> = z
+  .object({
+    id: z.string().optional(),
+    secret: z.string().optional(),
+    secret_hash: z.string().optional(),
+    create_time: z.string().optional(),
+    update_time: z.string().optional(),
+    status: z.string().optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    secret: d.secret,
+    secretHash: d.secret_hash,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    status: d.status,
+    expireTime: d.expire_time,
+  }));
 
 export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     servicePrincipal: z.string().optional(),
-    lifetime: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
+    lifetime: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()).optional(),
   })
   .transform(d => ({
     account_id: d.accountId,
@@ -420,22 +397,9 @@ export const marshalFederationPolicySchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    policy: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('oidcPolicy'),
-          oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema),
-        }),
-      ])
-      .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    policy: z.discriminatedUnion('$case', [z.object({ $case: z.literal('oidcPolicy'), oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema) })]).optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     uid: z.string().optional(),
     servicePrincipalId: z.number().optional(),
     policyId: z.string().optional(),
@@ -443,7 +407,7 @@ export const marshalFederationPolicySchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     description: d.description,
-    ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
+    ...(d.policy?.$case === 'oidcPolicy' && { oidc_policy: d.policy.oidcPolicy }),
     create_time: d.createTime,
     update_time: d.updateTime,
     uid: d.uid,
@@ -473,23 +437,15 @@ const federationPolicyFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   description: {wire: 'description'},
   name: {wire: 'name'},
-  oidcPolicy: {
-    wire: 'oidc_policy',
-    children: () => oidcFederationPolicyFieldMaskSchema,
-  },
+  oidcPolicy: {wire: 'oidc_policy', children: () => oidcFederationPolicyFieldMaskSchema},
   policyId: {wire: 'policy_id'},
   servicePrincipalId: {wire: 'service_principal_id'},
   uid: {wire: 'uid'},
   updateTime: {wire: 'update_time'},
 };
 
-export function federationPolicyFieldMask(
-  ...paths: string[]
-): FieldMask<FederationPolicy> {
-  return FieldMask.build<FederationPolicy>(
-    paths,
-    federationPolicyFieldMaskSchema
-  );
+export function federationPolicyFieldMask(...paths: string[]): FieldMask<FederationPolicy> {
+  return FieldMask.build<FederationPolicy>(paths, federationPolicyFieldMaskSchema);
 }
 
 const oidcFederationPolicyFieldMaskSchema: FieldMaskSchema = {

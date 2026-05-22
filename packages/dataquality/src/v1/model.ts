@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** The granularity for aggregating data into time windows based on their timestamp. */
 export enum AggregationGranularity {
   AGGREGATION_GRANULARITY_UNSPECIFIED = 'AGGREGATION_GRANULARITY_UNSPECIFIED',
@@ -106,11 +107,11 @@ export interface CancelRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -255,11 +256,11 @@ export interface DeleteMonitorRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -273,11 +274,11 @@ export interface DeleteRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -293,11 +294,11 @@ export interface GetMonitorRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -311,11 +312,11 @@ export interface GetRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -359,11 +360,11 @@ export interface ListRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -385,11 +386,11 @@ export interface Monitor {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -422,11 +423,11 @@ export interface Refresh {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -464,11 +465,11 @@ export interface UpdateMonitorRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -489,11 +490,11 @@ export interface UpdateRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -507,23 +508,21 @@ export interface UpdateRefreshRequest {
   updateMask?: FieldMask<Refresh> | undefined;
 }
 
-export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
-  z
-    .object({
-      excluded_table_full_names: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      excludedTableFullNames: d.excluded_table_full_names,
-    }));
+export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> = z
+  .object({
+    excluded_table_full_names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    excludedTableFullNames: d.excluded_table_full_names,
+  }));
 
-export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
-  z
-    .object({
-      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-    })
-    .transform(d => ({
-      refresh: d.refresh,
-    }));
+export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> = z
+  .object({
+    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+  })
+  .transform(d => ({
+    refresh: d.refresh,
+  }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
@@ -537,130 +536,110 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     pauseStatus: d.pause_status,
   }));
 
-export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> =
-  z
-    .object({
-      output_schema_id: z.string().optional(),
-      assets_dir: z.string().optional(),
-      inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
-      time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
-      snapshot: z.lazy(() => unmarshalSnapshotConfigSchema).optional(),
-      slicing_exprs: z.array(z.string()).optional(),
-      custom_metrics: z
-        .array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema))
-        .optional(),
-      baseline_table_name: z.string().optional(),
-      schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-      notification_settings: z
-        .lazy(() => unmarshalNotificationSettingsSchema)
-        .optional(),
-      skip_builtin_dashboard: z.boolean().optional(),
-      warehouse_id: z.string().optional(),
-      monitored_table_name: z.string().optional(),
-      status: z.enum(DataProfilingStatus).optional(),
-      latest_monitor_failure_message: z.string().optional(),
-      profile_metrics_table_name: z.string().optional(),
-      drift_metrics_table_name: z.string().optional(),
-      dashboard_id: z.string().optional(),
-      monitor_version: z.number().optional(),
-      effective_warehouse_id: z.string().optional(),
-    })
-    .transform(d => ({
-      outputSchemaId: d.output_schema_id,
-      assetsDir: d.assets_dir,
-      analysisConfig:
-        d.inference_log !== undefined
-          ? {$case: 'inferenceLog' as const, inferenceLog: d.inference_log}
-          : d.time_series !== undefined
-            ? {$case: 'timeSeries' as const, timeSeries: d.time_series}
-            : d.snapshot !== undefined
-              ? {$case: 'snapshot' as const, snapshot: d.snapshot}
-              : undefined,
-      slicingExprs: d.slicing_exprs,
-      customMetrics: d.custom_metrics,
-      baselineTableName: d.baseline_table_name,
-      schedule: d.schedule,
-      notificationSettings: d.notification_settings,
-      skipBuiltinDashboard: d.skip_builtin_dashboard,
-      warehouseId: d.warehouse_id,
-      monitoredTableName: d.monitored_table_name,
-      status: d.status,
-      latestMonitorFailureMessage: d.latest_monitor_failure_message,
-      profileMetricsTableName: d.profile_metrics_table_name,
-      driftMetricsTableName: d.drift_metrics_table_name,
-      dashboardId: d.dashboard_id,
-      monitorVersion: d.monitor_version,
-      effectiveWarehouseId: d.effective_warehouse_id,
-    }));
+export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> = z
+  .object({
+    output_schema_id: z.string().optional(),
+    assets_dir: z.string().optional(),
+    inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
+    time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
+    snapshot: z.lazy(() => unmarshalSnapshotConfigSchema).optional(),
+    slicing_exprs: z.array(z.string()).optional(),
+    custom_metrics: z.array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema)).optional(),
+    baseline_table_name: z.string().optional(),
+    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+    notification_settings: z.lazy(() => unmarshalNotificationSettingsSchema).optional(),
+    skip_builtin_dashboard: z.boolean().optional(),
+    warehouse_id: z.string().optional(),
+    monitored_table_name: z.string().optional(),
+    status: z.enum(DataProfilingStatus).optional(),
+    latest_monitor_failure_message: z.string().optional(),
+    profile_metrics_table_name: z.string().optional(),
+    drift_metrics_table_name: z.string().optional(),
+    dashboard_id: z.string().optional(),
+    monitor_version: z.number().optional(),
+    effective_warehouse_id: z.string().optional(),
+  })
+  .transform(d => ({
+    outputSchemaId: d.output_schema_id,
+    assetsDir: d.assets_dir,
+    analysisConfig: d.inference_log !== undefined ? { $case: 'inferenceLog' as const, inferenceLog: d.inference_log } : d.time_series !== undefined ? { $case: 'timeSeries' as const, timeSeries: d.time_series } : d.snapshot !== undefined ? { $case: 'snapshot' as const, snapshot: d.snapshot } : undefined,
+    slicingExprs: d.slicing_exprs,
+    customMetrics: d.custom_metrics,
+    baselineTableName: d.baseline_table_name,
+    schedule: d.schedule,
+    notificationSettings: d.notification_settings,
+    skipBuiltinDashboard: d.skip_builtin_dashboard,
+    warehouseId: d.warehouse_id,
+    monitoredTableName: d.monitored_table_name,
+    status: d.status,
+    latestMonitorFailureMessage: d.latest_monitor_failure_message,
+    profileMetricsTableName: d.profile_metrics_table_name,
+    driftMetricsTableName: d.drift_metrics_table_name,
+    dashboardId: d.dashboard_id,
+    monitorVersion: d.monitor_version,
+    effectiveWarehouseId: d.effective_warehouse_id,
+  }));
 
-export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCustomMetric> =
-  z
-    .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      input_columns: z.array(z.string()).optional(),
-      output_data_type: z.string().optional(),
-      type: z.enum(DataProfilingCustomMetricType).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      definition: d.definition,
-      inputColumns: d.input_columns,
-      outputDataType: d.output_data_type,
-      type: d.type,
-    }));
+export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCustomMetric> = z
+  .object({
+    name: z.string().optional(),
+    definition: z.string().optional(),
+    input_columns: z.array(z.string()).optional(),
+    output_data_type: z.string().optional(),
+    type: z.enum(DataProfilingCustomMetricType).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    definition: d.definition,
+    inputColumns: d.input_columns,
+    outputDataType: d.output_data_type,
+    type: d.type,
+  }));
 
-export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
-  z
-    .object({
-      problem_type: z.enum(InferenceProblemType).optional(),
-      timestamp_column: z.string().optional(),
-      granularities: z.array(z.enum(AggregationGranularity)).optional(),
-      prediction_column: z.string().optional(),
-      label_column: z.string().optional(),
-      model_id_column: z.string().optional(),
-    })
-    .transform(d => ({
-      problemType: d.problem_type,
-      timestampColumn: d.timestamp_column,
-      granularities: d.granularities,
-      predictionColumn: d.prediction_column,
-      labelColumn: d.label_column,
-      modelIdColumn: d.model_id_column,
-    }));
+export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> = z
+  .object({
+    problem_type: z.enum(InferenceProblemType).optional(),
+    timestamp_column: z.string().optional(),
+    granularities: z.array(z.enum(AggregationGranularity)).optional(),
+    prediction_column: z.string().optional(),
+    label_column: z.string().optional(),
+    model_id_column: z.string().optional(),
+  })
+  .transform(d => ({
+    problemType: d.problem_type,
+    timestampColumn: d.timestamp_column,
+    granularities: d.granularities,
+    predictionColumn: d.prediction_column,
+    labelColumn: d.label_column,
+    modelIdColumn: d.model_id_column,
+  }));
 
-export const unmarshalListMonitorResponseSchema: z.ZodType<ListMonitorResponse> =
-  z
-    .object({
-      monitors: z.array(z.lazy(() => unmarshalMonitorSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      monitors: d.monitors,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListMonitorResponseSchema: z.ZodType<ListMonitorResponse> = z
+  .object({
+    monitors: z.array(z.lazy(() => unmarshalMonitorSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    monitors: d.monitors,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListRefreshResponseSchema: z.ZodType<ListRefreshResponse> =
-  z
-    .object({
-      refreshes: z.array(z.lazy(() => unmarshalRefreshSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      refreshes: d.refreshes,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListRefreshResponseSchema: z.ZodType<ListRefreshResponse> = z
+  .object({
+    refreshes: z.array(z.lazy(() => unmarshalRefreshSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    refreshes: d.refreshes,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
-    anomaly_detection_config: z
-      .lazy(() => unmarshalAnomalyDetectionConfigSchema)
-      .optional(),
-    data_profiling_config: z
-      .lazy(() => unmarshalDataProfilingConfigSchema)
-      .optional(),
+    anomaly_detection_config: z.lazy(() => unmarshalAnomalyDetectionConfigSchema).optional(),
+    data_profiling_config: z.lazy(() => unmarshalDataProfilingConfigSchema).optional(),
   })
   .transform(d => ({
     objectType: d.object_type,
@@ -669,25 +648,21 @@ export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
     dataProfilingConfig: d.data_profiling_config,
   }));
 
-export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> =
-  z
-    .object({
-      email_addresses: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      emailAddresses: d.email_addresses,
-    }));
+export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> = z
+  .object({
+    email_addresses: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    emailAddresses: d.email_addresses,
+  }));
 
-export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> =
-  z
-    .object({
-      on_failure: z
-        .lazy(() => unmarshalNotificationDestinationSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      onFailure: d.on_failure,
-    }));
+export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> = z
+  .object({
+    on_failure: z.lazy(() => unmarshalNotificationDestinationSchema).optional(),
+  })
+  .transform(d => ({
+    onFailure: d.on_failure,
+  }));
 
 export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
   .object({
@@ -711,8 +686,9 @@ export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
     trigger: d.trigger,
   }));
 
-export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> =
-  z.object({});
+export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> = z
+  .object({
+  });
 
 export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
   .object({
@@ -760,31 +736,12 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
   .object({
     outputSchemaId: z.string().optional(),
     assetsDir: z.string().optional(),
-    analysisConfig: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('inferenceLog'),
-          inferenceLog: z.lazy(() => marshalInferenceLogConfigSchema),
-        }),
-        z.object({
-          $case: z.literal('timeSeries'),
-          timeSeries: z.lazy(() => marshalTimeSeriesConfigSchema),
-        }),
-        z.object({
-          $case: z.literal('snapshot'),
-          snapshot: z.lazy(() => marshalSnapshotConfigSchema),
-        }),
-      ])
-      .optional(),
+    analysisConfig: z.discriminatedUnion('$case', [z.object({ $case: z.literal('inferenceLog'), inferenceLog: z.lazy(() => marshalInferenceLogConfigSchema) }), z.object({ $case: z.literal('timeSeries'), timeSeries: z.lazy(() => marshalTimeSeriesConfigSchema) }), z.object({ $case: z.literal('snapshot'), snapshot: z.lazy(() => marshalSnapshotConfigSchema) })]).optional(),
     slicingExprs: z.array(z.string()).optional(),
-    customMetrics: z
-      .array(z.lazy(() => marshalDataProfilingCustomMetricSchema))
-      .optional(),
+    customMetrics: z.array(z.lazy(() => marshalDataProfilingCustomMetricSchema)).optional(),
     baselineTableName: z.string().optional(),
     schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
     skipBuiltinDashboard: z.boolean().optional(),
     warehouseId: z.string().optional(),
     monitoredTableName: z.string().optional(),
@@ -799,15 +756,9 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
   .transform(d => ({
     output_schema_id: d.outputSchemaId,
     assets_dir: d.assetsDir,
-    ...(d.analysisConfig?.$case === 'inferenceLog' && {
-      inference_log: d.analysisConfig.inferenceLog,
-    }),
-    ...(d.analysisConfig?.$case === 'timeSeries' && {
-      time_series: d.analysisConfig.timeSeries,
-    }),
-    ...(d.analysisConfig?.$case === 'snapshot' && {
-      snapshot: d.analysisConfig.snapshot,
-    }),
+    ...(d.analysisConfig?.$case === 'inferenceLog' && { inference_log: d.analysisConfig.inferenceLog }),
+    ...(d.analysisConfig?.$case === 'timeSeries' && { time_series: d.analysisConfig.timeSeries }),
+    ...(d.analysisConfig?.$case === 'snapshot' && { snapshot: d.analysisConfig.snapshot }),
     slicing_exprs: d.slicingExprs,
     custom_metrics: d.customMetrics,
     baseline_table_name: d.baselineTableName,
@@ -863,12 +814,8 @@ export const marshalMonitorSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
-    anomalyDetectionConfig: z
-      .lazy(() => marshalAnomalyDetectionConfigSchema)
-      .optional(),
-    dataProfilingConfig: z
-      .lazy(() => marshalDataProfilingConfigSchema)
-      .optional(),
+    anomalyDetectionConfig: z.lazy(() => marshalAnomalyDetectionConfigSchema).optional(),
+    dataProfilingConfig: z.lazy(() => marshalDataProfilingConfigSchema).optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -915,7 +862,9 @@ export const marshalRefreshSchema: z.ZodType = z
     trigger: d.trigger,
   }));
 
-export const marshalSnapshotConfigSchema: z.ZodType = z.object({});
+export const marshalSnapshotConfigSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalTimeSeriesConfigSchema: z.ZodType = z
   .object({
@@ -944,17 +893,11 @@ const dataProfilingConfigFieldMaskSchema: FieldMaskSchema = {
   dashboardId: {wire: 'dashboard_id'},
   driftMetricsTableName: {wire: 'drift_metrics_table_name'},
   effectiveWarehouseId: {wire: 'effective_warehouse_id'},
-  inferenceLog: {
-    wire: 'inference_log',
-    children: () => inferenceLogConfigFieldMaskSchema,
-  },
+  inferenceLog: {wire: 'inference_log', children: () => inferenceLogConfigFieldMaskSchema},
   latestMonitorFailureMessage: {wire: 'latest_monitor_failure_message'},
   monitorVersion: {wire: 'monitor_version'},
   monitoredTableName: {wire: 'monitored_table_name'},
-  notificationSettings: {
-    wire: 'notification_settings',
-    children: () => notificationSettingsFieldMaskSchema,
-  },
+  notificationSettings: {wire: 'notification_settings', children: () => notificationSettingsFieldMaskSchema},
   outputSchemaId: {wire: 'output_schema_id'},
   profileMetricsTableName: {wire: 'profile_metrics_table_name'},
   schedule: {wire: 'schedule', children: () => cronScheduleFieldMaskSchema},
@@ -962,10 +905,7 @@ const dataProfilingConfigFieldMaskSchema: FieldMaskSchema = {
   slicingExprs: {wire: 'slicing_exprs'},
   snapshot: {wire: 'snapshot', children: () => snapshotConfigFieldMaskSchema},
   status: {wire: 'status'},
-  timeSeries: {
-    wire: 'time_series',
-    children: () => timeSeriesConfigFieldMaskSchema,
-  },
+  timeSeries: {wire: 'time_series', children: () => timeSeriesConfigFieldMaskSchema},
   warehouseId: {wire: 'warehouse_id'},
 };
 
@@ -979,14 +919,8 @@ const inferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
 };
 
 const monitorFieldMaskSchema: FieldMaskSchema = {
-  anomalyDetectionConfig: {
-    wire: 'anomaly_detection_config',
-    children: () => anomalyDetectionConfigFieldMaskSchema,
-  },
-  dataProfilingConfig: {
-    wire: 'data_profiling_config',
-    children: () => dataProfilingConfigFieldMaskSchema,
-  },
+  anomalyDetectionConfig: {wire: 'anomaly_detection_config', children: () => anomalyDetectionConfigFieldMaskSchema},
+  dataProfilingConfig: {wire: 'data_profiling_config', children: () => dataProfilingConfigFieldMaskSchema},
   objectId: {wire: 'object_id'},
   objectType: {wire: 'object_type'},
 };
@@ -1000,10 +934,7 @@ const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
 };
 
 const notificationSettingsFieldMaskSchema: FieldMaskSchema = {
-  onFailure: {
-    wire: 'on_failure',
-    children: () => notificationDestinationFieldMaskSchema,
-  },
+  onFailure: {wire: 'on_failure', children: () => notificationDestinationFieldMaskSchema},
 };
 
 const refreshFieldMaskSchema: FieldMaskSchema = {
@@ -1021,7 +952,8 @@ export function refreshFieldMask(...paths: string[]): FieldMask<Refresh> {
   return FieldMask.build<Refresh>(paths, refreshFieldMaskSchema);
 }
 
-const snapshotConfigFieldMaskSchema: FieldMaskSchema = {};
+const snapshotConfigFieldMaskSchema: FieldMaskSchema = {
+};
 
 const timeSeriesConfigFieldMaskSchema: FieldMaskSchema = {
   granularities: {wire: 'granularities'},

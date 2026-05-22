@@ -4,19 +4,10 @@ import type {JsonValue, JsonObject} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
-  z.union([
-    z.null(),
-    z.number(),
-    z.string(),
-    z.boolean(),
-    z.record(z.string(), jsonValueSchema),
-    z.array(jsonValueSchema),
-  ])
+  z.union([z.null(), z.number(), z.string(), z.boolean(), z.record(z.string(), jsonValueSchema), z.array(jsonValueSchema)])
 );
-const jsonObjectSchema: z.ZodType<JsonObject> = z.record(
-  z.string(),
-  jsonValueSchema
-);
+const jsonObjectSchema: z.ZodType<JsonObject> = z.record(z.string(), jsonValueSchema);
+
 
 export enum CommandStatus {
   COMMAND_STATUS_UNSPECIFIED = 'COMMAND_STATUS_UNSPECIFIED',
@@ -119,10 +110,10 @@ export interface Results {
   data?: JsonValue | undefined;
   /**
    * The image data in one of the following formats:
-   *
+   * 
    * 1. A Data URL with base64-encoded image data: `data:image/{type};base64,{base64-data}`.
    * Example: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...`
-   *
+   * 
    * 2. A FileStore file path for large images: `/plots/{filename}.png`.
    * Example: `/plots/b6a7ad70-fb2c-4353-8aed-3f1e015174a4.png`
    */
@@ -142,8 +133,9 @@ export interface Results {
   truncated?: boolean | undefined;
 }
 
-export const unmarshalCancelResponseSchema: z.ZodType<CancelResponse> =
-  z.object({});
+export const unmarshalCancelResponseSchema: z.ZodType<CancelResponse> = z
+  .object({
+  });
 
 export const unmarshalCreateResponseSchema: z.ZodType<CreateResponse> = z
   .object({
@@ -153,32 +145,31 @@ export const unmarshalCreateResponseSchema: z.ZodType<CreateResponse> = z
     id: d.id,
   }));
 
-export const unmarshalDestroyResponseSchema: z.ZodType<DestroyResponse> =
-  z.object({});
+export const unmarshalDestroyResponseSchema: z.ZodType<DestroyResponse> = z
+  .object({
+  });
 
-export const unmarshalGetCommandStatusResponseSchema: z.ZodType<GetCommandStatusResponse> =
-  z
-    .object({
-      id: z.string().optional(),
-      status: z.enum(CommandStatus).optional(),
-      results: z.lazy(() => unmarshalResultsSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      status: d.status,
-      results: d.results,
-    }));
+export const unmarshalGetCommandStatusResponseSchema: z.ZodType<GetCommandStatusResponse> = z
+  .object({
+    id: z.string().optional(),
+    status: z.enum(CommandStatus).optional(),
+    results: z.lazy(() => unmarshalResultsSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    status: d.status,
+    results: d.results,
+  }));
 
-export const unmarshalGetContextStatusResponseSchema: z.ZodType<GetContextStatusResponse> =
-  z
-    .object({
-      id: z.string().optional(),
-      status: z.enum(ContextStatus).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      status: d.status,
-    }));
+export const unmarshalGetContextStatusResponseSchema: z.ZodType<GetContextStatusResponse> = z
+  .object({
+    id: z.string().optional(),
+    status: z.enum(ContextStatus).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    status: d.status,
+  }));
 
 export const unmarshalResultsSchema: z.ZodType<Results> = z
   .object({

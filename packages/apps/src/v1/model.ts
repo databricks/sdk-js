@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum ComputeSize {
   MEDIUM = 'MEDIUM',
   LARGE = 'LARGE',
@@ -15,10 +16,10 @@ export enum ErrorCode {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
-   *
+   * 
    * It's assigned tag 0 to follow the best practice from
    * https://developers.google.com/protocol-buffers/docs/style#enums
-   *
+   * 
    * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
    * Maps to:
    * - google.rpc.Code: UNKNOWN = 2;
@@ -29,10 +30,10 @@ export enum ErrorCode {
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
    * by the user.
-   *
+   * 
    * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
    * automation that relies on the custom error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
@@ -42,12 +43,12 @@ export enum ErrorCode {
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
    * operations.
-   *
+   * 
    * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -62,9 +63,9 @@ export enum ErrorCode {
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
-   *
+   * 
    * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
@@ -84,7 +85,7 @@ export enum ErrorCode {
    * the deadline to expire. When possible - implementations should make sure further processing of
    * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
    * making the database query, etc.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
@@ -93,7 +94,7 @@ export enum ErrorCode {
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
@@ -103,10 +104,10 @@ export enum ErrorCode {
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
    * resources.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -115,7 +116,7 @@ export enum ErrorCode {
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
@@ -124,7 +125,7 @@ export enum ErrorCode {
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -133,9 +134,9 @@ export enum ErrorCode {
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
-   *
+   * 
    * Prefer this over RESOURCE_CONFLICT.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
@@ -143,11 +144,11 @@ export enum ErrorCode {
   ALREADY_EXISTS = 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
    * code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -162,7 +163,7 @@ export enum ErrorCode {
    * not know whether it is because the domain name is completely wrong (non-transient situation) or
    * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
    * situation). Hence, `UNAVAILABLE`  is suitable for this case.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -170,7 +171,7 @@ export enum ErrorCode {
   UNAVAILABLE = 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
@@ -179,7 +180,7 @@ export enum ErrorCode {
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -201,7 +202,7 @@ export enum ErrorCode {
    * use CUSTOMER_UNAUTHORIZED instead for those errors.
    * This error code does not imply the request is valid or the requested entity exists or
    * satisfies other pre-conditions.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
@@ -211,9 +212,9 @@ export enum ErrorCode {
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
    * Prefer using NOT_FOUND or PERMISSION_DENIED.
-   *
+   * 
    * If a given user/entity is trying to use a feature which has been disabled.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -221,20 +222,20 @@ export enum ErrorCode {
   FEATURE_DISABLED = 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
    * consistent behavior with legacy code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Important: name is confusing, this error code is for authentication (AuthN) errors, not
    * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
    * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
    * indicates that the request has not been applied because it lacks valid authentication
    * credentials for the target resource. [...] If the request included authentication credentials,
    * then the 401 response indicates that authorization has been refused for those credentials."
-   *
+   * 
    * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -243,12 +244,12 @@ export enum ErrorCode {
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
-   *
+   * 
    * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on the rate limiting vs throttling.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -265,7 +266,7 @@ export enum ErrorCode {
   UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
@@ -273,14 +274,14 @@ export enum ErrorCode {
   NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
-   *
+   * 
    * One of the major use cases is to indicate that server failed to validate the integrity of
    * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
    * request header (or trailer) doesn't match the actual request content checksum.
-   *
+   * 
    * Note, in case of the severe corruption that results in a malformed request, the server may
    * send a generic `400 Bad Request` response rather than sending this error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
@@ -298,7 +299,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
    * remapping will be a backwards incompatible change.
-   *
+   * 
    * Operation was performed on a resource that already exists.
    */
   RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
@@ -306,7 +307,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
    * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
-   *
+   * 
    * Operation was performed on a resource that does not exist.
    */
   RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
@@ -828,9 +829,7 @@ export interface AppManifest {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceExperimentSpec {
-  permission?:
-    | AppManifest_AppResourceExperimentSpec_ExperimentPermission
-    | undefined;
+  permission?: AppManifest_AppResourceExperimentSpec_ExperimentPermission | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -848,9 +847,7 @@ export interface AppManifest_AppResourceSecretSpec {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceServingEndpointSpec {
   /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
-  permission?:
-    | AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
-    | undefined;
+  permission?: AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission | undefined;
 }
 
 /** AppResource related fields are copied from app.proto but excludes resource identifiers (e.g. name, id, key, scope, etc.) */
@@ -861,43 +858,25 @@ export interface AppManifest_AppResourceSpec {
   /** Description of the App Resource. */
   description?: string | undefined;
   resource?:
-    | {$case: 'secretSpec'; secretSpec: AppManifest_AppResourceSecretSpec}
-    | {
-        $case: 'sqlWarehouseSpec';
-        sqlWarehouseSpec: AppManifest_AppResourceSqlWarehouseSpec;
-      }
-    | {
-        $case: 'servingEndpointSpec';
-        servingEndpointSpec: AppManifest_AppResourceServingEndpointSpec;
-      }
-    | {$case: 'jobSpec'; jobSpec: AppManifest_AppResourceJobSpec}
-    | {
-        $case: 'ucSecurableSpec';
-        ucSecurableSpec: AppManifest_AppResourceUcSecurableSpec;
-      }
-    | {
-        $case: 'experimentSpec';
-        experimentSpec: AppManifest_AppResourceExperimentSpec;
-      }
+    | { $case: 'secretSpec'; secretSpec: AppManifest_AppResourceSecretSpec }
+    | { $case: 'sqlWarehouseSpec'; sqlWarehouseSpec: AppManifest_AppResourceSqlWarehouseSpec }
+    | { $case: 'servingEndpointSpec'; servingEndpointSpec: AppManifest_AppResourceServingEndpointSpec }
+    | { $case: 'jobSpec'; jobSpec: AppManifest_AppResourceJobSpec }
+    | { $case: 'ucSecurableSpec'; ucSecurableSpec: AppManifest_AppResourceUcSecurableSpec }
+    | { $case: 'experimentSpec'; experimentSpec: AppManifest_AppResourceExperimentSpec }
     | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSqlWarehouseSpec {
   /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
-  permission?:
-    | AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission
-    | undefined;
+  permission?: AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceUcSecurableSpec {
-  securableType?:
-    | AppManifest_AppResourceUcSecurableSpec_UcSecurableType
-    | undefined;
-  permission?:
-    | AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission
-    | undefined;
+  securableType?: AppManifest_AppResourceUcSecurableSpec_UcSecurableType | undefined;
+  permission?: AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission | undefined;
 }
 
 export interface AppResource {
@@ -906,16 +885,16 @@ export interface AppResource {
   /** Description of the App Resource. */
   description?: string | undefined;
   resource?:
-    | {$case: 'secret'; secret: AppResourceSecret}
-    | {$case: 'sqlWarehouse'; sqlWarehouse: AppResourceSqlWarehouse}
-    | {$case: 'servingEndpoint'; servingEndpoint: AppResourceServingEndpoint}
-    | {$case: 'job'; job: AppResourceJob}
-    | {$case: 'ucSecurable'; ucSecurable: AppResourceUcSecurable}
-    | {$case: 'database'; database: AppResourceDatabase}
-    | {$case: 'genieSpace'; genieSpace: AppResourceGenieSpace}
-    | {$case: 'experiment'; experiment: AppResourceExperiment}
-    | {$case: 'app'; app: AppResourceApp}
-    | {$case: 'postgres'; postgres: AppResourcePostgres}
+    | { $case: 'secret'; secret: AppResourceSecret }
+    | { $case: 'sqlWarehouse'; sqlWarehouse: AppResourceSqlWarehouse }
+    | { $case: 'servingEndpoint'; servingEndpoint: AppResourceServingEndpoint }
+    | { $case: 'job'; job: AppResourceJob }
+    | { $case: 'ucSecurable'; ucSecurable: AppResourceUcSecurable }
+    | { $case: 'database'; database: AppResourceDatabase }
+    | { $case: 'genieSpace'; genieSpace: AppResourceGenieSpace }
+    | { $case: 'experiment'; experiment: AppResourceExperiment }
+    | { $case: 'app'; app: AppResourceApp }
+    | { $case: 'postgres'; postgres: AppResourcePostgres }
     | undefined;
 }
 
@@ -1376,7 +1355,9 @@ export interface StopAppRequest {
 /** A single telemetry export destination with its configuration and status. */
 export interface TelemetryExportDestination {
   /** Destination type and configuration (writable). */
-  destination?: {$case: 'unityCatalog'; unityCatalog: UnityCatalog} | undefined;
+  destination?:
+    | { $case: 'unityCatalog'; unityCatalog: UnityCatalog }
+    | undefined;
 }
 
 /** Unity Catalog Destinations for OTEL telemetry export. */
@@ -1417,15 +1398,9 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     app_status: z.lazy(() => unmarshalApplicationStatusSchema).optional(),
     url: z.string().optional(),
     active_deployment: z.lazy(() => unmarshalAppDeploymentSchema).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     creator: z.string().optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     updater: z.string().optional(),
     pending_deployment: z.lazy(() => unmarshalAppDeploymentSchema).optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
@@ -1444,9 +1419,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     usage_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
-    telemetry_export_destinations: z
-      .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
-      .optional(),
+    telemetry_export_destinations: z.array(z.lazy(() => unmarshalTelemetryExportDestinationSchema)).optional(),
     thumbnail_url: z.string().optional(),
     space: z.string().optional(),
   })
@@ -1489,19 +1462,11 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
     source_code_path: z.string().optional(),
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     mode: z.enum(AppDeployment_Mode).optional(),
-    deployment_artifacts: z
-      .lazy(() => unmarshalAppDeploymentArtifactsSchema)
-      .optional(),
+    deployment_artifacts: z.lazy(() => unmarshalAppDeploymentArtifactsSchema).optional(),
     status: z.lazy(() => unmarshalAppDeploymentStatusSchema).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     creator: z.string().optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     command: z.array(z.string()).optional(),
     env_vars: z.array(z.lazy(() => unmarshalEnvVarSchema)).optional(),
   })
@@ -1519,34 +1484,30 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
     envVars: d.env_vars,
   }));
 
-export const unmarshalAppDeploymentArtifactsSchema: z.ZodType<AppDeploymentArtifacts> =
-  z
-    .object({
-      source_code_path: z.string().optional(),
-    })
-    .transform(d => ({
-      sourceCodePath: d.source_code_path,
-    }));
+export const unmarshalAppDeploymentArtifactsSchema: z.ZodType<AppDeploymentArtifacts> = z
+  .object({
+    source_code_path: z.string().optional(),
+  })
+  .transform(d => ({
+    sourceCodePath: d.source_code_path,
+  }));
 
-export const unmarshalAppDeploymentStatusSchema: z.ZodType<AppDeploymentStatus> =
-  z
-    .object({
-      state: z.enum(AppDeployment_State).optional(),
-      message: z.string().optional(),
-    })
-    .transform(d => ({
-      state: d.state,
-      message: d.message,
-    }));
+export const unmarshalAppDeploymentStatusSchema: z.ZodType<AppDeploymentStatus> = z
+  .object({
+    state: z.enum(AppDeployment_State).optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    message: d.message,
+  }));
 
 export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
   .object({
     version: z.number().optional(),
     name: z.string().optional(),
     description: z.string().optional(),
-    resource_specs: z
-      .array(z.lazy(() => unmarshalAppManifest_AppResourceSpecSchema))
-      .optional(),
+    resource_specs: z.array(z.lazy(() => unmarshalAppManifest_AppResourceSpecSchema)).optional(),
   })
   .transform(d => ({
     version: d.version,
@@ -1556,154 +1517,88 @@ export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<AppManifest_AppResourceExperimentSpec> =
-  z
-    .object({
-      permission: z
-        .enum(AppManifest_AppResourceExperimentSpec_ExperimentPermission)
-        .optional(),
-    })
-    .transform(d => ({
-      permission: d.permission,
-    }));
+export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<AppManifest_AppResourceExperimentSpec> = z
+  .object({
+    permission: z.enum(AppManifest_AppResourceExperimentSpec_ExperimentPermission).optional(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifest_AppResourceJobSpec> =
-  z
-    .object({
-      permission: z
-        .enum(AppManifest_AppResourceJobSpec_JobPermission)
-        .optional(),
-    })
-    .transform(d => ({
-      permission: d.permission,
-    }));
+export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifest_AppResourceJobSpec> = z
+  .object({
+    permission: z.enum(AppManifest_AppResourceJobSpec_JobPermission).optional(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceSecretSpecSchema: z.ZodType<AppManifest_AppResourceSecretSpec> =
-  z
-    .object({
-      permission: z
-        .enum(AppManifest_AppResourceSecretSpec_SecretPermission)
-        .optional(),
-    })
-    .transform(d => ({
-      permission: d.permission,
-    }));
+export const unmarshalAppManifest_AppResourceSecretSpecSchema: z.ZodType<AppManifest_AppResourceSecretSpec> = z
+  .object({
+    permission: z.enum(AppManifest_AppResourceSecretSpec_SecretPermission).optional(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType<AppManifest_AppResourceServingEndpointSpec> =
-  z
-    .object({
-      permission: z
-        .enum(
-          AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      permission: d.permission,
-    }));
+export const unmarshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType<AppManifest_AppResourceServingEndpointSpec> = z
+  .object({
+    permission: z.enum(AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission).optional(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_AppResourceSpec> =
-  z
-    .object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      secret_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceSecretSpecSchema)
-        .optional(),
-      sql_warehouse_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema)
-        .optional(),
-      serving_endpoint_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceServingEndpointSpecSchema)
-        .optional(),
-      job_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceJobSpecSchema)
-        .optional(),
-      uc_securable_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceUcSecurableSpecSchema)
-        .optional(),
-      experiment_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceExperimentSpecSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      description: d.description,
-      resource:
-        d.secret_spec !== undefined
-          ? {$case: 'secretSpec' as const, secretSpec: d.secret_spec}
-          : d.sql_warehouse_spec !== undefined
-            ? {
-                $case: 'sqlWarehouseSpec' as const,
-                sqlWarehouseSpec: d.sql_warehouse_spec,
-              }
-            : d.serving_endpoint_spec !== undefined
-              ? {
-                  $case: 'servingEndpointSpec' as const,
-                  servingEndpointSpec: d.serving_endpoint_spec,
-                }
-              : d.job_spec !== undefined
-                ? {$case: 'jobSpec' as const, jobSpec: d.job_spec}
-                : d.uc_securable_spec !== undefined
-                  ? {
-                      $case: 'ucSecurableSpec' as const,
-                      ucSecurableSpec: d.uc_securable_spec,
-                    }
-                  : d.experiment_spec !== undefined
-                    ? {
-                        $case: 'experimentSpec' as const,
-                        experimentSpec: d.experiment_spec,
-                      }
-                    : undefined,
-    }));
+export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_AppResourceSpec> = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    secret_spec: z.lazy(() => unmarshalAppManifest_AppResourceSecretSpecSchema).optional(),
+    sql_warehouse_spec: z.lazy(() => unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema).optional(),
+    serving_endpoint_spec: z.lazy(() => unmarshalAppManifest_AppResourceServingEndpointSpecSchema).optional(),
+    job_spec: z.lazy(() => unmarshalAppManifest_AppResourceJobSpecSchema).optional(),
+    uc_securable_spec: z.lazy(() => unmarshalAppManifest_AppResourceUcSecurableSpecSchema).optional(),
+    experiment_spec: z.lazy(() => unmarshalAppManifest_AppResourceExperimentSpecSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    resource: d.secret_spec !== undefined ? { $case: 'secretSpec' as const, secretSpec: d.secret_spec } : d.sql_warehouse_spec !== undefined ? { $case: 'sqlWarehouseSpec' as const, sqlWarehouseSpec: d.sql_warehouse_spec } : d.serving_endpoint_spec !== undefined ? { $case: 'servingEndpointSpec' as const, servingEndpointSpec: d.serving_endpoint_spec } : d.job_spec !== undefined ? { $case: 'jobSpec' as const, jobSpec: d.job_spec } : d.uc_securable_spec !== undefined ? { $case: 'ucSecurableSpec' as const, ucSecurableSpec: d.uc_securable_spec } : d.experiment_spec !== undefined ? { $case: 'experimentSpec' as const, experimentSpec: d.experiment_spec } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType<AppManifest_AppResourceSqlWarehouseSpec> =
-  z
-    .object({
-      permission: z
-        .enum(AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission)
-        .optional(),
-    })
-    .transform(d => ({
-      permission: d.permission,
-    }));
+export const unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType<AppManifest_AppResourceSqlWarehouseSpec> = z
+  .object({
+    permission: z.enum(AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission).optional(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType<AppManifest_AppResourceUcSecurableSpec> =
-  z
-    .object({
-      securable_type: z
-        .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurableType)
-        .optional(),
-      permission: z
-        .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission)
-        .optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      permission: d.permission,
-    }));
+export const unmarshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType<AppManifest_AppResourceUcSecurableSpec> = z
+  .object({
+    securable_type: z.enum(AppManifest_AppResourceUcSecurableSpec_UcSecurableType).optional(),
+    permission: z.enum(AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission).optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    permission: d.permission,
+  }));
 
 export const unmarshalAppResourceSchema: z.ZodType<AppResource> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
     secret: z.lazy(() => unmarshalAppResourceSecretSchema).optional(),
-    sql_warehouse: z
-      .lazy(() => unmarshalAppResourceSqlWarehouseSchema)
-      .optional(),
-    serving_endpoint: z
-      .lazy(() => unmarshalAppResourceServingEndpointSchema)
-      .optional(),
+    sql_warehouse: z.lazy(() => unmarshalAppResourceSqlWarehouseSchema).optional(),
+    serving_endpoint: z.lazy(() => unmarshalAppResourceServingEndpointSchema).optional(),
     job: z.lazy(() => unmarshalAppResourceJobSchema).optional(),
-    uc_securable: z
-      .lazy(() => unmarshalAppResourceUcSecurableSchema)
-      .optional(),
+    uc_securable: z.lazy(() => unmarshalAppResourceUcSecurableSchema).optional(),
     database: z.lazy(() => unmarshalAppResourceDatabaseSchema).optional(),
     genie_space: z.lazy(() => unmarshalAppResourceGenieSpaceSchema).optional(),
     experiment: z.lazy(() => unmarshalAppResourceExperimentSchema).optional(),
@@ -1713,31 +1608,7 @@ export const unmarshalAppResourceSchema: z.ZodType<AppResource> = z
   .transform(d => ({
     name: d.name,
     description: d.description,
-    resource:
-      d.secret !== undefined
-        ? {$case: 'secret' as const, secret: d.secret}
-        : d.sql_warehouse !== undefined
-          ? {$case: 'sqlWarehouse' as const, sqlWarehouse: d.sql_warehouse}
-          : d.serving_endpoint !== undefined
-            ? {
-                $case: 'servingEndpoint' as const,
-                servingEndpoint: d.serving_endpoint,
-              }
-            : d.job !== undefined
-              ? {$case: 'job' as const, job: d.job}
-              : d.uc_securable !== undefined
-                ? {$case: 'ucSecurable' as const, ucSecurable: d.uc_securable}
-                : d.database !== undefined
-                  ? {$case: 'database' as const, database: d.database}
-                  : d.genie_space !== undefined
-                    ? {$case: 'genieSpace' as const, genieSpace: d.genie_space}
-                    : d.experiment !== undefined
-                      ? {$case: 'experiment' as const, experiment: d.experiment}
-                      : d.app !== undefined
-                        ? {$case: 'app' as const, app: d.app}
-                        : d.postgres !== undefined
-                          ? {$case: 'postgres' as const, postgres: d.postgres}
-                          : undefined,
+    resource: d.secret !== undefined ? { $case: 'secret' as const, secret: d.secret } : d.sql_warehouse !== undefined ? { $case: 'sqlWarehouse' as const, sqlWarehouse: d.sql_warehouse } : d.serving_endpoint !== undefined ? { $case: 'servingEndpoint' as const, servingEndpoint: d.serving_endpoint } : d.job !== undefined ? { $case: 'job' as const, job: d.job } : d.uc_securable !== undefined ? { $case: 'ucSecurable' as const, ucSecurable: d.uc_securable } : d.database !== undefined ? { $case: 'database' as const, database: d.database } : d.genie_space !== undefined ? { $case: 'genieSpace' as const, genieSpace: d.genie_space } : d.experiment !== undefined ? { $case: 'experiment' as const, experiment: d.experiment } : d.app !== undefined ? { $case: 'app' as const, app: d.app } : d.postgres !== undefined ? { $case: 'postgres' as const, postgres: d.postgres } : undefined,
   }));
 
 export const unmarshalAppResourceAppSchema: z.ZodType<AppResourceApp> = z
@@ -1750,42 +1621,39 @@ export const unmarshalAppResourceAppSchema: z.ZodType<AppResourceApp> = z
     permission: d.permission,
   }));
 
-export const unmarshalAppResourceDatabaseSchema: z.ZodType<AppResourceDatabase> =
-  z
-    .object({
-      instance_name: z.string().optional(),
-      database_name: z.string().optional(),
-      permission: z.enum(AppResourceDatabase_DatabasePermission).optional(),
-    })
-    .transform(d => ({
-      instanceName: d.instance_name,
-      databaseName: d.database_name,
-      permission: d.permission,
-    }));
+export const unmarshalAppResourceDatabaseSchema: z.ZodType<AppResourceDatabase> = z
+  .object({
+    instance_name: z.string().optional(),
+    database_name: z.string().optional(),
+    permission: z.enum(AppResourceDatabase_DatabasePermission).optional(),
+  })
+  .transform(d => ({
+    instanceName: d.instance_name,
+    databaseName: d.database_name,
+    permission: d.permission,
+  }));
 
-export const unmarshalAppResourceExperimentSchema: z.ZodType<AppResourceExperiment> =
-  z
-    .object({
-      experiment_id: z.string().optional(),
-      permission: z.enum(AppResourceExperiment_ExperimentPermission).optional(),
-    })
-    .transform(d => ({
-      experimentId: d.experiment_id,
-      permission: d.permission,
-    }));
+export const unmarshalAppResourceExperimentSchema: z.ZodType<AppResourceExperiment> = z
+  .object({
+    experiment_id: z.string().optional(),
+    permission: z.enum(AppResourceExperiment_ExperimentPermission).optional(),
+  })
+  .transform(d => ({
+    experimentId: d.experiment_id,
+    permission: d.permission,
+  }));
 
-export const unmarshalAppResourceGenieSpaceSchema: z.ZodType<AppResourceGenieSpace> =
-  z
-    .object({
-      name: z.string().optional(),
-      space_id: z.string().optional(),
-      permission: z.enum(AppResourceGenieSpace_GenieSpacePermission).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      spaceId: d.space_id,
-      permission: d.permission,
-    }));
+export const unmarshalAppResourceGenieSpaceSchema: z.ZodType<AppResourceGenieSpace> = z
+  .object({
+    name: z.string().optional(),
+    space_id: z.string().optional(),
+    permission: z.enum(AppResourceGenieSpace_GenieSpacePermission).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spaceId: d.space_id,
+    permission: d.permission,
+  }));
 
 export const unmarshalAppResourceJobSchema: z.ZodType<AppResourceJob> = z
   .object({
@@ -1797,18 +1665,17 @@ export const unmarshalAppResourceJobSchema: z.ZodType<AppResourceJob> = z
     permission: d.permission,
   }));
 
-export const unmarshalAppResourcePostgresSchema: z.ZodType<AppResourcePostgres> =
-  z
-    .object({
-      branch: z.string().optional(),
-      database: z.string().optional(),
-      permission: z.enum(AppResourcePostgres_PostgresPermission).optional(),
-    })
-    .transform(d => ({
-      branch: d.branch,
-      database: d.database,
-      permission: d.permission,
-    }));
+export const unmarshalAppResourcePostgresSchema: z.ZodType<AppResourcePostgres> = z
+  .object({
+    branch: z.string().optional(),
+    database: z.string().optional(),
+    permission: z.enum(AppResourcePostgres_PostgresPermission).optional(),
+  })
+  .transform(d => ({
+    branch: d.branch,
+    database: d.database,
+    permission: d.permission,
+  }));
 
 export const unmarshalAppResourceSecretSchema: z.ZodType<AppResourceSecret> = z
   .object({
@@ -1822,55 +1689,43 @@ export const unmarshalAppResourceSecretSchema: z.ZodType<AppResourceSecret> = z
     permission: d.permission,
   }));
 
-export const unmarshalAppResourceServingEndpointSchema: z.ZodType<AppResourceServingEndpoint> =
-  z
-    .object({
-      name: z.string().optional(),
-      permission: z
-        .enum(AppResourceServingEndpoint_ServingEndpointPermission)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      permission: d.permission,
-    }));
+export const unmarshalAppResourceServingEndpointSchema: z.ZodType<AppResourceServingEndpoint> = z
+  .object({
+    name: z.string().optional(),
+    permission: z.enum(AppResourceServingEndpoint_ServingEndpointPermission).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    permission: d.permission,
+  }));
 
-export const unmarshalAppResourceSqlWarehouseSchema: z.ZodType<AppResourceSqlWarehouse> =
-  z
-    .object({
-      id: z.string().optional(),
-      permission: z
-        .enum(AppResourceSqlWarehouse_SqlWarehousePermission)
-        .optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      permission: d.permission,
-    }));
+export const unmarshalAppResourceSqlWarehouseSchema: z.ZodType<AppResourceSqlWarehouse> = z
+  .object({
+    id: z.string().optional(),
+    permission: z.enum(AppResourceSqlWarehouse_SqlWarehousePermission).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    permission: d.permission,
+  }));
 
-export const unmarshalAppResourceUcSecurableSchema: z.ZodType<AppResourceUcSecurable> =
-  z
-    .object({
-      securable_full_name: z.string().optional(),
-      securable_type: z.enum(AppResourceUcSecurable_UcSecurableType).optional(),
-      permission: z
-        .enum(AppResourceUcSecurable_UcSecurablePermission)
-        .optional(),
-      securable_kind: z.string().optional(),
-    })
-    .transform(d => ({
-      securableFullName: d.securable_full_name,
-      securableType: d.securable_type,
-      permission: d.permission,
-      securableKind: d.securable_kind,
-    }));
+export const unmarshalAppResourceUcSecurableSchema: z.ZodType<AppResourceUcSecurable> = z
+  .object({
+    securable_full_name: z.string().optional(),
+    securable_type: z.enum(AppResourceUcSecurable_UcSecurableType).optional(),
+    permission: z.enum(AppResourceUcSecurable_UcSecurablePermission).optional(),
+    securable_kind: z.string().optional(),
+  })
+  .transform(d => ({
+    securableFullName: d.securable_full_name,
+    securableType: d.securable_type,
+    permission: d.permission,
+    securableKind: d.securable_kind,
+  }));
 
 export const unmarshalAppThumbnailSchema: z.ZodType<AppThumbnail> = z
   .object({
-    thumbnail: z
-      .string()
-      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-      .optional(),
+    thumbnail: z.string().transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0))).optional(),
   })
   .transform(d => ({
     thumbnail: d.thumbnail,
@@ -1899,16 +1754,15 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppUpdate_UpdateStatusSchema: z.ZodType<AppUpdate_UpdateStatus> =
-  z
-    .object({
-      state: z.enum(AppUpdate_UpdateStatus_UpdateState).optional(),
-      message: z.string().optional(),
-    })
-    .transform(d => ({
-      state: d.state,
-      message: d.message,
-    }));
+export const unmarshalAppUpdate_UpdateStatusSchema: z.ZodType<AppUpdate_UpdateStatus> = z
+  .object({
+    state: z.enum(AppUpdate_UpdateStatus_UpdateState).optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    message: d.message,
+  }));
 
 export const unmarshalApplicationStatusSchema: z.ZodType<ApplicationStatus> = z
   .object({
@@ -1952,20 +1806,19 @@ export const unmarshalCustomTemplateSchema: z.ZodType<CustomTemplate> = z
     creator: d.creator,
   }));
 
-export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-      details: d.details,
-    }));
+export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
 
 export const unmarshalEnvVarSchema: z.ZodType<EnvVar> = z
   .object({
@@ -1975,12 +1828,7 @@ export const unmarshalEnvVarSchema: z.ZodType<EnvVar> = z
   })
   .transform(d => ({
     name: d.name,
-    source:
-      d.value !== undefined
-        ? {$case: 'value' as const, value: d.value}
-        : d.value_from !== undefined
-          ? {$case: 'valueFrom' as const, valueFrom: d.value_from}
-          : undefined,
+    source: d.value !== undefined ? { $case: 'value' as const, value: d.value } : d.value_from !== undefined ? { $case: 'valueFrom' as const, valueFrom: d.value_from } : undefined,
   }));
 
 export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
@@ -2004,30 +1852,20 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
   })
   .transform(d => ({
     gitRepository: d.git_repository,
-    reference:
-      d.branch !== undefined
-        ? {$case: 'branch' as const, branch: d.branch}
-        : d.tag !== undefined
-          ? {$case: 'tag' as const, tag: d.tag}
-          : d.commit !== undefined
-            ? {$case: 'commit' as const, commit: d.commit}
-            : undefined,
+    reference: d.branch !== undefined ? { $case: 'branch' as const, branch: d.branch } : d.tag !== undefined ? { $case: 'tag' as const, tag: d.tag } : d.commit !== undefined ? { $case: 'commit' as const, commit: d.commit } : undefined,
     sourceCodePath: d.source_code_path,
     resolvedCommit: d.resolved_commit,
   }));
 
-export const unmarshalListAppDeploymentsResponseSchema: z.ZodType<ListAppDeploymentsResponse> =
-  z
-    .object({
-      app_deployments: z
-        .array(z.lazy(() => unmarshalAppDeploymentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      appDeployments: d.app_deployments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAppDeploymentsResponseSchema: z.ZodType<ListAppDeploymentsResponse> = z
+  .object({
+    app_deployments: z.array(z.lazy(() => unmarshalAppDeploymentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    appDeployments: d.app_deployments,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalListAppsResponseSchema: z.ZodType<ListAppsResponse> = z
   .object({
@@ -2039,50 +1877,39 @@ export const unmarshalListAppsResponseSchema: z.ZodType<ListAppsResponse> = z
     nextPageToken: d.next_page_token,
   }));
 
-export const unmarshalListCustomTemplatesResponseSchema: z.ZodType<ListCustomTemplatesResponse> =
-  z
-    .object({
-      templates: z
-        .array(z.lazy(() => unmarshalCustomTemplateSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      templates: d.templates,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCustomTemplatesResponseSchema: z.ZodType<ListCustomTemplatesResponse> = z
+  .object({
+    templates: z.array(z.lazy(() => unmarshalCustomTemplateSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    templates: d.templates,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListSpacesResponseSchema: z.ZodType<ListSpacesResponse> =
-  z
-    .object({
-      spaces: z.array(z.lazy(() => unmarshalSpaceSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaces: d.spaces,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSpacesResponseSchema: z.ZodType<ListSpacesResponse> = z
+  .object({
+    spaces: z.array(z.lazy(() => unmarshalSpaceSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    spaces: d.spaces,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
   .object({
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     done: z.boolean().optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
   .transform(d => ({
     name: d.name,
     metadata: d.metadata,
     done: d.done,
-    result:
-      d.error !== undefined
-        ? {$case: 'error' as const, error: d.error}
-        : d.response !== undefined
-          ? {$case: 'response' as const, response: d.response}
-          : undefined,
+    result: d.error !== undefined ? { $case: 'error' as const, error: d.error } : d.response !== undefined ? { $case: 'response' as const, response: d.response } : undefined,
   }));
 
 export const unmarshalSpaceSchema: z.ZodType<Space> = z
@@ -2091,15 +1918,9 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     description: z.string().optional(),
     status: z.lazy(() => unmarshalSpaceStatusSchema).optional(),
     id: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     creator: z.string().optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     updater: z.string().optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
     user_api_scopes: z.array(z.string()).optional(),
@@ -2165,17 +1986,13 @@ export const unmarshalSpaceUpdateStatusSchema: z.ZodType<SpaceUpdateStatus> = z
     message: d.message,
   }));
 
-export const unmarshalTelemetryExportDestinationSchema: z.ZodType<TelemetryExportDestination> =
-  z
-    .object({
-      unity_catalog: z.lazy(() => unmarshalUnityCatalogSchema).optional(),
-    })
-    .transform(d => ({
-      destination:
-        d.unity_catalog !== undefined
-          ? {$case: 'unityCatalog' as const, unityCatalog: d.unity_catalog}
-          : undefined,
-    }));
+export const unmarshalTelemetryExportDestinationSchema: z.ZodType<TelemetryExportDestination> = z
+  .object({
+    unity_catalog: z.lazy(() => unmarshalUnityCatalogSchema).optional(),
+  })
+  .transform(d => ({
+    destination: d.unity_catalog !== undefined ? { $case: 'unityCatalog' as const, unityCatalog: d.unity_catalog } : undefined,
+  }));
 
 export const unmarshalUnityCatalogSchema: z.ZodType<UnityCatalog> = z
   .object({
@@ -2197,15 +2014,9 @@ export const marshalAppSchema: z.ZodType = z
     appStatus: z.lazy(() => marshalApplicationStatusSchema).optional(),
     url: z.string().optional(),
     activeDeployment: z.lazy(() => marshalAppDeploymentSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     creator: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     updater: z.string().optional(),
     pendingDeployment: z.lazy(() => marshalAppDeploymentSchema).optional(),
     resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
@@ -2224,9 +2035,7 @@ export const marshalAppSchema: z.ZodType = z
     usagePolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
     gitRepository: z.lazy(() => marshalGitRepositorySchema).optional(),
-    telemetryExportDestinations: z
-      .array(z.lazy(() => marshalTelemetryExportDestinationSchema))
-      .optional(),
+    telemetryExportDestinations: z.array(z.lazy(() => marshalTelemetryExportDestinationSchema)).optional(),
     thumbnailUrl: z.string().optional(),
     space: z.string().optional(),
   })
@@ -2269,19 +2078,11 @@ export const marshalAppDeploymentSchema: z.ZodType = z
     sourceCodePath: z.string().optional(),
     gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
     mode: z.enum(AppDeployment_Mode).optional(),
-    deploymentArtifacts: z
-      .lazy(() => marshalAppDeploymentArtifactsSchema)
-      .optional(),
+    deploymentArtifacts: z.lazy(() => marshalAppDeploymentArtifactsSchema).optional(),
     status: z.lazy(() => marshalAppDeploymentStatusSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     creator: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     command: z.array(z.string()).optional(),
     envVars: z.array(z.lazy(() => marshalEnvVarSchema)).optional(),
   })
@@ -2322,9 +2123,7 @@ export const marshalAppManifestSchema: z.ZodType = z
     version: z.number().optional(),
     name: z.string().optional(),
     description: z.string().optional(),
-    resourceSpecs: z
-      .array(z.lazy(() => marshalAppManifest_AppResourceSpecSchema))
-      .optional(),
+    resourceSpecs: z.array(z.lazy(() => marshalAppManifest_AppResourceSpecSchema)).optional(),
   })
   .transform(d => ({
     version: d.version,
@@ -2336,9 +2135,7 @@ export const marshalAppManifestSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
   .object({
-    permission: z
-      .enum(AppManifest_AppResourceExperimentSpec_ExperimentPermission)
-      .optional(),
+    permission: z.enum(AppManifest_AppResourceExperimentSpec_ExperimentPermission).optional(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2356,99 +2153,43 @@ export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSecretSpecSchema: z.ZodType = z
   .object({
-    permission: z
-      .enum(AppManifest_AppResourceSecretSpec_SecretPermission)
-      .optional(),
+    permission: z.enum(AppManifest_AppResourceSecretSpec_SecretPermission).optional(),
   })
   .transform(d => ({
     permission: d.permission,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType =
-  z
-    .object({
-      permission: z
-        .enum(
-          AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      permission: d.permission,
-    }));
+export const marshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType = z
+  .object({
+    permission: z.enum(AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission).optional(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    resource: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('secretSpec'),
-          secretSpec: z.lazy(
-            () => marshalAppManifest_AppResourceSecretSpecSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('sqlWarehouseSpec'),
-          sqlWarehouseSpec: z.lazy(
-            () => marshalAppManifest_AppResourceSqlWarehouseSpecSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('servingEndpointSpec'),
-          servingEndpointSpec: z.lazy(
-            () => marshalAppManifest_AppResourceServingEndpointSpecSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('jobSpec'),
-          jobSpec: z.lazy(() => marshalAppManifest_AppResourceJobSpecSchema),
-        }),
-        z.object({
-          $case: z.literal('ucSecurableSpec'),
-          ucSecurableSpec: z.lazy(
-            () => marshalAppManifest_AppResourceUcSecurableSpecSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('experimentSpec'),
-          experimentSpec: z.lazy(
-            () => marshalAppManifest_AppResourceExperimentSpecSchema
-          ),
-        }),
-      ])
-      .optional(),
+    resource: z.discriminatedUnion('$case', [z.object({ $case: z.literal('secretSpec'), secretSpec: z.lazy(() => marshalAppManifest_AppResourceSecretSpecSchema) }), z.object({ $case: z.literal('sqlWarehouseSpec'), sqlWarehouseSpec: z.lazy(() => marshalAppManifest_AppResourceSqlWarehouseSpecSchema) }), z.object({ $case: z.literal('servingEndpointSpec'), servingEndpointSpec: z.lazy(() => marshalAppManifest_AppResourceServingEndpointSpecSchema) }), z.object({ $case: z.literal('jobSpec'), jobSpec: z.lazy(() => marshalAppManifest_AppResourceJobSpecSchema) }), z.object({ $case: z.literal('ucSecurableSpec'), ucSecurableSpec: z.lazy(() => marshalAppManifest_AppResourceUcSecurableSpecSchema) }), z.object({ $case: z.literal('experimentSpec'), experimentSpec: z.lazy(() => marshalAppManifest_AppResourceExperimentSpecSchema) })]).optional(),
   })
   .transform(d => ({
     name: d.name,
     description: d.description,
-    ...(d.resource?.$case === 'secretSpec' && {
-      secret_spec: d.resource.secretSpec,
-    }),
-    ...(d.resource?.$case === 'sqlWarehouseSpec' && {
-      sql_warehouse_spec: d.resource.sqlWarehouseSpec,
-    }),
-    ...(d.resource?.$case === 'servingEndpointSpec' && {
-      serving_endpoint_spec: d.resource.servingEndpointSpec,
-    }),
-    ...(d.resource?.$case === 'jobSpec' && {job_spec: d.resource.jobSpec}),
-    ...(d.resource?.$case === 'ucSecurableSpec' && {
-      uc_securable_spec: d.resource.ucSecurableSpec,
-    }),
-    ...(d.resource?.$case === 'experimentSpec' && {
-      experiment_spec: d.resource.experimentSpec,
-    }),
+    ...(d.resource?.$case === 'secretSpec' && { secret_spec: d.resource.secretSpec }),
+    ...(d.resource?.$case === 'sqlWarehouseSpec' && { sql_warehouse_spec: d.resource.sqlWarehouseSpec }),
+    ...(d.resource?.$case === 'servingEndpointSpec' && { serving_endpoint_spec: d.resource.servingEndpointSpec }),
+    ...(d.resource?.$case === 'jobSpec' && { job_spec: d.resource.jobSpec }),
+    ...(d.resource?.$case === 'ucSecurableSpec' && { uc_securable_spec: d.resource.ucSecurableSpec }),
+    ...(d.resource?.$case === 'experimentSpec' && { experiment_spec: d.resource.experimentSpec }),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
   .object({
-    permission: z
-      .enum(AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission)
-      .optional(),
+    permission: z.enum(AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission).optional(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2457,12 +2198,8 @@ export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType = z
   .object({
-    securableType: z
-      .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurableType)
-      .optional(),
-    permission: z
-      .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission)
-      .optional(),
+    securableType: z.enum(AppManifest_AppResourceUcSecurableSpec_UcSecurableType).optional(),
+    permission: z.enum(AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission).optional(),
   })
   .transform(d => ({
     securable_type: d.securableType,
@@ -2473,76 +2210,21 @@ export const marshalAppResourceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    resource: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('secret'),
-          secret: z.lazy(() => marshalAppResourceSecretSchema),
-        }),
-        z.object({
-          $case: z.literal('sqlWarehouse'),
-          sqlWarehouse: z.lazy(() => marshalAppResourceSqlWarehouseSchema),
-        }),
-        z.object({
-          $case: z.literal('servingEndpoint'),
-          servingEndpoint: z.lazy(
-            () => marshalAppResourceServingEndpointSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('job'),
-          job: z.lazy(() => marshalAppResourceJobSchema),
-        }),
-        z.object({
-          $case: z.literal('ucSecurable'),
-          ucSecurable: z.lazy(() => marshalAppResourceUcSecurableSchema),
-        }),
-        z.object({
-          $case: z.literal('database'),
-          database: z.lazy(() => marshalAppResourceDatabaseSchema),
-        }),
-        z.object({
-          $case: z.literal('genieSpace'),
-          genieSpace: z.lazy(() => marshalAppResourceGenieSpaceSchema),
-        }),
-        z.object({
-          $case: z.literal('experiment'),
-          experiment: z.lazy(() => marshalAppResourceExperimentSchema),
-        }),
-        z.object({
-          $case: z.literal('app'),
-          app: z.lazy(() => marshalAppResourceAppSchema),
-        }),
-        z.object({
-          $case: z.literal('postgres'),
-          postgres: z.lazy(() => marshalAppResourcePostgresSchema),
-        }),
-      ])
-      .optional(),
+    resource: z.discriminatedUnion('$case', [z.object({ $case: z.literal('secret'), secret: z.lazy(() => marshalAppResourceSecretSchema) }), z.object({ $case: z.literal('sqlWarehouse'), sqlWarehouse: z.lazy(() => marshalAppResourceSqlWarehouseSchema) }), z.object({ $case: z.literal('servingEndpoint'), servingEndpoint: z.lazy(() => marshalAppResourceServingEndpointSchema) }), z.object({ $case: z.literal('job'), job: z.lazy(() => marshalAppResourceJobSchema) }), z.object({ $case: z.literal('ucSecurable'), ucSecurable: z.lazy(() => marshalAppResourceUcSecurableSchema) }), z.object({ $case: z.literal('database'), database: z.lazy(() => marshalAppResourceDatabaseSchema) }), z.object({ $case: z.literal('genieSpace'), genieSpace: z.lazy(() => marshalAppResourceGenieSpaceSchema) }), z.object({ $case: z.literal('experiment'), experiment: z.lazy(() => marshalAppResourceExperimentSchema) }), z.object({ $case: z.literal('app'), app: z.lazy(() => marshalAppResourceAppSchema) }), z.object({ $case: z.literal('postgres'), postgres: z.lazy(() => marshalAppResourcePostgresSchema) })]).optional(),
   })
   .transform(d => ({
     name: d.name,
     description: d.description,
-    ...(d.resource?.$case === 'secret' && {secret: d.resource.secret}),
-    ...(d.resource?.$case === 'sqlWarehouse' && {
-      sql_warehouse: d.resource.sqlWarehouse,
-    }),
-    ...(d.resource?.$case === 'servingEndpoint' && {
-      serving_endpoint: d.resource.servingEndpoint,
-    }),
-    ...(d.resource?.$case === 'job' && {job: d.resource.job}),
-    ...(d.resource?.$case === 'ucSecurable' && {
-      uc_securable: d.resource.ucSecurable,
-    }),
-    ...(d.resource?.$case === 'database' && {database: d.resource.database}),
-    ...(d.resource?.$case === 'genieSpace' && {
-      genie_space: d.resource.genieSpace,
-    }),
-    ...(d.resource?.$case === 'experiment' && {
-      experiment: d.resource.experiment,
-    }),
-    ...(d.resource?.$case === 'app' && {app: d.resource.app}),
-    ...(d.resource?.$case === 'postgres' && {postgres: d.resource.postgres}),
+    ...(d.resource?.$case === 'secret' && { secret: d.resource.secret }),
+    ...(d.resource?.$case === 'sqlWarehouse' && { sql_warehouse: d.resource.sqlWarehouse }),
+    ...(d.resource?.$case === 'servingEndpoint' && { serving_endpoint: d.resource.servingEndpoint }),
+    ...(d.resource?.$case === 'job' && { job: d.resource.job }),
+    ...(d.resource?.$case === 'ucSecurable' && { uc_securable: d.resource.ucSecurable }),
+    ...(d.resource?.$case === 'database' && { database: d.resource.database }),
+    ...(d.resource?.$case === 'genieSpace' && { genie_space: d.resource.genieSpace }),
+    ...(d.resource?.$case === 'experiment' && { experiment: d.resource.experiment }),
+    ...(d.resource?.$case === 'app' && { app: d.resource.app }),
+    ...(d.resource?.$case === 'postgres' && { postgres: d.resource.postgres }),
   }));
 
 export const marshalAppResourceAppSchema: z.ZodType = z
@@ -2626,9 +2308,7 @@ export const marshalAppResourceSecretSchema: z.ZodType = z
 export const marshalAppResourceServingEndpointSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    permission: z
-      .enum(AppResourceServingEndpoint_ServingEndpointPermission)
-      .optional(),
+    permission: z.enum(AppResourceServingEndpoint_ServingEndpointPermission).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2638,9 +2318,7 @@ export const marshalAppResourceServingEndpointSchema: z.ZodType = z
 export const marshalAppResourceSqlWarehouseSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    permission: z
-      .enum(AppResourceSqlWarehouse_SqlWarehousePermission)
-      .optional(),
+    permission: z.enum(AppResourceSqlWarehouse_SqlWarehousePermission).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2663,12 +2341,7 @@ export const marshalAppResourceUcSecurableSchema: z.ZodType = z
 
 export const marshalAppThumbnailSchema: z.ZodType = z
   .object({
-    thumbnail: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+    thumbnail: z.any().transform((d: Uint8Array) => btoa(Array.from(d, b => String.fromCharCode(b)).join(''))).optional(),
   })
   .transform(d => ({
     thumbnail: d.thumbnail,
@@ -2687,10 +2360,7 @@ export const marshalApplicationStatusSchema: z.ZodType = z
 export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
   .object({
     app: z.lazy(() => marshalAppSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()).optional(),
     appName: z.string().optional(),
   })
   .transform(d => ({
@@ -2734,17 +2404,12 @@ export const marshalCustomTemplateSchema: z.ZodType = z
 export const marshalEnvVarSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    source: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('value'), value: z.string()}),
-        z.object({$case: z.literal('valueFrom'), valueFrom: z.string()}),
-      ])
-      .optional(),
+    source: z.discriminatedUnion('$case', [z.object({ $case: z.literal('value'), value: z.string() }), z.object({ $case: z.literal('valueFrom'), valueFrom: z.string() })]).optional(),
   })
   .transform(d => ({
     name: d.name,
-    ...(d.source?.$case === 'value' && {value: d.source.value}),
-    ...(d.source?.$case === 'valueFrom' && {value_from: d.source.valueFrom}),
+    ...(d.source?.$case === 'value' && { value: d.source.value }),
+    ...(d.source?.$case === 'valueFrom' && { value_from: d.source.valueFrom }),
   }));
 
 export const marshalGitRepositorySchema: z.ZodType = z
@@ -2760,21 +2425,15 @@ export const marshalGitRepositorySchema: z.ZodType = z
 export const marshalGitSourceSchema: z.ZodType = z
   .object({
     gitRepository: z.lazy(() => marshalGitRepositorySchema).optional(),
-    reference: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('branch'), branch: z.string()}),
-        z.object({$case: z.literal('tag'), tag: z.string()}),
-        z.object({$case: z.literal('commit'), commit: z.string()}),
-      ])
-      .optional(),
+    reference: z.discriminatedUnion('$case', [z.object({ $case: z.literal('branch'), branch: z.string() }), z.object({ $case: z.literal('tag'), tag: z.string() }), z.object({ $case: z.literal('commit'), commit: z.string() })]).optional(),
     sourceCodePath: z.string().optional(),
     resolvedCommit: z.string().optional(),
   })
   .transform(d => ({
     git_repository: d.gitRepository,
-    ...(d.reference?.$case === 'branch' && {branch: d.reference.branch}),
-    ...(d.reference?.$case === 'tag' && {tag: d.reference.tag}),
-    ...(d.reference?.$case === 'commit' && {commit: d.reference.commit}),
+    ...(d.reference?.$case === 'branch' && { branch: d.reference.branch }),
+    ...(d.reference?.$case === 'tag' && { tag: d.reference.tag }),
+    ...(d.reference?.$case === 'commit' && { commit: d.reference.commit }),
     source_code_path: d.sourceCodePath,
     resolved_commit: d.resolvedCommit,
   }));
@@ -2785,15 +2444,9 @@ export const marshalSpaceSchema: z.ZodType = z
     description: z.string().optional(),
     status: z.lazy(() => marshalSpaceStatusSchema).optional(),
     id: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     creator: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     updater: z.string().optional(),
     resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
     userApiScopes: z.array(z.string()).optional(),
@@ -2851,19 +2504,10 @@ export const marshalStopAppRequestSchema: z.ZodType = z
 
 export const marshalTelemetryExportDestinationSchema: z.ZodType = z
   .object({
-    destination: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('unityCatalog'),
-          unityCatalog: z.lazy(() => marshalUnityCatalogSchema),
-        }),
-      ])
-      .optional(),
+    destination: z.discriminatedUnion('$case', [z.object({ $case: z.literal('unityCatalog'), unityCatalog: z.lazy(() => marshalUnityCatalogSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.destination?.$case === 'unityCatalog' && {
-      unity_catalog: d.destination.unityCatalog,
-    }),
+    ...(d.destination?.$case === 'unityCatalog' && { unity_catalog: d.destination.unityCatalog }),
   }));
 
 export const marshalUnityCatalogSchema: z.ZodType = z
@@ -2889,20 +2533,11 @@ export const marshalUpdateAppThumbnailRequestSchema: z.ZodType = z
   }));
 
 const appFieldMaskSchema: FieldMaskSchema = {
-  activeDeployment: {
-    wire: 'active_deployment',
-    children: () => appDeploymentFieldMaskSchema,
-  },
-  appStatus: {
-    wire: 'app_status',
-    children: () => applicationStatusFieldMaskSchema,
-  },
+  activeDeployment: {wire: 'active_deployment', children: () => appDeploymentFieldMaskSchema},
+  appStatus: {wire: 'app_status', children: () => applicationStatusFieldMaskSchema},
   budgetPolicyId: {wire: 'budget_policy_id'},
   computeSize: {wire: 'compute_size'},
-  computeStatus: {
-    wire: 'compute_status',
-    children: () => computeStatusFieldMaskSchema,
-  },
+  computeStatus: {wire: 'compute_status', children: () => computeStatusFieldMaskSchema},
   createTime: {wire: 'create_time'},
   creator: {wire: 'creator'},
   defaultSourceCodePath: {wire: 'default_source_code_path'},
@@ -2910,18 +2545,12 @@ const appFieldMaskSchema: FieldMaskSchema = {
   effectiveBudgetPolicyId: {wire: 'effective_budget_policy_id'},
   effectiveUsagePolicyId: {wire: 'effective_usage_policy_id'},
   effectiveUserApiScopes: {wire: 'effective_user_api_scopes'},
-  gitRepository: {
-    wire: 'git_repository',
-    children: () => gitRepositoryFieldMaskSchema,
-  },
+  gitRepository: {wire: 'git_repository', children: () => gitRepositoryFieldMaskSchema},
   id: {wire: 'id'},
   name: {wire: 'name'},
   oauth2AppClientId: {wire: 'oauth2_app_client_id'},
   oauth2AppIntegrationId: {wire: 'oauth2_app_integration_id'},
-  pendingDeployment: {
-    wire: 'pending_deployment',
-    children: () => appDeploymentFieldMaskSchema,
-  },
+  pendingDeployment: {wire: 'pending_deployment', children: () => appDeploymentFieldMaskSchema},
   resources: {wire: 'resources'},
   servicePrincipalClientId: {wire: 'service_principal_client_id'},
   servicePrincipalId: {wire: 'service_principal_id'},
@@ -2944,10 +2573,7 @@ const appDeploymentFieldMaskSchema: FieldMaskSchema = {
   command: {wire: 'command'},
   createTime: {wire: 'create_time'},
   creator: {wire: 'creator'},
-  deploymentArtifacts: {
-    wire: 'deployment_artifacts',
-    children: () => appDeploymentArtifactsFieldMaskSchema,
-  },
+  deploymentArtifacts: {wire: 'deployment_artifacts', children: () => appDeploymentArtifactsFieldMaskSchema},
   deploymentId: {wire: 'deployment_id'},
   envVars: {wire: 'env_vars'},
   gitSource: {wire: 'git_source', children: () => gitSourceFieldMaskSchema},
@@ -2985,10 +2611,7 @@ const gitRepositoryFieldMaskSchema: FieldMaskSchema = {
 const gitSourceFieldMaskSchema: FieldMaskSchema = {
   branch: {wire: 'branch'},
   commit: {wire: 'commit'},
-  gitRepository: {
-    wire: 'git_repository',
-    children: () => gitRepositoryFieldMaskSchema,
-  },
+  gitRepository: {wire: 'git_repository', children: () => gitRepositoryFieldMaskSchema},
   resolvedCommit: {wire: 'resolved_commit'},
   sourceCodePath: {wire: 'source_code_path'},
   tag: {wire: 'tag'},

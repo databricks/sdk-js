@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** The type of the catalog. */
 export enum CatalogType {
   MANAGED_CATALOG = 'MANAGED_CATALOG',
@@ -41,9 +42,7 @@ export interface CreateSchemaRequest {
   catalogType?: CatalogType | undefined;
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -150,9 +149,7 @@ export interface SchemaInfo {
   catalogType?: CatalogType | undefined;
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -208,9 +205,7 @@ export interface UpdateSchemaRequest {
   catalogType?: CatalogType | undefined;
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -234,33 +229,32 @@ export interface UpdateSchemaRequest_PropertiesEntry {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteSchemaRequest_ResponseSchema: z.ZodType<DeleteSchemaRequest_Response> =
-  z.object({});
+export const unmarshalDeleteSchemaRequest_ResponseSchema: z.ZodType<DeleteSchemaRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
-  z
-    .object({
-      value: z.string().optional(),
-      inherited_from_type: z.string().optional(),
-      inherited_from_name: z.string().optional(),
-    })
-    .transform(d => ({
-      value: d.value,
-      inheritedFromType: d.inherited_from_type,
-      inheritedFromName: d.inherited_from_name,
-    }));
+export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> = z
+  .object({
+    value: z.string().optional(),
+    inherited_from_type: z.string().optional(),
+    inherited_from_name: z.string().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+    inheritedFromType: d.inherited_from_type,
+    inheritedFromName: d.inherited_from_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSchemasRequest_ResponseSchema: z.ZodType<ListSchemasRequest_Response> =
-  z
-    .object({
-      schemas: z.array(z.lazy(() => unmarshalSchemaInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      schemas: d.schemas,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSchemasRequest_ResponseSchema: z.ZodType<ListSchemasRequest_Response> = z
+  .object({
+    schemas: z.array(z.lazy(() => unmarshalSchemaInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    schemas: d.schemas,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
   .object({
@@ -278,9 +272,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     updated_by: z.string().optional(),
     catalog_type: z.enum(CatalogType).optional(),
     storage_location: z.string().optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -301,8 +293,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     updatedBy: d.updated_by,
     catalogType: d.catalog_type,
     storageLocation: d.storage_location,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     schemaId: d.schema_id,
     browseOnly: d.browse_only,
     properties: d.properties,
@@ -325,9 +316,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -348,8 +337,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     updated_by: d.updatedBy,
     catalog_type: d.catalogType,
     storage_location: d.storageLocation,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
     properties: d.properties,
@@ -386,9 +374,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -411,8 +397,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
     updated_by: d.updatedBy,
     catalog_type: d.catalogType,
     storage_location: d.storageLocation,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
     properties: d.properties,

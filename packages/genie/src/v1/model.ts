@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ColumnTypeName {
   BOOLEAN = 'BOOLEAN',
   BYTE = 'BYTE',
@@ -34,10 +35,10 @@ export enum ErrorCode {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
-   *
+   * 
    * It's assigned tag 0 to follow the best practice from
    * https://developers.google.com/protocol-buffers/docs/style#enums
-   *
+   * 
    * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
    * Maps to:
    * - google.rpc.Code: UNKNOWN = 2;
@@ -48,10 +49,10 @@ export enum ErrorCode {
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
    * by the user.
-   *
+   * 
    * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
    * automation that relies on the custom error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
@@ -61,12 +62,12 @@ export enum ErrorCode {
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
    * operations.
-   *
+   * 
    * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -81,9 +82,9 @@ export enum ErrorCode {
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
-   *
+   * 
    * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
@@ -103,7 +104,7 @@ export enum ErrorCode {
    * the deadline to expire. When possible - implementations should make sure further processing of
    * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
    * making the database query, etc.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
@@ -112,7 +113,7 @@ export enum ErrorCode {
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
@@ -122,10 +123,10 @@ export enum ErrorCode {
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
    * resources.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -134,7 +135,7 @@ export enum ErrorCode {
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
@@ -143,7 +144,7 @@ export enum ErrorCode {
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -152,9 +153,9 @@ export enum ErrorCode {
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
-   *
+   * 
    * Prefer this over RESOURCE_CONFLICT.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
@@ -162,11 +163,11 @@ export enum ErrorCode {
   ALREADY_EXISTS = 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
    * code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -181,7 +182,7 @@ export enum ErrorCode {
    * not know whether it is because the domain name is completely wrong (non-transient situation) or
    * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
    * situation). Hence, `UNAVAILABLE`  is suitable for this case.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -189,7 +190,7 @@ export enum ErrorCode {
   UNAVAILABLE = 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
@@ -198,7 +199,7 @@ export enum ErrorCode {
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -220,7 +221,7 @@ export enum ErrorCode {
    * use CUSTOMER_UNAUTHORIZED instead for those errors.
    * This error code does not imply the request is valid or the requested entity exists or
    * satisfies other pre-conditions.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
@@ -230,9 +231,9 @@ export enum ErrorCode {
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
    * Prefer using NOT_FOUND or PERMISSION_DENIED.
-   *
+   * 
    * If a given user/entity is trying to use a feature which has been disabled.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -240,20 +241,20 @@ export enum ErrorCode {
   FEATURE_DISABLED = 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
    * consistent behavior with legacy code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Important: name is confusing, this error code is for authentication (AuthN) errors, not
    * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
    * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
    * indicates that the request has not been applied because it lacks valid authentication
    * credentials for the target resource. [...] If the request included authentication credentials,
    * then the 401 response indicates that authorization has been refused for those credentials."
-   *
+   * 
    * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -262,12 +263,12 @@ export enum ErrorCode {
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
-   *
+   * 
    * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on the rate limiting vs throttling.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -284,7 +285,7 @@ export enum ErrorCode {
   UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
@@ -292,14 +293,14 @@ export enum ErrorCode {
   NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
-   *
+   * 
    * One of the major use cases is to indicate that server failed to validate the integrity of
    * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
    * request header (or trailer) doesn't match the actual request content checksum.
-   *
+   * 
    * Note, in case of the severe corruption that results in a malformed request, the server may
    * send a generic `400 Bad Request` response rather than sending this error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
@@ -317,7 +318,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
    * remapping will be a backwards incompatible change.
-   *
+   * 
    * Operation was performed on a resource that already exists.
    */
   RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
@@ -325,7 +326,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
    * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
-   *
+   * 
    * Operation was performed on a resource that does not exist.
    */
   RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
@@ -573,7 +574,7 @@ export enum GenieFeedbackRating {
  * https://github.com/protocolbuffers/protobuf/blob/450d24ca820750c5db5112a6f0b0c2efb9758021/src/google/protobuf/struct.proto
  * `NullValue` is a singleton enumeration to represent the null value for the
  * `Value` type union.
- *
+ * 
  * The JSON representation for `NullValue` is JSON `null`.
  */
 export enum NullValue {
@@ -1041,9 +1042,9 @@ export interface GenieEvalResultDetails {
   manualAssessment?: boolean | undefined;
   /**
    * Reasons for the assessment score.
-   *
+   * 
    * Assessment reasons describe why a Genie response was scored as BAD.
-   *
+   * 
    * Deterministic values (compared against the ground truth result):
    * - EMPTY_RESULT: Genie's generated SQL results were empty for this benchmark question.
    * - RESULT_MISSING_ROWS: Genie's generated SQL response is missing rows from the provided ground truth SQL.
@@ -1053,7 +1054,7 @@ export interface GenieEvalResultDetails {
    * - SINGLE_CELL_DIFFERENCE: Single value result was produced but differs from ground truth result.
    * - EMPTY_GOOD_SQL: The benchmark SQL returned an empty result.
    * - COLUMN_TYPE_DIFFERENCE: The values between the results match but the column type is different.
-   *
+   * 
    * LLM judge ratings explain the factors driving BAD results:
    * - LLM_JUDGE_MISSING_OR_INCORRECT_FILTER: Genie's generated SQL is missing a WHERE clause condition or has incorrect filter logic that excludes/includes wrong data.
    * - LLM_JUDGE_INCOMPLETE_OR_PARTIAL_OUTPUT: Genie's generated SQL returns only some of the requested data or columns, missing parts of what the ground truth SQL returns.
@@ -1066,7 +1067,7 @@ export interface GenieEvalResultDetails {
    * - LLM_JUDGE_MISSING_OR_INCORRECT_AGGREGATION: Genie's generated SQL is missing GROUP BY clauses or has incorrect grouping that doesn't match the requested aggregation level.
    * - LLM_JUDGE_FORMATTING_ERROR: Genie's generated SQL output has incorrect formatting, ordering (ORDER BY), or presentation issues that don't match expectations.
    * - LLM_JUDGE_OTHER: LLM judge identified an error that doesn't fall into other categories.
-   *
+   * 
    * Deprecated LLM judge values (kept for backward compatibility, do not use):
    * - LLM_JUDGE_MISSING_JOIN (deprecated)
    * - LLM_JUDGE_WRONG_FILTER (deprecated)
@@ -1527,13 +1528,15 @@ export interface GenieUpdateSpaceRequest {
    * has been modified since. Omit to apply the update unconditionally.
    */
   etag?: string | undefined;
+  /** Parent workspace folder path to move this Genie space under. */
+  parentPath?: string | undefined;
 }
 
 /**
  * copied from proto3 / Google Well Known Types, source:
  * https://github.com/protocolbuffers/protobuf/blob/450d24ca820750c5db5112a6f0b0c2efb9758021/src/google/protobuf/struct.proto
  * `ListValue` is a wrapper around a repeated field of values.
- *
+ * 
  * The JSON representation for `ListValue` is JSON array.
  */
 export interface ListValue {
@@ -1700,7 +1703,7 @@ export interface StatementStatus {
  * scripting languages like JS a struct is represented as an
  * object. The details of that representation are described together
  * with the proto support for the language.
- *
+ * 
  * The JSON representation for `Struct` is JSON object.
  */
 export interface Struct {
@@ -1739,7 +1742,7 @@ export interface Thought {
  * null, a number, a string, a boolean, a recursive struct value, or a
  * list of values. A producer of value is expected to set one of these
  * variants. Absence of any variant indicates an error.
- *
+ * 
  * The JSON representation for `Value` is JSON value.
  */
 export interface Value {
@@ -1830,9 +1833,7 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
   .object({
     function_name: z.string().optional(),
     using_column_names: z.array(z.string()).optional(),
-    using_arguments: z
-      .array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema))
-      .optional(),
+    using_arguments: z.array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     functionName: d.function_name,
@@ -1840,18 +1841,17 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
     usingArguments: d.using_arguments,
   }));
 
-export const unmarshalDatabricksServiceExceptionProtoSchema: z.ZodType<DatabricksServiceExceptionProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-    }));
+export const unmarshalDatabricksServiceExceptionProtoSchema: z.ZodType<DatabricksServiceExceptionProto> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+  }));
 
 export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
   .object({
@@ -1881,23 +1881,11 @@ export const unmarshalGenieAttachmentSchema: z.ZodType<GenieAttachment> = z
   .object({
     text: z.lazy(() => unmarshalTextAttachmentSchema).optional(),
     query: z.lazy(() => unmarshalGenieQueryAttachmentSchema).optional(),
-    suggested_questions: z
-      .lazy(() => unmarshalGenieSuggestedQuestionsAttachmentSchema)
-      .optional(),
+    suggested_questions: z.lazy(() => unmarshalGenieSuggestedQuestionsAttachmentSchema).optional(),
     attachment_id: z.string().optional(),
   })
   .transform(d => ({
-    attachment:
-      d.text !== undefined
-        ? {$case: 'text' as const, text: d.text}
-        : d.query !== undefined
-          ? {$case: 'query' as const, query: d.query}
-          : d.suggested_questions !== undefined
-            ? {
-                $case: 'suggestedQuestions' as const,
-                suggestedQuestions: d.suggested_questions,
-              }
-            : undefined,
+    attachment: d.text !== undefined ? { $case: 'text' as const, text: d.text } : d.query !== undefined ? { $case: 'query' as const, query: d.query } : d.suggested_questions !== undefined ? { $case: 'suggestedQuestions' as const, suggestedQuestions: d.suggested_questions } : undefined,
     attachmentId: d.attachment_id,
   }));
 
@@ -1921,25 +1909,22 @@ export const unmarshalGenieConversationSchema: z.ZodType<GenieConversation> = z
     conversationId: d.conversation_id,
   }));
 
-export const unmarshalGenieConversationSummarySchema: z.ZodType<GenieConversationSummary> =
-  z
-    .object({
-      conversation_id: z.string().optional(),
-      title: z.string().optional(),
-      created_timestamp: z.number().optional(),
-    })
-    .transform(d => ({
-      conversationId: d.conversation_id,
-      title: d.title,
-      createdTimestamp: d.created_timestamp,
-    }));
+export const unmarshalGenieConversationSummarySchema: z.ZodType<GenieConversationSummary> = z
+  .object({
+    conversation_id: z.string().optional(),
+    title: z.string().optional(),
+    created_timestamp: z.number().optional(),
+  })
+  .transform(d => ({
+    conversationId: d.conversation_id,
+    title: d.title,
+    createdTimestamp: d.created_timestamp,
+  }));
 
 export const unmarshalGenieEvalResponseSchema: z.ZodType<GenieEvalResponse> = z
   .object({
     response: z.string().optional(),
-    sql_execution_result: z
-      .lazy(() => unmarshalStatementResponseSchema)
-      .optional(),
+    sql_execution_result: z.lazy(() => unmarshalStatementResponseSchema).optional(),
     response_type: z.enum(GenieEvalResponseType).optional(),
   })
   .transform(d => ({
@@ -1968,59 +1953,53 @@ export const unmarshalGenieEvalResultSchema: z.ZodType<GenieEvalResult> = z
     createdByUser: d.created_by_user,
   }));
 
-export const unmarshalGenieEvalResultDetailsSchema: z.ZodType<GenieEvalResultDetails> =
-  z
-    .object({
-      result_id: z.string().optional(),
-      space_id: z.string().optional(),
-      benchmark_question_id: z.string().optional(),
-      eval_run_status: z.enum(EvaluationStatusType).optional(),
-      assessment: z.enum(GenieEvalAssessment).optional(),
-      manual_assessment: z.boolean().optional(),
-      assessment_reasons: z.array(z.enum(ScoreReason)).optional(),
-      actual_response: z
-        .array(z.lazy(() => unmarshalGenieEvalResponseSchema))
-        .optional(),
-      expected_response: z
-        .array(z.lazy(() => unmarshalGenieEvalResponseSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      resultId: d.result_id,
-      spaceId: d.space_id,
-      benchmarkQuestionId: d.benchmark_question_id,
-      evalRunStatus: d.eval_run_status,
-      assessment: d.assessment,
-      manualAssessment: d.manual_assessment,
-      assessmentReasons: d.assessment_reasons,
-      actualResponse: d.actual_response,
-      expectedResponse: d.expected_response,
-    }));
+export const unmarshalGenieEvalResultDetailsSchema: z.ZodType<GenieEvalResultDetails> = z
+  .object({
+    result_id: z.string().optional(),
+    space_id: z.string().optional(),
+    benchmark_question_id: z.string().optional(),
+    eval_run_status: z.enum(EvaluationStatusType).optional(),
+    assessment: z.enum(GenieEvalAssessment).optional(),
+    manual_assessment: z.boolean().optional(),
+    assessment_reasons: z.array(z.enum(ScoreReason)).optional(),
+    actual_response: z.array(z.lazy(() => unmarshalGenieEvalResponseSchema)).optional(),
+    expected_response: z.array(z.lazy(() => unmarshalGenieEvalResponseSchema)).optional(),
+  })
+  .transform(d => ({
+    resultId: d.result_id,
+    spaceId: d.space_id,
+    benchmarkQuestionId: d.benchmark_question_id,
+    evalRunStatus: d.eval_run_status,
+    assessment: d.assessment,
+    manualAssessment: d.manual_assessment,
+    assessmentReasons: d.assessment_reasons,
+    actualResponse: d.actual_response,
+    expectedResponse: d.expected_response,
+  }));
 
-export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse> =
-  z
-    .object({
-      eval_run_id: z.string().optional(),
-      eval_run_status: z.enum(EvaluationStatusType).optional(),
-      run_by_user: z.number().optional(),
-      created_timestamp: z.number().optional(),
-      num_questions: z.number().optional(),
-      num_correct: z.number().optional(),
-      num_needs_review: z.number().optional(),
-      num_done: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
-    })
-    .transform(d => ({
-      evalRunId: d.eval_run_id,
-      evalRunStatus: d.eval_run_status,
-      runByUser: d.run_by_user,
-      createdTimestamp: d.created_timestamp,
-      numQuestions: d.num_questions,
-      numCorrect: d.num_correct,
-      numNeedsReview: d.num_needs_review,
-      numDone: d.num_done,
-      lastUpdatedTimestamp: d.last_updated_timestamp,
-    }));
+export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse> = z
+  .object({
+    eval_run_id: z.string().optional(),
+    eval_run_status: z.enum(EvaluationStatusType).optional(),
+    run_by_user: z.number().optional(),
+    created_timestamp: z.number().optional(),
+    num_questions: z.number().optional(),
+    num_correct: z.number().optional(),
+    num_needs_review: z.number().optional(),
+    num_done: z.number().optional(),
+    last_updated_timestamp: z.number().optional(),
+  })
+  .transform(d => ({
+    evalRunId: d.eval_run_id,
+    evalRunStatus: d.eval_run_status,
+    runByUser: d.run_by_user,
+    createdTimestamp: d.created_timestamp,
+    numQuestions: d.num_questions,
+    numCorrect: d.num_correct,
+    numNeedsReview: d.num_needs_review,
+    numDone: d.num_done,
+    lastUpdatedTimestamp: d.last_updated_timestamp,
+  }));
 
 export const unmarshalGenieFeedbackSchema: z.ZodType<GenieFeedback> = z
   .object({
@@ -2032,125 +2011,101 @@ export const unmarshalGenieFeedbackSchema: z.ZodType<GenieFeedback> = z
     comment: d.comment,
   }));
 
-export const unmarshalGenieGenerateDownloadFullQueryResultResponseSchema: z.ZodType<GenieGenerateDownloadFullQueryResultResponse> =
-  z
-    .object({
-      download_id: z.string().optional(),
-      download_id_signature: z.string().optional(),
-    })
-    .transform(d => ({
-      downloadId: d.download_id,
-      downloadIdSignature: d.download_id_signature,
-    }));
+export const unmarshalGenieGenerateDownloadFullQueryResultResponseSchema: z.ZodType<GenieGenerateDownloadFullQueryResultResponse> = z
+  .object({
+    download_id: z.string().optional(),
+    download_id_signature: z.string().optional(),
+  })
+  .transform(d => ({
+    downloadId: d.download_id,
+    downloadIdSignature: d.download_id_signature,
+  }));
 
-export const unmarshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType<GenieGetDownloadFullQueryResultResponse> =
-  z
-    .object({
-      statement_response: z
-        .lazy(() => unmarshalStatementResponseSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      statementResponse: d.statement_response,
-    }));
+export const unmarshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType<GenieGetDownloadFullQueryResultResponse> = z
+  .object({
+    statement_response: z.lazy(() => unmarshalStatementResponseSchema).optional(),
+  })
+  .transform(d => ({
+    statementResponse: d.statement_response,
+  }));
 
-export const unmarshalGenieGetMessageQueryResultResponseSchema: z.ZodType<GenieGetMessageQueryResultResponse> =
-  z
-    .object({
-      statement_response: z
-        .lazy(() => unmarshalStatementResponseSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      statementResponse: d.statement_response,
-    }));
+export const unmarshalGenieGetMessageQueryResultResponseSchema: z.ZodType<GenieGetMessageQueryResultResponse> = z
+  .object({
+    statement_response: z.lazy(() => unmarshalStatementResponseSchema).optional(),
+  })
+  .transform(d => ({
+    statementResponse: d.statement_response,
+  }));
 
-export const unmarshalGenieListConversationCommentsResponseSchema: z.ZodType<GenieListConversationCommentsResponse> =
-  z
-    .object({
-      comments: z
-        .array(z.lazy(() => unmarshalGenieMessageCommentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      comments: d.comments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListConversationCommentsResponseSchema: z.ZodType<GenieListConversationCommentsResponse> = z
+  .object({
+    comments: z.array(z.lazy(() => unmarshalGenieMessageCommentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    comments: d.comments,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalGenieListConversationMessagesResponseSchema: z.ZodType<GenieListConversationMessagesResponse> =
-  z
-    .object({
-      messages: z.array(z.lazy(() => unmarshalGenieMessageSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      messages: d.messages,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListConversationMessagesResponseSchema: z.ZodType<GenieListConversationMessagesResponse> = z
+  .object({
+    messages: z.array(z.lazy(() => unmarshalGenieMessageSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    messages: d.messages,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalGenieListConversationsResponseSchema: z.ZodType<GenieListConversationsResponse> =
-  z
-    .object({
-      conversations: z
-        .array(z.lazy(() => unmarshalGenieConversationSummarySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      conversations: d.conversations,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListConversationsResponseSchema: z.ZodType<GenieListConversationsResponse> = z
+  .object({
+    conversations: z.array(z.lazy(() => unmarshalGenieConversationSummarySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    conversations: d.conversations,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalGenieListEvalResultsResponseSchema: z.ZodType<GenieListEvalResultsResponse> =
-  z
-    .object({
-      eval_results: z
-        .array(z.lazy(() => unmarshalGenieEvalResultSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      evalResults: d.eval_results,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListEvalResultsResponseSchema: z.ZodType<GenieListEvalResultsResponse> = z
+  .object({
+    eval_results: z.array(z.lazy(() => unmarshalGenieEvalResultSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    evalResults: d.eval_results,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalGenieListEvalRunsResponseSchema: z.ZodType<GenieListEvalRunsResponse> =
-  z
-    .object({
-      eval_runs: z
-        .array(z.lazy(() => unmarshalGenieEvalRunResponseSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      evalRuns: d.eval_runs,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListEvalRunsResponseSchema: z.ZodType<GenieListEvalRunsResponse> = z
+  .object({
+    eval_runs: z.array(z.lazy(() => unmarshalGenieEvalRunResponseSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    evalRuns: d.eval_runs,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalGenieListMessageCommentsResponseSchema: z.ZodType<GenieListMessageCommentsResponse> =
-  z
-    .object({
-      comments: z
-        .array(z.lazy(() => unmarshalGenieMessageCommentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      comments: d.comments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListMessageCommentsResponseSchema: z.ZodType<GenieListMessageCommentsResponse> = z
+  .object({
+    comments: z.array(z.lazy(() => unmarshalGenieMessageCommentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    comments: d.comments,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalGenieListSpacesResponseSchema: z.ZodType<GenieListSpacesResponse> =
-  z
-    .object({
-      spaces: z.array(z.lazy(() => unmarshalGenieSpaceSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaces: d.spaces,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGenieListSpacesResponseSchema: z.ZodType<GenieListSpacesResponse> = z
+  .object({
+    spaces: z.array(z.lazy(() => unmarshalGenieSpaceSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    spaces: d.spaces,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
   .object({
@@ -2162,9 +2117,7 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
     last_updated_timestamp: z.number().optional(),
     status: z.enum(MessageStatus_MessageStatus).optional(),
     content: z.string().optional(),
-    attachments: z
-      .array(z.lazy(() => unmarshalGenieAttachmentSchema))
-      .optional(),
+    attachments: z.array(z.lazy(() => unmarshalGenieAttachmentSchema)).optional(),
     query_result: z.lazy(() => unmarshalResultSchema).optional(),
     error: z.lazy(() => unmarshalMessageErrorSchema).optional(),
     message_id: z.string().optional(),
@@ -2186,66 +2139,59 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
     feedback: d.feedback,
   }));
 
-export const unmarshalGenieMessageCommentSchema: z.ZodType<GenieMessageComment> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      message_id: z.string().optional(),
-      message_comment_id: z.string().optional(),
-      user_id: z.number().optional(),
-      content: z.string().optional(),
-      created_timestamp: z.number().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      messageId: d.message_id,
-      messageCommentId: d.message_comment_id,
-      userId: d.user_id,
-      content: d.content,
-      createdTimestamp: d.created_timestamp,
-    }));
+export const unmarshalGenieMessageCommentSchema: z.ZodType<GenieMessageComment> = z
+  .object({
+    space_id: z.string().optional(),
+    conversation_id: z.string().optional(),
+    message_id: z.string().optional(),
+    message_comment_id: z.string().optional(),
+    user_id: z.number().optional(),
+    content: z.string().optional(),
+    created_timestamp: z.number().optional(),
+  })
+  .transform(d => ({
+    spaceId: d.space_id,
+    conversationId: d.conversation_id,
+    messageId: d.message_id,
+    messageCommentId: d.message_comment_id,
+    userId: d.user_id,
+    content: d.content,
+    createdTimestamp: d.created_timestamp,
+  }));
 
-export const unmarshalGenieQueryAttachmentSchema: z.ZodType<GenieQueryAttachment> =
-  z
-    .object({
-      title: z.string().optional(),
-      query: z.string().optional(),
-      description: z.string().optional(),
-      last_updated_timestamp: z.number().optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryAttachmentParameterSchema))
-        .optional(),
-      id: z.string().optional(),
-      statement_id: z.string().optional(),
-      query_result_metadata: z
-        .lazy(() => unmarshalGenieResultMetadataSchema)
-        .optional(),
-      thoughts: z.array(z.lazy(() => unmarshalThoughtSchema)).optional(),
-    })
-    .transform(d => ({
-      title: d.title,
-      query: d.query,
-      description: d.description,
-      lastUpdatedTimestamp: d.last_updated_timestamp,
-      parameters: d.parameters,
-      id: d.id,
-      statementId: d.statement_id,
-      queryResultMetadata: d.query_result_metadata,
-      thoughts: d.thoughts,
-    }));
+export const unmarshalGenieQueryAttachmentSchema: z.ZodType<GenieQueryAttachment> = z
+  .object({
+    title: z.string().optional(),
+    query: z.string().optional(),
+    description: z.string().optional(),
+    last_updated_timestamp: z.number().optional(),
+    parameters: z.array(z.lazy(() => unmarshalQueryAttachmentParameterSchema)).optional(),
+    id: z.string().optional(),
+    statement_id: z.string().optional(),
+    query_result_metadata: z.lazy(() => unmarshalGenieResultMetadataSchema).optional(),
+    thoughts: z.array(z.lazy(() => unmarshalThoughtSchema)).optional(),
+  })
+  .transform(d => ({
+    title: d.title,
+    query: d.query,
+    description: d.description,
+    lastUpdatedTimestamp: d.last_updated_timestamp,
+    parameters: d.parameters,
+    id: d.id,
+    statementId: d.statement_id,
+    queryResultMetadata: d.query_result_metadata,
+    thoughts: d.thoughts,
+  }));
 
-export const unmarshalGenieResultMetadataSchema: z.ZodType<GenieResultMetadata> =
-  z
-    .object({
-      row_count: z.number().optional(),
-      is_truncated: z.boolean().optional(),
-    })
-    .transform(d => ({
-      rowCount: d.row_count,
-      isTruncated: d.is_truncated,
-    }));
+export const unmarshalGenieResultMetadataSchema: z.ZodType<GenieResultMetadata> = z
+  .object({
+    row_count: z.number().optional(),
+    is_truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    rowCount: d.row_count,
+    isTruncated: d.is_truncated,
+  }));
 
 export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
   .object({
@@ -2267,29 +2213,27 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
     etag: d.etag,
   }));
 
-export const unmarshalGenieStartConversationResponseSchema: z.ZodType<GenieStartConversationResponse> =
-  z
-    .object({
-      message_id: z.string().optional(),
-      message: z.lazy(() => unmarshalGenieMessageSchema).optional(),
-      conversation_id: z.string().optional(),
-      conversation: z.lazy(() => unmarshalGenieConversationSchema).optional(),
-    })
-    .transform(d => ({
-      messageId: d.message_id,
-      message: d.message,
-      conversationId: d.conversation_id,
-      conversation: d.conversation,
-    }));
+export const unmarshalGenieStartConversationResponseSchema: z.ZodType<GenieStartConversationResponse> = z
+  .object({
+    message_id: z.string().optional(),
+    message: z.lazy(() => unmarshalGenieMessageSchema).optional(),
+    conversation_id: z.string().optional(),
+    conversation: z.lazy(() => unmarshalGenieConversationSchema).optional(),
+  })
+  .transform(d => ({
+    messageId: d.message_id,
+    message: d.message,
+    conversationId: d.conversation_id,
+    conversation: d.conversation,
+  }));
 
-export const unmarshalGenieSuggestedQuestionsAttachmentSchema: z.ZodType<GenieSuggestedQuestionsAttachment> =
-  z
-    .object({
-      questions: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      questions: d.questions,
-    }));
+export const unmarshalGenieSuggestedQuestionsAttachmentSchema: z.ZodType<GenieSuggestedQuestionsAttachment> = z
+  .object({
+    questions: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    questions: d.questions,
+  }));
 
 export const unmarshalListValueSchema: z.ZodType<ListValue> = z
   .object({
@@ -2299,16 +2243,15 @@ export const unmarshalListValueSchema: z.ZodType<ListValue> = z
     values: d.values,
   }));
 
-export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.lazy(() => unmarshalValueSchema).optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.lazy(() => unmarshalValueSchema).optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalMessageErrorSchema: z.ZodType<MessageError> = z
   .object({
@@ -2320,33 +2263,26 @@ export const unmarshalMessageErrorSchema: z.ZodType<MessageError> = z
     type: d.type,
   }));
 
-export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> =
-  z
-    .object({
-      column: z.string().optional(),
-      constant: z.string().optional(),
-    })
-    .transform(d => ({
-      arg:
-        d.column !== undefined
-          ? {$case: 'column' as const, column: d.column}
-          : d.constant !== undefined
-            ? {$case: 'constant' as const, constant: d.constant}
-            : undefined,
-    }));
+export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> = z
+  .object({
+    column: z.string().optional(),
+    constant: z.string().optional(),
+  })
+  .transform(d => ({
+    arg: d.column !== undefined ? { $case: 'column' as const, column: d.column } : d.constant !== undefined ? { $case: 'constant' as const, constant: d.constant } : undefined,
+  }));
 
-export const unmarshalQueryAttachmentParameterSchema: z.ZodType<QueryAttachmentParameter> =
-  z
-    .object({
-      keyword: z.string().optional(),
-      value: z.string().optional(),
-      sql_type: z.string().optional(),
-    })
-    .transform(d => ({
-      keyword: d.keyword,
-      value: d.value,
-      sqlType: d.sql_type,
-    }));
+export const unmarshalQueryAttachmentParameterSchema: z.ZodType<QueryAttachmentParameter> = z
+  .object({
+    keyword: z.string().optional(),
+    value: z.string().optional(),
+    sql_type: z.string().optional(),
+  })
+  .transform(d => ({
+    keyword: d.keyword,
+    value: d.value,
+    sqlType: d.sql_type,
+  }));
 
 export const unmarshalResultSchema: z.ZodType<Result> = z
   .object({
@@ -2364,9 +2300,7 @@ export const unmarshalResultSchema: z.ZodType<Result> = z
 
 export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
   .object({
-    external_links: z
-      .array(z.lazy(() => unmarshalExternalLinkSchema))
-      .optional(),
+    external_links: z.array(z.lazy(() => unmarshalExternalLinkSchema)).optional(),
     data_array: z.array(z.lazy(() => unmarshalListValueSchema)).optional(),
     chunk_index: z.number().optional(),
     row_offset: z.number().optional(),
@@ -2433,9 +2367,7 @@ export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
 export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
   .object({
     state: z.enum(StatementStatus_State).optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalDatabricksServiceExceptionProtoSchema).optional(),
     sql_state: z.string().optional(),
   })
   .transform(d => ({
@@ -2446,9 +2378,7 @@ export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
 
 export const unmarshalStructSchema: z.ZodType<Struct> = z
   .object({
-    fields: z
-      .array(z.lazy(() => unmarshalMapStringValueEntrySchema))
-      .optional(),
+    fields: z.array(z.lazy(() => unmarshalMapStringValueEntrySchema)).optional(),
   })
   .transform(d => ({
     fields: d.fields,
@@ -2486,20 +2416,7 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     list_value: z.lazy(() => unmarshalListValueSchema).optional(),
   })
   .transform(d => ({
-    kind:
-      d.null_value !== undefined
-        ? {$case: 'nullValue' as const, nullValue: d.null_value}
-        : d.number_value !== undefined
-          ? {$case: 'numberValue' as const, numberValue: d.number_value}
-          : d.string_value !== undefined
-            ? {$case: 'stringValue' as const, stringValue: d.string_value}
-            : d.bool_value !== undefined
-              ? {$case: 'boolValue' as const, boolValue: d.bool_value}
-              : d.struct_value !== undefined
-                ? {$case: 'structValue' as const, structValue: d.struct_value}
-                : d.list_value !== undefined
-                  ? {$case: 'listValue' as const, listValue: d.list_value}
-                  : undefined,
+    kind: d.null_value !== undefined ? { $case: 'nullValue' as const, nullValue: d.null_value } : d.number_value !== undefined ? { $case: 'numberValue' as const, numberValue: d.number_value } : d.string_value !== undefined ? { $case: 'stringValue' as const, stringValue: d.string_value } : d.bool_value !== undefined ? { $case: 'boolValue' as const, boolValue: d.bool_value } : d.struct_value !== undefined ? { $case: 'structValue' as const, structValue: d.struct_value } : d.list_value !== undefined ? { $case: 'listValue' as const, listValue: d.list_value } : undefined,
   }));
 
 export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z
@@ -2554,20 +2471,19 @@ export const marshalGenieCreateSpaceRequestSchema: z.ZodType = z
     description: d.description,
   }));
 
-export const marshalGenieExecuteMessageAttachmentQueryRequestSchema: z.ZodType =
-  z
-    .object({
-      messageId: z.string().optional(),
-      spaceId: z.string().optional(),
-      conversationId: z.string().optional(),
-      attachmentId: z.string().optional(),
-    })
-    .transform(d => ({
-      message_id: d.messageId,
-      space_id: d.spaceId,
-      conversation_id: d.conversationId,
-      attachment_id: d.attachmentId,
-    }));
+export const marshalGenieExecuteMessageAttachmentQueryRequestSchema: z.ZodType = z
+  .object({
+    messageId: z.string().optional(),
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    attachmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    message_id: d.messageId,
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    attachment_id: d.attachmentId,
+  }));
 
 export const marshalGenieExecuteMessageQueryRequestSchema: z.ZodType = z
   .object({
@@ -2581,20 +2497,19 @@ export const marshalGenieExecuteMessageQueryRequestSchema: z.ZodType = z
     conversation_id: d.conversationId,
   }));
 
-export const marshalGenieGenerateDownloadFullQueryResultRequestSchema: z.ZodType =
-  z
-    .object({
-      spaceId: z.string().optional(),
-      conversationId: z.string().optional(),
-      messageId: z.string().optional(),
-      attachmentId: z.string().optional(),
-    })
-    .transform(d => ({
-      space_id: d.spaceId,
-      conversation_id: d.conversationId,
-      message_id: d.messageId,
-      attachment_id: d.attachmentId,
-    }));
+export const marshalGenieGenerateDownloadFullQueryResultRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    messageId: z.string().optional(),
+    attachmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    message_id: d.messageId,
+    attachment_id: d.attachmentId,
+  }));
 
 export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
   .object({
@@ -2630,6 +2545,7 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     description: z.string().optional(),
     warehouseId: z.string().optional(),
     etag: z.string().optional(),
+    parentPath: z.string().optional(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -2638,4 +2554,5 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     description: d.description,
     warehouse_id: d.warehouseId,
     etag: d.etag,
+    parent_path: d.parentPath,
   }));

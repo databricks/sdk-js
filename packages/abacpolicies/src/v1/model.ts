@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum PolicyType {
   /** For detecting field not being set to a supported value */
   POLICY_TYPE_UNSPECIFIED = 'POLICY_TYPE_UNSPECIFIED',
@@ -264,8 +265,9 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePolicyRequest_ResponseSchema: z.ZodType<DeletePolicyRequest_Response> =
-  z.object({});
+export const unmarshalDeletePolicyRequest_ResponseSchema: z.ZodType<DeletePolicyRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
@@ -273,25 +275,19 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
     constant: z.string().optional(),
   })
   .transform(d => ({
-    arg:
-      d.alias !== undefined
-        ? {$case: 'alias' as const, alias: d.alias}
-        : d.constant !== undefined
-          ? {$case: 'constant' as const, constant: d.constant}
-          : undefined,
+    arg: d.alias !== undefined ? { $case: 'alias' as const, alias: d.alias } : d.constant !== undefined ? { $case: 'constant' as const, constant: d.constant } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPoliciesRequest_ResponseSchema: z.ZodType<ListPoliciesRequest_Response> =
-  z
-    .object({
-      policies: z.array(z.lazy(() => unmarshalPolicyInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListPoliciesRequest_ResponseSchema: z.ZodType<ListPoliciesRequest_Response> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalPolicyInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalMatchColumnSchema: z.ZodType<MatchColumn> = z
   .object({
@@ -334,12 +330,7 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     forSecurableType: d.for_securable_type,
     whenCondition: d.when_condition,
     policyType: d.policy_type,
-    options:
-      d.row_filter !== undefined
-        ? {$case: 'rowFilter' as const, rowFilter: d.row_filter}
-        : d.column_mask !== undefined
-          ? {$case: 'columnMask' as const, columnMask: d.column_mask}
-          : undefined,
+    options: d.row_filter !== undefined ? { $case: 'rowFilter' as const, rowFilter: d.row_filter } : d.column_mask !== undefined ? { $case: 'columnMask' as const, columnMask: d.column_mask } : undefined,
     matchColumns: d.match_columns,
     createdAt: d.created_at,
     createdBy: d.created_by,
@@ -371,16 +362,11 @@ export const marshalColumnMaskOptionsSchema: z.ZodType = z
 
 export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
-    arg: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('alias'), alias: z.string()}),
-        z.object({$case: z.literal('constant'), constant: z.string()}),
-      ])
-      .optional(),
+    arg: z.discriminatedUnion('$case', [z.object({ $case: z.literal('alias'), alias: z.string() }), z.object({ $case: z.literal('constant'), constant: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.arg?.$case === 'alias' && {alias: d.arg.alias}),
-    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+    ...(d.arg?.$case === 'alias' && { alias: d.arg.alias }),
+    ...(d.arg?.$case === 'constant' && { constant: d.arg.constant }),
   }));
 
 export const marshalMatchColumnSchema: z.ZodType = z
@@ -405,18 +391,7 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     forSecurableType: z.enum(SecurableType).optional(),
     whenCondition: z.string().optional(),
     policyType: z.enum(PolicyType).optional(),
-    options: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('rowFilter'),
-          rowFilter: z.lazy(() => marshalRowFilterOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('columnMask'),
-          columnMask: z.lazy(() => marshalColumnMaskOptionsSchema),
-        }),
-      ])
-      .optional(),
+    options: z.discriminatedUnion('$case', [z.object({ $case: z.literal('rowFilter'), rowFilter: z.lazy(() => marshalRowFilterOptionsSchema) }), z.object({ $case: z.literal('columnMask'), columnMask: z.lazy(() => marshalColumnMaskOptionsSchema) })]).optional(),
     matchColumns: z.array(z.lazy(() => marshalMatchColumnSchema)).optional(),
     createdAt: z.number().optional(),
     createdBy: z.string().optional(),
@@ -434,10 +409,8 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     for_securable_type: d.forSecurableType,
     when_condition: d.whenCondition,
     policy_type: d.policyType,
-    ...(d.options?.$case === 'rowFilter' && {row_filter: d.options.rowFilter}),
-    ...(d.options?.$case === 'columnMask' && {
-      column_mask: d.options.columnMask,
-    }),
+    ...(d.options?.$case === 'rowFilter' && { row_filter: d.options.rowFilter }),
+    ...(d.options?.$case === 'columnMask' && { column_mask: d.options.columnMask }),
     match_columns: d.matchColumns,
     created_at: d.createdAt,
     created_by: d.createdBy,
@@ -462,10 +435,7 @@ const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
 };
 
 const policyInfoFieldMaskSchema: FieldMaskSchema = {
-  columnMask: {
-    wire: 'column_mask',
-    children: () => columnMaskOptionsFieldMaskSchema,
-  },
+  columnMask: {wire: 'column_mask', children: () => columnMaskOptionsFieldMaskSchema},
   comment: {wire: 'comment'},
   createdAt: {wire: 'created_at'},
   createdBy: {wire: 'created_by'},
@@ -477,10 +447,7 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   onSecurableFullname: {wire: 'on_securable_fullname'},
   onSecurableType: {wire: 'on_securable_type'},
   policyType: {wire: 'policy_type'},
-  rowFilter: {
-    wire: 'row_filter',
-    children: () => rowFilterOptionsFieldMaskSchema,
-  },
+  rowFilter: {wire: 'row_filter', children: () => rowFilterOptionsFieldMaskSchema},
   toPrincipals: {wire: 'to_principals'},
   updatedAt: {wire: 'updated_at'},
   updatedBy: {wire: 'updated_by'},

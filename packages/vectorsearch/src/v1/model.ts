@@ -4,15 +4,9 @@ import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
-  z.union([
-    z.null(),
-    z.number(),
-    z.string(),
-    z.boolean(),
-    z.record(z.string(), jsonValueSchema),
-    z.array(jsonValueSchema),
-  ])
+  z.union([z.null(), z.number(), z.string(), z.boolean(), z.record(z.string(), jsonValueSchema), z.array(jsonValueSchema)])
 );
+
 
 /** Type of endpoint. */
 export enum EndpointType {
@@ -382,14 +376,8 @@ export interface MiniVectorIndex {
   primaryKey?: string | undefined;
   indexType?: VectorIndexType | undefined;
   indexSpec?:
-    | {
-        $case: 'directAccessIndexSpec';
-        directAccessIndexSpec: DirectAccessVectorIndexSpec;
-      }
-    | {
-        $case: 'deltaSyncIndexSpec';
-        deltaSyncIndexSpec: DeltaSyncVectorIndexSpec;
-      }
+    | { $case: 'directAccessIndexSpec'; directAccessIndexSpec: DirectAccessVectorIndexSpec }
+    | { $case: 'deltaSyncIndexSpec'; deltaSyncIndexSpec: DeltaSyncVectorIndexSpec }
     | undefined;
   status?: VectorIndexStatus | undefined;
   /** The user who created the index. */
@@ -440,9 +428,9 @@ export interface QueryVectorIndexRequest {
   columns?: string[] | undefined;
   /**
    * JSON string representing query filters.
-   *
+   * 
    * Example filters:
-   *
+   * 
    * - `{"id <": 5}`: Filter for id less than 5.
    * - `{"id >": 5}`: Filter for id greater than 5.
    * - `{"id <=": 5}`: Filter for id less than equal to 5.
@@ -561,11 +549,11 @@ export interface UpsertDeleteDataResult {
 export interface Value {
   /** (--The kind of value.--) */
   kind?:
-    | {$case: 'numberValue'; numberValue: number}
-    | {$case: 'stringValue'; stringValue: string}
-    | {$case: 'boolValue'; boolValue: boolean}
-    | {$case: 'structValue'; structValue: Struct}
-    | {$case: 'listValue'; listValue: ListValue}
+    | { $case: 'numberValue'; numberValue: number }
+    | { $case: 'stringValue'; stringValue: string }
+    | { $case: 'boolValue'; boolValue: boolean }
+    | { $case: 'structValue'; structValue: Struct }
+    | { $case: 'listValue'; listValue: ListValue }
     | undefined;
 }
 
@@ -578,14 +566,8 @@ export interface VectorIndex {
   primaryKey?: string | undefined;
   indexType?: VectorIndexType | undefined;
   indexSpec?:
-    | {
-        $case: 'directAccessIndexSpec';
-        directAccessIndexSpec: DirectAccessVectorIndexSpec;
-      }
-    | {
-        $case: 'deltaSyncIndexSpec';
-        deltaSyncIndexSpec: DeltaSyncVectorIndexSpec;
-      }
+    | { $case: 'directAccessIndexSpec'; directAccessIndexSpec: DirectAccessVectorIndexSpec }
+    | { $case: 'deltaSyncIndexSpec'; deltaSyncIndexSpec: DeltaSyncVectorIndexSpec }
     | undefined;
   status?: VectorIndexStatus | undefined;
   /** The user who created the index. */
@@ -625,96 +607,79 @@ export const unmarshalCustomTagSchema: z.ZodType<CustomTag> = z
     value: d.value,
   }));
 
-export const unmarshalDeleteDataVectorIndexResponseSchema: z.ZodType<DeleteDataVectorIndexResponse> =
-  z
-    .object({
-      status: z.enum(UpsertDeleteDataStatus).optional(),
-      result: z.lazy(() => unmarshalUpsertDeleteDataResultSchema).optional(),
-    })
-    .transform(d => ({
-      status: d.status,
-      result: d.result,
-    }));
+export const unmarshalDeleteDataVectorIndexResponseSchema: z.ZodType<DeleteDataVectorIndexResponse> = z
+  .object({
+    status: z.enum(UpsertDeleteDataStatus).optional(),
+    result: z.lazy(() => unmarshalUpsertDeleteDataResultSchema).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    result: d.result,
+  }));
 
-export const unmarshalDeleteEndpointResponseSchema: z.ZodType<DeleteEndpointResponse> =
-  z.object({});
+export const unmarshalDeleteEndpointResponseSchema: z.ZodType<DeleteEndpointResponse> = z
+  .object({
+  });
 
-export const unmarshalDeleteVectorIndexResponseSchema: z.ZodType<DeleteVectorIndexResponse> =
-  z.object({});
+export const unmarshalDeleteVectorIndexResponseSchema: z.ZodType<DeleteVectorIndexResponse> = z
+  .object({
+  });
 
-export const unmarshalDeltaSyncVectorIndexSpecSchema: z.ZodType<DeltaSyncVectorIndexSpec> =
-  z
-    .object({
-      source_table: z.string().optional(),
-      embedding_source_columns: z
-        .array(z.lazy(() => unmarshalEmbeddingSourceColumnSchema))
-        .optional(),
-      embedding_vector_columns: z
-        .array(z.lazy(() => unmarshalEmbeddingVectorColumnSchema))
-        .optional(),
-      pipeline_type: z.enum(PipelineType).optional(),
-      pipeline_id: z.string().optional(),
-      embedding_writeback_table: z.string().optional(),
-      columns_to_sync: z.array(z.string()).optional(),
-      columns_to_index: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      sourceTable: d.source_table,
-      embeddingSourceColumns: d.embedding_source_columns,
-      embeddingVectorColumns: d.embedding_vector_columns,
-      pipelineType: d.pipeline_type,
-      pipelineId: d.pipeline_id,
-      embeddingWritebackTable: d.embedding_writeback_table,
-      columnsToSync: d.columns_to_sync,
-      columnsToIndex: d.columns_to_index,
-    }));
+export const unmarshalDeltaSyncVectorIndexSpecSchema: z.ZodType<DeltaSyncVectorIndexSpec> = z
+  .object({
+    source_table: z.string().optional(),
+    embedding_source_columns: z.array(z.lazy(() => unmarshalEmbeddingSourceColumnSchema)).optional(),
+    embedding_vector_columns: z.array(z.lazy(() => unmarshalEmbeddingVectorColumnSchema)).optional(),
+    pipeline_type: z.enum(PipelineType).optional(),
+    pipeline_id: z.string().optional(),
+    embedding_writeback_table: z.string().optional(),
+    columns_to_sync: z.array(z.string()).optional(),
+    columns_to_index: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    sourceTable: d.source_table,
+    embeddingSourceColumns: d.embedding_source_columns,
+    embeddingVectorColumns: d.embedding_vector_columns,
+    pipelineType: d.pipeline_type,
+    pipelineId: d.pipeline_id,
+    embeddingWritebackTable: d.embedding_writeback_table,
+    columnsToSync: d.columns_to_sync,
+    columnsToIndex: d.columns_to_index,
+  }));
 
-export const unmarshalDirectAccessVectorIndexSpecSchema: z.ZodType<DirectAccessVectorIndexSpec> =
-  z
-    .object({
-      embedding_vector_columns: z
-        .array(z.lazy(() => unmarshalEmbeddingVectorColumnSchema))
-        .optional(),
-      schema_json: z.string().optional(),
-      embedding_source_columns: z
-        .array(z.lazy(() => unmarshalEmbeddingSourceColumnSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      embeddingVectorColumns: d.embedding_vector_columns,
-      schemaJson: d.schema_json,
-      embeddingSourceColumns: d.embedding_source_columns,
-    }));
+export const unmarshalDirectAccessVectorIndexSpecSchema: z.ZodType<DirectAccessVectorIndexSpec> = z
+  .object({
+    embedding_vector_columns: z.array(z.lazy(() => unmarshalEmbeddingVectorColumnSchema)).optional(),
+    schema_json: z.string().optional(),
+    embedding_source_columns: z.array(z.lazy(() => unmarshalEmbeddingSourceColumnSchema)).optional(),
+  })
+  .transform(d => ({
+    embeddingVectorColumns: d.embedding_vector_columns,
+    schemaJson: d.schema_json,
+    embeddingSourceColumns: d.embedding_source_columns,
+  }));
 
-export const unmarshalEmbeddingSourceColumnSchema: z.ZodType<EmbeddingSourceColumn> =
-  z
-    .object({
-      name: z.string().optional(),
-      embedding_model_endpoint_name: z.string().optional(),
-      model_endpoint_name_for_query: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      embeddingConfig:
-        d.embedding_model_endpoint_name !== undefined
-          ? {
-              $case: 'embeddingModelEndpointName' as const,
-              embeddingModelEndpointName: d.embedding_model_endpoint_name,
-            }
-          : undefined,
-      modelEndpointNameForQuery: d.model_endpoint_name_for_query,
-    }));
+export const unmarshalEmbeddingSourceColumnSchema: z.ZodType<EmbeddingSourceColumn> = z
+  .object({
+    name: z.string().optional(),
+    embedding_model_endpoint_name: z.string().optional(),
+    model_endpoint_name_for_query: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    embeddingConfig: d.embedding_model_endpoint_name !== undefined ? { $case: 'embeddingModelEndpointName' as const, embeddingModelEndpointName: d.embedding_model_endpoint_name } : undefined,
+    modelEndpointNameForQuery: d.model_endpoint_name_for_query,
+  }));
 
-export const unmarshalEmbeddingVectorColumnSchema: z.ZodType<EmbeddingVectorColumn> =
-  z
-    .object({
-      name: z.string().optional(),
-      embedding_dimension: z.number().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      embeddingDimension: d.embedding_dimension,
-    }));
+export const unmarshalEmbeddingVectorColumnSchema: z.ZodType<EmbeddingVectorColumn> = z
+  .object({
+    name: z.string().optional(),
+    embedding_dimension: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    embeddingDimension: d.embedding_dimension,
+  }));
 
 export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
   .object({
@@ -748,16 +713,15 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     scalingInfo: d.scaling_info,
   }));
 
-export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> =
-  z
-    .object({
-      state: z.enum(ScalingChangeState).optional(),
-      requested_target_qps: z.number().optional(),
-    })
-    .transform(d => ({
-      state: d.state,
-      requestedTargetQps: d.requested_target_qps,
-    }));
+export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> = z
+  .object({
+    state: z.enum(ScalingChangeState).optional(),
+    requested_target_qps: z.number().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    requestedTargetQps: d.requested_target_qps,
+  }));
 
 export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
@@ -769,16 +733,15 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     message: d.message,
   }));
 
-export const unmarshalListEndpointResponseSchema: z.ZodType<ListEndpointResponse> =
-  z
-    .object({
-      endpoints: z.array(z.lazy(() => unmarshalEndpointSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      endpoints: d.endpoints,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListEndpointResponseSchema: z.ZodType<ListEndpointResponse> = z
+  .object({
+    endpoints: z.array(z.lazy(() => unmarshalEndpointSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalListValueSchema: z.ZodType<ListValue> = z
   .object({
@@ -788,29 +751,25 @@ export const unmarshalListValueSchema: z.ZodType<ListValue> = z
     values: d.values,
   }));
 
-export const unmarshalListVectorIndexResponseSchema: z.ZodType<ListVectorIndexResponse> =
-  z
-    .object({
-      vector_indexes: z
-        .array(z.lazy(() => unmarshalMiniVectorIndexSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      vectorIndexes: d.vector_indexes,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListVectorIndexResponseSchema: z.ZodType<ListVectorIndexResponse> = z
+  .object({
+    vector_indexes: z.array(z.lazy(() => unmarshalMiniVectorIndexSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    vectorIndexes: d.vector_indexes,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.lazy(() => unmarshalValueSchema).optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.lazy(() => unmarshalValueSchema).optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
   .object({
@@ -818,12 +777,8 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     endpoint_name: z.string().optional(),
     primary_key: z.string().optional(),
     index_type: z.enum(VectorIndexType).optional(),
-    direct_access_index_spec: z
-      .lazy(() => unmarshalDirectAccessVectorIndexSpecSchema)
-      .optional(),
-    delta_sync_index_spec: z
-      .lazy(() => unmarshalDeltaSyncVectorIndexSpecSchema)
-      .optional(),
+    direct_access_index_spec: z.lazy(() => unmarshalDirectAccessVectorIndexSpecSchema).optional(),
+    delta_sync_index_spec: z.lazy(() => unmarshalDeltaSyncVectorIndexSpecSchema).optional(),
     status: z.lazy(() => unmarshalVectorIndexStatusSchema).optional(),
     creator: z.string().optional(),
     index_subtype: z.enum(IndexSubtype).optional(),
@@ -833,46 +788,33 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     endpointName: d.endpoint_name,
     primaryKey: d.primary_key,
     indexType: d.index_type,
-    indexSpec:
-      d.direct_access_index_spec !== undefined
-        ? {
-            $case: 'directAccessIndexSpec' as const,
-            directAccessIndexSpec: d.direct_access_index_spec,
-          }
-        : d.delta_sync_index_spec !== undefined
-          ? {
-              $case: 'deltaSyncIndexSpec' as const,
-              deltaSyncIndexSpec: d.delta_sync_index_spec,
-            }
-          : undefined,
+    indexSpec: d.direct_access_index_spec !== undefined ? { $case: 'directAccessIndexSpec' as const, directAccessIndexSpec: d.direct_access_index_spec } : d.delta_sync_index_spec !== undefined ? { $case: 'deltaSyncIndexSpec' as const, deltaSyncIndexSpec: d.delta_sync_index_spec } : undefined,
     status: d.status,
     creator: d.creator,
     indexSubtype: d.index_subtype,
   }));
 
-export const unmarshalPatchEndpointBudgetPolicyResponseSchema: z.ZodType<PatchEndpointBudgetPolicyResponse> =
-  z
-    .object({
-      budget_policy_id: z.string().optional(),
-      effective_budget_policy_id: z.string().optional(),
-    })
-    .transform(d => ({
-      budgetPolicyId: d.budget_policy_id,
-      effectiveBudgetPolicyId: d.effective_budget_policy_id,
-    }));
+export const unmarshalPatchEndpointBudgetPolicyResponseSchema: z.ZodType<PatchEndpointBudgetPolicyResponse> = z
+  .object({
+    budget_policy_id: z.string().optional(),
+    effective_budget_policy_id: z.string().optional(),
+  })
+  .transform(d => ({
+    budgetPolicyId: d.budget_policy_id,
+    effectiveBudgetPolicyId: d.effective_budget_policy_id,
+  }));
 
-export const unmarshalQueryVectorIndexResponseSchema: z.ZodType<QueryVectorIndexResponse> =
-  z
-    .object({
-      manifest: z.lazy(() => unmarshalResultManifestSchema).optional(),
-      result: z.lazy(() => unmarshalResultDataSchema).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      manifest: d.manifest,
-      result: d.result,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalQueryVectorIndexResponseSchema: z.ZodType<QueryVectorIndexResponse> = z
+  .object({
+    manifest: z.lazy(() => unmarshalResultManifestSchema).optional(),
+    result: z.lazy(() => unmarshalResultDataSchema).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    manifest: d.manifest,
+    result: d.result,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
   .object({
@@ -894,51 +836,47 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
     columns: d.columns,
   }));
 
-export const unmarshalScanVectorIndexResponseSchema: z.ZodType<ScanVectorIndexResponse> =
-  z
-    .object({
-      data: z.array(z.lazy(() => unmarshalStructSchema)).optional(),
-      last_primary_key: z.string().optional(),
-    })
-    .transform(d => ({
-      data: d.data,
-      lastPrimaryKey: d.last_primary_key,
-    }));
+export const unmarshalScanVectorIndexResponseSchema: z.ZodType<ScanVectorIndexResponse> = z
+  .object({
+    data: z.array(z.lazy(() => unmarshalStructSchema)).optional(),
+    last_primary_key: z.string().optional(),
+  })
+  .transform(d => ({
+    data: d.data,
+    lastPrimaryKey: d.last_primary_key,
+  }));
 
 export const unmarshalStructSchema: z.ZodType<Struct> = z
   .object({
-    fields: z
-      .array(z.lazy(() => unmarshalMapStringValueEntrySchema))
-      .optional(),
+    fields: z.array(z.lazy(() => unmarshalMapStringValueEntrySchema)).optional(),
   })
   .transform(d => ({
     fields: d.fields,
   }));
 
-export const unmarshalSyncVectorIndexResponseSchema: z.ZodType<SyncVectorIndexResponse> =
-  z.object({});
+export const unmarshalSyncVectorIndexResponseSchema: z.ZodType<SyncVectorIndexResponse> = z
+  .object({
+  });
 
-export const unmarshalUpsertDataVectorIndexResponseSchema: z.ZodType<UpsertDataVectorIndexResponse> =
-  z
-    .object({
-      status: z.enum(UpsertDeleteDataStatus).optional(),
-      result: z.lazy(() => unmarshalUpsertDeleteDataResultSchema).optional(),
-    })
-    .transform(d => ({
-      status: d.status,
-      result: d.result,
-    }));
+export const unmarshalUpsertDataVectorIndexResponseSchema: z.ZodType<UpsertDataVectorIndexResponse> = z
+  .object({
+    status: z.enum(UpsertDeleteDataStatus).optional(),
+    result: z.lazy(() => unmarshalUpsertDeleteDataResultSchema).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    result: d.result,
+  }));
 
-export const unmarshalUpsertDeleteDataResultSchema: z.ZodType<UpsertDeleteDataResult> =
-  z
-    .object({
-      success_row_count: z.number().optional(),
-      failed_primary_keys: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      successRowCount: d.success_row_count,
-      failedPrimaryKeys: d.failed_primary_keys,
-    }));
+export const unmarshalUpsertDeleteDataResultSchema: z.ZodType<UpsertDeleteDataResult> = z
+  .object({
+    success_row_count: z.number().optional(),
+    failed_primary_keys: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    successRowCount: d.success_row_count,
+    failedPrimaryKeys: d.failed_primary_keys,
+  }));
 
 export const unmarshalValueSchema: z.ZodType<Value> = z
   .object({
@@ -949,18 +887,7 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     list_value: z.lazy(() => unmarshalListValueSchema).optional(),
   })
   .transform(d => ({
-    kind:
-      d.number_value !== undefined
-        ? {$case: 'numberValue' as const, numberValue: d.number_value}
-        : d.string_value !== undefined
-          ? {$case: 'stringValue' as const, stringValue: d.string_value}
-          : d.bool_value !== undefined
-            ? {$case: 'boolValue' as const, boolValue: d.bool_value}
-            : d.struct_value !== undefined
-              ? {$case: 'structValue' as const, structValue: d.struct_value}
-              : d.list_value !== undefined
-                ? {$case: 'listValue' as const, listValue: d.list_value}
-                : undefined,
+    kind: d.number_value !== undefined ? { $case: 'numberValue' as const, numberValue: d.number_value } : d.string_value !== undefined ? { $case: 'stringValue' as const, stringValue: d.string_value } : d.bool_value !== undefined ? { $case: 'boolValue' as const, boolValue: d.bool_value } : d.struct_value !== undefined ? { $case: 'structValue' as const, structValue: d.struct_value } : d.list_value !== undefined ? { $case: 'listValue' as const, listValue: d.list_value } : undefined,
   }));
 
 export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
@@ -969,12 +896,8 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     endpoint_name: z.string().optional(),
     primary_key: z.string().optional(),
     index_type: z.enum(VectorIndexType).optional(),
-    direct_access_index_spec: z
-      .lazy(() => unmarshalDirectAccessVectorIndexSpecSchema)
-      .optional(),
-    delta_sync_index_spec: z
-      .lazy(() => unmarshalDeltaSyncVectorIndexSpecSchema)
-      .optional(),
+    direct_access_index_spec: z.lazy(() => unmarshalDirectAccessVectorIndexSpecSchema).optional(),
+    delta_sync_index_spec: z.lazy(() => unmarshalDeltaSyncVectorIndexSpecSchema).optional(),
     status: z.lazy(() => unmarshalVectorIndexStatusSchema).optional(),
     creator: z.string().optional(),
     index_subtype: z.enum(IndexSubtype).optional(),
@@ -984,18 +907,7 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     endpointName: d.endpoint_name,
     primaryKey: d.primary_key,
     indexType: d.index_type,
-    indexSpec:
-      d.direct_access_index_spec !== undefined
-        ? {
-            $case: 'directAccessIndexSpec' as const,
-            directAccessIndexSpec: d.direct_access_index_spec,
-          }
-        : d.delta_sync_index_spec !== undefined
-          ? {
-              $case: 'deltaSyncIndexSpec' as const,
-              deltaSyncIndexSpec: d.delta_sync_index_spec,
-            }
-          : undefined,
+    indexSpec: d.direct_access_index_spec !== undefined ? { $case: 'directAccessIndexSpec' as const, directAccessIndexSpec: d.direct_access_index_spec } : d.delta_sync_index_spec !== undefined ? { $case: 'deltaSyncIndexSpec' as const, deltaSyncIndexSpec: d.delta_sync_index_spec } : undefined,
     status: d.status,
     creator: d.creator,
     indexSubtype: d.index_subtype,
@@ -1037,22 +949,7 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     endpointName: z.string().optional(),
     primaryKey: z.string().optional(),
     indexType: z.enum(VectorIndexType).optional(),
-    indexSpec: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('directAccessIndexSpec'),
-          directAccessIndexSpec: z.lazy(
-            () => marshalDirectAccessVectorIndexSpecSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('deltaSyncIndexSpec'),
-          deltaSyncIndexSpec: z.lazy(
-            () => marshalDeltaSyncVectorIndexSpecRequestSchema
-          ),
-        }),
-      ])
-      .optional(),
+    indexSpec: z.discriminatedUnion('$case', [z.object({ $case: z.literal('directAccessIndexSpec'), directAccessIndexSpec: z.lazy(() => marshalDirectAccessVectorIndexSpecSchema) }), z.object({ $case: z.literal('deltaSyncIndexSpec'), deltaSyncIndexSpec: z.lazy(() => marshalDeltaSyncVectorIndexSpecRequestSchema) })]).optional(),
     indexSubtype: z.enum(IndexSubtype).optional(),
   })
   .transform(d => ({
@@ -1060,24 +957,16 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     endpoint_name: d.endpointName,
     primary_key: d.primaryKey,
     index_type: d.indexType,
-    ...(d.indexSpec?.$case === 'directAccessIndexSpec' && {
-      direct_access_index_spec: d.indexSpec.directAccessIndexSpec,
-    }),
-    ...(d.indexSpec?.$case === 'deltaSyncIndexSpec' && {
-      delta_sync_index_spec: d.indexSpec.deltaSyncIndexSpec,
-    }),
+    ...(d.indexSpec?.$case === 'directAccessIndexSpec' && { direct_access_index_spec: d.indexSpec.directAccessIndexSpec }),
+    ...(d.indexSpec?.$case === 'deltaSyncIndexSpec' && { delta_sync_index_spec: d.indexSpec.deltaSyncIndexSpec }),
     index_subtype: d.indexSubtype,
   }));
 
 export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
   .object({
     sourceTable: z.string().optional(),
-    embeddingSourceColumns: z
-      .array(z.lazy(() => marshalEmbeddingSourceColumnSchema))
-      .optional(),
-    embeddingVectorColumns: z
-      .array(z.lazy(() => marshalEmbeddingVectorColumnSchema))
-      .optional(),
+    embeddingSourceColumns: z.array(z.lazy(() => marshalEmbeddingSourceColumnSchema)).optional(),
+    embeddingVectorColumns: z.array(z.lazy(() => marshalEmbeddingVectorColumnSchema)).optional(),
     pipelineType: z.enum(PipelineType).optional(),
     pipelineId: z.string().optional(),
     embeddingWritebackTable: z.string().optional(),
@@ -1097,13 +986,9 @@ export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
 
 export const marshalDirectAccessVectorIndexSpecSchema: z.ZodType = z
   .object({
-    embeddingVectorColumns: z
-      .array(z.lazy(() => marshalEmbeddingVectorColumnSchema))
-      .optional(),
+    embeddingVectorColumns: z.array(z.lazy(() => marshalEmbeddingVectorColumnSchema)).optional(),
     schemaJson: z.string().optional(),
-    embeddingSourceColumns: z
-      .array(z.lazy(() => marshalEmbeddingSourceColumnSchema))
-      .optional(),
+    embeddingSourceColumns: z.array(z.lazy(() => marshalEmbeddingSourceColumnSchema)).optional(),
   })
   .transform(d => ({
     embedding_vector_columns: d.embeddingVectorColumns,
@@ -1114,22 +999,12 @@ export const marshalDirectAccessVectorIndexSpecSchema: z.ZodType = z
 export const marshalEmbeddingSourceColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    embeddingConfig: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('embeddingModelEndpointName'),
-          embeddingModelEndpointName: z.string(),
-        }),
-      ])
-      .optional(),
+    embeddingConfig: z.discriminatedUnion('$case', [z.object({ $case: z.literal('embeddingModelEndpointName'), embeddingModelEndpointName: z.string() })]).optional(),
     modelEndpointNameForQuery: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    ...(d.embeddingConfig?.$case === 'embeddingModelEndpointName' && {
-      embedding_model_endpoint_name:
-        d.embeddingConfig.embeddingModelEndpointName,
-    }),
+    ...(d.embeddingConfig?.$case === 'embeddingModelEndpointName' && { embedding_model_endpoint_name: d.embeddingConfig.embeddingModelEndpointName }),
     model_endpoint_name_for_query: d.modelEndpointNameForQuery,
   }));
 
@@ -1204,9 +1079,7 @@ export const marshalQueryVectorIndexRequestSchema: z.ZodType = z
 export const marshalRerankerConfigSchema: z.ZodType = z
   .object({
     model: z.string().optional(),
-    parameters: z
-      .lazy(() => marshalRerankerConfig_RerankerParametersSchema)
-      .optional(),
+    parameters: z.lazy(() => marshalRerankerConfig_RerankerParametersSchema).optional(),
   })
   .transform(d => ({
     model: d.model,

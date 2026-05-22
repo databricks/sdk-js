@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ModelVersionStatus {
   MODEL_VERSION_STATUS_UNKNOWN = 'MODEL_VERSION_STATUS_UNKNOWN',
   /** Request to register a new model version is pending as client uploads model files. */
@@ -89,10 +90,10 @@ export interface DeleteRegisteredModelRequest_Response {}
  */
 export interface Dependency {
   value?:
-    | {$case: 'table'; table: TableDependency}
-    | {$case: 'function'; function: FunctionDependency}
-    | {$case: 'connection'; connection: ConnectionDependency}
-    | {$case: 'credential'; credential: CredentialDependency}
+    | { $case: 'table'; table: TableDependency }
+    | { $case: 'function'; function: FunctionDependency }
+    | { $case: 'connection'; connection: ConnectionDependency }
+    | { $case: 'credential'; credential: CredentialDependency }
     | undefined;
 }
 
@@ -179,13 +180,13 @@ export interface ListRegisteredModelsRequest {
   includeBrowse?: boolean | undefined;
   /**
    * Max number of registered models to return.
-   *
+   * 
    * If both catalog and schema are specified:
    * - when max_results is not specified, the page length is set to a server configured value (10000, as of 4/2/2024).
    * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value (10000, as of 4/2/2024);
    * - when set to 0, the page length is set to a server configured value (10000, as of 4/2/2024);
    * - when set to a value less than 0, an invalid parameter error is returned;
-   *
+   * 
    * If neither schema nor catalog is specified:
    * - when max_results is not specified, the page length is set to a server configured value (100, as of 4/2/2024).
    * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value (1000, as of 4/2/2024);
@@ -403,35 +404,36 @@ export interface UpdateRegisteredModelRequest {
   browseOnly?: boolean | undefined;
 }
 
-export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
-  z
-    .object({
-      connection_name: z.string().optional(),
-    })
-    .transform(d => ({
-      connectionName: d.connection_name,
-    }));
+export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> = z
+  .object({
+    connection_name: z.string().optional(),
+  })
+  .transform(d => ({
+    connectionName: d.connection_name,
+  }));
 
-export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> =
-  z
-    .object({
-      credential_name: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialName: d.credential_name,
-    }));
+export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> = z
+  .object({
+    credential_name: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialName: d.credential_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> =
-  z.object({});
+export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelAliasRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelAliasRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRegisteredModelAliasRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelAliasRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
   .object({
@@ -441,16 +443,7 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
   })
   .transform(d => ({
-    value:
-      d.table !== undefined
-        ? {$case: 'table' as const, table: d.table}
-        : d.function !== undefined
-          ? {$case: 'function' as const, function: d.function}
-          : d.connection !== undefined
-            ? {$case: 'connection' as const, connection: d.connection}
-            : d.credential !== undefined
-              ? {$case: 'credential' as const, credential: d.credential}
-              : undefined,
+    value: d.table !== undefined ? { $case: 'table' as const, table: d.table } : d.function !== undefined ? { $case: 'function' as const, function: d.function } : d.connection !== undefined ? { $case: 'connection' as const, connection: d.connection } : d.credential !== undefined ? { $case: 'credential' as const, credential: d.credential } : undefined,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -461,42 +454,35 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
     dependencies: d.dependencies,
   }));
 
-export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
-  z
-    .object({
-      function_full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      functionFullName: d.function_full_name,
-    }));
+export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> = z
+  .object({
+    function_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    functionFullName: d.function_full_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListModelVersionsRequest_ResponseSchema: z.ZodType<ListModelVersionsRequest_Response> =
-  z
-    .object({
-      model_versions: z
-        .array(z.lazy(() => unmarshalModelVersionInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      modelVersions: d.model_versions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListModelVersionsRequest_ResponseSchema: z.ZodType<ListModelVersionsRequest_Response> = z
+  .object({
+    model_versions: z.array(z.lazy(() => unmarshalModelVersionInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    modelVersions: d.model_versions,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> =
-  z
-    .object({
-      registered_models: z
-        .array(z.lazy(() => unmarshalRegisteredModelInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      registeredModels: d.registered_models,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> = z
+  .object({
+    registered_models: z.array(z.lazy(() => unmarshalRegisteredModelInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    registeredModels: d.registered_models,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
   .object({
@@ -507,9 +493,7 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
     comment: z.string().optional(),
     run_id: z.string().optional(),
     run_workspace_id: z.number().optional(),
-    model_version_dependencies: z
-      .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+    model_version_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
     status: z.enum(ModelVersionStatus).optional(),
     version: z.number().optional(),
     storage_location: z.string().optional(),
@@ -519,9 +503,7 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
     updated_at: z.number().optional(),
     updated_by: z.string().optional(),
     id: z.string().optional(),
-    aliases: z
-      .array(z.lazy(() => unmarshalRegisteredModelAliasInfoSchema))
-      .optional(),
+    aliases: z.array(z.lazy(() => unmarshalRegisteredModelAliasInfoSchema)).optional(),
   })
   .transform(d => ({
     modelName: d.model_name,
@@ -544,61 +526,57 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
     aliases: d.aliases,
   }));
 
-export const unmarshalRegisteredModelAliasInfoSchema: z.ZodType<RegisteredModelAliasInfo> =
-  z
-    .object({
-      alias_name: z.string().optional(),
-      version_num: z.number().optional(),
-      id: z.string().optional(),
-      model_name: z.string().optional(),
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
-    })
-    .transform(d => ({
-      aliasName: d.alias_name,
-      versionNum: d.version_num,
-      id: d.id,
-      modelName: d.model_name,
-      catalogName: d.catalog_name,
-      schemaName: d.schema_name,
-    }));
+export const unmarshalRegisteredModelAliasInfoSchema: z.ZodType<RegisteredModelAliasInfo> = z
+  .object({
+    alias_name: z.string().optional(),
+    version_num: z.number().optional(),
+    id: z.string().optional(),
+    model_name: z.string().optional(),
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+  })
+  .transform(d => ({
+    aliasName: d.alias_name,
+    versionNum: d.version_num,
+    id: d.id,
+    modelName: d.model_name,
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+  }));
 
-export const unmarshalRegisteredModelInfoSchema: z.ZodType<RegisteredModelInfo> =
-  z
-    .object({
-      name: z.string().optional(),
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
-      owner: z.string().optional(),
-      comment: z.string().optional(),
-      storage_location: z.string().optional(),
-      metastore_id: z.string().optional(),
-      full_name: z.string().optional(),
-      created_at: z.number().optional(),
-      created_by: z.string().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.string().optional(),
-      aliases: z
-        .array(z.lazy(() => unmarshalRegisteredModelAliasInfoSchema))
-        .optional(),
-      browse_only: z.boolean().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      catalogName: d.catalog_name,
-      schemaName: d.schema_name,
-      owner: d.owner,
-      comment: d.comment,
-      storageLocation: d.storage_location,
-      metastoreId: d.metastore_id,
-      fullName: d.full_name,
-      createdAt: d.created_at,
-      createdBy: d.created_by,
-      updatedAt: d.updated_at,
-      updatedBy: d.updated_by,
-      aliases: d.aliases,
-      browseOnly: d.browse_only,
-    }));
+export const unmarshalRegisteredModelInfoSchema: z.ZodType<RegisteredModelInfo> = z
+  .object({
+    name: z.string().optional(),
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    storage_location: z.string().optional(),
+    metastore_id: z.string().optional(),
+    full_name: z.string().optional(),
+    created_at: z.number().optional(),
+    created_by: z.string().optional(),
+    updated_at: z.number().optional(),
+    updated_by: z.string().optional(),
+    aliases: z.array(z.lazy(() => unmarshalRegisteredModelAliasInfoSchema)).optional(),
+    browse_only: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+    owner: d.owner,
+    comment: d.comment,
+    storageLocation: d.storage_location,
+    metastoreId: d.metastore_id,
+    fullName: d.full_name,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
+    updatedAt: d.updated_at,
+    updatedBy: d.updated_by,
+    aliases: d.aliases,
+    browseOnly: d.browse_only,
+  }));
 
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   .object({
@@ -630,9 +608,7 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.number().optional(),
     updatedBy: z.string().optional(),
-    aliases: z
-      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
-      .optional(),
+    aliases: z.array(z.lazy(() => marshalRegisteredModelAliasInfoSchema)).optional(),
     browseOnly: z.boolean().optional(),
   })
   .transform(d => ({
@@ -662,32 +638,13 @@ export const marshalCredentialDependencySchema: z.ZodType = z
 
 export const marshalDependencySchema: z.ZodType = z
   .object({
-    value: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('table'),
-          table: z.lazy(() => marshalTableDependencySchema),
-        }),
-        z.object({
-          $case: z.literal('function'),
-          function: z.lazy(() => marshalFunctionDependencySchema),
-        }),
-        z.object({
-          $case: z.literal('connection'),
-          connection: z.lazy(() => marshalConnectionDependencySchema),
-        }),
-        z.object({
-          $case: z.literal('credential'),
-          credential: z.lazy(() => marshalCredentialDependencySchema),
-        }),
-      ])
-      .optional(),
+    value: z.discriminatedUnion('$case', [z.object({ $case: z.literal('table'), table: z.lazy(() => marshalTableDependencySchema) }), z.object({ $case: z.literal('function'), function: z.lazy(() => marshalFunctionDependencySchema) }), z.object({ $case: z.literal('connection'), connection: z.lazy(() => marshalConnectionDependencySchema) }), z.object({ $case: z.literal('credential'), credential: z.lazy(() => marshalCredentialDependencySchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.value?.$case === 'table' && {table: d.value.table}),
-    ...(d.value?.$case === 'function' && {function: d.value.function}),
-    ...(d.value?.$case === 'connection' && {connection: d.value.connection}),
-    ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
+    ...(d.value?.$case === 'table' && { table: d.value.table }),
+    ...(d.value?.$case === 'function' && { function: d.value.function }),
+    ...(d.value?.$case === 'connection' && { connection: d.value.connection }),
+    ...(d.value?.$case === 'credential' && { credential: d.value.credential }),
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -755,9 +712,7 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     runId: z.string().optional(),
     runWorkspaceId: z.number().optional(),
-    modelVersionDependencies: z
-      .lazy(() => marshalDependencyListSchema)
-      .optional(),
+    modelVersionDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
     status: z.enum(ModelVersionStatus).optional(),
     version: z.number().optional(),
     storageLocation: z.string().optional(),
@@ -767,9 +722,7 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     updatedAt: z.number().optional(),
     updatedBy: z.string().optional(),
     id: z.string().optional(),
-    aliases: z
-      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
-      .optional(),
+    aliases: z.array(z.lazy(() => marshalRegisteredModelAliasInfoSchema)).optional(),
   })
   .transform(d => ({
     full_name_arg: d.fullNameArg,
@@ -810,9 +763,7 @@ export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.number().optional(),
     updatedBy: z.string().optional(),
-    aliases: z
-      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
-      .optional(),
+    aliases: z.array(z.lazy(() => marshalRegisteredModelAliasInfoSchema)).optional(),
     browseOnly: z.boolean().optional(),
   })
   .transform(d => ({

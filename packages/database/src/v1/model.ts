@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum ProvisioningPhase {
   /** The default phase. It should not be reported by any synced tables. */
   PROVISIONING_PHASE_UNSPECIFIED = 'PROVISIONING_PHASE_UNSPECIFIED',
@@ -316,7 +317,7 @@ export interface DatabaseInstanceRef {
   name?: string | undefined;
   /**
    * User-specified WAL LSN of the ref database instance.
-   *
+   * 
    * Input: For specifying the WAL LSN to create a child instance. Optional.
    * Output: Only populated if provided as input to create a child instance.
    */
@@ -387,10 +388,10 @@ export interface DatabaseTable {
   databaseInstanceName?: string | undefined;
   /**
    * Target Postgres database object (logical database) name for this table.
-   *
+   * 
    * When creating a table in a standard catalog, this field is required.
    * In this scenario, specifying this field will allow targeting an arbitrary postgres database.
-   *
+   * 
    * Registration of database tables via /database/tables is currently only supported in standard catalogs.
    */
   logicalDatabaseName?: string | undefined;
@@ -551,14 +552,14 @@ export interface ListSyncedDatabaseTablesResponse {
 export interface NewPipelineSpec {
   /**
    * This field needs to be specified if the destination catalog is a managed postgres catalog.
-   *
+   * 
    * UC catalog for the pipeline to store intermediate files (checkpoints, event logs etc).
    * This needs to be a standard catalog where the user has permissions to create Delta tables.
    */
   storageCatalog?: string | undefined;
   /**
    * This field needs to be specified if the destination catalog is a managed postgres catalog.
-   *
+   * 
    * UC schema for the pipeline to store intermediate files (checkpoints, event logs etc).
    * This needs to be in the standard catalog where the user has permissions to create Delta tables.
    */
@@ -582,8 +583,8 @@ export interface RequestedClaims {
 export interface RequestedResource {
   /** Might add UC_SCHEMA & UC_CATALOG later */
   resourceName?:
-    | {$case: 'unspecifiedResourceName'; unspecifiedResourceName: string}
-    | {$case: 'tableName'; tableName: string}
+    | { $case: 'unspecifiedResourceName'; unspecifiedResourceName: string }
+    | { $case: 'tableName'; tableName: string }
     | undefined;
 }
 
@@ -606,12 +607,12 @@ export interface SyncedDatabaseTable {
   effectiveDatabaseInstanceName?: string | undefined;
   /**
    * Target Postgres database object (logical database) name for this table.
-   *
+   * 
    * When creating a synced table in a registered Postgres catalog, the
    * target Postgres database name is inferred to be that of the registered catalog.
    * If this field is specified in this scenario, the Postgres database name MUST
    * match that of the registered catalog (or the request will be rejected).
-   *
+   * 
    * When creating a synced table in a standard catalog, this field is required.
    * In this scenario, specifying this field will allow targeting an arbitrary postgres database.
    * Note that this has implications for the `create_database_objects_is_missing` field in `spec`.
@@ -703,7 +704,7 @@ export interface SyncedTablePosition {
   syncEndTimestamp?: Temporal.Instant | undefined;
   /** Information about the source system at the time of the last sync. */
   sourceSyncInfo?:
-    | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
+    | { $case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo }
     | undefined;
 }
 
@@ -731,7 +732,7 @@ export interface SyncedTableSpec {
   timeseriesKey?: string | undefined;
   /**
    * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
-   *
+   * 
    * If existing_pipeline_id is defined, the synced table will be bin packed into the existing pipeline
    * referenced. This avoids creating a new pipeline and allows sharing existing compute.
    * In this case, the scheduling_policy of this synced table must match the scheduling policy of the existing pipeline.
@@ -744,7 +745,7 @@ export interface SyncedTableSpec {
   createDatabaseObjectsIfMissing?: boolean | undefined;
   /**
    * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
-   *
+   * 
    * If new_pipeline_spec is defined, a new pipeline is created for this synced table. The location pointed to is used
    * to store intermediate files (checkpoints, event logs etc). The caller must have write permissions to create Delta
    * tables in the specified catalog and schema. Again, note this requires write permissions, whereas the source table
@@ -761,19 +762,10 @@ export interface SyncedTableStatus {
   message?: string | undefined;
   /** The detailed status based on the synced table state. */
   detailedStatus?:
-    | {
-        $case: 'provisioningStatus';
-        provisioningStatus: SyncedTableProvisioningStatus;
-      }
-    | {
-        $case: 'continuousUpdateStatus';
-        continuousUpdateStatus: SyncedTableContinuousUpdateStatus;
-      }
-    | {
-        $case: 'triggeredUpdateStatus';
-        triggeredUpdateStatus: SyncedTableTriggeredUpdateStatus;
-      }
-    | {$case: 'failedStatus'; failedStatus: SyncedTableFailedStatus}
+    | { $case: 'provisioningStatus'; provisioningStatus: SyncedTableProvisioningStatus }
+    | { $case: 'continuousUpdateStatus'; continuousUpdateStatus: SyncedTableContinuousUpdateStatus }
+    | { $case: 'triggeredUpdateStatus'; triggeredUpdateStatus: SyncedTableTriggeredUpdateStatus }
+    | { $case: 'failedStatus'; failedStatus: SyncedTableFailedStatus }
     | undefined;
   /**
    * ID of the associated pipeline. The pipeline ID may have been provided by the client
@@ -782,13 +774,13 @@ export interface SyncedTableStatus {
   pipelineId?: string | undefined;
   /**
    * Summary of the last successful synchronization from source to destination.
-   *
+   * 
    * Will always be present if there has been a successful sync. Even if the most recent syncs have failed.
-   *
+   * 
    * Limitation:
    * The only exception is if the synced table is doing a FULL REFRESH, then the last sync information
    * will not be available until the full refresh is complete. This limitation will be addressed in a future version.
-   *
+   * 
    * This top-level field is a convenience for consumers who want easy access to last sync information
    * without having to traverse detailed_status.
    */
@@ -860,19 +852,15 @@ export const unmarshalDatabaseCatalogSchema: z.ZodType<DatabaseCatalog> = z
     createDatabaseIfNotExists: d.create_database_if_not_exists,
   }));
 
-export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> =
-  z
-    .object({
-      token: z.string().optional(),
-      expiration_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      token: d.token,
-      expirationTime: d.expiration_time,
-    }));
+export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> = z
+  .object({
+    token: z.string().optional(),
+    expiration_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    token: d.token,
+    expirationTime: d.expiration_time,
+  }));
 
 export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
   .object({
@@ -880,10 +868,7 @@ export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
     name: z.string().optional(),
     creator: z.string().optional(),
     read_write_dns: z.string().optional(),
-    creation_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    creation_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     state: z.enum(DatabaseInstance_State).optional(),
     pg_version: z.string().optional(),
     capacity: z.string().optional(),
@@ -897,20 +882,14 @@ export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
     read_only_dns: z.string().optional(),
     retention_window_in_days: z.number().optional(),
     effective_retention_window_in_days: z.number().optional(),
-    parent_instance_ref: z
-      .lazy(() => unmarshalDatabaseInstanceRefSchema)
-      .optional(),
-    child_instance_refs: z
-      .array(z.lazy(() => unmarshalDatabaseInstanceRefSchema))
-      .optional(),
+    parent_instance_ref: z.lazy(() => unmarshalDatabaseInstanceRefSchema).optional(),
+    child_instance_refs: z.array(z.lazy(() => unmarshalDatabaseInstanceRefSchema)).optional(),
     enable_pg_native_login: z.boolean().optional(),
     effective_enable_pg_native_login: z.boolean().optional(),
     usage_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     custom_tags: z.array(z.lazy(() => unmarshalCustomTagSchema)).optional(),
-    effective_custom_tags: z
-      .array(z.lazy(() => unmarshalCustomTagSchema))
-      .optional(),
+    effective_custom_tags: z.array(z.lazy(() => unmarshalCustomTagSchema)).optional(),
   })
   .transform(d => ({
     uid: d.uid,
@@ -941,62 +920,52 @@ export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
     effectiveCustomTags: d.effective_custom_tags,
   }));
 
-export const unmarshalDatabaseInstanceRefSchema: z.ZodType<DatabaseInstanceRef> =
-  z
-    .object({
-      uid: z.string().optional(),
-      name: z.string().optional(),
-      lsn: z.string().optional(),
-      effective_lsn: z.string().optional(),
-      branch_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      uid: d.uid,
-      name: d.name,
-      lsn: d.lsn,
-      effectiveLsn: d.effective_lsn,
-      branchTime: d.branch_time,
-    }));
+export const unmarshalDatabaseInstanceRefSchema: z.ZodType<DatabaseInstanceRef> = z
+  .object({
+    uid: z.string().optional(),
+    name: z.string().optional(),
+    lsn: z.string().optional(),
+    effective_lsn: z.string().optional(),
+    branch_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    uid: d.uid,
+    name: d.name,
+    lsn: d.lsn,
+    effectiveLsn: d.effective_lsn,
+    branchTime: d.branch_time,
+  }));
 
-export const unmarshalDatabaseInstanceRoleSchema: z.ZodType<DatabaseInstanceRole> =
-  z
-    .object({
-      name: z.string().optional(),
-      identity_type: z.enum(DatabaseInstanceRole_IdentityType).optional(),
-      membership_role: z.enum(DatabaseInstanceRole_MembershipRole).optional(),
-      attributes: z
-        .lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema)
-        .optional(),
-      effective_attributes: z
-        .lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema)
-        .optional(),
-      instance_name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      identityType: d.identity_type,
-      membershipRole: d.membership_role,
-      attributes: d.attributes,
-      effectiveAttributes: d.effective_attributes,
-      instanceName: d.instance_name,
-    }));
+export const unmarshalDatabaseInstanceRoleSchema: z.ZodType<DatabaseInstanceRole> = z
+  .object({
+    name: z.string().optional(),
+    identity_type: z.enum(DatabaseInstanceRole_IdentityType).optional(),
+    membership_role: z.enum(DatabaseInstanceRole_MembershipRole).optional(),
+    attributes: z.lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema).optional(),
+    effective_attributes: z.lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema).optional(),
+    instance_name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    identityType: d.identity_type,
+    membershipRole: d.membership_role,
+    attributes: d.attributes,
+    effectiveAttributes: d.effective_attributes,
+    instanceName: d.instance_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDatabaseInstanceRole_AttributesSchema: z.ZodType<DatabaseInstanceRole_Attributes> =
-  z
-    .object({
-      createdb: z.boolean().optional(),
-      createrole: z.boolean().optional(),
-      bypassrls: z.boolean().optional(),
-    })
-    .transform(d => ({
-      createdb: d.createdb,
-      createrole: d.createrole,
-      bypassrls: d.bypassrls,
-    }));
+export const unmarshalDatabaseInstanceRole_AttributesSchema: z.ZodType<DatabaseInstanceRole_Attributes> = z
+  .object({
+    createdb: z.boolean().optional(),
+    createrole: z.boolean().optional(),
+    bypassrls: z.boolean().optional(),
+  })
+  .transform(d => ({
+    createdb: d.createdb,
+    createrole: d.createrole,
+    bypassrls: d.bypassrls,
+  }));
 
 export const unmarshalDatabaseTableSchema: z.ZodType<DatabaseTable> = z
   .object({
@@ -1010,71 +979,55 @@ export const unmarshalDatabaseTableSchema: z.ZodType<DatabaseTable> = z
     logicalDatabaseName: d.logical_database_name,
   }));
 
-export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
-  z
-    .object({
-      delta_commit_version: z.number().optional(),
-      delta_commit_timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      deltaCommitVersion: d.delta_commit_version,
-      deltaCommitTimestamp: d.delta_commit_timestamp,
-    }));
+export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> = z
+  .object({
+    delta_commit_version: z.number().optional(),
+    delta_commit_timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    deltaCommitVersion: d.delta_commit_version,
+    deltaCommitTimestamp: d.delta_commit_timestamp,
+  }));
 
-export const unmarshalListDatabaseCatalogsResponseSchema: z.ZodType<ListDatabaseCatalogsResponse> =
-  z
-    .object({
-      database_catalogs: z
-        .array(z.lazy(() => unmarshalDatabaseCatalogSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      databaseCatalogs: d.database_catalogs,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDatabaseCatalogsResponseSchema: z.ZodType<ListDatabaseCatalogsResponse> = z
+  .object({
+    database_catalogs: z.array(z.lazy(() => unmarshalDatabaseCatalogSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    databaseCatalogs: d.database_catalogs,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListDatabaseInstanceRolesResponseSchema: z.ZodType<ListDatabaseInstanceRolesResponse> =
-  z
-    .object({
-      database_instance_roles: z
-        .array(z.lazy(() => unmarshalDatabaseInstanceRoleSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      databaseInstanceRoles: d.database_instance_roles,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDatabaseInstanceRolesResponseSchema: z.ZodType<ListDatabaseInstanceRolesResponse> = z
+  .object({
+    database_instance_roles: z.array(z.lazy(() => unmarshalDatabaseInstanceRoleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    databaseInstanceRoles: d.database_instance_roles,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListDatabaseInstancesResponseSchema: z.ZodType<ListDatabaseInstancesResponse> =
-  z
-    .object({
-      database_instances: z
-        .array(z.lazy(() => unmarshalDatabaseInstanceSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      databaseInstances: d.database_instances,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDatabaseInstancesResponseSchema: z.ZodType<ListDatabaseInstancesResponse> = z
+  .object({
+    database_instances: z.array(z.lazy(() => unmarshalDatabaseInstanceSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    databaseInstances: d.database_instances,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListSyncedDatabaseTablesResponseSchema: z.ZodType<ListSyncedDatabaseTablesResponse> =
-  z
-    .object({
-      synced_tables: z
-        .array(z.lazy(() => unmarshalSyncedDatabaseTableSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      syncedTables: d.synced_tables,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSyncedDatabaseTablesResponseSchema: z.ZodType<ListSyncedDatabaseTablesResponse> = z
+  .object({
+    synced_tables: z.array(z.lazy(() => unmarshalSyncedDatabaseTableSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    syncedTables: d.synced_tables,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
   .object({
@@ -1088,121 +1041,87 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
     budgetPolicyId: d.budget_policy_id,
   }));
 
-export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> =
-  z
-    .object({
-      name: z.string().optional(),
-      database_instance_name: z.string().optional(),
-      effective_database_instance_name: z.string().optional(),
-      logical_database_name: z.string().optional(),
-      effective_logical_database_name: z.string().optional(),
-      spec: z.lazy(() => unmarshalSyncedTableSpecSchema).optional(),
-      unity_catalog_provisioning_state: z
-        .enum(ProvisioningInfo_State)
-        .optional(),
-      data_synchronization_status: z
-        .lazy(() => unmarshalSyncedTableStatusSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      databaseInstanceName: d.database_instance_name,
-      effectiveDatabaseInstanceName: d.effective_database_instance_name,
-      logicalDatabaseName: d.logical_database_name,
-      effectiveLogicalDatabaseName: d.effective_logical_database_name,
-      spec: d.spec,
-      unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
-      dataSynchronizationStatus: d.data_synchronization_status,
-    }));
+export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> = z
+  .object({
+    name: z.string().optional(),
+    database_instance_name: z.string().optional(),
+    effective_database_instance_name: z.string().optional(),
+    logical_database_name: z.string().optional(),
+    effective_logical_database_name: z.string().optional(),
+    spec: z.lazy(() => unmarshalSyncedTableSpecSchema).optional(),
+    unity_catalog_provisioning_state: z.enum(ProvisioningInfo_State).optional(),
+    data_synchronization_status: z.lazy(() => unmarshalSyncedTableStatusSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    databaseInstanceName: d.database_instance_name,
+    effectiveDatabaseInstanceName: d.effective_database_instance_name,
+    logicalDatabaseName: d.logical_database_name,
+    effectiveLogicalDatabaseName: d.effective_logical_database_name,
+    spec: d.spec,
+    unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
+    dataSynchronizationStatus: d.data_synchronization_status,
+  }));
 
-export const unmarshalSyncedTableContinuousUpdateStatusSchema: z.ZodType<SyncedTableContinuousUpdateStatus> =
-  z
-    .object({
-      last_processed_commit_version: z.number().optional(),
-      timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      initial_pipeline_sync_progress: z
-        .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      lastProcessedCommitVersion: d.last_processed_commit_version,
-      timestamp: d.timestamp,
-      initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
-    }));
+export const unmarshalSyncedTableContinuousUpdateStatusSchema: z.ZodType<SyncedTableContinuousUpdateStatus> = z
+  .object({
+    last_processed_commit_version: z.number().optional(),
+    timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    initial_pipeline_sync_progress: z.lazy(() => unmarshalSyncedTablePipelineProgressSchema).optional(),
+  })
+  .transform(d => ({
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    timestamp: d.timestamp,
+    initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
+  }));
 
-export const unmarshalSyncedTableFailedStatusSchema: z.ZodType<SyncedTableFailedStatus> =
-  z
-    .object({
-      last_processed_commit_version: z.number().optional(),
-      timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      lastProcessedCommitVersion: d.last_processed_commit_version,
-      timestamp: d.timestamp,
-    }));
+export const unmarshalSyncedTableFailedStatusSchema: z.ZodType<SyncedTableFailedStatus> = z
+  .object({
+    last_processed_commit_version: z.number().optional(),
+    timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    timestamp: d.timestamp,
+  }));
 
-export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePipelineProgress> =
-  z
-    .object({
-      latest_version_currently_processing: z.number().optional(),
-      synced_row_count: z.number().optional(),
-      total_row_count: z.number().optional(),
-      sync_progress_completion: z.number().optional(),
-      estimated_completion_time_seconds: z.number().optional(),
-      provisioning_phase: z.enum(ProvisioningPhase).optional(),
-    })
-    .transform(d => ({
-      latestVersionCurrentlyProcessing: d.latest_version_currently_processing,
-      syncedRowCount: d.synced_row_count,
-      totalRowCount: d.total_row_count,
-      syncProgressCompletion: d.sync_progress_completion,
-      estimatedCompletionTimeSeconds: d.estimated_completion_time_seconds,
-      provisioningPhase: d.provisioning_phase,
-    }));
+export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePipelineProgress> = z
+  .object({
+    latest_version_currently_processing: z.number().optional(),
+    synced_row_count: z.number().optional(),
+    total_row_count: z.number().optional(),
+    sync_progress_completion: z.number().optional(),
+    estimated_completion_time_seconds: z.number().optional(),
+    provisioning_phase: z.enum(ProvisioningPhase).optional(),
+  })
+  .transform(d => ({
+    latestVersionCurrentlyProcessing: d.latest_version_currently_processing,
+    syncedRowCount: d.synced_row_count,
+    totalRowCount: d.total_row_count,
+    syncProgressCompletion: d.sync_progress_completion,
+    estimatedCompletionTimeSeconds: d.estimated_completion_time_seconds,
+    provisioningPhase: d.provisioning_phase,
+  }));
 
-export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> =
-  z
-    .object({
-      sync_start_timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      sync_end_timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      delta_table_sync_info: z
-        .lazy(() => unmarshalDeltaTableSyncInfoSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      syncStartTimestamp: d.sync_start_timestamp,
-      syncEndTimestamp: d.sync_end_timestamp,
-      sourceSyncInfo:
-        d.delta_table_sync_info !== undefined
-          ? {
-              $case: 'deltaTableSyncInfo' as const,
-              deltaTableSyncInfo: d.delta_table_sync_info,
-            }
-          : undefined,
-    }));
+export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> = z
+  .object({
+    sync_start_timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    sync_end_timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    delta_table_sync_info: z.lazy(() => unmarshalDeltaTableSyncInfoSchema).optional(),
+  })
+  .transform(d => ({
+    syncStartTimestamp: d.sync_start_timestamp,
+    syncEndTimestamp: d.sync_end_timestamp,
+    sourceSyncInfo: d.delta_table_sync_info !== undefined ? { $case: 'deltaTableSyncInfo' as const, deltaTableSyncInfo: d.delta_table_sync_info } : undefined,
+  }));
 
-export const unmarshalSyncedTableProvisioningStatusSchema: z.ZodType<SyncedTableProvisioningStatus> =
-  z
-    .object({
-      initial_pipeline_sync_progress: z
-        .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
-    }));
+export const unmarshalSyncedTableProvisioningStatusSchema: z.ZodType<SyncedTableProvisioningStatus> = z
+  .object({
+    initial_pipeline_sync_progress: z.lazy(() => unmarshalSyncedTablePipelineProgressSchema).optional(),
+  })
+  .transform(d => ({
+    initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
+  }));
 
 export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
   .object({
@@ -1228,64 +1147,32 @@ export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
   .object({
     detailed_state: z.enum(SyncedTableState).optional(),
     message: z.string().optional(),
-    provisioning_status: z
-      .lazy(() => unmarshalSyncedTableProvisioningStatusSchema)
-      .optional(),
-    continuous_update_status: z
-      .lazy(() => unmarshalSyncedTableContinuousUpdateStatusSchema)
-      .optional(),
-    triggered_update_status: z
-      .lazy(() => unmarshalSyncedTableTriggeredUpdateStatusSchema)
-      .optional(),
-    failed_status: z
-      .lazy(() => unmarshalSyncedTableFailedStatusSchema)
-      .optional(),
+    provisioning_status: z.lazy(() => unmarshalSyncedTableProvisioningStatusSchema).optional(),
+    continuous_update_status: z.lazy(() => unmarshalSyncedTableContinuousUpdateStatusSchema).optional(),
+    triggered_update_status: z.lazy(() => unmarshalSyncedTableTriggeredUpdateStatusSchema).optional(),
+    failed_status: z.lazy(() => unmarshalSyncedTableFailedStatusSchema).optional(),
     pipeline_id: z.string().optional(),
     last_sync: z.lazy(() => unmarshalSyncedTablePositionSchema).optional(),
   })
   .transform(d => ({
     detailedState: d.detailed_state,
     message: d.message,
-    detailedStatus:
-      d.provisioning_status !== undefined
-        ? {
-            $case: 'provisioningStatus' as const,
-            provisioningStatus: d.provisioning_status,
-          }
-        : d.continuous_update_status !== undefined
-          ? {
-              $case: 'continuousUpdateStatus' as const,
-              continuousUpdateStatus: d.continuous_update_status,
-            }
-          : d.triggered_update_status !== undefined
-            ? {
-                $case: 'triggeredUpdateStatus' as const,
-                triggeredUpdateStatus: d.triggered_update_status,
-              }
-            : d.failed_status !== undefined
-              ? {$case: 'failedStatus' as const, failedStatus: d.failed_status}
-              : undefined,
+    detailedStatus: d.provisioning_status !== undefined ? { $case: 'provisioningStatus' as const, provisioningStatus: d.provisioning_status } : d.continuous_update_status !== undefined ? { $case: 'continuousUpdateStatus' as const, continuousUpdateStatus: d.continuous_update_status } : d.triggered_update_status !== undefined ? { $case: 'triggeredUpdateStatus' as const, triggeredUpdateStatus: d.triggered_update_status } : d.failed_status !== undefined ? { $case: 'failedStatus' as const, failedStatus: d.failed_status } : undefined,
     pipelineId: d.pipeline_id,
     lastSync: d.last_sync,
   }));
 
-export const unmarshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType<SyncedTableTriggeredUpdateStatus> =
-  z
-    .object({
-      last_processed_commit_version: z.number().optional(),
-      timestamp: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      triggered_update_progress: z
-        .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      lastProcessedCommitVersion: d.last_processed_commit_version,
-      timestamp: d.timestamp,
-      triggeredUpdateProgress: d.triggered_update_progress,
-    }));
+export const unmarshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType<SyncedTableTriggeredUpdateStatus> = z
+  .object({
+    last_processed_commit_version: z.number().optional(),
+    timestamp: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    triggered_update_progress: z.lazy(() => unmarshalSyncedTablePipelineProgressSchema).optional(),
+  })
+  .transform(d => ({
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    timestamp: d.timestamp,
+    triggeredUpdateProgress: d.triggered_update_progress,
+  }));
 
 export const marshalCustomTagSchema: z.ZodType = z
   .object({
@@ -1319,10 +1206,7 @@ export const marshalDatabaseInstanceSchema: z.ZodType = z
     name: z.string().optional(),
     creator: z.string().optional(),
     readWriteDns: z.string().optional(),
-    creationTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    creationTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     state: z.enum(DatabaseInstance_State).optional(),
     pgVersion: z.string().optional(),
     capacity: z.string().optional(),
@@ -1336,20 +1220,14 @@ export const marshalDatabaseInstanceSchema: z.ZodType = z
     readOnlyDns: z.string().optional(),
     retentionWindowInDays: z.number().optional(),
     effectiveRetentionWindowInDays: z.number().optional(),
-    parentInstanceRef: z
-      .lazy(() => marshalDatabaseInstanceRefSchema)
-      .optional(),
-    childInstanceRefs: z
-      .array(z.lazy(() => marshalDatabaseInstanceRefSchema))
-      .optional(),
+    parentInstanceRef: z.lazy(() => marshalDatabaseInstanceRefSchema).optional(),
+    childInstanceRefs: z.array(z.lazy(() => marshalDatabaseInstanceRefSchema)).optional(),
     enablePgNativeLogin: z.boolean().optional(),
     effectiveEnablePgNativeLogin: z.boolean().optional(),
     usagePolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
-    effectiveCustomTags: z
-      .array(z.lazy(() => marshalCustomTagSchema))
-      .optional(),
+    effectiveCustomTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
   })
   .transform(d => ({
     uid: d.uid,
@@ -1386,10 +1264,7 @@ export const marshalDatabaseInstanceRefSchema: z.ZodType = z
     name: z.string().optional(),
     lsn: z.string().optional(),
     effectiveLsn: z.string().optional(),
-    branchTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    branchTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     uid: d.uid,
@@ -1404,12 +1279,8 @@ export const marshalDatabaseInstanceRoleSchema: z.ZodType = z
     name: z.string().optional(),
     identityType: z.enum(DatabaseInstanceRole_IdentityType).optional(),
     membershipRole: z.enum(DatabaseInstanceRole_MembershipRole).optional(),
-    attributes: z
-      .lazy(() => marshalDatabaseInstanceRole_AttributesSchema)
-      .optional(),
-    effectiveAttributes: z
-      .lazy(() => marshalDatabaseInstanceRole_AttributesSchema)
-      .optional(),
+    attributes: z.lazy(() => marshalDatabaseInstanceRole_AttributesSchema).optional(),
+    effectiveAttributes: z.lazy(() => marshalDatabaseInstanceRole_AttributesSchema).optional(),
     instanceName: z.string().optional(),
   })
   .transform(d => ({
@@ -1449,10 +1320,7 @@ export const marshalDatabaseTableSchema: z.ZodType = z
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
     deltaCommitVersion: z.number().optional(),
-    deltaCommitTimestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    deltaCommitTimestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
@@ -1495,23 +1363,11 @@ export const marshalRequestedClaimsSchema: z.ZodType = z
 
 export const marshalRequestedResourceSchema: z.ZodType = z
   .object({
-    resourceName: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('unspecifiedResourceName'),
-          unspecifiedResourceName: z.string(),
-        }),
-        z.object({$case: z.literal('tableName'), tableName: z.string()}),
-      ])
-      .optional(),
+    resourceName: z.discriminatedUnion('$case', [z.object({ $case: z.literal('unspecifiedResourceName'), unspecifiedResourceName: z.string() }), z.object({ $case: z.literal('tableName'), tableName: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.resourceName?.$case === 'unspecifiedResourceName' && {
-      unspecified_resource_name: d.resourceName.unspecifiedResourceName,
-    }),
-    ...(d.resourceName?.$case === 'tableName' && {
-      table_name: d.resourceName.tableName,
-    }),
+    ...(d.resourceName?.$case === 'unspecifiedResourceName' && { unspecified_resource_name: d.resourceName.unspecifiedResourceName }),
+    ...(d.resourceName?.$case === 'tableName' && { table_name: d.resourceName.tableName }),
   }));
 
 export const marshalSyncedDatabaseTableSchema: z.ZodType = z
@@ -1523,9 +1379,7 @@ export const marshalSyncedDatabaseTableSchema: z.ZodType = z
     effectiveLogicalDatabaseName: z.string().optional(),
     spec: z.lazy(() => marshalSyncedTableSpecSchema).optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
-    dataSynchronizationStatus: z
-      .lazy(() => marshalSyncedTableStatusSchema)
-      .optional(),
+    dataSynchronizationStatus: z.lazy(() => marshalSyncedTableStatusSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1541,13 +1395,8 @@ export const marshalSyncedDatabaseTableSchema: z.ZodType = z
 export const marshalSyncedTableContinuousUpdateStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.number().optional(),
-    timestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    initialPipelineSyncProgress: z
-      .lazy(() => marshalSyncedTablePipelineProgressSchema)
-      .optional(),
+    timestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    initialPipelineSyncProgress: z.lazy(() => marshalSyncedTablePipelineProgressSchema).optional(),
   })
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,
@@ -1558,10 +1407,7 @@ export const marshalSyncedTableContinuousUpdateStatusSchema: z.ZodType = z
 export const marshalSyncedTableFailedStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.number().optional(),
-    timestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    timestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,
@@ -1588,36 +1434,19 @@ export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
 
 export const marshalSyncedTablePositionSchema: z.ZodType = z
   .object({
-    syncStartTimestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    syncEndTimestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    sourceSyncInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('deltaTableSyncInfo'),
-          deltaTableSyncInfo: z.lazy(() => marshalDeltaTableSyncInfoSchema),
-        }),
-      ])
-      .optional(),
+    syncStartTimestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    syncEndTimestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    sourceSyncInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('deltaTableSyncInfo'), deltaTableSyncInfo: z.lazy(() => marshalDeltaTableSyncInfoSchema) })]).optional(),
   })
   .transform(d => ({
     sync_start_timestamp: d.syncStartTimestamp,
     sync_end_timestamp: d.syncEndTimestamp,
-    ...(d.sourceSyncInfo?.$case === 'deltaTableSyncInfo' && {
-      delta_table_sync_info: d.sourceSyncInfo.deltaTableSyncInfo,
-    }),
+    ...(d.sourceSyncInfo?.$case === 'deltaTableSyncInfo' && { delta_table_sync_info: d.sourceSyncInfo.deltaTableSyncInfo }),
   }));
 
 export const marshalSyncedTableProvisioningStatusSchema: z.ZodType = z
   .object({
-    initialPipelineSyncProgress: z
-      .lazy(() => marshalSyncedTablePipelineProgressSchema)
-      .optional(),
+    initialPipelineSyncProgress: z.lazy(() => marshalSyncedTablePipelineProgressSchema).optional(),
   })
   .transform(d => ({
     initial_pipeline_sync_progress: d.initialPipelineSyncProgress,
@@ -1647,50 +1476,17 @@ export const marshalSyncedTableStatusSchema: z.ZodType = z
   .object({
     detailedState: z.enum(SyncedTableState).optional(),
     message: z.string().optional(),
-    detailedStatus: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('provisioningStatus'),
-          provisioningStatus: z.lazy(
-            () => marshalSyncedTableProvisioningStatusSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('continuousUpdateStatus'),
-          continuousUpdateStatus: z.lazy(
-            () => marshalSyncedTableContinuousUpdateStatusSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('triggeredUpdateStatus'),
-          triggeredUpdateStatus: z.lazy(
-            () => marshalSyncedTableTriggeredUpdateStatusSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('failedStatus'),
-          failedStatus: z.lazy(() => marshalSyncedTableFailedStatusSchema),
-        }),
-      ])
-      .optional(),
+    detailedStatus: z.discriminatedUnion('$case', [z.object({ $case: z.literal('provisioningStatus'), provisioningStatus: z.lazy(() => marshalSyncedTableProvisioningStatusSchema) }), z.object({ $case: z.literal('continuousUpdateStatus'), continuousUpdateStatus: z.lazy(() => marshalSyncedTableContinuousUpdateStatusSchema) }), z.object({ $case: z.literal('triggeredUpdateStatus'), triggeredUpdateStatus: z.lazy(() => marshalSyncedTableTriggeredUpdateStatusSchema) }), z.object({ $case: z.literal('failedStatus'), failedStatus: z.lazy(() => marshalSyncedTableFailedStatusSchema) })]).optional(),
     pipelineId: z.string().optional(),
     lastSync: z.lazy(() => marshalSyncedTablePositionSchema).optional(),
   })
   .transform(d => ({
     detailed_state: d.detailedState,
     message: d.message,
-    ...(d.detailedStatus?.$case === 'provisioningStatus' && {
-      provisioning_status: d.detailedStatus.provisioningStatus,
-    }),
-    ...(d.detailedStatus?.$case === 'continuousUpdateStatus' && {
-      continuous_update_status: d.detailedStatus.continuousUpdateStatus,
-    }),
-    ...(d.detailedStatus?.$case === 'triggeredUpdateStatus' && {
-      triggered_update_status: d.detailedStatus.triggeredUpdateStatus,
-    }),
-    ...(d.detailedStatus?.$case === 'failedStatus' && {
-      failed_status: d.detailedStatus.failedStatus,
-    }),
+    ...(d.detailedStatus?.$case === 'provisioningStatus' && { provisioning_status: d.detailedStatus.provisioningStatus }),
+    ...(d.detailedStatus?.$case === 'continuousUpdateStatus' && { continuous_update_status: d.detailedStatus.continuousUpdateStatus }),
+    ...(d.detailedStatus?.$case === 'triggeredUpdateStatus' && { triggered_update_status: d.detailedStatus.triggeredUpdateStatus }),
+    ...(d.detailedStatus?.$case === 'failedStatus' && { failed_status: d.detailedStatus.failedStatus }),
     pipeline_id: d.pipelineId,
     last_sync: d.lastSync,
   }));
@@ -1698,13 +1494,8 @@ export const marshalSyncedTableStatusSchema: z.ZodType = z
 export const marshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.number().optional(),
-    timestamp: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    triggeredUpdateProgress: z
-      .lazy(() => marshalSyncedTablePipelineProgressSchema)
-      .optional(),
+    timestamp: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    triggeredUpdateProgress: z.lazy(() => marshalSyncedTablePipelineProgressSchema).optional(),
   })
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,
@@ -1720,13 +1511,8 @@ const databaseCatalogFieldMaskSchema: FieldMaskSchema = {
   uid: {wire: 'uid'},
 };
 
-export function databaseCatalogFieldMask(
-  ...paths: string[]
-): FieldMask<DatabaseCatalog> {
-  return FieldMask.build<DatabaseCatalog>(
-    paths,
-    databaseCatalogFieldMaskSchema
-  );
+export function databaseCatalogFieldMask(...paths: string[]): FieldMask<DatabaseCatalog> {
+  return FieldMask.build<DatabaseCatalog>(paths, databaseCatalogFieldMaskSchema);
 }
 
 const databaseInstanceFieldMaskSchema: FieldMaskSchema = {
@@ -1738,9 +1524,7 @@ const databaseInstanceFieldMaskSchema: FieldMaskSchema = {
   effectiveCapacity: {wire: 'effective_capacity'},
   effectiveCustomTags: {wire: 'effective_custom_tags'},
   effectiveEnablePgNativeLogin: {wire: 'effective_enable_pg_native_login'},
-  effectiveEnableReadableSecondaries: {
-    wire: 'effective_enable_readable_secondaries',
-  },
+  effectiveEnableReadableSecondaries: {wire: 'effective_enable_readable_secondaries'},
   effectiveNodeCount: {wire: 'effective_node_count'},
   effectiveRetentionWindowInDays: {wire: 'effective_retention_window_in_days'},
   effectiveStopped: {wire: 'effective_stopped'},
@@ -1749,10 +1533,7 @@ const databaseInstanceFieldMaskSchema: FieldMaskSchema = {
   enableReadableSecondaries: {wire: 'enable_readable_secondaries'},
   name: {wire: 'name'},
   nodeCount: {wire: 'node_count'},
-  parentInstanceRef: {
-    wire: 'parent_instance_ref',
-    children: () => databaseInstanceRefFieldMaskSchema,
-  },
+  parentInstanceRef: {wire: 'parent_instance_ref', children: () => databaseInstanceRefFieldMaskSchema},
   pgVersion: {wire: 'pg_version'},
   readOnlyDns: {wire: 'read_only_dns'},
   readWriteDns: {wire: 'read_write_dns'},
@@ -1763,13 +1544,8 @@ const databaseInstanceFieldMaskSchema: FieldMaskSchema = {
   usagePolicyId: {wire: 'usage_policy_id'},
 };
 
-export function databaseInstanceFieldMask(
-  ...paths: string[]
-): FieldMask<DatabaseInstance> {
-  return FieldMask.build<DatabaseInstance>(
-    paths,
-    databaseInstanceFieldMaskSchema
-  );
+export function databaseInstanceFieldMask(...paths: string[]): FieldMask<DatabaseInstance> {
+  return FieldMask.build<DatabaseInstance>(paths, databaseInstanceFieldMaskSchema);
 }
 
 const databaseInstanceRefFieldMaskSchema: FieldMaskSchema = {
@@ -1792,10 +1568,7 @@ const newPipelineSpecFieldMaskSchema: FieldMaskSchema = {
 };
 
 const syncedDatabaseTableFieldMaskSchema: FieldMaskSchema = {
-  dataSynchronizationStatus: {
-    wire: 'data_synchronization_status',
-    children: () => syncedTableStatusFieldMaskSchema,
-  },
+  dataSynchronizationStatus: {wire: 'data_synchronization_status', children: () => syncedTableStatusFieldMaskSchema},
   databaseInstanceName: {wire: 'database_instance_name'},
   effectiveDatabaseInstanceName: {wire: 'effective_database_instance_name'},
   effectiveLogicalDatabaseName: {wire: 'effective_logical_database_name'},
@@ -1805,20 +1578,12 @@ const syncedDatabaseTableFieldMaskSchema: FieldMaskSchema = {
   unityCatalogProvisioningState: {wire: 'unity_catalog_provisioning_state'},
 };
 
-export function syncedDatabaseTableFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedDatabaseTable> {
-  return FieldMask.build<SyncedDatabaseTable>(
-    paths,
-    syncedDatabaseTableFieldMaskSchema
-  );
+export function syncedDatabaseTableFieldMask(...paths: string[]): FieldMask<SyncedDatabaseTable> {
+  return FieldMask.build<SyncedDatabaseTable>(paths, syncedDatabaseTableFieldMaskSchema);
 }
 
 const syncedTableContinuousUpdateStatusFieldMaskSchema: FieldMaskSchema = {
-  initialPipelineSyncProgress: {
-    wire: 'initial_pipeline_sync_progress',
-    children: () => syncedTablePipelineProgressFieldMaskSchema,
-  },
+  initialPipelineSyncProgress: {wire: 'initial_pipeline_sync_progress', children: () => syncedTablePipelineProgressFieldMaskSchema},
   lastProcessedCommitVersion: {wire: 'last_processed_commit_version'},
   timestamp: {wire: 'timestamp'},
 };
@@ -1830,9 +1595,7 @@ const syncedTableFailedStatusFieldMaskSchema: FieldMaskSchema = {
 
 const syncedTablePipelineProgressFieldMaskSchema: FieldMaskSchema = {
   estimatedCompletionTimeSeconds: {wire: 'estimated_completion_time_seconds'},
-  latestVersionCurrentlyProcessing: {
-    wire: 'latest_version_currently_processing',
-  },
+  latestVersionCurrentlyProcessing: {wire: 'latest_version_currently_processing'},
   provisioningPhase: {wire: 'provisioning_phase'},
   syncProgressCompletion: {wire: 'sync_progress_completion'},
   syncedRowCount: {wire: 'synced_row_count'},
@@ -1840,28 +1603,19 @@ const syncedTablePipelineProgressFieldMaskSchema: FieldMaskSchema = {
 };
 
 const syncedTablePositionFieldMaskSchema: FieldMaskSchema = {
-  deltaTableSyncInfo: {
-    wire: 'delta_table_sync_info',
-    children: () => deltaTableSyncInfoFieldMaskSchema,
-  },
+  deltaTableSyncInfo: {wire: 'delta_table_sync_info', children: () => deltaTableSyncInfoFieldMaskSchema},
   syncEndTimestamp: {wire: 'sync_end_timestamp'},
   syncStartTimestamp: {wire: 'sync_start_timestamp'},
 };
 
 const syncedTableProvisioningStatusFieldMaskSchema: FieldMaskSchema = {
-  initialPipelineSyncProgress: {
-    wire: 'initial_pipeline_sync_progress',
-    children: () => syncedTablePipelineProgressFieldMaskSchema,
-  },
+  initialPipelineSyncProgress: {wire: 'initial_pipeline_sync_progress', children: () => syncedTablePipelineProgressFieldMaskSchema},
 };
 
 const syncedTableSpecFieldMaskSchema: FieldMaskSchema = {
   createDatabaseObjectsIfMissing: {wire: 'create_database_objects_if_missing'},
   existingPipelineId: {wire: 'existing_pipeline_id'},
-  newPipelineSpec: {
-    wire: 'new_pipeline_spec',
-    children: () => newPipelineSpecFieldMaskSchema,
-  },
+  newPipelineSpec: {wire: 'new_pipeline_spec', children: () => newPipelineSpecFieldMaskSchema},
   primaryKeyColumns: {wire: 'primary_key_columns'},
   schedulingPolicy: {wire: 'scheduling_policy'},
   sourceTableFullName: {wire: 'source_table_full_name'},
@@ -1869,36 +1623,18 @@ const syncedTableSpecFieldMaskSchema: FieldMaskSchema = {
 };
 
 const syncedTableStatusFieldMaskSchema: FieldMaskSchema = {
-  continuousUpdateStatus: {
-    wire: 'continuous_update_status',
-    children: () => syncedTableContinuousUpdateStatusFieldMaskSchema,
-  },
+  continuousUpdateStatus: {wire: 'continuous_update_status', children: () => syncedTableContinuousUpdateStatusFieldMaskSchema},
   detailedState: {wire: 'detailed_state'},
-  failedStatus: {
-    wire: 'failed_status',
-    children: () => syncedTableFailedStatusFieldMaskSchema,
-  },
-  lastSync: {
-    wire: 'last_sync',
-    children: () => syncedTablePositionFieldMaskSchema,
-  },
+  failedStatus: {wire: 'failed_status', children: () => syncedTableFailedStatusFieldMaskSchema},
+  lastSync: {wire: 'last_sync', children: () => syncedTablePositionFieldMaskSchema},
   message: {wire: 'message'},
   pipelineId: {wire: 'pipeline_id'},
-  provisioningStatus: {
-    wire: 'provisioning_status',
-    children: () => syncedTableProvisioningStatusFieldMaskSchema,
-  },
-  triggeredUpdateStatus: {
-    wire: 'triggered_update_status',
-    children: () => syncedTableTriggeredUpdateStatusFieldMaskSchema,
-  },
+  provisioningStatus: {wire: 'provisioning_status', children: () => syncedTableProvisioningStatusFieldMaskSchema},
+  triggeredUpdateStatus: {wire: 'triggered_update_status', children: () => syncedTableTriggeredUpdateStatusFieldMaskSchema},
 };
 
 const syncedTableTriggeredUpdateStatusFieldMaskSchema: FieldMaskSchema = {
   lastProcessedCommitVersion: {wire: 'last_processed_commit_version'},
   timestamp: {wire: 'timestamp'},
-  triggeredUpdateProgress: {
-    wire: 'triggered_update_progress',
-    children: () => syncedTablePipelineProgressFieldMaskSchema,
-  },
+  triggeredUpdateProgress: {wire: 'triggered_update_progress', children: () => syncedTablePipelineProgressFieldMaskSchema},
 };

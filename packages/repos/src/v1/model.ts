@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export interface CreateRepoRequest {
   /** URL of the Git repository to be linked. */
   url?: string | undefined;
@@ -171,64 +172,62 @@ export interface UpdateRepoRequest {
 export interface UpdateRepoRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRepoRequest_ResponseSchema: z.ZodType<CreateRepoRequest_Response> =
-  z
-    .object({
-      id: z.number().optional(),
-      path: z.string().optional(),
-      url: z.string().optional(),
-      provider: z.string().optional(),
-      branch: z.string().optional(),
-      head_commit_id: z.string().optional(),
-      sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      path: d.path,
-      url: d.url,
-      provider: d.provider,
-      branch: d.branch,
-      headCommitId: d.head_commit_id,
-      sparseCheckout: d.sparse_checkout,
-    }));
+export const unmarshalCreateRepoRequest_ResponseSchema: z.ZodType<CreateRepoRequest_Response> = z
+  .object({
+    id: z.number().optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    provider: z.string().optional(),
+    branch: z.string().optional(),
+    head_commit_id: z.string().optional(),
+    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    path: d.path,
+    url: d.url,
+    provider: d.provider,
+    branch: d.branch,
+    headCommitId: d.head_commit_id,
+    sparseCheckout: d.sparse_checkout,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteProjectRequest_ResponseSchema: z.ZodType<DeleteProjectRequest_Response> =
-  z.object({});
+export const unmarshalDeleteProjectRequest_ResponseSchema: z.ZodType<DeleteProjectRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRepoRequest_ResponseSchema: z.ZodType<GetRepoRequest_Response> =
-  z
-    .object({
-      id: z.number().optional(),
-      path: z.string().optional(),
-      url: z.string().optional(),
-      provider: z.string().optional(),
-      branch: z.string().optional(),
-      head_commit_id: z.string().optional(),
-      sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      path: d.path,
-      url: d.url,
-      provider: d.provider,
-      branch: d.branch,
-      headCommitId: d.head_commit_id,
-      sparseCheckout: d.sparse_checkout,
-    }));
+export const unmarshalGetRepoRequest_ResponseSchema: z.ZodType<GetRepoRequest_Response> = z
+  .object({
+    id: z.number().optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    provider: z.string().optional(),
+    branch: z.string().optional(),
+    head_commit_id: z.string().optional(),
+    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    path: d.path,
+    url: d.url,
+    provider: d.provider,
+    branch: d.branch,
+    headCommitId: d.head_commit_id,
+    sparseCheckout: d.sparse_checkout,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListReposRequest_ResponseSchema: z.ZodType<ListReposRequest_Response> =
-  z
-    .object({
-      repos: z.array(z.lazy(() => unmarshalRepoInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      repos: d.repos,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListReposRequest_ResponseSchema: z.ZodType<ListReposRequest_Response> = z
+  .object({
+    repos: z.array(z.lazy(() => unmarshalRepoInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    repos: d.repos,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalRepoInfoSchema: z.ZodType<RepoInfo> = z
   .object({
@@ -259,8 +258,9 @@ export const unmarshalSparseCheckoutSchema: z.ZodType<SparseCheckout> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRepoRequest_ResponseSchema: z.ZodType<UpdateRepoRequest_Response> =
-  z.object({});
+export const unmarshalUpdateRepoRequest_ResponseSchema: z.ZodType<UpdateRepoRequest_Response> = z
+  .object({
+  });
 
 export const marshalCreateRepoRequestSchema: z.ZodType = z
   .object({

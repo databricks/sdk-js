@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** <Databricks> app. Supported app: custom mcp, custom agent. */
 export interface App {
   /** App name */
@@ -228,12 +229,12 @@ export interface Tool {
   toolType?: string | undefined;
   /** Specification for the tool type. */
   spec?:
-    | {$case: 'genieSpace'; genieSpace: GenieSpace}
-    | {$case: 'knowledgeAssistant'; knowledgeAssistant: KnowledgeAssistant}
-    | {$case: 'ucFunction'; ucFunction: UcFunction}
-    | {$case: 'app'; app: App}
-    | {$case: 'volume'; volume: Volume}
-    | {$case: 'ucConnection'; ucConnection: UcConnection}
+    | { $case: 'genieSpace'; genieSpace: GenieSpace }
+    | { $case: 'knowledgeAssistant'; knowledgeAssistant: KnowledgeAssistant }
+    | { $case: 'ucFunction'; ucFunction: UcFunction }
+    | { $case: 'app'; app: App }
+    | { $case: 'volume'; volume: Volume }
+    | { $case: 'ucConnection'; ucConnection: UcConnection }
     | undefined;
   /** Description of what this tool does (user-facing). */
   description?: string | undefined;
@@ -318,40 +319,35 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
     id: d.id,
   }));
 
-export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
-  z
-    .object({
-      serving_endpoint_name: z.string().optional(),
-      knowledge_assistant_id: z.string().optional(),
-    })
-    .transform(d => ({
-      servingEndpointName: d.serving_endpoint_name,
-      knowledgeAssistantId: d.knowledge_assistant_id,
-    }));
+export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> = z
+  .object({
+    serving_endpoint_name: z.string().optional(),
+    knowledge_assistant_id: z.string().optional(),
+  })
+  .transform(d => ({
+    servingEndpointName: d.serving_endpoint_name,
+    knowledgeAssistantId: d.knowledge_assistant_id,
+  }));
 
-export const unmarshalListExamplesResponseSchema: z.ZodType<ListExamplesResponse> =
-  z
-    .object({
-      examples: z.array(z.lazy(() => unmarshalExampleSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      examples: d.examples,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListExamplesResponseSchema: z.ZodType<ListExamplesResponse> = z
+  .object({
+    examples: z.array(z.lazy(() => unmarshalExampleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    examples: d.examples,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListSupervisorAgentsResponseSchema: z.ZodType<ListSupervisorAgentsResponse> =
-  z
-    .object({
-      supervisor_agents: z
-        .array(z.lazy(() => unmarshalSupervisorAgentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      supervisorAgents: d.supervisor_agents,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSupervisorAgentsResponseSchema: z.ZodType<ListSupervisorAgentsResponse> = z
+  .object({
+    supervisor_agents: z.array(z.lazy(() => unmarshalSupervisorAgentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    supervisorAgents: d.supervisor_agents,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalListToolsResponseSchema: z.ZodType<ListToolsResponse> = z
   .object({
@@ -372,10 +368,7 @@ export const unmarshalSupervisorAgentSchema: z.ZodType<SupervisorAgent> = z
     id: z.string().optional(),
     supervisor_agent_id: z.string().optional(),
     creator: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     endpoint_name: z.string().optional(),
     experiment_id: z.string().optional(),
   })
@@ -398,9 +391,7 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
     id: z.string().optional(),
     tool_type: z.string().optional(),
     genie_space: z.lazy(() => unmarshalGenieSpaceSchema).optional(),
-    knowledge_assistant: z
-      .lazy(() => unmarshalKnowledgeAssistantSchema)
-      .optional(),
+    knowledge_assistant: z.lazy(() => unmarshalKnowledgeAssistantSchema).optional(),
     uc_function: z.lazy(() => unmarshalUcFunctionSchema).optional(),
     app: z.lazy(() => unmarshalAppSchema).optional(),
     volume: z.lazy(() => unmarshalVolumeSchema).optional(),
@@ -412,26 +403,7 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
     name: d.name,
     id: d.id,
     toolType: d.tool_type,
-    spec:
-      d.genie_space !== undefined
-        ? {$case: 'genieSpace' as const, genieSpace: d.genie_space}
-        : d.knowledge_assistant !== undefined
-          ? {
-              $case: 'knowledgeAssistant' as const,
-              knowledgeAssistant: d.knowledge_assistant,
-            }
-          : d.uc_function !== undefined
-            ? {$case: 'ucFunction' as const, ucFunction: d.uc_function}
-            : d.app !== undefined
-              ? {$case: 'app' as const, app: d.app}
-              : d.volume !== undefined
-                ? {$case: 'volume' as const, volume: d.volume}
-                : d.uc_connection !== undefined
-                  ? {
-                      $case: 'ucConnection' as const,
-                      ucConnection: d.uc_connection,
-                    }
-                  : undefined,
+    spec: d.genie_space !== undefined ? { $case: 'genieSpace' as const, genieSpace: d.genie_space } : d.knowledge_assistant !== undefined ? { $case: 'knowledgeAssistant' as const, knowledgeAssistant: d.knowledge_assistant } : d.uc_function !== undefined ? { $case: 'ucFunction' as const, ucFunction: d.uc_function } : d.app !== undefined ? { $case: 'app' as const, app: d.app } : d.volume !== undefined ? { $case: 'volume' as const, volume: d.volume } : d.uc_connection !== undefined ? { $case: 'ucConnection' as const, ucConnection: d.uc_connection } : undefined,
     description: d.description,
     toolId: d.tool_id,
   }));
@@ -509,10 +481,7 @@ export const marshalSupervisorAgentSchema: z.ZodType = z
     id: z.string().optional(),
     supervisorAgentId: z.string().optional(),
     creator: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     endpointName: z.string().optional(),
     experimentId: z.string().optional(),
   })
@@ -534,34 +503,7 @@ export const marshalToolSchema: z.ZodType = z
     name: z.string().optional(),
     id: z.string().optional(),
     toolType: z.string().optional(),
-    spec: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('genieSpace'),
-          genieSpace: z.lazy(() => marshalGenieSpaceSchema),
-        }),
-        z.object({
-          $case: z.literal('knowledgeAssistant'),
-          knowledgeAssistant: z.lazy(() => marshalKnowledgeAssistantSchema),
-        }),
-        z.object({
-          $case: z.literal('ucFunction'),
-          ucFunction: z.lazy(() => marshalUcFunctionSchema),
-        }),
-        z.object({
-          $case: z.literal('app'),
-          app: z.lazy(() => marshalAppSchema),
-        }),
-        z.object({
-          $case: z.literal('volume'),
-          volume: z.lazy(() => marshalVolumeSchema),
-        }),
-        z.object({
-          $case: z.literal('ucConnection'),
-          ucConnection: z.lazy(() => marshalUcConnectionSchema),
-        }),
-      ])
-      .optional(),
+    spec: z.discriminatedUnion('$case', [z.object({ $case: z.literal('genieSpace'), genieSpace: z.lazy(() => marshalGenieSpaceSchema) }), z.object({ $case: z.literal('knowledgeAssistant'), knowledgeAssistant: z.lazy(() => marshalKnowledgeAssistantSchema) }), z.object({ $case: z.literal('ucFunction'), ucFunction: z.lazy(() => marshalUcFunctionSchema) }), z.object({ $case: z.literal('app'), app: z.lazy(() => marshalAppSchema) }), z.object({ $case: z.literal('volume'), volume: z.lazy(() => marshalVolumeSchema) }), z.object({ $case: z.literal('ucConnection'), ucConnection: z.lazy(() => marshalUcConnectionSchema) })]).optional(),
     description: z.string().optional(),
     toolId: z.string().optional(),
   })
@@ -569,16 +511,12 @@ export const marshalToolSchema: z.ZodType = z
     name: d.name,
     id: d.id,
     tool_type: d.toolType,
-    ...(d.spec?.$case === 'genieSpace' && {genie_space: d.spec.genieSpace}),
-    ...(d.spec?.$case === 'knowledgeAssistant' && {
-      knowledge_assistant: d.spec.knowledgeAssistant,
-    }),
-    ...(d.spec?.$case === 'ucFunction' && {uc_function: d.spec.ucFunction}),
-    ...(d.spec?.$case === 'app' && {app: d.spec.app}),
-    ...(d.spec?.$case === 'volume' && {volume: d.spec.volume}),
-    ...(d.spec?.$case === 'ucConnection' && {
-      uc_connection: d.spec.ucConnection,
-    }),
+    ...(d.spec?.$case === 'genieSpace' && { genie_space: d.spec.genieSpace }),
+    ...(d.spec?.$case === 'knowledgeAssistant' && { knowledge_assistant: d.spec.knowledgeAssistant }),
+    ...(d.spec?.$case === 'ucFunction' && { uc_function: d.spec.ucFunction }),
+    ...(d.spec?.$case === 'app' && { app: d.spec.app }),
+    ...(d.spec?.$case === 'volume' && { volume: d.spec.volume }),
+    ...(d.spec?.$case === 'ucConnection' && { uc_connection: d.spec.ucConnection }),
     description: d.description,
     tool_id: d.toolId,
   }));
@@ -644,13 +582,8 @@ const supervisorAgentFieldMaskSchema: FieldMaskSchema = {
   supervisorAgentId: {wire: 'supervisor_agent_id'},
 };
 
-export function supervisorAgentFieldMask(
-  ...paths: string[]
-): FieldMask<SupervisorAgent> {
-  return FieldMask.build<SupervisorAgent>(
-    paths,
-    supervisorAgentFieldMaskSchema
-  );
+export function supervisorAgentFieldMask(...paths: string[]): FieldMask<SupervisorAgent> {
+  return FieldMask.build<SupervisorAgent>(paths, supervisorAgentFieldMaskSchema);
 }
 
 const toolFieldMaskSchema: FieldMaskSchema = {
@@ -658,17 +591,11 @@ const toolFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
   genieSpace: {wire: 'genie_space', children: () => genieSpaceFieldMaskSchema},
   id: {wire: 'id'},
-  knowledgeAssistant: {
-    wire: 'knowledge_assistant',
-    children: () => knowledgeAssistantFieldMaskSchema,
-  },
+  knowledgeAssistant: {wire: 'knowledge_assistant', children: () => knowledgeAssistantFieldMaskSchema},
   name: {wire: 'name'},
   toolId: {wire: 'tool_id'},
   toolType: {wire: 'tool_type'},
-  ucConnection: {
-    wire: 'uc_connection',
-    children: () => ucConnectionFieldMaskSchema,
-  },
+  ucConnection: {wire: 'uc_connection', children: () => ucConnectionFieldMaskSchema},
   ucFunction: {wire: 'uc_function', children: () => ucFunctionFieldMaskSchema},
   volume: {wire: 'volume', children: () => volumeFieldMaskSchema},
 };

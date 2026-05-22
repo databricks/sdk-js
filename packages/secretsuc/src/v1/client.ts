@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateSecretRequest,
@@ -65,17 +59,14 @@ export class Client {
 
   /**
    * Creates a new secret in Unity Catalog.
-   *
+   * 
    * You must be the owner of the parent schema or have the **CREATE_SECRET** and **USE SCHEMA**
    * privileges on the parent schema and **USE CATALOG** on the parent catalog.
-   *
+   * 
    * The secret is stored in the specified catalog and schema, and the **value** field
    * contains the sensitive data to be securely stored.
    */
-  async createSecret(
-    req: CreateSecretRequest,
-    options?: CallOptions
-  ): Promise<Secret> {
+  async createSecret(req: CreateSecretRequest, options?: CallOptions): Promise<Secret> {
     const url = `${this.host}/api/2.1/unity-catalog/secrets`;
     const body = marshalRequest(req.secret, marshalSecretSchema);
     let resp: Secret | undefined;
@@ -83,11 +74,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSecretSchema);
     };
     await executeCall(call, options);
@@ -99,40 +86,30 @@ export class Client {
 
   /**
    * Deletes a secret by its three-level (fully qualified) name.
-   *
+   * 
    * You must be the owner of the secret or a metastore admin.
    */
-  async deleteSecret(
-    req: DeleteSecretRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteSecret(req: DeleteSecretRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /**
    * Gets a secret by its three-level (fully qualified) name.
-   *
+   * 
    * You must be a metastore admin, the owner of the secret, or have the **MANAGE**
    * privilege on the secret.
-   *
+   * 
    * The secret value isn't returned by default. To retrieve it, you must also have the
    * **READ_SECRET** privilege and set **include_value** to true in the request.
    */
-  async getSecret(
-    req: GetSecretRequest,
-    options?: CallOptions
-  ): Promise<Secret> {
+  async getSecret(req: GetSecretRequest, options?: CallOptions): Promise<Secret> {
     const url = `${this.host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -145,11 +122,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSecretSchema);
     };
     await executeCall(call, options);
@@ -161,18 +134,15 @@ export class Client {
 
   /**
    * Lists secrets in Unity Catalog.
-   *
+   * 
    * You must be a metastore admin, the owner of the secret, or have the
    * **MANAGE** privilege on the secret.
-   *
+   * 
    * Both **catalog_name** and **schema_name** must be specified together to filter secrets within
    * a specific schema. Results are paginated; use the **page_token** field from the response
    * to retrieve subsequent pages.
    */
-  async listSecrets(
-    req: ListSecretsRequest,
-    options?: CallOptions
-  ): Promise<ListSecretsResponse> {
+  async listSecrets(req: ListSecretsRequest, options?: CallOptions): Promise<ListSecretsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/secrets`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -197,11 +167,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListSecretsResponseSchema);
     };
     await executeCall(call, options);
@@ -211,10 +177,8 @@ export class Client {
     return resp;
   }
 
-  async *listSecretsIter(
-    req: ListSecretsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Secret> {
+
+  async *listSecretsIter(req: ListSecretsRequest, options?: CallOptions): AsyncGenerator<Secret> {
     const pageReq: ListSecretsRequest = {...req};
     for (;;) {
       const resp = await this.listSecrets(pageReq, options);
@@ -228,19 +192,17 @@ export class Client {
     }
   }
 
+
   /**
    * Updates an existing secret in Unity Catalog.
-   *
+   * 
    * You must be the owner of the secret or a metastore admin. If you are a metastore
    * admin, only the **owner** field can be changed.
-   *
+   * 
    * Use the **update_mask** field to specify which fields to update. Supported updatable fields
    * include **value**, **comment**, **owner**, and **expire_time**.
    */
-  async updateSecret(
-    req: UpdateSecretRequest,
-    options?: CallOptions
-  ): Promise<Secret> {
+  async updateSecret(req: UpdateSecretRequest, options?: CallOptions): Promise<Secret> {
     const url = `${this.host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -253,18 +215,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSecretSchema);
     };
     await executeCall(call, options);

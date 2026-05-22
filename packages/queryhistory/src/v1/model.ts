@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ChannelName {
   CHANNEL_NAME_UNSPECIFIED = 'CHANNEL_NAME_UNSPECIFIED',
   CHANNEL_NAME_PREVIEW = 'CHANNEL_NAME_PREVIEW',
@@ -122,7 +123,7 @@ export interface ExternalQuerySource_JobInfo {
 
 /**
  * Fetches a list of queries conforming to the provided set of query filters.
- *
+ * 
  * If the the number of queries to return takes > 10 seconds, the request will timeout.
  * In that case, please reduce the time range to ensure ListQueries conforms to the 10 second max query time limit.
  */
@@ -179,7 +180,7 @@ export interface QueryInfo {
   queryId?: string | undefined;
   /**
    * Query status with one the following values:
-   *
+   * 
    * - `QUEUED`: Query has been received and queued.
    * - `RUNNING`: Query has started.
    * - `CANCELED`: Query has been cancelled by the user.
@@ -377,56 +378,51 @@ export const unmarshalChannelInfoSchema: z.ZodType<ChannelInfo> = z
     dbsqlVersion: d.dbsql_version,
   }));
 
-export const unmarshalExternalQuerySourceSchema: z.ZodType<ExternalQuerySource> =
-  z
-    .object({
-      dashboard_id: z.string().optional(),
-      legacy_dashboard_id: z.string().optional(),
-      alert_id: z.string().optional(),
-      notebook_id: z.string().optional(),
-      sql_query_id: z.string().optional(),
-      job_info: z
-        .lazy(() => unmarshalExternalQuerySource_JobInfoSchema)
-        .optional(),
-      genie_space_id: z.string().optional(),
-    })
-    .transform(d => ({
-      dashboardId: d.dashboard_id,
-      legacyDashboardId: d.legacy_dashboard_id,
-      alertId: d.alert_id,
-      notebookId: d.notebook_id,
-      sqlQueryId: d.sql_query_id,
-      jobInfo: d.job_info,
-      genieSpaceId: d.genie_space_id,
-    }));
+export const unmarshalExternalQuerySourceSchema: z.ZodType<ExternalQuerySource> = z
+  .object({
+    dashboard_id: z.string().optional(),
+    legacy_dashboard_id: z.string().optional(),
+    alert_id: z.string().optional(),
+    notebook_id: z.string().optional(),
+    sql_query_id: z.string().optional(),
+    job_info: z.lazy(() => unmarshalExternalQuerySource_JobInfoSchema).optional(),
+    genie_space_id: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboardId: d.dashboard_id,
+    legacyDashboardId: d.legacy_dashboard_id,
+    alertId: d.alert_id,
+    notebookId: d.notebook_id,
+    sqlQueryId: d.sql_query_id,
+    jobInfo: d.job_info,
+    genieSpaceId: d.genie_space_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExternalQuerySource_JobInfoSchema: z.ZodType<ExternalQuerySource_JobInfo> =
-  z
-    .object({
-      job_id: z.string().optional(),
-      job_run_id: z.string().optional(),
-      job_task_run_id: z.string().optional(),
-    })
-    .transform(d => ({
-      jobId: d.job_id,
-      jobRunId: d.job_run_id,
-      jobTaskRunId: d.job_task_run_id,
-    }));
+export const unmarshalExternalQuerySource_JobInfoSchema: z.ZodType<ExternalQuerySource_JobInfo> = z
+  .object({
+    job_id: z.string().optional(),
+    job_run_id: z.string().optional(),
+    job_task_run_id: z.string().optional(),
+  })
+  .transform(d => ({
+    jobId: d.job_id,
+    jobRunId: d.job_run_id,
+    jobTaskRunId: d.job_task_run_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListQueriesRequest_ResponseSchema: z.ZodType<ListQueriesRequest_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      has_next_page: z.boolean().optional(),
-      res: z.array(z.lazy(() => unmarshalQueryInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      hasNextPage: d.has_next_page,
-      res: d.res,
-    }));
+export const unmarshalListQueriesRequest_ResponseSchema: z.ZodType<ListQueriesRequest_Response> = z
+  .object({
+    next_page_token: z.string().optional(),
+    has_next_page: z.boolean().optional(),
+    res: z.array(z.lazy(() => unmarshalQueryInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    nextPageToken: d.next_page_token,
+    hasNextPage: d.has_next_page,
+    res: d.res,
+  }));
 
 export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
   .object({
@@ -512,9 +508,7 @@ export const unmarshalQueryMetricsSchema: z.ZodType<QueryMetrics> = z
     provisioning_queue_start_timestamp: z.number().optional(),
     overloading_queue_start_timestamp: z.number().optional(),
     query_compilation_start_timestamp: z.number().optional(),
-    task_time_over_time_range: z
-      .lazy(() => unmarshalTaskTimeOverRangeSchema)
-      .optional(),
+    task_time_over_time_range: z.lazy(() => unmarshalTaskTimeOverRangeSchema).optional(),
     work_to_be_done: z.number().optional(),
     runnable_tasks: z.number().optional(),
     projected_remaining_task_total_time_ms: z.number().optional(),
@@ -566,9 +560,7 @@ export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
 
 export const unmarshalTaskTimeOverRangeSchema: z.ZodType<TaskTimeOverRange> = z
   .object({
-    entries: z
-      .array(z.lazy(() => unmarshalTaskTimeOverRangeEntrySchema))
-      .optional(),
+    entries: z.array(z.lazy(() => unmarshalTaskTimeOverRangeEntrySchema)).optional(),
     interval: z.number().optional(),
   })
   .transform(d => ({
@@ -576,14 +568,13 @@ export const unmarshalTaskTimeOverRangeSchema: z.ZodType<TaskTimeOverRange> = z
     interval: d.interval,
   }));
 
-export const unmarshalTaskTimeOverRangeEntrySchema: z.ZodType<TaskTimeOverRangeEntry> =
-  z
-    .object({
-      task_completed_time_ms: z.number().optional(),
-    })
-    .transform(d => ({
-      taskCompletedTimeMs: d.task_completed_time_ms,
-    }));
+export const unmarshalTaskTimeOverRangeEntrySchema: z.ZodType<TaskTimeOverRangeEntry> = z
+  .object({
+    task_completed_time_ms: z.number().optional(),
+  })
+  .transform(d => ({
+    taskCompletedTimeMs: d.task_completed_time_ms,
+  }));
 
 export const marshalQueryFilterSchema: z.ZodType = z
   .object({

@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export interface AddBlockRequest {
   /** The handle on an open stream. */
   handle?: number | undefined;
@@ -182,10 +183,10 @@ export interface ListDirectoryContentsRequest {
    * The maximum number of directory entries to return. The response may contain fewer
    * entries. If the response contains a `next_page_token`, there may be more entries,
    * even if fewer than `page_size` entries are in the response.
-   *
+   * 
    * We recommend not to set this value unless you are intentionally listing less than
    * the complete directory contents.
-   *
+   * 
    * If unspecified, at most 1000 directory entries will be returned.
    * The maximum value is 1000. Values above 1000 will be coerced to 1000.
    */
@@ -287,35 +288,40 @@ export interface UploadFileRequest {
 export interface UploadFileResponse {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAddBlockRequest_ResponseSchema: z.ZodType<AddBlockRequest_Response> =
-  z.object({});
+export const unmarshalAddBlockRequest_ResponseSchema: z.ZodType<AddBlockRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCloseRequest_ResponseSchema: z.ZodType<CloseRequest_Response> =
-  z.object({});
+export const unmarshalCloseRequest_ResponseSchema: z.ZodType<CloseRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryResponse> =
-  z.object({});
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRequest_ResponseSchema: z.ZodType<CreateRequest_Response> =
-  z
-    .object({
-      handle: z.number().optional(),
-    })
-    .transform(d => ({
-      handle: d.handle,
-    }));
-
-export const unmarshalDeleteDirectoryResponseSchema: z.ZodType<DeleteDirectoryResponse> =
-  z.object({});
-
-export const unmarshalDeleteFileResponseSchema: z.ZodType<DeleteFileResponse> =
-  z.object({});
+export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryResponse> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> =
-  z.object({});
+export const unmarshalCreateRequest_ResponseSchema: z.ZodType<CreateRequest_Response> = z
+  .object({
+    handle: z.number().optional(),
+  })
+  .transform(d => ({
+    handle: d.handle,
+  }));
+
+export const unmarshalDeleteDirectoryResponseSchema: z.ZodType<DeleteDirectoryResponse> = z
+  .object({
+  });
+
+export const unmarshalDeleteFileResponseSchema: z.ZodType<DeleteFileResponse> = z
+  .object({
+  });
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalDirectoryEntrySchema: z.ZodType<DirectoryEntry> = z
   .object({
@@ -347,98 +353,90 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     modificationTime: d.modification_time,
   }));
 
-export const unmarshalGetDirectoryMetadataResponseSchema: z.ZodType<GetDirectoryMetadataResponse> =
-  z.object({});
+export const unmarshalGetDirectoryMetadataResponseSchema: z.ZodType<GetDirectoryMetadataResponse> = z
+  .object({
+  });
 
-export const unmarshalGetFileMetadataResponseSchema: z.ZodType<GetFileMetadataResponse> =
-  z
-    .object({
-      'content-length': z.number().optional(),
-      'content-type': z.string().optional(),
-      'last-modified': z.string().optional(),
-    })
-    .transform(d => ({
-      contentLength: d['content-length'],
-      contentType: d['content-type'],
-      lastModified: d['last-modified'],
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetStatusRequest_ResponseSchema: z.ZodType<GetStatusRequest_Response> =
-  z
-    .object({
-      path: z.string().optional(),
-      is_dir: z.boolean().optional(),
-      file_size: z.number().optional(),
-      modification_time: z.number().optional(),
-    })
-    .transform(d => ({
-      path: d.path,
-      isDir: d.is_dir,
-      fileSize: d.file_size,
-      modificationTime: d.modification_time,
-    }));
-
-export const unmarshalListDirectoryResponseSchema: z.ZodType<ListDirectoryResponse> =
-  z
-    .object({
-      contents: z.array(z.lazy(() => unmarshalDirectoryEntrySchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      contents: d.contents,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGetFileMetadataResponseSchema: z.ZodType<GetFileMetadataResponse> = z
+  .object({
+    "content-length": z.number().optional(),
+    "content-type": z.string().optional(),
+    "last-modified": z.string().optional(),
+  })
+  .transform(d => ({
+    contentLength: d["content-length"],
+    contentType: d["content-type"],
+    lastModified: d["last-modified"],
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListStatusRequest_ResponseSchema: z.ZodType<ListStatusRequest_Response> =
-  z
-    .object({
-      files: z.array(z.lazy(() => unmarshalFileInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      files: d.files,
-    }));
+export const unmarshalGetStatusRequest_ResponseSchema: z.ZodType<GetStatusRequest_Response> = z
+  .object({
+    path: z.string().optional(),
+    is_dir: z.boolean().optional(),
+    file_size: z.number().optional(),
+    modification_time: z.number().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    isDir: d.is_dir,
+    fileSize: d.file_size,
+    modificationTime: d.modification_time,
+  }));
+
+export const unmarshalListDirectoryResponseSchema: z.ZodType<ListDirectoryResponse> = z
+  .object({
+    contents: z.array(z.lazy(() => unmarshalDirectoryEntrySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    contents: d.contents,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalMkDirsRequest_ResponseSchema: z.ZodType<MkDirsRequest_Response> =
-  z.object({});
+export const unmarshalListStatusRequest_ResponseSchema: z.ZodType<ListStatusRequest_Response> = z
+  .object({
+    files: z.array(z.lazy(() => unmarshalFileInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    files: d.files,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalMoveRequest_ResponseSchema: z.ZodType<MoveRequest_Response> =
-  z.object({});
+export const unmarshalMkDirsRequest_ResponseSchema: z.ZodType<MkDirsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutRequest_ResponseSchema: z.ZodType<PutRequest_Response> =
-  z.object({});
+export const unmarshalMoveRequest_ResponseSchema: z.ZodType<MoveRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalReadRequest_ResponseSchema: z.ZodType<ReadRequest_Response> =
-  z
-    .object({
-      bytes_read: z.number().optional(),
-      data: z
-        .string()
-        .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-        .optional(),
-    })
-    .transform(d => ({
-      bytesRead: d.bytes_read,
-      data: d.data,
-    }));
+export const unmarshalPutRequest_ResponseSchema: z.ZodType<PutRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
-  z.object({});
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalReadRequest_ResponseSchema: z.ZodType<ReadRequest_Response> = z
+  .object({
+    bytes_read: z.number().optional(),
+    data: z.string().transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0))).optional(),
+  })
+  .transform(d => ({
+    bytesRead: d.bytes_read,
+    data: d.data,
+  }));
+
+export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> = z
+  .object({
+  });
 
 export const marshalAddBlockRequestSchema: z.ZodType = z
   .object({
     handle: z.number().optional(),
-    data: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+    data: z.any().transform((d: Uint8Array) => btoa(Array.from(d, b => String.fromCharCode(b)).join(''))).optional(),
   })
   .transform(d => ({
     handle: d.handle,
@@ -494,12 +492,7 @@ export const marshalMoveRequestSchema: z.ZodType = z
 export const marshalPutRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
-    contents: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+    contents: z.any().transform((d: Uint8Array) => btoa(Array.from(d, b => String.fromCharCode(b)).join(''))).optional(),
     overwrite: z.boolean().optional(),
   })
   .transform(d => ({

@@ -10,14 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  sendAndCheckError,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, sendAndCheckError, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateInferenceEndpointRequest,
@@ -105,25 +98,15 @@ export class Client {
   }
 
   /** Create a new serving endpoint. */
-  async createInferenceEndpoint(
-    req: CreateInferenceEndpointRequest,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async createInferenceEndpoint(req: CreateInferenceEndpointRequest, options?: CallOptions): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints`;
-    const body = marshalRequest(
-      req,
-      marshalCreateInferenceEndpointRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateInferenceEndpointRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await executeCall(call, options);
@@ -133,22 +116,24 @@ export class Client {
     return resp;
   }
 
-  async createInferenceEndpointWaiter(
+async createInferenceEndpointWaiter(
     req: CreateInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<CreateInferenceEndpointWaiter> {
     await this.createInferenceEndpoint(req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
-    return new CreateInferenceEndpointWaiter(this, req.name);
+    return new CreateInferenceEndpointWaiter(
+      this,
+      req.name,
+    );
   }
 
   /** Create a new PT serving endpoint. */
-  async createProvisionedThroughputInferenceEndpoint(
-    req: CreatePtEndpointRequest,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async createProvisionedThroughputInferenceEndpoint(req: CreatePtEndpointRequest, options?: CallOptions): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/pt`;
     const body = marshalRequest(req, marshalCreatePtEndpointRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
@@ -156,11 +141,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await executeCall(call, options);
@@ -170,40 +151,32 @@ export class Client {
     return resp;
   }
 
-  async createProvisionedThroughputInferenceEndpointWaiter(
+async createProvisionedThroughputInferenceEndpointWaiter(
     req: CreatePtEndpointRequest,
     options?: CallOptions
   ): Promise<CreateProvisionedThroughputInferenceEndpointWaiter> {
     await this.createProvisionedThroughputInferenceEndpoint(req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
     return new CreateProvisionedThroughputInferenceEndpointWaiter(
       this,
-      req.name
+      req.name,
     );
   }
 
   /** Delete a serving endpoint. */
-  async deleteInferenceEndpoint(
-    req: DeleteInferenceEndpointRequest,
-    options?: CallOptions
-  ): Promise<DeleteInferenceEndpointRequest_Response> {
+  async deleteInferenceEndpoint(req: DeleteInferenceEndpointRequest, options?: CallOptions): Promise<DeleteInferenceEndpointRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
     let resp: DeleteInferenceEndpointRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteInferenceEndpointRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteInferenceEndpointRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -213,21 +186,14 @@ export class Client {
   }
 
   /** Retrieves the metrics associated with the provided serving endpoint in either Prometheus or OpenMetrics exposition format. */
-  async getExportEndpointMetrics(
-    req: GetExportEndpointMetricsRequest,
-    options?: CallOptions
-  ): Promise<ExportMetricsResponse> {
+  async getExportEndpointMetrics(req: GetExportEndpointMetricsRequest, options?: CallOptions): Promise<ExportMetricsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/metrics`;
     let resp: ExportMetricsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };
@@ -240,21 +206,14 @@ export class Client {
   }
 
   /** Retrieves the details for a single serving endpoint. */
-  async getInferenceEndpoint(
-    req: GetInferenceEndpointRequest,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async getInferenceEndpoint(req: GetInferenceEndpointRequest, options?: CallOptions): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await executeCall(call, options);
@@ -265,21 +224,14 @@ export class Client {
   }
 
   /** Get the query schema of the serving endpoint in OpenAPI format. The schema contains information for the supported paths, input and output format and datatypes. */
-  async getInferenceEndpointSchema(
-    req: GetInferenceEndpointSchemaRequest,
-    options?: CallOptions
-  ): Promise<GetOpenApiResponse> {
+  async getInferenceEndpointSchema(req: GetInferenceEndpointSchemaRequest, options?: CallOptions): Promise<GetOpenApiResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/openapi`;
     let resp: GetOpenApiResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };
@@ -292,25 +244,15 @@ export class Client {
   }
 
   /** Retrieves the build logs associated with the provided served model. */
-  async getServedModelBuildLogs(
-    req: GetServedModelBuildLogsRequest,
-    options?: CallOptions
-  ): Promise<GetServedModelBuildLogsRequest_Response> {
+  async getServedModelBuildLogs(req: GetServedModelBuildLogsRequest, options?: CallOptions): Promise<GetServedModelBuildLogsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/build-logs`;
     let resp: GetServedModelBuildLogsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetServedModelBuildLogsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetServedModelBuildLogsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -320,25 +262,15 @@ export class Client {
   }
 
   /** Retrieves the service logs associated with the provided served model. */
-  async getServedModelLogs(
-    req: GetServedModelLogsRequest,
-    options?: CallOptions
-  ): Promise<GetServedModelLogsRequest_Response> {
+  async getServedModelLogs(req: GetServedModelLogsRequest, options?: CallOptions): Promise<GetServedModelLogsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/logs`;
     let resp: GetServedModelLogsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetServedModelLogsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetServedModelLogsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -348,25 +280,15 @@ export class Client {
   }
 
   /** Get all serving endpoints. */
-  async listInferenceEndpoints(
-    _req: ListInferenceEndpointsRequest,
-    options?: CallOptions
-  ): Promise<ListInferenceEndpointsRequest_Response> {
+  async listInferenceEndpoints(_req: ListInferenceEndpointsRequest, options?: CallOptions): Promise<ListInferenceEndpointsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints`;
     let resp: ListInferenceEndpointsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListInferenceEndpointsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListInferenceEndpointsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -376,29 +298,16 @@ export class Client {
   }
 
   /** Used to batch add and delete tags from a serving endpoint with a single API call. */
-  async patchInferenceEndpointTags(
-    req: PatchInferenceEndpointTagsRequest,
-    options?: CallOptions
-  ): Promise<PatchInferenceEndpointTagsRequest_Response> {
+  async patchInferenceEndpointTags(req: PatchInferenceEndpointTagsRequest, options?: CallOptions): Promise<PatchInferenceEndpointTagsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/tags`;
-    const body = marshalRequest(
-      req,
-      marshalPatchInferenceEndpointTagsRequestSchema
-    );
+    const body = marshalRequest(req, marshalPatchInferenceEndpointTagsRequestSchema);
     let resp: PatchInferenceEndpointTagsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPatchInferenceEndpointTagsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPatchInferenceEndpointTagsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -408,29 +317,16 @@ export class Client {
   }
 
   /** Used to update the AI Gateway of a serving endpoint. NOTE: External model, provisioned throughput, and pay-per-token endpoints are fully supported; agent endpoints currently only support inference tables. */
-  async putInferenceEndpointAiGateway(
-    req: PutInferenceEndpointAiGatewayRequest,
-    options?: CallOptions
-  ): Promise<PutInferenceEndpointAiGatewayRequest_Response> {
+  async putInferenceEndpointAiGateway(req: PutInferenceEndpointAiGatewayRequest, options?: CallOptions): Promise<PutInferenceEndpointAiGatewayRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/ai-gateway`;
-    const body = marshalRequest(
-      req,
-      marshalPutInferenceEndpointAiGatewayRequestSchema
-    );
+    const body = marshalRequest(req, marshalPutInferenceEndpointAiGatewayRequestSchema);
     let resp: PutInferenceEndpointAiGatewayRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -440,25 +336,15 @@ export class Client {
   }
 
   /** Updates any combination of the serving endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. An endpoint that already has an update in progress can not be updated until the current update completes or fails. */
-  async putInferenceEndpointConfig(
-    req: PutInferenceEndpointConfigRequest,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async putInferenceEndpointConfig(req: PutInferenceEndpointConfigRequest, options?: CallOptions): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/config`;
-    const body = marshalRequest(
-      req,
-      marshalPutInferenceEndpointConfigRequestSchema
-    );
+    const body = marshalRequest(req, marshalPutInferenceEndpointConfigRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await executeCall(call, options);
@@ -468,41 +354,33 @@ export class Client {
     return resp;
   }
 
-  async putInferenceEndpointConfigWaiter(
+async putInferenceEndpointConfigWaiter(
     req: PutInferenceEndpointConfigRequest,
     options?: CallOptions
   ): Promise<PutInferenceEndpointConfigWaiter> {
     await this.putInferenceEndpointConfig(req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
-    return new PutInferenceEndpointConfigWaiter(this, req.name);
+    return new PutInferenceEndpointConfigWaiter(
+      this,
+      req.name,
+    );
   }
 
   /** Deprecated: Please use AI Gateway to manage rate limits instead. */
-  async putInferenceEndpointRateLimits(
-    req: PutInferenceEndpointRateLimitsRequest,
-    options?: CallOptions
-  ): Promise<PutInferenceEndpointRateLimitsRequest_Response> {
+  async putInferenceEndpointRateLimits(req: PutInferenceEndpointRateLimitsRequest, options?: CallOptions): Promise<PutInferenceEndpointRateLimitsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/rate-limits`;
-    const body = marshalRequest(
-      req,
-      marshalPutInferenceEndpointRateLimitsRequestSchema
-    );
+    const body = marshalRequest(req, marshalPutInferenceEndpointRateLimitsRequestSchema);
     let resp: PutInferenceEndpointRateLimitsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -512,10 +390,7 @@ export class Client {
   }
 
   /** Updates any combination of the pt endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. Updates are instantaneous and endpoint should be updated instantly */
-  async putProvisionedThroughputInferenceEndpointConfig(
-    req: PutPtEndpointConfigRequest,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async putProvisionedThroughputInferenceEndpointConfig(req: PutPtEndpointConfigRequest, options?: CallOptions): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/pt/${req.name ?? ''}/config`;
     const body = marshalRequest(req, marshalPutPtEndpointConfigRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
@@ -523,11 +398,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await executeCall(call, options);
@@ -537,44 +408,33 @@ export class Client {
     return resp;
   }
 
-  async putProvisionedThroughputInferenceEndpointConfigWaiter(
+async putProvisionedThroughputInferenceEndpointConfigWaiter(
     req: PutPtEndpointConfigRequest,
     options?: CallOptions
   ): Promise<PutProvisionedThroughputInferenceEndpointConfigWaiter> {
     await this.putProvisionedThroughputInferenceEndpointConfig(req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
     return new PutProvisionedThroughputInferenceEndpointConfigWaiter(
       this,
-      req.name
+      req.name,
     );
   }
 
   /** Updates the email and webhook notification settings for an endpoint. */
-  async updateInferenceEndpointNotifications(
-    req: UpdateInferenceEndpointNotificationsRequest,
-    options?: CallOptions
-  ): Promise<UpdateInferenceEndpointNotificationsRequest_Response> {
+  async updateInferenceEndpointNotifications(req: UpdateInferenceEndpointNotificationsRequest, options?: CallOptions): Promise<UpdateInferenceEndpointNotificationsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/notifications`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateInferenceEndpointNotificationsRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateInferenceEndpointNotificationsRequestSchema);
     let resp: UpdateInferenceEndpointNotificationsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateInferenceEndpointNotificationsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateInferenceEndpointNotificationsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -584,10 +444,7 @@ export class Client {
   }
 
   /** Make external services call using the credentials stored in UC Connection. */
-  async httpRequest(
-    req: ExternalFunctionRequest,
-    options?: CallOptions
-  ): Promise<ExternalFunctionResponse> {
+  async httpRequest(req: ExternalFunctionRequest, options?: CallOptions): Promise<ExternalFunctionResponse> {
     const url = `${this.host}/api/2.0/external-function`;
     const body = marshalRequest(req, marshalExternalFunctionRequestSchema);
     let resp: ExternalFunctionResponse | undefined;
@@ -595,11 +452,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };
@@ -615,7 +468,7 @@ export class Client {
 export class CreateInferenceEndpointWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -644,7 +497,8 @@ export class CreateInferenceEndpointWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -695,7 +549,7 @@ export class CreateInferenceEndpointWaiter {
 export class CreateProvisionedThroughputInferenceEndpointWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -724,7 +578,8 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -775,7 +630,7 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
 export class PutInferenceEndpointConfigWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -804,7 +659,8 @@ export class PutInferenceEndpointConfigWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -855,7 +711,7 @@ export class PutInferenceEndpointConfigWaiter {
 export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -884,7 +740,8 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

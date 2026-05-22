@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExternalLocationRequest,
@@ -70,25 +64,15 @@ export class Client {
    * Creates a new external location entry in the metastore.
    * The caller must be a metastore admin or have the **CREATE_EXTERNAL_LOCATION** privilege on both the metastore and the associated storage credential.
    */
-  async createExternalLocation(
-    req: CreateExternalLocationRequest,
-    options?: CallOptions
-  ): Promise<ExternalLocationInfo> {
+  async createExternalLocation(req: CreateExternalLocationRequest, options?: CallOptions): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
-    const body = marshalRequest(
-      req,
-      marshalCreateExternalLocationRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateExternalLocationRequestSchema);
     let resp: ExternalLocationInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
     await executeCall(call, options);
@@ -99,10 +83,7 @@ export class Client {
   }
 
   /** Deletes the specified external location from the metastore. The caller must be the owner of the external location. */
-  async deleteExternalLocation(
-    req: DeleteExternalLocationRequest,
-    options?: CallOptions
-  ): Promise<DeleteExternalLocationRequest_Response> {
+  async deleteExternalLocation(req: DeleteExternalLocationRequest, options?: CallOptions): Promise<DeleteExternalLocationRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -115,15 +96,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteExternalLocationRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteExternalLocationRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -136,10 +110,7 @@ export class Client {
    * Gets an external location from the metastore.
    * The caller must be either a metastore admin, the owner of the external location, or a user that has some privilege on the external location.
    */
-  async getExternalLocation(
-    req: GetExternalLocationRequest,
-    options?: CallOptions
-  ): Promise<ExternalLocationInfo> {
+  async getExternalLocation(req: GetExternalLocationRequest, options?: CallOptions): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -152,11 +123,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
     await executeCall(call, options);
@@ -170,16 +137,13 @@ export class Client {
    * Gets an array of external locations (__ExternalLocationInfo__ objects) from the metastore.
    * The caller must be a metastore admin, the owner of the external location, or a user that has some privilege on the external location.
    * There is no guarantee of a specific ordering of the elements in the array.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listExternalLocations(
-    req: ListExternalLocationsRequest,
-    options?: CallOptions
-  ): Promise<ListExternalLocationsRequest_Response> {
+  async listExternalLocations(req: ListExternalLocationsRequest, options?: CallOptions): Promise<ListExternalLocationsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -201,15 +165,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListExternalLocationsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListExternalLocationsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -218,10 +175,8 @@ export class Client {
     return resp;
   }
 
-  async *listExternalLocationsIter(
-    req: ListExternalLocationsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ExternalLocationInfo> {
+
+  async *listExternalLocationsIter(req: ListExternalLocationsRequest, options?: CallOptions): AsyncGenerator<ExternalLocationInfo> {
     const pageReq: ListExternalLocationsRequest = {...req};
     for (;;) {
       const resp = await this.listExternalLocations(pageReq, options);
@@ -235,29 +190,20 @@ export class Client {
     }
   }
 
+
   /**
    * Updates an external location in the metastore. The caller must be the owner of the external location, or be a metastore admin.
    * In the second case, the admin can only update the name of the external location.
    */
-  async updateExternalLocation(
-    req: UpdateExternalLocationRequest,
-    options?: CallOptions
-  ): Promise<ExternalLocationInfo> {
+  async updateExternalLocation(req: UpdateExternalLocationRequest, options?: CallOptions): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateExternalLocationRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateExternalLocationRequestSchema);
     let resp: ExternalLocationInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
     await executeCall(call, options);

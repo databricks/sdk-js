@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
@@ -83,43 +77,24 @@ export class Client {
    * to optimize dependency resolution and is only marked as done when the materialized environment has been
    * successfully generated or has failed.
    */
-  async createWorkspaceBaseEnvironment(
-    req: CreateWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async createWorkspaceBaseEnvironment(req: CreateWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/environments/v1/workspace-base-environments`;
     const params = new URLSearchParams();
     if (req.workspaceBaseEnvironmentId !== undefined) {
-      params.append(
-        'workspace_base_environment_id',
-        req.workspaceBaseEnvironmentId
-      );
+      params.append('workspace_base_environment_id', req.workspaceBaseEnvironmentId);
     }
     if (req.requestId !== undefined) {
       params.append('request_id', req.requestId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.workspaceBaseEnvironment,
-      marshalWorkspaceBaseEnvironmentSchema
-    );
+    const body = marshalRequest(req.workspaceBaseEnvironment, marshalWorkspaceBaseEnvironmentSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -129,33 +104,26 @@ export class Client {
     return resp;
   }
 
-  async createWorkspaceBaseEnvironmentOperation(
-    req: CreateWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<CreateWorkspaceBaseEnvironmentOperation> {
-    const op = await this.createWorkspaceBaseEnvironment(req, options);
-    return new CreateWorkspaceBaseEnvironmentOperation(this, op);
-  }
+async createWorkspaceBaseEnvironmentOperation(
+  req: CreateWorkspaceBaseEnvironmentRequest,
+  options?: CallOptions
+): Promise<CreateWorkspaceBaseEnvironmentOperation> {
+  const op = await this.createWorkspaceBaseEnvironment(req, options);
+  return new CreateWorkspaceBaseEnvironmentOperation(this, op);
+}
 
   /**
    * Deletes a WorkspaceBaseEnvironment.
    * Deleting a base environment may impact linked notebooks and jobs.
    * This operation is irreversible and should be performed only when you are certain the environment is no longer needed.
    */
-  async deleteWorkspaceBaseEnvironment(
-    req: DeleteWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteWorkspaceBaseEnvironment(req: DeleteWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
@@ -164,25 +132,15 @@ export class Client {
    * Gets the default WorkspaceBaseEnvironment configuration for the workspace.
    * Returns the current default base environment settings for both CPU and GPU compute.
    */
-  async getDefaultWorkspaceBaseEnvironment(
-    req: GetDefaultWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<DefaultWorkspaceBaseEnvironment> {
+  async getDefaultWorkspaceBaseEnvironment(req: GetDefaultWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<DefaultWorkspaceBaseEnvironment> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDefaultWorkspaceBaseEnvironmentSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDefaultWorkspaceBaseEnvironmentSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -195,21 +153,14 @@ export class Client {
    * Gets the status of a long-running operation.
    * Clients can use this method to poll the operation result.
    */
-  async getOperation(
-    req: GetOperationRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async getOperation(req: GetOperationRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -220,21 +171,14 @@ export class Client {
   }
 
   /** Retrieves a WorkspaceBaseEnvironment by its name. */
-  async getWorkspaceBaseEnvironment(
-    req: GetWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<WorkspaceBaseEnvironment> {
+  async getWorkspaceBaseEnvironment(req: GetWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     let resp: WorkspaceBaseEnvironment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalWorkspaceBaseEnvironmentSchema);
     };
     await executeCall(call, options);
@@ -246,24 +190,21 @@ export class Client {
 
   /**
    * Lists all WorkspaceBaseEnvironments in the workspace.
-   *
+   * 
    * <Databricks> provides the following base environments:
-   *
+   * 
    * - `workspace-base-environments/databricks_ai_...`: includes popular AI and deep learning packages for serverless GPU compute.
-   *
-   *
-   *
+   * 
+   * 
+   * 
    * - `workspace-base-environments/databricks_ml_...`: includes popular ML packages for serverless compute.
-   *
-   *
-   *
-   *
+   * 
+   * 
+   * 
+   * 
    * Databricks-provided base environments are versioned. For example, `workspace-base-environments/databricks_ml_v5` corresponds to the ML environment built on environment version 5.
    */
-  async listWorkspaceBaseEnvironments(
-    req: ListWorkspaceBaseEnvironmentsRequest,
-    options?: CallOptions
-  ): Promise<ListWorkspaceBaseEnvironmentsResponse> {
+  async listWorkspaceBaseEnvironments(req: ListWorkspaceBaseEnvironmentsRequest, options?: CallOptions): Promise<ListWorkspaceBaseEnvironmentsResponse> {
     const url = `${this.host}/api/environments/v1/workspace-base-environments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -279,15 +220,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListWorkspaceBaseEnvironmentsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListWorkspaceBaseEnvironmentsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -296,10 +230,8 @@ export class Client {
     return resp;
   }
 
-  async *listWorkspaceBaseEnvironmentsIter(
-    req: ListWorkspaceBaseEnvironmentsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<WorkspaceBaseEnvironment> {
+
+  async *listWorkspaceBaseEnvironmentsIter(req: ListWorkspaceBaseEnvironmentsRequest, options?: CallOptions): AsyncGenerator<WorkspaceBaseEnvironment> {
     const pageReq: ListWorkspaceBaseEnvironmentsRequest = {...req};
     for (;;) {
       const resp = await this.listWorkspaceBaseEnvironments(pageReq, options);
@@ -313,31 +245,22 @@ export class Client {
     }
   }
 
+
   /**
    * Refreshes the materialized environment for a WorkspaceBaseEnvironment.
    * This is a long-running operation. The operation will asynchronously regenerate the materialized environment
    * and is only marked as done when the materialized environment has been successfully generated or has failed.
    * The existing materialized environment remains available until it expires.
    */
-  async refreshWorkspaceBaseEnvironment(
-    req: RefreshWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async refreshWorkspaceBaseEnvironment(req: RefreshWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}/refresh`;
-    const body = marshalRequest(
-      req,
-      marshalRefreshWorkspaceBaseEnvironmentRequestSchema
-    );
+    const body = marshalRequest(req, marshalRefreshWorkspaceBaseEnvironmentRequestSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -347,22 +270,19 @@ export class Client {
     return resp;
   }
 
-  async refreshWorkspaceBaseEnvironmentOperation(
-    req: RefreshWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<RefreshWorkspaceBaseEnvironmentOperation> {
-    const op = await this.refreshWorkspaceBaseEnvironment(req, options);
-    return new RefreshWorkspaceBaseEnvironmentOperation(this, op);
-  }
+async refreshWorkspaceBaseEnvironmentOperation(
+  req: RefreshWorkspaceBaseEnvironmentRequest,
+  options?: CallOptions
+): Promise<RefreshWorkspaceBaseEnvironmentOperation> {
+  const op = await this.refreshWorkspaceBaseEnvironment(req, options);
+  return new RefreshWorkspaceBaseEnvironmentOperation(this, op);
+}
 
   /**
    * Updates the default WorkspaceBaseEnvironment configuration for the workspace.
    * Sets the specified base environments as the workspace defaults for CPU and/or GPU compute.
    */
-  async updateDefaultWorkspaceBaseEnvironment(
-    req: UpdateDefaultWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<DefaultWorkspaceBaseEnvironment> {
+  async updateDefaultWorkspaceBaseEnvironment(req: UpdateDefaultWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<DefaultWorkspaceBaseEnvironment> {
     const url = `${this.host}/api/environments/v1/${req.defaultWorkspaceBaseEnvironment?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -370,30 +290,14 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.defaultWorkspaceBaseEnvironment,
-      marshalDefaultWorkspaceBaseEnvironmentSchema
-    );
+    const body = marshalRequest(req.defaultWorkspaceBaseEnvironment, marshalDefaultWorkspaceBaseEnvironmentSchema);
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDefaultWorkspaceBaseEnvironmentSchema
-      );
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDefaultWorkspaceBaseEnvironmentSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -408,25 +312,15 @@ export class Client {
    * and is only marked as done when the materialized environment has been successfully generated or has failed.
    * The existing materialized environment remains available until it expires.
    */
-  async updateWorkspaceBaseEnvironment(
-    req: UpdateWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
+  async updateWorkspaceBaseEnvironment(req: UpdateWorkspaceBaseEnvironmentRequest, options?: CallOptions): Promise<Operation> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
-    const body = marshalRequest(
-      req.workspaceBaseEnvironment,
-      marshalWorkspaceBaseEnvironmentSchema
-    );
+    const body = marshalRequest(req.workspaceBaseEnvironment, marshalWorkspaceBaseEnvironmentSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
@@ -436,13 +330,13 @@ export class Client {
     return resp;
   }
 
-  async updateWorkspaceBaseEnvironmentOperation(
-    req: UpdateWorkspaceBaseEnvironmentRequest,
-    options?: CallOptions
-  ): Promise<UpdateWorkspaceBaseEnvironmentOperation> {
-    const op = await this.updateWorkspaceBaseEnvironment(req, options);
-    return new UpdateWorkspaceBaseEnvironmentOperation(this, op);
-  }
+async updateWorkspaceBaseEnvironmentOperation(
+  req: UpdateWorkspaceBaseEnvironmentRequest,
+  options?: CallOptions
+): Promise<UpdateWorkspaceBaseEnvironmentOperation> {
+  const op = await this.updateWorkspaceBaseEnvironment(req, options);
+  return new UpdateWorkspaceBaseEnvironmentOperation(this, op);
+}
 }
 
 export class CreateWorkspaceBaseEnvironmentOperation {
@@ -462,9 +356,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
       return Promise.resolve(undefined);
     }
     return Promise.resolve(
-      z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema)
-        .parse(this.operation.metadata)
+      z.lazy(() => unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema).parse(this.operation.metadata)
     );
   }
 
@@ -499,7 +391,9 @@ export class CreateWorkspaceBaseEnvironmentOperation {
             ? err.message
             : 'unknown error';
         const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+          err.errorCode !== undefined
+            ? `[${err.errorCode}] ${msg}`
+            : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
           cause: err,
         });
@@ -509,9 +403,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
         throw new Error('operation completed without a response');
       }
 
-      result = z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .parse(op.result.response);
+      result = z.lazy(() => unmarshalWorkspaceBaseEnvironmentSchema).parse(op.result.response);
     };
 
     const retryOptions: CallOptions = {
@@ -556,9 +448,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
       return Promise.resolve(undefined);
     }
     return Promise.resolve(
-      z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema)
-        .parse(this.operation.metadata)
+      z.lazy(() => unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema).parse(this.operation.metadata)
     );
   }
 
@@ -593,7 +483,9 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
             ? err.message
             : 'unknown error';
         const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+          err.errorCode !== undefined
+            ? `[${err.errorCode}] ${msg}`
+            : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
           cause: err,
         });
@@ -603,9 +495,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
         throw new Error('operation completed without a response');
       }
 
-      result = z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .parse(op.result.response);
+      result = z.lazy(() => unmarshalWorkspaceBaseEnvironmentSchema).parse(op.result.response);
     };
 
     const retryOptions: CallOptions = {
@@ -650,9 +540,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
       return Promise.resolve(undefined);
     }
     return Promise.resolve(
-      z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema)
-        .parse(this.operation.metadata)
+      z.lazy(() => unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema).parse(this.operation.metadata)
     );
   }
 
@@ -687,7 +575,9 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
             ? err.message
             : 'unknown error';
         const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+          err.errorCode !== undefined
+            ? `[${err.errorCode}] ${msg}`
+            : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
           cause: err,
         });
@@ -697,9 +587,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
         throw new Error('operation completed without a response');
       }
 
-      result = z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .parse(op.result.response);
+      result = z.lazy(() => unmarshalWorkspaceBaseEnvironmentSchema).parse(op.result.response);
     };
 
     const retryOptions: CallOptions = {

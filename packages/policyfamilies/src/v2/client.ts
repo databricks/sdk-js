@@ -9,12 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetPolicyFamilyRequest,
@@ -59,10 +54,7 @@ export class Client {
   }
 
   /** Retrieve the information for an policy family based on its identifier and version */
-  async getPolicyFamily(
-    req: GetPolicyFamilyRequest,
-    options?: CallOptions
-  ): Promise<PolicyFamily> {
+  async getPolicyFamily(req: GetPolicyFamilyRequest, options?: CallOptions): Promise<PolicyFamily> {
     const url = `${this.host}/api/2.0/policy-families/${req.policyFamilyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.version !== undefined) {
@@ -75,11 +67,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPolicyFamilySchema);
     };
     await executeCall(call, options);
@@ -90,10 +78,7 @@ export class Client {
   }
 
   /** Returns the list of policy definition types available to use at their latest version. This API is paginated. */
-  async listPolicyFamilies(
-    req: ListPolicyFamiliesRequest,
-    options?: CallOptions
-  ): Promise<ListPolicyFamiliesRequest_Response> {
+  async listPolicyFamilies(req: ListPolicyFamiliesRequest, options?: CallOptions): Promise<ListPolicyFamiliesRequest_Response> {
     const url = `${this.host}/api/2.0/policy-families`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -109,15 +94,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPolicyFamiliesRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPolicyFamiliesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -126,10 +104,8 @@ export class Client {
     return resp;
   }
 
-  async *listPolicyFamiliesIter(
-    req: ListPolicyFamiliesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<PolicyFamily> {
+
+  async *listPolicyFamiliesIter(req: ListPolicyFamiliesRequest, options?: CallOptions): AsyncGenerator<PolicyFamily> {
     const pageReq: ListPolicyFamiliesRequest = {...req};
     for (;;) {
       const resp = await this.listPolicyFamilies(pageReq, options);
@@ -142,4 +118,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** States of Custom LLM optimization lifecycle. */
 export enum State {
   STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
@@ -108,10 +109,7 @@ export const unmarshalCustomLlmSchema: z.ZodType<CustomLlm> = z
     guidelines: z.array(z.string()).optional(),
     optimization_state: z.enum(State).optional(),
     creator: z.string().optional(),
-    creation_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    creation_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     agent_artifact_path: z.string().optional(),
   })
   .transform(d => ({
@@ -181,10 +179,7 @@ export const marshalCustomLlmSchema: z.ZodType = z
     guidelines: z.array(z.string()).optional(),
     optimizationState: z.enum(State).optional(),
     creator: z.string().optional(),
-    creationTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    creationTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     agentArtifactPath: z.string().optional(),
   })
   .transform(d => ({
@@ -232,10 +227,7 @@ export const marshalUpdateCustomLlmRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     customLlm: z.lazy(() => marshalCustomLlmSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()).optional(),
   })
   .transform(d => ({
     id: d.id,

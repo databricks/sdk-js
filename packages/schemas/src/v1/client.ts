@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateSchemaRequest,
@@ -70,10 +64,7 @@ export class Client {
    * Creates a new schema for catalog in the Metastore.
    * The caller must be a metastore admin, or have the **CREATE_SCHEMA** privilege in the parent catalog.
    */
-  async createSchema(
-    req: CreateSchemaRequest,
-    options?: CallOptions
-  ): Promise<SchemaInfo> {
+  async createSchema(req: CreateSchemaRequest, options?: CallOptions): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas`;
     const body = marshalRequest(req, marshalCreateSchemaRequestSchema);
     let resp: SchemaInfo | undefined;
@@ -81,11 +72,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSchemaInfoSchema);
     };
     await executeCall(call, options);
@@ -99,10 +86,7 @@ export class Client {
    * Deletes the specified schema from the parent catalog.
    * The caller must be the owner of the schema or an owner of the parent catalog.
    */
-  async deleteSchema(
-    req: DeleteSchemaRequest,
-    options?: CallOptions
-  ): Promise<DeleteSchemaRequest_Response> {
+  async deleteSchema(req: DeleteSchemaRequest, options?: CallOptions): Promise<DeleteSchemaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -115,15 +99,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteSchemaRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteSchemaRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -136,10 +113,7 @@ export class Client {
    * Gets the specified schema within the metastore.
    * The caller must be a metastore admin, the owner of the schema, or a user that has the **USE_SCHEMA** privilege on the schema.
    */
-  async getSchema(
-    req: GetSchemaRequest,
-    options?: CallOptions
-  ): Promise<SchemaInfo> {
+  async getSchema(req: GetSchemaRequest, options?: CallOptions): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -152,11 +126,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSchemaInfoSchema);
     };
     await executeCall(call, options);
@@ -171,16 +141,13 @@ export class Client {
    * If the caller is the metastore admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
    * Otherwise, only schemas owned by the caller (or for which the caller has the **USE_SCHEMA** privilege) will be retrieved.
    * There is no guarantee of a specific ordering of the elements in the array.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listSchemas(
-    req: ListSchemasRequest,
-    options?: CallOptions
-  ): Promise<ListSchemasRequest_Response> {
+  async listSchemas(req: ListSchemasRequest, options?: CallOptions): Promise<ListSchemasRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -202,15 +169,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSchemasRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListSchemasRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -219,10 +179,8 @@ export class Client {
     return resp;
   }
 
-  async *listSchemasIter(
-    req: ListSchemasRequest,
-    options?: CallOptions
-  ): AsyncGenerator<SchemaInfo> {
+
+  async *listSchemasIter(req: ListSchemasRequest, options?: CallOptions): AsyncGenerator<SchemaInfo> {
     const pageReq: ListSchemasRequest = {...req};
     for (;;) {
       const resp = await this.listSchemas(pageReq, options);
@@ -236,15 +194,13 @@ export class Client {
     }
   }
 
+
   /**
    * Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
    * If the caller is a metastore admin, only the __owner__ field can be changed in the update.
    * If the __name__ field must be updated, the caller must be a metastore admin or have the **CREATE_SCHEMA** privilege on the parent catalog.
    */
-  async updateSchema(
-    req: UpdateSchemaRequest,
-    options?: CallOptions
-  ): Promise<SchemaInfo> {
+  async updateSchema(req: UpdateSchemaRequest, options?: CallOptions): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateSchemaRequestSchema);
     let resp: SchemaInfo | undefined;
@@ -252,11 +208,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSchemaInfoSchema);
     };
     await executeCall(call, options);

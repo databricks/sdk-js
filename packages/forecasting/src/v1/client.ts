@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateForecastingExperimentRequest,
@@ -65,29 +59,16 @@ export class Client {
   }
 
   /** Creates a serverless forecasting experiment. Returns the experiment ID. */
-  async createForecastingExperiment(
-    req: CreateForecastingExperimentRequest,
-    options?: CallOptions
-  ): Promise<CreateForecastingExperimentResponse> {
+  async createForecastingExperiment(req: CreateForecastingExperimentRequest, options?: CallOptions): Promise<CreateForecastingExperimentResponse> {
     const url = `${this.host}/api/2.0/automl/create-forecasting-experiment`;
-    const body = marshalRequest(
-      req,
-      marshalCreateForecastingExperimentRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateForecastingExperimentRequestSchema);
     let resp: CreateForecastingExperimentResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateForecastingExperimentResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateForecastingExperimentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -96,7 +77,7 @@ export class Client {
     return resp;
   }
 
-  async createForecastingExperimentWaiter(
+async createForecastingExperimentWaiter(
     req: CreateForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<CreateForecastingExperimentWaiter> {
@@ -106,25 +87,21 @@ export class Client {
         'response field experimentId required for polling is missing'
       );
     }
-    return new CreateForecastingExperimentWaiter(this, resp.experimentId);
+    return new CreateForecastingExperimentWaiter(
+      this,
+      resp.experimentId,
+    );
   }
 
   /** Public RPC to get forecasting experiment */
-  async getForecastingExperiment(
-    req: GetForecastingExperimentRequest,
-    options?: CallOptions
-  ): Promise<ForecastingExperiment> {
+  async getForecastingExperiment(req: GetForecastingExperimentRequest, options?: CallOptions): Promise<ForecastingExperiment> {
     const url = `${this.host}/api/2.0/automl/get-forecasting-experiment/${req.experimentId ?? ''}`;
     let resp: ForecastingExperiment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalForecastingExperimentSchema);
     };
     await executeCall(call, options);
@@ -138,7 +115,7 @@ export class Client {
 export class CreateForecastingExperimentWaiter {
   constructor(
     private readonly client: Client,
-    readonly experimentId: string
+    readonly experimentId: string,
   ) {}
 
   /**
@@ -167,7 +144,8 @@ export class CreateForecastingExperimentWaiter {
           result = pollResp;
           return;
         case ForecastingExperiment_State.FAILED:
-        case ForecastingExperiment_State.CANCELLED: {
+        case ForecastingExperiment_State.CANCELLED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CatalogInfo,
@@ -67,10 +61,7 @@ export class Client {
   }
 
   /** Creates a new catalog instance in the parent metastore if the caller is a metastore admin or has the **CREATE_CATALOG** privilege. */
-  async createCatalog(
-    req: CreateCatalogRequest,
-    options?: CallOptions
-  ): Promise<CatalogInfo> {
+  async createCatalog(req: CreateCatalogRequest, options?: CallOptions): Promise<CatalogInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs`;
     const body = marshalRequest(req, marshalCreateCatalogRequestSchema);
     let resp: CatalogInfo | undefined;
@@ -78,11 +69,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCatalogInfoSchema);
     };
     await executeCall(call, options);
@@ -93,10 +80,7 @@ export class Client {
   }
 
   /** Deletes the catalog that matches the supplied name. The caller must be a metastore admin or the owner of the catalog. */
-  async deleteCatalog(
-    req: DeleteCatalogRequest,
-    options?: CallOptions
-  ): Promise<DeleteCatalogRequest_Response> {
+  async deleteCatalog(req: DeleteCatalogRequest, options?: CallOptions): Promise<DeleteCatalogRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -109,15 +93,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCatalogRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteCatalogRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -130,10 +107,7 @@ export class Client {
    * Gets the specified catalog in a metastore.
    * The caller must be a metastore admin, the owner of the catalog, or a user that has the **USE_CATALOG** privilege set for their account.
    */
-  async getCatalog(
-    req: GetCatalogRequest,
-    options?: CallOptions
-  ): Promise<CatalogInfo> {
+  async getCatalog(req: GetCatalogRequest, options?: CallOptions): Promise<CatalogInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -146,11 +120,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCatalogInfoSchema);
     };
     await executeCall(call, options);
@@ -165,16 +135,13 @@ export class Client {
    * If the caller is the metastore admin, all catalogs will be retrieved.
    * Otherwise, only catalogs owned by the caller (or for which the caller has the **USE_CATALOG** privilege) will be retrieved.
    * There is no guarantee of a specific ordering of the elements in the array.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listCatalogs(
-    req: ListCatalogsRequest,
-    options?: CallOptions
-  ): Promise<ListCatalogsRequest_Response> {
+  async listCatalogs(req: ListCatalogsRequest, options?: CallOptions): Promise<ListCatalogsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -196,15 +163,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCatalogsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCatalogsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -213,10 +173,8 @@ export class Client {
     return resp;
   }
 
-  async *listCatalogsIter(
-    req: ListCatalogsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CatalogInfo> {
+
+  async *listCatalogsIter(req: ListCatalogsRequest, options?: CallOptions): AsyncGenerator<CatalogInfo> {
     const pageReq: ListCatalogsRequest = {...req};
     for (;;) {
       const resp = await this.listCatalogs(pageReq, options);
@@ -230,14 +188,12 @@ export class Client {
     }
   }
 
+
   /**
    * Updates the catalog that matches the supplied name.
    * The caller must be either the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
    */
-  async updateCatalog(
-    req: UpdateCatalogRequest,
-    options?: CallOptions
-  ): Promise<CatalogInfo> {
+  async updateCatalog(req: UpdateCatalogRequest, options?: CallOptions): Promise<CatalogInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCatalogRequestSchema);
     let resp: CatalogInfo | undefined;
@@ -245,11 +201,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCatalogInfoSchema);
     };
     await executeCall(call, options);

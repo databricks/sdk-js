@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateDefaultWarehouseOverrideRequest,
@@ -104,40 +98,21 @@ export class Client {
    * Creates a new default warehouse override for a user.
    * Users can create their own override. Admins can create overrides for any user.
    */
-  async createDefaultWarehouseOverride(
-    req: CreateDefaultWarehouseOverrideRequest,
-    options?: CallOptions
-  ): Promise<DefaultWarehouseOverride> {
+  async createDefaultWarehouseOverride(req: CreateDefaultWarehouseOverrideRequest, options?: CallOptions): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/default-warehouse-overrides`;
     const params = new URLSearchParams();
     if (req.defaultWarehouseOverrideId !== undefined) {
-      params.append(
-        'default_warehouse_override_id',
-        req.defaultWarehouseOverrideId
-      );
+      params.append('default_warehouse_override_id', req.defaultWarehouseOverrideId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.defaultWarehouseOverride,
-      marshalDefaultWarehouseOverrideSchema
-    );
+    const body = marshalRequest(req.defaultWarehouseOverride, marshalDefaultWarehouseOverrideSchema);
     let resp: DefaultWarehouseOverride | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
     await executeCall(call, options);
@@ -148,10 +123,7 @@ export class Client {
   }
 
   /** Creates a new SQL warehouse. */
-  async createWarehouse(
-    req: CreateWarehouseRequest,
-    options?: CallOptions
-  ): Promise<CreateWarehouseRequest_Response> {
+  async createWarehouse(req: CreateWarehouseRequest, options?: CallOptions): Promise<CreateWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses`;
     const body = marshalRequest(req, marshalCreateWarehouseRequestSchema);
     let resp: CreateWarehouseRequest_Response | undefined;
@@ -159,15 +131,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateWarehouseRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateWarehouseRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -176,15 +141,20 @@ export class Client {
     return resp;
   }
 
-  async createWarehouseWaiter(
+async createWarehouseWaiter(
     req: CreateWarehouseRequest,
     options?: CallOptions
   ): Promise<CreateWarehouseWaiter> {
     const resp = await this.createWarehouse(req, options);
     if (resp.id === undefined) {
-      throw new Error('response field id required for polling is missing');
+      throw new Error(
+        'response field id required for polling is missing'
+      );
     }
-    return new CreateWarehouseWaiter(this, resp.id);
+    return new CreateWarehouseWaiter(
+      this,
+      resp.id,
+    );
   }
 
   /**
@@ -192,44 +162,27 @@ export class Client {
    * Users can delete their own override. Admins can delete overrides for any user.
    * After deletion, the workspace default warehouse will be used.
    */
-  async deleteDefaultWarehouseOverride(
-    req: DeleteDefaultWarehouseOverrideRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteDefaultWarehouseOverride(req: DeleteDefaultWarehouseOverrideRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes a SQL warehouse. */
-  async deleteWarehouse(
-    req: DeleteWarehouseRequest,
-    options?: CallOptions
-  ): Promise<DeleteWarehouseRequest_Response> {
+  async deleteWarehouse(req: DeleteWarehouseRequest, options?: CallOptions): Promise<DeleteWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: DeleteWarehouseRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteWarehouseRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteWarehouseRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -239,10 +192,7 @@ export class Client {
   }
 
   /** Updates the configuration for a SQL warehouse. */
-  async editWarehouse(
-    req: EditWarehouseRequest,
-    options?: CallOptions
-  ): Promise<EditWarehouseRequest_Response> {
+  async editWarehouse(req: EditWarehouseRequest, options?: CallOptions): Promise<EditWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/edit`;
     const body = marshalRequest(req, marshalEditWarehouseRequestSchema);
     let resp: EditWarehouseRequest_Response | undefined;
@@ -250,15 +200,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalEditWarehouseRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalEditWarehouseRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -267,15 +210,20 @@ export class Client {
     return resp;
   }
 
-  async editWarehouseWaiter(
+async editWarehouseWaiter(
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseWaiter> {
     await this.editWarehouse(req, options);
     if (req.id === undefined) {
-      throw new Error('request field id required for polling is missing');
+      throw new Error(
+        'request field id required for polling is missing'
+      );
     }
-    return new EditWarehouseWaiter(this, req.id);
+    return new EditWarehouseWaiter(
+      this,
+      req.id,
+    );
   }
 
   /**
@@ -283,21 +231,14 @@ export class Client {
    * Users can fetch their own override. Admins can fetch overrides for any user.
    * If no override exists, the UI will fallback to the workspace default warehouse.
    */
-  async getDefaultWarehouseOverride(
-    req: GetDefaultWarehouseOverrideRequest,
-    options?: CallOptions
-  ): Promise<DefaultWarehouseOverride> {
+  async getDefaultWarehouseOverride(req: GetDefaultWarehouseOverrideRequest, options?: CallOptions): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
     let resp: DefaultWarehouseOverride | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
     await executeCall(call, options);
@@ -308,25 +249,15 @@ export class Client {
   }
 
   /** Gets the information for a single SQL warehouse. */
-  async getWarehouse(
-    req: GetWarehouseRequest,
-    options?: CallOptions
-  ): Promise<GetWarehouseRequest_Response> {
+  async getWarehouse(req: GetWarehouseRequest, options?: CallOptions): Promise<GetWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: GetWarehouseRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetWarehouseRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetWarehouseRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -336,25 +267,15 @@ export class Client {
   }
 
   /** Gets the workspace level configuration that is shared by all SQL warehouses in a workspace. */
-  async getWorkspaceWarehouseConfig(
-    _req: GetWorkspaceWarehouseConfigRequest,
-    options?: CallOptions
-  ): Promise<GetWorkspaceWarehouseConfigRequest_Response> {
+  async getWorkspaceWarehouseConfig(_req: GetWorkspaceWarehouseConfigRequest, options?: CallOptions): Promise<GetWorkspaceWarehouseConfigRequest_Response> {
     const url = `${this.host}/api/2.0/sql/config/warehouses`;
     let resp: GetWorkspaceWarehouseConfigRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -367,10 +288,7 @@ export class Client {
    * Lists all default warehouse overrides in the workspace.
    * Only workspace administrators can list all overrides.
    */
-  async listDefaultWarehouseOverrides(
-    req: ListDefaultWarehouseOverridesRequest,
-    options?: CallOptions
-  ): Promise<ListDefaultWarehouseOverridesResponse> {
+  async listDefaultWarehouseOverrides(req: ListDefaultWarehouseOverridesRequest, options?: CallOptions): Promise<ListDefaultWarehouseOverridesResponse> {
     const url = `${this.host}/api/warehouses/v1/default-warehouse-overrides`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -386,15 +304,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListDefaultWarehouseOverridesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListDefaultWarehouseOverridesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -403,10 +314,8 @@ export class Client {
     return resp;
   }
 
-  async *listDefaultWarehouseOverridesIter(
-    req: ListDefaultWarehouseOverridesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<DefaultWarehouseOverride> {
+
+  async *listDefaultWarehouseOverridesIter(req: ListDefaultWarehouseOverridesRequest, options?: CallOptions): AsyncGenerator<DefaultWarehouseOverride> {
     const pageReq: ListDefaultWarehouseOverridesRequest = {...req};
     for (;;) {
       const resp = await this.listDefaultWarehouseOverrides(pageReq, options);
@@ -420,11 +329,9 @@ export class Client {
     }
   }
 
+
   /** Lists all SQL warehouses that a user has access to. */
-  async listWarehouses(
-    req: ListWarehousesRequest,
-    options?: CallOptions
-  ): Promise<ListWarehousesRequest_Response> {
+  async listWarehouses(req: ListWarehousesRequest, options?: CallOptions): Promise<ListWarehousesRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses`;
     const params = new URLSearchParams();
     if (req.runAsUserId !== undefined) {
@@ -443,15 +350,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListWarehousesRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListWarehousesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -460,10 +360,8 @@ export class Client {
     return resp;
   }
 
-  async *listWarehousesIter(
-    req: ListWarehousesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<EndpointInfo> {
+
+  async *listWarehousesIter(req: ListWarehousesRequest, options?: CallOptions): AsyncGenerator<EndpointInfo> {
     const pageReq: ListWarehousesRequest = {...req};
     for (;;) {
       const resp = await this.listWarehouses(pageReq, options);
@@ -477,30 +375,18 @@ export class Client {
     }
   }
 
+
   /** Sets the workspace level configuration that is shared by all SQL warehouses in a workspace. */
-  async setWorkspaceWarehouseConfig(
-    req: SetWorkspaceWarehouseConfigRequest,
-    options?: CallOptions
-  ): Promise<SetWorkspaceWarehouseConfigRequest_Response> {
+  async setWorkspaceWarehouseConfig(req: SetWorkspaceWarehouseConfigRequest, options?: CallOptions): Promise<SetWorkspaceWarehouseConfigRequest_Response> {
     const url = `${this.host}/api/2.0/sql/config/warehouses`;
-    const body = marshalRequest(
-      req,
-      marshalSetWorkspaceWarehouseConfigRequestSchema
-    );
+    const body = marshalRequest(req, marshalSetWorkspaceWarehouseConfigRequestSchema);
     let resp: SetWorkspaceWarehouseConfigRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -510,10 +396,7 @@ export class Client {
   }
 
   /** Starts a SQL warehouse. */
-  async startWarehouse(
-    req: StartRequest,
-    options?: CallOptions
-  ): Promise<StartRequest_Response> {
+  async startWarehouse(req: StartRequest, options?: CallOptions): Promise<StartRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/start`;
     const body = marshalRequest(req, marshalStartRequestSchema);
     let resp: StartRequest_Response | undefined;
@@ -521,11 +404,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStartRequest_ResponseSchema);
     };
     await executeCall(call, options);
@@ -535,22 +414,24 @@ export class Client {
     return resp;
   }
 
-  async startWarehouseWaiter(
+async startWarehouseWaiter(
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartWarehouseWaiter> {
     await this.startWarehouse(req, options);
     if (req.id === undefined) {
-      throw new Error('request field id required for polling is missing');
+      throw new Error(
+        'request field id required for polling is missing'
+      );
     }
-    return new StartWarehouseWaiter(this, req.id);
+    return new StartWarehouseWaiter(
+      this,
+      req.id,
+    );
   }
 
   /** Stops a SQL warehouse. */
-  async stopWarehouse(
-    req: StopRequest,
-    options?: CallOptions
-  ): Promise<StopRequest_Response> {
+  async stopWarehouse(req: StopRequest, options?: CallOptions): Promise<StopRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopRequestSchema);
     let resp: StopRequest_Response | undefined;
@@ -558,11 +439,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStopRequest_ResponseSchema);
     };
     await executeCall(call, options);
@@ -572,25 +449,27 @@ export class Client {
     return resp;
   }
 
-  async stopWarehouseWaiter(
+async stopWarehouseWaiter(
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopWarehouseWaiter> {
     await this.stopWarehouse(req, options);
     if (req.id === undefined) {
-      throw new Error('request field id required for polling is missing');
+      throw new Error(
+        'request field id required for polling is missing'
+      );
     }
-    return new StopWarehouseWaiter(this, req.id);
+    return new StopWarehouseWaiter(
+      this,
+      req.id,
+    );
   }
 
   /**
    * Updates an existing default warehouse override for a user.
    * Users can update their own override. Admins can update overrides for any user.
    */
-  async updateDefaultWarehouseOverride(
-    req: UpdateDefaultWarehouseOverrideRequest,
-    options?: CallOptions
-  ): Promise<DefaultWarehouseOverride> {
+  async updateDefaultWarehouseOverride(req: UpdateDefaultWarehouseOverrideRequest, options?: CallOptions): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/${req.defaultWarehouseOverride?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -601,26 +480,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.defaultWarehouseOverride,
-      marshalDefaultWarehouseOverrideSchema
-    );
+    const body = marshalRequest(req.defaultWarehouseOverride, marshalDefaultWarehouseOverrideSchema);
     let resp: DefaultWarehouseOverride | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
     await executeCall(call, options);
@@ -634,7 +500,7 @@ export class Client {
 export class CreateWarehouseWaiter {
   constructor(
     private readonly client: Client,
-    readonly id: string
+    readonly id: string,
   ) {}
 
   /**
@@ -663,7 +529,8 @@ export class CreateWarehouseWaiter {
           result = pollResp;
           return;
         case EndpointState.STOPPED:
-        case EndpointState.DELETED: {
+        case EndpointState.DELETED:
+        {
           const msg = pollResp.health?.summary ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -714,7 +581,7 @@ export class CreateWarehouseWaiter {
 export class EditWarehouseWaiter {
   constructor(
     private readonly client: Client,
-    readonly id: string
+    readonly id: string,
   ) {}
 
   /**
@@ -743,7 +610,8 @@ export class EditWarehouseWaiter {
           result = pollResp;
           return;
         case EndpointState.STOPPED:
-        case EndpointState.DELETED: {
+        case EndpointState.DELETED:
+        {
           const msg = pollResp.health?.summary ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -794,7 +662,7 @@ export class EditWarehouseWaiter {
 export class StartWarehouseWaiter {
   constructor(
     private readonly client: Client,
-    readonly id: string
+    readonly id: string,
   ) {}
 
   /**
@@ -823,7 +691,8 @@ export class StartWarehouseWaiter {
           result = pollResp;
           return;
         case EndpointState.STOPPED:
-        case EndpointState.DELETED: {
+        case EndpointState.DELETED:
+        {
           const msg = pollResp.health?.summary ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -874,7 +743,7 @@ export class StartWarehouseWaiter {
 export class StopWarehouseWaiter {
   constructor(
     private readonly client: Client,
-    readonly id: string
+    readonly id: string,
   ) {}
 
   /**

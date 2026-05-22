@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /**
  * A LoggedModelStatus enum value represents the status of a logged
  * model.
@@ -293,7 +294,7 @@ export interface GetExperimentRequest_Response {
   /**
    * A collection of active runs in the experiment. Note: this may not contain
    * all of the experiment's active runs.
-   *
+   * 
    * This field is deprecated. Please use the "Search Runs" API to fetch
    * runs within an experiment.
    */
@@ -806,7 +807,7 @@ export interface SearchLoggedModelsRequest {
   /**
    * A filter expression over logged model info and data that allows returning a subset of
    * logged models. The syntax is a subset of SQL that supports AND'ing together binary operations.
-   *
+   * 
    * Example: ``params.alpha < 0.3 AND metrics.accuracy > 0.9``.
    */
   filter?: string | undefined;
@@ -870,12 +871,12 @@ export interface SearchRunsRequest {
    * A filter expression over params, metrics, and tags, that allows returning a subset of
    * runs. The syntax is a subset of SQL that supports ANDing together binary operations
    * between a param, metric, or tag and a constant.
-   *
+   * 
    * Example: `metrics.rmse < 1 and params.model_class = 'LogisticRegression'`
-   *
+   * 
    * You can select columns with special characters (hyphen, space, period, etc.) by using double quotes:
    * `metrics."model class" = 'LinearRegression' and tags."user-name" = 'Tomas'`
-   *
+   * 
    * Supported operators are `=`, `!=`, `>`, `>=`, `<`, and `<=`.
    */
   filter?: string | undefined;
@@ -978,34 +979,31 @@ export interface UpdateRunRequest_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateExperimentRequest_ResponseSchema: z.ZodType<CreateExperimentRequest_Response> =
-  z
-    .object({
-      experiment_id: z.string().optional(),
-    })
-    .transform(d => ({
-      experimentId: d.experiment_id,
-    }));
+export const unmarshalCreateExperimentRequest_ResponseSchema: z.ZodType<CreateExperimentRequest_Response> = z
+  .object({
+    experiment_id: z.string().optional(),
+  })
+  .transform(d => ({
+    experimentId: d.experiment_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateLoggedModelRequest_ResponseSchema: z.ZodType<CreateLoggedModelRequest_Response> =
-  z
-    .object({
-      model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
-    })
-    .transform(d => ({
-      model: d.model,
-    }));
+export const unmarshalCreateLoggedModelRequest_ResponseSchema: z.ZodType<CreateLoggedModelRequest_Response> = z
+  .object({
+    model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRunRequest_ResponseSchema: z.ZodType<CreateRunRequest_Response> =
-  z
-    .object({
-      run: z.lazy(() => unmarshalRunSchema).optional(),
-    })
-    .transform(d => ({
-      run: d.run,
-    }));
+export const unmarshalCreateRunRequest_ResponseSchema: z.ZodType<CreateRunRequest_Response> = z
+  .object({
+    run: z.lazy(() => unmarshalRunSchema).optional(),
+  })
+  .transform(d => ({
+    run: d.run,
+  }));
 
 export const unmarshalDatasetSchema: z.ZodType<Dataset> = z
   .object({
@@ -1036,34 +1034,38 @@ export const unmarshalDatasetInputSchema: z.ZodType<DatasetInput> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteExperimentRequest_ResponseSchema: z.ZodType<DeleteExperimentRequest_Response> =
-  z.object({});
+export const unmarshalDeleteExperimentRequest_ResponseSchema: z.ZodType<DeleteExperimentRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteLoggedModelRequest_ResponseSchema: z.ZodType<DeleteLoggedModelRequest_Response> =
-  z.object({});
+export const unmarshalDeleteLoggedModelRequest_ResponseSchema: z.ZodType<DeleteLoggedModelRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteLoggedModelTagRequest_ResponseSchema: z.ZodType<DeleteLoggedModelTagRequest_Response> =
-  z.object({});
+export const unmarshalDeleteLoggedModelTagRequest_ResponseSchema: z.ZodType<DeleteLoggedModelTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRunRequest_ResponseSchema: z.ZodType<DeleteRunRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRunRequest_ResponseSchema: z.ZodType<DeleteRunRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRunsRequest_ResponseSchema: z.ZodType<DeleteRunsRequest_Response> =
-  z
-    .object({
-      runs_deleted: z.number().optional(),
-    })
-    .transform(d => ({
-      runsDeleted: d.runs_deleted,
-    }));
+export const unmarshalDeleteRunsRequest_ResponseSchema: z.ZodType<DeleteRunsRequest_Response> = z
+  .object({
+    runs_deleted: z.number().optional(),
+  })
+  .transform(d => ({
+    runsDeleted: d.runs_deleted,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTagRequest_ResponseSchema: z.ZodType<DeleteTagRequest_Response> =
-  z.object({});
+export const unmarshalDeleteTagRequest_ResponseSchema: z.ZodType<DeleteTagRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
   .object({
@@ -1108,68 +1110,62 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFinalizeLoggedModelRequest_ResponseSchema: z.ZodType<FinalizeLoggedModelRequest_Response> =
-  z
-    .object({
-      model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
-    })
-    .transform(d => ({
-      model: d.model,
-    }));
+export const unmarshalFinalizeLoggedModelRequest_ResponseSchema: z.ZodType<FinalizeLoggedModelRequest_Response> = z
+  .object({
+    model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetExperimentByNameRequest_ResponseSchema: z.ZodType<GetExperimentByNameRequest_Response> =
-  z
-    .object({
-      experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
-    })
-    .transform(d => ({
-      experiment: d.experiment,
-    }));
+export const unmarshalGetExperimentByNameRequest_ResponseSchema: z.ZodType<GetExperimentByNameRequest_Response> = z
+  .object({
+    experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
+  })
+  .transform(d => ({
+    experiment: d.experiment,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetExperimentRequest_ResponseSchema: z.ZodType<GetExperimentRequest_Response> =
-  z
-    .object({
-      experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
-      runs: z.array(z.lazy(() => unmarshalRunInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      experiment: d.experiment,
-      runs: d.runs,
-    }));
+export const unmarshalGetExperimentRequest_ResponseSchema: z.ZodType<GetExperimentRequest_Response> = z
+  .object({
+    experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
+    runs: z.array(z.lazy(() => unmarshalRunInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    experiment: d.experiment,
+    runs: d.runs,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLoggedModelRequest_ResponseSchema: z.ZodType<GetLoggedModelRequest_Response> =
-  z
-    .object({
-      model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
-    })
-    .transform(d => ({
-      model: d.model,
-    }));
+export const unmarshalGetLoggedModelRequest_ResponseSchema: z.ZodType<GetLoggedModelRequest_Response> = z
+  .object({
+    model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetMetricHistoryRequest_ResponseSchema: z.ZodType<GetMetricHistoryRequest_Response> =
-  z
-    .object({
-      metrics: z.array(z.lazy(() => unmarshalMetricSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      metrics: d.metrics,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGetMetricHistoryRequest_ResponseSchema: z.ZodType<GetMetricHistoryRequest_Response> = z
+  .object({
+    metrics: z.array(z.lazy(() => unmarshalMetricSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    metrics: d.metrics,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Response> =
-  z
-    .object({
-      run: z.lazy(() => unmarshalRunSchema).optional(),
-    })
-    .transform(d => ({
-      run: d.run,
-    }));
+export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Response> = z
+  .object({
+    run: z.lazy(() => unmarshalRunSchema).optional(),
+  })
+  .transform(d => ({
+    run: d.run,
+  }));
 
 export const unmarshalInputTagSchema: z.ZodType<InputTag> = z
   .object({
@@ -1182,58 +1178,63 @@ export const unmarshalInputTagSchema: z.ZodType<InputTag> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListArtifactsRequest_ResponseSchema: z.ZodType<ListArtifactsRequest_Response> =
-  z
-    .object({
-      root_uri: z.string().optional(),
-      files: z.array(z.lazy(() => unmarshalFileInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      rootUri: d.root_uri,
-      files: d.files,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListArtifactsRequest_ResponseSchema: z.ZodType<ListArtifactsRequest_Response> = z
+  .object({
+    root_uri: z.string().optional(),
+    files: z.array(z.lazy(() => unmarshalFileInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    rootUri: d.root_uri,
+    files: d.files,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListExperimentsRequest_ResponseSchema: z.ZodType<ListExperimentsRequest_Response> =
-  z
-    .object({
-      experiments: z.array(z.lazy(() => unmarshalExperimentSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      experiments: d.experiments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListExperimentsRequest_ResponseSchema: z.ZodType<ListExperimentsRequest_Response> = z
+  .object({
+    experiments: z.array(z.lazy(() => unmarshalExperimentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    experiments: d.experiments,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogBatchRequest_ResponseSchema: z.ZodType<LogBatchRequest_Response> =
-  z.object({});
+export const unmarshalLogBatchRequest_ResponseSchema: z.ZodType<LogBatchRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogInputsRequest_ResponseSchema: z.ZodType<LogInputsRequest_Response> =
-  z.object({});
+export const unmarshalLogInputsRequest_ResponseSchema: z.ZodType<LogInputsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogLoggedModelParamsRequest_ResponseSchema: z.ZodType<LogLoggedModelParamsRequest_Response> =
-  z.object({});
+export const unmarshalLogLoggedModelParamsRequest_ResponseSchema: z.ZodType<LogLoggedModelParamsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogMetricRequest_ResponseSchema: z.ZodType<LogMetricRequest_Response> =
-  z.object({});
+export const unmarshalLogMetricRequest_ResponseSchema: z.ZodType<LogMetricRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogModelRequest_ResponseSchema: z.ZodType<LogModelRequest_Response> =
-  z.object({});
+export const unmarshalLogModelRequest_ResponseSchema: z.ZodType<LogModelRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogOutputsRequest_ResponseSchema: z.ZodType<LogOutputsRequest_Response> =
-  z.object({});
+export const unmarshalLogOutputsRequest_ResponseSchema: z.ZodType<LogOutputsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogParamRequest_ResponseSchema: z.ZodType<LogParamRequest_Response> =
-  z.object({});
+export const unmarshalLogParamRequest_ResponseSchema: z.ZodType<LogParamRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalLoggedModelSchema: z.ZodType<LoggedModel> = z
   .object({
@@ -1247,9 +1248,7 @@ export const unmarshalLoggedModelSchema: z.ZodType<LoggedModel> = z
 
 export const unmarshalLoggedModelDataSchema: z.ZodType<LoggedModelData> = z
   .object({
-    params: z
-      .array(z.lazy(() => unmarshalLoggedModelParameterSchema))
-      .optional(),
+    params: z.array(z.lazy(() => unmarshalLoggedModelParameterSchema)).optional(),
     metrics: z.array(z.lazy(() => unmarshalMetricSchema)).optional(),
   })
   .transform(d => ({
@@ -1287,16 +1286,15 @@ export const unmarshalLoggedModelInfoSchema: z.ZodType<LoggedModelInfo> = z
     tags: d.tags,
   }));
 
-export const unmarshalLoggedModelParameterSchema: z.ZodType<LoggedModelParameter> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalLoggedModelParameterSchema: z.ZodType<LoggedModelParameter> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalLoggedModelTagSchema: z.ZodType<LoggedModelTag> = z
   .object({
@@ -1349,22 +1347,23 @@ export const unmarshalParamSchema: z.ZodType<Param> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestoreExperimentRequest_ResponseSchema: z.ZodType<RestoreExperimentRequest_Response> =
-  z.object({});
+export const unmarshalRestoreExperimentRequest_ResponseSchema: z.ZodType<RestoreExperimentRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestoreRunRequest_ResponseSchema: z.ZodType<RestoreRunRequest_Response> =
-  z.object({});
+export const unmarshalRestoreRunRequest_ResponseSchema: z.ZodType<RestoreRunRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestoreRunsRequest_ResponseSchema: z.ZodType<RestoreRunsRequest_Response> =
-  z
-    .object({
-      runs_restored: z.number().optional(),
-    })
-    .transform(d => ({
-      runsRestored: d.runs_restored,
-    }));
+export const unmarshalRestoreRunsRequest_ResponseSchema: z.ZodType<RestoreRunsRequest_Response> = z
+  .object({
+    runs_restored: z.number().optional(),
+  })
+  .transform(d => ({
+    runsRestored: d.runs_restored,
+  }));
 
 export const unmarshalRunSchema: z.ZodType<Run> = z
   .object({
@@ -1418,9 +1417,7 @@ export const unmarshalRunInfoSchema: z.ZodType<RunInfo> = z
 
 export const unmarshalRunInputsSchema: z.ZodType<RunInputs> = z
   .object({
-    dataset_inputs: z
-      .array(z.lazy(() => unmarshalDatasetInputSchema))
-      .optional(),
+    dataset_inputs: z.array(z.lazy(() => unmarshalDatasetInputSchema)).optional(),
     model_inputs: z.array(z.lazy(() => unmarshalModelInputSchema)).optional(),
   })
   .transform(d => ({
@@ -1439,66 +1436,66 @@ export const unmarshalRunTagSchema: z.ZodType<RunTag> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchExperimentsRequest_ResponseSchema: z.ZodType<SearchExperimentsRequest_Response> =
-  z
-    .object({
-      experiments: z.array(z.lazy(() => unmarshalExperimentSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      experiments: d.experiments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalSearchExperimentsRequest_ResponseSchema: z.ZodType<SearchExperimentsRequest_Response> = z
+  .object({
+    experiments: z.array(z.lazy(() => unmarshalExperimentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    experiments: d.experiments,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchLoggedModelsRequest_ResponseSchema: z.ZodType<SearchLoggedModelsRequest_Response> =
-  z
-    .object({
-      models: z.array(z.lazy(() => unmarshalLoggedModelSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      models: d.models,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalSearchLoggedModelsRequest_ResponseSchema: z.ZodType<SearchLoggedModelsRequest_Response> = z
+  .object({
+    models: z.array(z.lazy(() => unmarshalLoggedModelSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    models: d.models,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchRunsRequest_ResponseSchema: z.ZodType<SearchRunsRequest_Response> =
-  z
-    .object({
-      runs: z.array(z.lazy(() => unmarshalRunSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      runs: d.runs,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalSearchRunsRequest_ResponseSchema: z.ZodType<SearchRunsRequest_Response> = z
+  .object({
+    runs: z.array(z.lazy(() => unmarshalRunSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetExperimentTagRequest_ResponseSchema: z.ZodType<SetExperimentTagRequest_Response> =
-  z.object({});
+export const unmarshalSetExperimentTagRequest_ResponseSchema: z.ZodType<SetExperimentTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetLoggedModelTagsRequest_ResponseSchema: z.ZodType<SetLoggedModelTagsRequest_Response> =
-  z.object({});
+export const unmarshalSetLoggedModelTagsRequest_ResponseSchema: z.ZodType<SetLoggedModelTagsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetTagRequest_ResponseSchema: z.ZodType<SetTagRequest_Response> =
-  z.object({});
+export const unmarshalSetTagRequest_ResponseSchema: z.ZodType<SetTagRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateExperimentRequest_ResponseSchema: z.ZodType<UpdateExperimentRequest_Response> =
-  z.object({});
+export const unmarshalUpdateExperimentRequest_ResponseSchema: z.ZodType<UpdateExperimentRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRunRequest_ResponseSchema: z.ZodType<UpdateRunRequest_Response> =
-  z
-    .object({
-      run_info: z.lazy(() => unmarshalRunInfoSchema).optional(),
-    })
-    .transform(d => ({
-      runInfo: d.run_info,
-    }));
+export const unmarshalUpdateRunRequest_ResponseSchema: z.ZodType<UpdateRunRequest_Response> = z
+  .object({
+    run_info: z.lazy(() => unmarshalRunInfoSchema).optional(),
+  })
+  .transform(d => ({
+    runInfo: d.run_info,
+  }));
 
 export const marshalCreateExperimentRequestSchema: z.ZodType = z
   .object({
@@ -1864,13 +1861,9 @@ export const marshalSearchLoggedModelsRequestSchema: z.ZodType = z
   .object({
     experimentIds: z.array(z.string()).optional(),
     filter: z.string().optional(),
-    datasets: z
-      .array(z.lazy(() => marshalSearchLoggedModelsRequest_DatasetSchema))
-      .optional(),
+    datasets: z.array(z.lazy(() => marshalSearchLoggedModelsRequest_DatasetSchema)).optional(),
     maxResults: z.number().optional(),
-    orderBy: z
-      .array(z.lazy(() => marshalSearchLoggedModelsRequest_OrderBySchema))
-      .optional(),
+    orderBy: z.array(z.lazy(() => marshalSearchLoggedModelsRequest_OrderBySchema)).optional(),
     pageToken: z.string().optional(),
   })
   .transform(d => ({

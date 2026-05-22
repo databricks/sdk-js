@@ -1,16 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {
-  Client,
-  CreateSpaceOperation,
-  DeleteSpaceOperation,
-  UpdateSpaceOperation,
-  AsyncUpdateAppWaiter,
-  CreateAppDeploymentWaiter,
-  CreateAppWaiter,
-  StartAppWaiter,
-  StopAppWaiter,
-} from './client';
+
+export {Client, CreateSpaceOperation, DeleteSpaceOperation, UpdateSpaceOperation, AsyncUpdateAppWaiter, CreateAppDeploymentWaiter, CreateAppWaiter, StartAppWaiter, StopAppWaiter} from './client';
 
 export {
   ComputeSize,

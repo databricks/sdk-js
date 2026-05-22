@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum OnlineStore_State {
   /** Default value, not used */
@@ -126,27 +127,21 @@ export interface UpdateOnlineStoreRequest {
   updateMask?: FieldMask<OnlineStore> | undefined;
 }
 
-export const unmarshalListOnlineStoresResponseSchema: z.ZodType<ListOnlineStoresResponse> =
-  z
-    .object({
-      online_stores: z
-        .array(z.lazy(() => unmarshalOnlineStoreSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      onlineStores: d.online_stores,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListOnlineStoresResponseSchema: z.ZodType<ListOnlineStoresResponse> = z
+  .object({
+    online_stores: z.array(z.lazy(() => unmarshalOnlineStoreSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    onlineStores: d.online_stores,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalOnlineStoreSchema: z.ZodType<OnlineStore> = z
   .object({
     name: z.string().optional(),
     creator: z.string().optional(),
-    creation_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    creation_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     state: z.enum(OnlineStore_State).optional(),
     capacity: z.string().optional(),
     read_replica_count: z.number().optional(),
@@ -162,25 +157,21 @@ export const unmarshalOnlineStoreSchema: z.ZodType<OnlineStore> = z
     usagePolicyId: d.usage_policy_id,
   }));
 
-export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse> =
-  z
-    .object({
-      online_table_name: z.string().optional(),
-      pipeline_id: z.string().optional(),
-    })
-    .transform(d => ({
-      onlineTableName: d.online_table_name,
-      pipelineId: d.pipeline_id,
-    }));
+export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse> = z
+  .object({
+    online_table_name: z.string().optional(),
+    pipeline_id: z.string().optional(),
+  })
+  .transform(d => ({
+    onlineTableName: d.online_table_name,
+    pipelineId: d.pipeline_id,
+  }));
 
 export const marshalOnlineStoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     creator: z.string().optional(),
-    creationTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    creationTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     state: z.enum(OnlineStore_State).optional(),
     capacity: z.string().optional(),
     readReplicaCount: z.number().optional(),
@@ -228,8 +219,6 @@ const onlineStoreFieldMaskSchema: FieldMaskSchema = {
   usagePolicyId: {wire: 'usage_policy_id'},
 };
 
-export function onlineStoreFieldMask(
-  ...paths: string[]
-): FieldMask<OnlineStore> {
+export function onlineStoreFieldMask(...paths: string[]): FieldMask<OnlineStore> {
   return FieldMask.build<OnlineStore>(paths, onlineStoreFieldMaskSchema);
 }

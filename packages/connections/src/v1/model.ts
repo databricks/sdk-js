@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** Next Id: 125 */
 export enum ConnectionType {
   UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
@@ -323,22 +324,20 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteConnectionRequest_ResponseSchema: z.ZodType<DeleteConnectionRequest_Response> =
-  z.object({});
+export const unmarshalDeleteConnectionRequest_ResponseSchema: z.ZodType<DeleteConnectionRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListConnectionsRequest_ResponseSchema: z.ZodType<ListConnectionsRequest_Response> =
-  z
-    .object({
-      connections: z
-        .array(z.lazy(() => unmarshalConnectionInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      connections: d.connections,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListConnectionsRequest_ResponseSchema: z.ZodType<ListConnectionsRequest_Response> = z
+  .object({
+    connections: z.array(z.lazy(() => unmarshalConnectionInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    connections: d.connections,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
   .object({
