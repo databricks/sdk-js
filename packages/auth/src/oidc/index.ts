@@ -6,12 +6,12 @@
  * @packageDocumentation
  */
 
-export type {IDToken, IDTokenProvider} from './oidc';
+export type {IdToken, IdTokenProvider} from './oidc';
 export {idTokenProviderFn} from './oidc';
-export {newEnvIDTokenProvider} from './env';
+export {newEnvIdTokenProvider} from './env';
 export {newFileTokenProvider} from './file';
 export type {
-  DatabricksOIDCTokenProviderConfig,
+  DatabricksOidcTokenProviderConfig,
   OAuthAuthorizationServer,
 } from './tokensource';
-export {newDatabricksOIDCTokenProvider} from './tokensource';
+export {newDatabricksOidcTokenProvider} from './tokensource';

@@ -30,8 +30,8 @@ const errorResponseSchema = z.object({
   scimType: nullishString,
 });
 
-// Constructor options for APIError.
-interface APIErrorOptions {
+// Constructor options for ApiError.
+interface ApiErrorOptions {
   code: Code;
   message: string;
   details: ErrorDetails;
@@ -41,8 +41,8 @@ interface APIErrorOptions {
   cause?: unknown;
 }
 
-/** APIError is a transport-agnostic error representing a Databricks API error. */
-export class APIError extends Error {
+/** ApiError is a transport-agnostic error representing a Databricks API error. */
+export class ApiError extends Error {
   /** The canonical error code of the error. */
   readonly code: Code;
 
@@ -60,15 +60,15 @@ export class APIError extends Error {
   };
 
   /**
-   * Do not use this constructor directly. Use {@link APIError.fromHttpError}
+   * Do not use this constructor directly. Use {@link ApiError.fromHttpError}
    * instead. This constructor is only meant for internal and testing use.
    * TODO: Make this constructor private.
    *
    * @private
    */
-  constructor(options: APIErrorOptions) {
+  constructor(options: ApiErrorOptions) {
     super(options.message, {cause: options.cause});
-    this.name = 'APIError';
+    this.name = 'ApiError';
     this.code = options.code;
     this.details = options.details;
     if (options.httpStatusCode !== undefined) {
@@ -81,8 +81,8 @@ export class APIError extends Error {
   }
 
   /**
-   * HTTPStatusCode returns the APIError's HTTP status code. If the APIError
-   * is not an HTTP error, it returns -1.
+   * Returns the ApiError's HTTP status code. If the ApiError is not an HTTP
+   * error, returns -1.
    */
   get httpStatusCode(): number {
     if (this.httpErr === undefined) {
@@ -92,8 +92,8 @@ export class APIError extends Error {
   }
 
   /**
-   * HTTPHeader returns the APIError's HTTP headers. If the APIError is not
-   * an HTTP error, it returns undefined.
+   * Returns the ApiError's HTTP headers. If the ApiError is not an HTTP
+   * error, returns undefined.
    */
   get httpHeader(): Headers | undefined {
     if (this.httpErr === undefined) {
@@ -103,8 +103,8 @@ export class APIError extends Error {
   }
 
   /**
-   * HTTPBody returns the APIError's HTTP body. If the APIError is not an HTTP
-   * error, it returns undefined.
+   * Returns the ApiError's HTTP body. If the ApiError is not an HTTP error,
+   * returns undefined.
    */
   get httpBody(): Uint8Array | undefined {
     if (this.httpErr === undefined) {
@@ -114,14 +114,14 @@ export class APIError extends Error {
   }
 
   /**
-   * Parses an HTTP error response into an APIError. Returns undefined if the
+   * Parses an HTTP error response into an ApiError. Returns undefined if the
    * status code is 2xx.
    */
   static fromHttpError(
     statusCode: number,
     header: Headers | undefined,
     body: Uint8Array | undefined
-  ): APIError | undefined {
+  ): ApiError | undefined {
     if (statusCode >= 200 && statusCode < 300) {
       return undefined;
     }
@@ -129,7 +129,7 @@ export class APIError extends Error {
     const emptyDetails: ErrorDetails = {unknownDetails: []};
 
     if (body === undefined || body.length === 0) {
-      return new APIError({
+      return new ApiError({
         code: toCode(statusCode),
         message: '',
         details: emptyDetails,
@@ -147,7 +147,7 @@ export class APIError extends Error {
       // The JSON error is simply swallowed, this typically happens when the
       // error does not come directly from a Databricks API. A typical example
       // is when the error is returned by a proxy.
-      return new APIError({
+      return new ApiError({
         code: toCode(statusCode),
         message: '',
         details: emptyDetails,
@@ -160,7 +160,7 @@ export class APIError extends Error {
 
     const result = errorResponseSchema.safeParse(parsed);
     if (!result.success) {
-      return new APIError({
+      return new ApiError({
         code: toCode(statusCode),
         message: '',
         details: emptyDetails,
@@ -195,7 +195,7 @@ export class APIError extends Error {
       errorMessage = errResp.scimType;
     }
 
-    return new APIError({
+    return new ApiError({
       code: errorCode,
       message: errorMessage,
       details: parseErrorDetails(errResp.details),

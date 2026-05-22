@@ -2,7 +2,7 @@
 
 import type {Call, Options} from '@databricks/sdk-core/api';
 import {execute} from '@databricks/sdk-core/api';
-import {APIError} from '@databricks/sdk-core/apierror';
+import {ApiError} from '@databricks/sdk-core/apierror';
 import type {
   HttpClient,
   HttpRequest,
@@ -85,7 +85,7 @@ export async function executeHttpCall(
     body: new TextDecoder().decode(body),
   });
 
-  const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
+  const apiErr = ApiError.fromHttpError(resp.statusCode, resp.headers, body);
   if (apiErr !== undefined) {
     throw apiErr;
   }

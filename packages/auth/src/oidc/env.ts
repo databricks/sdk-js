@@ -1,16 +1,16 @@
 import {env} from 'node:process';
 
-import type {IDTokenProvider} from './oidc';
+import type {IdTokenProvider} from './oidc';
 import {idTokenProviderFn} from './oidc';
 
 /**
- * Returns an IDTokenProvider that reads the IDtoken from environment variable
+ * Returns an IdTokenProvider that reads the ID token from environment variable
  * `name`.
  *
- * Note that the IDTokenProvider does not cache the token and will read the
+ * Note that the IdTokenProvider does not cache the token and will read the
  * token from environment variable `name` each time.
  */
-export function newEnvIDTokenProvider(name: string): IDTokenProvider {
+export function newEnvIdTokenProvider(name: string): IdTokenProvider {
   return idTokenProviderFn(() => {
     const t = env[name];
     if (t === undefined || t === '') {

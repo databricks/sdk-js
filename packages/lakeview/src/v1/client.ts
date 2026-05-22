@@ -39,6 +39,8 @@ import type {
   MigrateDashboardRequest,
   PublishDashboardRequest,
   PublishedDashboard,
+  RevertDashboardRequest,
+  RevertDashboardResponse,
   Schedule,
   Subscription,
   TrashDashboardRequest,
@@ -52,6 +54,7 @@ import {
   marshalDashboardSchema,
   marshalMigrateDashboardRequestSchema,
   marshalPublishDashboardRequestSchema,
+  marshalRevertDashboardRequestSchema,
   marshalScheduleSchema,
   marshalSubscriptionSchema,
   unmarshalDashboardSchema,
@@ -60,6 +63,7 @@ import {
   unmarshalListSchedulesResponseSchema,
   unmarshalListSubscriptionsResponseSchema,
   unmarshalPublishedDashboardSchema,
+  unmarshalRevertDashboardResponseSchema,
   unmarshalScheduleSchema,
   unmarshalSubscriptionSchema,
   unmarshalTrashDashboardResponseSchema,
@@ -580,6 +584,32 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Revert a dashboard's definition in draft mode to the last published version. */
+  async revertDashboard(
+    req: RevertDashboardRequest,
+    options?: CallOptions
+  ): Promise<RevertDashboardResponse> {
+    const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/revert`;
+    const body = marshalRequest(req, marshalRevertDashboardRequestSchema);
+    let resp: RevertDashboardResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalRevertDashboardResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
