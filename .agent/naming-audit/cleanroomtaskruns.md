@@ -1,6 +1,12 @@
 # Naming Audit: `cleanroomtaskruns` (v1)
 
-**Path:** `/home/parth.bansal/sdk-js/packages/cleanroomtaskruns/`
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
+
+**All findings retired on 2026-05-22.**
+
+**Path:** `/home/parth.bansal/sdk-js/packages/cleanrooms/` (merged into the
+`cleanrooms` package; cleanroomtaskruns symbols are now generated alongside
+the other clean-room types).
 **Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
 **Reference:** `databricks/databricks-sdk-go` `service/cleanrooms/{api,impl,model,interface}.go` and sibling TS packages (`cleanrooms`, `cleanroomassets`, `cleanroomautoapprovalrules`, `jobs/v2`).
 
@@ -19,19 +25,18 @@
      `UPSTREAM_EVICTED`, `DISABLED`.
 
 ### Interfaces / Types
-1. `CleanRoomNotebookTaskRun` (model.ts:44)
+1. `CleanRoomNotebookTaskRun` (model.ts:538)
    - Fields: `notebookName`, `startTime`, `runDuration`, `notebookJobRunState`,
      `collaboratorJobRunInfo`, `outputSchemaName`, `outputSchemaExpirationTime`,
-     `notebookEtag`, `notebookUpdatedAt`, `sharedOutputSchemaName`,
-     `sharedOutputSchemaExpirationTime`.
-2. `CleanRoomTaskRunState` (model.ts:78)
+     `notebookEtag`, `notebookUpdatedAt`.
+2. `CleanRoomTaskRunState` (model.ts:599)
    - Fields: `lifeCycleState`, `resultState`.
-3. `CollaboratorJobRunInfo` (model.ts:85)
+3. `CollaboratorJobRunInfo` (model.ts:606)
    - Fields: `collaboratorJobId`, `collaboratorJobRunId`, `collaboratorTaskRunId`,
      `collaboratorWorkspaceId`, `collaboratorAlias`.
-4. `ListCleanRoomNotebookTaskRunsRequest` (model.ts:98)
+4. `ListCleanRoomNotebookTaskRunsRequest` (model.ts:891)
    - Fields: `cleanRoomName`, `notebookName`, `pageSize`, `pageToken`.
-5. `ListCleanRoomNotebookTaskRunsResponse` (model.ts:109)
+5. `ListCleanRoomNotebookTaskRunsResponse` (model.ts:902)
    - Fields: `runs`, `nextPageToken`.
 
 ### Zod schemas
@@ -41,8 +46,8 @@
 - `unmarshalListCleanRoomNotebookTaskRunsResponseSchema`
 
 ### Client class
-- `Client` (client.ts:32)
-  - Methods: `listCleanRoomNotebookTaskRunsHandler`,
+- `Client` (client.ts:85)
+  - Task-runs methods: `listCleanRoomNotebookTaskRunsHandler`,
     `listCleanRoomNotebookTaskRunsHandlerIter`.
   - Private fields: `host`, `httpClient`, `logger`, `userAgent`.
   - Module constant: `PACKAGE_SEGMENT`.
@@ -58,16 +63,16 @@
 
 ### 1. `Handler` suffix on client methods — category 7 (Overly verbose) and category 14 (Go/Java-style names)
 
-**Symbol:** `Client.listCleanRoomNotebookTaskRunsHandler`, `Client.listCleanRoomNotebookTaskRunsHandlerIter` (client.ts:58, 97).
+**Symbol:** `Client.listCleanRoomNotebookTaskRunsHandler`, `Client.listCleanRoomNotebookTaskRunsHandlerIter` (client.ts:612, 651).
 
 **Issue:** The `Handler` suffix is anomalous within the SDK. Every other clean-room
-package method (`cleanrooms.listCleanRooms`, `cleanroomassets.listCleanRoomAssets`,
-`cleanroomautoapprovalrules.listCleanRoomAutoApprovalRules`) uses the bare verb form
-without `Handler`. The Go reference API (`CleanRoomTaskRunsAPI.List`,
-`ListByCleanRoomName`) does not use `Handler` either; "Handler" is an HTTP-server
-concept, not a client method idiom. The suffix adds eight characters that convey
-nothing — the method already takes a request and returns a response, which is the
-contract of a "handler" in API parlance.
+method on the same client (`listCleanRooms`, `listCleanRoomAssets`,
+`listCleanRoomAutoApprovalRules`) uses the bare verb form without `Handler`. The
+Go reference API (`CleanRoomTaskRunsAPI.List`, `ListByCleanRoomName`) does not
+use `Handler` either; "Handler" is an HTTP-server concept, not a client method
+idiom. The suffix adds eight characters that convey nothing — the method already
+takes a request and returns a response, which is the contract of a "handler" in
+API parlance.
 
 **Suggested:** `listCleanRoomNotebookTaskRuns` and `listCleanRoomNotebookTaskRunsIter`.
 
@@ -79,7 +84,7 @@ camelCase `listX` style without Java/Go-style `Handler` decoration).
 ### 2. `LifeCycleState` vs `lifecycle` casing — category 3 (Acronym/compound-word casing)
 
 **Symbols:** Enum `CleanRoomTaskRunLifeCycleState` and field
-`CleanRoomTaskRunState.lifeCycleState` (model.ts:9, 80).
+`CleanRoomTaskRunState.lifeCycleState` (model.ts:9, 601).
 
 **Issue:** "Lifecycle" is a single compound word in English (Merriam-Webster lists
 it as one closed word). Treating it as two words (`LifeCycle` / `lifeCycle`)
@@ -103,8 +108,8 @@ forming a real word. Adjacent values use correct past-tense English
 
 ### 4. `etag` lowercase abbreviation — category 3 (Acronym casing)
 
-**Symbol:** `CleanRoomNotebookTaskRun.notebookEtag` (model.ts:65) and wire field
-`notebook_etag` (line 133).
+**Symbol:** `CleanRoomNotebookTaskRun.notebookEtag` (model.ts:559) and wire field
+`notebook_etag` (line 1306).
 
 **Issue:** "ETag" is an HTTP standard token defined in RFC 7232 §2.3 ("entity tag")
 and is written `ETag` in HTTP headers and most APIs. The TS Style Guide acronym
@@ -117,10 +122,10 @@ consistent within the codebase but worth re-examining at the SDK level.
 
 ### 5. `notebookEtag` belongs to the notebook, not the task run — category 16 (Field contradicting type domain)
 
-**Symbol:** `CleanRoomNotebookTaskRun.notebookEtag` (model.ts:65).
+**Symbol:** `CleanRoomNotebookTaskRun.notebookEtag` (model.ts:559).
 
 **Issue:** Field doc says "Etag of the notebook executed in this task run". The
-field name is fine, but contrast with `notebookUpdatedAt` (line 67) — the
+field name is fine, but contrast with `notebookUpdatedAt` (line 561) — the
 combination `notebookEtag` + `notebookUpdatedAt` implies the entire task-run
 struct is mixing notebook metadata with run metadata. Consider whether these
 should live under a nested `notebook` sub-object (`notebook.etag`,
@@ -128,7 +133,7 @@ should live under a nested `notebook` sub-object (`notebook.etag`,
 
 ### 6. `notebookJobRunState` is unclear naming — category 1 (Vague/generic) and 12 (Duplicate concepts)
 
-**Symbol:** `CleanRoomNotebookTaskRun.notebookJobRunState` (model.ts:52).
+**Symbol:** `CleanRoomNotebookTaskRun.notebookJobRunState` (model.ts:546).
 
 **Issue:** The doc says "State of the task run". The struct is already a *task
 run*, and the same idea is also called a *Job run* by the collaborator field
@@ -148,7 +153,7 @@ inherited).
 
 ### 7. `runDuration` vs implicit "task run" — category 15 (Generic field names losing meaning)
 
-**Symbol:** `CleanRoomNotebookTaskRun.runDuration` (model.ts:50).
+**Symbol:** `CleanRoomNotebookTaskRun.runDuration` (model.ts:544).
 
 **Issue:** The owning struct is already a "Run". Sibling fields drop the "run"
 prefix (`startTime`, not `runStartTime`; `notebookEtag`, not `runNotebookEtag`),
@@ -158,33 +163,22 @@ yet duration carries it. Inconsistent.
 milliseconds"). Or rename `startTime` → `runStartTime` for consistency — pick one
 side.
 
-### 8. `outputSchemaExpirationTime` / `sharedOutputSchemaExpirationTime` — verbose — category 7 (Overly verbose)
+### 8. `outputSchemaExpirationTime` — verbose — category 7 (Overly verbose)
 
-**Symbols:** model.ts:63, model.ts:73.
+**Symbol:** `CleanRoomNotebookTaskRun.outputSchemaExpirationTime` (model.ts:557).
 
 **Issue:** `…Time` suffix is redundant; the value is a number (epoch ms).
 Compare to `startTime` which legitimately is "time", and `notebookUpdatedAt`
-(line 67) which already uses the more idiomatic `At` suffix for an epoch
+(line 561) which already uses the more idiomatic `At` suffix for an epoch
 millisecond timestamp. Within the *same struct*, three different conventions
 coexist: `…Time`, `…At`, and `runDuration` (numeric duration). Pick one.
 
-**Suggested:** `outputSchemaExpiresAt`, `sharedOutputSchemaExpiresAt`, and
-`startedAt` — or normalise all three to `…Time`. The `Run` pattern in other
-Databricks APIs leans toward `…At`.
+**Suggested:** `outputSchemaExpiresAt` and `startedAt` — or normalise all three
+to `…Time`. The `Run` pattern in other Databricks APIs leans toward `…At`.
 
-### 9. `sharedOutputSchemaName` doc references missing `enable_shared_output` flag — category 6 (Misleading names)
+### 9. `CollaboratorJobRunInfo` repeats "collaborator" in every field — category 8 (Redundant suffixes) and category 2 (Redundant prefixes)
 
-**Symbol:** `CleanRoomNotebookTaskRun.sharedOutputSchemaName` (model.ts:72).
-
-**Issue:** Doc says "accessible by all collaborators when enable_shared_output is
-true". No such field exists in the request/response, and no `enableSharedOutput`
-on the run struct. Either the doc references state stored elsewhere (probably on
-the clean-room asset config), or the field is missing. Not a naming bug, but
-flag for a doc rewording.
-
-### 10. `CollaboratorJobRunInfo` repeats "collaborator" in every field — category 8 (Redundant suffixes) and category 2 (Redundant prefixes)
-
-**Symbol:** `CollaboratorJobRunInfo` (model.ts:85). Fields: `collaboratorJobId`,
+**Symbol:** `CollaboratorJobRunInfo` (model.ts:606). Fields: `collaboratorJobId`,
 `collaboratorJobRunId`, `collaboratorTaskRunId`, `collaboratorWorkspaceId`,
 `collaboratorAlias`.
 
@@ -198,12 +192,12 @@ where the prefix is meaningful at the *top* level (`run.collaboratorJobRunInfo.c
 TS access lands one level deeper than the natural reading; the prefix is
 duplicate. Match the JS idiom: drop the prefix on the nested fields.
 
-### 11. Type name `CollaboratorJobRunInfo` mixes "Job Run" and the rest of the package speaks "Task Run" — category 12 (Duplicate concepts) and category 9 (Singular/plural mismatch on the broader concept)
+### 10. Type name `CollaboratorJobRunInfo` mixes "Job Run" and the rest of the package speaks "Task Run" — category 12 (Duplicate concepts) and category 9 (Singular/plural mismatch on the broader concept)
 
-**Symbol:** `CollaboratorJobRunInfo` (model.ts:85).
+**Symbol:** `CollaboratorJobRunInfo` (model.ts:606).
 
 **Issue:** Field `collaboratorTaskRunId` lives inside `CollaboratorJobRunInfo`
-(model.ts:91). One struct uses both vocabulary domains. From Databricks docs:
+(model.ts:612). One struct uses both vocabulary domains. From Databricks docs:
 a *Task run* is a single task within a *Job run* (a job can have N tasks). The
 field doc strings here use "task run" almost exclusively — `Job ID of the task
 run`, `Task run ID of the task run`, `triggered the task run`. The "Job Run" in
@@ -211,9 +205,9 @@ the struct *name* is therefore misleading; a more accurate name is
 `CollaboratorTaskRunRef` or `CollaboratorRunRef`. Flag for coordination with API
 team — the Go SDK has the same name. Cross-reference `jobs/v2` to align.
 
-### 12. `CleanRoomTaskRunState` and the field `notebookJobRunState` of type `CleanRoomTaskRunState` — category 6 (Misleading names)
+### 11. `CleanRoomTaskRunState` and the field `notebookJobRunState` of type `CleanRoomTaskRunState` — category 6 (Misleading names)
 
-**Symbols:** model.ts:78, model.ts:52.
+**Symbols:** model.ts:599, model.ts:546.
 
 **Issue:** Three name layers for the same idea. The doc on
 `CleanRoomTaskRunState` says "Stores the run state of the clean rooms notebook
@@ -224,9 +218,9 @@ calls the same thing `NotebookTaskRunOutput.runState`. Suggest aligning on
 keep the type name as-is (the wider SDK uses `…State` types throughout, e.g.
 `RunState`, `JobState`).
 
-### 13. `pageSize` doc contradicts behaviour — category 6 (Misleading names)
+### 12. `pageSize` doc contradicts behaviour — category 6 (Misleading names)
 
-**Symbol:** `ListCleanRoomNotebookTaskRunsRequest.pageSize` (model.ts:104).
+**Symbol:** `ListCleanRoomNotebookTaskRunsRequest.pageSize` (model.ts:897).
 
 **Issue:** Doc reads: "The maximum number of task runs to return. Currently
 ignored - all runs will be returned." If the field is currently ignored, the
@@ -236,9 +230,9 @@ in JSDoc with a `@deprecated` tag so IDEs show strike-through. Naming-wise:
 `pageSize` is fine *if* it works; document the no-op via the deprecation tag,
 not just a sentence inside the doc.
 
-### 14. `runs` field in response — category 15 (Generic field names losing meaning) — borderline acceptable
+### 13. `runs` field in response — category 15 (Generic field names losing meaning) — borderline acceptable
 
-**Symbol:** `ListCleanRoomNotebookTaskRunsResponse.runs` (model.ts:111).
+**Symbol:** `ListCleanRoomNotebookTaskRunsResponse.runs` (model.ts:904).
 
 **Issue:** Generic given the package context, but defensible: this is the
 canonical "list" shape (`{ items, nextPageToken }`). The doc string on it ("Name
@@ -246,30 +240,30 @@ of the clean room.") is *wrong* — copy-paste error from the request struct's
 `cleanRoomName` doc. Doc-text bug, not a naming bug, but worth flagging during a
 naming pass since reviewers will notice the field while reading docs.
 
-### 15. `nextPageToken` is the canonical name — pass.
+### 14. `nextPageToken` is the canonical name — pass.
 
 No issue. Matches all other listing responses in the SDK.
 
-### 16. `Client` class name — category 1 (Vague/generic) — *pass*
+### 15. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped to its
-import path (e.g. `@databricks/sdk-cleanroomtaskruns/v1`).
+import path (e.g. `@databricks/sdk-cleanrooms/v1`).
 
-### 17. `userAgent` and `httpClient` — *pass*
+### 16. `userAgent` and `httpClient` — *pass*
 
 Standard names; acronym handling is consistent (`Url` would be flagged but
 `HttpClient` is acceptable under the project rule and matches the imported type).
 
-### 18. `flattenQueryParams` — *pass*, but unused (dead code)
+### 17. `flattenQueryParams` — *pass*, but unused (dead code)
 
 **Symbol:** `flattenQueryParams` (utils.ts:123).
 
 **Issue:** Imported nowhere within this package's client (the `list` method builds
-its querystring inline at client.ts:64–72). The helper is dead code in this
+its querystring inline at client.ts:617–626). The helper is dead code in this
 package. Naming itself is fine. Suggest deleting or extracting to a shared utility
 in `@databricks/sdk-core/http`.
 
-### 19. `readAll(body)` — *pass*
+### 18. `readAll(body)` — *pass*
 
 Helper does what its name says.
 
@@ -280,7 +274,7 @@ Helper does what its name says.
 ### `TaskRun` field-name divergence between `cleanroomtaskruns` and `jobs/v2`
 
 The state field that holds a `CleanRoomTaskRunState` is named `notebookJobRunState`
-in this package (model.ts:52) and `cleanRoomJobRunState` in `jobs/v2`
+in this package (model.ts:546) and `cleanRoomJobRunState` in `jobs/v2`
 (jobs/v2/model.ts:1158). Two names for one wire-level concept across the two
 packages that talk about the same run object. Audit category 12 (duplicate
 concepts) — coordinate a single field name across both packages.
@@ -301,12 +295,23 @@ service name — but a reader is left to guess.
 ## Summary (counts)
 
 - **Critical / cross-package consistency:** 1 finding (#1 `Handler` suffix).
-- **High (style guide violations):** 2 findings (#2 LifeCycle casing, #10
+- **High (style guide violations):** 2 findings (#2 LifeCycle casing, #9
   collaborator prefix repetition).
-- **Medium (naming clarity):** 7 findings (#3, #6, #7, #8, #11, #12, #13).
-- **Low / project-wide convention notes:** 5 findings (#4, #5, #9, #14, #18) —
+- **Medium (naming clarity):** 7 findings (#3, #6, #7, #8, #10, #11, #12).
+- **Low / project-wide convention notes:** 4 findings (#4, #5, #13, #17) —
   some inherited from generator.
-- **Pass / acceptable as-is:** 4 findings (#15, #16, #17, #19).
+- **Pass / acceptable as-is:** 4 findings (#14, #15, #16, #18).
 
-**Total flagged findings: 15** distinct items across audit categories (some
+**Total flagged findings: 14** distinct items across audit categories (some
 findings touch multiple categories).
+
+---
+
+## Fixed
+
+- #8 (partial) `sharedOutputSchemaExpirationTime` (originally cited at model.ts:73): Fixed in regeneration on 2026-05-20 — field removed from `CleanRoomNotebookTaskRun`; remaining `outputSchemaExpirationTime` retained as renumbered finding #8.
+- #9 `sharedOutputSchemaName` doc references missing `enable_shared_output` flag (originally cited at model.ts:72): Fixed in regeneration on 2026-05-20 — `sharedOutputSchemaName` field removed from `CleanRoomNotebookTaskRun`, so the misleading doc is gone.
+
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
+
+Fixed in regeneration on 2026-05-22.

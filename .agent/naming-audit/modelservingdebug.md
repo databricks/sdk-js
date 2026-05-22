@@ -1,165 +1,57 @@
 # Naming Audit: modelservingdebug
 
-**Path:** `packages/modelservingdebug/src/v1/`
-**Package name:** `@databricks/sdk-modelservingdebug`
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
+
+**All findings retired on 2026-05-22.**
+
+**Path:** `packages/modelservingdebug/` (merged into `packages/modelserving/src/v1/` on 2026-05-20)
+**Package name:** `@databricks/sdk-modelservingdebug` (folded into `@databricks/sdk-modelserving`)
 **Versions audited:** v1
 **Inferred domain:** Diagnostic / troubleshooting endpoints carved out of the Model Serving API. Three HTTP GETs hanging off `/api/2.0/serving-endpoints/{name}`: `GET /metrics` returns a Prometheus/OpenMetrics text blob (streamed body), `GET /served-models/{servedModelName}/logs` returns the most recent server stdout lines, and `GET /served-models/{servedModelName}/build-logs` returns the served-entity environment build logs.
-**Total weird names flagged:** 21
+**Total weird names flagged:** 17
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 7 |
-| Medium | 7 |
+| High | 5 |
+| Medium | 6 |
 | Low | 6 |
-| Observation | 1 |
+| Observation | 0 |
 
 ## Inventory
 
 ### Package identity
-| Item            | Value                                            |
-| --------------- | ------------------------------------------------ |
-| Package name    | `@databricks/sdk-modelservingdebug`              |
-| Directory       | `packages/modelservingdebug/`                    |
-| Subpath export  | `./v1`                                           |
-| REST base       | `/api/2.0/serving-endpoints/...`                 |
-| Sibling pkgs    | `modelservingmanagement`, `modelservingquery`    |
+The standalone `modelservingdebug` package no longer exists. As of the 2026-05-20 regeneration its symbols live in `packages/modelserving/src/v1/`. The findings below cite the merged location; the audit file is retained as the historical record for these specific RPCs.
 
-### Interfaces (`model.ts`)
-- `ExportMetricsResponse` (line 15)
-- `GetExportEndpointMetrics` (line 19)
-- `GetServedModelBuildLogs` (line 24)
-- `GetServedModelBuildLogs_Response` (line 32)
-- `GetServedModelLogs` (line 37)
-- `GetServedModelLogs_Response` (line 45)
+### Interfaces (`packages/modelserving/src/v1/model.ts`)
+- `ExportMetricsResponse` (line 434)
+- `GetExportEndpointMetricsRequest` (line 540)
+- `GetServedModelBuildLogsRequest` (line 560)
+- `GetServedModelBuildLogsRequest_Response` (line 568)
+- `GetServedModelLogsRequest` (line 573)
+- `GetServedModelLogsRequest_Response` (line 581)
 
-### Schemas (`model.ts`)
-- `unmarshalGetServedModelBuildLogs_ResponseSchema` (line 51)
-- `unmarshalGetServedModelLogs_ResponseSchema` (line 61)
+### Schemas (`packages/modelserving/src/v1/model.ts`)
+- `unmarshalGetServedModelBuildLogsRequest_ResponseSchema` (line 1455)
+- `unmarshalGetServedModelLogsRequest_ResponseSchema` (line 1465)
 
-### Enums (`model.ts`)
+### Enums (`packages/modelserving/src/v1/model.ts`)
 None.
 
-### Client class & methods (`client.ts`)
-- `Client` (line 39)
-  - `getExportEndpointMetrics(req: GetExportEndpointMetrics, options?): Promise<ExportMetricsResponse>` (line 65)
-  - `getServedModelBuildLogs(req: GetServedModelBuildLogs, options?): Promise<GetServedModelBuildLogs_Response>` (line 92)
-  - `getServedModelLogs(req: GetServedModelLogs, options?): Promise<GetServedModelLogs_Response>` (line 120)
-- `PACKAGE_SEGMENT` const (line 34)
-- Private state: `host`, `httpClient`, `logger`, `userAgent`.
-
-### Utility surface (`utils.ts`)
-- `HttpCallOptions` interface
-- `executeCall`, `readAll` (private), `executeHttpCall`, `buildHttpRequest`,
-  `parseResponse`, `marshalRequest`, `flattenQueryParams`, `sendAndCheckError`.
-
-### Re-exports (`index.ts`)
-- `Client`
-- `ExportMetricsResponse`, `GetExportEndpointMetrics`,
-  `GetServedModelBuildLogs`, `GetServedModelBuildLogs_Response`,
-  `GetServedModelLogs`, `GetServedModelLogs_Response`.
-
----
-
-## F0 — Package-level: `debug` is the wrong qualifier for these three operations
-
-This is the single highest-leverage finding and informs every renaming
-suggestion below.
-
-### F0.1 — Package name `modelservingdebug` is misleading (HIGH)
-- **Where:** `package.json:2` (`@databricks/sdk-modelservingdebug`),
-  directory `packages/modelservingdebug/`, and the `.package.json`
-  declarator at line 2.
-- **Why weird:** The word "debug" in software engineering almost
-  universally means *interactive* debugging: breakpoints, attach-to-process,
-  reading variables in a paused state (cf. Node's `--inspect`, Chrome
-  DevTools, gdb). Nothing in this package does that. All three methods
-  are read-only retrieval of *observability* artefacts:
-  - `GET /metrics` — Prometheus/OpenMetrics text feed.
-  - `GET /logs` — service stdout/stderr lines from the model server.
-  - `GET /build-logs` — container/environment build output.
-  The CNCF Observability Whitepaper
-  (https://github.com/cncf/tag-observability/blob/main/whitepaper.md)
-  defines the three pillars as metrics, logs, and traces; this package
-  delivers two of them. The natural label is "observability" or
-  "telemetry", not "debug".
-- **Category:** 6 (misleading), 1 (vague).
-- **Suggested name:** `modelservingtelemetry`, `modelservingobservability`,
-  or — best — fold these three methods back into `modelservingmanagement`
-  as `getEndpointMetrics`, `getServedModelLogs`, `getServedModelBuildLogs`.
-  The split into a separate package buys nothing because the same
-  `name` (serving endpoint) keys both packages and a real consumer
-  always wants both surfaces.
-- **Rationale:** Package names are the single hardest naming choice to
-  reverse — they appear in every consumer's `package.json`, `import` and
-  lockfile. Today an autocomplete on `import {Client} from
-  '@databricks/sdk-modelservingdebug'` suggests an interactive debugger
-  which is not what this package offers.
-
-### F0.2 — Three-way split `modelserving{debug,management,query}` has no consistent rationale (MEDIUM, cross-package)
-- **Where:** `packages/modelservingdebug/`,
-  `packages/modelservingmanagement/`,
-  `packages/modelservingquery/`.
-- **Why weird:** The split mixes axes:
-  - `modelservingmanagement` = control plane (create/update/delete
-    endpoints, configure AI gateway).
-  - `modelservingquery` = data plane invoke (chat/embeddings/completion).
-  - `modelservingdebug` = *also* control-plane reads (metrics & logs)
-    on the same `/api/2.0/serving-endpoints/{name}/...` URL tree.
-  All three live under the same REST prefix. `modelservingdebug.Client`
-  even reuses `req.name` to identify the endpoint — exactly the same key
-  `modelservingmanagement.Client.getInferenceEndpoint` uses. The boundary
-  between "management" and "debug" is API-team housekeeping, not user-facing.
-- **Category:** 12 (duplicate concepts across packages).
-- **Suggested name:** Merge `modelservingdebug` into `modelservingmanagement`.
-  Keep `modelservingquery` separate because it is data-plane (different
-  auth, different rate-limit semantics, often a separate host).
-- **Rationale:** Users always want the metrics and logs alongside the
-  endpoint they manage. Forcing a second `import` and a second `Client`
-  constructor just to read `/metrics` is friction for zero benefit.
-
-### F0.3 — Directory and `.package.json` declarator drift from npm name (LOW)
-- **Where:** `.package.json:2` says `"package": "modelservingdebug"`
-  but `package.json:2` says `"name": "@databricks/sdk-modelservingdebug"`.
-- **Why weird:** Two sources of truth for the package identity. The
-  internal declarator uses one form, the npm manifest uses another.
-  The `PACKAGE_SEGMENT` regex strip in `client.ts:34-37` exists solely
-  to bridge the two.
-- **Category:** 17 (inconsistent action verbs / forms).
-- **Suggested name:** Pick one form. Recommend dropping `.package.json`
-  if it is generator-only metadata that the build does not need.
-- **Rationale:** Two-name systems eventually drift; the regex strip is
-  evidence of that drift already.
-
----
+### Client methods (`packages/modelserving/src/v1/client.ts`)
+- `getExportEndpointMetrics(req: GetExportEndpointMetricsRequest, options?): Promise<ExportMetricsResponse>` (line 216)
+- `getServedModelBuildLogs(req: GetServedModelBuildLogsRequest, options?): Promise<GetServedModelBuildLogsRequest_Response>` (line 295)
+- `getServedModelLogs(req: GetServedModelLogsRequest, options?): Promise<GetServedModelLogsRequest_Response>` (line 323)
 
 ## High severity
 
-### 1. `Client` class name is unqualified — `client.ts:39`, `index.ts:3`
-- **Why weird:** Every package in this SDK exports `Client`. A consumer
-  who uses `modelservingdebug` *and* `modelservingmanagement` *and*
-  `modelservingquery` ends up writing
-  `import {Client as DebugClient} from '@databricks/sdk-modelservingdebug';
-   import {Client as MgmtClient} from '@databricks/sdk-modelservingmanagement';
-   import {Client as QueryClient} from '@databricks/sdk-modelservingquery';`
-  every time. Three-way collision is the *expected* case here, not an
-  edge case.
-- **Category:** 1 (vague/generic), 12 (duplicate across packages).
-- **Suggested name:** `ModelServingDebugClient` (or
-  `ModelServingObservabilityClient` if F0.1 is adopted). Or, better,
-  collapse to a single `ModelServingClient` per F0.2.
-- **Rationale:** Pkg-prefixed client class names are the established
-  pattern across the Databricks Java SDK (`ServingEndpointsAPI`),
-  Go SDK (`ServingEndpointsAPI`), and Python SDK (`ServingEndpointsAPI`).
-  TS is the odd one out for stopping at `Client`.
-
-### 2. `GetExportEndpointMetrics` reads as "get export of endpoint metrics" — `model.ts:19`, `client.ts:65`
+### 1. `GetExportEndpointMetricsRequest` reads as "get export of endpoint metrics" — `model.ts:540`, `client.ts:216`
 - **Why weird:** The grammar is broken. The expected reading is
   *"export endpoint metrics" → returns metrics in export format*, but
-  the word order `Get + Export + Endpoint + Metrics` parses as four
-  random nouns. The corresponding method name on the client repeats
+  the word order `Get + Export + Endpoint + Metrics + Request` parses as
+  five random nouns. The corresponding method name on the client repeats
   the same garbled phrase (`getExportEndpointMetrics`). The doc string
-  on `client.ts:64` confirms the intent: "Retrieves the metrics
+  on `client.ts:215` confirms the intent: "Retrieves the metrics
   associated with the provided serving endpoint in either Prometheus
   or OpenMetrics exposition format". The natural English noun phrase
   is "export endpoint metrics" → action "export the endpoint's metrics"
@@ -173,12 +65,12 @@ suggestion below.
   - Or: `getEndpointMetrics(req: GetEndpointMetricsRequest)` returning
     `EndpointMetrics`. The "export" framing is a wire-protocol detail
     (Prometheus format) that does not belong in the method name.
-- **Rationale:** Compare with sibling endpoints in
-  `modelservingmanagement`: `getInferenceEndpoint`, `getOpenApi`,
+- **Rationale:** Compare with sibling endpoints in the same merged
+  package: `getInferenceEndpoint`, `getInferenceEndpointSchema`,
   `patchInferenceEndpointTags`. None of them prefix the noun with the
   output format.
 
-### 3. `ExportMetricsResponse` wraps a generic `HttpOverRpcResponse` envelope — `model.ts:5-15`
+### 2. `ExportMetricsResponse` wraps a generic `HttpOverRpcResponse` envelope — `model.ts:425-436`
 - **Why weird:** This type advertises itself as a "metrics" response,
   but its only field is `contents: ReadableStream` — the generic
   HTTP-over-RPC envelope shape. A reader expecting structured metrics
@@ -192,19 +84,19 @@ suggestion below.
 - **Rationale:** Public SDK types should describe the user's mental
   model ("here are the metrics"), not double as a generic envelope.
 
-### 4. `name` field on every request — `model.ts:21,26,39`
+### 3. `name` field on every request — `model.ts:542,562,575`
 - **Why weird:** All three request types have `name?: string` and the
   JSDoc has to spell out "The name of the serving endpoint" each time.
   Bare `name` is the most generic identifier possible — readers without
   the JSDoc cannot tell which entity is being named. The TS type signature
   is the documentation; relying on JSDoc to disambiguate `name` is a
-  smell. Worse, `GetServedModelBuildLogs` *and* `GetServedModelLogs`
-  also carry `servedModelName` — two `*Name` fields in the same struct
-  with one being a generic `name`.
+  smell. Worse, `GetServedModelBuildLogsRequest` *and*
+  `GetServedModelLogsRequest` also carry `servedModelName` — two
+  `*Name` fields in the same struct with one being a generic `name`.
 - **Category:** 1 (vague), 15 (generic field name losing meaning), 19
   (underspecified id).
 - **Suggested name:** `endpointName`. Wire stays `name` (the server
-  expects it). The method URL templates (`client.ts:69,96,124`) read
+  expects it). The method URL templates (`client.ts:220,299,327`) read
   `/api/2.0/serving-endpoints/${req.name ?? ''}` which already proves
   `name` is the *endpoint name*.
 - **Rationale:** Renaming to `endpointName` puts the intent in the
@@ -212,7 +104,7 @@ suggestion below.
   makes the pairing with `servedModelName` parallel (`endpointName` +
   `servedModelName`).
 
-### 5. `name ?? ''` empty-string fallback when the field is "required" — `client.ts:69,96,124`
+### 4. `name ?? ''` empty-string fallback when the field is "required" — `client.ts:220,299,327`
 - **Why weird:** The JSDoc on each request says "This field is
   required" yet the type marks `name?: string | undefined` *optional*
   and the URL is built with `${req.name ?? ''}` — meaning if the caller
@@ -231,8 +123,27 @@ suggestion below.
   (https://google.aip.dev/122) which mandates path parameters be
   required.
 
-### 6. `servedModelName` doc echoes the field name three times — `model.ts:27-28,40-41`
-- **Why weird:** JSDoc on `GetServedModelBuildLogs.servedModelName`
+### 5. `GetServedModelLogsRequest_Response.logs: string` is a single blob — `model.ts:583`
+- **Why weird:** The field is named `logs` (plural) but typed as a
+  single `string`. JSDoc says "The most recent log lines of the model
+  server processing invocation requests." So it's many log *lines*
+  concatenated into one string. The plural/singular conflict with the
+  type (`string`, not `string[]`) is a category-9 finding. A user
+  doing `for (const line of response.logs)` will iterate characters,
+  not lines — silent footgun.
+- **Category:** 9 (singular/plural mismatch).
+- **Suggested name:** Either `logsText: string` (singular field with
+  type-disambiguating suffix) or `logs: string[]` (split the lines
+  server-side). The current shape forces every consumer to write
+  `response.logs.split('\n')`.
+- **Rationale:** Same issue applies to `GetServedModelBuildLogsRequest_Response.logs`
+  (model.ts:570). When the server can't decide, the SDK should pick a
+  side and stick with it.
+
+## Medium severity
+
+### 6. `servedModelName` doc echoes the field name three times — `model.ts:563-564,576-577`
+- **Why weird:** JSDoc on `GetServedModelBuildLogsRequest.servedModelName`
   reads "The name of the served model that build logs will be
   retrieved for. This field is required." The field name already
   contains "servedModel" + "Name" + the type signature already
@@ -249,39 +160,20 @@ suggestion below.
   identifier + JSDoc; the doc carrying no information beyond what
   the name says is a footgun for consumers.
 
-### 7. `GetServedModelLogs_Response.logs: string` is a single blob — `model.ts:47`
-- **Why weird:** The field is named `logs` (plural) but typed as a
-  single `string`. JSDoc says "The most recent log lines of the model
-  server processing invocation requests." So it's many log *lines*
-  concatenated into one string. The plural/singular conflict with the
-  type (`string`, not `string[]`) is a category-9 finding. A user
-  doing `for (const line of response.logs)` will iterate characters,
-  not lines — silent footgun.
-- **Category:** 9 (singular/plural mismatch).
-- **Suggested name:** Either `logsText: string` (singular field with
-  type-disambiguating suffix) or `logs: string[]` (split the lines
-  server-side). The current shape forces every consumer to write
-  `response.logs.split('\n')`.
-- **Rationale:** Same issue applies to `GetServedModelBuildLogs_Response.logs`
-  (model.ts:34). When the server can't decide, the SDK should pick a
-  side and stick with it.
-
-## Medium severity
-
-### 8. `GetServedModelBuildLogs.name` clashes with `GetServedModelBuildLogs.servedModelName` — `model.ts:26,28`
+### 7. `GetServedModelBuildLogsRequest.name` clashes with `GetServedModelBuildLogsRequest.servedModelName` — `model.ts:562,564`
 - **Why weird:** Two name fields on one struct: `name` (endpoint name)
   and `servedModelName` (served model name). The bare `name` looks like
   *the* name of the request entity (which a reader would assume is the
-  served model, since the type is `GetServedModelBuildLogs`). Wrong:
-  it's the *parent* endpoint. The pairing breaks the principle of
-  least surprise.
+  served model, since the type is `GetServedModelBuildLogsRequest`).
+  Wrong: it's the *parent* endpoint. The pairing breaks the principle
+  of least surprise.
 - **Category:** 6 (misleading), 1 (vague — `name` is too generic when a
   more specific `servedModelName` exists alongside).
 - **Suggested name:** `endpointName` + `servedModelName` together.
 - **Rationale:** When two `*Name` fields exist on one struct, neither
   should be bare `name`.
 
-### 9. `ExportMetricsResponse.contents` vs convention `body` — `model.ts:16`
+### 8. `ExportMetricsResponse.contents` vs convention `body` — `model.ts:435`
 - **Why weird:** The only field is `contents?: ReadableStream | undefined`.
   Web Fetch standard
   (https://fetch.spec.whatwg.org/#bodyinit-unions) and the SDK's own
@@ -295,7 +187,7 @@ suggestion below.
 - **Rationale:** The Fetch API names are the lingua franca of TS HTTP
   in 2025; deviating from `body` increases cognitive load.
 
-### 10. `getExportEndpointMetrics` returns `ExportMetricsResponse` (no `Endpoint`) — `client.ts:65-68`
+### 9. `getExportEndpointMetrics` returns `ExportMetricsResponse` (no `Endpoint`) — `client.ts:216-219`
 - **Why weird:** The method name says `EndpointMetrics`, the response
   type says `ExportMetricsResponse` (no `Endpoint`). Inconsistent
   qualifier between method and return type. A reader greping for
@@ -305,12 +197,12 @@ suggestion below.
   for anything).
 - **Suggested name:** Either rename response to `ExportEndpointMetricsResponse`
   (matches method) or rename method to `exportMetrics` (matches type).
-  Best: kill the `Export` framing (see #2) and pair `getEndpointMetrics()`
+  Best: kill the `Export` framing (see #1) and pair `getEndpointMetrics()`
   → `EndpointMetrics`.
 - **Rationale:** Symmetry between method and return type aids
   IDE autocomplete and grep-ability.
 
-### 11. `Get*` prefix on three of three methods — `client.ts:65,92,120`
+### 10. `Get*` prefix on three of three methods — `client.ts:216,295,323`
 - **Why weird:** Every method here is a GET. The `Get*` verb prefix on
   TS methods is a Go/Java/.NET pattern; in TS, a noun method `endpointMetrics()`
   or `metrics()` is more idiomatic for read operations
@@ -327,7 +219,7 @@ suggestion below.
   (https://google.github.io/styleguide/tsguide.html#methods) prefers
   imperative verbs, but does not mandate `get*` for retrievals.
 
-### 12. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `client.ts:92,120`
+### 11. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `client.ts:295,323`
 - **Why weird:** Two methods, both retrieve logs, distinguished only
   by what *kind* of logs (runtime "service" logs vs container "build"
   logs). The build/service axis is a sub-attribute of "logs", not a
@@ -344,18 +236,9 @@ suggestion below.
   and `getServedModelBuildLogs` is the special case; the API doesn't
   advertise the asymmetry.
 
-### 13. `GetServedModelLogs.servedModelName` doc says "The name of the served model that logs will be retrieved for" — passive voice — `model.ts:41`
-- **Why weird:** Passive voice "that logs will be retrieved for"
-  reads like a phrase translated from a proto comment. Active voice
-  is shorter: "The served model whose logs to retrieve." Pure JSDoc
-  hygiene, but the same passive form appears on the build-logs request
-  (line 27) so it's a systemic pattern.
-- **Category:** Observation — not a name bug per se, but a generator
-  artefact worth flagging.
-- **Suggested name:** No rename; rewrite JSDoc in active voice.
-- **Rationale:** API surface clarity. Not blocking.
+## Low severity
 
-### 14. `PACKAGE_SEGMENT` const is unsized — `client.ts:34-37`
+### 12. `PACKAGE_SEGMENT` const is unsized — `client.ts:75-78`
 - **Why weird:** SCREAMING_SNAKE_CASE in TS is a Go/Python carryover.
   Google TS Style Guide
   (https://google.github.io/styleguide/tsguide.html#identifiers)
@@ -369,9 +252,7 @@ suggestion below.
   `PACKAGE_SEGMENT` const, so this is a cross-package finding —
   fix at the generator.
 
-## Low severity
-
-### 15. `Call` type aliased to `Promise<void>` in `utils.ts` import — `utils.ts:3`
+### 13. `Call` type aliased to `Promise<void>` in `utils.ts` import — `utils.ts:3`
 - **Why weird:** `Call` is one of the most generic names imaginable.
   Imported as `import type {Call, Options} from '@databricks/sdk-core/api'`
   with no qualifier. Inside the client `const call: Call = async ...`
@@ -385,8 +266,8 @@ suggestion below.
   that survives review only because nobody wants to argue with the
   framework.
 
-### 16. `Options` type aliased to internal options shape — `utils.ts:3,30`
-- **Why weird:** Same as #15 but for `Options`. `Options` is generic
+### 14. `Options` type aliased to internal options shape — `utils.ts:3,30`
+- **Why weird:** Same as #13 but for `Options`. `Options` is generic
   to the point of meaninglessness. The translation step in
   `executeCall` exists *because* the public `CallOptions` and the
   internal `Options` are two different "options" types that happen
@@ -398,7 +279,7 @@ suggestion below.
 - **Rationale:** Two adjacent "Options" types in 35 lines of code is
   the classic accidental-collision pattern.
 
-### 17. `userAgent` is built once in the constructor and never refreshed — `client.ts:46,60`
+### 15. `userAgent` is built once in the constructor and never refreshed — `client.ts:89,103`
 - **Why weird:** Not a name bug per se, but the field name `userAgent`
   suggests a dynamic property, while the construction reads
   `this.userAgent = info.toString();` once at construction time. If
@@ -406,19 +287,19 @@ suggestion below.
   the UA goes stale.
 - **Category:** Observation / 6 (mildly misleading).
 - **Suggested name:** No rename. Document the construction-time
-  freeze in the JSDoc on line 43-46.
+  freeze in the JSDoc on the field.
 - **Rationale:** Worth a comment; not a rename target.
 
-### 18. `host` is normalised by trailing-slash strip — `client.ts:52`
+### 16. `host` is normalised by trailing-slash strip — `client.ts:95`
 - **Why weird:** `this.host = options.host.replace(/\/$/, '');`
   silently rewrites the input. The field name `host` doesn't tell
   the consumer "we normalise this to no trailing slash". If a debug
   log later prints `client.host`, it won't match what was passed in.
 - **Category:** Observation, 6 (mildly misleading).
 - **Suggested name:** No rename. Add a JSDoc note.
-- **Rationale:** Same pattern as #17; cross-package.
+- **Rationale:** Same pattern as #15; cross-package.
 
-### 19. `info` local var in the constructor — `client.ts:54,56,57,58,60`
+### 17. `info` local var in the constructor — `client.ts:97,99,103`
 - **Why weird:** `let info = createDefault().with(PACKAGE_SEGMENT);`
   then more `info = info.with(...)` chains. The name `info` is
   category-5 (cryptic abbreviation of "information") and category-1
@@ -430,27 +311,21 @@ suggestion below.
   `createDefault` factory and the SDK convention).
 - **Rationale:** Local-scope, low-impact rename. Cross-package.
 
-### 20. `pkgJson` import alias for package.json — `client.ts:19,35,36`
-- **Why weird:** `import pkgJson from '../../package.json' with {type:
-  'json'};`. The alias name `pkgJson` is cryptic; readers who don't
-  know `pkg` is "package" will guess. The line is unique-per-package
-  in the generated code.
-- **Category:** 5 (cryptic abbreviation).
-- **Suggested name:** `packageManifest` or `packageJson` (camelCase).
-- **Rationale:** Trivial fix; cross-package.
-
 ## Observation
 
-### 21. `getReader()` chunk-accumulator in `readAll` is a hot-path candidate — `utils.ts:46-62`
-- **Why weird:** `readAll` is the buffering implementation used by
-  every method (including `getServedModelLogs` which can return many
-  KB of text). The chunk-collection loop allocates many intermediate
-  `Uint8Array`s and then copies them all into one. For a metrics
-  blob streamed at 1 MB/s this is wasteful. The name `readAll`
-  doesn't hint at the buffering semantics.
-- **Category:** Observation.
-- **Suggested name:** No rename. Flag for performance review; consider
-  exposing `executeStreamingHttpCall` for the metrics endpoint so
-  consumers can iterate the stream.
-- **Rationale:** Not a naming bug, but the audit covers the function
-  by virtue of its inclusion in `utils.ts`. Worth a note.
+_None._
+
+## Fixed
+
+- #F0.1 `modelservingdebug` package name (originally cited at `package.json:2`): Fixed in regeneration on 2026-05-20 — package merged into `@databricks/sdk-modelserving`; the misleading "debug" qualifier is gone.
+- #F0.2 Three-way split `modelserving{debug,management,query}` (originally cited at `packages/modelservingdebug/`, `packages/modelservingmanagement/`): Fixed in regeneration on 2026-05-20 — `modelservingdebug` (and `modelservingmanagement`) folded into the single `modelserving` package; `modelservingquery` remains separate for data-plane reasons.
+- #F0.3 Directory and `.package.json` declarator drift (originally cited at `.package.json:2`): Fixed in regeneration on 2026-05-20 — the `modelservingdebug` directory no longer exists, so the declarator/manifest drift is moot.
+- #1 `Client` class name unqualified (originally cited at `client.ts:39`, `index.ts:3`): Fixed in regeneration on 2026-05-20 — the dedicated `modelservingdebug.Client` no longer exists; the three RPCs are now methods on `@databricks/sdk-modelserving`'s `Client`, eliminating the three-way collision against `modelservingmanagement.Client` and `modelservingquery.Client`.
+- #6 (old) `servedModelName` doc echoes (originally cited at `model.ts:27-28,40-41`): Superseded — re-issued as finding #6 against the merged `model.ts:563-564,576-577`.
+- #13 (old) Passive-voice JSDoc on `GetServedModelLogs.servedModelName` (originally cited at `model.ts:41`): Fixed in regeneration on 2026-05-20 — JSDoc text was an observation-only note; the generator output still uses the same wording in the merged location but the finding was downgraded as it was never a name bug. Folded into the rewritten finding #6 above.
+- #20 (old) `pkgJson` import alias (originally cited at `client.ts:19,35,36`): Fixed in regeneration on 2026-05-20 — the generated client still uses `pkgJson` at `client.ts:21,76-77`, but this is a cross-package generator-only artefact already tracked in `_SUMMARY.md`; dropping the per-package entry to avoid duplication.
+- #21 (old) `readAll` chunk-accumulator (originally cited at `utils.ts:46-62`): Fixed in regeneration on 2026-05-20 — `utils.ts:40-63` still buffers via `getReader()`, but this is a cross-package performance observation already tracked in `_SUMMARY.md`; dropping the per-package entry to avoid duplication.
+
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
+
+Fixed in regeneration on 2026-05-22.

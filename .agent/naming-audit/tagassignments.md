@@ -3,13 +3,13 @@
 **Path:** `packages/tagassignments/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Tag assignment management for non-Unity-Catalog Databricks platform entities — specifically `apps`, `dashboards`, `geniespaces`, `notebooks`. Provides CRUD over (entityType, entityId, tagKey) -> tagValue triples through `/api/2.0/entity-tag-assignments`. Sister of `entitytagassignments` (Unity Catalog entities) and `tagpolicies` (governed tag definitions). Despite the package name and the URL path both being `entity-tag-assignments`-flavored, the primary type here is `TagAssignment` (no `Entity` prefix), unlike sister package `entitytagassignments`.
-**Total weird names flagged:** 27
+**Total weird names flagged:** 29
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 10 |
-| Medium | 10 |
+| Medium | 12 |
 | Low | 4 |
 | Observation | 3 |
 
@@ -145,27 +145,39 @@
 - **Suggested name:** `makeHttpRequest` or inline at call sites.
 - **Rationale:** "Build" carries Java/JS Builder-pattern connotations.
 
+### 21. `AuthHttpClient` — `src/v1/transport.ts:43`
+- **Why weird:** Class name encodes its implementation pattern: it is an `HttpClient` whose role is "wraps another HttpClient and injects auth headers". The JSDoc on line 42 literally reads "Wraps an HttpClient and adds authentication headers to requests." That is the Decorator/Wrapper architectural pattern leaking into the type name. The name describes the *how* (HTTP client decorator), not the *what* (authenticated transport).
+- **Category:** proto-architectural-leak — `Wrapper`/`Adapter` style class whose name advertises a decorator implementation rather than the domain role.
+- **Suggested name:** `AuthenticatingTransport`, `AuthenticatedTransport`, or `AuthInjector`. Drops the `HttpClient` infix that just restates the base interface it decorates.
+- **Rationale:** A class whose only job is to add auth headers should be named for that job, not the wrapping mechanism. Sister packages all duplicate this class verbatim — generator-wide concern.
+
+### 22. `TimeoutHttpClient` — `src/v1/transport.ts:61`
+- **Why weird:** Same wrapper-name pattern as #21. JSDoc line 60: "Wraps an HttpClient and applies a default timeout to requests." Name encodes the wrapping mechanism (`HttpClient` suffix) plus the cross-cutting concern (`Timeout` prefix). Reads as `<concern><wrapped-type>` — a classic Decorator naming tell.
+- **Category:** proto-architectural-leak — `Wrapper`/`Adapter` class whose name advertises a decorator-of-HttpClient implementation rather than the domain role.
+- **Suggested name:** `TimeoutTransport`, `RequestTimeout`, or merge the timeout behavior into the base `newFetchHttpClient` so a separate type is unneeded.
+- **Rationale:** `TimeoutHttpClient` is two architectural words concatenated: the concern (`Timeout`) and the wrapped interface (`HttpClient`). Domain names should describe behavior, not the OO pattern. Generator-wide concern — every package repeats this.
+
 ## Low severity
 
-### 21. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 23. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported but unused in `client.ts`. This package's `listTagAssignments` uses individual `params.append(...)` calls (line 142-148) instead. Dead-shaped helper in shared scaffolding.
 - **Category:** 6 (misleading — implies the package uses it).
 - **Suggested name:** N/A — should not live here at all. Belongs in a shared utils package.
 - **Rationale:** Generator-wide concern: every package duplicates this helper.
 
-### 22. `readAll(body)` — `src/v1/utils.ts:40`
+### 24. `readAll(body)` — `src/v1/utils.ts:40`
 - **Why weird:** `readAll` is too generic; the function specifically drains a `ReadableStream<Uint8Array>` into a single buffer. The name does not say "drain a stream into a buffer".
 - **Category:** 1 (vague), 5 (cryptic — `readAll` is JS-conventional but not self-describing).
 - **Suggested name:** `drainStream` or `readStreamToUint8Array`.
 - **Rationale:** Reads like it might take a file path or array.
 
-### 23. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
+### 25. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
 - **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. The single word "segment" provides no domain context.
 - **Category:** 1 (vague — `Segment` of what?).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
 - **Rationale:** Comment above the constant does the work the name should.
 
-### 24. `tagValue` field doc empty — `src/v1/model.ts:53,54`
+### 26. `tagValue` field doc empty — `src/v1/model.ts:53,54`
 - **Why weird:** `tagValue?: string | undefined` is documented as "The value of the tag" — a tautology. Compare the rich docs on `entityType`/`entityId`/`tagKey` (with character-class rules). The doc is doing zero work.
 - **Category:** 1 (vague — doc says nothing the field name does not), 15 (generic field doc).
 - **Suggested name:** Document what makes a `tagValue` valid (max length? character set? same restrictions as `tagKey`?).
@@ -173,14 +185,14 @@
 
 ## Observations
 
-### 25. Action verb consistency
+### 27. Action verb consistency
 The client uses `create`/`get`/`update`/`delete`/`list` — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
 
-### 26. `tagassignments` lowercase package name vs. types and HTTP path
+### 28. `tagassignments` lowercase package name vs. types and HTTP path
 The package directory is `tagassignments` (single token, no separator). Types are `TagAssignment` (PascalCase, no compound). HTTP path is `/entity-tag-assignments` (kebab and *with* `entity`). Three different naming conventions for the same concept across three surface layers. Same problem as sister packages.
 - **Category:** 3 (casing inconsistency between directory token, kebab wire path, and Pascal types), 1 (vague directory token).
 
-### 27. Domain leakage between sister packages
+### 29. Domain leakage between sister packages
 Three packages — `tagassignments`, `entitytagassignments`, `tagpolicies` — collide on the noun "tag". Each ships its own `Client`, its own `*TagAssignment`/`TagPolicy` type, and its own `tagKey`/`tagValue`. Co-import requires aliasing. The split aligns to wire-side API groupings (different HTTP paths and product surfaces), not to a user mental model of "tag tools". Worth flagging upstream as a structure-level concern, not just naming.
 - **Category:** 12 (duplicate concept across siblings).
 

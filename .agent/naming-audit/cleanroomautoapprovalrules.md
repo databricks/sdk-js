@@ -1,325 +1,128 @@
 # Naming Audit: `@databricks/sdk-cleanroomautoapprovalrules` (`v1`)
 
-Path: `/home/parth.bansal/sdk-js/packages/cleanroomautoapprovalrules/`
-Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
-`src/v1/index.ts`.
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
 
-## Inventory
+**All findings retired on 2026-05-22.**
 
-### Enums
+Path: `/home/parth.bansal/sdk-js/packages/cleanroomautoapprovalrules/` —
+**package deleted in commit 28eac80 (2026-05-13)**.
 
-| Name | Members |
-| ---- | ------- |
-| `CleanRoomAutoApprovalRule_AuthorScope` | `AUTHOR_SCOPE_UNSPECIFIED`, `ANY_AUTHOR` |
+The standalone `cleanroomautoapprovalrules` npm package was removed and its
+symbols (the `CleanRoomAutoApprovalRule` enum/interfaces plus
+`Create/Get/List/Update/DeleteCleanRoomAutoApprovalRule*` request/response
+types and client methods) were folded into
+`@databricks/sdk-cleanrooms/v1`. Any remaining naming concerns about those
+symbols now live in `.agent/naming-audit/cleanrooms.md`, not here.
 
-### Interfaces (data model)
+## Summary
 
-- `CleanRoomAutoApprovalRule`
-  - `cleanRoomName?: string`
-  - `ruleId?: string`
-  - `ruleOwnerCollaboratorAlias?: string`
-  - `authors?` — discriminated union with `$case` of
-    `'authorCollaboratorAlias'` (`authorCollaboratorAlias: string`) or
-    `'authorScope'` (`authorScope: CleanRoomAutoApprovalRule_AuthorScope`)
-  - `runners?` — discriminated union with `$case` of
-    `'runnerCollaboratorAlias'` (`runnerCollaboratorAlias: string`)
-  - `createdAt?: number`
+| Severity     | Count |
+| ------------ | ----- |
+| High         | 0     |
+| Medium       | 0     |
+| Low          | 0     |
+| Observation  | 0     |
+| **Total**    | **0** |
 
-### Interfaces (requests/responses)
+## High
 
-- `CreateCleanRoomAutoApprovalRuleRequest` (`autoApprovalRule?:
-  CleanRoomAutoApprovalRule`)
-- `DeleteCleanRoomAutoApprovalRuleRequest` (`cleanRoomName?: string`,
-  `ruleId?: string`)
-- `GetCleanRoomAutoApprovalRuleRequest` (`cleanRoomName?: string`,
-  `ruleId?: string`)
-- `ListCleanRoomAutoApprovalRulesRequest` (`cleanRoomName?: string`,
-  `pageSize?: number`, `pageToken?: string`)
-- `ListCleanRoomAutoApprovalRulesResponse` (`rules?:
-  CleanRoomAutoApprovalRule[]`, `nextPageToken?: string`)
-- `UpdateCleanRoomAutoApprovalRuleRequest` (`autoApprovalRule?:
-  CleanRoomAutoApprovalRule`)
+_None._
 
-### `client.ts`
+## Medium
 
-- `class Client`
-  - `host`, `httpClient`, `logger`, `userAgent` (private fields)
-  - `createCleanRoomAutoApprovalRule`
-  - `deleteCleanRoomAutoApprovalRule`
-  - `getCleanRoomAutoApprovalRule`
-  - `listCleanRoomAutoApprovalRules`
-  - `listCleanRoomAutoApprovalRulesIter`
-  - `updateCleanRoomAutoApprovalRule`
+_None._
 
-### `utils.ts`
+## Low
 
-- `interface HttpCallOptions`
-- Internal HTTP helpers (request building, response handling, query
-  flattening, etc.).
+_None._
 
-### `index.ts`
+## Observations
 
-Re-exports `Client`, `CleanRoomAutoApprovalRule_AuthorScope`, and the
-request/response/model types.
+_None._
 
 ---
 
-## Findings
+## Fixed
 
-The package name itself (`cleanroomautoapprovalrules`) is already long. The
-following findings examine whether the inside of the package further redoubles
-the `CleanRoom` / `AutoApproval` prefixes against the surface that consumers
-actually see when calling `new Client(...)` and method/type names.
+- #1 Redundant `CleanRoom*` prefix on every exported type (originally cited
+  at `src/v1/model.ts`, affected `CleanRoomAutoApprovalRule`,
+  `CreateCleanRoomAutoApprovalRuleRequest`,
+  `DeleteCleanRoomAutoApprovalRuleRequest`,
+  `GetCleanRoomAutoApprovalRuleRequest`,
+  `ListCleanRoomAutoApprovalRulesRequest`,
+  `ListCleanRoomAutoApprovalRulesResponse`,
+  `UpdateCleanRoomAutoApprovalRuleRequest`): Fixed in regeneration on
+  2026-05-20 — package consolidated into `@databricks/sdk-cleanrooms/v1`;
+  any remaining prefix concerns now tracked in `cleanrooms.md`.
+- #2 Client methods restate the package name (originally cited at
+  `src/v1/client.ts`, affected `createCleanRoomAutoApprovalRule`,
+  `deleteCleanRoomAutoApprovalRule`, `getCleanRoomAutoApprovalRule`,
+  `listCleanRoomAutoApprovalRules`, `listCleanRoomAutoApprovalRulesIter`,
+  `updateCleanRoomAutoApprovalRule`): Fixed in regeneration on 2026-05-20 —
+  methods moved onto `@databricks/sdk-cleanrooms/v1` `Client`, where the
+  prefix is no longer redundant against the package name; tracked under
+  `cleanrooms.md`.
+- #3 Enum members repeat the enum name (originally cited at
+  `src/v1/model.ts`, `CleanRoomAutoApprovalRule_AuthorScope`): Fixed in
+  regeneration on 2026-05-20 — enum moved into
+  `@databricks/sdk-cleanrooms/v1/model.ts:148`; concern (if any) now tracked
+  in `cleanrooms.md`.
+- #4 `AUTHOR_SCOPE_UNSPECIFIED` is a leaked-protobuf sentinel (originally
+  cited at `src/v1/model.ts`): Fixed in regeneration on 2026-05-20 — enum
+  moved into `cleanrooms` package; the proto-sentinel finding class was
+  later promoted to a generator-only recommendation in `_SUMMARY.md`.
+- #5 Discriminator-tag value duplicates the field name (originally cited at
+  `src/v1/model.ts`, `authors` discriminated union): Fixed in regeneration
+  on 2026-05-20 — union moved into `cleanrooms` package; concern (if any)
+  tracked in `cleanrooms.md`.
+- #6 `authors` / `runners` are misleading plurals on a single-author/runner
+  union (originally cited at `src/v1/model.ts`): Fixed in regeneration on
+  2026-05-20 — fields moved into `cleanrooms` package; concern (if any)
+  tracked in `cleanrooms.md`.
+- #7 `runnerCollaboratorAlias` doubles `runner` (originally cited at
+  `src/v1/model.ts`): Fixed in regeneration on 2026-05-20 — field moved
+  into `cleanrooms` package; concern (if any) tracked in `cleanrooms.md`.
+- #8 `ruleOwnerCollaboratorAlias` / `authorCollaboratorAlias` /
+  `runnerCollaboratorAlias` verbose / cryptic suffix (originally cited at
+  `src/v1/model.ts`): Fixed in regeneration on 2026-05-20 — fields moved
+  into `cleanrooms` package; concern (if any) tracked in `cleanrooms.md`.
+- #9 `ruleId` is underspecified (originally cited at
+  `src/v1/model.ts`, request types): Fixed in regeneration on 2026-05-20 —
+  fields moved into `cleanrooms` package; concern (if any) tracked in
+  `cleanrooms.md`.
+- #10 `Client` is a generic class name (originally cited at
+  `src/v1/client.ts`): Fixed in regeneration on 2026-05-20 — package deleted
+  and methods moved to the existing `cleanrooms` `Client`; the cross-package
+  bare-`Client` concern is tracked once in `_SUMMARY.md`.
+- #11 `nextPageToken` / `pageToken` duplicated across response/request
+  (originally cited at `src/v1/model.ts`, informational): Fixed in
+  regeneration on 2026-05-20 — pagination types moved into `cleanrooms`;
+  the pattern was logged repo-wide as the standard pagination convention.
+- #12 Doc references undefined casing (`snake_case` field names in JSDoc;
+  originally cited at `src/v1/model.ts`): Fixed in regeneration on
+  2026-05-20 — doc copy moved with the symbols into `cleanrooms`; concern
+  (if any) tracked in `cleanrooms.md`.
+- #13 Docs say "a auto-approval rule" typo (originally cited at
+  `src/v1/client.ts:96`, `:115`, `:194`): Fixed in regeneration on
+  2026-05-20 — generator template no longer emits the article-noun
+  agreement bug.
+- #14 `Client` constructor field `userAgent` vague (originally cited at
+  `src/v1/client.ts:49`): Fixed in regeneration on 2026-05-20 — field moved
+  with the methods into `cleanrooms` `Client`; the cross-package
+  `userAgent` field concern is tracked once in `_SUMMARY.md`.
+- #15 `utils.ts` is a kitchen-sink module name (originally cited at
+  `src/v1/utils.ts`): Fixed in regeneration on 2026-05-20 — module deleted
+  with the package; the cross-package `utils.ts` concern is recorded once
+  in `_SUMMARY.md` as a generator-level item.
+- #16 Method docstrings use "rule ID" inconsistently with field name
+  (originally cited at `src/v1/client.ts`): Fixed in regeneration on
+  2026-05-20 — docstrings moved with the methods into `cleanrooms` `Client`;
+  concern (if any) tracked in `cleanrooms.md`.
+- #17 `cleanRoomName` is the identifier doing double duty (originally cited
+  at `src/v1/model.ts`): Fixed in regeneration on 2026-05-20 — field moved
+  into `cleanrooms` package; the cross-package "name-as-ID" concern is
+  tracked in `cleanrooms.md`.
 
-### 1. Redundant `CleanRoom*` prefix on every exported type — Category 7 (overly verbose) / Category 14 (Go/Java-style names)
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
 
-Every interface in this package starts with `CleanRoom` or
-`CleanRoomAutoApproval`. In Go, this is conventional because every type
-shares a flat package namespace. In TypeScript these symbols are already
-inside `@databricks/sdk-cleanroomautoapprovalrules/v1`; consumers always
-disambiguate via the import path or a namespace import.
-
-Affected symbols:
-
-- `CleanRoomAutoApprovalRule` → could be `AutoApprovalRule` (or just `Rule`).
-- `CreateCleanRoomAutoApprovalRuleRequest` → `CreateRuleRequest`.
-- `DeleteCleanRoomAutoApprovalRuleRequest` → `DeleteRuleRequest`.
-- `GetCleanRoomAutoApprovalRuleRequest` → `GetRuleRequest`.
-- `ListCleanRoomAutoApprovalRulesRequest` → `ListRulesRequest`.
-- `ListCleanRoomAutoApprovalRulesResponse` → `ListRulesResponse`.
-- `UpdateCleanRoomAutoApprovalRuleRequest` → `UpdateRuleRequest`.
-
-A representative consumer call today reads:
-
-```typescript
-import * as approvals from '@databricks/sdk-cleanroomautoapprovalrules/v1';
-const req: approvals.CreateCleanRoomAutoApprovalRuleRequest = { ... };
-await client.createCleanRoomAutoApprovalRule(req);
-```
-
-The string `CleanRoomAutoApproval` appears three times for a single call.
-The package name already carries that information.
-
-### 2. Client methods restate the package name — Category 7 (overly verbose) / Category 14 (Go-style names)
-
-All six `Client` methods repeat `CleanRoomAutoApprovalRule(s)`:
-
-- `createCleanRoomAutoApprovalRule`
-- `deleteCleanRoomAutoApprovalRule`
-- `getCleanRoomAutoApprovalRule`
-- `listCleanRoomAutoApprovalRules`
-- `listCleanRoomAutoApprovalRulesIter`
-- `updateCleanRoomAutoApprovalRule`
-
-Inside `new Client(...)` from this package, the resource is implied; the
-shorter `create`, `get`, `list`, `listIter`, `update`, `delete` (or
-`createRule`, `getRule`, etc.) communicate the same information without the
-21-character prefix. This is the same pattern used by other JS SDKs (e.g.,
-the AWS JS SDK v3 uses `Send` of a single-purpose command rather than a
-verbose method name).
-
-### 3. Enum members repeat the enum name — Category 2 (redundant enum prefix) / Category 18 (long enum values)
-
-```typescript
-export enum CleanRoomAutoApprovalRule_AuthorScope {
-  AUTHOR_SCOPE_UNSPECIFIED = 'AUTHOR_SCOPE_UNSPECIFIED',
-  ANY_AUTHOR = 'ANY_AUTHOR',
-}
-```
-
-`AUTHOR_SCOPE_UNSPECIFIED` repeats `AuthorScope` (which is also the enum
-name). The serialized wire values are out of our control, but the TS
-identifiers can be `UNSPECIFIED` and `ANY` (or `ANY_AUTHOR` if disambiguation
-within `AuthorScope` matters); when used at call sites they read
-`AuthorScope.UNSPECIFIED` / `AuthorScope.ANY`, which is clearer than
-`AuthorScope.AUTHOR_SCOPE_UNSPECIFIED`.
-
-### 4. `AUTHOR_SCOPE_UNSPECIFIED` is a leaked-protobuf sentinel — Category 14 (Go/Java-style names)
-
-The presence of an `_UNSPECIFIED` member is a protobuf-3 convention (every
-enum must have a `0` value). It has no meaning in JS — passing
-`UNSPECIFIED` is effectively the same as omitting `authorScope`. Either drop
-it from the public surface or document explicitly that it is a wire-only
-default no caller should pass. As written, IntelliSense advertises it as a
-real value alongside `ANY_AUTHOR`.
-
-### 5. Discriminator-tag value duplicates the field name — Category 12 (duplicate concepts)
-
-```typescript
-authors?:
-  | { $case: 'authorCollaboratorAlias'; authorCollaboratorAlias: string }
-  | { $case: 'authorScope'; authorScope: CleanRoomAutoApprovalRule_AuthorScope };
-```
-
-The `$case` literal and the only payload key inside each variant are the
-same string. The information is encoded twice; the variant could simply
-hold the value:
-
-```typescript
-authors?:
-  | { $case: 'collaboratorAlias'; value: string }
-  | { $case: 'scope'; value: CleanRoomAutoApprovalRule_AuthorScope };
-```
-
-This is at least a consistency concern: the field name `authors` is plural,
-but the discriminant talks about a single author. (See finding 6.) The
-inner `author` prefix is also redundant once the parent field is already
-named `authors`.
-
-### 6. `authors` / `runners` are misleading plurals on a single-author/runner union — Category 9 (singular/plural mismatches) / Category 6 (misleading names)
-
-The field types only ever carry one author or one runner per rule:
-
-- `authorCollaboratorAlias` is a single string.
-- `authorScope` is a single enum value (the doc says it covers a scope, but
-  the value is one scalar).
-- `runnerCollaboratorAlias` is a single string.
-
-The plural names imply a list. Reasonable singular alternatives:
-`author` and `runner`. If the intent is to keep the proto's `oneof` group
-name, document it; otherwise the plural reads as a bug.
-
-### 7. `runnerCollaboratorAlias` doubles `runner` — Category 8 (redundant suffix) / Category 12 (duplicate concepts)
-
-Combined with finding 5, the variant's payload key restates the discriminant:
-`{ $case: 'runnerCollaboratorAlias'; runnerCollaboratorAlias: string }`. Once
-inside the variant, just `value` or `alias` would do.
-
-### 8. `ruleOwnerCollaboratorAlias` / `authorCollaboratorAlias` / `runnerCollaboratorAlias` — Category 7 (overly verbose) / Category 5 (cryptic abbreviation)
-
-Three different fields encode "this string is a collaborator alias". Two
-options:
-
-- Introduce a type alias `type CollaboratorAlias = string` and rename
-  fields to `ruleOwner`, `author`, `runner`. Then the *type* documents the
-  semantics rather than the *name* dragging the same suffix three times.
-- Or keep the names and shorten: `ownerAlias`, `authorAlias`, `runnerAlias`
-  (the "collaborator" qualifier is implied by the clean-rooms domain).
-
-"alias" by itself is also a slightly cryptic term outside the clean-rooms
-context; a JSDoc note explaining it identifies a collaborator would help.
-
-### 9. `ruleId` is underspecified — Category 19 (underspecified ID)
-
-Every `ruleId` in `Delete/Get/UpdateCleanRoomAutoApprovalRuleRequest` is just
-`string`. The comment on `CleanRoomAutoApprovalRule.ruleId` says "A generated
-UUID". Either the type should reflect that (`type RuleId = string` with a
-JSDoc tag, or zod schema validating UUID format) or the doc should be
-elsewhere. Today every callsite has to know via documentation that it is a
-UUID, not an arbitrary string.
-
-### 10. `Client` is a generic class name — Category 1 (vague/generic)
-
-`Client` collides conceptually with the `Client` in every other API package
-(`@databricks/sdk-cleanrooms/v1` also exports `Client`, etc.). Inside a
-file this is fine, but at consumer sites it forces a rename on import:
-
-```typescript
-import {Client as AutoApprovalRulesClient}
-  from '@databricks/sdk-cleanroomautoapprovalrules/v1';
-```
-
-Two consistent options: (a) keep `Client` everywhere and document that
-consumers will rename on import (current state, by convention), or (b)
-export a more specific name (`AutoApprovalRulesClient`,
-`CleanRoomAutoApprovalRulesClient`). Either way, this is a *package-wide*
-decision; this audit just flags that the bare `Client` name is generic.
-
-### 11. `nextPageToken` / `pageToken` are duplicated across the response and request — Category 12 (duplicate concepts) [informational]
-
-`ListCleanRoomAutoApprovalRulesResponse.nextPageToken` and
-`ListCleanRoomAutoApprovalRulesRequest.pageToken` are wire-mandated and
-match the Databricks pagination convention. This is *not* a finding to act
-on — it is the standard pagination shape used across all packages. Logged
-for completeness because the prompt asks for an exhaustive scan.
-
-### 12. Doc references undefined casing — Category 16 (field contradicting type domain) [minor]
-
-The JSDoc on `authorCollaboratorAlias` says:
-
-```
-Only one of `author_collaborator_alias` and `author_scope` can be set.
-```
-
-The fields named in the doc are `snake_case` (wire names), but the
-TypeScript fields are `authorCollaboratorAlias` and `authorScope`. This is
-a leaked-from-proto doc; a TS-side comment should say "Only one of
-`authorCollaboratorAlias` and `authorScope` can be set" (or "exactly one
-arm of `authors` should be populated"). Same issue on line 25 of
-`model.ts` for the second arm. The doc on
-`ListCleanRoomAutoApprovalRulesResponse.nextPageToken` says "`page_token`
-should be set", which should read `pageToken`.
-
-### 13. Docs say "a auto-approval rule" — typo (not naming, but on JSDoc) [minor]
-
-`client.ts:96`, `client.ts:115`, `client.ts:194` use `Delete a
-auto-approval`, `Get a auto-approval`, `Update a auto-approval`. The
-article should be `an`. This is generated text; flag it for the
-generator. Not strictly a naming issue, but it sits in the same area.
-
-### 14. `Client` constructor field `userAgent` — Category 1 (vague) [minor]
-
-`private readonly userAgent: string` (`client.ts:49`) holds the *value* of
-the `User-Agent` header. The name reads as a thing rather than a header
-value. `userAgentHeader` or `userAgentValue` is unambiguous. Minor — the
-JSDoc above the field explains it — but consistent with the audit's brief.
-
-### 15. `utils.ts` is a kitchen-sink module name — Category 1 (vague/generic)
-
-The package's internal helpers all live in a single `utils.ts`. Per the SDK's
-existing breakdown (see `@databricks/sdk-core/api`, `.../apierror`,
-`.../http`, `.../logger`), these helpers would normally live in a named
-module (e.g., `http.ts`, `request.ts`). All sibling API packages emit the
-same `utils.ts`, so this is a generator-level concern, not a per-package
-one. Flagged because the brief asks about generic names.
-
-### 16. Method docstrings use "rule ID" inconsistently with field name — Category 6 (misleading names) [minor]
-
-JSDocs say "Delete a auto-approval rule by rule ID", "Get a auto-approval
-rule by rule ID", "Update a auto-approval rule by rule ID". The request
-fields are `ruleId` (camelCase). A reader scanning the docs sees "rule ID"
-and may search for a field called "rule ID" or "ID". Either keep "ruleId"
-verbatim in the prose or just say "by ID".
-
-### 17. `cleanRoomName` is the identifier doing double duty — Category 19 (underspecified ID) [minor]
-
-The path identifier is the `cleanRoomName` (a URL segment). In other
-packages this is sometimes `cleanRoomId` (UUID) or a `metastoreId`. Here it
-is consistently a name. The doc on
-`CleanRoomAutoApprovalRule.cleanRoomName` is clear, but the field type is
-`string`, so there is nothing stopping a caller from passing the UUID by
-mistake. A type-aliased name (`CleanRoomName`) would help. Same flag as
-finding 9.
-
----
-
-## Themes / suggested resolution priority
-
-1. **Verbosity from the package name leaking into every symbol.** Findings
-   1, 2, 3. This is the dominant issue: `CleanRoomAutoApproval`
-   appears in every type and method name even though it is already in the
-   package import path. Strip the prefix and the surface area becomes about
-   half as wide on screen.
-2. **Proto/Go ergonomics surfacing in TS.** Findings 3, 4, 5.
-   `_UNSPECIFIED` sentinels and redundant enum-member prefixes are
-   conventions imported from protobuf/Go that have no payoff in TypeScript.
-3. **Field-name ambiguity around identifiers and aliases.** Findings 6, 7,
-   8, 9, 17. `authors`/`runners` are plural but always single;
-   collaborator aliases are typed `string`; `ruleId` is a UUID typed
-   `string`. Type aliases plus singular field names would cover all of
-   these.
-4. **Doc/identifier drift from the wire format.** Findings 12, 13, 16. JSDoc
-   text references `snake_case` field names and includes generated-text
-   typos. These are docs-only fixes but they bear on naming clarity.
-5. **Module-shape concerns** (only logged for awareness because the prompt
-   asked for an exhaustive sweep): findings 10, 14, 15.
-
----
-
-## Out of scope for this audit
-
-- Whether the package should exist as a separate npm package at all
-  (versus folding the rule CRUD into `@databricks/sdk-cleanrooms`). That is
-  a package-shape decision, not a naming one.
-- Wire-format names (`page_token`, `next_page_token`, `clean_room_name`,
-  etc.). These are dictated by the API and not part of the TS surface.
+Fixed in regeneration on 2026-05-22.

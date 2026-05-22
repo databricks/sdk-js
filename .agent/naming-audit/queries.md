@@ -3,7 +3,7 @@
 **Path:** `packages/queries/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace SQL queries — a stored, named SQL statement bound to a SQL warehouse, with parameterisable values, a "Run as" identity, visualizations attached to it, and a soft-delete (trash) lifecycle.
-**Total weird names flagged:** 35
+**Total weird names flagged:** 35 (last rescanned 2026-05-22)
 
 ## Summary table
 
@@ -22,16 +22,16 @@
 | 11 | High | `model.ts` interface | `EnumValue` | Vague/generic top-level name — generic word `enum` reused as identifier |
 | 12 | High | `model.ts` field | `QueryParameter.title` vs `.name` | Misleading: docs call `name` the parameter marker and `title` the user-facing label — pair should be `(marker, label)` |
 | 13 | High | `model.ts` field | `Query.queryText` JSDoc says "Text of the query to be run" on a type already called `Query` | Type-suffix tautology + redundant doc |
-| 14 | Medium | `client.ts` method | `trashQuery` | Inconsistent action verb (HTTP `DELETE`, docs say "permanently deleted after 30 days", but method named `trash`) |
-| 15 | Medium | `model.ts` interface | `TrashQueryRequest` | Same verb inconsistency at the type layer |
-| 16 | Medium | `client.ts` method | `listVisualizationsForQuery` | Overly verbose vs sibling `listQueries`; "ForQuery" is a Go-style nested-resource pattern |
-| 17 | Medium | `model.ts` interface | `Visualization` | Vague/generic top-level name (no `Query` prefix) — `QueryVisualization` would mirror `QueryParameter` |
-| 18 | Medium | `model.ts` field | `Query.warehouseId` | Underspecified ID — `sqlWarehouseId` would match the JSDoc ("SQL warehouse") |
-| 19 | Medium | `model.ts` field | `Query.ownerUserName`, `lastModifierUserName` | Inconsistent action verb — `owner` is a noun, `lastModifier` is an agent noun; mismatched grammar |
-| 20 | Medium | `model.ts` field | `Query.lastModifierUserName` | Overly verbose — `lastModifiedBy` would parse more naturally |
-| 21 | Medium | `model.ts` enum value | `LifecycleState.TRASHED` | Verb-tense inconsistency vs imperative method `trashQuery` |
-| 22 | Medium | `model.ts` enum | `RunAsMode` | Verb-as-noun; `Mode` is filler since the enum has only two values |
-| 23 | Medium | `model.ts` enum values | `DatePrecision.DAY_PRECISION`, `MINUTE_PRECISION`, `SECOND_PRECISION` | Redundant enum prefix (enum already named `DatePrecision`) |
+| 14 | High | `model.ts` interface | `Empty` | Proto architectural leak — `google.protobuf.Empty` surfaced as a TS export |
+| 15 | Medium | `client.ts` method | `trashQuery` | Inconsistent action verb (HTTP `DELETE`, docs say "permanently deleted after 30 days", but method named `trash`) |
+| 16 | Medium | `model.ts` interface | `TrashQueryRequest` | Same verb inconsistency at the type layer |
+| 17 | Medium | `client.ts` method | `listVisualizationsForQuery` | Overly verbose vs sibling `listQueries`; "ForQuery" is a Go-style nested-resource pattern |
+| 18 | Medium | `model.ts` interface | `Visualization` | Vague/generic top-level name (no `Query` prefix) — `QueryVisualization` would mirror `QueryParameter` |
+| 19 | Medium | `model.ts` field | `Query.warehouseId` | Underspecified ID — `sqlWarehouseId` would match the JSDoc ("SQL warehouse") |
+| 20 | Medium | `model.ts` field | `Query.ownerUserName`, `lastModifierUserName` | Inconsistent action verb — `owner` is a noun, `lastModifier` is an agent noun; mismatched grammar |
+| 21 | Medium | `model.ts` field | `Query.lastModifierUserName` | Overly verbose — `lastModifiedBy` would parse more naturally |
+| 22 | Medium | `model.ts` enum value | `LifecycleState.TRASHED` | Verb-tense inconsistency vs imperative method `trashQuery` |
+| 23 | Medium | `model.ts` enum | `RunAsMode` | Verb-as-noun; `Mode` is filler since the enum has only two values |
 | 24 | Medium | `model.ts` enum values | `LAST_8_HOURS`, `LAST_24_HOURS`, `LAST_14_DAYS`, `LAST_30_DAYS`, etc. | Long enum values — numeric suffix per-bucket forms an open-ended discrete enum |
 | 25 | Medium | `model.ts` field | `Query.applyAutoLimit` | Misleading — the JSDoc explains it's a 1000-row cap, but `applyAutoLimit` reads as a verb predicate |
 | 26 | Medium | `model.ts` field | `Query.runAsMode` of type `RunAsMode` | Type-suffix tautology |
@@ -100,7 +100,7 @@ There is no obvious entry point for "I want to run a SQL query" — the user has
 
 ### 5. `LifecycleState.TRASHED` vs method `trashQuery` — verb/state inconsistency
 
-**Location:** `src/v1/model.ts:14-17`, `src/v1/client.ts:227-249`
+**Location:** `src/v1/model.ts:14-17`, `src/v1/client.ts:228-250`
 
 ```ts
 export enum LifecycleState {
@@ -245,11 +245,32 @@ export interface Query {
 
 Both the field name and the JSDoc embed the word "query" on a type called `Query`. The field exists on four near-identical interfaces (see #2), so the redundancy multiplies. The same field is the *only* part of `Query` that is actually a SQL statement — pulling it up as `Query.text` or `Query.sql` would simplify both name and doc.
 
+### 14. `Empty` — proto architectural leak
+
+**Location:** `src/v1/model.ts:133-138`
+
+```ts
+/**
+ * Represents an empty message, similar to google.protobuf.Empty, which is not available in the firm
+ * right now.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Empty {}
+```
+
+**Why:** Proto/RPC architectural leak — `google.protobuf.Empty` is a wire-format construct used by code generators to express "no body." The JSDoc explicitly admits this ("similar to google.protobuf.Empty"). Exporting it as a public TS interface forces every `Promise<Empty>` return type (e.g. `trashQuery`, see #15) to surface the proto abstraction to callers.
+
+**Category:** Proto architectural leak.
+
+**Suggested:** Drop the type entirely; have methods return `Promise<void>`. If a placeholder is needed, do not export it — TS already has `void` and `undefined` as native equivalents.
+
+**Rationale:** `Empty` exists only because protobuf has no native "no return value" concept. TypeScript does. Surfacing the proto workaround as a named export pollutes the package's public API with a wire-format artefact that has no domain meaning. Users see `Promise<Empty>` and reasonably ask "what's in `Empty`?" — the answer is "nothing, it's a proto thing." That answer should never be visible.
+
 ## Medium severity
 
-### 14. `trashQuery` — inconsistent action verb (`trash` vs SDK-wide `delete`)
+### 15. `trashQuery` — inconsistent action verb (`trash` vs SDK-wide `delete`)
 
-**Location:** `src/v1/client.ts:227-250`
+**Location:** `src/v1/client.ts:228-250`
 
 ```ts
 /** Moves a query to the trash. Trashed queries immediately disappear from searches and list views, and cannot be used for alerts. You can restore a trashed query through the UI. A trashed query is permanently deleted after 30 days. */
@@ -261,7 +282,7 @@ async trashQuery(
 
 The HTTP verb is `DELETE`, the docstring talks about "permanently deleted," but the method is `trashQuery`. Across the SDK this is the only place where soft-delete uses `trash`-prefix outside `alerts`. The standard SDK shape is `deleteX` with a flag for `permanent: true/false` or two endpoints (`deleteX` + `purgeX`).
 
-### 15. `TrashQueryRequest` — same as #14, in the type layer
+### 16. `TrashQueryRequest` — same as #15, in the type layer
 
 **Location:** `src/v1/model.ts:312-314`
 
@@ -273,9 +294,9 @@ export interface TrashQueryRequest {
 
 Same verb inconsistency at the type layer. Carries only `id`.
 
-### 16. `listVisualizationsForQuery` — overly verbose
+### 17. `listVisualizationsForQuery` — overly verbose
 
-**Location:** `src/v1/client.ts:173-208`
+**Location:** `src/v1/client.ts:174-208`
 
 ```ts
 async listVisualizationsForQuery(
@@ -286,7 +307,7 @@ async listVisualizationsForQuery(
 
 `For` infixed between the resource and its parent is a Go-style nested-resource pattern. REST endpoint is `/api/2.0/sql/queries/{id}/visualizations` — TypeScript naming would more naturally be `listVisualizations(req: ListVisualizationsRequest)` where the request shape has `queryId` (or the method lives on a sub-client `client.queries(id).visualizations.list()`). The current name is 28 characters.
 
-### 17. `Visualization` — vague/generic top-level name
+### 18. `Visualization` — vague/generic top-level name
 
 **Location:** `src/v1/model.ts:360-377`
 
@@ -296,7 +317,7 @@ export interface Visualization { ... }
 
 `Visualization` is a top-level export in a package about *query* visualizations. The sibling type `QueryParameter` has a domain prefix; `Visualization` does not. `QueryVisualization` would mirror `QueryParameter` and avoid collisions with the visualizations exposed by Lakeview, Dashboards, MLflow, etc.
 
-### 18. `Query.warehouseId` — underspecified ID
+### 19. `Query.warehouseId` — underspecified ID
 
 **Location:** `src/v1/model.ts:66-67`, `172-173`, `232-233`, `333-334`
 
@@ -307,7 +328,7 @@ warehouseId?: string | undefined;
 
 The JSDoc says "SQL warehouse"; the field says `warehouseId`. Databricks has data warehouses, Lakehouse, SQL warehouses, etc. `sqlWarehouseId` would self-document.
 
-### 19. `Query.ownerUserName`, `Query.lastModifierUserName` — inconsistent agent-noun grammar
+### 20. `Query.ownerUserName`, `Query.lastModifierUserName` — inconsistent agent-noun grammar
 
 **Location:** `src/v1/model.ts:64-65`, `74-75`
 
@@ -321,7 +342,7 @@ lastModifierUserName?: string | undefined;
 
 `owner` is a noun. `lastModifier` is an agent noun constructed from the verb "modify." The pairing is mismatched — either both should be agent nouns (`ownerUserName`, `lastModifierUserName`) or both should be participial (`ownedBy`, `lastModifiedBy`). The Go convention is the former; idiomatic TS leans toward the latter. Also note the JSDoc inconsistency: "the user that owns" vs "the user who last saved" — different relative pronouns.
 
-### 20. `Query.lastModifierUserName` — overly verbose
+### 21. `Query.lastModifierUserName` — overly verbose
 
 **Location:** `src/v1/model.ts:74-75`
 
@@ -331,13 +352,13 @@ lastModifierUserName?: string | undefined;
 
 21 characters for what is, semantically, "last-modified-by." `lastModifiedBy` is 14 characters and more natural English.
 
-### 21. `LifecycleState.TRASHED` — verb-tense inconsistency
+### 22. `LifecycleState.TRASHED` — verb-tense inconsistency
 
 **Location:** `src/v1/model.ts:14-17`
 
 The enum value is past-participle (`TRASHED`), the method is imperative (`trashQuery`). When the SDK adds future lifecycle values like `ARCHIVED`, the new value will match this pattern, but the lifecycle vocabulary will diverge further from the verb vocabulary (`trash`/`archive`/`restore`).
 
-### 22. `RunAsMode` — verb-as-noun, filler `Mode`
+### 23. `RunAsMode` — verb-as-noun, filler `Mode`
 
 **Location:** `src/v1/model.ts:19-22`
 
@@ -349,20 +370,6 @@ export enum RunAsMode {
 ```
 
 `RunAs` is an imperative phrase pressed into noun service (see same flag in `alerts` audit). `Mode` is filler — the enum has only two values and they describe *who* the query runs as, not *how*. `RunAsIdentity`, `Authority`, or even `runAs: 'OWNER' | 'VIEWER'` (a string literal union) would be cleaner.
-
-### 23. `DatePrecision.DAY_PRECISION`, `MINUTE_PRECISION`, `SECOND_PRECISION` — redundant enum prefix
-
-**Location:** `src/v1/model.ts:8-12`
-
-```ts
-export enum DatePrecision {
-  DAY_PRECISION = 'DAY_PRECISION',
-  MINUTE_PRECISION = 'MINUTE_PRECISION',
-  SECOND_PRECISION = 'SECOND_PRECISION',
-}
-```
-
-Access is `DatePrecision.DAY_PRECISION` — the enum name already says "precision." `DAY`/`MINUTE`/`SECOND` would suffice.
 
 ### 24. Open-ended discrete enum — `LAST_8_HOURS`, `LAST_24_HOURS`, `LAST_14_DAYS`, ...
 
@@ -476,7 +483,7 @@ startDayOfWeek?: number | undefined;
 
 ### 33. `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` — id-vs-queryId inconsistency
 
-**Location:** `src/v1/model.ts:58-59`, `362-363`, `262-263`
+**Location:** `src/v1/model.ts:224-225`, `361-362`, `262-263`
 
 Top-level types use bare `id`; cross-referencing types use `queryId`. `Query.queryId` would be consistent with `Visualization.queryId` and `QueryBackedValue.queryId`. Currently `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` means there are two conventions side-by-side.
 

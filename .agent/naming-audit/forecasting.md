@@ -282,6 +282,36 @@ _None._
 
 ---
 
+### 11. Proto / architectural leaks
+
+#### 11.1 — `ForecastingExperiment_State` — `model.ts:6`
+- **Why flagged:** The `Foo_Bar` underscore identifier is a verbatim
+  proto-generated nested-enum form (`ForecastingExperiment.State` in
+  the original proto). The underscore form leaks the proto IDL
+  encoding into a public TS symbol. The accompanying eslint-disable
+  comment "Proto-style nested enum name" makes the leak explicit.
+- **Category:** Proto architectural leak (nested-enum underscore form).
+- **Suggested:** `ExperimentState` (or `ForecastingExperimentState`
+  if the qualifier is kept per F-OVERLAP.1).
+- **Rationale:** TS has no first-class nested-enum syntax matching
+  proto's `Foo.Bar`. The flat camel/Pascal form removes the IDL
+  artifact and the eslint-disable.
+
+#### 11.2 — "Public RPC" in JSDoc — `client.ts:112`
+- **Why flagged:** The JSDoc `/** Public RPC to get forecasting
+  experiment */` exposes the server-side classification
+  (`Public` vs `Internal` RPC) and the transport term `RPC` to SDK
+  consumers. Users of an HTTP SDK do not need to know the call
+  is dispatched as a "public RPC" inside the backend.
+- **Category:** Proto/RPC architectural leak (`Public` mid-position
+  classifier + `RPC` transport noun in user-facing doc).
+- **Suggested:** Replace with a behavioural description, e.g.
+  `/** Gets a forecasting experiment by ID. */`.
+- **Rationale:** Public-API JSDoc should describe what the method
+  does for the caller, not how the backend routes it.
+
+---
+
 ## Package overlap: `forecasting` vs `experiments`
 
 This SDK ships both `@databricks/sdk-forecasting` and an MLflow-style
@@ -323,6 +353,7 @@ generic experiment but uses the same term and the same ID name.
 | 8 | Generic field names                     | 3 |
 | 9 | Untyped string for closed enum          | 1 |
 | 10 | `*Path` fields contradicting domain    | 1 |
+| 11 | Proto / architectural leaks            | 2 |
 | OVERLAP | forecasting vs experiments         | 2 |
 
 ---

@@ -1,104 +1,63 @@
 # Naming Audit: workspace
 
-**Path:** `packages/workspace/src/v1/`
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
+
+**All findings retired on 2026-05-22.**
+
+**Path:** `packages/workspaceobjects/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks workspace filesystem-style operations on notebooks, folders, and files: import, export, delete, list, get-status, and mkdirs against absolute paths under `/Workspace`.
-**Total weird names flagged:** 31
+**Total weird names flagged:** 27
 
-## Scope note: `workspace` vs sibling packages
+## Scope note: `workspaceobjects` vs sibling packages
 
-The Databricks SDK ships five packages whose names begin with "workspace". This audit covers only the first one; the others differ in scope:
+The Databricks SDK ships several packages whose names begin with "workspace". This audit covers the filesystem-style operations package, now `workspaceobjects`; the others differ in scope:
 
 | Package | Domain | Wire prefix |
 |---------|--------|-------------|
-| `workspace` (this audit) | Workspace filesystem (notebooks/folders/files) | `/api/2.0/workspace/` |
+| `workspaceobjects` (this audit) | Workspace filesystem (notebooks/folders/files) | `/api/2.0/workspace/` |
 | `workspaceassignment` | Account-level principal-to-workspace permission assignments | account API |
 | `workspacebindings` | Securable-to-workspace bindings (catalog/credential/location) | Unity Catalog API |
 | `workspaceconf` | Untyped key/value workspace configuration | `/api/2.0/workspace-conf` |
 | `workspacesettings` | Strongly-typed workspace settings (compliance security profile, automatic cluster update, etc.) | various `/api/2.0/settings/*` |
 
-The package name `workspace` is the most overloaded of the five — every Databricks API operates "in a workspace," so a package literally called `workspace` provides almost no scope signal. A name like `workspacefiles`, `workspacefs`, or `workspacenotebooks` would convey that this is the filesystem-style API and would not collide conceptually with the other four "workspace*" packages. See finding 1.
-
 ## Summary table
 
 | # | Severity | Location | Name | Category |
 |---|----------|----------|------|----------|
-| 1 | High | package | `workspace` | Vague/generic package name (overloaded across 5+ "workspace*" packages) |
-| 2 | High | `model.ts` interface | `Delete`, `Export`, `Import`, `List`, `Mkdirs`, `GetStatus` | Verb-as-type, reserved-word collisions |
-| 3 | High | `model.ts` enum | `ExportFormat` used as the `format` field of `Import` | Misleading name (an "ExportFormat" governs imports too) |
-| 4 | High | `model.ts` enum value | `ExportFormat.AUTO` | Misleading enum value (server inspects content) |
-| 5 | High | `model.ts` enum value | `ExportFormat.RAW` | Vague enum value (no documented format, only a use-case story) |
-| 6 | High | `model.ts` enum value | `ObjectType.OBJECT_TYPE_UNSPECIFIED` | Redundant enum prefix + proto sentinel leak |
-| 7 | High | `model.ts` field | `ObjectInfo.objectId` and `ObjectInfo.resourceId` | Duplicate concept (two IDs for the same object, undifferentiated names) |
-| 8 | High | `model.ts` enum | `Language` | Vague/generic, no domain prefix |
-| 9 | Medium | `model.ts` enum value | `ObjectType.LIBRARY` | Misleading (library notebooks are an obsolete concept; deprecated in product) |
-| 10 | Medium | `model.ts` field | `List.notebooksModifiedAfter` | Field contradicts type domain (list of all objects, filter only on notebooks) |
-| 11 | Medium | `model.ts` field | `Export.directDownload` | Verb-as-noun field + boolean named like a noun |
-| 12 | Medium | `model.ts` field | `Export_Response.fileType` | Underspecified (raw extension? MIME type? format enum?) |
-| 13 | Medium | `model.ts` field | `Export_Response.content` typed `Uint8Array` | Type contradicts JSDoc ("base64-encoded content") |
-| 14 | Medium | `model.ts` field | `Import.content` typed `Uint8Array` | Same type/JSDoc mismatch as 13 in the reverse direction |
-| 15 | Medium | `model.ts` field | `ObjectInfo.createdAt` and `ObjectInfo.modifiedAt` | Underspecified time fields (mtime/ctime? wall clock?) and unit ambiguity (epoch millis as number) |
-| 16 | Medium | `model.ts` field | `ObjectInfo.size` | Underspecified (file size in bytes per JSDoc, but no unit in the name) |
-| 17 | Medium | `model.ts` field | `Mkdirs.path` | Singular/plural mismatch — type name plural (`Mkdirs`), field singular (`path`) |
-| 18 | Medium | `model.ts` type | `Mkdirs` | Cryptic abbreviation (Unix-ism, "mkdirs" not "createDirectory") |
-| 19 | Medium | `model.ts` enum value | `Language.R` | Single-letter identifier (clashes with `package R Markdown`) |
-| 20 | Medium | `model.ts` enum value | `Language.SCALA`, `PYTHON`, `SQL`, `R` | Missing `LANGUAGE_` prefix elsewhere, raw values overlap with cluster/job runtime names |
-| 21 | Medium | `client.ts` method | `getStatus` | Vague verb (status of what?), inconsistent with `list`/`export` |
-| 22 | Medium | `model.ts` interface | `GetStatus` | Verb-as-type with no `Request` suffix (whole SDK is inconsistent on this) |
-| 23 | Medium | `model.ts` field | `Delete.recursive` | Underspecified boolean (verbatim Unix flag, no domain reading) |
-| 24 | Low | `model.ts` enum value | `ExportFormat.R_MARKDOWN` | Underscore inside enum value matches wire, but mixes shape with `JUPYTER`/`HTML` (single tokens) |
-| 25 | Low | `model.ts` enum value | `ExportFormat.DBC` | Cryptic abbreviation (Databricks archive) |
-| 26 | Low | `model.ts` enum | `ExportOutputs` | Singular/plural — type is `Outputs` (plural), field on `Export` is also `outputs`, values `ALL`/`NONE` describe whether outputs are included |
-| 27 | Low | `model.ts` field | `Export.outputs` typed `ExportOutputs` | Field name == type-suffix tautology |
-| 28 | Low | `model.ts` interface | `ObjectInfo` | Generic name ("info" suffix used inconsistently across SDK) |
-| 29 | Low | `model.ts` field | `List_Response.objects` | Generic field (`objects`) for `ObjectInfo[]` |
-| 30 | Low | `client.ts` method | `mkdirs` | Verb-tense / casing inconsistency vs `createDirectory` analog elsewhere in SDK |
-| 31 | Low | docstrings | "We will inspect…" / "This is introduced to unblock a DR use case" | First-person and ticket-driven prose in public JSDoc |
+| 1 | High | `model.ts` enum | `ExportFormat` used as the `format` field of `ImportRequest` | Misleading name (an "ExportFormat" governs imports too) |
+| 2 | High | `model.ts` enum value | `ExportFormat.AUTO` | Misleading enum value (server inspects content) |
+| 3 | High | `model.ts` enum value | `ExportFormat.RAW` | Vague enum value (no documented format, only a use-case story) |
+| 4 | High | `model.ts` field | `ObjectInfo.objectId` and `ObjectInfo.resourceId` | Duplicate concept (two IDs for the same object, undifferentiated names) |
+| 5 | High | `model.ts` enum | `Language` | Vague/generic, no domain prefix |
+| 6 | Medium | `model.ts` enum value | `ObjectType.LIBRARY` | Misleading (library notebooks are an obsolete concept; deprecated in product) |
+| 7 | Medium | `model.ts` field | `ListRequest.notebooksModifiedAfter` | Field contradicts type domain (list of all objects, filter only on notebooks) |
+| 8 | Medium | `model.ts` field | `ExportRequest.directDownload` | Verb-as-noun field + boolean named like a noun |
+| 9 | Medium | `model.ts` field | `ExportRequest_Response.fileType` | Underspecified (raw extension? MIME type? format enum?) |
+| 10 | Medium | `model.ts` field | `ExportRequest_Response.content` typed `Uint8Array` | Type contradicts JSDoc ("base64-encoded content") |
+| 11 | Medium | `model.ts` field | `ImportRequest.content` typed `Uint8Array` | Same type/JSDoc mismatch as 10 in the reverse direction |
+| 12 | Medium | `model.ts` field | `ObjectInfo.createdAt` and `ObjectInfo.modifiedAt` | Underspecified time fields (mtime/ctime? wall clock?) and unit ambiguity (epoch millis as number) |
+| 13 | Medium | `model.ts` field | `ObjectInfo.size` | Underspecified (file size in bytes per JSDoc, but no unit in the name) |
+| 14 | Medium | `model.ts` field | `MkdirsRequest.path` | Singular/plural mismatch — type name plural (`Mkdirs`), field singular (`path`) |
+| 15 | Medium | `model.ts` type | `MkdirsRequest` | Cryptic abbreviation (Unix-ism, "mkdirs" not "createDirectory") |
+| 16 | Medium | `model.ts` enum value | `Language.R` | Single-letter identifier (clashes with `package R Markdown`) |
+| 17 | Medium | `client.ts` method | `getStatus` | Vague verb (status of what?), inconsistent with `list`/`export` |
+| 18 | Medium | `model.ts` field | `DeleteRequest.recursive` | Underspecified boolean (verbatim Unix flag, no domain reading) |
+| 19 | Low | `model.ts` enum value | `ExportFormat.R_MARKDOWN` | Underscore inside enum value matches wire, but mixes shape with `JUPYTER`/`HTML` (single tokens) |
+| 20 | Low | `model.ts` enum value | `ExportFormat.DBC` | Cryptic abbreviation (Databricks archive) |
+| 21 | Low | `model.ts` interface | `ObjectInfo` | Generic name ("info" suffix used inconsistently across SDK) |
+| 22 | Low | `model.ts` field | `ListRequest_Response.objects` | Generic field (`objects`) for `ObjectInfo[]` |
+| 23 | Low | `client.ts` method | `mkdirs` | Verb-tense / casing inconsistency vs `createDirectory` analog elsewhere in SDK |
+| 24 | Low | docstrings | "We will inspect…" / "This is introduced to unblock a DR use case" | First-person and ticket-driven prose in public JSDoc |
+| 25 | High | `model.ts` types | `DeleteRequest_Response`, `ExportRequest_Response`, `ImportRequest_Response`, `ListRequest_Response`, `MkdirsRequest_Response` | Proto-architectural-leak (`_Response` infix encodes proto nested-message name) |
+| 26 | High | `model.ts` schema constants | `unmarshalDeleteRequest_ResponseSchema`, `unmarshalExportRequest_ResponseSchema`, `unmarshalImportRequest_ResponseSchema`, `unmarshalListRequest_ResponseSchema`, `unmarshalMkdirsRequest_ResponseSchema` | Proto-architectural-leak (schema const names carry the proto nested-message infix into the public schema identifiers) |
+| 27 | Observation | source files | `// Proto-style nested message name.` eslint-disable comments at `model.ts:69,96,146,156,170,202,206,221,225,235` and `index.ts` re-exports | Proto-architectural-leak surfacing: the lint-rule suppressions name "Proto" directly in source, confirming the leak is structural, not incidental |
 
 ## High severity
 
-### 1. `workspace` — vague/generic package name (overloaded)
+### 1. `ExportFormat` reused for `ImportRequest.format` — misleading enum
 
-**Location:** `package.json` → `@databricks/sdk-workspace`
-
-The package is named after a noun every Databricks user already associates with "the whole product." Five other npm packages also start with `workspace`. Without reading `client.ts`, nothing in the name tells a TS consumer that this package's scope is "files and folders under `/Workspace` in the workspace tree." The wire URL prefix `/api/2.0/workspace/` is the only clue.
-
-A name that conveys scope:
-
-- `workspacefiles` — already exists conceptually (there is a separate `files` package for `/Files/`); but matches the canonical product wording "Workspace Files."
-- `workspacefs` — matches the filesystem metaphor of `list`/`mkdirs`/`getStatus`.
-- `workspacenotebooks` — narrowest, but `Import`/`Export` also handle files and DBC archives, so this would undersell.
-
-Cross-package collision: a user typing `import { ... } from '@databricks/sdk-workspace/v1'` gets `Client`, but so does every other "workspace*" package. The TS class is also called `Client` (see finding 24 in the SDK-wide patterns).
-
-### 2. `Delete`, `Export`, `Import`, `List`, `Mkdirs`, `GetStatus` — verb-as-type & reserved-word collisions
-
-**Location:** `model.ts:65`, `:79`, `:121`, `:126`, `:163`, `:176`
-
-```ts
-export interface Delete { ... }
-export interface Export { ... }
-export interface GetStatus { ... }
-export interface Import { ... }
-export interface List { ... }
-export interface Mkdirs { ... }
-```
-
-Three of these are JavaScript reserved or contextually reserved words:
-
-- `Delete` shadows the `delete` operator (case-different but visually confusing).
-- `Export` and `Import` collide with ES module syntax; the file already does `import type { Import } from './model'` which reads as a syntax error at a glance.
-- `List` shadows `Array`/`List` from common stdlib vocabulary.
-- `Mkdirs` is a Unix verb fragment.
-- `GetStatus` is verb+noun.
-
-Every other request type in the SDK follows the pattern `<Verb><Noun>Request` (e.g. `CreateAlertRequest`, `DeleteCatalogRequest`). This package omits both the `Request` suffix and the noun. The interfaces are also bare verbs, which makes type signatures like `async delete(req: Delete)` unreadable — at the call site you cannot tell whether `Delete` is the request type, the response type, the verb, or a builtin.
-
-Idiomatic TS would be `DeleteRequest` / `DeleteWorkspaceObjectRequest` (matching the rest of the SDK), or shorter: `DeleteRequest` / `ExportRequest` / `ImportRequest` / `ListRequest` / `MkdirsRequest` / `GetStatusRequest`. The current names are 1:1 with the Go SDK's `workspace.Delete`/`workspace.Export` Go struct names — in Go, package-prefixing makes `workspace.Delete` unambiguous; in TS, after `import {Delete} from '@databricks/sdk-workspace/v1'`, the prefix is gone.
-
-### 3. `ExportFormat` reused for `Import.format` — misleading enum
-
-**Location:** `model.ts:6-25`; used as `Import.format` at `:143`
+**Location:** `model.ts:5-25`; used as `ImportRequest.format` at `:129`
 
 ```ts
 export enum ExportFormat {
@@ -107,18 +66,18 @@ export enum ExportFormat {
   ...
 }
 
-export interface Import {
+export interface ImportRequest {
   ...
   format?: ExportFormat | undefined;
   ...
 }
 ```
 
-The enum is named `ExportFormat` but is used as the format for both `Import.format` and `Export.format`. The Go SDK's name (`ExportFormat`) leaks here. A neutral name like `WorkspaceObjectFormat` or `NotebookFormat` would describe both directions. The JSDoc on `Import.format` even lists the values (SOURCE, HTML, JUPYTER, DBC, R_MARKDOWN) as if they were import-specific, while the enum description says "for workspace import and export."
+The enum is named `ExportFormat` but is used as the format for both `ImportRequest.format` and `ExportRequest.format`. The Go SDK's name (`ExportFormat`) leaks here. A neutral name like `WorkspaceObjectFormat` or `NotebookFormat` would describe both directions. The JSDoc on `ImportRequest.format` even lists the values (SOURCE, HTML, JUPYTER, DBC, R_MARKDOWN) as if they were import-specific, while the enum description says "for workspace import and export."
 
-There is also a subtle asymmetry: `Import.format` documents AUTO as "depending on extension," `Export.format` documents AUTO as "depending on object type." Same enum value, different server behaviour per direction.
+There is also a subtle asymmetry: `ImportRequest.format` documents AUTO as "depending on extension," `ExportRequest.format` documents AUTO as "depending on object type." Same enum value, different server behaviour per direction.
 
-### 4. `ExportFormat.AUTO` — misleading enum value
+### 2. `ExportFormat.AUTO` — misleading enum value
 
 **Location:** `model.ts:17-18`
 
@@ -129,7 +88,7 @@ AUTO = 'AUTO',
 
 `AUTO` reads as "automatic file selection," but the value means "server inspects payload bytes to guess the file type." For an export request, "AUTO" means "decide based on the object's type." The single token serves two different inferred behaviors. `DETECT_FROM_CONTENT` / `DETECT_FROM_OBJECT` (split into two enums) would be honest.
 
-### 5. `ExportFormat.RAW` — vague enum value
+### 3. `ExportFormat.RAW` — vague enum value
 
 **Location:** `model.ts:19-24`
 
@@ -146,30 +105,9 @@ RAW = 'RAW',
 
 `ZIP_PASSTHROUGH` or `BINARY` would describe the actual data path. Right now a reader sees `ExportFormat.RAW` and has to read three lines of JSDoc to understand it.
 
-### 6. `ObjectType.OBJECT_TYPE_UNSPECIFIED` — redundant enum prefix + proto sentinel leak
+### 4. `ObjectInfo.objectId` and `ObjectInfo.resourceId` — duplicate concept, undifferentiated names
 
-**Location:** `model.ts:48-52`
-
-```ts
-export enum ObjectType {
-  /**
-   * As of 2023-10 this is used only by list-repo API so that repos can gracefully handle errors
-   * for unsupported types.
-   */
-  OBJECT_TYPE_UNSPECIFIED = 'OBJECT_TYPE_UNSPECIFIED',
-  NOTEBOOK = 'NOTEBOOK',
-  ...
-}
-```
-
-Two problems in one value:
-
-1. Enum prefix repetition: the enum is `ObjectType`, the value is `OBJECT_TYPE_UNSPECIFIED`. Every value would be readable as `ObjectType.NOTEBOOK` — the others (good) drop the prefix; this one (bad) retains it. The proto-style `<ENUM_NAME>_UNSPECIFIED` is documented as a proto convention, not a TS one.
-2. Proto sentinel leak: the JSDoc explicitly says this value is only used by `list-repo` for graceful unsupported-type handling. It is a server implementation detail. A TS consumer constructing an `ObjectInfo` should never set this. Like `Aggregation.UNKNOWN` and similar leaks elsewhere, this is the proto default-value mechanism surfacing into the SDK.
-
-### 7. `ObjectInfo.objectId` and `ObjectInfo.resourceId` — duplicate concept, undifferentiated names
-
-**Location:** `model.ts:209-214`
+**Location:** `model.ts:194-199`
 
 ```ts
 /** Unique identifier for the object. */
@@ -185,9 +123,9 @@ Likely truth: `objectId` is the legacy 64-bit workspace-local numeric ID; `resou
 
 Also, `objectId` is typed `number` — JavaScript numbers are 64-bit float; if the server ID exceeds 2^53, precision is lost. Other SDK types use `bigint` or string for similar IDs.
 
-### 8. `Language` — vague/generic, no domain prefix
+### 5. `Language` — vague/generic, no domain prefix
 
-**Location:** `model.ts:35-44`
+**Location:** `model.ts:27-37`
 
 ```ts
 /** The language of notebook. */
@@ -199,15 +137,53 @@ export enum Language {
 }
 ```
 
-A top-level export named `Language` in a domain package. Many other SDK packages reference "language" (`apps` runtimes, `jobs` task language, `clusters` runtime languages, `pipelines` SQL/Python). The package re-exports `Language` without a `Notebook` or `Workspace` qualifier. A user importing two SDK packages can get `Language` from `workspace` and a different `Language` from `apps` or `jobs` (when those add similar enums).
+A top-level export named `Language` in a domain package. Many other SDK packages reference "language" (`apps` runtimes, `jobs` task language, `clusters` runtime languages, `pipelines` SQL/Python). The package re-exports `Language` without a `Notebook` or `Workspace` qualifier. A user importing two SDK packages can get `Language` from `workspaceobjects` and a different `Language` from `apps` or `jobs` (when those add similar enums).
 
 `NotebookLanguage` is the natural domain prefix; the wire field is `notebook.language`.
 
+### 25. `*Request_Response` types — proto nested-message naming leaks into the public surface
+
+**Location:** `model.ts:70` (`DeleteRequest_Response`), `model.ts:97` (`ExportRequest_Response`), `model.ts:147` (`ImportRequest_Response`), `model.ts:157` (`ListRequest_Response`), `model.ts:171` (`MkdirsRequest_Response`); re-exported from `index.ts:9,11,13,15,17`.
+
+```ts
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface DeleteRequest_Response {}
+...
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ExportRequest_Response { ... }
+```
+
+**Why:** the `_Response` infix encodes the protobuf nested-message path (`message DeleteRequest { message Response { ... } }`) directly into a TS identifier. The eslint-disable comment names the leak verbatim ("Proto-style nested message name"). TypeScript consumers do not have proto-nested types; the underscored name reads as "snake_case in PascalCase" — a shape no other TS SDK package uses.
+
+**Category:** Proto-architectural-leak — proto/IDL implementation detail surfaced in public type names.
+
+**Suggested:** drop the `_Response` infix and pick a flat name: `DeleteResponse`, `ExportResponse`, `ImportResponse`, `ListResponse`, `MkdirsResponse`. Where the response carries domain content (`ListResponse` → `ObjectInfo[]`), a content-bearing name like `ListObjectsResponse` would also work.
+
+**Rationale:** TS naming conventions are PascalCase without underscores. The `Request_Response` shape forces every consumer call site (`Promise<DeleteRequest_Response>`, `unmarshalDeleteRequest_ResponseSchema`) to carry the proto path. It also implies a parent-child semantic relationship between `DeleteRequest` and `DeleteRequest_Response` that does not exist on the wire (the response is a sibling message in proto, just nested for namespacing).
+
+### 26. `unmarshal*Request_ResponseSchema` constants — proto leak into schema identifier names
+
+**Location:** `model.ts:203` (`unmarshalDeleteRequest_ResponseSchema`), `model.ts:207` (`unmarshalExportRequest_ResponseSchema`), `model.ts:222` (`unmarshalImportRequest_ResponseSchema`), `model.ts:226` (`unmarshalListRequest_ResponseSchema`), `model.ts:236` (`unmarshalMkdirsRequest_ResponseSchema`); imported and used in `client.ts:38-42`.
+
+```ts
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> =
+  z.object({});
+```
+
+**Why:** the proto-nested name from finding 25 propagates into every schema constant. The schema identifier itself (`unmarshalDeleteRequest_ResponseSchema`) is a public export carrying the proto path. The unmarshal verb is also kept (separate, deliberate per project rules), but the `Request_Response` infix on the schema names is the proto leak surfacing twice — once on the type, once on the schema constant.
+
+**Category:** Proto-architectural-leak — schema-identifier inheritance of the proto nested-message path.
+
+**Suggested:** rename in lockstep with finding 25: `unmarshalDeleteResponseSchema`, `unmarshalExportResponseSchema`, etc.
+
+**Rationale:** schema constants are public API (re-exportable, used by downstream code). Carrying the proto path into them locks the proto shape into the SDK's public surface even for consumers who never see the underlying type alias.
+
 ## Medium severity
 
-### 9. `ObjectType.LIBRARY` — obsolete concept
+### 6. `ObjectType.LIBRARY` — obsolete concept
 
-**Location:** `model.ts:55`
+**Location:** `model.ts:48`
 
 ```ts
 NOTEBOOK = 'NOTEBOOK',
@@ -220,12 +196,12 @@ DASHBOARD = 'DASHBOARD',
 
 Workspace "libraries" (as a top-level object type) are obsolete — Databricks moved libraries to cluster-level and job-level configurations. The value is exported without a deprecation marker and without JSDoc explanation. Consumers writing `if (obj.objectType === ObjectType.LIBRARY)` are coding against a dead branch.
 
-### 10. `List.notebooksModifiedAfter` — field contradicts type domain
+### 7. `ListRequest.notebooksModifiedAfter` — field contradicts type domain
 
-**Location:** `model.ts:163-168`
+**Location:** `model.ts:149-154`
 
 ```ts
-export interface List {
+export interface ListRequest {
   /** The absolute path of the notebook or directory. */
   path?: string | undefined;
   /** UTC timestamp in milliseconds */
@@ -237,11 +213,11 @@ export interface List {
 
 `modifiedAfterMillis` (without the `notebooks` prefix) or `notebookModifiedAfterMillis` (with the singular subject matching the filter's actual scope) would describe what the server does.
 
-The unit (`milliseconds`) is in JSDoc only, not in the field name. Other timestamp fields in the same file are documented in milliseconds but named `createdAt` / `modifiedAt`. Inconsistent — see finding 15.
+The unit (`milliseconds`) is in JSDoc only, not in the field name. Other timestamp fields in the same file are documented in milliseconds but named `createdAt` / `modifiedAt`. Inconsistent — see finding 12.
 
-### 11. `Export.directDownload` — verb-as-noun field, weak boolean
+### 8. `ExportRequest.directDownload` — verb-as-noun field, weak boolean
 
-**Location:** `model.ts:96-99`
+**Location:** `model.ts:88-92`
 
 ```ts
 /**
@@ -255,9 +231,9 @@ directDownload?: boolean | undefined;
 
 The flag also has a semantic problem: when `true`, the response body is raw bytes; when `false`, the response body is a JSON object with base64. So the field changes the entire response content type, but the generated client (`export` method) parses the response identically in both cases. Setting `directDownload: true` would crash the parser.
 
-### 12. `Export_Response.fileType` — underspecified
+### 9. `ExportRequest_Response.fileType` — underspecified
 
-**Location:** `model.ts:117-119`
+**Location:** `model.ts:103-105`
 
 ```ts
 /** The file type of the exported file. */
@@ -268,9 +244,9 @@ The doc says "the file type" but doesn't say in what form. Is it the extension (
 
 `mimeType`, `extension`, or `format: ExportFormat` would commit.
 
-### 13. `Export_Response.content` typed `Uint8Array` with "base64-encoded" doc
+### 10. `ExportRequest_Response.content` typed `Uint8Array` with "base64-encoded" doc
 
-**Location:** `model.ts:112-116`
+**Location:** `model.ts:98-102`
 
 ```ts
 /**
@@ -282,9 +258,9 @@ content?: Uint8Array | undefined;
 
 The JSDoc says the content is base64-encoded; the type is `Uint8Array` (raw bytes). The client decodes base64 before populating this field, so the field actually holds decoded bytes, contradicting the JSDoc. The JSDoc was lifted from the wire format documentation and not updated for the post-decode TS shape. A reader holding the type sees "Uint8Array of base64-encoded data," which is technically meaningless (Uint8Arrays are bytes, not base64).
 
-### 14. `Import.content` typed `Uint8Array` with "base64-encoded" doc
+### 11. `ImportRequest.content` typed `Uint8Array` with "base64-encoded" doc
 
-**Location:** `model.ts:146-152`
+**Location:** `model.ts:132-138`
 
 ```ts
 /**
@@ -295,11 +271,11 @@ The JSDoc says the content is base64-encoded; the type is `Uint8Array` (raw byte
 content?: Uint8Array | undefined;
 ```
 
-Mirror of finding 13 in the reverse direction. The client encodes the bytes to base64 before sending; the TS user passes raw bytes despite the JSDoc saying "base64-encoded." Worse: a defensive caller who reads the JSDoc and base64-encodes their bytes will double-encode and corrupt the upload.
+Mirror of finding 10 in the reverse direction. The client encodes the bytes to base64 before sending; the TS user passes raw bytes despite the JSDoc saying "base64-encoded." Worse: a defensive caller who reads the JSDoc and base64-encodes their bytes will double-encode and corrupt the upload.
 
-### 15. `ObjectInfo.createdAt` and `ObjectInfo.modifiedAt` — unit ambiguity, `Number` precision
+### 12. `ObjectInfo.createdAt` and `ObjectInfo.modifiedAt` — unit ambiguity, `Number` precision
 
-**Location:** `model.ts:204-208`
+**Location:** `model.ts:190-193`
 
 ```ts
 /** Only applicable to files. The creation UTC timestamp. */
@@ -310,12 +286,12 @@ modifiedAt?: number | undefined;
 
 Two issues:
 
-1. The names use the `At` suffix (TS-friendly) but the type is `number`. Unit (milliseconds vs seconds) is documented nowhere in this type. The companion `List.notebooksModifiedAfter` is documented as milliseconds; one infers consistency, but the type does not declare it. Most of the SDK uses `Temporal.Instant` for `At`-suffixed timestamps; here it's `number`.
+1. The names use the `At` suffix (TS-friendly) but the type is `number`. Unit (milliseconds vs seconds) is documented nowhere in this type. The companion `ListRequest.notebooksModifiedAfter` is documented as milliseconds; one infers consistency, but the type does not declare it. Most of the SDK uses `Temporal.Instant` for `At`-suffixed timestamps; here it's `number`.
 2. "Only applicable to files" — the field is on `ObjectInfo`, which also describes notebooks, directories, etc. Setting expectations via "only applicable" in JSDoc is a code smell: the field shape doesn't change based on object type.
 
-### 16. `ObjectInfo.size` — underspecified
+### 13. `ObjectInfo.size` — underspecified
 
-**Location:** `model.ts:210-211`
+**Location:** `model.ts:196-197`
 
 ```ts
 /** Only applicable to files. The file size in bytes can be returned. */
@@ -324,12 +300,12 @@ size?: number | undefined;
 
 `size` is a unit-less name. JSDoc says "file size in bytes can be returned" (the "can be" is also ambiguous — is it always returned for files?). `sizeBytes` or `sizeInBytes` is the convention used elsewhere in Databricks SDKs (`clusters.clusterMemoryMb`, `pipelines.storageBytes`). At scale-up time (>4GiB) `number` loses precision; `bigint` or `string` would be safer.
 
-### 17. `Mkdirs.path` — singular/plural mismatch with the type name
+### 14. `MkdirsRequest.path` — singular/plural mismatch with the type name
 
-**Location:** `model.ts:176-182`
+**Location:** `model.ts:162-168`
 
 ```ts
-export interface Mkdirs {
+export interface MkdirsRequest {
   /**
    * The absolute path of the directory. If the parent directories do not exist, it will also create them.
    * ...
@@ -338,19 +314,19 @@ export interface Mkdirs {
 }
 ```
 
-The type is plural (`Mkdirs` — "make directories"), but it takes one path. The pluralization comes from the Unix `mkdir -p` semantics ("makes the directory and any missing parent directories"), but the input is a single path. A user reading `Mkdirs` expects to pass an array.
+The type's verb is plural (`Mkdirs` — "make directories"), but it takes one path. The pluralization comes from the Unix `mkdir -p` semantics ("makes the directory and any missing parent directories"), but the input is a single path. A user reading `MkdirsRequest` expects to pass an array.
 
-### 18. `Mkdirs` — Unix-ism
+### 15. `MkdirsRequest` — Unix-ism
 
-**Location:** `model.ts:176`; `client.ts:254`
+**Location:** `model.ts:162`; `client.ts:266`
 
 `mkdirs` is a Unix verb. The convention in TS SDKs is `createDirectory` (matches the Files API's `createDirectory`). The Databricks SDK's own `files` package uses `createDirectory` for a similar operation. Inconsistent verb across packages.
 
 Also: the wire path is `/api/2.0/workspace/mkdirs` (plural verb), but the request body holds one path. So even at the wire level, the name is misleading.
 
-### 19. `Language.R` — single-letter identifier
+### 16. `Language.R` — single-letter identifier
 
-**Location:** `model.ts:43`
+**Location:** `model.ts:36`
 
 ```ts
 export enum Language {
@@ -361,51 +337,23 @@ export enum Language {
 }
 ```
 
-`Language.R` is the only single-character enum value in the package. Auto-import tools, grep, and refactoring tools handle one-letter identifiers poorly. The wire format also uses just `R`, so a rename in the SDK would need a string mapping; nonetheless, `Language.R_LANG` (matching the `R_MARKDOWN` format value) or simply documenting `R` more thoroughly would help.
+`Language.R` is the only single-character enum value in the package. Auto-import tools, grep, and refactoring tools handle one-letter identifiers poorly. The wire format also uses just `R`, so wire compatibility constrains the value, but the enum key (the TS identifier) can diverge from the wire string. Documenting `R` more thoroughly, or treating it as the lone exception to a single-token convention, would help readers grepping for the symbol.
 
-### 20. `Language` values — no `LANGUAGE_` prefix, overlap with runtime names
+### 17. `getStatus` — vague verb on the client
 
-**Location:** `model.ts:35-44`
-
-```ts
-SCALA = 'SCALA',
-PYTHON = 'PYTHON',
-SQL = 'SQL',
-R = 'R',
-```
-
-The enum values are bare language names that collide with cluster runtime IDs (`DBR-15.4-SCALA-2.12`), job task types (`SQL`, `PYTHON_WHEEL_TASK`), and library types. A user querying `notebook.language === 'PYTHON'` may also see `task.taskType === 'PYTHON_WHEEL_TASK'` and not realize the two `PYTHON` strings come from different enums.
-
-Other SDK enums add a prefix (`TaskType.PYTHON_WHEEL_TASK`); this one does not.
-
-### 21. `getStatus` — vague verb on the client
-
-**Location:** `client.ts:154`
+**Location:** `client.ts:157`
 
 ```ts
-async getStatus(req: GetStatus, options?: CallOptions): Promise<ObjectInfo>
+async getStatus(req: GetStatusRequest, options?: CallOptions): Promise<ObjectInfo>
 ```
 
 "Status" of what? In TS SDKs, `getStatus` usually returns a status enum or a small status object (e.g., job run status). Here it returns full `ObjectInfo` metadata — a filesystem `stat`, not a status. The Files API uses `getMetadata`. The Go SDK uses `GetStatus` (from `os.Stat` ancestry). Either `getMetadata` or `stat` would describe the actual operation.
 
-The method also returns `Promise<ObjectInfo>` while `list` returns `Promise<List_Response>` — inconsistent shape (one returns the bare entity, one returns a wrapper). See finding 29.
+The method also returns `Promise<ObjectInfo>` while `list` returns `Promise<ListRequest_Response>` — inconsistent shape (one returns the bare entity, one returns a wrapper). See finding 22.
 
-### 22. `GetStatus` — verb-as-type without `Request` suffix
+### 18. `DeleteRequest.recursive` — Unix flag, no domain reading
 
-**Location:** `model.ts:121-124`
-
-```ts
-export interface GetStatus {
-  /** The absolute path of the notebook or directory. */
-  path?: string | undefined;
-}
-```
-
-Combined with finding 2, `GetStatus` is the only request type whose name is composed of two verbs. The other request types (`Delete`, `Export`, `Import`, `List`, `Mkdirs`) are single verbs. The package mixes the two patterns. `GetStatusRequest` is what the rest of the SDK uses.
-
-### 23. `Delete.recursive` — Unix flag, no domain reading
-
-**Location:** `model.ts:69-73`
+**Location:** `model.ts:61-66`
 
 ```ts
 /**
@@ -420,7 +368,7 @@ recursive?: boolean | undefined;
 
 ## Low severity
 
-### 24. `ExportFormat.R_MARKDOWN` — shape mismatch within enum
+### 19. `ExportFormat.R_MARKDOWN` — shape mismatch within enum
 
 **Location:** `model.ts:15-16`
 
@@ -436,7 +384,7 @@ RAW = 'RAW',
 
 Five of the seven values are single tokens; one is `R_MARKDOWN` with an underscore. SQL convention would also be `RMARKDOWN` or `RMD`. Inconsistent shape inside the same enum.
 
-### 25. `ExportFormat.DBC` — cryptic abbreviation
+### 20. `ExportFormat.DBC` — cryptic abbreviation
 
 **Location:** `model.ts:13-14`
 
@@ -447,45 +395,18 @@ DBC = 'DBC',
 
 DBC = "Databricks Archive." The acronym is product-specific. `DATABRICKS_ARCHIVE` would be readable. Wire-format compatibility (`DBC` is what the server expects) means the rename has to happen in the enum-key layer, not the enum-value layer — which TS supports cleanly.
 
-### 26. `ExportOutputs` — plural enum type for ALL/NONE values
+### 21. `ObjectInfo` — `Info` suffix used inconsistently across SDK
 
-**Location:** `model.ts:27-32`
-
-```ts
-export enum ExportOutputs {
-  /** All outputs will be exported */
-  ALL = 'ALL',
-  /** No outputs will be exported */
-  NONE = 'NONE',
-}
-```
-
-The enum models "which outputs to include" but is named `ExportOutputs` (plural). `OutputsFilter`, `OutputInclusion`, or `IncludeOutputs` (boolean) would read better. The two values `ALL` and `NONE` could equally be a boolean.
-
-Also: JSDoc on `Export.outputs` says "only ALL or NONE is documented publically, DATABRICKS is internal only" — admits there's a hidden third value, which means the enum is not exhaustive.
-
-### 27. `Export.outputs` typed `ExportOutputs` — type-suffix tautology
-
-**Location:** `model.ts:104-106`
-
-```ts
-outputs?: ExportOutputs | undefined;
-```
-
-Field and type both spell `outputs`. The user types `req.outputs = ExportOutputs.ALL`. Idiomatic phrasing would be `req.outputInclusion = OutputInclusion.ALL` or `req.includeOutputs = true`.
-
-### 28. `ObjectInfo` — `Info` suffix used inconsistently across SDK
-
-**Location:** `model.ts:188-214`
+**Location:** `model.ts:173-200`
 
 The `Info` suffix is a Go/Java convention for "POJO that describes a thing." TS SDKs vary: some use bare entity names (`Catalog`, `Cluster`), some use `Info`/`Details`. This package's only entity type is `ObjectInfo`. There is no companion `Object` — so the name reads consistently with itself, but the suffix is purely a hat-tip to Go.
 
-### 29. `List_Response.objects` — generic field for `ObjectInfo[]`
+### 22. `ListRequest_Response.objects` — generic field for `ObjectInfo[]`
 
-**Location:** `model.ts:171-174`
+**Location:** `model.ts:157-160`
 
 ```ts
-export interface List_Response {
+export interface ListRequest_Response {
   /** List of objects. */
   objects?: ObjectInfo[] | undefined;
 }
@@ -493,19 +414,19 @@ export interface List_Response {
 
 `objects` is the most generic JavaScript noun; it tells the reader nothing. `items`, `entries`, `paths`, or `workspaceObjects` would convey scope. The Go SDK has the same `Objects` field; transferring the name without adaptation gives a TS user a `resp.objects` access that reads like "the objects of the response."
 
-### 30. `mkdirs` — verb-tense / casing inconsistency
+### 23. `mkdirs` — verb-tense / casing inconsistency
 
-**Location:** `client.ts:254`
+**Location:** `client.ts:266`
 
 ```ts
-async mkdirs(req: Mkdirs, options?: CallOptions): Promise<Mkdirs_Response>
+async mkdirs(req: MkdirsRequest, options?: CallOptions): Promise<MkdirsRequest_Response>
 ```
 
 Other client methods read as verb-noun (`export`, `import`, `list`) or compound verb (`getStatus`). `mkdirs` is the only Unix-style contraction. The class also has a `delete` method (matches HTTP verb) but no `make` or `create` method. `createDirectory` would align with `delete` semantically.
 
-### 31. First-person and ticket-driven prose in public JSDoc
+### 24. First-person and ticket-driven prose in public JSDoc
 
-**Location:** `model.ts:17-18`, `:19-24`
+**Location:** `model.ts:17`, `:19-23`
 
 ```ts
 /** We will inspect the content of the payload to determine the type */
@@ -526,17 +447,15 @@ RAW = 'RAW',
 
 2. **Two ID fields, one entity.** `ObjectInfo.objectId` (numeric, legacy) and `ObjectInfo.resourceId` (string, unified-resource) are both returned, both documented as "unique identifier for the object," with no naming clue about which one to pass where. This is the single most user-hostile naming issue in the file.
 
-3. **`ExportFormat` is the import format.** The single enum services both `Import` and `Export` (good — DRY), but the name says only "Export." A neutral name (`NotebookFormat` or `WorkspaceObjectFormat`) would describe what it actually is.
+3. **`ExportFormat` is the import format.** The single enum services both `ImportRequest` and `ExportRequest` (good — DRY), but the name says only "Export." A neutral name (`NotebookFormat` or `WorkspaceObjectFormat`) would describe what it actually is.
 
-4. **`AUTO` means two different things.** Inside `ExportFormat`, `AUTO` on `Import` means "detect from file extension + header," and `AUTO` on `Export` means "decide from object type." Same enum value, different server-side algorithm.
+4. **`AUTO` means two different things.** Inside `ExportFormat`, `AUTO` on `ImportRequest` means "detect from file extension + header," and `AUTO` on `ExportRequest` means "decide from object type." Same enum value, different server-side algorithm.
 
-5. **Verb-as-type request names without `Request` suffix.** Six request interfaces (`Delete`, `Export`, `GetStatus`, `Import`, `List`, `Mkdirs`) ship without the `Request` suffix that the rest of the SDK uses. Combined with collisions against ES reserved-context words (`import`, `export`, `delete`), this makes the type names unusable without the package qualifier — which is exactly what TS users lose at import time.
+5. **`content: Uint8Array` documented as base64 in both directions.** Two fields hold post-decode bytes but their JSDoc reads as if they still hold base64 strings. A defensive user reading the JSDoc and base64-encoding their bytes will double-encode on the way in. The mismatch is silent and the failure mode is data corruption.
 
-6. **`content: Uint8Array` documented as base64 in both directions.** Two fields hold post-decode bytes but their JSDoc reads as if they still hold base64 strings. A defensive user reading the JSDoc and base64-encoding their bytes will double-encode on the way in. The mismatch is silent and the failure mode is data corruption.
+6. **`mkdirs` and `getStatus` are Unix/POSIX verbs that don't appear elsewhere in the SDK.** The `files` package uses `createDirectory` and `getMetadata`. The `repos` package uses `getRepo`. Picking one verb per concept and applying it across packages would let users transfer knowledge.
 
-7. **`mkdirs` and `getStatus` are Unix/POSIX verbs that don't appear elsewhere in the SDK.** The `files` package uses `createDirectory` and `getMetadata`. The `repos` package uses `getRepo`. Picking one verb per concept and applying it across packages would let users transfer knowledge.
-
-8. **Sentinel `OBJECT_TYPE_UNSPECIFIED` documented as "only used by list-repo."** The enum exports a value that the package consumers should never set but cannot remove without breaking the read side. A separate response-only enum or a `null` for "unknown" would be cleaner.
+7. **Proto nested-message names surface ten times in the public API (finding 27).** Every response type and its schema constant carries the `Request_Response` infix. The source files mark the leak in eight separate `eslint-disable-next-line ... -- Proto-style nested message name.` comments at `model.ts:69, :96, :146, :156, :170, :202, :206, :221, :225, :235`. The lint rule that would block this shape (`@typescript-eslint/naming-convention`) is suppressed package-wide for these identifiers. The suppression naming the leak ("Proto-style nested message name") confirms the issue is generator-level, not incidental — fixable only in the template that emits these types from the proto schema.
 
 ## Domain glossary
 
@@ -561,7 +480,19 @@ RAW = 'RAW',
 
 | File | Lines | Read in full |
 |------|-------|--------------|
-| `src/v1/model.ts` | 311 | yes |
-| `src/v1/client.ts` | 276 | yes |
+| `src/v1/model.ts` | 299 | yes |
+| `src/v1/client.ts` | 291 | yes |
 | `src/v1/utils.ts` | 151 | yes |
 | `src/v1/index.ts` | 21 | yes |
+
+## Fixed
+
+- #1 `workspace` package name (originally cited at `package.json` → `@databricks/sdk-workspace`): Fixed in regeneration on 2026-05-20 — package renamed to `workspaceobjects`, which conveys the filesystem-objects scope and no longer collides with the other "workspace*" packages.
+- #2 `Delete`, `Export`, `Import`, `List`, `Mkdirs`, `GetStatus` verb-as-type request interfaces (originally cited at `model.ts:65,:79,:121,:126,:163,:176`): Fixed in regeneration on 2026-05-20 — all request interfaces now carry a `Request` suffix (`DeleteRequest`, `ExportRequest`, `ImportRequest`, `ListRequest`, `MkdirsRequest`, `GetStatusRequest`), resolving the ES reserved-word collisions.
+- #22 `GetStatus` verb-as-type without `Request` suffix (originally cited at `model.ts:121-124`): Fixed in regeneration on 2026-05-20 — renamed to `GetStatusRequest`, consistent with the rest of the SDK.
+- #26 `ExportOutputs` plural enum type (originally cited at `model.ts:27-32`): Fixed in regeneration on 2026-05-20 — the `ExportOutputs` enum is no longer present in the generated model.
+- #27 `Export.outputs` typed `ExportOutputs` tautology (originally cited at `model.ts:104-106`): Fixed in regeneration on 2026-05-20 — the `outputs` field is no longer present on `ExportRequest`.
+
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
+
+Fixed in regeneration on 2026-05-22.

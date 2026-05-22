@@ -3,14 +3,14 @@
 **Path:** `packages/usagepolicy/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level "Usage Policy" management — create/get/list/update/delete cost-attribution policies that attach custom tags to billing usage and can be bound to specific workspaces. Hits `POST/GET/PATCH/DELETE /api/2.1/accounts/{accountId}/usage-policies`. The JSDoc on `UsagePolicy` reads "Contains the UsagePolicy details (same structure as BudgetPolicy)" — i.e. this package is an explicit clone of the sibling `budgetpolicy` package with a renamed entity and a bumped API version (`/api/2.1` vs `/api/2.0`).
-**Total weird names flagged:** 33
+**Total weird names flagged:** 35
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
 | Medium | 12 |
-| Low | 8 |
+| Low | 10 |
 | Observation | 5 |
 
 ## High severity
@@ -187,25 +187,37 @@
 - **Suggested name:** Fix to "its".
 - **Rationale:** Surfaces in editor hovers; small but persistent.
 
+### 29. `SortSpec_Field` proto-style underscore-nested enum name — `src/v1/model.ts:6`
+- **Why weird:** Underscored identifier `SortSpec_Field` mirrors protobuf's "ParentMessage_NestedEnum" wire convention and is unidiomatic in TypeScript. The file even carries `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.` on line 5, confirming the proto-architectural leak. Re-exported from `index.ts:5` so the leak reaches consumers verbatim.
+- **Category:** Proto-architectural leak — proto-nested-type naming convention surfaced into the TS public API.
+- **Suggested name:** `SortField` (or namespace it under `SortSpec` as `SortSpec.Field` if the nesting relationship matters).
+- **Rationale:** TS has no `Parent_Nested` convention; the underscore is a direct proto leak. Mirrors the same finding in `budgetpolicy` (`SortSpec_Field` at `budgetpolicy/src/v1/model.ts:8`).
+
+### 30. `buildHttpRequest` — `Http` mid-position infix — `src/v1/utils.ts:96`
+- **Why weird:** `Http` appears as a mid-position infix between the verb `build` and the noun `Request`. The function's role is "construct an `HttpRequest` value", but the `Http` infix in the function name redundantly leaks the transport layer into the verb. Same pattern in the imported `HttpRequest` type is fine (end suffix), but on the function it duplicates information already in the return type.
+- **Category:** Proto-architectural leak — transport-layer noun appearing mid-name.
+- **Suggested name:** `buildRequest` (return type `HttpRequest` already conveys the transport).
+- **Rationale:** Standard naming guidance: don't repeat the return-type noun's qualifier in the verb. Mirrors the same pattern in `budgetpolicy/src/v1/utils.ts:96`.
+
 ## Observations
 
-### 29. URL-path version split (`/api/2.1` vs `/api/2.0`) is the only meaningful API surface difference
+### 31. URL-path version split (`/api/2.1` vs `/api/2.0`) is the only meaningful API surface difference
 The only on-the-wire distinction between this package and `budgetpolicy` is the URL: `/api/2.1/accounts/{accountId}/usage-policies` (`client.ts:80,106,125,150,215`) vs `/api/2.0/accounts/{accountId}/budget-policies`. Same HTTP verbs, same query parameter names (`page_size`, `page_token`, `filter_by`, `sort_spec`, `limit_config`), same request and response shapes. If the two endpoints are intended to converge under the `2.1` URL, `budgetpolicy` is likely v1 of the same surface and this package supersedes it. If they are intended to coexist, the type names should not collide.
 - **Category:** 12 (duplicate concept), 1 (vague package boundary).
 
-### 30. No `FieldMask` import in `usagepolicy/src/v1/model.ts`
+### 32. No `FieldMask` import in `usagepolicy/src/v1/model.ts`
 Unlike `budgetpolicy/src/v1/model.ts:3-4` which imports `FieldMask` from `@databricks/sdk-core/wkt` and emits a `budgetPolicyFieldMask(...paths)` helper (lines 271-282), `usagepolicy` has no `FieldMask` machinery at all. This is linked to finding #20 (no `updateMask` on the update request). Either the API genuinely doesn't support field masks (the SDK is correct), or it does and the SDK is missing the support.
 - **Category:** Observation / 17 (cross-package inconsistency).
 
-### 31. Action-verb conventions in `Client`
+### 33. Action-verb conventions in `Client`
 The client consistently uses `create`/`delete`/`get`/`list`/`update` verbs. No mixed `fetch`/`retrieve`/`read`.
 - **Category:** 17 (observation of consistency, per rule that we flag inconsistencies — this is the inverse).
 
-### 32. Acronym casing `Id` consistently used as `Id`, not `ID`
+### 34. Acronym casing `Id` consistently used as `Id`, not `ID`
 `policyId`, `accountId`, `creatorUserId`, `bindingWorkspaceIds`, `requestId`, `pageSize`/`pageToken`. Internal consistency holds. Inconsistent only with external `URLSearchParams` (Web API; out of our control).
 - **Category:** 3 (observation — internal acronym style is consistent).
 
-### 33. Wire-form vs kebab-case vs TS casings (`usage_policies` / `usage-policies` / `usagePolicies`)
+### 35. Wire-form vs kebab-case vs TS casings (`usage_policies` / `usage-policies` / `usagePolicies`)
 The same identifier appears in three forms in the same client file:
 - `usage_policies` — wire form (in the Zod schemas via snake_case keys).
 - `usage-policies` — URL path segment (`client.ts:80,106,125,150,215`).

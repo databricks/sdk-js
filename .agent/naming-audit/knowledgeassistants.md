@@ -21,43 +21,31 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 
 ## High severity
 
-### 1. `KnowledgeAssistant_State.STATE_UNSPECIFIED` redundant enum prefix + proto sentinel — `src/v1/model.ts:10`
-- **Why weird:** Reading the value at a call site is `KnowledgeAssistant_State.STATE_UNSPECIFIED` — the token `State` appears twice, and the value is a proto-buf "zero value" sentinel that has no meaning in TypeScript (TS uses `undefined` for "not set"). The wire payload may still send `"STATE_UNSPECIFIED"` for forward compatibility, but the TypeScript side does not need a member for it: every field that takes a state is already `state?: ... | undefined`.
-- **Category:** 2 (redundant enum prefix), 14 (proto-style sentinel), 18 (long enum value).
-- **Suggested name:** Drop the `STATE_UNSPECIFIED` member; rename remaining values to PascalCase (`Creating`, `Active`, `Failed`) per the Google TypeScript Style Guide. Keep the existing wire values via Zod transform if needed.
-- **Rationale:** TS callers must either branch on `STATE_UNSPECIFIED` (which is semantically identical to `state === undefined`) or alias it. Either way the member adds friction without value.
-
-### 2. `KnowledgeSource_State.STATE_UNSPECIFIED` redundant enum prefix + proto sentinel — `src/v1/model.ts:18`
-- **Why weird:** Same as #1, applied to the source-side state enum.
-- **Category:** 2, 14, 18.
-- **Suggested name:** Drop `STATE_UNSPECIFIED`; PascalCase the remaining values (`Updating`, `Updated`, `FailedUpdate`).
-- **Rationale:** Identical reasoning to #1.
-
-### 3. `KnowledgeSource_State.FAILED_UPDATE` vs `KnowledgeAssistant_State.FAILED` — `src/v1/model.ts:13,21`
+### 1. `KnowledgeSource_State.FAILED_UPDATE` vs `KnowledgeAssistant_State.FAILED` — `src/v1/model.ts:13,21`
 - **Why weird:** The two sibling state enums describe lifecycle failure with two different conventions: the assistant uses bare `FAILED`, the source uses `FAILED_UPDATE`. Both enums also use bare past-participle progressives (`CREATING/UPDATING`) for the in-flight state, but only the source enum qualifies the failure with the verb (`FAILED_UPDATE`). A future `DELETE` operation on either resource would surface this asymmetry — the assistant would need `FAILED` to mean "create failed" *and* "delete failed," while the source already qualifies. Consumers reading both enums side by side will assume the assistant's `FAILED` covers something specific, when in fact it is overloaded.
 - **Category:** 6 (misleading), 17 (inconsistency across sibling enums), 13 (verb-tense inconsistency: bare `FAILED` vs `FAILED_UPDATE`).
 - **Suggested name:** Align: either both enums use bare `FAILED` (and document that it is operation-agnostic) or both qualify (`FAILED_CREATE` vs `FAILED_UPDATE`). The source enum's name `FAILED_UPDATE` (verb after `FAILED`) is also grammatically awkward — `UPDATE_FAILED` is the standard ordering.
 - **Rationale:** Two sibling enums in the same file with the same conceptual shape should use the same naming pattern. Today they diverge for no reason.
 
-### 4. `KnowledgeSource_State.UPDATED` reads as past-participle, not lifecycle terminal — `src/v1/model.ts:20`
+### 2. `KnowledgeSource_State.UPDATED` reads as past-participle, not lifecycle terminal — `src/v1/model.ts:20`
 - **Why weird:** The "successfully ingested / ready" terminal state is named `UPDATED` — past tense of the in-flight `UPDATING`. A reader scanning `UPDATING/UPDATED/FAILED_UPDATE` will see "the source has been updated" which sounds transient (it was just updated, then something else might happen). The sibling assistant enum uses `ACTIVE` for the same concept (the resource is ready and operational), which is much clearer.
 - **Category:** 6 (misleading), 13 (verb tense), 17 (inconsistency: assistant has `ACTIVE`, source has `UPDATED`).
 - **Suggested name:** `READY` (or `ACTIVE`, matching the assistant) for the ready/operational state. `UPDATING` stays for in-flight.
 - **Rationale:** `UPDATED` implies "the action happened" rather than "the resource is in a ready state." A state enum should describe the resource's condition, not the last operation that touched it.
 
-### 5. `name` field overloaded with semantic role — every request and entity — `src/v1/model.ts:55,64,72,84,120,129,137,160,209,315,324,359`
+### 3. `name` field overloaded with semantic role — every request and entity — `src/v1/model.ts:55,64,72,84,120,129,137,160,209,315,324,359`
 - **Why weird:** Every request and entity uses bare `name` for the "full resource name" (`knowledge-assistants/{id}` or `.../examples/{id}` etc.). At the call site this is fine for one resource type but consumers chain operations across `KnowledgeAssistant`, `KnowledgeSource`, and `Example` — three `name`s in scope all meaning different things. `DeleteKnowledgeSourceRequest.name` is the source name; `SyncKnowledgeSourcesRequest.name` is the **assistant** name (the parent — see model.ts:312). That ambiguity is exactly what generic `name` causes. Compare with `Example.exampleId` and `KnowledgeAssistant.id` on the same file: when a typed id exists, it is more specific than `name`.
 - **Category:** 1 (vague/generic), 15 (generic field losing meaning), 19 (underspecified id).
-- **Suggested name:** Type-qualified: `assistantName`, `sourceName`, `exampleName`. Or, more aligned with Google AIP-122 (https://google.aip.dev/122): keep `name` *only* when the field unambiguously identifies the **same** resource type that the request operates on; rename to `parent` (already used elsewhere — see #6) when it identifies a parent.
+- **Suggested name:** Type-qualified: `assistantName`, `sourceName`, `exampleName`. Or, more aligned with Google AIP-122 (https://google.aip.dev/122): keep `name` *only* when the field unambiguously identifies the **same** resource type that the request operates on; rename to `parent` (already used elsewhere — see #4) when it identifies a parent.
 - **Rationale:** `SyncKnowledgeSourcesRequest.name` is the prime offender: the field is the *assistant* id, but the request is named for sources, so a reader expects the field to be a source id. A typed name (`assistantName`) closes the gap.
 
-### 6. `parent` field generic and inconsistent with `name` — `src/v1/model.ts:30,45,248,300,315`
+### 4. `parent` field generic and inconsistent with `name` — `src/v1/model.ts:30,45,248,300,315`
 - **Why weird:** `CreateExampleRequest.parent`, `CreateKnowledgeSourceRequest.parent`, `ListExamplesRequest.parent`, `ListKnowledgeSourcesRequest.parent`, and `SyncKnowledgeSourcesRequest.name` all refer to **the same wire concept** — a `knowledge-assistants/{id}` resource path. Four of them are called `parent`; the fifth is called `name`. AIP-132 (https://google.aip.dev/132) uses `parent` for list/create requests under a parent resource, so the four are AIP-correct. The `SyncKnowledgeSourcesRequest.name` outlier is the bug — its doc even says "The resource name of the Knowledge Assistant" (model.ts:312).
 - **Category:** 17 (inconsistency: `parent` vs `name` for the same concept), 16 (field name contradicts the operation's target).
 - **Suggested name:** Rename `SyncKnowledgeSourcesRequest.name` → `parent` to match the four sibling requests; alternatively rename all five to `assistant` or `knowledgeAssistantName`.
 - **Rationale:** A consumer who's just learned that `parent` means "the assistant" will write `{parent: '...'}` into `SyncKnowledgeSourcesRequest` and the type checker will reject it for no good reason.
 
-### 7. `KnowledgeAssistant.id` vs `Example.exampleId` vs `KnowledgeSource.id` inconsistency — `src/v1/model.ts:93,164,235`
+### 5. `KnowledgeAssistant.id` vs `Example.exampleId` vs `KnowledgeSource.id` inconsistency — `src/v1/model.ts:93,164,235`
 - **Why weird:** Three sibling entities, three id conventions:
   - `KnowledgeAssistant.id?: string` (bare `id`)
   - `KnowledgeSource.id?: string` (bare `id`, no doc)
@@ -67,23 +55,35 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 - **Suggested name:** `KnowledgeAssistant.knowledgeAssistantId` or `KnowledgeAssistant.assistantId`; `KnowledgeSource.knowledgeSourceId` or `sourceId`; keep `Example.exampleId` as-is.
 - **Rationale:** Bare `id` is the most common footgun when two resources are passed to the same function (e.g., a UI dialog editing both an assistant and one of its sources). Typed ids prevent type-checker false negatives.
 
-### 8. `KnowledgeSource.sourceType: string` — stringly-typed when it should be an enum — `src/v1/model.ts:227`
+### 6. `KnowledgeSource.sourceType: string` — stringly-typed when it should be an enum — `src/v1/model.ts:227`
 - **Why weird:** The doc literally enumerates the allowed values: `'The type of the source: "index", "files", or "file_table"'`. A `string` typing means callers can write `sourceType: 'INDEX'` (wrong case) or `sourceType: 'vector_search'` (typo) and the compiler accepts both. Same package already uses Zod-discriminated unions for `spec` (model.ts:229-233), so the type info exists; `sourceType` is the redundant string mirror.
 - **Category:** 16 (field contradicts type domain — declared as `string` when it is closed-set), 6 (misleading), 12 (duplicate of `spec.$case`).
 - **Suggested name:** Convert to an enum `KnowledgeSourceType` with values `Index | Files | FileTable`; or drop `sourceType` entirely because `spec.$case` already carries the discriminant.
 - **Rationale:** Stringly-typed enums are a well-documented anti-pattern (https://google.github.io/styleguide/tsguide.html#enums-vs-string-literals — TS supports closed string literal unions specifically to avoid this). The fact that `spec.$case` already discriminates makes `sourceType` pure noise on both reads and writes.
 
-### 9. `Example.guidelines: string[]` and `Example.question: string` semantics overlap with `KnowledgeAssistant.instructions` — `src/v1/model.ts:86,91,185`
+### 7. `Example.guidelines: string[]` and `Example.question: string` semantics overlap with `KnowledgeAssistant.instructions` — `src/v1/model.ts:86,91,185`
 - **Why weird:** Three free-text "how should the assistant behave" fields are scattered across two types: `KnowledgeAssistant.instructions` (single string, global), `Example.guidelines` (array, per-question), `Example.question` (single string, paired with `guidelines`). The names do not disambiguate scope: a reader could reasonably guess `guidelines` are global and `instructions` are per-example; the actual mapping is the other way around. Compare with the same anti-pattern in `customllms.CustomLlm.instructions: string` + `CustomLlm.guidelines: string[]` (audited in `.agent/naming-audit/customllms.md` #12) — that audit flagged the exact same overlap.
 - **Category:** 6 (misleading), 12 (duplicate concept), 15 (generic field).
 - **Suggested name:** Rename `KnowledgeAssistant.instructions` → `systemPrompt` or `globalInstructions`; rename `Example.guidelines` → `answerRules` or `responseGuidelines`. Both names disambiguate scope.
 - **Rationale:** Two free-text fields with synonymous names but different scope is one of the most common API-design defects. The audit caught the same pattern in `customllms`; flagging it here for SDK-wide consistency.
 
-### 10. `KnowledgeSource.spec` discriminated union name is generic — `src/v1/model.ts:229`
+### 8. `KnowledgeSource.spec` discriminated union name is generic — `src/v1/model.ts:229`
 - **Why weird:** `KnowledgeSource.spec?: { $case: 'index'; index: IndexSpec } | { $case: 'files'; files: FilesSpec } | { $case: 'fileTable'; fileTable: FileTableSpec } | undefined`. The discriminator field is called `spec` — a generic CS term. The doc says "Specification for the knowledge source type." Consumers writing autocomplete will see `source.spec.$case` and `source.sourceType` both meaning "what kind of source is this", and have to remember that `spec` carries the *data* and `sourceType` carries the *string label*. Compare with the `supervisoragents.Tool.spec` field (same anti-pattern; same audit flagged in the sibling).
 - **Category:** 1 (vague), 12 (duplicate of `sourceType` discriminant).
 - **Suggested name:** `config` if the union carries configuration (it does); or `source` to mirror the `$case` semantics ("which source variant"). Best: collapse `sourceType` and `spec` into a single discriminated union.
 - **Rationale:** `spec` is so generic it conveys no information; the type already conveys "this is the spec".
+
+### 9. `KnowledgeAssistant_State` — proto-style nested-enum name with underscore infix — `src/v1/model.ts:9`
+- **Why weird:** The enum is named `KnowledgeAssistant_State` with a literal `_State` infix, and the file even carries an eslint-disable comment declaring "Proto-style nested enum name" (model.ts:8). The underscore is a direct architectural leak from the upstream `.proto` definition where the enum was nested inside the `KnowledgeAssistant` message (proto generates `OuterMessage_InnerEnum` for nested enums). TypeScript has no nested-enum-inside-class concept, so the underscore conveys nothing to a TS consumer and just signals "this code was generated from proto."
+- **Category:** Proto-architectural-leak (proto-nested enum naming surfacing in TS identifier).
+- **Suggested name:** `KnowledgeAssistantState` (drop the underscore — already the convention in non-leaky TS APIs). The generator can flatten nested-enum names without changing the wire format.
+- **Rationale:** The proto wire format and the TS identifier shape are decoupled. Carrying the `Outer_Inner` separator into TS leaks the generator's source format and conflicts with the SDK-wide naming-convention lint rule (the file disables `@typescript-eslint/naming-convention` for exactly this reason).
+
+### 10. `KnowledgeSource_State` — proto-style nested-enum name with underscore infix — `src/v1/model.ts:17`
+- **Why weird:** Same proto-nested-enum architectural leak as #9. `KnowledgeSource_State` carries the `_State` infix and the same eslint-disable comment "Proto-style nested enum name" (model.ts:16). Two sibling enums in the same file repeat the same proto-leak pattern.
+- **Category:** Proto-architectural-leak (proto-nested enum naming surfacing in TS identifier).
+- **Suggested name:** `KnowledgeSourceState` (drop the underscore).
+- **Rationale:** Same as #9. Generator-level fix.
 
 ## Medium severity
 
@@ -96,7 +96,7 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 ### 12. `IndexSpec.textCol` / `IndexSpec.docUriCol` cryptic abbreviation — `src/v1/model.ts:145,147`
 - **Why weird:** Same `Col` abbreviation as #11, plus `docUri` truncates "document URI" awkwardly. Reading `docUriCol`, your eye parses `doc-Uri-Col` — three abbreviations stacked. The doc reads "The column that specifies a link or reference to where the information came from" — a much friendlier name would be `sourceUriColumn` or `referenceColumn`.
 - **Category:** 5 (cryptic abbreviation), 3 (acronym casing: `Uri` vs `URI`).
-- **Suggested name:** `documentUriColumn` or `sourceUriColumn` (spell out `document`; promote `Uri` to `URI` if SDK convention is all-caps for three-letter acronyms — see Observation #36).
+- **Suggested name:** `documentUriColumn` or `sourceUriColumn` (spell out `document`; promote `Uri` to `URI` if SDK convention is all-caps for three-letter acronyms — see Observation #34).
 - **Rationale:** The savings are minimal; the readability cost is real.
 
 ### 13. `IndexSpec.indexName` type-suffix tautology — `src/v1/model.ts:143`
@@ -112,9 +112,9 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 - **Rationale:** Same as #13.
 
 ### 15. `Example.question` + `Example.guidelines` field-name doublet — `src/v1/model.ts:86,91`
-- **Why weird:** `Example` has two free-text payload fields: the question being asked and the guidelines for the answer. The current names are fine *in isolation*, but the type's own doc explains "Contains a question and guidelines for how the assistant should respond" — and the field names then duplicate the doc verbatim. The bigger issue: `guidelines: string[]` is plural and an array, but no JSDoc explains the semantics of each element (is each entry a sentence? a bullet? a paragraph?). Combined with the parallel `KnowledgeAssistant.instructions: string` (#9), the naming makes the conceptual hierarchy unclear.
+- **Why weird:** `Example` has two free-text payload fields: the question being asked and the guidelines for the answer. The current names are fine *in isolation*, but the type's own doc explains "Contains a question and guidelines for how the assistant should respond" — and the field names then duplicate the doc verbatim. The bigger issue: `guidelines: string[]` is plural and an array, but no JSDoc explains the semantics of each element (is each entry a sentence? a bullet? a paragraph?). Combined with the parallel `KnowledgeAssistant.instructions: string` (#7), the naming makes the conceptual hierarchy unclear.
 - **Category:** 15 (generic field name losing meaning), 1 (vague — "guidelines" of what?).
-- **Suggested name:** `Example.question` is fine; rename `Example.guidelines` → `answerGuidelines` (or `responseGuidelines`, paired with rename in #9).
+- **Suggested name:** `Example.question` is fine; rename `Example.guidelines` → `answerGuidelines` (or `responseGuidelines`, paired with rename in #7).
 - **Rationale:** A type that owns a single question/answer pair should make the answer-shaped field explicit.
 
 ### 16. `KnowledgeAssistant.endpointName` underspecified — `src/v1/model.ts:191`
@@ -234,12 +234,12 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 - **Category:** 17 (reversed — consistency note).
 
 ### 34. `syncKnowledgeSources` — verb is plural but operates on parent — `src/v1/client.ts:464`
-- **Why weird:** Method `syncKnowledgeSources` takes a `SyncKnowledgeSourcesRequest` whose `name` field is the **parent assistant** id (see #5, #6). The verb is "sync" and the noun is the (plural) child collection, but the addressing is parent-level. Compare with `cancelOptimization` on `customllms` — same pattern.
+- **Why weird:** Method `syncKnowledgeSources` takes a `SyncKnowledgeSourcesRequest` whose `name` field is the **parent assistant** id (see #3, #4). The verb is "sync" and the noun is the (plural) child collection, but the addressing is parent-level. Compare with `cancelOptimization` on `customllms` — same pattern.
 - **Category:** 6 (slightly misleading; the resource being addressed is the assistant, not "the sources"). The method does sync *all* sources for one assistant, so the plural is faithful to the *action* if not the *target*.
 - **Suggested name:** Acceptable; consider `syncAssistantSources` for parent-clarity, but the current name reads fine.
 
 ### 35. Acronym casing: `URI`, `UUID`, `MLflow`, `UC` — `src/v1/model.ts:92,142,144,146,165,192,261,310`
-- **Why weird:** This package follows the SDK convention of *not* using acronym casing in TS identifiers (none of `UUID`, `URI`, `MLflow`, `UC` appear as identifier components in source — they only appear in JSDoc as documentation). When they do appear in TS identifiers (`docUriCol`), they are title-cased (`Uri`) — matching Microsoft's three-letter-acronym rule but contradicting the SDK's own `APIError` usage. Cross-cutting observation from `customllms.md` #36.
+- **Why weird:** This package follows the SDK convention of *not* using acronym casing in TS identifiers (none of `UUID`, `URI`, `MLflow`, `UC` appear as identifier components in source — they only appear in JSDoc as documentation). When they do appear in TS identifiers (`docUriCol`), they are title-cased (`Uri`) — matching Microsoft's three-letter-acronym rule but contradicting the SDK's own `ApiError` usage. Cross-cutting observation from `customllms.md` #36.
 - **Category:** 3 (acronym casing — SDK-wide).
 - **Suggested name:** SDK-wide policy decision.
 

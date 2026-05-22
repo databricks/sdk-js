@@ -2,7 +2,7 @@
 
 Package path: `/home/parth.bansal/sdk-js/packages/artifactallowlists/`
 Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
-`src/v1/index.ts`.
+`src/v1/transport.ts`, `src/v1/index.ts`.
 
 Notation: file paths are absolute. Findings reference `file:line`.
 
@@ -10,24 +10,20 @@ Notation: file paths are absolute. Findings reference `file:line`.
 
 | Severity    | Count |
 | ----------- | ----- |
-| High        | 2     |
-| Medium      | 5     |
-| Low         | 3     |
-| Observation | 4     |
-| **Total**   | **14** |
+| High        | 1     |
+| Medium      | 6     |
+| Low         | 5     |
+| Observation | 3     |
+| **Total**   | **15** |
 
 Headline themes:
 
-1. **Request types lack a `Request` suffix** (e.g. `GetArtifactAllowlist`,
-   `SetArtifactAllowlist`). They are imperative phrases that read like
-   operations, not data shapes — and `GetArtifactAllowlist` collides
-   semantically with the `getArtifactAllowlist` method on `Client`. This is a
-   codebase-wide convention question rather than a defect local to this
-   package; `accountsettings` and others use the `…Request` suffix while
-   `catalogs`, `connections`, `clusters`, etc. omit it.
-2. **Redundant `Info` suffix on `ArtifactAllowlistInfo`** is the canonical
+1. **Redundant `Info` suffix on `ArtifactAllowlistInfo`** is the canonical
    payload type for both `Get` and `Set` responses; the suffix adds no
    information beyond "this is a struct."
+2. **Server-derived fields leak onto a request type** —
+   `SetArtifactAllowlistRequest` exposes `createdBy` / `createdAt`, which are
+   response-only metadata.
 
 Allowlist casing is **consistent** throughout the package (always
 `Allowlist`, never `AllowList` or `Whitelist`).
@@ -36,33 +32,20 @@ Allowlist casing is **consistent** throughout the package (always
 
 ## High Severity
 
-### H1. `GetArtifactAllowlist` collides with the client method of the same name
-
-- **File / line:** `src/v1/model.ts:39`; cross-ref `src/v1/client.ts:66`.
-- **Category:** #6 misleading name; #20 type-suffix tautology (inverse —
-  missing suffix).
-- **Current:** `interface GetArtifactAllowlist { artifactType?: ArtifactType }`.
-- **Suggestion:** `GetArtifactAllowlistRequest`.
-- **Rationale:** `GetArtifactAllowlist` reads as an action / operation name.
-  TypeScript users who see `client.getArtifactAllowlist(req: GetArtifactAllowlist)`
-  must mentally distinguish a verb-phrase function from a verb-phrase type.
-  Several sibling packages (`accountsettings`, `budgetpolicy`, `bundle`) use
-  the `…Request` suffix; adopting that here removes the verb/noun overload.
-
-### H2. `SetArtifactAllowlist` carries server-derived fields on a request type
+### H1. `SetArtifactAllowlistRequest` carries server-derived fields on a request type
 
 - **File / line:** `src/v1/model.ts:44–55`.
-- **Category:** #6 misleading name; #16 field contradicting type domain.
+- **Category:** #16 field contradicting type domain.
 - **Current:** Fields `createdBy?: string` and `createdAt?: number` are
   present on what is documented as the SET payload — these are server-set
   timestamps/identities and are also present on `ArtifactAllowlistInfo`.
-- **Suggestion:** Either rename to `SetArtifactAllowlistRequest` and remove
-  `createdBy` / `createdAt` (they are response-only), or — if the underlying
-  API truly accepts them — clarify in the doc that the server ignores them.
-- **Rationale:** A request type whose name reads as a verb ("Set the
-  allowlist") but whose fields include response-only metadata is misleading.
-  Even if the server tolerates them, exposing them on the request shape
-  invites misuse.
+- **Suggestion:** Remove `createdBy` / `createdAt` from
+  `SetArtifactAllowlistRequest` (they are response-only), or — if the
+  underlying API truly accepts them — clarify in the doc that the server
+  ignores them.
+- **Rationale:** A request type whose fields include response-only metadata
+  is misleading. Even if the server tolerates them, exposing them on the
+  request shape invites misuse.
 
 ---
 
@@ -83,7 +66,7 @@ Allowlist casing is **consistent** throughout the package (always
   (today, the package has no type with that bare name, even though it is
   literally the "artifact allowlists" package).
 
-### M2. `GetArtifactAllowlist` / `SetArtifactAllowlist` use inconsistent
+### M2. `GetArtifactAllowlistRequest` / `SetArtifactAllowlistRequest` use inconsistent
 verbs vs. UC sibling APIs
 
 - **File / line:** `src/v1/model.ts:39, 44`; `client.ts:66, 96`.
@@ -133,7 +116,7 @@ type that is itself a noun-from-verb
 
 - **File / line:** `src/v1/client.ts:67, 97`.
 - **Category:** #5 cryptic abbreviation; #14 Go-style name.
-- **Current:** `req: GetArtifactAllowlist`.
+- **Current:** `req: GetArtifactAllowlistRequest`.
 - **Suggestion:** `request` (matches Go-port readability without saving
   characters that matter in TypeScript).
 - **Rationale:** Throughout the JS/TS ecosystem, function parameters tend
@@ -141,6 +124,23 @@ type that is itself a noun-from-verb
   `req`/`resp` idiom is fine in Go where short names are encouraged; in TS
   it reads as Go-translated code. (Note: `resp` shows up locally in the
   same file at lines 71, 84, 102, 115 — a separate, lower-priority issue.)
+
+### M6. `ArtifactMatcher_MatchType` — proto-style nested enum with underscore leak
+
+- **File / line:** `src/v1/model.ts:15`.
+- **Category:** proto-architectural-leak — `Proto` infix / nested-enum
+  underscore.
+- **Current:** `ArtifactMatcher_MatchType` (with an inline
+  `eslint-disable` comment that literally documents the leak: "Proto-style
+  nested enum name").
+- **Suggestion:** `ArtifactMatchType` or `MatchType` exported at module
+  level. If the parent-child relationship must be preserved, namespace via
+  module structure or interface nesting rather than identifier underscores.
+- **Rationale:** The `Parent_Child` separator is a protobuf-generated
+  artifact for nested types; TypeScript has no equivalent convention and
+  the codebase already disables its own naming-convention lint rule to let
+  this through. The identifier leaks the proto/IDL layer into the public
+  surface of the package.
 
 ---
 
@@ -176,7 +176,7 @@ type that is itself a noun-from-verb
 
 ### L3. `body` shadowed across helpers in `executeHttpCall`
 
-- **File / line:** `src/v1/utils.ts:81`, `buildHttpRequest` (line 101),
+- **File / line:** `src/v1/utils.ts:81`, `buildHttpRequest` (line 96),
   `parseResponse` (line 113).
 - **Category:** #1 vague generic name.
 - **Current:** `body: Uint8Array` (response body) vs. `body: string |
@@ -186,24 +186,52 @@ type that is itself a noun-from-verb
   function that internally also reasons about response bodies.
   Differentiating with `requestBody` / `responseBody` would help readers.
 
+### L4. `AuthHttpClient` — architectural-layer wrapper class name
+
+- **File / line:** `src/v1/transport.ts:43`.
+- **Category:** proto-architectural-leak — `Wrapper`/`Adapter` pattern
+  exposed; architectural mid-token `Http`.
+- **Current:** `class AuthHttpClient implements HttpClient` — the JSDoc
+  on line 42 reads "Wraps an HttpClient and adds authentication headers
+  to requests," explicitly admitting wrapper semantics.
+- **Suggestion:** Internalize the wrapper (e.g., a `withAuth(client,
+  credentials)` factory that returns an `HttpClient`), or name the class
+  after what it produces (`AuthenticatedTransport`) rather than the
+  architectural layering. If kept, drop `Http` and align with the
+  domain — `AuthenticatingClient` reads as the role.
+- **Rationale:** `AuthHttpClient` reads as `Auth` + `Http` + `Client`,
+  three architectural tokens stacked. The `Http` infix in particular adds
+  no information beyond what `HttpClient` (the implemented interface)
+  already conveys. Wrapper class names that stack adjective + transport
+  layer + role are a known leak of internal layering into identifiers.
+
+### L5. `TimeoutHttpClient` — second instance of the same wrapper-naming pattern
+
+- **File / line:** `src/v1/transport.ts:61`.
+- **Category:** proto-architectural-leak — `Wrapper`/`Adapter` pattern;
+  architectural mid-token `Http`.
+- **Current:** `class TimeoutHttpClient implements HttpClient` (JSDoc:
+  "Wraps an HttpClient and applies a default timeout to requests").
+- **Suggestion:** Same treatment as L4 — a `withTimeout(client, ms)`
+  factory, or rename to `TimeoutTransport` / `TimeoutClient` to drop the
+  architectural `Http` infix.
+- **Rationale:** Same naming anti-pattern as L4 repeated. Together,
+  `AuthHttpClient` + `TimeoutHttpClient` form a small decorator chain
+  whose class names advertise the chain layout rather than the behaviour
+  delivered. The cluster suggests a generator template rather than a
+  package-local choice.
+
 ---
 
 ## Observations (Repo-wide conventions, not local defects)
 
-### O1. Bare `GetX`/`SetX` request shapes are a repo-wide pattern
-
-Sibling packages `catalogs`, `connections`, `clusters`, `externallocations`,
-`clusterpolicies` all use bare verb-phrases for request types. See evidence
-in `grep -rE "^export interface (Get|Set|Create|Update|Delete)…"` across
-the workspace. Changing this package alone would create asymmetry.
-
-### O2. `…Info` suffix repeated across UC types
+### O1. `…Info` suffix repeated across UC types
 
 `ArtifactAllowlistInfo` follows the `CatalogInfo`, `ConnectionInfo`,
 `FunctionInfo`, `ExternalLocationInfo`, `SchemaInfo` pattern. If the
 codebase decides to drop the `Info` suffix, this is one of many to fix.
 
-### O3. Allowlist terminology / casing is consistent
+### O2. Allowlist terminology / casing is consistent
 
 `Allowlist` (single uppercase A, then lowercase `llowlist`) is used in
 every position in this package: type names, methods, schemas, comments,
@@ -211,7 +239,7 @@ URL paths (`/artifact-allowlists/`), and the package name
 `@databricks/sdk-artifactallowlists`. No `AllowList`, `Allow_list`, or
 `Whitelist` anywhere. **Passes** the audit on this criterion.
 
-### O4. URL path constant is inlined
+### O3. URL path constant is inlined
 
 The string `/api/2.1/unity-catalog/artifact-allowlists/${artifactType}`
 appears twice (`client.ts:70` and `client.ts:100`) without a named
@@ -238,27 +266,48 @@ constant. Not a naming defect, but typical naming-audit findings include
 
 | File           | Lines | Audited                                          |
 | -------------- | ----- | ------------------------------------------------ |
-| `src/v1/model.ts`  | 111 | All 4 types + 2 enums + 3 schemas + every field. |
-| `src/v1/client.ts` | 121 | Class, constructor, 2 methods, all locals.       |
-| `src/v1/utils.ts`  | 151 | All 7 exported / private functions and types.    |
-| `src/v1/index.ts`  | 13  | All re-exports.                                  |
+| `src/v1/model.ts`     | 111 | All 4 types + 2 enums + 3 schemas + every field. |
+| `src/v1/client.ts`    | 121 | Class, constructor, 2 methods, all locals.       |
+| `src/v1/utils.ts`     | 151 | All 7 exported / private functions and types.    |
+| `src/v1/transport.ts` | 76  | `newHttpClient` factory + 2 wrapper classes.     |
+| `src/v1/index.ts`     | 13  | All re-exports.                                  |
 
 Type & symbol checklist:
 
 - [x] `ArtifactType` enum (4 members) → no defect.
-- [x] `ArtifactMatcher_MatchType` enum (2 members) → no defect.
-- [x] `ArtifactAllowlistInfo` interface (4 fields) → M1, O2.
+- [x] `ArtifactMatcher_MatchType` enum (2 members) → M6.
+- [x] `ArtifactAllowlistInfo` interface (4 fields) → M1, O1.
 - [x] `ArtifactMatcher` interface (2 fields) → M3, M4.
-- [x] `GetArtifactAllowlist` interface (1 field) → H1, O1.
-- [x] `SetArtifactAllowlist` interface (5 fields) → H2, O1.
+- [x] `GetArtifactAllowlistRequest` interface (1 field) → no defect.
+- [x] `SetArtifactAllowlistRequest` interface (5 fields) → H1.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → no defect.
-- [x] `getArtifactAllowlist(req, options)` method → H1, M2, M5.
-- [x] `setArtifactAllowlist(req, options)` method → H1, M2, M5.
+- [x] `getArtifactAllowlist(req, options)` method → M2, M5.
+- [x] `setArtifactAllowlist(req, options)` method → M2, M5.
 - [x] `HttpCallOptions` interface → no defect.
 - [x] `executeCall` function → L1.
 - [x] `readAll` private function → no defect (name fits idiom).
 - [x] `executeHttpCall` function → L1, L3.
 - [x] `buildHttpRequest` function → L3.
 - [x] `flattenQueryParams` function → no defect.
+- [x] `newHttpClient` factory (`transport.ts`) → no defect.
+- [x] `AuthHttpClient` class (`transport.ts`) → L4.
+- [x] `TimeoutHttpClient` class (`transport.ts`) → L5.
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).
+
+---
+
+## Fixed
+
+- #H1 `GetArtifactAllowlist` (originally cited at `src/v1/model.ts:39`):
+  Fixed in regeneration on 2026-05-20 — renamed to
+  `GetArtifactAllowlistRequest`; verb/noun overload with the client method
+  resolved.
+- #H2 partial — `SetArtifactAllowlist` (originally cited at
+  `src/v1/model.ts:44–55`): Fixed in regeneration on 2026-05-20 — renamed to
+  `SetArtifactAllowlistRequest`. The response-only-fields concern was split
+  off into the new H1 above and remains open.
+- #O1 Bare `GetX`/`SetX` request shapes (originally cited as a repo-wide
+  pattern across `catalogs`, `connections`, `clusters`, `externallocations`,
+  `clusterpolicies`): Fixed in regeneration on 2026-05-20 — `Request`
+  suffix is now applied across the generator.

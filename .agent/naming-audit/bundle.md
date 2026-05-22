@@ -27,7 +27,7 @@ Dominant themes:
 
 ### H1. `VersionComplete` enum name is misleading (Category: 6 — misleading; 13 — verb-tense)
 
-**Location:** `model.ts:127-137`, exported `index.ts:11`.
+**Location:** `model.ts:127-137`, exported `index.ts:10`.
 
 ```ts
 export enum VersionComplete {
@@ -43,7 +43,7 @@ The type *describes the reason a version finished*, but the identifier `VersionC
 
 Compounding the issue: the `complete` action lives on a *method* called `completeVersion()` (`client.ts:102`), so `VersionComplete` and `completeVersion` look related but mean different things — one is an enum of post-hoc reasons, the other is the imperative action.
 
-**Suggested rename:** `VersionCompletionReason` or `CompletionReason`. The value prefix would then read `VERSION_COMPLETION_REASON_SUCCESS`, which matches the field name verbatim.
+**Suggested rename:** `VersionCompletionReason` or `CompletionReason`, which matches the field name (`completionReason`) verbatim.
 
 ---
 
@@ -110,9 +110,9 @@ The semantics described in the docstring (`client.ts:391-397`) are *renew the lo
 
 ## Medium-Severity Findings
 
-### M1. `Resource.resourceKey` doc says "Can be an arbitrary UTF-8 encoded string key" — name doesn't hint at format (Category: 19 — underspecified)
+### M1. `resourceKey` doc says "Can be an arbitrary UTF-8 encoded string key" — name doesn't hint at format (Category: 19 — underspecified)
 
-**Location:** `model.ts:453-458`.
+**Location:** `Operation.resourceKey` (`model.ts:452-458`), `Resource.resourceKey` (`model.ts:493-497`).
 
 `resourceKey` is overloaded: it can be `"jobs.foo"`, `"pipelines.bar"`, `"jobs.foo.permissions"`, or `"files.<rel-path>"`. The name `resourceKey` does not convey that it is a *dotted bundle config path*. `bundleConfigPath` or `configKey` would be more honest.
 
@@ -120,7 +120,7 @@ The semantics described in the docstring (`client.ts:391-397`) are *renew the lo
 
 ### M2. `Operation.resourceId` and `Resource.resourceId` mix two different "IDs" with the deployment/version IDs (Category: 5 — cryptic; 19 — underspecified)
 
-**Location:** `model.ts:469`, `model.ts:503`, plus `CreateDeploymentRequest.deploymentId` (`model.ts:185`), `CreateVersionRequest.versionId` (`model.ts:220`), `Version.versionId` (`model.ts:527`), `Deployment.lastVersionId` (`model.ts:246`), `Resource.lastVersionId` (`model.ts:508`).
+**Location:** `Operation.resourceId` (`model.ts:470`), `Resource.resourceId` (`model.ts:504`), plus `CreateDeploymentRequest.deploymentId` (`model.ts:185`), `CreateVersionRequest.versionId` (`model.ts:220`), `Version.versionId` (`model.ts:527`), `Deployment.lastVersionId` (`model.ts:246`), `Resource.lastVersionId` (`model.ts:508`).
 
 `resourceId` is *the workspace ID of the underlying job/pipeline/etc.*, but `deploymentId` and `versionId` are *control-plane IDs internal to this service*. These three live side-by-side and look like they're all the same "kind" of ID, but they're not. A `workspaceId` / `workspaceObjectId` rename for `resourceId` would resolve this — the comment on the field literally says "actual resource in the workspace".
 
@@ -173,7 +173,7 @@ The field is `completionReason` (noun "reason" with "completion" adjective). The
 
 ### M8. `VersionComplete` enum values use inconsistent grammatical forms (Category: 13 — verb-tense)
 
-**Location:** `model.ts:133`.
+**Location:** `model.ts:128-136`.
 
 The completion-reason values mix grammatical structures:
 - `Success` — noun.
@@ -212,6 +212,7 @@ In most APIs, `heartbeat()` is a *liveness check* (e.g. "is server up?"). Here i
 ### M12. `Resource.state` and `Operation.state` use the same field name for different snapshots (Category: 15 — generic; 12 — duplicate)
 
 **Location:** `Resource.state` (`model.ts:499`), `Operation.state` (`model.ts:465`).
+
 
 `state` here means "serialized config blob the CLI sent" — but `state` is one of the most overloaded terms in software. The docstrings clarify ("Serialized local config state"), but the names don't. `configState`, `configSnapshot`, or `state` distinct from `status` would help. Note `Resource.state` and `Resource.status`-style field would collide alphabetically in IDE autocomplete; there is currently no `Resource.status`, so `state` is at least non-conflicting.
 
@@ -327,7 +328,7 @@ The `jsonValueSchema` (recursive Zod) is a clean port pattern. The field type is
 
 ### O5. Comment on the `name`-vs-`destroy` divergence is appreciated
 
-`Deployment.destroyTime` has an in-code justification (`model.ts:255-258`) explaining why it's not `deleteTime`. This kind of inline rationale is exactly what's missing on the `name` overload — a one-line "this is a fully-qualified resource path, not a display name" would help readers (see H2).
+`Deployment.destroyTime` has an in-code justification (`model.ts:256-257`) explaining why it's not `deleteTime`. This kind of inline rationale is exactly what's missing on the `name` overload — a one-line "this is a fully-qualified resource path, not a display name" would help readers (see H2).
 
 ### O6. The `HeartbeatResponse.expireTime` field has no `Lease`/`Lock` prefix
 
@@ -358,9 +359,15 @@ The docstring says "new lock expiry time", but the field is just `expireTime`. C
 
 | File              | Lines | Findings                                                                          |
 | ----------------- | ----- | --------------------------------------------------------------------------------- |
-| `src/v1/model.ts` | 843   | H1, H2, H3, H4, H5, M1-M13, L1-L5, L7, L8, L10, O1, O3, O5, O6                     |
-| `src/v1/client.ts`| 630   | H2 (request types), H5 (method name), M9, L9, O4                                  |
-| `src/v1/utils.ts` | 151   | (no findings — internal helpers, all well-named: `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`, `HttpCallOptions`) |
-| `src/v1/index.ts` | 40    | Re-exports — inherits findings from `model.ts` and `client.ts`.                   |
+| `src/v1/model.ts` | 842   | H1, H2, H3, H4, H5, M1-M13, L1-L5, L7, L8, L10, O1, O3, O5, O6                     |
+| `src/v1/client.ts`| 629   | H2 (request types), H5 (method name), M9, L9, O4                                  |
+| `src/v1/utils.ts` | 150   | (no findings — internal helpers, all well-named: `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`, `HttpCallOptions`) |
+| `src/v1/index.ts` | 39    | Re-exports — inherits findings from `model.ts` and `client.ts`.                   |
 
 Every exported identifier in `model.ts` and `client.ts` was inspected. `utils.ts` and `index.ts` produced no incremental findings beyond what the model/client files surface.
+
+---
+
+## Fixed
+
+_None._

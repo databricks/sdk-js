@@ -1,8 +1,9 @@
 # Cross-Package Naming Audit — Executive Summary
 
-**Packages audited:** 98 (every API package under `packages/<pkg>/src/<vN>/`)
-**Total findings across all audits:** **3,918** (down from 5,322 originally, then 5,001 after the first prune pass, then 4,544 after the second, then 4,502 after the third; **584 additional findings pruned in this fourth pass**, **1,404 cumulative**)
+**Packages audited:** 87 active API packages (every package under `packages/<pkg>/src/<vN>/` after the 2026-05-22 generator regen consolidation). An additional 24 audit files exist for packages that were removed or consolidated in the regen; those audits are retired and their finding counts are excluded from the active total. See "Retired audits" at the bottom of §6.
+**Total active findings across all 87 active audits:** **2,926** (down from 3,572 before the 2026-05-22 regen + rescan; previously 3,273 before the 2026-05-20 proto-architectural-leak pass; 5,322 in the original sweep). The net drop in this regen is **~646** active findings — the bulk came from the generator renaming the `*Public*Request` family across account-tier packages, which moved ~81 findings into per-package `Fixed` sections; the rest came from 24 audits going to zero active findings as their source packages were consolidated into successor packages.
 **Source files:** `/home/parth.bansal/sdk-js/.agent/naming-audit/<package>.md`
+**Last source state:** Rescan against generator state 2026-05-22, upstream API version `0555d6a59265799ed8ea12f355eee662e739430d`.
 
 > **Prune note 1.** The original audit included a cross-cutting theme
 > "Empty / trivial wrapper interfaces" (empty `*_Response` interfaces,
@@ -54,15 +55,158 @@
 > removed), and by-the-numbers table below. This was the single
 > largest category by package incidence (~85/98).
 
+> **Prune note 5.** A fifth cross-cutting theme,
+> "Redundant enum-name prefix on every member" — e.g.
+> `PolicyType.POLICY_TYPE_ROW_FILTER`,
+> `DestinationType.DESTINATION_TYPE_EMAIL`,
+> `CommandStatus.COMMAND_CANCELLED`, `IsolationMode.ISOLATION_MODE_OPEN_IN_ACCOUNT` —
+> has been pruned per user direction. The proto-style `Foo.FOO_BAR_BAZ`
+> shape is intentional: TS enum member names mirror the protobuf wire
+> identifier exactly, which keeps codegen deterministic and preserves
+> the wire ↔ TS correspondence. Stripping the prefix on the TS side
+> would force a per-enum translation table and break the symmetry that
+> generators and downstream tooling rely on. The pruned findings are
+> reflected in the totals, theme list (the former Theme 1 removed),
+> generator recommendations (§8.1 removed), and by-the-numbers table
+> below.
+
+> **Prune note 6.** A sixth cross-cutting theme,
+> "`*_UNSPECIFIED` proto sentinel values in every enum" — e.g.
+> `STATE_UNSPECIFIED`, `POLICY_TYPE_UNSPECIFIED`,
+> `COMPUTE_KIND_UNSPECIFIED`, `RUN_LIFE_CYCLE_STATE_UNSPECIFIED`,
+> `DAY_OF_WEEK_UNSPECIFIED` — has been pruned per user direction.
+> proto3 mandates that every enum carry a zero value, and the
+> `*_UNSPECIFIED` member is semantically distinct from `undefined`:
+> it means "explicitly set to absent/default" on the wire, whereas
+> field-optional `?:` `undefined` means "not present in this message".
+> Dropping the sentinel would conflate those two states and silently
+> break round-tripping. The pruned findings are reflected in the
+> totals, theme list (the former Theme 2 removed), and by-the-numbers
+> table below.
+
+> **Rescan note (2026-05-20).** The generator was re-run and the
+> per-package audits were rescanned against the new source state. The
+> rescan dropped **710 findings net** and closed out several structural
+> pain points in the wire ↔ TS mapping:
+>
+> - **`Request` suffix wave (Theme 3, former).** The generator now
+>   emits every request DTO with a `Request` suffix
+>   (`DeletePolicyRequest`, `ListSecretsRequest`, `ExportRequest`,
+>   etc.). Verb-phrase request types — the previous Theme 3, cited in
+>   ~80/98 packages — are no longer the dominant concern. Residual
+>   instances in `bundle`, `files`, `marketplaces`, and a few others
+>   are tracked per-package. The former §8.5 generator rule has been retired
+>   as **Done** in §7 below.
+> - **14 packages deleted, merged, or renamed.** Five removed outright
+>   (`accountaccesscontrol`, `accountaccesscontrolproxy`,
+>   `serviceprincipalsecrets`, `serviceprincipalsecretsproxy`,
+>   `queryexecution`). Nine consolidated:
+>   `cleanroomassets` + `cleanroomautoapprovalrules` +
+>   `cleanroomtaskruns` → `cleanrooms`; `endpoints` + `indexes` →
+>   `vectorsearch`; `oauthcustomappintegration` + `oauthpublishedapp`
+>   → `oauth`; `modelservingdebug` + `modelservingmanagement` →
+>   `modelserving`; `workspaceassignment` → `accessmanagement`.
+>   Three packages renamed in place: `permissions` →
+>   `accessmanagement`, `workspace` → `workspaceobjects`,
+>   `logdeliveryconfigurations` → `logdelivery`.
+> - **Themes that shrank materially.** The "verb-phrase request types"
+>   theme has been retired and is now footnote-level. The "Package-name
+>   prefix repeats package" (e.g. `OAuthAppIntegration*`,
+>   `CleanRoom*`, `Pipelines*`, `Genie*`) theme shrank ~30% because
+>   several offending packages were merged or renamed. The
+>   "byte-identical `*proxy` packages" pain point is gone (both
+>   `*Proxy` packages were deleted).
+> - **Carried-over findings.** Findings that were *still present* after
+>   the regeneration kept their position in `High`/`Medium`/`Low`. Line
+>   numbers were updated in place. Audits whose package was deleted
+>   have all findings under `## Fixed` and zero active total.
+
+> **Audit-pass note 7 (proto-architectural-leak scan).** A ~93-agent
+> pass scanned every API package for mid-position infix tokens that
+> betray internal proto/service-tier ownership: `*Public*Request`,
+> `*Proto` suffix, `*Service*` / `*Manager*` / `*Backend*` / `*Handler*`
+> mid-position, `*Internal*`, `*Wrapper*`, `*CustomerFacing*` qualifier,
+> mid-position `*V2*` (e.g. `RunLifecycleStateV2`), and JSDoc leaks of
+> "Public RPC" / "Wrapper message" / "Public facing RPC requests and
+> responses" verbatim banners. Findings were appended to each per-package
+> audit under a new "Proto-architectural leak" category and added ~300
+> findings net (3,273 → 3,572). The pass also created seven
+> previously-missing audits for packages absorbed from the account-API
+> split during the 2026-05-20 regen: `authentication`, `keyconfigurations`,
+> `networking`, `scim`, `sharing`, `storageconfigurations`, `workspaces`.
+
+> **Audit-pass note 8 (2026-05-21 — Google TS acronym renames applied).**
+> Adopted the Google TS Style Guide acronym-as-whole-word rule (already
+> documented at `.agent/rules/typescript.mdc:184`). Renamed 105 files:
+> 11 hand-written (`auth`, `core`, `examples`) + 94 generated `utils.ts`
+> import updates. `OAuth*`, `OIDC*`, and JS built-ins kept under the
+> platform-name exception.
+
+> **Audit-pass note 9 (2026-05-22 — Generator regen + rescan).** The
+> generator was re-run against upstream API version
+> `0555d6a59265799ed8ea12f355eee662e739430d`. All 81 active audits
+> were rescanned and 6 newly-created audits cover packages that the
+> regen consolidated from smaller siblings:
+>
+> - `accessmanagement` (NEW, 38 findings) — supersedes `permissions`,
+>   `accountaccesscontrol`, `accountaccesscontrolproxy`, and
+>   `workspaceassignment`. Single umbrella for object permissions,
+>   permission levels, rule sets, and workspace assignments.
+> - `logdelivery` (NEW, 28 findings) — renamed from
+>   `logdeliveryconfigurations`. The legacy long name was a clean
+>   rename target.
+> - `modelserving` (NEW, 47 findings) — supersedes
+>   `modelservingmanagement` and absorbed the former `modelservingdebug`.
+>   `modelservingquery` remains separate.
+> - `oauth` (NEW, 11 findings) — supersedes
+>   `oauthcustomappintegration` and `oauthpublishedapp`. Single
+>   package for both Custom and Published app integrations plus
+>   the published-app catalog.
+> - `vectorsearch` (NEW, 28 findings) — supersedes `endpoints` and
+>   `indexes`. Single endpoint+index surface for Vector Search.
+> - `workspaceobjects` (NEW, 29 findings) — renamed from
+>   `workspace`. The bare name was the most-overloaded in the SDK;
+>   the rename clarifies the package scope as the workspace
+>   filesystem (notebooks/folders/files).
+>
+> **24 audit files marked as removed/consolidated.** Their findings
+> are excluded from the active total. Source packages no longer
+> exist:
+> `accountaccesscontrol`, `accountaccesscontrolproxy`,
+> `accountsettings`, `cleanroomassets`, `cleanroomautoapprovalrules`,
+> `cleanroomtaskruns`, `endpoints`, `indexes`,
+> `logdeliveryconfigurations`, `materializedfeatures`,
+> `modelservingdebug`, `modelservingmanagement`,
+> `oauthcustomappintegration`, `oauthpublishedapp`, `permissions`,
+> `qualitymonitor`, `qualitymonitors`, `queryexecution`,
+> `serviceprincipalsecrets`, `serviceprincipalsecretsproxy`,
+> `workspace`, `workspaceassignment`, `workspaceconf`,
+> `workspacesettings`. Each retired audit carries a status banner at
+> the top of the file noting the 2026-05-22 consolidation date and
+> retains the original findings as historical record.
+>
+> **~81 findings moved to Fixed in this regen** — overwhelmingly
+> proto-architectural-leak `*Public*Request` and `*PublicRequest_Response`
+> patterns that the regen renamed across the account-tier packages.
+> The largest per-package shifts:
+> `metastores` (20 fixed), `networking` (17 fixed), `workspaces` (16
+> fixed), `credentials` (~10 fixed), `storageconfigurations` (~10
+> fixed), `cleanrooms` (4 fixed), `jobs` (2 fixed), `keyconfigurations`
+> (2 fixed). These renames retroactively validate generator rule
+> §8.2 ("Strip proto-architectural-tier markers"). The rule is **not**
+> marked Done — `*CustomerFacing*` qualifiers in `networking` and a
+> handful of `Proto` suffixes (e.g. `TriggerStateProto`,
+> `DatabricksServiceExceptionProto`) still survive in active audits.
+
 This document synthesises the per-package audits into the patterns that the
 upstream generator (and a smaller number of API team decisions) should fix
 to deliver an idiomatic TypeScript SDK. The vast majority of the findings are
 template-driven — fix the template once and the symptoms disappear from every
 package.
 
-The 98 packages are a 1:1 port of `databricks/sdk-go`, so most defects flow
-from Go/protobuf idioms that do not translate to TypeScript. Idiomatic TS
-SDKs (AWS, Azure, Stripe, Octokit) deliberately diverge from their wire
+The 87 active packages are a 1:1 port of `databricks/sdk-go`, so most defects
+flow from Go/protobuf idioms that do not translate to TypeScript. Idiomatic
+TS SDKs (AWS, Azure, Stripe, Octokit) deliberately diverge from their wire
 formats; the Databricks JS SDK currently does not.
 
 ---
@@ -70,85 +214,9 @@ formats; the Databricks JS SDK currently does not.
 ## 1. Top cross-cutting themes
 
 Ranked by approximate package incidence. Each theme is a generator-level
-defect — one template change fixes ~98 packages.
+defect — one template change fixes ~87 packages.
 
-### Theme 1. Redundant enum-name prefix on every member (proto idiom) — ~84/98 packages
-
-Every enum is emitted with its members redundantly prefixed by the enum name:
-
-```ts
-enum DestinationType {
-  DESTINATION_TYPE_UNSPECIFIED = 'DESTINATION_TYPE_UNSPECIFIED',
-  DESTINATION_TYPE_EMAIL = 'DESTINATION_TYPE_EMAIL',
-  ...
-}
-```
-
-TypeScript enums are namespaced by the enum itself
-(`DestinationType.Email`), so the prefix is pure protobuf noise. Often the
-prefix is applied inconsistently *within a single enum*:
-`DataSecurityMode.DATA_SECURITY_MODE_STANDARD` next to
-`DataSecurityMode.SINGLE_USER`
-(`packages/clusters/src/v2/model.ts:123-127`); or applied to two of three
-cloud-specific enums while one cloud is unprefixed
-(`AzureAvailability.SPOT_AZURE` / `GcpAvailability.PREEMPTIBLE_GCP` vs
-`AwsAvailability.SPOT`).
-
-Examples:
-- `connections.ConnectionType.UNKNOWN_CONNECTION_TYPE` — `packages/connections/src/v1/model.ts:7`.
-- `tokens.AutoscopeState.AUTOSCOPE_STATE_API_NOT_COVERED` — 44 chars to express "API not covered", `packages/tokens/src/v1/model.ts:14-20`.
-- `cleanrooms.INTERNET_DESTINATION_TYPE_UNSPECIFIED`, `LOG_ONLY_MODE_TYPE_UNSPECIFIED`, `OUTPUT_CATALOG_STATUS_UNSPECIFIED`.
-- `commandexecution.CommandStatus.COMMAND_CANCELLED`, `COMMAND_FINISHED`, etc. (every member prefixed) — `packages/commandexecution/src/v2/model.ts:21-29`.
-- `externallocations.IsolationMode.ISOLATION_MODE_OPEN_IN_ACCOUNT` — 30 chars, `packages/externallocations/src/v1/model.ts:5-10`.
-
-**Generator fix:** Strip the redundant prefix at emit time. Map
-`FOO_BAR_BAZ` → `BarBaz` (PascalCase) or keep `BAR_BAZ` for SCREAMING_SNAKE.
-Either way the prefix that re-states the enum name should not survive into
-TS. Wire value can stay as-is via Zod transform.
-
-### Theme 2. `*_UNSPECIFIED` proto sentinel values in every enum — ~60/98 packages
-
-Every protobuf enum carries a zero value `XXX_UNSPECIFIED` that protobuf
-needs but TS does not. The corresponding field is already
-`foo?: Foo | undefined`, so "unspecified" is encoded twice (as `undefined`
-and as the sentinel). Callers have to handle both states.
-
-Examples in nearly every audit: `STATE_UNSPECIFIED`, `POLICY_TYPE_UNSPECIFIED`,
-`COMPUTE_KIND_UNSPECIFIED`, `RUN_LIFE_CYCLE_STATE_UNSPECIFIED`,
-`ACCESS_POLICY_TYPE_UNSPECIFIED`, `DAY_OF_WEEK_UNSPECIFIED`,
-`STATUS_UNSPECIFIED`, etc.
-
-**Generator fix:** Drop `*_UNSPECIFIED` members from emitted enums. Map them
-to TypeScript `undefined` on the way in, and the field's `?:` optionality
-already expresses "not set" on the way out.
-
-### Theme 3. Verb-phrase request types (no `Request` suffix) — ~80/98 packages
-
-Request DTOs are named with bare verb phrases:
-
-```ts
-interface DeletePolicy { ... }      // looks like a function
-interface ListPolicies { ... }       // looks like a method
-interface CreateScope { ... }        // looks like an action
-```
-
-Client methods sit alongside with identical camel-case names
-(`client.deletePolicy(req: DeletePolicy)`), forcing readers to mentally
-disambiguate noun-from-verb on every line.
-
-Examples:
-- `secrets.{CreateScope, DeleteAcl, DeleteScope, DeleteSecret, GetAcl, GetSecret, ListAcls, ListScopes, ListSecrets, PutAcl, PutSecret}` — 11 verb-named types in one file.
-- `workspace.{Delete, Export, Import, List, Mkdirs, GetStatus}` — also collide with TS reserved/built-in tokens (`Delete`, `Import`, `Export`).
-- `files.{Read, Move, Put, Delete, Close, Create, MkDirs, AddBlock, GetStatus, ListStatus}` — every DBFS request type.
-- `grants.{GetPermissions, UpdatePermissions, GetEffectivePermissions}` — request types named like verbs.
-- `tokenmanagement.{GetToken, ListTokens, RevokeToken, UpdateToken, CreateOnBehalfOfToken}`.
-- `serviceprincipalsecrets.{CreateServicePrincipalSecret, DeleteServicePrincipalSecret, ListServicePrincipalSecrets}`.
-
-**Generator fix:** Append `Request` to every request-DTO type. This is the
-TS convention used by every other large SDK (AWS, Azure, Google Cloud). Wire
-shape unaffected.
-
-### Theme 4. `Info` (and other vague) suffix on the canonical entity — ~70/98 packages
+### Theme 1. `Info` (and other vague) suffix on the canonical entity — ~70/87 packages
 
 The Go SDK uses `<Domain>Info` to name "details of an X" because Go does not
 have package-qualified imports for types. TS does, and `<Domain>` alone
@@ -156,14 +224,14 @@ suffices. Examples:
 
 - `RepoInfo` → `Repo` / `GitFolder` (and the field `repo?: RepoInfo` becomes `repo?: Repo`).
 - `PolicyInfo` → `Policy`.
-- `EndpointInfo` → `Endpoint` (in `warehouses`, which has a brand mismatch — see Theme 7).
+- `EndpointInfo` → `Endpoint` (in `warehouses`, which has a brand mismatch — see Theme 4).
 - `SchemaInfo` → `Schema`.
 - `CredentialInfo` → `Credential`.
 - `MetastoreInfo` → `Metastore`.
 - `CatalogInfo` → `Catalog`.
 - `RunInfo`, `JobInfo`, `TableInfo`, `FunctionInfo`, `ConnectionInfo`,
   `VolumeInfo`, `ServicePrincipalInfo`, `UserInfo`, `WorkspaceInfo`,
-  `OnlineTableInfo`, `IndexInfo`, `RunInfo`, `ExperimentInfo`.
+  `OnlineTableInfo`, `ExperimentInfo`.
 
 Same problem with other vague suffixes:
 - `*Options` on tagged-union arms (`RowFilterOptions`, `ColumnMaskOptions`, `DenyOptions`, `GrantOptions`) — when the `$case` discriminator already says "this is the X options".
@@ -174,92 +242,212 @@ domain entity. (Heuristic: if `<Foo>Info` is the only `<Foo>*` type that
 isn't a request/response, drop `Info`.) Same for redundant `Options`/`Spec`
 suffixes on tagged-union arms when the parent has a discriminator.
 
-### Theme 5. Type-name prefix repeats the package — ~70/98 packages
+### Theme 2. Type-name prefix repeats the package — ~45/87 packages
 
-Every type in a package is prefixed with the package's domain noun, even
-though the import path already provides namespace disambiguation:
+Many type names re-state the package's domain noun even though the import
+path already provides namespace disambiguation. The 2026-05-20 and
+2026-05-22 generator rescans shrank this theme: the worst offenders
+(`OAuthAppIntegration*` across `oauthcustomappintegration`/`oauthpublishedapp`,
+`CleanRoom*` across three sibling packages, and the merged-in `Workspace*`
+from `workspaceassignment`) were folded into consolidated packages, but the
+remaining cases are still pervasive.
 
-- `oauthcustomappintegration.{CreateCustomOAuthAppIntegration, CreatePublishedOAuthAppIntegration, DeleteCustomOAuthAppIntegration, ...}` — 18 types all prefixed with 19 characters that the import path already provides.
 - `pipelines.{PipelinesAwsAvailability, PipelinesAzureAvailability, PipelinesEbsVolumeType, PipelinesAwsAttributes, ...}` — 15 types prefixed with `Pipelines` (plural) when the package is singular-domain. `packages/pipelines/src/v2/model.ts:212, 225, 241, 2243, ...`.
-- `cleanroomautoapprovalrules.CleanRoomAutoApprovalRule` — package and type repeat the same 22-character noun.
 - `genie.{GenieAttachment, GenieConversation, GenieMessage, GenieSpace, GenieFeedback, GenieEvalResult, ...}` — 40 types prefixed with `Genie` (and inconsistently — `Result`, `Schema`, `Thought` are not prefixed in the same file).
-- `serviceprincipalsecrets.ServicePrincipalSecret` — every type carries `ServicePrincipal` (16 chars).
-- `accountaccesscontrolproxy.GetAssignableRolesForResourceRequest` — 36-char type name when `GetAssignableRolesRequest` would do.
-- `qualitymonitor.QualityMonitor` (package + type).
 - `tagpolicies.TagPolicy`, `tagassignments.TagAssignment`, `entitytagassignments.EntityTagAssignment`.
 - `customllms.CustomLlm`, `customLlmFieldMask`, `createCustomLlm`, etc.
+- `cleanrooms.CleanRoom*` family — still pervasive after absorbing the sibling packages.
+- `oauth.OAuthAppIntegration*` family — still pervasive after the merge.
 
 **Generator fix:** When emitting TS, strip the package-name prefix from
 every type as long as the unprefixed name does not clash with another type
 in the same package. Wire shape is unaffected.
 
-### Theme 6. Inconsistent acronym casing across the SDK — 98/98 packages
+### Theme 3. Inconsistent acronym casing across the SDK — 87/87 packages
 
-The SDK currently mixes both `Pascal-then-lower` (`Http`, `Url`, `Json`,
-`Sql`, `Oauth`, `Pypi`, `Aws`, `Llm`, `Pii`, `Sse`, `Idp`, `Csp`, `Esm`,
-`Dbfs`, `Dbr`, `Aibi`) with `ALL_CAPS` (`URL`, `ID`, `URI`, `RPC`) in
-different places. There is no project-wide policy. The user-visible
-inconsistencies include:
+> **Status (2026-05-21):** Policy adopted (Google TS Style Guide:
+> "treat acronyms as whole words"). The rule was already at
+> `.agent/rules/typescript.mdc:184`. All hand-written-package renames
+> listed in 3b have been applied. Theme 3a generated-code outliers
+> remain — `OAuth*` is documented as a platform-name exception per
+> RFC 6749 (kept).
 
-| Acronym | Found as | Examples |
+The SDK has no project-wide acronym-casing policy. The inconsistencies
+appear on two distinct surfaces, each with a different cause and fix path.
+
+#### 3a. Generated code — 87/87 packages
+
+The generator already uses **`Pascal-then-lower`** very consistently for
+TS identifiers (`Url`, `Id`, `Json`, `Sql`, `Http`, `Oauth`, `Aws`,
+`Gcp`, `Llm`, `Dbfs`, `Iam`, `Sse`, `Pii`, `Aibi`, `Dbr`, `Uri`). A scan
+of all generated packages found:
+
+| Acronym | TS identifiers (Pascal-then-lower) | `ALL_CAPS` form — where it appears |
 |---|---|---|
-| URL | `Url`, `URL`, `url` | `dataSchemaUrl`, `URLSearchParams`, `webhookUrl`, `URL` enum value |
-| Id  | `Id`, `ID`, `id` | `userId`, `runId`, `ID` (string-typed enum value), `metastoreId` |
-| SQL | `Sql`, `SQL` | `SqlWarehouseSpec`, `DATABRICKS_SQL_ACCESS` |
-| JSON | `Json`, `JSON` | `JsonValue`, `JsonObject`, `isJsonSchema` vs `JSON.stringify` |
-| OAuth | `Oauth`, `OAuth` | `OAuthAppIntegration` (type), `oauthcustomappintegration` (package) |
-| PyPI | `Pypi`, `PyPI` | `PypiLibrary` (type), JSDoc says "PyPI" |
-| AWS | `Aws`, `AWS` | `AwsAttributes` (type), `AWS_SSE_S3` (enum value) |
-| LLM | `Llm`, `LLM` | `CustomLlm` (type), `LLM` in JSDoc |
-| ETag | `etag`, `eTag`, `ETag` | `RuleSet.etag` (field), `If-Match`/`ETag` (HTTP RFC 7232 §2.3 says `ETag`) |
-| HTTP | `Http`, `HTTP` | `HttpClient` (type), `httpRequest` (method) |
-| DBFS | `Dbfs`, `DBFS` | `disableLegacyDbfs`, `DbfsStorageInfo` vs JSDoc "DBFS" |
+| URL  | `Url` — 445 hits / 63 pkgs | `URLSearchParams` (JS built-in, every `client.ts`); `'URL'` enum value in `rfa` |
+| ID   | `Id` — 3303 hits / 71 pkgs | `'ID'` enum value in ~10 pkgs (e.g. `IpAccessListType.ID`, `GenieAttachment.ID`); `ACCOUNT_ID` (`SCREAMING_SNAKE` constant — different style class) |
+| JSON | `Json` — 208 hits / 65 pkgs | `JSON.parse`/`JSON.stringify` (JS built-in, every `utils.ts`); occasional `'JSON'` enum value |
+| SQL  | `Sql` — 132 hits / 7 pkgs | `'SQL'` enum values; `DATABRICKS_SQL_ACCESS` (`SCREAMING_SNAKE` constant) |
+| HTTP | `Http` — 2156 hits / 65 pkgs | `'HTTP request'` log strings in `utils.ts`; `HTTPS URL` in JSDoc |
+| OAuth | `Oauth` — 29 hits in `oauth` pkg | **`OAuthAppIntegration`/`CustomOAuthAppIntegration` identifiers also in `oauth` pkg** — real mixed-form inconsistency in the same package |
+| AWS  | `Aws` — 120 hits / 7 pkgs | `AWS_SSE_S3` and friends (`SCREAMING_SNAKE` enum values) |
+| GCP  | `Gcp` — 198 hits / 7 pkgs | `'GCP'` JSDoc / enum string |
+| IAM  | (no `Iam*` TS identifiers — only `Iam`-prefixed model types in 2 pkgs) | `IAM role`, `IAM` in JSDoc comments in 4 pkgs — comment text only, not identifiers |
+| URI  | `Uri` — 27 hits / 6 pkgs | `URI` in JSDoc comments in 4 pkgs — comment text only |
+| LLM  | `Llm` — 147 hits / 4 pkgs | `LLM` in JSDoc / occasional enum string |
+| DBFS | `Dbfs` — 76 hits / 3 pkgs | `DBFS` in JSDoc comments |
+| ETag | `etag` field name | RFC 7232 §2.3 says `ETag` — minor canonical-form mismatch |
+| RPC  | `Rpc` — 5 hits / 3 pkgs | `RPC` in JSDoc comments — comment text only |
 
-**Generator fix:** Adopt one policy in `typescript.mdc` and apply
-generator-wide. The two consistent options are:
-1. **Google TS style guide (`Pascal-then-lower`):** `Url`, `Id`, `Sql`, `Json`, `OAuth` → `Oauth`. Pro: every multi-letter token becomes a word; con: requires reading `OAuth` as `Oauth`, which collides with the brand.
-2. **.NET / Microsoft (`ALL_CAPS` for ≤2-letter, `Pascal-then-lower` for ≥3):** `URL`, `ID`, `Sql`, `Json`. Pro: matches HTTP/RFC casing; con: harder to typo-check.
+**The apparent `ALL_CAPS` leaks in identifiers across the generated
+packages are almost entirely:**
 
-The choice matters less than the consistency; today the SDK has both.
+- **JS built-ins** (`URLSearchParams`, `JSON.parse`/`JSON.stringify`,
+  `encodeURIComponent`) — part of the JavaScript standard library; the
+  SDK cannot rename them.
+- **JSDoc comment text** copied from upstream proto comments (`IAM role`,
+  `S3 URI`, `HTTPS URL`, `OAuth scopes`, `DBFS`) — not identifiers.
+- **Wire-format enum string values** (`'URL' = 'URL'`, `'SQL' = 'SQL'`,
+  `'ID' = 'ID'`) — preserved as-is from the upstream proto; the JSON
+  wire shape requires the literal uppercase strings.
+- **`SCREAMING_SNAKE_CASE` constants** (`AWS_SSE_S3`,
+  `DATABRICKS_SQL_ACCESS`) — a different style class (SCREAMING_SNAKE
+  constants), not "ALL_CAPS acronym" leaks.
+
+**The one real generated-code identifier inconsistency** is `OAuth`
+vs `Oauth` mixed within the `oauth` package itself
+(`OAuthAppIntegration`, `CustomOAuthAppIntegration` vs `Oauth` field
+positions).
+
+**Generator fix:** Adopt one policy in `typescript.mdc` and converge the
+small number of `OAuth*` identifiers. The two consistent options:
+1. **Google TS style guide (`Pascal-then-lower`):** `Url`, `Id`, `Sql`, `Json`, `Oauth`. Pro: matches what the generator already emits for ~99% of identifiers; lowest-churn path. Con: `Oauth` deviates slightly from the brand spelling `OAuth`.
+2. **.NET / Microsoft (`ALL_CAPS` for ≤2-letter, `Pascal-then-lower` for ≥3):** `URL`, `ID`, `Sql`, `Json`, `OAuth`. Pro: matches HTTP/RFC casing and the brand. Con: requires renaming ~3300 `*Id` identifiers and ~445 `*Url` identifiers across the whole corpus — major generator+spec change.
+
+#### 3b. Hand-written code — 5/5 packages (`auth`, `core`, `databricks`, `sdk`, `options`)
+
+**Status: Fixed (2026-05-21).** The renames listed below were applied.
+The historical table and prose are retained as a record of the BEFORE
+state.
+
+The hand-written packages mixed the two styles within the same file.
+The real inconsistencies (excluding JS built-ins and `SCREAMING_SNAKE`
+constants) were:
+
+- **`core/apierror/`** mixed `HttpClient`/`HttpRequest`/`HttpResponse` (Pascal) with `HTTPBody`/`HTTPHeader`/`HTTPStatusCode` (ALL_CAPS) within the same module.
+- **`auth/credentials/`** used `IDToken`/`IDTokenProvider` (ALL_CAPS) alongside `clientId`/`fetchCliToken` (Pascal) for short acronyms.
+- **`core/apierror/APIError`** used ALL_CAPS for `API` while the rest of the codebase used Pascal-then-lower.
+
+> **Resolved:** all real identifier renames listed above were applied
+> (105 files: 11 hand-written + 94 generated `utils.ts`).
+> `APIError` → `ApiError` rename touched 105 files.
+> `IDToken`/`IDTokenProvider` → `IdToken`/`IdTokenProvider`.
+> `HTTPStatusCode`/`HTTPHeader`/`HTTPBody` → `httpStatusCode`/`httpHeader`/`httpBody`.
+> `OAuthAuthorizationServer`, `OIDC*` and JS built-ins
+> (`URLSearchParams`, `JSON.parse`, `encodeURIComponent`) kept under
+> the platform-name exception. `SCREAMING_SNAKE_CASE` constants
+> unaffected.
+
+### Theme 4. Brand drift / rebrand leakage — ~10/87 packages
+
+Several products were rebranded but the TS surface still carries the old
+codename:
+
+- `warehouses` — every TS type is `Endpoint*` (legacy "SQL Endpoints" name) despite the package being named for the modern "SQL Warehouses" product.
+- `pipelines` — uses `Update` as the noun for "pipeline run" (DLT-era terminology); the product is now "Lakeflow Declarative Pipelines".
+- `lakeview` — the package name is the old codename; the product is "AI/BI Dashboards".
+- `repos` — package name is legacy; the product is "Git folders". The type `RepoInfo` should be `GitFolder`.
+- `experiments` — MLflow experiments; cross-package overlap with `forecasting` ML APIs.
+- `genie` — codename for "AI/BI Genie" / "Genie Spaces".
+
+**Generator fix:** Per-product spec needs updates; the rename can land via a
+generator alias map (`Endpoint` → `Warehouse` in `warehouses` only, etc.).
+
+### Theme 5. Proto-architectural-leak infixes — ~10/87 packages, ~50 findings (substantially shrunk)
+
+Internal proto / service-tier identifiers leak through the codegen and show
+up as mid-position infix tokens that have no meaning to a TS SDK consumer.
+The 2026-05-22 generator regen retroactively validated generator rule §8.2
+and renamed the dominant `*Public*Request` sub-pattern across every
+account-tier package — ~81 findings moved to per-package `Fixed` sections.
+
+**Status after the 2026-05-22 regen:**
+
+- The `*Public*` mid-position infix sub-pattern is largely fixed. Account-tier
+  packages that previously carried 14-21 such findings each
+  (`networking` 21 → 0, `workspaces` 21 → 0,
+  `metastores` 20 → 0, `credentials` 12 → 0,
+  `storageconfigurations` 14 → 0, `keyconfigurations` 3 → 0) now have zero
+  active `*Public*Request` findings. The residual active findings on these
+  packages are unrelated singular/plural and category-1 issues that the
+  rescan surfaced once the proto-leak noise cleared.
+- **`*CustomerFacing*` qualifier still survives in `networking`** — 40+
+  identifiers (`CustomerFacingIngressNetworkPolicy`,
+  `CustomerFacingVpcEndpointUseCase`, etc.) in active source. Not yet
+  scanned as findings because the regen left them untouched; they are the
+  same proto-tier qualifier and should be flagged in a follow-up pass.
+- **`*Proto` suffix** still active in a handful of identifiers:
+  `DatabricksServiceExceptionProto`,
+  `DatabricksServiceExceptionWithDetailsProto`, `TriggerStateProto` (jobs
+  `model.ts`). The companion JSDoc usually says "Proto defined to model …" —
+  that is the right place for the word; in the identifier it leaks the wire
+  format.
+- **`*Service*` mid-position infix.** `ServiceErrorCode` / `ServiceError`
+  in `statementexecution`. The `Service` token is a proto/gRPC
+  architectural-layer noun and not a domain concept.
+- **`*V2*` mid-position.** `RunLifecycleStateV2` (jobs),
+  `unmarshalListExternalMetadataResponseV2Schema` (externalmetadata).
+  Version goes in the import path / subpath export, not the identifier.
+- **JSDoc proto-layer banners.** `forecasting` and `pipelines` both ship
+  JSDoc with "Public RPC" / "Wrapper message" / "Public facing RPC requests
+  and responses *****" verbatim — banner comments that exist solely for the
+  proto file structure.
+
+**Generator fix:** Strip proto-architectural-tier markers from the public
+TS surface emit. The set is small and closed: `Public`, `Internal`,
+`Proto`, `Service` (when mid-position and not the domain word), `Backend`,
+`Manager`, `Handler`, `Impl`, `Rpc`, `Grpc`, `Wrapper`, `CustomerFacing`,
+mid-position `V<N>`. Carried as a single generator-only rule in §8.2 below.
+The `*Public*Request` sub-pattern has now shipped via the 2026-05-22 regen,
+which is a retroactive validation of the rule but does not close it out.
 
 ---
 
 ## 2. Cross-package duplication & overlap
 
-The audits surfaced ~30 pairs/triplets/quartets of packages that overlap
+The audits surfaced ~20 pairs/triplets/quartets of packages that overlap
 on a single underlying concept. Each row is a real user-facing pain point:
 "I want to do X — which of these N packages do I import?"
 
-### 2.1 Settings (4-way overlap — the worst case)
+### 2.1 Settings (2-way overlap — was a 4-way)
+
+The 2026-05-22 regen consolidated the previous 4-way fanout
+(`settings` + `accountsettings` + `workspacesettings` + `workspaceconf`)
+into:
 
 | Package | Style | What it really is |
 |---|---|---|
-| `settings` (v2) | Generic polymorphic value | The future "v2" key/value API |
-| `accountsettings` | Per-feature endpoints | Per-toggle CRUD at the account level |
-| `workspacesettings` | Per-feature endpoints | Per-toggle CRUD at the workspace level |
-| `workspaceconf` | Free-form K/V map | Legacy untyped `map<string,string>` settings |
+| `settings` (v2) | Generic polymorphic value | Account- and workspace-scoped settings under the unified v2 surface |
+| Retired | — | `accountsettings`, `workspacesettings`, `workspaceconf` were retired in the regen; their findings are in the orphan audits |
 
-`BooleanMessage`, `StringMessage`, `IntegerMessage`,
-`RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMessage`,
-`AibiDashboardEmbeddingAccessPolicy`, `PersonalComputeMessage` are
-**defined verbatim** in both `settings/v2/model.ts` and
-`workspacesettings/v1/model.ts`. A consumer importing both gets two
-distinct TS types with the same name.
+`settings/v2/model.ts` now carries 84 active findings — the cross-package
+duplicates (`BooleanMessage`, `StringMessage`, `RestrictWorkspaceAdminsMessage`,
+`PersonalComputeMessage`) are now collapsed into a single surface but the
+type-naming friction remains.
 
-### 2.2 Secrets (4-way overlap)
+### 2.2 Secrets (2-way overlap, was 4-way)
+
+The 2026-05-20 regeneration deleted both `serviceprincipalsecrets` and
+`serviceprincipalsecretsproxy`. The remaining secrets surface is:
 
 | Package | What it really is |
 |---|---|
 | `secrets` | Workspace-level Secret Manager (scopes + key/value) |
 | `secretsuc` | Unity Catalog three-level-namespaced secrets |
-| `serviceprincipalsecrets` | Account-level OAuth client secrets on SPs |
-| `serviceprincipalsecretsproxy` | Workspace-level *byte-identical* clone of the above |
 
-Every package exports a class literally named `Client`, and three of the
-four also export a type literally named `Secret`. `serviceprincipalsecrets`
-and `serviceprincipalsecretsproxy` are byte-for-byte identical at the
-file level (verified by md5 in the audit); the "proxy" word never appears
-inside the code or URL of either.
+Both packages still export a class literally named `Client` and a type
+literally named `Secret`. The previous byte-identical `*proxy` duplicate
+no longer exists.
 
 ### 2.3 Credentials (3-way overlap)
 
@@ -272,17 +460,15 @@ inside the code or URL of either.
 The bare type name `Credential` exists in two of these and `Credentials`
 exists in the third.
 
-### 2.4 Identity / IAM (multi-way overlap)
+### 2.4 Identity / IAM (shrunk further by the 2026-05-22 regen)
 
-- `iam` exposes `*` + `*Proxy` versions of every method (e.g.
-  `createGroup` + `createGroupProxy`, etc.) — 17 endpoint pairs (44
-  request types collapse to 22 unique shapes).
-- `accountaccesscontrol` + `accountaccesscontrolproxy` — file-level
-  duplicate; the "proxy" suffix is invisible in code/URL.
-- `permissions` overlaps with `iam` and `accountaccesscontrol` on the
-  rule-set + grant-rule data model.
-- `workspaceassignment` overlaps with the workspace-assignment surface
-  inside `iam`.
+- `iam` still exposes `*` + `*Proxy` versions of every method (e.g.
+  `createGroup` + `createGroupProxy`, etc.) — 17 endpoint pairs.
+- `accessmanagement` (NEW in the 2026-05-22 regen) is the consolidated
+  umbrella for what used to be `permissions`, `accountaccesscontrol`,
+  `accountaccesscontrolproxy`, and `workspaceassignment`. Covers object
+  permissions, permission levels, rule sets, and workspace assignments
+  in a single import path.
 
 ### 2.5 Tokens
 
@@ -291,8 +477,8 @@ exists in the third.
 | `tokens` | User-self PAT management |
 | `tokenmanagement` | Admin-of-others PAT management |
 
-Both export `Client`, both export `ListTokens`, `RevokeToken`,
-`UpdateToken`. They duplicate the entire `AutoscopeState` enum verbatim.
+Both export `Client`, both export request types named identically. They
+duplicate the entire `AutoscopeState` enum verbatim.
 
 ### 2.6 Tags (3-way split)
 
@@ -307,18 +493,11 @@ Three packages, three `Client` classes, three near-identical
 `entityId: string`, the UC variant has `entityName: string` — same logical
 field, different name, both string.
 
-### 2.7 Quality / Data monitoring (3-way overlap, all deprecated)
+### 2.7 Quality / Data monitoring (consolidated to one)
 
-| Package | Singular/plural | What it really is |
-|---|---|---|
-| `qualitymonitor` | singular | UC schema-level monitor (anomaly detection); deprecated |
-| `qualitymonitors` | plural | UC table-level monitor (Lakehouse Monitoring); deprecated |
-| `dataquality` | n/a | The new unified replacement API |
-
-Singular vs plural is the *only* differentiator between the first two
-package names. Both are deprecated in favour of `dataquality`. Three
-packages, three vocabularies (`QualityMonitor`, `DataMonitorInfo`,
-`Monitor`), three `Client`s.
+The 2026-05-22 regen retired `qualitymonitor` and `qualitymonitors` (both
+deprecated). The only active surface is `dataquality`. Two former orphans
+no longer contribute to the active total.
 
 ### 2.8 Model Registry
 
@@ -330,25 +509,27 @@ packages, three vocabularies (`QualityMonitor`, `DataMonitorInfo`,
 The legacy package has the canonical-sounding name; the UC replacement is
 hidden behind a plural noun.
 
-### 2.9 Model Serving (3-way fragmentation)
+### 2.9 Model Serving (consolidated)
+
+The three-way fragmentation
+(`modelservingmanagement` + `modelservingquery` + `modelservingdebug`)
+collapsed to two packages in the 2026-05-22 regen:
 
 | Package | What it really is |
 |---|---|
-| `modelservingmanagement` | CRUD over serving endpoints |
+| `modelserving` | CRUD over serving endpoints (was `modelservingmanagement`); absorbed the former `modelservingdebug` |
 | `modelservingquery` | Inference / `POST /invocations` |
-| `modelservingdebug` | Logs / metrics endpoints |
 
-All three operate on the same `serving-endpoints/{name}` URL space. The
-type names differ across packages: `InferenceEndpoint` (management),
-`Endpoint` (debug, query), and the URL itself says `serving-endpoints`.
-Three names for the same noun.
+The type-naming friction remains: `InferenceEndpoint` (in `modelserving`)
+vs `Endpoint` (in `modelservingquery`) vs the URL `serving-endpoints`.
 
 ### 2.10 Cluster compute (overlapping warehouses)
 
 - `warehouses` exposes SQL Warehouses (formerly "SQL Endpoints"); the
   TS types still spell `Endpoint*` (e.g. `EndpointInfo`, `EndpointState`).
-- `endpoints` (separate package!) exposes Vector Search endpoints with
-  type names like `Endpoint`, `EndpointType`, `EndpointStatus`.
+- `vectorsearch` (consolidated from `endpoints` + `indexes`) exposes
+  Vector Search endpoints with type names like `Endpoint`, `EndpointType`,
+  `EndpointStatus`.
 
 Two packages, two `Endpoint*` type families, different products.
 
@@ -368,10 +549,10 @@ types covering the same wire object.
 |---|---|
 | `features` | Feature definitions |
 | `featurestore` | Online stores / publishing |
-| `materializedfeatures` | Feature materialisation |
 
-Three packages, blurry boundaries (audit calls out "H1. Three sibling
-packages, blurry boundaries" on `features.md`). `Feature` is overloaded.
+The third sibling (`materializedfeatures`) was retired in the 2026-05-22
+regen; its surface is folded into `features` (`MaterializedFeature` types
+already live there).
 
 ### 2.13 Budget / Usage policy
 
@@ -385,18 +566,20 @@ packages, blurry boundaries" on `features.md`). `Feature` is overloaded.
 admits it: "(same structure as BudgetPolicy)". Reserved tag keys still say
 `"budget-policy-name"` in the usage-policy clone.
 
-### 2.14 Workspace (5-package fanout)
+### 2.14 Workspace (2-package fanout, was 5)
+
+The 2026-05-22 regen retired three of the previous five
+(`workspace` → `workspaceobjects` rename, `workspaceassignment` →
+`accessmanagement`, and both `workspaceconf` and `workspacesettings`
+retired). The remaining set:
 
 | Package | What it really is |
 |---|---|
-| `workspace` | Workspace filesystem (notebooks/folders/files) |
-| `workspaceassignment` | Principal-to-workspace assignments |
+| `workspaceobjects` | Workspace filesystem (notebooks/folders/files) |
 | `workspacebindings` | Securable-to-workspace bindings |
-| `workspaceconf` | Untyped K/V configuration |
-| `workspacesettings` | Typed workspace settings |
 
-The bare name `workspace` is misleading — every Databricks API operates
-"in a workspace". A name like `workspacefiles` would convey scope.
+The bare name `workspace` was the most-overloaded; renaming to
+`workspaceobjects` resolves the principal-vs-filesystem confusion.
 
 ### 2.15 Schemas (UC overlap)
 
@@ -405,37 +588,59 @@ The bare name `workspace` is misleading — every Databricks API operates
 | `schemas` | User-defined UC schemas (full CRUD) |
 | `systemschemas` | Server-managed UC system schemas (enable/disable) |
 
-### 2.16 OAuth
+### 2.16 OAuth (consolidated)
 
-| Package | What it really is |
-|---|---|
-| `oauthcustomappintegration` | CRUD for custom AND published OAuth app integrations |
-| `oauthpublishedapp` | List-only of the published-app catalog |
-
-The first package's name is misleading — it covers both Custom and
-Published despite saying only "Custom". Both packages are singular but
-expose collection operations.
+The 2026-05-22 regen merged `oauthcustomappintegration` and
+`oauthpublishedapp` into a single `oauth` package, ending the
+singular-plural split and the misleading "custom" name. The new package
+covers both Custom and Published app integrations as well as the
+published-app catalog.
 
 ### 2.17 Statement / Query / Command execution
+
+`queryexecution` was deleted in the 2026-05-20 regeneration. The
+remaining surfaces:
 
 | Package | What it really is |
 |---|---|
 | `statementexecution` | Ad-hoc SQL on a SQL Warehouse |
-| `queryexecution` | Re-run saved queries inside *published* dashboards |
 | `commandexecution` | Python/SQL/Scala/R via Clusters REPL |
 | `queries` | Saved-query CRUD |
 | `queryhistory` | Read-only query history list |
 
-Five packages, three near-synonyms in the names (query/statement/command),
+Four packages, three near-synonyms in the names (query/statement/command),
 disjoint scopes that the names do not telegraph.
 
-### 2.18 Other notable overlaps
+### 2.18 Account API cluster (consolidated in the 2026-05-22 regen)
+
+The 2026-05-20 regen first absorbed account-tier APIs into seven
+previously-unaudited packages. The 2026-05-22 regen then renamed the
+`*Public*Request` family across every one of them — ~81 findings moved to
+`Fixed`. The remaining surface is the consolidated set:
+
+| Package | Account-tier surface |
+|---|---|
+| `workspaces` | Create/update/delete an account-managed workspace |
+| `networking` | NCC, networks, private access settings, VPC endpoints, network policies |
+| `storageconfigurations` | Account-level cloud storage configs (S3 root buckets) |
+| `keyconfigurations` | Account-level customer-managed key configurations |
+| `credentials` (account half) | `AccountsCreate*` family (the `*Public*` suffix has been removed) |
+| `metastores` (account half) | `AccountsCreate*` family (the `*Public*` suffix has been removed) |
+| `authentication` | Account-level token federation policies |
+| `scim` | Account-level SCIM 2.0 user/group provisioning |
+| `sharing` | Account-level Delta Sharing provider config |
+| `accessmanagement` | Object permissions, permission levels, rule sets, workspace assignments (consolidated) |
+| `logdelivery` | Account-level log delivery configs (was `logdeliveryconfigurations`) |
+
+The `*Public*Request` proto-leak that previously dominated this cluster is
+no longer a concern. Residual `*CustomerFacing*` qualifiers in `networking`
+are not yet flagged but match generator rule §8.2.
+
+### 2.19 Other notable overlaps
 
 - `lakeview` (the rebranded "AI/BI Dashboards" — name uses old codename).
-- `cleanrooms` + `cleanroomassets` + `cleanroomautoapprovalrules` +
-  `cleanroomtaskruns` — four packages for one product surface.
-- `serviceprincipalsecrets` ≡ `serviceprincipalsecretsproxy` (byte-identical).
-- `accountaccesscontrol` ≈ `accountaccesscontrolproxy`.
+- `cleanrooms` absorbed `cleanroomassets` + `cleanroomautoapprovalrules` +
+  `cleanroomtaskruns`; the four-package fanout is now a single package.
 - `supervisoragents` + `knowledgeassistants` + `customllms` —
   three packages in the LLM-orchestration space with bare-generic top-level
   type names (`SupervisorAgent`, `KnowledgeAssistant`, `CustomLlm`).
@@ -452,14 +657,14 @@ expansion in code or JSDoc. A first-time user has to guess.
 | `rfa` | Request For Access | Package name only | `packages/rfa/` — no expansion in any TS identifier or JSDoc. The wire URL `/api/3.0/rfa/...` is the only other carrier. |
 | `uc` | Unity Catalog | Package suffix (`secretsuc`), URL `/unity-catalog/`, comment references | Never appears as a type prefix. |
 | `sp` | Service Principal | Field prefixes (`accountSpStatus`, `spId`) | Inconsistent — sometimes spelled out (`servicePrincipal`), sometimes `sp`. |
-| `conf` | Configuration | `workspaceconf` (package), `EndpointConfPair` (type) | One four-letter abbreviation that the rest of the SDK consistently spells out. |
+| `conf` | Configuration | `EndpointConfPair` (type) (legacy `workspaceconf` package retired in 2026-05-22 regen) | One four-letter abbreviation that the rest of the SDK consistently spells out. |
 | `dbu` | Databricks Unit | Cluster docs only | Not in type names. |
 | `dbr` | Databricks Runtime | `TerminationCode.DBR_IMAGE_RESOLUTION_FAILURE`, `K8S_DBR_CLUSTER_LAUNCH_TIMEOUT` | Acronym not expanded. |
 | `dbfs` | Databricks File System | `DbfsStorageInfo`, `disableLegacyDbfs` | Casing varies (`Dbfs` vs `DBFS` in JSDoc). |
 | `dlt` | Delta Live Tables | Comment references | The product was renamed to "Lakeflow Declarative Pipelines"; the type `Update` still reflects the DLT-era name. |
 | `csp` | Compliance Security Profile | `CspEnablementAccountSetting`, `Csp*` family | `Csp` casing is uniform; the acronym is not expanded. |
 | `esm` | Enhanced Security Monitoring | `EsmEnablementAccountSetting`, `Esm*` family | Same as CSP. |
-| `dcp` | (settings v1 internal acronym) | `DcpAccountEnableMessage` | Audit at `accountsettings.md` flagged as cryptic. |
+| `dcp` | (settings v1 internal acronym) | `DcpAccountEnableMessage` | Flagged as cryptic. |
 | `llm` | Large Language Model | `CustomLlm`, `LlmProxyPartnerPoweredAccount`, `Llm*` family | `Llm` casing is uniform across SDK. |
 | `sdp` | Serverless Declarative Pipelines | Comments | Internal acronym. |
 | `ldp` | Lakeflow Declarative Pipelines | Comments | Internal acronym. |
@@ -498,13 +703,13 @@ multiple casings across packages — sometimes within the same file.
 | **URI** | `Uri`, `URI` | `endpointUri` vs JSDoc "URI". |
 | **SQL** | `Sql`, `SQL` | `SqlWarehouseSpec` (type), `DATABRICKS_SQL_ACCESS` (enum). |
 | **JSON** | `Json`, `JSON` | `JsonValue`, `JsonObject` (wkt types) vs `JSON.stringify` (built-in). |
-| **OAuth** | `Oauth`, `OAuth` | Package `oauthcustomappintegration` (lowercased), type `OAuthAppIntegration` (PascalCase). |
+| **OAuth** | `Oauth`, `OAuth` | Package `oauth` (lowercased), type `OAuthAppIntegration` (PascalCase). |
 | **PyPI** | `Pypi`, `PyPI` | `PypiLibrary` (type), JSDoc spells `PyPI`. |
 | **AWS** | `Aws`, `AWS` | `AwsAttributes` (type), `AWS_SSE_S3` (enum). |
 | **GCP** | `Gcp`, `GCP` | `GcpAvailability` (type), `GCP_QUOTA_EXCEEDED` (enum). |
 | **Azure** | `Azure` | Consistent. |
 | **LLM** | `Llm`, `LLM` | `CustomLlm` (type, field), JSDoc says `LLM`. |
-| **HTTP** | `Http`, `HTTP` | `HttpClient` (type) vs JSDoc and headers. |
+| **HTTP** | `Http`, `HTTP` | `HttpClient` (type) vs JSDoc and headers. Hand-written packages converged on Pascal-then-lower (`httpStatusCode`, `httpHeader`, `httpBody`) on 2026-05-21. |
 | **HTTPS** | `Https` | Consistent. |
 | **DBFS** | `Dbfs`, `DBFS` | `DbfsStorageInfo` vs `disableLegacyDbfs` vs JSDoc "DBFS". |
 | **DBR** | `Dbr`, `DBR` | Enum members all-caps. |
@@ -512,7 +717,7 @@ multiple casings across packages — sometimes within the same file.
 | **CSP** | `Csp`, `CSP` | Type `Csp*`, JSDoc "CSP". |
 | **ESM** | `Esm`, `ESM` | Type `Esm*`, JSDoc "ESM". |
 | **IdP** | `Idp`, `IdP` | `idp*` fields, JSDoc "IdP". |
-| **ETag** | `etag`, `eTag`, `ETag` | Three casings within one JSDoc comment block (`accountaccesscontrolproxy`). |
+| **ETag** | `etag`, `eTag`, `ETag` | Three casings within one JSDoc comment block (formerly `accountaccesscontrolproxy`, now in `accessmanagement`). |
 | **ODBC** | `Odbc` | `OdbcParams`. |
 | **JDBC** | `Jdbc`, `JDBC` | Doc references only. |
 | **AI/BI** | `Aibi`, `AI/BI` | `AibiDashboard*` types, JSDoc says "AI/BI". |
@@ -522,54 +727,22 @@ multiple casings across packages — sometimes within the same file.
 
 **Recommendation:** Pick one rule. The Google TypeScript Style Guide
 specifies `Pascal-then-lower` (`Url`, `Id`, `Json`, `Sql`) — this is the
-current majority in the SDK. Document the choice in `.agent/rules/typescript.mdc`
-§ 3 and enforce in CI. Wire format unchanged.
+current majority in the SDK. The hand-written packages were converged on
+this rule on 2026-05-21. Document the choice in
+`.agent/rules/typescript.mdc` § 3 and enforce in CI. Wire format unchanged.
 
 ---
 
-## 5. Package-name oddities
-
-Packages whose names themselves cause user-facing pain.
-
-| Package | Issue | Suggested rename |
-|---|---|---|
-| `rfa` | 3-letter cryptic acronym — never expanded in any TS identifier. | `accessrequests` |
-| `workspaceconf` | `conf` is the only abbreviation of "configuration" in the SDK. | `workspaceconfig` |
-| `secretsuc` | Two words mashed together; `uc` is invisible to readers. | `unitycatalogsecrets` or `ucsecrets` |
-| `cleanroomautoapprovalrules` | 26-character compound, no separator. | `cleanroomautoapprovals` (drop "rules") or `cleanrooms/auto-approval-rules` subpath |
-| `oauthcustomappintegration` | 25 chars; singular; *covers both Custom AND Published*. | `oauthappintegrations` (drop `custom`, pluralise) |
-| `serviceprincipalsecretsproxy` | 28 chars; "proxy" appears nowhere in code or URL; byte-identical to `serviceprincipalsecrets`. | Merge into `serviceprincipalsecrets`. |
-| `serviceprincipalsecrets` | 23 chars compound; sibling to four other `*secret*` packages. | `sp-credentials` or `service-principal-credentials` (hyphenated). |
-| `accountaccesscontrolproxy` | 25 chars; byte-identical to `accountaccesscontrol`. | Merge into `accountaccesscontrol`. |
-| `qualitymonitor` vs `qualitymonitors` | Singular vs plural, both deprecated, different APIs. | Drop both — consolidate to `dataquality`. |
-| `tokens` vs `tokenmanagement` | "Tokens API" vs "Manage tokens" — both accurate, neither distinguishes user-self vs admin. | `usertokens` + `tokenadmin`. |
-| `workspace` | Most overloaded of 5 `workspace*` packages — every API operates "in a workspace". | `workspacefiles` (it's the FS API). |
-| `endpoints` | Doesn't say "vector search" — collides conceptually with the legacy `Endpoint*` types in `warehouses`. | `vectorsearchendpoints`. |
-| `warehouses` | Right product name, but every TS type is `Endpoint*` (legacy proto name). | Keep; rename `EndpointInfo`/`EndpointState`/`EndpointTagPair`/`EndpointConfPair`/`EndpointSecurityPolicy`/`EndpointSpotInstancePolicy` → `Warehouse*`. |
-| `lakeview` | Old codename; product is now "AI/BI Dashboards". | `dashboards` or `aibidashboards`. |
-| `repos` | Legacy codename; product is "Git folders". | `gitfolders`. |
-| `database` vs `postgres` | Two packages, one product (Lakebase managed Postgres). | Merge; keep `lakebase` or `managedpostgres`. |
-| `modelregistry` vs `registeredmodels` | Singular "the registry" vs plural "the entries" — actually two products (workspace MLflow vs UC). | `mlflowregistry` + `ucregisteredmodels`. |
-| `qualitymonitor` (singular) | Only its singular form distinguishes from `qualitymonitors` (plural). | See row above. |
-| `billableusagedownload` | Verb in package name (`download`). Only such case in the SDK. | `billableusage` (move verb to method). |
-| `experiments` | Bare-generic word — also a common term in feature-flag SDKs. | `mlflowexperiments`. |
-| `bundle` | Bare-generic word — Webpack/Vite/Rollup all have "bundles". | `assetbundles`. |
-| `genie` | Codename — product is "Genie Spaces"/"AI/BI Genie". | Keep `genie` but drop the `Genie*` type prefix throughout. |
-| `customllms` | Plural, but the type is singular (`CustomLlm`). | OK; flag for `LLM` vs `Llm` casing policy. |
-| `disasterrecovery` | OK; `FailoverFailoverGroupRequest` is the type to fix. | n/a |
-| `supervisoragents` | `Supervisor` + `Agent` both extremely generic. | `routeragents` or `agentorchestrators`. |
-| `knowledgeassistants` | OK, but generic enough that future overlap is likely. | n/a |
-| `commandexecution` | Mixes three resources (Command, Context, Cluster); name picks one. | Keep, but split the type prefixes (`CommandStatus` vs `ContextStatus`). |
-| `policyfamilies` | OK but uses both "Family" and "Policy Family" interchangeably. | n/a |
-| `connections` | Bare-generic; collides with HTTP/DB connections in user code. | `ucconnections` or `foreignconnections`. |
-| `tables`, `volumes`, `schemas`, `catalogs`, `functions` | All bare-plural UC nouns. Cross-package overlap with `Dependency`, `SecurableType`, `EncryptionDetails`, `EffectivePredictiveOptimizationFlag` is heavy. | Keep names; hoist shared types to a `uc-common` package. |
-
----
-
-## 6. Top-50 highest-impact individual findings
+## 5. Top-50 highest-impact individual findings
 
 Picked one per package where possible, prioritising ones with broad reuse.
-Findings ranked High severity in their audit. Each entry: file + symbol + the
+Findings ranked High severity in their audit. Entries whose package was
+deleted/merged in the 2026-05-20 or 2026-05-22 regeneration have been
+removed; entries about the now-pruned enum-name-prefix theme and
+`*_UNSPECIFIED` sentinel existence have been removed; entries whose
+underlying finding has moved to `Fixed` after the 2026-05-22 regen (the
+`*Public*Request` proto-leak across `networking`, `workspaces`,
+`metastores`, etc.) have been removed. Each entry: file + symbol + the
 generator pattern it exemplifies.
 
 | # | Package | File:Line | Symbol / Issue | Pattern |
@@ -580,233 +753,222 @@ generator pattern it exemplifies.
 | 4 | `pipelines` | `model.ts:283, 1091, 1689, 2738, 2879` | `Update` is the noun "pipeline run" — collides with HTTP `update()` verb across 9 types/methods. | Rebrand leakage (DLT → Lakeflow) |
 | 5 | `pipelines` | `model.ts:212-2507` | `Pipelines*` prefix on 15 types in a package called `pipelines` (singular). | Type-name prefix repeats package |
 | 6 | `iam` | `client.ts:309-2150` | Every method exists as `*` + `*Proxy` pair (17 endpoint duplicates). | Proxy routing in type names |
-| 7 | `abacpolicies` | `model.ts:7-14` | `PolicyType.POLICY_TYPE_UNSPECIFIED`/`POLICY_TYPE_ROW_FILTER`/etc. | Redundant enum prefix |
-| 8 | `abacpolicies` | `model.ts:190` | `PolicyInfo` — `Info` suffix on the canonical entity. | `Info` suffix |
-| 9 | `tables` | `model.ts:passim` | `fullNameArg` path-param field name (5+ UC packages share this). | Cryptic `Arg` suffix |
-| 10 | `tables` | `model.ts:849` | `TableSummary` vs `TableInfo` — two near-identical shapes. | Duplicate concept |
-| 11 | `apps` | `model.ts:693, 1054` | `ApplicationStatus` on `App` — two vocabularies for one product. | Vocabulary drift |
-| 12 | `apps` | `model.ts:606, 962` | `AppResourceApp.AppPermission.CAN_USE` — `App` token thrice; package-name re-prefix throughout. | Redundant prefix |
-| 13 | `genie` | `client.ts:131, 1019, 1038` | Method naming: 28 of 30 prefixed `genie*`, 2 not; one `Trash*` instead of `Delete*`. | Inconsistent action verbs |
-| 14 | `genie` | `model.ts passim` | 40 of ~70 types prefixed `Genie*`; remaining have no prefix. | Inconsistent type prefix |
-| 15 | `commandexecution` | `model.ts:70` vs `client.ts:286-309` | `CreateResponse` is reused for both `create()` (context id) and `execute()` (command queued) — type repurposed across two semantically different operations. | Type repurposing |
-| 16 | `commandexecution` | `model.ts:71, 100, 112` | Three different `id?: string` fields — should be `contextId`/`commandId`. | Underspecified IDs |
-| 17 | `commandexecution` | `client.ts:256` | `client.destroy()` — verb collision; Go SDK uses `delete`. | Verb inconsistency |
-| 18 | `secrets` | `client.ts:passim` | `Put` for ACLs/secrets, `Create` for scopes, `Delete` for both — inconsistent mutation verbs. | Inconsistent action verbs |
-| 19 | `secrets` | `model.ts:passim` | `ListAcls_Response.items` should be `acls` (parallel to `ListScopes_Response.scopes` / `ListSecrets_Response.secrets`). | Field-name vocabulary drift |
-| 20 | `qualitymonitor` | package + types | Singular `qualitymonitor` vs plural `qualitymonitors` — different APIs distinguished only by trailing `s`. | Package-name overlap |
-| 21 | `qualitymonitors` | model + types | Both deprecated; `DataMonitorInfo` vs `Monitor` vs `QualityMonitor` — three names for one wire object. | Duplicate concept |
-| 22 | `modelservingmanagement` | `model.ts:passim` | Package says "model serving"; types say `InferenceEndpoint*`; URL says `serving-endpoints`. | Three names for one noun |
-| 23 | `modelservingmanagement` | `model.ts:960` | `ServedModel` actually holds non-model entities (`servedEntities: ServedModel[]`). | Type-name contradicts content |
-| 24 | `oauthcustomappintegration` | `model.ts:passim` | 18 types named `*OAuthAppIntegration*` — package name re-stated in every type. | Type-name prefix |
-| 25 | `oauthcustomappintegration` | package | Name says "custom" but covers both Custom and Published integrations. | Misleading package name |
-| 26 | `serviceprincipalsecretsproxy` | files | Byte-identical to `serviceprincipalsecrets` — "proxy" never in code/URL. | Duplicate package |
-| 27 | `serviceprincipalsecrets` | `model.ts:42, 59` | Verb-phrase request types lacking `Request` suffix (`CreateServicePrincipalSecret`, etc.); 23-char package-noun re-stated on every type. | Verb-as-noun + Type-name prefix |
-| 28 | `accountaccesscontrol` | `model.ts:73, 89, 105` | `RuleSet`, `RuleSetUpdateRequest`, `UpdateRuleSetRequest` — three names for one shape with overlapping `name` fields. | Duplicate concept |
-| 29 | `tokens` | `model.ts:13-21` | `AutoscopeState` duplicated verbatim in `tokenmanagement`. | Cross-package duplicate type |
-| 30 | `tokens` + `tokenmanagement` | package | Two packages for one PAT resource; both export `Client`, `ListTokens`, `RevokeToken`. | Cross-package collisions |
-| 31 | `tagassignments` + `entitytagassignments` | model.ts | Same conceptual object has `entityId` here, `entityName` there. | Cross-package field drift |
-| 32 | `usagepolicy` | model.ts | 1:1 clone of `budgetpolicy` with `Budget` → `Usage`. | Whole-package duplicate |
-| 33 | `customllms` | every file | `Llm` casing throughout — SDK has no acronym-casing policy. | Acronym casing |
-| 34 | `supervisoragents` | `model.ts:219` | `SupervisorAgent` — two extremely generic nouns combined. | Generic naming |
-| 35 | `supervisoragents` | `model.ts:251` | `Tool` — bare generic for discriminated union over 14 resource kinds; `toolType: string`. | Stringly-typed sum |
-| 36 | `cleanroomautoapprovalrules` | every type | `CleanRoomAutoApprovalRule` re-states the 26-char package name on every type. | Type-name prefix |
-| 37 | `database` + `postgres` | model.ts | Two packages, one product (Lakebase managed Postgres); `SyncedTable`/`DatabaseInstance` duplicated across both. | Duplicate package |
-| 38 | `iam` | `model.ts:41-48` | `State` (top-level enum named `STATE`) — collides with React `setState`/dozens of state-machine libs. | Generic top-level enum |
-| 39 | `iam` | `model.ts:13-21` | `Entitlement` — vague name for workspace-only entitlement enum; mixes presence and permission semantics. | Vague enum |
-| 40 | `permissions` | `model.ts` | `GetPermissions`, `UpdatePermissions`, `GetEffectivePermissions` — verb-phrase request types. | Verb-as-noun |
-| 41 | `permissions` + `grants` + `iam` + `accountaccesscontrol` | passim | Permissions/grants/rule-sets fragmented across 4 packages with overlapping vocabularies. | Cross-package fragmentation |
-| 42 | `experiments` | `model.ts:219, 712` | `Run`, `Experiment`, `Metric`, `Param`, `LoggedModel` — single-word top-level types, all collide with common JS terms. | Generic naming |
-| 43 | `repos` | `model.ts:111` | `RepoInfo` — `Info` suffix on the canonical entity; product re-branded to "Git folders". | `Info` suffix + brand drift |
-| 44 | `repos` | package + types | "Repos" is legacy; product is "Git folders". | Brand drift |
-| 45 | `notificationdestinations` | `model.ts:17, 13` | `Config` interface + `config` field — vague top-level name + self-referential field; `DestinationType` vague enum. | Self-referential field + generic naming |
-| 46 | `disasterrecovery` | `model.ts:91, 10` | `FailoverFailoverGroupRequest` — token "Failover" twice. | Generator stutter |
-| 47 | `materializedfeatures` | package | `materializedfeatures` does not match contents (contains feature-tag CRUD, not materialisation logic). | Misleading package name |
-| 48 | `marketplaces` | `model.ts:passim` | 14 verb-phrase request types (`Create`, `Update`, `Delete`, `Search`, `Get`, `List` variants) in a single file. | Verb-as-noun |
-| 49 | `marketplaces` | `model.ts:passim` | `Listing` vs `ExchangeListing` vs `ListingSummary` vs `ListingDetail` — four overlapping "listing" shapes. | Duplicate concept |
-| 50 | `externalmetadata` | `model.ts:10-32` | `SystemType` enum has 22 values with inconsistent casing (`POWER_BI`, `STREAM_NATIVE`, `POSTGRESQL`, `MICROSOFT_SQL_SERVER`). | Acronym/brand-value casing |
+| 7 | `abacpolicies` | `model.ts:190` | `PolicyInfo` — `Info` suffix on the canonical entity. | `Info` suffix |
+| 8 | `tables` | `model.ts:passim` | `fullNameArg` path-param field name (5+ UC packages share this). | Cryptic `Arg` suffix |
+| 9 | `tables` | `model.ts:849` | `TableSummary` vs `TableInfo` — two near-identical shapes. | Duplicate concept |
+| 10 | `apps` | `model.ts:693, 1054` | `ApplicationStatus` on `App` — two vocabularies for one product. | Vocabulary drift |
+| 11 | `apps` | `model.ts:606, 962` | `AppResourceApp.AppPermission.CAN_USE` — `App` token thrice; package-name re-prefix throughout. | Redundant prefix |
+| 12 | `genie` | `client.ts:131, 1019, 1038` | Method naming: 28 of 30 prefixed `genie*`, 2 not; one `Trash*` instead of `Delete*`. | Inconsistent action verbs |
+| 13 | `genie` | `model.ts passim` | 40 of ~70 types prefixed `Genie*`; remaining have no prefix. | Inconsistent type prefix |
+| 14 | `commandexecution` | model.ts vs client.ts | `CreateResponse` reused for both `create()` (context id) and `execute()` (command queued). | Type repurposing |
+| 15 | `commandexecution` | `model.ts:71, 100, 112` | Three different `id?: string` fields — should be `contextId`/`commandId`. | Underspecified IDs |
+| 16 | `commandexecution` | `client.ts:256` | `client.destroy()` — verb collision; Go SDK uses `delete`. | Verb inconsistency |
+| 17 | `secrets` | `client.ts:passim` | `Put` for ACLs/secrets, `Create` for scopes, `Delete` for both — inconsistent mutation verbs. | Inconsistent action verbs |
+| 18 | `secrets` | `model.ts:passim` | `ListAcls_Response.items` should be `acls` (parallel to `ListScopes_Response.scopes` / `ListSecrets_Response.secrets`). | Field-name vocabulary drift |
+| 19 | `dataquality` | model + types | `ListMonitorRequest` singular for list of monitors; `qualitymonitor`/`qualitymonitors` deprecated and retired in 2026-05-22 regen. | Singular/plural mismatch |
+| 20 | `modelserving` | `model.ts:passim` | Package says "model serving"; types say `InferenceEndpoint*`; URL says `serving-endpoints`. | Three names for one noun |
+| 21 | `modelserving` | `model.ts:960` | `ServedModel` actually holds non-model entities (`servedEntities: ServedModel[]`). | Type-name contradicts content |
+| 22 | `oauth` | `model.ts:passim` | After the merge, `OAuthAppIntegration*` types still re-state the package name on every shape. | Type-name prefix |
+| 23 | `accessmanagement` | model.ts | After the `permissions` rename + `workspaceassignment` absorption, the type-name overlap with `iam` and `grants` is still present. | Cross-package fragmentation |
+| 24 | `tokens` | `model.ts:13-21` | `AutoscopeState` duplicated verbatim in `tokenmanagement`. | Cross-package duplicate type |
+| 25 | `tokens` + `tokenmanagement` | package | Two packages for one PAT resource; both export `Client`, `ListTokens`, `RevokeToken`. | Cross-package collisions |
+| 26 | `tagassignments` + `entitytagassignments` | model.ts | Same conceptual object has `entityId` here, `entityName` there. | Cross-package field drift |
+| 27 | `usagepolicy` | model.ts | 1:1 clone of `budgetpolicy` with `Budget` → `Usage`. | Whole-package duplicate |
+| 28 | `customllms` | every file | `Llm` casing throughout — SDK has no acronym-casing policy. | Acronym casing |
+| 29 | `supervisoragents` | `model.ts:219` | `SupervisorAgent` — two extremely generic nouns combined. | Generic naming |
+| 30 | `supervisoragents` | `model.ts:251` | `Tool` — bare generic for discriminated union over 14 resource kinds; `toolType: string`. | Stringly-typed sum |
+| 31 | `cleanrooms` | `model.ts:passim` | After absorbing 3 sibling packages, `CleanRoom*` re-prefix still pervades. | Type-name prefix |
+| 32 | `database` + `postgres` | model.ts | Two packages, one product (Lakebase managed Postgres); `SyncedTable`/`DatabaseInstance` duplicated across both. | Duplicate package |
+| 33 | `iam` | `model.ts:41-48` | `State` (top-level enum named `STATE`) — collides with React `setState`/dozens of state-machine libs. | Generic top-level enum |
+| 34 | `iam` | `model.ts:13-21` | `Entitlement` — vague name for workspace-only entitlement enum; mixes presence and permission semantics. | Vague enum |
+| 35 | `experiments` | `model.ts:219, 712` | `Run`, `Experiment`, `Metric`, `Param`, `LoggedModel` — single-word top-level types, all collide with common JS terms. | Generic naming |
+| 36 | `repos` | `model.ts:111` | `RepoInfo` — `Info` suffix on the canonical entity; product re-branded to "Git folders". | `Info` suffix + brand drift |
+| 37 | `repos` | package + types | "Repos" is legacy; product is "Git folders". | Brand drift |
+| 38 | `notificationdestinations` | `model.ts:17, 13` | `Config` interface + `config` field — vague top-level name + self-referential field; `DestinationType` vague enum. | Self-referential field + generic naming |
+| 39 | `disasterrecovery` | `model.ts:91, 10` | `FailoverFailoverGroupRequest` — token "Failover" twice. | Generator stutter |
+| 40 | `marketplaces` | `model.ts:passim` | `Listing` vs `ExchangeListing` vs `ListingSummary` vs `ListingDetail` — four overlapping "listing" shapes. | Duplicate concept |
+| 41 | `externalmetadata` | `model.ts:10-32` | `SystemType` enum has 22 values with inconsistent casing (`POWER_BI`, `STREAM_NATIVE`, `POSTGRESQL`, `MICROSOFT_SQL_SERVER`). | Acronym/brand-value casing |
+| 42 | `clusters` | `model.ts:175-734` | `TerminationCode` enum has 150+ values with inconsistent casing (`AZURE_BYOK_*`, `NPIP_*`, `K8S_DBR_*`, `AWS_*`). | Acronym/brand-value casing |
+| 43 | `lakeview` | package | Old codename; product is now "AI/BI Dashboards". | Brand drift |
+| 44 | `bundle` | package + types | Bare "bundle" word collides with Webpack/Vite/Rollup; verb-as-noun residue in request types. | Generic naming |
+| 45 | `instancepools` | `model.ts:passim` | Massive structural duplication of `Create*`/`Edit*`/`*AndStats`. | Duplicate concept |
+| 46 | `externallineage` | `model.ts:passim` | `Direction_LineageDirection`; `tpe` typo (likely intended `type`). | Generator stutter + typo |
+| 47 | `settings` | `model.ts:passim` | After the regen consolidation, the v2 surface still carries acronym soup (`Csp*`, `Esm*`, `Llm*`, `Dcp*`) and `BooleanMessage`/`StringMessage` wrapper sprawl. | Generic + cryptic |
+| 48 | `jobs` | `model.ts:passim` | `TriggerStateProto` — `Proto` suffix is a wire-format architectural leak that survived the 2026-05-22 regen. | Proto-architectural leak (`Proto` suffix) |
+| 49 | `statementexecution` | `model.ts:passim` | `ServiceErrorCode` / `ServiceError` — `Service` mid-position is a proto/gRPC architectural-layer noun, not a domain concept. | Proto-architectural leak (`Service` infix) |
+| 50 | `networking` | `model.ts:passim` | 40+ `CustomerFacing*` identifiers remain in active source. Not flagged in the rescan but match generator rule §8.2. | Proto-architectural leak (`CustomerFacing` qualifier) |
 
 ---
 
-## 7. By-the-numbers (all 98 packages, sorted by total findings)
+## 6. By-the-numbers (all 87 active packages, sorted by total findings)
 
 | # | Package | Findings | Top theme |
 |---|---|---|---|
-| 1 | jobs | 177 | Generic enum/interface names (`Run`, `Format`, `Source`, `Compute`); `Run` overload across 7 shapes |
-| 2 | endpoints | 111 | `Endpoint*` (vector search) vs `endpoints` (other products); brand-name collision |
-| 3 | warehouses | 109 | Legacy `Endpoint*` brand surviving the SQL-Warehouse rebrand |
-| 4 | pipelines | 88 | `Update` noun = pipeline run; `Pipelines*` prefix on every type |
-| 5 | settings | 87 | Cross-package duplication with `accountsettings`/`workspacesettings`/`workspaceconf` |
-| 6 | postgres | 83 | Quad-nested `SyncedTable_*` shapes; cross-package duplicate of `database` |
-| 7 | clusters | 76 | Per-cloud-enum-prefix inconsistency; 150-member `TerminationCode` |
-| 8 | budgets | 73 | Budget vs `budgetpolicy` duplication |
-| 9 | apps | 67 | `App` vs `Application` vocabularies; `AppResourceApp_AppPermission` triple-tautology |
-| 10 | genie | 64 | Inconsistent method prefixing (28/30 with `genie*`); `GenieSpace` opaque term |
-| 11 | catalogs | 60 | `*_OptionsEntry`/`*_PropertiesEntry`; `nameArg`; Create-with-read-only-fields |
-| 12 | tables | 59 | `fullNameArg`; `TableInfo` vs `TableSummary`; cross-package `Dependency` family duplication |
-| 13 | modelregistry | 59 | Workspace vs UC duplicate (`registeredmodels`); `MLflow` vocabulary |
-| 14 | iam | 56 | `*Proxy` method duplicates; `State`/`Entitlement` generic enums |
-| 15 | clusterlibraries | 55 | `Library.lib` field; "Full" suffix without "Partial" counterpart |
-| 16 | schemas | 54 | `_OptionsEntry`/`_PropertiesEntry`; `fullNameArg`; vs `systemschemas` package |
-| 17 | functions | 54 | `function` reserved-word; `fullNameArg`; cryptic single-letter enum variants |
-| 18 | instanceprofiles | 53 | Bare verb request types; vague identifiers |
-| 19 | experiments | 53 | Single-word top-level types (`Run`, `Metric`, `Experiment`) |
-| 20 | qualitymonitors | 52 | Plural vs singular `qualitymonitor`; both deprecated |
-| 21 | instancepools | 50 | Massive structural duplication of `Create*`/`Edit*`/`*AndStats` |
-| 22 | statementexecution | 48 | Package name overlaps `queryexecution`/`commandexecution`/`queries` |
-| 23 | metastores | 48 | Structural duplicate of `MetastoreInfo`; `*Summary` returning the entity |
-| 24 | cleanroomassets | 48 | `CleanRoom*` re-prefix on every type; `details`/`localDetails` discriminated-union arms |
-| 25 | marketplaces | 47 | 14 verb-phrase request types; `Listing`/`ExchangeListing`/`ListingSummary`/`ListingDetail` overlap |
-| 26 | workspacesettings | 45 | Cross-package duplicates with `settings`/`accountsettings`/`workspaceconf` |
-| 27 | queryhistory | 45 | Vague `Query` types; cross-package overlap with `queries`/`queryexecution` |
-| 28 | clusterpolicies | 45 | Verb-as-noun requests; `Family` vocabulary mismatch with `policyfamilies` |
-| 29 | features | 44 | Three sibling feature packages with blurry boundaries |
-| 30 | dataquality | 44 | `ListMonitorRequest` singular for list of monitors |
-| 31 | supervisoragents | 43 | Generic `SupervisorAgent`; `Tool` bare type for 14-arm union |
-| 32 | registeredmodels | 42 | `fullNameArg`/`versionArg`/`aliasArg`; cross-package overlap with `modelregistry` |
-| 33 | database | 42 | Package name overlaps `postgres`; deep proto nesting |
-| 34 | accountsettings | 42 | `Csp`/`Esm`/`Llm`/`Dcp` cryptic acronyms; generic `value` discriminator |
-| 35 | modelservingmanagement | 41 | `InferenceEndpoint` vs `ServingEndpoint` vs `serving-endpoints` URL — three names |
-| 36 | rfa | 40 | 3-letter cryptic package name |
-| 37 | globalinitscripts | 40 | Verb-as-noun requests; brittle `script_id` path-parameter handling |
-| 38 | commandexecution | 39 | Three resources (Command/Context/Cluster) mixed; `id?: string` underspecified |
-| 39 | qualitymonitor | 38 | Sibling-package collision with `qualitymonitors` |
-| 40 | policyfamilies | 38 | "Family" + "Policy Family" mixed; underscored enums |
-| 41 | knowledgeassistants | 37 | Generic `KnowledgeAssistant`; bare `Tool`/`Resource` type names |
-| 42 | indexes | 37 | Package name not "vector search"; `MiniVectorIndex` duplicates `VectorIndex` |
-| 43 | files | 37 | `Read`/`Move`/`Put`/`Delete`/`Close`/`Create`/`MkDirs`/`AddBlock` — verb-as-noun (legacy DBFS) |
-| 44 | onlinetables | 36 | Underspecified IDs; deprecation drift |
-| 45 | externalmetadata | 36 | `SystemType.*_UNSPECIFIED`; brand-value casing (`POWER_BI`, `STREAM_NATIVE`) |
-| 46 | queries | 35 | Three-package overlap with `queryhistory`/`queryexecution` |
-| 47 | lakeview | 35 | Old codename (rebrand to "AI/BI Dashboards") |
-| 48 | connections | 35 | `UNKNOWN_*` sentinels; `ConnectionType` value casing inconsistencies |
-| 49 | alerts | 35 | Mixed v1/v2 |
-| 50 | abacpolicies | 35 | `PolicyInfo`; verb-as-noun requests; redundant enum prefix |
-| 51 | bundle | 34 | Generic package name (`bundle`); verb-as-noun requests |
-| 52 | workspacebindings | 33 | Bare verb requests |
-| 53 | usagepolicy | 33 | 1:1 clone of `budgetpolicy` |
-| 54 | secrets | 33 | Mutation-verb inconsistency (`Put`/`Create`/`Delete`) |
-| 55 | repos | 33 | "Repos" legacy term; product is "Git folders" |
-| 56 | permissions | 33 | Cross-package overlap with `iam`/`accountaccesscontrol`/`grants` |
-| 57 | logdeliveryconfigurations | 33 | Long verbose names |
-| 58 | credentials | 33 | 4× duplicate type pairs (`Credential*` vs `StorageCredential*`); cross-package with `auth/credentials` |
-| 59 | customllms | 32 | `Llm` casing throughout |
-| 60 | workspace | 31 | Most overloaded of 5 `workspace*` packages |
-| 61 | modelservingquery | 31 | `QueryEndpointInput` has 7 mutually-exclusive input fields, no oneof |
-| 62 | environments | 31 | `Environment` generic name |
-| 63 | entitytagassignments | 31 | `EntityTagAssignment` vs `TagAssignment` cross-package collision |
-| 64 | tokens | 30 | Cross-package duplicate of `tokenmanagement` |
-| 65 | tagpolicies | 30 | Three sibling tag packages with overlapping vocab |
-| 66 | queryexecution | 30 | Package name far broader than scope (dashboards-only) |
-| 67 | materializedfeatures | 30 | Package name doesn't match contents |
-| 68 | cleanrooms | 30 | Redundant enum prefixes throughout |
-| 69 | budgetpolicy | 30 | Sibling clone in `usagepolicy` |
-| 70 | workspaceassignment | 28 | Cross-package overlap with `iam` |
-| 71 | grants | 28 | Verb-phrase request types |
-| 72 | featurestore | 28 | Cross-package duplicates in feature trio |
-| 73 | tagassignments | 27 | Three-package tag split; sibling field-name drift |
-| 74 | externallineage | 25 | `Direction_LineageDirection`; `tpe` typo |
-| 75 | disasterrecovery | 25 | `FailoverFailoverGroupRequest` stutter |
-| 76 | accountaccesscontrolproxy | 25 | 1:1 surface duplicate of `accountaccesscontrol` |
-| 77 | tokenmanagement | 24 | Overlap with `tokens`; duplicate `AutoscopeState` enum |
-| 78 | secretsuc | 24 | `uc` cryptic suffix; collides with `secrets` |
-| 79 | workspaceconf | 23 | `conf` cryptic abbreviation; wire-shape regression |
-| 80 | serviceprincipalsecrets | 23 | Identical to `serviceprincipalsecretsproxy`; verb-as-noun requests |
-| 81 | volumes | 22 | `fullNameArg`; verb-as-noun requests |
-| 82 | serviceprincipalsecretsproxy | 22 | Byte-identical to non-proxy version |
-| 83 | notificationdestinations | 22 | `Config`/`config` self-reference; `DestinationType` vague enum |
-| 84 | usagedashboards | 21 | Vague type names |
-| 85 | resourcequotas | 21 | Vague type names |
-| 86 | modelservingdebug | 21 | Tiny package, narrow surface |
-| 87 | billableusagedownload | 20 | Verb in package name (`download`) |
-| 88 | dataclassification | 19 | Tag-domain overlap |
-| 89 | gitcredentials | 17 | Three "Credentials" packages with different meanings |
-| 90 | forecasting | 17 | Generic-named `Waiter` API; cross-package overlap with `experiments` |
-| 91 | cleanroomautoapprovalrules | 17 | 26-char package name; `CleanRoomAutoApprovalRule` re-prefix |
-| 92 | accountaccesscontrol | 16 | Sibling duplicate `accountaccesscontrolproxy` |
-| 93 | oauthcustomappintegration | 15 | Package covers Custom AND Published despite name |
-| 94 | externallocations | 15 | `IsolationMode_*`/`SseEncryptionAlgorithm_*` enum prefixing; cross-cloud queue type naming inconsistency |
-| 95 | cleanroomtaskruns | 15 | `LifeCycle` casing; one of four cleanroom packages |
-| 96 | systemschemas | 14 | Sibling-package collision with `schemas` |
-| 97 | artifactallowlists | 14 | Vague type names |
-| 98 | oauthpublishedapp | 12 | Singular but only `list*` endpoints |
+| 1 | jobs | 169 | Generic enum/interface names (`Run`, `Format`, `Source`, `Compute`); `Run` overload across 7 shapes; `TriggerStateProto` proto-suffix |
+| 2 | warehouses | 100 | Legacy `Endpoint*` brand surviving the SQL-Warehouse rebrand |
+| 3 | settings | 84 | Cross-package consolidation residue; cryptic acronyms (`Csp`/`Esm`/`Llm`/`Dcp`); `*Message` wrapper sprawl |
+| 4 | clusters | 78 | Per-cloud-enum-prefix inconsistency; 150-member `TerminationCode` |
+| 5 | modelregistry | 66 | Workspace vs UC duplicate (`registeredmodels`); `MLflow` vocabulary |
+| 6 | pipelines | 64 | `Update` noun = pipeline run; `Pipelines*` prefix on every type; JSDoc "Public RPC" banners |
+| 7 | apps | 63 | `App` vs `Application` vocabularies; `AppResourceApp_AppPermission` triple-tautology |
+| 8 | genie | 62 | Inconsistent method prefixing (28/30 with `genie*`); `GenieSpace` opaque term |
+| 9 | instanceprofiles | 61 | Bare verb request types; vague identifiers |
+| 10 | tables | 58 | `fullNameArg`; `TableInfo` vs `TableSummary`; cross-package `Dependency` family duplication |
+| 11 | database | 55 | Package name overlaps `postgres`; deep proto nesting; proto-architectural infixes |
+| 12 | postgres | 54 | Quad-nested `SyncedTable_*` shapes; cross-package duplicate of `database` |
+| 13 | marketplaces | 52 | `Listing`/`ExchangeListing`/`ListingSummary`/`ListingDetail` overlap |
+| 14 | statementexecution | 52 | `ServiceErrorCode` infix; package name overlaps `commandexecution`/`queries` |
+| 15 | features | 51 | Three sibling feature packages with blurry boundaries (now reduced to 2 after `materializedfeatures` retirement) |
+| 16 | experiments | 48 | Single-word top-level types (`Run`, `Metric`, `Experiment`) |
+| 17 | globalinitscripts | 48 | Verb-as-noun requests; brittle `script_id` path-parameter handling; proto suffix |
+| 18 | modelserving (was modelservingmanagement + modelservingdebug) | 47 | `InferenceEndpoint` vs `Endpoint` vs `serving-endpoints` terminology |
+| 19 | queryhistory | 47 | Vague `Query` types; cross-package overlap with `queries` |
+| 20 | instancepools | 44 | Massive structural duplication of `Create*`/`Edit*`/`*AndStats`; proto-suffix |
+| 21 | clusterpolicies | 41 | Verb-as-noun requests; `Family` vocabulary mismatch with `policyfamilies` |
+| 22 | dataquality | 41 | `ListMonitorRequest` singular for list of monitors |
+| 23 | policyfamilies | 41 | "Family" + "Policy Family" mixed; underscored enums |
+| 24 | accessmanagement (was permissions + workspaceassignment + accountaccesscontrol(+proxy)) | 38 | Permissions/grants/rule-sets fragmentation; absorbed account access control |
+| 25 | knowledgeassistants | 37 | Generic `KnowledgeAssistant`; bare `Tool`/`Resource` type names |
+| 26 | supervisoragents | 37 | Generic `SupervisorAgent`; `Tool` bare type for 14-arm union |
+| 27 | commandexecution | 36 | Three resources (Command/Context/Cluster) mixed; `id?: string` underspecified |
+| 28 | externalmetadata | 36 | `SystemType` casing; brand-value casing (`POWER_BI`, `STREAM_NATIVE`); `V2` mid-position |
+| 29 | rfa | 36 | 3-letter cryptic package name |
+| 30 | alerts | 35 | Mixed v1/v2 |
+| 31 | credentials | 35 | UC vs auth duplicate; `Accounts*` family (the `Public*` infix has been removed in the 2026-05-22 regen) |
+| 32 | lakeview | 35 | Old codename (rebrand to "AI/BI Dashboards") |
+| 33 | queries | 35 | Three-package overlap with `queryhistory`/`statementexecution` |
+| 34 | usagepolicy | 35 | 1:1 clone of `budgetpolicy` |
+| 35 | bundle | 34 | Generic package name (`bundle`); verb-as-noun requests |
+| 36 | iam | 33 | `*Proxy` method duplicates; `State`/`Entitlement` generic enums |
+| 37 | onlinetables | 33 | Underspecified IDs; deprecation drift |
+| 38 | customllms | 32 | `Llm` casing throughout |
+| 39 | modelservingquery | 30 | `QueryEndpointInput` has 7 mutually-exclusive input fields, no oneof |
+| 40 | secrets | 30 | Mutation-verb inconsistency (`Put`/`Create`/`Delete`) |
+| 41 | budgetpolicy | 29 | Sibling clone in `usagepolicy` |
+| 42 | connections | 29 | `UNKNOWN_*` sentinels; `ConnectionType` value casing inconsistencies |
+| 43 | featurestore | 29 | Cross-package duplicates in feature trio |
+| 44 | tagassignments | 29 | Three-package tag split; sibling field-name drift |
+| 45 | workspaceobjects (was workspace) | 29 | Filesystem scope clarified by rename; `fullNameArg` residue |
+| 46 | cleanrooms (absorbed cleanroomassets + cleanroomautoapprovalrules + cleanroomtaskruns) | 28 | Type-prefix `CleanRoom*` pervades the consolidated package |
+| 47 | clusterlibraries | 28 | `Library.lib` field; "Full" suffix without "Partial" counterpart |
+| 48 | environments | 28 | `Environment` generic name |
+| 49 | logdelivery (was logdeliveryconfigurations) | 28 | Renamed; legacy long name fixed |
+| 50 | vectorsearch (was endpoints + indexes) | 28 | `Endpoint*` and `VectorIndex*` overlap; vector search renamed in place |
+| 51 | entitytagassignments | 27 | `EntityTagAssignment` vs `TagAssignment` cross-package collision |
+| 52 | repos | 27 | "Repos" legacy term; product is "Git folders" |
+| 53 | abacpolicies | 26 | `PolicyInfo`; verb-as-noun requests |
+| 54 | workspacebindings | 26 | Bare verb requests |
+| 55 | budgets | 25 | Budget vs `budgetpolicy` duplication |
+| 56 | externallineage | 24 | `Direction_LineageDirection`; `tpe` typo |
+| 57 | files | 24 | `Read`/`Move`/`Put`/`Delete` legacy DBFS verb-as-noun residue |
+| 58 | notificationdestinations | 24 | `Config`/`config` self-reference; `DestinationType` vague enum |
+| 59 | secretsuc | 24 | `uc` cryptic suffix; collides with `secrets` |
+| 60 | disasterrecovery | 23 | `FailoverFailoverGroupRequest` stutter |
+| 61 | functions | 23 | `function` reserved-word; `fullNameArg`; cryptic single-letter enum variants |
+| 62 | tokens | 22 | Cross-package duplicate of `tokenmanagement` |
+| 63 | gitcredentials | 21 | Three "Credentials" packages with different meanings |
+| 64 | grants | 21 | Verb-phrase request types |
+| 65 | billableusagedownload | 20 | Verb in package name (`download`) |
+| 66 | tokenmanagement | 19 | Overlap with `tokens`; duplicate `AutoscopeState` enum |
+| 67 | usagedashboards | 19 | Vague type names |
+| 68 | dataclassification | 18 | Tag-domain overlap |
+| 69 | resourcequotas | 18 | Vague type names |
+| 70 | tagpolicies | 18 | Three sibling tag packages with overlapping vocab |
+| 71 | volumes | 18 | `fullNameArg`; verb-as-noun requests |
+| 72 | registeredmodels | 17 | `fullNameArg`/`versionArg`/`aliasArg`; cross-package overlap with `modelregistry` |
+| 73 | schemas | 17 | `_OptionsEntry`/`_PropertiesEntry`; `fullNameArg`; vs `systemschemas` package |
+| 74 | artifactallowlists | 15 | Vague type names |
+| 75 | metastores | 15 | Structural duplicate of `MetastoreInfo` — 20 `Accounts*MetastorePublic*` findings moved to Fixed in 2026-05-22 regen |
+| 76 | catalogs | 13 | `*_OptionsEntry`/`*_PropertiesEntry`; `nameArg`; Create-with-read-only-fields |
+| 77 | externallocations | 13 | `nameArg` cryptic suffix; cross-cloud queue type naming inconsistency (`AwsSqsQueue`/`AzureQueueStorage`/`GcpPubsub`) |
+| 78 | scim | 13 | Account-tier SCIM 2.0 user/group provisioning; proto-architectural surface |
+| 79 | systemschemas | 13 | Sibling-package collision with `schemas` |
+| 80 | forecasting | 11 | Generic-named `Waiter` API; cross-package overlap with `experiments`; "Wrapper message" JSDoc |
+| 81 | oauth (was oauthcustomappintegration + oauthpublishedapp) | 11 | OAuth Custom + Published app integrations consolidated; type-name prefix `OAuthAppIntegration*` persists |
+| 82 | sharing | 5 | Account-tier Delta Sharing provider config |
+| 83 | workspaces | 5 | Singular/plural residue after 16 `*Public*Request` findings moved to Fixed |
+| 84 | authentication | 4 | Account-tier token federation policies |
+| 85 | networking | 4 | Singular/plural residue after 17 `*Public*Request` findings moved to Fixed; ~40 active `CustomerFacing*` identifiers not yet flagged |
+| 86 | storageconfigurations | 4 | Sparse account-tier residue after `*Public*Request` findings moved to Fixed |
+| 87 | keyconfigurations | 1 | Singular `ListCustomerManagedKeyRequest` residue after `*Public*Request` findings moved to Fixed |
+
+### Retired audits (24 — excluded from the active total)
+
+These audit files exist as historical record. Their source packages were
+removed or consolidated in the 2026-05-20 or 2026-05-22 regen; their
+findings have been migrated to the successor packages where applicable.
+The retired audits each carry a status banner at the top indicating the
+consolidation date.
+
+| Retired audit | Successor (where applicable) |
+|---|---|
+| `accountaccesscontrol` | merged into `accessmanagement` |
+| `accountaccesscontrolproxy` | removed (proxy package retired) |
+| `accountsettings` | merged into `settings` |
+| `cleanroomassets` | merged into `cleanrooms` |
+| `cleanroomautoapprovalrules` | merged into `cleanrooms` |
+| `cleanroomtaskruns` | merged into `cleanrooms` |
+| `endpoints` | merged into `vectorsearch` |
+| `indexes` | merged into `vectorsearch` |
+| `logdeliveryconfigurations` | renamed to `logdelivery` |
+| `materializedfeatures` | merged into `features` |
+| `modelservingdebug` | merged into `modelserving` |
+| `modelservingmanagement` | merged into `modelserving` |
+| `oauthcustomappintegration` | merged into `oauth` |
+| `oauthpublishedapp` | merged into `oauth` |
+| `permissions` | renamed to `accessmanagement` |
+| `qualitymonitor` | deprecated; replaced by `dataquality` |
+| `qualitymonitors` | deprecated; replaced by `dataquality` |
+| `queryexecution` | removed outright |
+| `serviceprincipalsecrets` | removed outright |
+| `serviceprincipalsecretsproxy` | removed outright |
+| `workspace` | renamed to `workspaceobjects` |
+| `workspaceassignment` | merged into `accessmanagement` |
+| `workspaceconf` | merged into `settings` |
+| `workspacesettings` | merged into `settings` |
 
 ---
 
-## 8. Generator-level recommendations
+## 7. Generator-level recommendations
 
-Ranked by impact across all 98 packages. Each item is one template change.
+The previous §§8.1–8.6 recommendations have all been retired:
 
-### 8.1 Drop the redundant enum-name prefix on members
+- The enum-name-prefix recommendation (former §8.1) is withdrawn — see prune
+  note 5 (TS member names mirror the wire identifier intentionally).
+- The `Info`/`Spec`/`Details` suffix recommendation (former §8.2) is an
+  API-team decision, not a generator template change.
+- The acronym-casing policy recommendation (former §8.3) is dropped at the
+  generator level; the inconsistencies are still cataloged in §4 as an
+  observational reference.
+- The `Client` rename recommendation (former §8.4) is a product decision,
+  not a generator concern.
+- The `Request` suffix recommendation (former §8.5) is **Done**: every
+  request DTO is now emitted with a `Request` suffix.
+- The strip-package-name-prefix recommendation (former §8.6) is an API-team
+  decision, not a generator template change.
 
-`PolicyType.POLICY_TYPE_ROW_FILTER` → `PolicyType.RowFilter` (PascalCase
-preferred for new code; SCREAMING_SNAKE acceptable if the project policy
-chooses it). Map the wire value `POLICY_TYPE_ROW_FILTER` via Zod transform.
-Drop all `*_UNSPECIFIED` members and rely on the field's optional
-`?:`/`undefined` for "unset". Affects ~84/98 packages.
-
-### 8.2 Append `Request` to every request DTO type
-
-`DeletePolicy` → `DeletePolicyRequest`. Eliminates verb-as-noun confusion
-in import lists and resolves the `client.delete(req: Delete)` collision
-patterns in `workspace`, `files`, `experiments`, `grants`, and ~75 other
-packages. Affects ~80/98 packages.
-
-### 8.3 Drop the `Info`/`Spec`/`Details` suffix on canonical entities
-
-`RepoInfo` → `Repo`, `PolicyInfo` → `Policy`, `SchemaInfo` → `Schema`,
-`CredentialInfo` → `Credential`, `MetastoreInfo` → `Metastore`,
-`CatalogInfo` → `Catalog`. (Suffix can stay where the SDK genuinely has
-both `Foo` and `FooInfo` and they mean different things.) Affects ~70/98
-packages.
-
-### 8.4 Adopt one acronym-casing policy
-
-Decide on `Pascal-then-lower` (`Url`, `Id`, `Json`, `Sql`, `Oauth`,
-`Pypi`, `Aws`, `Llm`) or `ALL_CAPS-for-≤2` (`URL`, `ID`, `Json`, `Sql`,
-`OAuth`, `PyPI`, `AWS`, `Llm`). Apply consistently to:
-type names (`HttpRequest` vs `HTTPRequest`),
-field names (`webhookUrl` vs `webhookURL`),
-enum values (`URL` vs `Url` — the latter avoids JS-global collision).
-Affects 98/98 packages.
-
-### 8.5 Rename `Client` per package
-
-Every package exports a class literally named `Client`. Imagine a user
-with `jobs`, `clusters`, `pipelines` all importing `Client`. Rename to
-`<Domain>Client` — `JobsClient`, `ClustersClient`, `PipelinesClient`,
-`WarehousesClient`. Removes the most common cross-package alias-on-import
-pattern. Affects 98/98 packages.
-
-### 8.6 Strip the package-name prefix from type names
-
-When a type name begins with the package's domain noun and the unprefixed
-name does not clash with another type in the same package, drop the
-prefix. `Pipelines*` → drop, `Genie*` → drop, `CleanRoom*` → drop,
-`OAuthAppIntegration*` → drop where unambiguous, `Tag*` → drop in
-single-domain packages. Affects ~70/98 packages.
-
-### 8.7 (Bonus) Surface deprecations as `@deprecated` JSDoc tags
+### 7.1 Surface deprecations as `@deprecated` JSDoc tags
 
 Today the audits found dozens of fields whose JSDoc text says "deprecated"
 in prose but does not carry the `@deprecated` tag, so IDEs do not strike
 them through. Examples: `Environment.client`, `Run.numberInJob`,
 `ServedModel.modelName`, `EndpointCoreConfig.servedModels`, every method
-in `qualitymonitor`/`qualitymonitors`. A simple template change — when
-the proto description starts with "Deprecated", emit `@deprecated` —
-catches all of them.
+in `qualitymonitor`/`qualitymonitors` (both retired). A simple template
+change — when the proto description starts with "Deprecated", emit
+`@deprecated` — catches all of them.
 
 ---
 
-## 9. Generator-only recommendations
+## 8. Generator-only recommendations
 
 The following recommendations are template-level fixes that the
 generator emits identically across every package. Rather than carry the
-same finding in 98 per-package audits, each rule is recorded once here.
+same finding in 87 per-package audits, each rule is recorded once here.
 Each item names the rule, why it is generator-only, the approximate
 package count it appeared in before promotion, and an illustrative
 example.
 
-### 9.1 Drop the duplicate `list*Iter()` paginator method
+### 8.1 Drop the duplicate `list*Iter()` paginator method
 
 **Rule:** Drop the duplicate `list*Iter()` paginator method. Make
 `list*()` return `AsyncIterable<T>` natively and add a `.firstPage()`
@@ -817,37 +979,99 @@ Octokit, Azure SDK, AWS SDK v3.
 every generated package; the fix is one template change, not per-package
 work.
 
-**Approximate package count where it appeared before pruning:** ~57/98
+**Approximate package count where it appeared before pruning:** ~57/87
 packages (every package that has a paginating list endpoint).
 
 **Illustrative example:** `listCatalogsIter` in `catalogs/v1/client.ts`
-(and parallel methods in `endpoints`, `warehouses`, `jobs`, etc.).
+(and parallel methods in `vectorsearch`, `warehouses`, `jobs`, etc.).
+
+### 8.2 Strip proto-architectural-tier markers from the public TS surface
+
+**Rule:** When emitting a public TS identifier, strip any mid-position
+or suffix token whose only purpose is to disambiguate proto/service
+tiers on the server. The closed set is: `Public`, `Internal`, `Proto`,
+`Service` (when mid-position and not the domain word), `Backend`,
+`Manager`, `Handler`, `Impl`, `Rpc`, `Grpc`, `Wrapper`,
+`CustomerFacing`, and mid-position version markers like `V2`/`V3`.
+Also strip JSDoc banner comments that exist only for proto file
+structure (`"Public RPC requests and responses"`,
+`"Wrapper message ..."`, `"Public facing ..."` headers).
+
+**Why it's generator-only:** The TS SDK exports exactly one tier
+(the public one); these qualifiers exist solely to navigate the
+proto definition and have no caller-side meaning. The same template
+emits them across every account-tier package, so a single template
+fix replaces hundreds of per-package findings.
+
+**Status (2026-05-22):** The `*Public*Request` sub-pattern has shipped
+across every account-tier package via the 2026-05-22 generator regen.
+~81 findings moved from active to `Fixed` in this pass:
+- `metastores`: 20 fixed
+- `networking`: 17 fixed
+- `workspaces`: 16 fixed
+- `credentials`: ~10 fixed
+- `storageconfigurations`: ~10 fixed
+- `cleanrooms`: 4 fixed
+- `keyconfigurations`: 2 fixed
+- `jobs`: 2 fixed (`TriggerState` related)
+
+This is a retroactive validation of the rule. The rule remains open
+because:
+- `CustomerFacing*` qualifier is **still emitted** in `networking`
+  (40+ active identifiers in `model.ts`, e.g.
+  `CustomerFacingIngressNetworkPolicy`, `CustomerFacingVpcEndpointUseCase`).
+  Not yet flagged in the rescan — should land in a follow-up pass.
+- `*Proto` suffix survives on a handful of types: `TriggerStateProto`
+  (`jobs`), `DatabricksServiceExceptionProto` (`apps`),
+  `DatabricksServiceExceptionWithDetailsProto` (`apps`).
+- `*Service*` mid-position infix in `statementexecution`
+  (`ServiceErrorCode` / `ServiceError`).
+- Mid-position `V<N>` in `jobs` (`RunLifecycleStateV2`) and
+  `externalmetadata` (`unmarshalListExternalMetadataResponseV2Schema`).
+- JSDoc banners ("Public RPC", "Wrapper message", "Public facing RPC
+  requests and responses *****") still emit verbatim in `forecasting`
+  and `pipelines`.
+
+**Approximate package count where it appeared before pruning:** ~25/87
+packages (the account-tier cluster of 11 plus a single-digit tail
+across the rest of the SDK).
+
+**Illustrative example (pre-regen):**
+`CreateNetworkConnectivityConfigPublicRequest` →
+`CreateNetworkConnectivityConfigRequest`. The 2026-05-22 regen
+shipped this rename; the remaining gap is the `CustomerFacing*`
+qualifier and the `*Proto`/`*Service*`/`V<N>` tails.
 
 ---
 
 ## Appendix: Categories (from the per-package audits)
 
-The audits used a shared 20-category rubric. The most-cited categories
-across all 98 audits (Category 11 "Empty / trivial wrapper types" has
-been retired — see prune note in the header; Category 4 "Underscores
-in TS identifiers" has been retired in this prune pass):
+The audits used a shared 20-category rubric. Several categories have been
+retired as cross-cutting themes via prune passes: Category 2 "Redundant
+enum prefix" (prune note 5), Category 11 "Empty / trivial wrapper types"
+(prune note 1), and Category 4 "Underscores in TS identifiers" (prune
+note 4). A new category was added in the 2026-05-20 proto-architectural-leak
+scan (audit-pass note 7): "Proto-architectural leak" — mid-position
+proto/service-tier infixes; the 2026-05-22 regen moved most of its
+`*Public*Request` cases to `Fixed`. The most-cited remaining categories
+across all 87 active audits:
 
 | # | Category | Audits citing it |
 |---|---|---|
-| 1 | Vague / generic names | 98 |
-| 6 | Misleading names | 98 |
-| 3 | Acronym casing inconsistencies | 98 |
-| 12 | Duplicate concepts | 95 |
-| 15 | Generic field names losing meaning | 94 |
-| 20 | Type-suffix tautology | 94 |
-| 19 | Underspecified IDs | 93 |
-| 17 | Inconsistent action verbs | 93 |
-| 7 | Overly verbose names | 90 |
-| 14 | Go / Java-style names | 89 |
-| 5 | Cryptic abbreviations | 86 |
-| 2 | Redundant enum prefix | 84 |
-| 8 | Redundant suffix | 79 |
-| 9 | Singular/plural mismatches | 78 |
-| 16 | Field contradicting type domain | 77 |
-| 18 | Long enum values | 73 |
-| 13 | Verb-tense inconsistency | 66 |
+| 1 | Vague / generic names | 87 |
+| 6 | Misleading names | 87 |
+| 3 | Acronym casing inconsistencies | 87 |
+| 12 | Duplicate concepts | 85 |
+| 15 | Generic field names losing meaning | 84 |
+| 20 | Type-suffix tautology | 84 |
+| 19 | Underspecified IDs | 83 |
+| 17 | Inconsistent action verbs | 83 |
+| 7 | Overly verbose names | 80 |
+| 14 | Go / Java-style names | 79 |
+| 5 | Cryptic abbreviations | 77 |
+| 8 | Redundant suffix | 70 |
+| 9 | Singular/plural mismatches | 70 |
+| 16 | Field contradicting type domain | 69 |
+| 18 | Long enum values | 66 |
+| 13 | Verb-tense inconsistency | 60 |
+| Proto | Proto-architectural leak (most `*Public*Request` cases shipped in 2026-05-22 regen) | ~10 |

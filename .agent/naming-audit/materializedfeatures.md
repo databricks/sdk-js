@@ -1,5 +1,9 @@
 # Naming Audit: `materializedfeatures` (v1)
 
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
+
+**All findings retired on 2026-05-22.**
+
 **Path:** `/home/parth.bansal/sdk-js/packages/materializedfeatures/`
 **Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 `src/v1/index.ts`
@@ -708,3 +712,9 @@ inherited from the Go SDK; the cleanest local fixes are findings 1 (package
 rename), 5 (`onlineTableName` field), 8 (JSDoc on `tableName`/`featureName`),
 9 (JSDoc plural form), 10 (top-level `key` for update), 11 (field order in
 `GetFeatureLineageRequest`), and 12 (`getFeatureLineage` JSDoc casing).
+
+## Fixed
+
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
+
+Fixed in regeneration on 2026-05-22.

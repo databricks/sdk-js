@@ -3,7 +3,7 @@
 **Path:** `packages/notificationdestinations/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-level CRUD over "notification destinations" — named, persisted records that pair a `displayName` with one config out of five wire-format channels (Slack, Email, GenericWebhook, PagerDuty, MicrosoftTeams). The REST surface is `/api/2.0/notification-destinations`, with the usual `create` / `get` / `list` / `update` / `delete` plus a paged async iterator. Every channel-config carries the same `*Set: boolean` companion shape: secret fields are write-only on input and the server echoes only a "is it set?" mirror on output. There are zero typed timestamps, zero enum sub-types beyond `DestinationType`, and the only oneof is the discriminated `Config` union.
-**Total weird names flagged:** 22
+**Total weird names flagged:** 24
 
 ## Summary
 
@@ -11,7 +11,7 @@
 | --- | --- |
 | High | 6 |
 | Medium | 8 |
-| Low | 4 |
+| Low | 6 |
 | Observation | 4 |
 
 ## Summary table
@@ -29,8 +29,8 @@
 | 9 | Medium | `model.ts:66-70` | `ListNotificationDestinationsResponse` | 7 (overly verbose), 8 (redundant `Response` suffix) |
 | 10 | Medium | `client.ts:45` | `Client` (unprefixed class) | 1 (vague), 12 (duplicate across SDK) |
 | 11 | Medium | `model.ts:67` | `ListNotificationDestinationsResponse.results` | 1 (vague), 15 (generic field name) |
-| 12 | Medium | `model.ts:73`, `:107` | `id` (UUID) | 19 (underspecified ID) |
-| 13 | Medium | `model.ts:118` | `PagerdutyConfig.integrationKey` (vs `*Set` companion) | 6 (misleading optionality semantics, output-only mirror) |
+| 12 | Medium | `model.ts:74`, `:108` | `id` (UUID) | 19 (underspecified ID) |
+| 13 | Medium | `model.ts:117` | `PagerdutyConfig.integrationKey` (vs `*Set` companion) | 6 (misleading optionality semantics, output-only mirror) |
 | 14 | Medium | `model.ts:78`, `:112` | `destinationType` field | 20 (type-suffix tautology when combined with the type name) |
 | 15 | Low | `model.ts:8` | `WEBHOOK` enum singular while wire-config implies "generic" | 9 (singular/plural / qualifier mismatch with `GenericWebhookConfig`) |
 | 16 | Low | `client.ts:71`, `:100`, `:125`, `:150`, `:204` | `createNotificationDestination` / `deleteNotificationDestination` / `getNotificationDestination` / `listNotificationDestinations` / `updateNotificationDestination` | 7 (overly verbose method names) |
@@ -211,7 +211,7 @@
 - **Category:** 1 (vague), 15 (generic field name).
 - **Suggested name:** `destinations` (drop the `notification` qualifier since the package context supplies it) or `items`.
 
-### 12. `id` as a top-level field — underspecified — `src/v1/model.ts:31, 58, 73, 107, 140`
+### 12. `id` as a top-level field — underspecified — `src/v1/model.ts:31, 58, 74, 108, 141`
 - **Code:**
   ```ts
   /** UUID identifying notification destination. */
@@ -222,7 +222,7 @@
 - **Suggested name:** `destinationId` (within the package context the qualifier "notification" is implicit). Or `id` is acceptable if the type is always accessed as `destination.id`.
 - **Rationale:** Bare `id` is conventional and tolerated; the optionality is the real bug. Demoted to medium.
 
-### 13. `PagerdutyConfig.integrationKey` — meaning depends on direction — `src/v1/model.ts:118-122`
+### 13. `PagerdutyConfig.integrationKey` — meaning depends on direction — `src/v1/model.ts:117-122`
 - **Code:**
   ```ts
   export interface PagerdutyConfig {
@@ -296,11 +296,11 @@
 
 ### 19. `executeCall` vs `executeHttpCall` — near-duplicate function names — `src/v1/utils.ts:26`, `:65`
 - **Code:** lines 26-38 and 65-94.
-- **Why weird:** Two functions named almost identically, doing very different things: `executeCall` wraps in retry/rate-limit/timeout semantics, `executeHttpCall` does the raw HTTP send + decode + APIError check.
+- **Why weird:** Two functions named almost identically, doing very different things: `executeCall` wraps in retry/rate-limit/timeout semantics, `executeHttpCall` does the raw HTTP send + decode + ApiError check.
 - **Category:** 1 (vague), 17 (inconsistent layer naming).
 - **Suggested name:** `runWithCallOptions` (the wrapper) and `sendHttpRequest` (the executor).
 
-### 20. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 88, 105, 130, 165, 187, 190, 209`
+### 20. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 84, 101, 105, 126, 130, 151, 164, 187, 192, 205, 213`
 - **Code:** parameter and local-variable names throughout the client.
 - **Why weird:** Three-to-five-letter abbreviations everywhere. Project rules (typescript.mdc) discourage cryptic abbreviations.
 - **Category:** 5 (cryptic abbreviation).
@@ -342,7 +342,7 @@ The `GenericWebhookConfig.username` (line 47) and `.password` (line 51) use the 
 - `pageToken` / `pageSize` / `nextPageToken` — standard SDK pagination triplet; not specific to this package.
 
 ## File coverage
-- `src/v1/model.ts` (448 lines): read fully.
+- `src/v1/model.ts` (447 lines): read fully.
 - `src/v1/client.ts` (231 lines): read fully.
 - `src/v1/utils.ts` (150 lines): read fully.
-- `src/v1/index.ts` (24 lines): read fully.
+- `src/v1/index.ts` (23 lines): read fully.

@@ -10,7 +10,7 @@
 | # | Severity | Version | Location | Name | Category |
 |---|----------|---------|----------|------|----------|
 | 1 | High | v2 | `model.ts` enum | `Aggregation` | Vague/generic, no domain prefix |
-| 2 | High | v2 | `model.ts` enum value | `AlertEvaluationState.UNKNOWN` | Misleading (proto sentinel exposed) |
+| 2 | High | v2 | `model.ts` enum value | `AlertEvaluationState.UNKNOWN` | Inconsistent sentinel naming (`UNKNOWN` vs `UNSPECIFIED`) |
 | 3 | High | v1 | `model.ts` field | `AlertCondition.op` | Cryptic abbreviation |
 | 4 | High | v1 | `model.ts` field | `Alert.secondsToRetrigger` / v2 `AlertNotification.retriggerSeconds` | Singular/plural mismatch & cross-version regression in word order |
 | 5 | High | v2 | `model.ts` interface | `AlertRunAs` | Verb-as-noun, reserved-word-feel |
@@ -27,7 +27,7 @@
 | 16 | Medium | v2 | `model.ts` field | `CronSchedule.timezoneId` | Underspecified ID (timezone name, not numeric) |
 | 17 | Medium | v2 | `model.ts` field | `CronSchedule.quartzCronSchedule` | Type-suffix tautology |
 | 18 | Medium | v2 | `model.ts` interface | `CronSchedule` | Generic/global name in domain package |
-| 19 | Medium | v2 | `model.ts` enum | `SchedulePauseStatus` | Domain-detached prefix |
+| 19 | Medium | v2 | `model.ts` enum | `SchedulePauseStatus` | Boolean-shaped enum |
 | 20 | Medium | v2 | `model.ts` field | `Alert.evaluation` (no domain qualifier) | Generic field name |
 | 21 | Medium | v2 | `model.ts` field | `Alert.lifecycleState` documented as "Indicates whether the query is trashed" | Misleading (says query, means alert) |
 | 22 | Medium | v2 | `model.ts` enum value | `AlertLifecycleState.DELETED` vs v1 `TRASHED` | v1→v2 rename break |
@@ -41,7 +41,7 @@
 | 30 | Low | v2 | `model.ts` field | `AlertEvaluation.threshold` typed as `AlertOperand` | Misleading type (threshold can be a column) |
 | 31 | Low | v1 | `model.ts` enum | `LifecycleState` | Missing domain prefix (v2 fixes to `AlertLifecycleState`) |
 | 32 | Low | both | `model.ts` field | `Alert.customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2) | v1→v2 rename — different email/text vocabulary |
-| 33 | Low | v2 | `model.ts` field | `Alert.parentPath` and `effectiveParentPath` | "Effective" prefix unexplained at first read |
+| 33 | Low | v2 | `model.ts` field | `Alert.effectiveRunAs` | "Effective" prefix unexplained at first read |
 | 34 | Low | v2 | `model.ts` field | `Alert.id`, `Alert.queryText` co-located | "id" alone underspecified at field level (docs clarify) |
 | 35 | Low | both | `client.ts` | comment "Create Alert" / "Update alert" docstrings | Verb-tense / casing inconsistency in JSDoc |
 
@@ -73,7 +73,7 @@
 - `AlertRunAs` (type) — verb-as-noun.
 - `AlertSubscription` (type)
 - `CronSchedule` (type) — generic name in a single-domain package.
-- `Alert.queryText`, `Alert.warehouseId`, `Alert.runAsUserName`, `Alert.runAs`, `Alert.effectiveRunAs`, `Alert.effectiveParentPath`, `Alert.schedule`, `Alert.evaluation`, `Alert.customSummary`, `Alert.customDescription`.
+- `Alert.queryText`, `Alert.warehouseId`, `Alert.runAsUserName`, `Alert.runAs`, `Alert.effectiveRunAs`, `Alert.schedule`, `Alert.evaluation`, `Alert.customSummary`, `Alert.customDescription`.
 - `TrashAlertRequest.purge` — new flag.
 
 ### Dropped in v2
@@ -105,7 +105,7 @@ export enum Aggregation {
 
 Exported at the package root without an `Alert` or `Column` prefix. The same word is overloaded across SQL, stats, monitoring, and ML domains. `AlertOperandAggregation` or `ColumnAggregation` would be unambiguous.
 
-### 2. `AlertEvaluationState.UNKNOWN` — proto sentinel leak (v2)
+### 2. `AlertEvaluationState.UNKNOWN` — inconsistent sentinel naming and deprecated value (v2)
 
 **Location:** `src/v2/model.ts:26-32`
 
@@ -124,7 +124,7 @@ export enum AlertEvaluationState {
 }
 ```
 
-Inline JSDoc tells the user not to use `UNKNOWN`, yet the enum exports it. The header even mentions `UNSPECIFIED` (not exported, but described). Both are proto implementation details surfacing into the TS API.
+This enum exposes a value (`UNKNOWN`) that the inline JSDoc tells the user to avoid: "Deprecated. Please avoid using `UNKNOWN` as empty_result_state." Shipping a deprecated value as part of the public enum surface is a naming/API smell — consumers reading the type cannot tell which values are valid without the JSDoc. Additionally, this enum's zero-value sentinel is named `UNSPECIFIED` while other enums in the package use `UNKNOWN` for the same role; the package-wide sentinel convention is inconsistent.
 
 ### 3. `AlertCondition.op` — cryptic abbreviation (v1)
 
@@ -142,7 +142,7 @@ export interface AlertCondition {
 
 ### 4. `secondsToRetrigger` vs `retriggerSeconds` — singular/plural & cross-version reorder
 
-**Location:** `src/v1/model.ts:38-39`; `src/v2/model.ts:124-128`
+**Location:** `src/v1/model.ts:38-39`; `src/v2/model.ts:122-126`
 
 ```ts
 // v1
@@ -155,7 +155,7 @@ retriggerSeconds?: number | undefined;
 
 ### 5. `AlertRunAs` — verb-as-noun (v2)
 
-**Location:** `src/v2/model.ts:157-170`
+**Location:** `src/v2/model.ts:155-168`
 
 ```ts
 export interface AlertRunAs {
@@ -170,7 +170,7 @@ export interface AlertRunAs {
 
 ### 6. Duplicate concept — `runAsUserName` vs `runAs.userName` (v2)
 
-**Location:** `src/v2/model.ts:72-99`
+**Location:** `src/v2/model.ts:77-99`
 
 ```ts
 // Deprecated: Use `run_as` field instead. ...
@@ -184,7 +184,7 @@ The same data is expressible as either `runAsUserName` (legacy scalar) or `runAs
 
 ### 7. `Alert.queryText` — field contradicts type domain (v2)
 
-**Location:** `src/v2/model.ts:68-71`
+**Location:** `src/v2/model.ts:68-69`
 
 ```ts
 /** Text of the query to be run. */
@@ -197,7 +197,7 @@ A type named `Alert` carrying a raw SQL string makes the alert object responsibl
 
 ### 8. `trashAlert` — inconsistent action verb (both)
 
-**Location:** `src/v1/client.ts:169-192`; `src/v2/client.ts:167-196`
+**Location:** `src/v1/client.ts:170-192`; `src/v2/client.ts:168-196`
 
 ```ts
 /** Moves an alert to the trash. ... A trashed alert is permanently deleted after 30 days. */
@@ -208,7 +208,7 @@ The HTTP verb is `DELETE`, the docstring talks about "permanently deleted," but 
 
 ### 9. `TrashAlertRequest` — same as 8, in the type layer (both)
 
-**Location:** `src/v1/model.ts:187-189`; `src/v2/model.ts:222-226`
+**Location:** `src/v1/model.ts:187-189`; `src/v2/model.ts:218-222`
 
 Same verb inconsistency at the type layer.
 
@@ -225,7 +225,7 @@ The wire format uses long, English-prose enum values where most SDKs use `GT`, `
 
 ### 11. `Alert.notifyOnOk` — acronym/initialism case ambiguity (both)
 
-**Location:** `src/v1/model.ts:59`; `src/v2/model.ts:130`
+**Location:** `src/v1/model.ts:59`; `src/v2/model.ts:128`
 
 ```ts
 notifyOnOk?: boolean | undefined;
@@ -246,7 +246,7 @@ triggerTime?: Temporal.Instant | undefined;
 
 ### 13. `AlertEvaluation.lastEvaluatedAt` — inconsistent time suffix (v2)
 
-**Location:** `src/v2/model.ts:114-116`
+**Location:** `src/v2/model.ts:113-114`
 
 ```ts
 lastEvaluatedAt?: Temporal.Instant | undefined;
@@ -256,7 +256,7 @@ Every other timestamp in v2 uses the `*Time` suffix (`createTime`, `updateTime`)
 
 ### 14. `AlertOperandColumn.display` — vague (v2)
 
-**Location:** `src/v2/model.ts:141-146`
+**Location:** `src/v2/model.ts:139-144`
 
 ```ts
 export interface AlertOperandColumn {
@@ -281,7 +281,7 @@ In a different package this might be a data warehouse, a logical warehouse, etc.
 
 ### 16. `CronSchedule.timezoneId` — underspecified ID (v2)
 
-**Location:** `src/v2/model.ts:189-194`
+**Location:** `src/v2/model.ts:187-192`
 
 ```ts
 /** A Java timezone id. ... */
@@ -292,7 +292,7 @@ A timezone is named (e.g., `"America/Los_Angeles"`), not numerically identified.
 
 ### 17. `CronSchedule.quartzCronSchedule` — type-suffix tautology (v2)
 
-**Location:** `src/v2/model.ts:183-188`
+**Location:** `src/v2/model.ts:181-186`
 
 ```ts
 export interface CronSchedule {
@@ -305,11 +305,11 @@ The type is `CronSchedule`, the field is `quartzCronSchedule`. The user writes `
 
 ### 18. `CronSchedule` — generic name in a single-domain package (v2)
 
-**Location:** `src/v2/model.ts:183-199`
+**Location:** `src/v2/model.ts:181-195`
 
 A top-level type called `CronSchedule` in a package whose only consumer is alerts. If/when another package wants its own cron schedule shape, the user has two `CronSchedule`s. `AlertSchedule` would domain-prefix consistently with the rest of v2.
 
-### 19. `SchedulePauseStatus` — domain-detached prefix (v2)
+### 19. `SchedulePauseStatus` — boolean-shaped enum (v2)
 
 **Location:** `src/v2/model.ts:50-53`
 
@@ -320,7 +320,7 @@ export enum SchedulePauseStatus {
 }
 ```
 
-The enum is prefixed by `Schedule` (its host type), not by the package (`Alert`). Mixed convention with `AlertLifecycleState`, `AlertEvaluationState`. Also: two values for a boolean concept; `boolean paused` would be simpler.
+Two values for a boolean concept; `boolean paused` would be simpler.
 
 ### 20. `Alert.evaluation` — generic field name (v2)
 
@@ -351,7 +351,7 @@ The method is still `trashAlert` (both versions), but in v1 the resulting state 
 
 ### 23. `AlertSubscription.subscriptionType` — type-suffix tautology (v2)
 
-**Location:** `src/v2/model.ts:172-177`
+**Location:** `src/v2/model.ts:170-175`
 
 ```ts
 export interface AlertSubscription {
@@ -431,14 +431,20 @@ v1 exports a global-looking `LifecycleState`. v2 corrects this to `AlertLifecycl
 
 Same data, different vocabulary. v1 = email metaphor, v2 = generic content metaphor. Users porting from v1 to v2 need a translation table.
 
-### 33. `effectiveParentPath` / `effectiveRunAs` (v2)
+### 33. `effectiveRunAs` (v2)
+
+**Location:** `src/v2/model.ts:94-99`
 
 ```ts
-/** The actual workspace path of the folder containing the alert. This is an output-only field. */
-effectiveParentPath?: string | undefined;
+/**
+ * The actual identity that will be used to execute the alert.
+ * This is an output-only field that shows the resolved run-as identity after applying
+ * permissions and defaults.
+ */
+effectiveRunAs?: AlertRunAs | undefined;
 ```
 
-The "effective" prefix is a Databricks convention for "value after applying inheritance/permissions." First-time readers will not know what `effectiveX` means without docs. Established convention, but flagged.
+The "effective" prefix is a Databricks convention for "value after applying inheritance/permissions." First-time readers will not know what `effectiveX` means without docs. Established convention, but flagged. (Previously also cited `effectiveParentPath`; that field was removed in regeneration.)
 
 ### 34. `Alert.id` (both)
 
@@ -487,11 +493,11 @@ async updateAlert(...) { ... }
 
 | File | Lines | Read in full |
 |------|-------|--------------|
-| `src/v1/model.ts` | 621 | yes |
+| `src/v1/model.ts` | 620 | yes |
 | `src/v1/client.ts` | 219 | yes |
 | `src/v1/utils.ts` | 150 | yes |
 | `src/v1/index.ts` | 23 | yes |
-| `src/v2/model.ts` | 683 | yes |
+| `src/v2/model.ts` | 669 | yes |
 | `src/v2/client.ts` | 235 | yes |
 | `src/v2/utils.ts` | 150 | yes |
 | `src/v2/index.ts` | 30 | yes |

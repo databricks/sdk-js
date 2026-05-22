@@ -13,13 +13,13 @@ The `metastores` package exposes nine Unity Catalog metastore operations
 `deleteMetastoreAssignment`, `getCurrentMetastoreAssignment`,
 `getMetastore`, `getMetastoreSummary`, `listMetastores`,
 `updateMetastore`, `updateMetastoreAssignment`).
-The dominant naming problems are structural: `CreateMetastore`,
-`UpdateMetastore`, and `MetastoreInfo` share 18 fields verbatim,
+The dominant naming problems are structural: `CreateMetastoreRequest`,
+`UpdateMetastoreRequest`, and `MetastoreInfo` share 18 fields verbatim,
 including read-only output fields (`createdAt`, `createdBy`, `updatedAt`,
 `updatedBy`, `metastoreId`, `globalMetastoreId`) that have no business in
-a write request. `UpdateMetastore` further conflates a path-parameter
+a write request. `UpdateMetastoreRequest` further conflates a path-parameter
 `id`, a body `name`, and a "rename target" `newName`.
-`GetMetastoreSummary_Response` is structurally identical to
+`GetMetastoreSummaryRequest_Response` is structurally identical to
 `MetastoreInfo` despite the "summary" name promising a smaller shape.
 
 ---
@@ -28,42 +28,42 @@ a write request. `UpdateMetastore` further conflates a path-parameter
 
 ### 1. Vague / generic names
 
-#### 1.1 `DeleteMetastore.id`, `GetMetastore.id`, `UpdateMetastore.id` (model.ts:79, 105, 234)
+#### 1.1 `DeleteMetastoreRequest.id`, `GetMetastoreRequest.id`, `UpdateMetastoreRequest.id` (model.ts:271, 287, 473)
 Field name `id` on three request types where the surrounding type
 already conveys the entity ("delete metastore", "get metastore", "update
 metastore"). The doc string is "Unique ID of the metastore." — i.e. the
 field is the metastore id. The same concept appears as `metastoreId`
-everywhere else in the package (model.ts:42, 64, 91, 113, 213, 258,
-etc.), so the bare `id` is inconsistent and ambiguous in isolation
-(e.g. spreading `{...req, id: someValue}` is brittle). Recommend
-`metastoreId` (or, if the goal is to mark it as the path param, see
-§5.1 / §10.1).
+everywhere else in the package (model.ts:27, 54, 66, 94, 121, 137, 150,
+183, 206, 240, 263, 296, 365, 395, 436, 459, 497), so the bare `id` is
+inconsistent and ambiguous in isolation (e.g. spreading
+`{...req, id: someValue}` is brittle). Recommend `metastoreId` (or, if
+the goal is to mark it as the path param, see §5.1 / §10.1).
 
-#### 1.2 `MetastoreAssignment.workspaceId` and `metastoreId` (model.ts:181, 183)
+#### 1.2 `MetastoreAssignment.workspaceId` and `metastoreId` (model.ts:363, 365)
 Acceptable in isolation — but the *type* `MetastoreAssignment` is just
 a `(workspaceId, metastoreId, defaultCatalogName)` triple. The name
 "MetastoreAssignment" promises richer semantics than the three-field
 struct delivers. Consider `WorkspaceMetastoreLink` or making the
 relationship directional in the name.
 
-#### 1.3 `DeleteMetastore.force` (model.ts:81)
+#### 1.3 `DeleteMetastoreRequest.force` (model.ts:273)
 Generic boolean — "force" alone leaves callers to read the doc to learn
 the consequences ("Force deletion even if the metastore is not empty.").
 A more descriptive name (`forceDeleteNonEmpty`, `deleteNonEmpty`)
 captures the intent at the call site. Acceptable as a convention but
 worth flagging.
 
-#### 1.4 `cloud` field (model.ts:54, 122, 225, 270)
+#### 1.4 `cloud` field (model.ts:195, 252, 407, 448, 509)
 A bare `cloud: string` with a single example list in the doc (`aws`,
 `azure`, `gcp`). Should probably be typed as a `CloudProvider` enum
 (see §5.4) — but at minimum the field is generic when read alone.
 
-#### 1.5 `owner` field (model.ts:36, 140, 207, 252)
+#### 1.5 `owner` field (model.ts:177, 234, 389, 430, 491)
 "The owner of the metastore." — generic. Owner of what kind? Username?
 Email? Group? Service principal? Documented as a free-form string with
 no format hint. See §13.4.
 
-#### 1.6 `region` (model.ts:40, 124, 211, 256)
+#### 1.6 `region` (model.ts:181, 238, 393, 434, 495)
 Bare `region: string` with examples (`us-west-2`, `westus`). Acceptable
 as cloud-vendor-specific opaque strings, but the same field carries
 different vocabularies across `aws` / `azure` / `gcp` — that
@@ -79,24 +79,24 @@ _None._
 
 ### 3. Acronym casing inconsistencies
 
-#### 3.1 `DBR` in doc strings (model.ts:57, 149, 228, 273)
+#### 3.1 `DBR` in doc strings (model.ts:198, 255, 410, 451, 512)
 Doc says "Whether to allow non-DBR clients to directly access entities
 under the metastore." DBR (Databricks Runtime) is an internal acronym
 not introduced anywhere in the package. Doc-only, not a code-naming
 issue per se, but it's a documentation acronym that won't mean anything
 to external SDK consumers.
 
-#### 3.2 `UUID` casing in docs (model.ts:27, 119, 198, 243)
+#### 3.2 `UUID` casing in docs (model.ts:168, 225, 380, 421, 482)
 "UUID of storage credential" — UUID is in the doc only. The field is
 named `storageRootCredentialId` (lowercase `Id`). Consistent with
 ECMAScript identifier convention; flagged in passing.
 
-#### 3.3 `URL` casing in docs (model.ts:23, 138, 194, 239)
+#### 3.3 `URL` casing in docs (model.ts:164, 221, 376, 417, 478)
 "The storage root URL" — `URL` in docs, but the field is
 `storageRoot`, not `storageRootUrl`. Inconsistent with how
 `globalMetastoreId` etc. embed type info in the name. See also §5.2.
 
-#### 3.4 `<Databricks>` placeholder tokens in docs (model.ts:69, 180, 285)
+#### 3.4 `<Databricks>` placeholder tokens in docs (model.ts:22, 37, 49, 63, 77, 91, 105, 118, 132, 147, 362, 463)
 Literal `<Databricks>` strings appear in doc comments — these are
 unsubstituted templating placeholders. Not a naming issue, but
 surfaces as a publication bug for SDK consumers reading the generated
@@ -106,7 +106,7 @@ TypeDoc.
 
 ### 4. Cryptic abbreviations
 
-#### 4.1 `id` (model.ts:79, 105, 234) — see §1.1
+#### 4.1 `id` (model.ts:271, 287, 473) — see §1.1
 Cryptic because it loses the entity context. `metastoreId` is used
 elsewhere.
 
@@ -119,40 +119,40 @@ milliseconds" but the names omit the unit suffix (`createdAt`,
 
 ### 5. Misleading names
 
-#### 5.1 `MetastoreInfo` (model.ts:191)
+#### 5.1 `MetastoreInfo` (model.ts:373)
 "Info" suggests metadata about a metastore separate from the entity
 itself; the type is in fact the entity. See also §7.1.
 
-#### 5.2 `storageRoot` doc says "URL" (model.ts:23, 138, 194, 239)
+#### 5.2 `storageRoot` doc says "URL" (model.ts:164, 221, 376, 417, 478)
 "The storage root URL for metastore" — the field is named
 `storageRoot`, but documented as a URL. Rename to `storageRootUrl`,
 or rename the doc. Today the name is vague about the value's shape.
 
-#### 5.3 `globalMetastoreId` (model.ts:56, 126, 227, 271)
+#### 5.3 `globalMetastoreId` (model.ts:197, 254, 409, 450, 511)
 Doc: "Globally unique metastore ID across clouds and regions, of the
 form `cloud:region:metastore_id`." So the value is a composite
 formatted string, not an ID in the conventional sense. Either rename
 to `globalMetastoreLocator` / `globalMetastoreUri` to signal the
 encoded shape, or document its parseable structure in a type.
 
-#### 5.4 `defaultDataAccessConfigId` (model.ts:26, 118, 197, 242)
+#### 5.4 `defaultDataAccessConfigId` (model.ts:167, 223, 379, 419, 480)
 Doc says "Unique identifier of the metastore's (Default) Data Access
 Configuration." The parenthetical "Default" duplicates the `default`
 prefix in the name, but the field is described as both the default
 data-access-config and as a unique identifier. Slightly self-referential
 and unclear whether this is mutable or static. See also §13.3.
 
-#### 5.5 `cloud: string` (model.ts:54, 122, 225, 270)
+#### 5.5 `cloud: string` (model.ts:195, 252, 407, 448, 509)
 Holds an enum-like vocabulary (`aws`, `azure`, `gcp`) but is typed as
 `string`. The name is fine; the *type* misleads about the value
 space. See §1.4.
 
-#### 5.6 `region: string` carries cloud-specific formats (model.ts:40, 124, 211, 256)
+#### 5.6 `region: string` carries cloud-specific formats (model.ts:181, 238, 393, 434, 495)
 "e.g., `us-west-2`, `westus`" — same field carries AWS-style and
 Azure-style region names. Name is fine; doc just shows the
 heterogeneity. See §1.6.
 
-#### 5.7 `GetMetastoreSummary` response is structurally identical to `MetastoreInfo` (model.ts:112-151 vs 191-230)
+#### 5.7 `GetMetastoreSummaryRequest_Response` is structurally identical to `MetastoreInfo` (model.ts:294-333 vs 373-412)
 Both types have the *same* 18 fields with the *same* docs in the *same*
 order. The "summary" type doesn't actually summarise — it returns the
 full metastore record. The name lies about the content. The Go SDK
@@ -160,7 +160,7 @@ inherits this from the API definition, but the TS port could collapse
 the two: either alias the summary response to `MetastoreInfo` or
 expose the genuinely-summarised subset.
 
-#### 5.8 `getMetastoreSummary` is presented as info-about (client.ts:266-269)
+#### 5.8 `getMetastoreSummary` is presented as info-about (client.ts:616-619)
 JSDoc says "Gets information about a metastore. This summary
 includes…". But the API in fact returns the current workspace's
 metastore — there is no metastore ID parameter. The name "summary"
@@ -172,7 +172,7 @@ omits the "current-workspace" semantics. Cf.
 
 ### 6. Overly verbose
 
-#### 6.1 `getCurrentMetastoreAssignment` (client.ts:216)
+#### 6.1 `getCurrentMetastoreAssignment` (client.ts:567)
 28-character method name. Acceptable — describes the semantics — but
 combined with `getMetastoreSummary` (which is also "current-workspace"
 in practice, §5.8) one of them carries redundant prefixing.
@@ -181,13 +181,13 @@ in practice, §5.8) one of them carries redundant prefixing.
 
 ### 7. Redundant suffixes
 
-#### 7.1 `…Info` suffix on `MetastoreInfo` (model.ts:191)
+#### 7.1 `…Info` suffix on `MetastoreInfo` (model.ts:373)
 "Info" carries no semantic content. Go-SDK convention; TS would just
 say `Metastore`. See §9.3.
 
 #### 7.2 `…Assignment` suffix on `MetastoreAssignment` and four request types
-`CreateMetastoreAssignment`, `DeleteMetastoreAssignment`,
-`UpdateMetastoreAssignment`, `GetCurrentMetastoreAssignment`,
+`CreateMetastoreAssignmentRequest`, `DeleteMetastoreAssignmentRequest`,
+`UpdateMetastoreAssignmentRequest`, `GetCurrentMetastoreAssignmentRequest`,
 `MetastoreAssignment`. The suffix is justified because "metastore
 assignment" is a distinct concept. Not redundant — flagged for
 completeness.
@@ -196,7 +196,7 @@ completeness.
 
 ### 8. Singular / plural mismatches
 
-#### 8.1 `ListMetastoresResponse.metastores` (model.ts:171)
+#### 8.1 `ListMetastoresRequest_Response.metastores` (model.ts:353)
 Field is plural and correctly typed `MetastoreInfo[]` — no mismatch.
 Flagged as a counter-example.
 
@@ -204,11 +204,11 @@ Flagged as a counter-example.
 
 ### 9. Reserved-word collisions
 
-#### 9.1 `name` field on `CreateMetastore`, `MetastoreInfo`, `UpdateMetastore`, `GetMetastoreSummary` response (model.ts:22, 116, 193, 238)
+#### 9.1 `name` field on `CreateMetastoreRequest`, `MetastoreInfo`, `UpdateMetastoreRequest`, `GetMetastoreSummaryRequest_Response` response (model.ts:220, 298, 375, 477)
 Routinely shadows `Function.prototype.name`. Common SDK convention; not
 fixable in isolation. See also §10.1.
 
-#### 9.2 `id` field on `DeleteMetastore`, `GetMetastore`, `UpdateMetastore` (model.ts:79, 105, 234)
+#### 9.2 `id` field on `DeleteMetastoreRequest`, `GetMetastoreRequest`, `UpdateMetastoreRequest` (model.ts:271, 287, 473)
 Collides with `Element.id` and other web-platform-y identifiers when
 the request type is used in browser code. Not a TS-level collision but
 a cognitive one. See §1.1.
@@ -219,38 +219,38 @@ a cognitive one. See §1.1.
 
 ### 10. Duplicate concepts
 
-#### 10.1 `MetastoreInfo` vs `GetMetastoreSummary` response (model.ts:112, 191)
+#### 10.1 `MetastoreInfo` vs `GetMetastoreSummaryRequest_Response` (model.ts:294, 373)
 Same 18 fields, same docs, different names. See §5.7.
 
-#### 10.2 `CreateMetastore` vs `MetastoreInfo` vs `UpdateMetastore` (model.ts:20, 191, 232)
-Massive structural duplication — `CreateMetastore` has 19 fields,
-`MetastoreInfo` has 19 fields, `UpdateMetastore` has 20 fields. The
-extra field on `UpdateMetastore` is `id` (path param) plus `newName`.
-Every other field is replicated verbatim with the same doc string. A
-shared `MetastoreCommon` (or `Partial<MetastoreInfo>`) would let
-renames happen in one place. Note that all three contain the same
+#### 10.2 `CreateMetastoreRequest` vs `MetastoreInfo` vs `UpdateMetastoreRequest` (model.ts:218, 373, 471)
+Massive structural duplication — `CreateMetastoreRequest` has 19 fields,
+`MetastoreInfo` has 19 fields, `UpdateMetastoreRequest` has 20 fields.
+The extra fields on `UpdateMetastoreRequest` are `id` (path param) and
+`newName`. Every other field is replicated verbatim with the same doc
+string. A shared `MetastoreCommon` (or `Partial<MetastoreInfo>`) would
+let renames happen in one place. Note that all three contain the same
 read-only fields (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`,
 `metastoreId`, `globalMetastoreId`) — these have no business on a
 request shape (§11.3).
 
-#### 10.3 `CreateMetastoreAssignment` vs `MetastoreAssignment` vs `UpdateMetastoreAssignment` (model.ts:61, 179, 277)
+#### 10.3 `CreateMetastoreAssignmentRequest` vs `MetastoreAssignment` vs `UpdateMetastoreAssignmentRequest` (model.ts:202, 361, 455)
 Three structurally identical types with three workspace-id /
 metastore-id / default-catalog-name fields. Could be unified.
 
-#### 10.4 `id` (on `DeleteMetastore`/`GetMetastore`/`UpdateMetastore`) vs `metastoreId` (everywhere else)
+#### 10.4 `id` (on `DeleteMetastoreRequest`/`GetMetastoreRequest`/`UpdateMetastoreRequest`) vs `metastoreId` (everywhere else)
 Same concept, two names. See §1.1.
 
-#### 10.5 `name` (CreateMetastore body) vs metastore identity
-`CreateMetastore.name` is "the user-specified name of the metastore"
-— but `MetastoreInfo` also exposes `metastoreId` as the canonical
-unique identifier. The naming pretends `name` is unique but in fact
-the server creates `metastoreId` as the immutable key and `name` is
-mutable. The doc could disclose this; the name doesn't.
+#### 10.5 `name` (CreateMetastoreRequest body) vs metastore identity
+`CreateMetastoreRequest.name` is "the user-specified name of the
+metastore" — but `MetastoreInfo` also exposes `metastoreId` as the
+canonical unique identifier. The naming pretends `name` is unique but
+in fact the server creates `metastoreId` as the immutable key and
+`name` is mutable. The doc could disclose this; the name doesn't.
 
-#### 10.6 `name` vs `newName` on `UpdateMetastore` (model.ts:236, 238)
+#### 10.6 `name` vs `newName` on `UpdateMetastoreRequest` (model.ts:475, 477)
 Two name-like fields on the update request:
-- `newName` — "New name for the metastore." (model.ts:236).
-- `name` — "The user-specified name of the metastore." (model.ts:238).
+- `newName` — "New name for the metastore." (model.ts:475).
+- `name` — "The user-specified name of the metastore." (model.ts:477).
 
 Per the doc, both fields can hold a name. The intent is presumably
 that `newName` is the rename target and `name` is left over from the
@@ -260,12 +260,12 @@ shared shape; in practice, callers cannot tell. See §11.1.
 
 ### 11. Field contradicting type domain
 
-#### 11.1 `UpdateMetastore` has `id`, `name`, `newName`, and `metastoreId` (model.ts:234, 236, 238, 258)
+#### 11.1 `UpdateMetastoreRequest` has `id`, `name`, `newName`, and `metastoreId` (model.ts:473, 475, 477, 497)
 Four name/id-like fields on a single update request:
 - `id` — path parameter; the existing metastore to update.
 - `metastoreId` — leftover from the shared shape; not used by the
   client method (`req.id` is what is interpolated into the URL at
-  client.ts:364).
+  client.ts:718).
 - `name` — "The user-specified name of the metastore." Ambiguous
   whether this is the current or new name.
 - `newName` — "New name for the metastore." Presumably the rename
@@ -275,11 +275,11 @@ A caller staring at this struct cannot intuit which field controls
 what. This is the package's single most user-hostile naming pattern,
 mirroring the `UpdateCatalog` issue (catalogs §16.1).
 
-#### 11.2 `UpdateMetastore.metastoreId` shadows `UpdateMetastore.id` (model.ts:234, 258)
+#### 11.2 `UpdateMetastoreRequest.metastoreId` shadows `UpdateMetastoreRequest.id` (model.ts:473, 497)
 Same as 11.1 — two id-like fields whose roles are not differentiated
 by name.
 
-#### 11.3 `CreateMetastore` and `UpdateMetastore` carry read-only output fields (model.ts:42-58, 258-274)
+#### 11.3 `CreateMetastoreRequest` and `UpdateMetastoreRequest` carry read-only output fields (model.ts:240-256, 497-513)
 `metastoreId`, `createdAt`, `createdBy`, `updatedAt`, `updatedBy`,
 `globalMetastoreId`, `cloud`, `storageRootCredentialName`. These are
 server-populated; a creator/updater setting them is at best ignored.
@@ -287,13 +287,13 @@ The type's name promises "create" or "update" but the shape
 contradicts that by including read-only output. Mirror of
 catalogs §16.2.
 
-#### 11.4 `GetMetastoreSummary` response returns the full metastore (model.ts:112) — see §5.7. The type name promises a summary; the value is the entity.
+#### 11.4 `GetMetastoreSummaryRequest_Response` returns the full metastore (model.ts:294) — see §5.7. The type name promises a summary; the value is the entity.
 
 ---
 
 ### 12. Inconsistent action verbs
 
-#### 12.1 `getMetastore` vs `getMetastoreSummary` vs `getCurrentMetastoreAssignment` (client.ts:241, 269, 216)
+#### 12.1 `getMetastore` vs `getMetastoreSummary` vs `getCurrentMetastoreAssignment` (client.ts:592, 620, 567)
 Three "get"-style methods, each with a different qualifier:
 - `getMetastore(req)` — get by id.
 - `getMetastoreSummary()` — get the current metastore (no id).
@@ -312,51 +312,57 @@ from `getCurrentMetastoreAssignment`.
 
 ### 13. Underspecified IDs
 
-#### 13.1 `metastoreId` (model.ts:42, 64, 91, 113, 183, 213, 258, 281)
+#### 13.1 `metastoreId` (model.ts:27, 54, 66, 94, 121, 137, 150, 183, 206, 240, 263, 296, 365, 395, 436, 459, 497)
 Documented as "Unique identifier of metastore" / "The unique ID of the
 metastore." Format is opaque — likely a UUID, but never specified in
 the doc.
 
-#### 13.2 `workspaceId` (model.ts:63, 89, 181, 279)
+#### 13.2 `workspaceId` (model.ts:25, 52, 80, 135, 203, 260, 363, 457)
 `number` — that's specified by the type, but the doc just says "A
 workspace ID." with no range or stability guarantee. Acceptable for a
 numeric id; flagged because the format isn't documented in the field.
 
-#### 13.3 `defaultDataAccessConfigId` (model.ts:26, 118, 197, 242)
+#### 13.3 `defaultDataAccessConfigId` (model.ts:167, 223, 300, 379, 419, 480)
 "Unique identifier of the metastore's (Default) Data Access
 Configuration." No format hint (UUID? slug?). See §5.4.
 
-#### 13.4 `storageRootCredentialId` (model.ts:28, 120, 199, 244)
+#### 13.4 `storageRootCredentialId` (model.ts:169, 225, 302, 381, 421, 482)
 Doc says "UUID of storage credential" — at least the doc says UUID
 here, but the field name doesn't carry the type. Counter-example to
 §13.1: when the doc *does* specify UUID, the field still doesn't carry
 it.
 
-#### 13.5 `createdAt`, `updatedAt` (model.ts:44, 48, 142, 146, 215, 219, 260, 264)
+#### 13.5 `createdAt`, `updatedAt` (model.ts:184-191, 241-248, 323-329, 396-403, 437-444, 498-505)
 Doc says "epoch milliseconds" but the names lack the `Ms` unit
 suffix. Inconsistent across the package.
 
-#### 13.6 `globalMetastoreId` (model.ts:56, 126, 227, 271)
+#### 13.6 `globalMetastoreId` (model.ts:197, 254, 308, 409, 450, 511)
 Documented as a composite `cloud:region:metastore_id` string — not a
 simple ID. The name promises an ID; the value is a structured
 locator. See §5.3.
 
-#### 13.7 `owner`, `createdBy`, `updatedBy` (model.ts:36, 46, 50, 140, 144, 148, 207, 217, 221, 252, 262, 266)
+#### 13.7 `owner`, `createdBy`, `updatedBy` (model.ts:177, 187, 191, 234, 244, 248, 322, 326, 330, 389, 399, 403, 430, 440, 444, 491, 501, 505)
 Documented as "username", "Username of metastore creator", etc.
 Format (email? user id? group?) is unspecified. The names imply
 identity; the doc only narrows to "username".
 
 ---
 
-### 14. Type-suffix tautology
+### 14. Proto / architectural-leak naming
 
-#### 14.1 `MetastoreInfo` exposes `metastoreId` (model.ts:191, 213)
+_None._
+
+---
+
+### 15. Type-suffix tautology
+
+#### 15.1 `MetastoreInfo` exposes `metastoreId` (model.ts:373, 395)
 The type's domain is the metastore; the field redundantly carries the
 entity name in its identifier. Acceptable convention; flagged for
 completeness.
 
-#### 14.2 `MetastoreAssignment` carries `metastoreId` (model.ts:179, 183)
-Same pattern as 14.1 — entity name in field.
+#### 15.2 `MetastoreAssignment` carries `metastoreId` (model.ts:361, 365)
+Same pattern as 15.1 — entity name in field.
 
 ---
 
@@ -365,34 +371,34 @@ Same pattern as 14.1 — entity name in field.
 ### A. `flattenQueryParams` is defined but unused (utils.ts:123)
 Each `deleteMetastore` / `deleteMetastoreAssignment` / `listMetastores`
 handler builds query strings inline with `URLSearchParams.append`
-(client.ts:156-159, 187-190, 310-316). The exported helper
+(client.ts:504-507, 538-541, 661-667). The exported helper
 `flattenQueryParams` is never referenced by `client.ts`. Either it's
 intentionally exported for consumer use (then it should be documented
 and reside in `utils` proper) or it's dead code. Same as catalogs
 cross-cutting A.
 
-### B. `req.workspaceId` is interpolated into the URL via `String(req.workspaceId ?? '')` (client.ts:126, 186, 394)
+### B. `req.workspaceId` is interpolated into the URL via `String(req.workspaceId ?? '')` (client.ts:471, 537, 748)
 If `workspaceId` is undefined, the URL silently becomes
 `/api/2.1/unity-catalog/workspaces//metastore` (note the double slash)
 and the request will fail on the server. The optional typing of
-`workspaceId` on `CreateMetastoreAssignment`,
-`DeleteMetastoreAssignment`, and `UpdateMetastoreAssignment` (each
-field is `number | undefined`) lets the bug hide.
+`workspaceId` on `CreateMetastoreAssignmentRequest`,
+`DeleteMetastoreAssignmentRequest`, and `UpdateMetastoreAssignmentRequest`
+(each field is `number | undefined`) lets the bug hide.
 
-### C. `req.id` is similarly optional but interpolated into URLs (client.ts:155, 245, 364)
+### C. `req.id` is similarly optional but interpolated into URLs (client.ts:503, 596, 718)
 `${req.id ?? ''}` — same pattern: undefined id silently produces a
 malformed URL. Combined with the generic `id` name (§1.1) the type
 contract is too loose for a required path parameter.
 
-### D. `DeleteMetastoreAssignment.metastoreId` is sent in the query string, not the path (client.ts:186-191)
+### D. `DeleteMetastoreAssignmentRequest.metastoreId` is sent in the query string, not the path (client.ts:538-543)
 On `DELETE /api/2.1/unity-catalog/workspaces/{workspaceId}/metastore`,
 the request appends `?metastore_id=…`. That contradicts the doc on
-`DeleteMetastoreAssignment.metastoreId` ("Query for the ID of the
-metastore to delete.") only via the leading word "Query" — the field
-name itself does not signal that the value is a query parameter, not
-a path one.
+`DeleteMetastoreAssignmentRequest.metastoreId` ("Query for the ID of
+the metastore to delete.") only via the leading word "Query" — the
+field name itself does not signal that the value is a query parameter,
+not a path one.
 
-### E. `Client` constructor throws bare `Error` for missing `host` (client.ts:72)
+### E. `Client` constructor throws bare `Error` for missing `host` (client.ts:109)
 "Host is required." — bare `Error`. Not a naming issue, flagged in
 passing for the broader review.
 
@@ -408,80 +414,105 @@ flagged in passing.
 
 | Identifier                                              | Location           | Finding |
 | ------------------------------------------------------- | ------------------ | ------- |
-| `CreateMetastore`                                       | model.ts:20        | 10.2, 11.3 |
-| `CreateMetastore.name`                                  | model.ts:22        | 9.1, 10.5 |
-| `CreateMetastore.storageRoot`                           | model.ts:24        | 5.2     |
-| `CreateMetastore.defaultDataAccessConfigId`             | model.ts:26        | 5.4, 13.3 |
-| `CreateMetastore.storageRootCredentialId`               | model.ts:28        | 13.4    |
-| `CreateMetastore.owner`                                 | model.ts:36        | 1.5, 13.7 |
-| `CreateMetastore.region`                                | model.ts:40        | 1.6, 5.6 |
-| `CreateMetastore.metastoreId` (read-only on Create)     | model.ts:42        | 11.3, 13.1, 14.1 |
-| `CreateMetastore.createdAt` (read-only on Create)       | model.ts:44        | 11.3, 13.5 |
-| `CreateMetastore.createdBy` (read-only on Create)       | model.ts:46        | 11.3, 13.7 |
-| `CreateMetastore.updatedAt` (read-only on Create)       | model.ts:48        | 11.3, 13.5 |
-| `CreateMetastore.updatedBy` (read-only on Create)       | model.ts:50        | 11.3, 13.7 |
-| `CreateMetastore.storageRootCredentialName` (read-only) | model.ts:52        | 11.3    |
-| `CreateMetastore.cloud`                                 | model.ts:54        | 1.4, 5.5 |
-| `CreateMetastore.globalMetastoreId` (read-only)         | model.ts:56        | 5.3, 11.3, 13.6 |
-| `CreateMetastore.externalAccessEnabled`                 | model.ts:58        | 3.1 (doc) |
-| `CreateMetastoreAssignment`                             | model.ts:61        | 10.3    |
-| `CreateMetastoreAssignment.workspaceId`                 | model.ts:63        | 13.2, F |
-| `CreateMetastoreAssignment.metastoreId`                 | model.ts:65        | 13.1    |
-| `CreateMetastoreAssignment.defaultCatalogName`          | model.ts:71        | —       |
-| `DeleteMetastore`                                       | model.ts:77        | —       |
-| `DeleteMetastore.id`                                    | model.ts:79        | 1.1, 4.1, 9.2, 10.4 |
-| `DeleteMetastore.force`                                 | model.ts:81        | 1.3     |
-| `DeleteMetastoreAssignment`                             | model.ts:87        | 10.3    |
-| `DeleteMetastoreAssignment.workspaceId`                 | model.ts:89        | 13.2    |
-| `DeleteMetastoreAssignment.metastoreId`                 | model.ts:91        | 13.1, D |
-| `GetCurrentMetastoreAssignment`                         | model.ts:101       | —       |
-| `GetMetastore`                                          | model.ts:103       | —       |
-| `GetMetastore.id`                                       | model.ts:105       | 1.1, 4.1, 9.2, 10.4 |
-| `GetMetastoreSummary`                                   | model.ts:109       | —       |
-| `GetMetastoreSummary` response                          | model.ts:112       | 5.7, 10.1, 11.4 |
-| `ListMetastores`                                        | model.ts:153       | —       |
-| `ListMetastores.maxResults`                             | model.ts:163       | —       |
-| `ListMetastores.pageToken`                              | model.ts:165       | —       |
-| `ListMetastoresResponse.metastores`                     | model.ts:171       | 8.1 (positive) |
-| `ListMetastoresResponse.nextPageToken`                  | model.ts:176       | —       |
-| `MetastoreAssignment`                                   | model.ts:179       | 1.2, 7.2, 10.3 |
-| `MetastoreAssignment.workspaceId`                       | model.ts:181       | 1.2, 13.2, F |
-| `MetastoreAssignment.metastoreId`                       | model.ts:183       | 13.1, 14.2 |
-| `MetastoreAssignment.defaultCatalogName`                | model.ts:188       | —       |
-| `MetastoreInfo`                                         | model.ts:191       | 5.1, 7.1, 10.2 |
-| `MetastoreInfo.metastoreId`                             | model.ts:213       | 13.1, 14.1 |
-| `MetastoreInfo.globalMetastoreId`                       | model.ts:227       | 5.3, 13.6 |
-| `UpdateMetastore`                                       | model.ts:232       | 10.2, 11.1, 11.3 |
-| `UpdateMetastore.id`                                    | model.ts:234       | 1.1, 4.1, 11.1, 11.2 |
-| `UpdateMetastore.newName`                               | model.ts:236       | 10.6, 11.1 |
-| `UpdateMetastore.name`                                  | model.ts:238       | 10.6, 11.1 |
-| `UpdateMetastore.metastoreId`                           | model.ts:258       | 11.1, 11.2 |
-| `UpdateMetastoreAssignment`                             | model.ts:277       | 10.3    |
-| `UpdateMetastoreAssignment.workspaceId`                 | model.ts:279       | 13.2    |
-| `Client.createMetastore`                                | client.ts:92       | —       |
-| `Client.createMetastoreAssignment`                      | client.ts:122      | —       |
-| `Client.deleteMetastore`                                | client.ts:151      | C       |
-| `Client.deleteMetastoreAssignment`                      | client.ts:182      | B, D    |
-| `Client.getCurrentMetastoreAssignment`                  | client.ts:216      | 12.1    |
-| `Client.getMetastore`                                   | client.ts:241      | 12.1, C |
-| `Client.getMetastoreSummary`                            | client.ts:269      | 5.8, 12.1 |
-| `Client.listMetastores`                                 | client.ts:305      | —       |
-| `Client.updateMetastore`                                | client.ts:360      | C       |
-| `Client.updateMetastoreAssignment`                      | client.ts:390      | B       |
-| `${req.id ?? ''}` URL substitution                      | client.ts:155, 245, 364 | C |
-| `${req.workspaceId ?? ''}` URL substitution             | client.ts:126, 186, 394 | B |
-| `Host is required.` bare Error                          | client.ts:72       | E       |
+| `CreateMetastoreRequest`                                | model.ts:218       | 10.2, 11.3 |
+| `CreateMetastoreRequest.name`                           | model.ts:220       | 9.1, 10.5 |
+| `CreateMetastoreRequest.storageRoot`                    | model.ts:222       | 5.2     |
+| `CreateMetastoreRequest.defaultDataAccessConfigId`      | model.ts:224       | 5.4, 13.3 |
+| `CreateMetastoreRequest.storageRootCredentialId`        | model.ts:226       | 13.4    |
+| `CreateMetastoreRequest.owner`                          | model.ts:234       | 1.5, 13.7 |
+| `CreateMetastoreRequest.region`                         | model.ts:238       | 1.6, 5.6 |
+| `CreateMetastoreRequest.metastoreId` (read-only)        | model.ts:240       | 11.3, 13.1, 15.1 |
+| `CreateMetastoreRequest.createdAt` (read-only)          | model.ts:242       | 11.3, 13.5 |
+| `CreateMetastoreRequest.createdBy` (read-only)          | model.ts:244       | 11.3, 13.7 |
+| `CreateMetastoreRequest.updatedAt` (read-only)          | model.ts:246       | 11.3, 13.5 |
+| `CreateMetastoreRequest.updatedBy` (read-only)          | model.ts:248       | 11.3, 13.7 |
+| `CreateMetastoreRequest.storageRootCredentialName`      | model.ts:250       | 11.3    |
+| `CreateMetastoreRequest.cloud`                          | model.ts:252       | 1.4, 5.5 |
+| `CreateMetastoreRequest.globalMetastoreId` (read-only)  | model.ts:254       | 5.3, 11.3, 13.6 |
+| `CreateMetastoreRequest.externalAccessEnabled`          | model.ts:256       | 3.1 (doc) |
+| `CreateMetastoreAssignmentRequest`                      | model.ts:202       | 10.3    |
+| `CreateMetastoreAssignmentRequest.workspaceId`          | model.ts:203       | 13.2, F |
+| `CreateMetastoreAssignmentRequest.metastoreId`          | model.ts:206       | 13.1    |
+| `CreateMetastoreAssignmentRequest.defaultCatalogName`   | model.ts:212       | —       |
+| `DeleteMetastoreRequest`                                | model.ts:269       | —       |
+| `DeleteMetastoreRequest.id`                             | model.ts:271       | 1.1, 4.1, 9.2, 10.4 |
+| `DeleteMetastoreRequest.force`                          | model.ts:273       | 1.3     |
+| `DeleteMetastoreAssignmentRequest`                      | model.ts:259       | 10.3    |
+| `DeleteMetastoreAssignmentRequest.workspaceId`          | model.ts:260       | 13.2    |
+| `DeleteMetastoreAssignmentRequest.metastoreId`          | model.ts:263       | 13.1, D |
+| `GetCurrentMetastoreAssignmentRequest`                  | model.ts:283       | —       |
+| `GetMetastoreRequest`                                   | model.ts:285       | —       |
+| `GetMetastoreRequest.id`                                | model.ts:287       | 1.1, 4.1, 9.2, 10.4 |
+| `GetMetastoreSummaryRequest`                            | model.ts:291       | —       |
+| `GetMetastoreSummaryRequest_Response`                   | model.ts:294       | 5.7, 10.1, 11.4 |
+| `ListMetastoresRequest`                                 | model.ts:335       | —       |
+| `ListMetastoresRequest.maxResults`                      | model.ts:345       | —       |
+| `ListMetastoresRequest.pageToken`                       | model.ts:347       | —       |
+| `ListMetastoresRequest_Response.metastores`             | model.ts:353       | 8.1 (positive) |
+| `ListMetastoresRequest_Response.nextPageToken`          | model.ts:358       | —       |
+| `MetastoreAssignment`                                   | model.ts:361       | 1.2, 7.2, 10.3 |
+| `MetastoreAssignment.workspaceId`                       | model.ts:363       | 1.2, 13.2, F |
+| `MetastoreAssignment.metastoreId`                       | model.ts:365       | 13.1, 15.2 |
+| `MetastoreAssignment.defaultCatalogName`                | model.ts:370       | —       |
+| `MetastoreInfo`                                         | model.ts:373       | 5.1, 7.1, 10.2 |
+| `MetastoreInfo.metastoreId`                             | model.ts:395       | 13.1, 15.1 |
+| `MetastoreInfo.globalMetastoreId`                       | model.ts:409       | 5.3, 13.6 |
+| `UpdateMetastoreRequest`                                | model.ts:471       | 10.2, 11.1, 11.3 |
+| `UpdateMetastoreRequest.id`                             | model.ts:473       | 1.1, 4.1, 11.1, 11.2 |
+| `UpdateMetastoreRequest.newName`                        | model.ts:475       | 10.6, 11.1 |
+| `UpdateMetastoreRequest.name`                           | model.ts:477       | 10.6, 11.1 |
+| `UpdateMetastoreRequest.metastoreId`                    | model.ts:497       | 11.1, 11.2 |
+| `UpdateMetastoreAssignmentRequest`                      | model.ts:455       | 10.3    |
+| `UpdateMetastoreAssignmentRequest.workspaceId`          | model.ts:457       | 13.2    |
+| `Client.createMetastore`                                | client.ts:437      | —       |
+| `Client.createMetastoreAssignment`                      | client.ts:467      | —       |
+| `Client.deleteMetastore`                                | client.ts:499      | C       |
+| `Client.deleteMetastoreAssignment`                      | client.ts:533      | B, D    |
+| `Client.getCurrentMetastoreAssignment`                  | client.ts:567      | 12.1    |
+| `Client.getMetastore`                                   | client.ts:592      | 12.1, C |
+| `Client.getMetastoreSummary`                            | client.ts:620      | 5.8, 12.1 |
+| `Client.listMetastores`                                 | client.ts:656      | —       |
+| `Client.updateMetastore`                                | client.ts:714      | C       |
+| `Client.updateMetastoreAssignment`                      | client.ts:744      | B       |
+| `${req.id ?? ''}` URL substitution                      | client.ts:503, 596, 718 | C |
+| `${req.workspaceId ?? ''}` URL substitution             | client.ts:471, 537, 748 | B |
+| `Host is required.` bare Error                          | client.ts:109      | E       |
 | `flattenQueryParams` (unused export)                    | utils.ts:123       | A       |
 
 ---
 
 ## Recommended priority order
 
-1. **Disambiguate the four name/id-like fields on `UpdateMetastore`** (`id`, `metastoreId`, `name`, `newName`) — biggest user-facing trap. (§11.1, §10.6, §1.1)
-2. **Strip read-only fields from `CreateMetastore` / `UpdateMetastore`.** (§11.3, §10.2)
-3. **Decide whether the `GetMetastoreSummary` response should alias `MetastoreInfo` or expose a genuine subset.** (§5.7, §10.1)
+1. **Disambiguate the four name/id-like fields on `UpdateMetastoreRequest`** (`id`, `metastoreId`, `name`, `newName`) — biggest user-facing trap. (§11.1, §10.6, §1.1)
+2. **Strip read-only fields from `CreateMetastoreRequest` / `UpdateMetastoreRequest`.** (§11.3, §10.2)
+3. **Decide whether the `GetMetastoreSummaryRequest_Response` should alias `MetastoreInfo` or expose a genuine subset.** (§5.7, §10.1)
 4. **Rename `getMetastoreSummary` to `getCurrentMetastore`** to match `getCurrentMetastoreAssignment` and accurately describe the call. (§5.8, §12.1)
 5. **Unify naming around `id` vs `metastoreId`** — pick one for the path parameter; converge body fields on the other. (§1.1, §10.4)
 6. **Tighten optional-typing on URL-bound parameters** (`id`, `workspaceId`) so undefined values are caught at compile time, not by malformed URLs. (Cross-cutting B, C)
 7. **Add unit suffixes to `createdAt` / `updatedAt`** (`createdAtMs` etc.) to match common conventions. (§13.5)
 8. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
+
+---
+
+## Fixed
+
+- 14.1 `AccountsCreateMetastoreAssignmentPublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.2 `AccountsCreateMetastoreAssignmentPublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.3 `AccountsCreateMetastorePublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.4 `AccountsCreateMetastorePublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.5 `AccountsDeleteMetastoreAssignmentPublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.6 `AccountsDeleteMetastoreAssignmentPublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.7 `AccountsDeleteMetastorePublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.8 `AccountsDeleteMetastorePublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.9 `AccountsGetMetastoreAssignmentPublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.10 `AccountsGetMetastoreAssignmentPublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.11 `AccountsGetMetastorePublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.12 `AccountsGetMetastorePublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.13 `AccountsListMetastoresPublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.14 `AccountsListMetastoresPublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.15 `AccountsListWorkspaceIdsForMetastorePublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.16 `AccountsListWorkspaceIdsForMetastorePublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.17 `AccountsUpdateMetastoreAssignmentPublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.18 `AccountsUpdateMetastoreAssignmentPublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.19 `AccountsUpdateMetastorePublicRequest` — `Public` infix removed. Fixed in regeneration on 2026-05-22.
+- 14.20 `AccountsUpdateMetastorePublicRequest_Response` — `Public` infix removed. Fixed in regeneration on 2026-05-22.

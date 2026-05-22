@@ -3,85 +3,25 @@
 **Path:** `packages/marketplaces/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Marketplace — provider-side and exchange-side operations for managing **listings** (the marketplace storefront entry for a dataset, model, notebook, app, MCP, partner integration, or git repo), **providers** (the publisher account), **exchanges** (curated, scoped collections of listings, including exchange filters that scope visibility by metastore), **personalization requests** (consumer-side requests for tailored access), **files** attached to listings/providers (icons, embedded notebooks, embedded markdown, commit drawdown attachments), and a separate **provider analytics dashboard** sub-resource (a Lakeview-backed dashboard for provider-side analytics).
-**Total weird names flagged:** 47
+**Total weird names flagged:** 52
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 14 |
-| Medium | 29 |
+| High | 12 |
+| Medium | 27 |
 | Low | 8 |
-| Observation | 6 |
+| Observation | 5 |
 
-The marketplaces package is one of the more naming-distressed surfaces in the SDK. The dominant problem is the **inconsistent request-type convention** within a single file: some request types follow the verb-shaped Go style (`CreateFile`, `DeleteFile`, `GetListing`, `GetListings`, `UpdateListing`, `ListFiles`, `CreateProvider`, `UpdateProvider`, `DeleteProvider`, `ListProviders`, `CreateProviderAnalyticsDashboard`, `UpdateProviderAnalyticsDashboard`, `GetLatestVersionProviderAnalyticsDashboard`, `ListProviderAnalyticsDashboard`, `GetPersonalizationRequestsForProvider`, `UpdatePersonalizationRequestStatus`) while others follow the more idiomatic `*Request`/`*Response` suffix (`CreateExchangeRequest`, `DeleteExchangeRequest`, `GetExchangeRequest`, `UpdateExchangeRequest`, `ListExchangesRequest`, `CreateExchangeFilterRequest`, `DeleteExchangeFilterRequest`, `UpdateExchangeFilterRequest`, `ListExchangeFiltersRequest`, `AddExchangeForListingRequest`, `RemoveExchangeForListingRequest`, `ListExchangesForListingRequest`, `ListListingsForExchangeRequest`) — split almost perfectly down the provider/exchange axis but not advertised that way. Other notable issues are the overloaded vocabulary triad **Listing / Exchange / Provider** without disambiguation (an exchange filter is a metastore-id allowlist, an exchange listing is a join row between an exchange and a listing, a listing detail is the body of a listing, and a personalization request is a consumer-side action targeting a listing), the cryptic plural irregularities around the noun `Listings` (the `GetListings` request and `GetListings_Response` payload field both use `listings`, while `CreateListing` and `DeleteListing` use the singular and `ListListingsForExchange` re-introduces the plural with a different field name `exchangeListings`), and several typo-grade or wire-leak names (`termOfServiceLink` missing the plural-`s` from "Terms of Service", `MarketplaceFileType.COMMIT_DRAWDOWN_REQUEST_ATTACHMENT` exposing an internal commit-drawdown workflow with a 33-character enum value, and the field `isFromLighthouse` referencing the internal-codename "Lighthouse" service in a public type).
+The marketplaces package remains one of the more naming-distressed surfaces in the SDK, though the dominant pre-existing problem — **inconsistent request-type naming** across the package — has been resolved by uniformly applying the `*Request`/`*Response` suffix to every operation type. Notable issues remaining include the overloaded vocabulary triad **Listing / Exchange / Provider** without disambiguation (an exchange filter is a metastore-id allowlist, an exchange listing is a join row between an exchange and a listing, a listing detail is the body of a listing, and a personalization request is a consumer-side action targeting a listing), the cryptic plural irregularities around the noun `Listings` (the `GetListingsRequest` and its proto-nested `_Response` payload field both use `listings`, while `CreateListingRequest` and `DeleteListingRequest` use the singular and `ListListingsForExchange` re-introduces the plural with a different field name `exchangeListings`), and several typo-grade or wire-leak names (`termOfServiceLink` missing the plural-`s` from "Terms of Service" and the field `isFromLighthouse` referencing the internal-codename "Lighthouse" service in a public type).
 
 ---
 
 ## High severity
 
-### 1. Verb-shaped request types — 14 occurrences
+### 1. `Listing` — ambiguous central type
 
-**Location:** `src/v1/model.ts:174, 188, 197, 207, 233, 240, 247, 317, 331, 339, 348, 359, 370, 411, 434, 445, 627, 637, 650, 660`
-
-```ts
-export interface CreateFile { ... }
-export interface CreateListing { ... }
-export interface CreateProvider { ... }
-export interface CreateProviderAnalyticsDashboard {}
-export interface DeleteFile { ... }
-export interface DeleteListing { ... }
-export interface DeleteProvider { ... }
-export interface GetFile { ... }
-export interface GetLatestVersionProviderAnalyticsDashboard {}
-export interface GetListing { ... }
-export interface GetListings { ... }
-export interface GetPersonalizationRequestsForProvider { ... }
-export interface GetProvider { ... }
-export interface ListFiles { ... }
-export interface ListProviderAnalyticsDashboard {}
-export interface ListProviders { ... }
-export interface UpdateListing { ... }
-export interface UpdatePersonalizationRequestStatus { ... }
-export interface UpdateProvider { ... }
-export interface UpdateProviderAnalyticsDashboard { ... }
-```
-
-Top-level request types named with imperative verbs (`Create*`, `Delete*`, `Get*`, `List*`, `Update*`). TS types should be nouns; verbs are reserved for methods. The `Client` exposes the same identifier as both a method and a type: `client.createListing(req: CreateListing)`, `client.getListing(req: GetListing)`, `client.listProviders(req: ListProviders)` — verb-noun-verb-noun every time. Readers cannot tell from the type whether the symbol names a request shape or an operation.
-- **Category:** 7 (overly verbose / structural), 14 (Go-style request-type naming), 17 (inconsistent action verbs within file — see #2).
-- **Suggested name:** `CreateFileRequest`, `CreateListingRequest`, `GetListingRequest`, `ListProvidersRequest`, etc.
-- **Rationale:** See #2.
-
-### 2. Two competing request-type naming conventions in one file
-
-**Location:** Both patterns coexist throughout `src/v1/model.ts`.
-
-```
-Verb-shaped (Go style):              *Request-suffixed (idiomatic TS):
-CreateFile                           CreateExchangeRequest
-CreateListing                        CreateExchangeFilterRequest
-CreateProvider                       CreateExchangeResponse
-DeleteFile                           DeleteExchangeRequest
-DeleteListing                        DeleteExchangeFilterRequest
-DeleteProvider                       GetExchangeRequest
-GetFile                              UpdateExchangeRequest
-GetListing                           UpdateExchangeFilterRequest
-GetListings                          ListExchangesRequest
-GetProvider                          ListExchangeFiltersRequest
-ListFiles                            ListExchangesForListingRequest
-ListProviders                        ListListingsForExchangeRequest
-UpdateListing                        AddExchangeForListingRequest
-UpdateProvider                       RemoveExchangeForListingRequest
-...                                  ...
-```
-
-Verb-shaped types are used for **provider-side** operations (listings, files, providers, personalization, analytics dashboard); `*Request`-suffixed types are used for **exchange-side** operations (exchanges, exchange filters, exchange-listing joins). The split likely reflects two different proto packages on the server but in TS it reads as arbitrary inconsistency. A single user calling both `client.createListing` and `client.createExchange` will import two completely differently-named request types: `CreateListing` and `CreateExchangeRequest`. There is no documentation or hint that this split is intentional.
-- **Category:** 17 (inconsistent action verbs / naming patterns), 12 (duplicate convention — two patterns for the same concept).
-- **Suggested name:** Pick one — and `*Request` is the rest-of-SDK norm. Cascade with #1.
-- **Rationale:** A single ergonomic package should not require users to memorize which sub-domain uses which type-naming scheme.
-
-### 3. `Listing` — ambiguous central type
-
-**Location:** `src/v1/model.ts:456`
+**Location:** `src/v1/model.ts:652`
 
 ```ts
 export interface Listing {
@@ -92,18 +32,18 @@ export interface Listing {
 ```
 
 `Listing` is the central noun of the package, but the name has two unrelated English meanings: a *marketplace listing* (a storefront entry) and a *list operation* (the verb "to list", noun "a listing of items"). The package frequently uses both meanings within a single line:
-- `getListings(req: GetListings)` — method name uses the verb sense ("get the listings"), the type name uses the noun sense (a "GetListings" request that returns marketplace listings).
+- `getListings(req: GetListingsRequest)` — method name uses the verb sense ("get the listings"), the type name uses the noun sense (a "GetListings" request that returns marketplace listings).
 - `ListListingsForExchangeRequest` reads as "list the listings for exchange" — the first `List` is the verb, the second `Listings` is the noun.
-- `ExchangeListing` (line 278) is a join-row type — neither a storefront listing nor a list-operation but a third concept ("a listing in an exchange").
+- `ExchangeListing` (line 320) is a join-row type — neither a storefront listing nor a list-operation but a third concept ("a listing in an exchange").
 
 The triple overload is unavoidable given the domain word but the SDK does not disambiguate (e.g. by renaming join rows to `ExchangeListingLink` or `ExchangeMembership`).
 - **Category:** 1 (vague), 12 (duplicate concepts), 15 (overloaded vocabulary).
-- **Suggested name:** Keep `Listing` for the noun; rename `ExchangeListing` → `ExchangeListingLink` / `ListingExchangeMembership`; rename `GetListings` → `ListListingsRequest` (cascade with #1 and #2 — but note that gives `ListListingsRequest`, which is itself a stutter; the right fix may be `ListMarketplaceListingsRequest` or simpler `ListListings`).
+- **Suggested name:** Keep `Listing` for the noun; rename `ExchangeListing` → `ExchangeListingLink` / `ListingExchangeMembership`.
 - **Rationale:** "Listing" has multiple senses; the SDK uses all three; the API can mitigate this by giving the *join row* a less ambiguous name.
 
-### 4. `ExchangeListing` — overloaded "listing" inside the type name
+### 2. `ExchangeListing` — overloaded "listing" inside the type name
 
-**Location:** `src/v1/model.ts:278`
+**Location:** `src/v1/model.ts:320`
 
 ```ts
 export interface ExchangeListing {
@@ -117,14 +57,14 @@ export interface ExchangeListing {
 }
 ```
 
-The type is a join row connecting an exchange to a listing (with denormalized names). Named `ExchangeListing` it parses as either "a listing of type Exchange" (no — exchanges and listings are distinct) or "the exchange-side view of a listing" (no — both sides are denormalized into the same row) or "a listing exposed in the exchange" (closer, but the type is really the *link*, not the listing itself). The `Exchange.linkedListings: ExchangeListing[]` field at line 263 makes the relationship visible but does not clarify the name.
+The type is a join row connecting an exchange to a listing (with denormalized names). Named `ExchangeListing` it parses as either "a listing of type Exchange" (no — exchanges and listings are distinct) or "the exchange-side view of a listing" (no — both sides are denormalized into the same row) or "a listing exposed in the exchange" (closer, but the type is really the *link*, not the listing itself). The `Exchange.linkedListings: ExchangeListing[]` field at line 305 makes the relationship visible but does not clarify the name.
 - **Category:** 1 (vague), 6 (misleading: looks like an inheritance from `Listing`), 12 (overloaded with `Listing`).
 - **Suggested name:** `ExchangeListingLink`, `ExchangeMembership`, `ListingExchangeAssociation`.
-- **Rationale:** See #3.
+- **Rationale:** See #1.
 
-### 5. `AddExchangeForListingRequest` / `RemoveExchangeForListingRequest` — for-Listing word-order
+### 3. `AddExchangeForListingRequest` / `RemoveExchangeForListingRequest` — for-Listing word-order
 
-**Location:** `src/v1/model.ts:141, 592`
+**Location:** `src/v1/model.ts:142, 796`
 
 ```ts
 export interface AddExchangeForListingRequest {
@@ -142,9 +82,9 @@ The operations are symmetric (associate / disassociate an exchange with a listin
 - **Suggested name:** `LinkListingToExchangeRequest` / `UnlinkListingFromExchangeRequest` (or `*ExchangeListingRequest`); rename response field `exchangeForListing` → `exchangeListing`.
 - **Rationale:** Mirror the underlying object (`ExchangeListing`) rather than the verb phrase.
 
-### 6. `AddExchangeForListingResponse.exchangeForListing` — Greek-letter field name
+### 4. `AddExchangeForListingResponse.exchangeForListing` — Greek-letter field name
 
-**Location:** `src/v1/model.ts:146-148`
+**Location:** `src/v1/model.ts:147-149`
 
 ```ts
 export interface AddExchangeForListingResponse {
@@ -155,36 +95,11 @@ export interface AddExchangeForListingResponse {
 The field name `exchangeForListing` is a noun phrase that mirrors the request verb ("Add Exchange For Listing"). But the value is an `ExchangeListing` (the join-row type). Just naming the field `exchangeListing` would match the type name and remove the "for" preposition that doesn't add information.
 - **Category:** 7 (overly verbose), 20 (type-suffix tautology — field name doesn't quite match its type name).
 - **Suggested name:** `exchangeListing` (matches the underlying type).
-- **Rationale:** See #5.
+- **Rationale:** See #3.
 
-### 7. `MarketplaceFileType.COMMIT_DRAWDOWN_REQUEST_ATTACHMENT` — 33-character internal-domain enum value
+### 5. `PersonalizationRequest.isFromLighthouse` — internal codename leak
 
-**Location:** `src/v1/model.ts:119-126`
-
-```ts
-export enum MarketplaceFileType {
-  PROVIDER_ICON = 'PROVIDER_ICON',
-  EMBEDDED_NOTEBOOK = 'EMBEDDED_NOTEBOOK',
-  APP = 'APP',
-  EMBEDDED_MARKDOWN = 'EMBEDDED_MARKDOWN',
-  /**
-   * Consumer-attached supporting document (e.g., PDF) for a commit drawdown
-   * request. Stored under `staging/COMMIT_DRAWDOWN_REQUEST_ATTACHMENT/` (the
-   * entity stays in FILE_STATUS_STAGING permanently — no sanitization) with
-   * 14-day expiration; not served via the general presigned-GET path.
-   */
-  COMMIT_DRAWDOWN_REQUEST_ATTACHMENT = 'COMMIT_DRAWDOWN_REQUEST_ATTACHMENT',
-}
-```
-
-This enum value exposes a billing/commerce concept ("commit drawdown") that is not documented anywhere else in the marketplaces public surface. There is no `CommitDrawdownRequest` type, no related method, no field referencing "drawdown" elsewhere in the file. The JSDoc says these files have 14-day expiration and special storage paths — implementation details surfacing as the enum's namesake. A consumer scanning `MarketplaceFileType` cannot tell whether this is a value they should ever use.
-- **Category:** 18 (long enum values), 1 (vague — "commit drawdown" undefined in the SDK), 11 (effectively-internal value).
-- **Suggested name:** Document or hide. If kept, the long name is itself fine — the issue is the value's presence in the public API without context.
-- **Rationale:** Public enums should be self-explanatory; internal-workflow values should either be documented inline with the workflow's purpose or kept off the public surface.
-
-### 8. `PersonalizationRequest.isFromLighthouse` — internal codename leak
-
-**Location:** `src/v1/model.ts:563`
+**Location:** `src/v1/model.ts:767`
 
 ```ts
 export interface PersonalizationRequest {
@@ -199,9 +114,9 @@ export interface PersonalizationRequest {
 - **Suggested name:** Either document inline (the doc-comment should explain Lighthouse) or rename to a feature-describing name. If Lighthouse is a request-origin tag, `originatingService` (with an enum) would be clearer.
 - **Rationale:** Public APIs should not leak internal-system codenames.
 
-### 9. `ListingSummary` vs `ListingDetail` — Summary / Detail as separate types
+### 6. `ListingSummary` vs `ListingDetail` — Summary / Detail as separate types
 
-**Location:** `src/v1/model.ts:515, 462`
+**Location:** `src/v1/model.ts:719, 658`
 
 ```ts
 export interface Listing {
@@ -211,7 +126,7 @@ export interface Listing {
 }
 
 export interface ListingSummary { /* 20 fields */ }
-export interface ListingDetail  { /* 16 fields */ }
+export interface ListingDetail  { /* 18 fields */ }
 ```
 
 The split into `Summary` and `Detail` looks like a "list view vs. detail view" distinction (where `Summary` is what gets returned in list endpoints and `Detail` is the full payload). But both are bundled into a single `Listing` and both come back from `getListing` and `listListings`. The convention is meaningful in REST APIs that ship two read-shapes (e.g. GitHub's `Repository` vs `MinimalRepository`), but here both types are always present on the same `Listing`. The naming implies a contract the API doesn't honor.
@@ -219,9 +134,9 @@ The split into `Summary` and `Detail` looks like a "list view vs. detail view" d
 - **Suggested name:** `ListingMetadata` (for what is currently `ListingSummary`) and `ListingContent` (for `ListingDetail`); or merge into a single `Listing` type.
 - **Rationale:** The "Summary / Detail" lexicon promises a slim/fat split that the API doesn't actually provide.
 
-### 10. `ListingSummary` — 20-field "summary"
+### 7. `ListingSummary` — 20-field "summary"
 
-**Location:** `src/v1/model.ts:515-536`
+**Location:** `src/v1/model.ts:719-740`
 
 ```ts
 export interface ListingSummary {
@@ -250,11 +165,11 @@ export interface ListingSummary {
 A 20-field type called `Summary` is misleading — summaries are conventionally short. This includes provider-region info, share info, exchange ids, git-repo info, and full audit timestamps. The name promises slim; the shape is fat.
 - **Category:** 6 (misleading).
 - **Suggested name:** `ListingMetadata` or `ListingHeader`.
-- **Rationale:** See #9.
+- **Rationale:** See #6.
 
-### 11. `ProviderInfo.termOfServiceLink` — singular "term"
+### 8. `ProviderInfo.termOfServiceLink` — singular "term"
 
-**Location:** `src/v1/model.ts:581`
+**Location:** `src/v1/model.ts:785`
 
 ```ts
 export interface ProviderInfo {
@@ -264,16 +179,16 @@ export interface ProviderInfo {
 }
 ```
 
-The legal document is **Terms of Service** (plural). Field name says `termOfService` (singular). The neighboring `privacyPolicyLink` is correctly singular (a privacy policy is singular), so the field reads as if "term" were intentional — but the linked document is universally plural. The same field appears with the same typo as `term_of_service_link` on the wire (see `marshalProviderInfoSchema:1671`), so this is a server-side typo that the SDK faithfully preserves.
+The legal document is **Terms of Service** (plural). Field name says `termOfService` (singular). The neighboring `privacyPolicyLink` is correctly singular (a privacy policy is singular), so the field reads as if "term" were intentional — but the linked document is universally plural. The same field appears with the same typo as `term_of_service_link` on the wire (see `marshalProviderInfoSchema:2331`), so this is a server-side typo that the SDK faithfully preserves.
 
-Note: `ListingDetail.termsOfService` (line 464) correctly uses the plural form — so the package has both `termOfServiceLink` and `termsOfService` for analogous concepts.
+Note: `ListingDetail.termsOfService` (line 660) correctly uses the plural form — so the package has both `termOfServiceLink` and `termsOfService` for analogous concepts.
 - **Category:** 6 (misleading: wrong word form), 17 (inconsistent: same package uses both `termOfService` and `termsOfService`).
 - **Suggested name:** `termsOfServiceLink`.
 - **Rationale:** Within-package consistency and English correctness.
 
-### 12. `FileParent` — abstract container with weak typing
+### 9. `FileParent` — abstract container with weak typing
 
-**Location:** `src/v1/model.ts:303-307`
+**Location:** `src/v1/model.ts:345-349`
 
 ```ts
 export interface FileParent {
@@ -288,9 +203,9 @@ The type ships with a `TODO` in the JSDoc — the API contract is incomplete by 
 - **Suggested name:** Either model as a TS discriminated union (`{ $case: 'provider' | 'listing' | 'listingResource', id: string }`) or rename `parentId` → `providerId | listingId | listingResourceId` per case.
 - **Rationale:** The `TODO` says the team knows; the type is shipped publicly anyway.
 
-### 13. `FileParent.fileParentType` — type-suffix tautology
+### 10. `FileParent.fileParentType` — type-suffix tautology
 
-**Location:** `src/v1/model.ts:306`
+**Location:** `src/v1/model.ts:348`
 
 ```ts
 export interface FileParent {
@@ -304,9 +219,9 @@ Field name = type name minus the `FileParent` prefix repeated. Inside `FileParen
 - **Suggested name:** `type` (matching `ShareInfo.type`) or `parentType`.
 - **Rationale:** Redundant context.
 
-### 14. `FileInfo.marketplaceFileType` — package-name prefix in a field
+### 11. `FileInfo.marketplaceFileType` — package-name prefix in a field
 
-**Location:** `src/v1/model.ts:290`
+**Location:** `src/v1/model.ts:332`
 
 ```ts
 export interface FileInfo {
@@ -316,18 +231,41 @@ export interface FileInfo {
 }
 ```
 
-The field qualifies "fileType" with "marketplace" — but the type is *already* inside the marketplaces package. Every `FileType` here is a marketplace file type. The same prefix appears on `MarketplaceFileType` (the enum itself, line 114). Together they read as `marketplaceFileType: MarketplaceFileType` — package name stuttered twice.
+The field qualifies "fileType" with "marketplace" — but the type is *already* inside the marketplaces package. Every `FileType` here is a marketplace file type. The same prefix appears on `MarketplaceFileType` (the enum itself, line 123). Together they read as `marketplaceFileType: MarketplaceFileType` — package name stuttered twice.
 - **Category:** 7 (overly verbose), 20 (type-suffix tautology).
 - **Suggested name:** Rename enum → `FileType`; rename field → `type`.
 - **Rationale:** Package-name qualifiers are noise on internal fields.
+
+### 12. `*Request_Response` — proto-nested-message pattern leaked into public types
+
+**Location:** `src/v1/model.ts:203, 214, 243, 252, 280, 287, 294, 386, 410, 444, 454, 474, 484, 602, 622, 635, 926, 939, 954, 968`
+
+```ts
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreateFileRequest_Response {
+  fileInfo?: FileInfo | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface DeleteFileRequest_Response {}
+
+// ...and 18 others with the same shape.
+```
+
+Twenty response types follow the proto-IDL convention `message <Op>Request { message Response { ... } }`, which generates `<Op>Request_Response` in flat code-gen. The full list: `CreateFileRequest_Response`, `CreateListingRequest_Response`, `CreateProviderAnalyticsDashboardRequest_Response`, `CreateProviderRequest_Response`, `DeleteFileRequest_Response`, `DeleteListingRequest_Response`, `DeleteProviderRequest_Response`, `GetFileRequest_Response`, `GetLatestVersionProviderAnalyticsDashboardRequest_Response`, `GetListingRequest_Response`, `GetListingsRequest_Response`, `GetPersonalizationRequestsForProviderRequest_Response`, `GetProviderRequest_Response`, `ListFilesRequest_Response`, `ListProviderAnalyticsDashboardRequest_Response`, `ListProvidersRequest_Response`, `UpdateListingRequest_Response`, `UpdatePersonalizationRequestStatusRequest_Response`, `UpdateProviderAnalyticsDashboardRequest_Response`, `UpdateProviderRequest_Response`.
+
+Every one carries an `eslint-disable @typescript-eslint/naming-convention -- Proto-style nested message name.` comment, which is the codegen explicitly acknowledging that the underscore identifier exists only because of the proto serialization shape. The same package uses the underscore-free `*Response` form (`CreateExchangeResponse`, `GetExchangeResponse`, `UpdateExchangeFilterResponse`, etc.) for operations whose proto definition declares a sibling response message rather than a nested one — so the package ships **both** conventions side-by-side, and the choice between them is dictated by the proto IDL, not by anything visible at the TS surface.
+- **Category:** Proto suffix/infix — `Foo_PublicRequest`-style paired-name leak (`Request_Response` underscore identifier).
+- **Suggested name:** Drop the underscore: `CreateFileResponse`, `DeleteFileResponse`, `GetListingResponse`, `ListProvidersResponse`, etc.; for empty-body cases (`Delete*Request_Response`, `Update*Request_Response` where the body is `{}`), have the corresponding client method return `void` and drop the type entirely.
+- **Rationale:** The underscore in `<Op>Request_Response` is the protobuf service convention (`<Service>.<Op>Request.Response` in proto IDL); nothing in the JS SDK contract demands it. TS callers see two unrelated naming styles for the same concept (the "Response" payload), with the choice driven by an upstream proto definition they cannot see.
 
 ---
 
 ## Medium severity
 
-### 15. `Client` — generic top-level class name
+### 13. `Client` — generic top-level class name
 
-**Location:** `src/v1/client.ts:152`
+**Location:** `src/v1/client.ts:210`
 
 ```ts
 export class Client { ... }
@@ -338,9 +276,9 @@ Top-level export named just `Client`. Every generated package exports a `Client`
 - **Suggested name:** `MarketplacesClient`.
 - **Rationale:** Service-prefixed client class names are standard across `@aws-sdk/*`, `@google-cloud/*`, `@azure/*`.
 
-### 16. `Exchange.linkedListings` — verb tense and ambiguity
+### 14. `Exchange.linkedListings` — verb tense and ambiguity
 
-**Location:** `src/v1/model.ts:263`
+**Location:** `src/v1/model.ts:305`
 
 ```ts
 export interface Exchange {
@@ -354,9 +292,9 @@ export interface Exchange {
 - **Suggested name:** `listings`, `memberships`, or `listingLinks`.
 - **Rationale:** Past-participle field names suggest a log/audit; this is a list of current memberships.
 
-### 17. `ExchangeFilter.filterValue` / `ExchangeFilter.filterType` — field name = type prefix
+### 15. `ExchangeFilter.filterValue` / `ExchangeFilter.filterType` — field name = type prefix
 
-**Location:** `src/v1/model.ts:269, 275`
+**Location:** `src/v1/model.ts:311, 317`
 
 ```ts
 export interface ExchangeFilter {
@@ -374,9 +312,9 @@ Inside an `ExchangeFilter`, what else could `filterValue` be the value of? Or `f
 - **Suggested name:** `value`, `type`.
 - **Rationale:** Field names that re-state the parent type are noise (see also `EffectivePrivilege.privilege` from grants audit #15).
 
-### 18. `ExchangeFilterType.GLOBAL_METASTORE_ID` — single-value enum
+### 16. `ExchangeFilterType.GLOBAL_METASTORE_ID` — single-value enum
 
-**Location:** `src/v1/model.ts:69-71`
+**Location:** `src/v1/model.ts:68-70`
 
 ```ts
 export enum ExchangeFilterType {
@@ -389,28 +327,26 @@ An enum with a single member. Typically a sign that the API anticipates future f
 - **Suggested name:** Could be a string literal type until a second value lands.
 - **Rationale:** TS allows narrowing without enums (`type ExchangeFilterType = 'GLOBAL_METASTORE_ID'`).
 
-### 19. `MarketplaceFileType.APP` — three-letter generic value
+### 17. `MarketplaceFileType.APP` — three-letter generic value
 
-**Location:** `src/v1/model.ts:117`
+**Location:** `src/v1/model.ts:126`
 
 ```ts
 export enum MarketplaceFileType {
   PROVIDER_ICON = 'PROVIDER_ICON',
   EMBEDDED_NOTEBOOK = 'EMBEDDED_NOTEBOOK',
   APP = 'APP',
-  EMBEDDED_MARKDOWN = 'EMBEDDED_MARKDOWN',
-  COMMIT_DRAWDOWN_REQUEST_ATTACHMENT = 'COMMIT_DRAWDOWN_REQUEST_ATTACHMENT',
 }
 ```
 
-`APP` is the only member without a qualifier. Compare with `EMBEDDED_NOTEBOOK` and `EMBEDDED_MARKDOWN` — both prefixed with "embedded" to indicate they're attached to a listing. Is `APP` similarly embedded? Is it a Databricks App package file? A general application archive? Without a qualifier or doc-comment the value is ambiguous.
+`APP` is the only member without a qualifier. Compare with `EMBEDDED_NOTEBOOK` — prefixed with "embedded" to indicate it's attached to a listing. Is `APP` similarly embedded? Is it a Databricks App package file? A general application archive? Without a qualifier or doc-comment the value is ambiguous.
 - **Category:** 1 (vague), 17 (inconsistent qualifier convention with peers).
 - **Suggested name:** `EMBEDDED_APP` or `APP_PACKAGE`.
 - **Rationale:** Match the qualifier convention of `EMBEDDED_*` peers.
 
-### 20. `PersonalizationRequestStatus.REQUEST_PENDING` — preposition-padded value with a workaround comment
+### 18. `PersonalizationRequestStatus.REQUEST_PENDING` — preposition-padded value with a workaround comment
 
-**Location:** `src/v1/model.ts:128-134`
+**Location:** `src/v1/model.ts:129-135`
 
 ```ts
 export enum PersonalizationRequestStatus {
@@ -427,9 +363,9 @@ The JSDoc explicitly says the value is named `REQUEST_PENDING` because `PENDING`
 - **Suggested name:** `PENDING` (cross-enum collisions don't exist in TS).
 - **Rationale:** Proto-side collision avoidance has no purpose in the TS surface.
 
-### 21. `Cost` — single-word, ambiguous enum
+### 19. `Cost` — single-word, ambiguous enum
 
-**Location:** `src/v1/model.ts:47-50`
+**Location:** `src/v1/model.ts:46-49`
 
 ```ts
 export enum Cost {
@@ -438,14 +374,14 @@ export enum Cost {
 }
 ```
 
-`Cost` is a generic noun. Inside `ListingDetail.cost: Cost` (line 473) the field is documented as "Whether the dataset is free or paid" — so the enum is really a *cost category* or *pricing tier*, not a price. The single-word name is collision-prone (cost appears in many domains) and doesn't communicate "is this paid?".
+`Cost` is a generic noun. Inside `ListingDetail.cost: Cost` (line 669) the field is documented as "Whether the dataset is free or paid" — so the enum is really a *cost category* or *pricing tier*, not a price. The single-word name is collision-prone (cost appears in many domains) and doesn't communicate "is this paid?".
 - **Category:** 1 (vague), 6 (misleading: implies price, means tier).
 - **Suggested name:** `ListingPricingTier`, `PricingTier`, or `PriceCategory`.
 - **Rationale:** A two-value boolean-like enum named `Cost` reads ambiguously.
 
-### 22. `DataRefresh` — enum named after the noun, not the property
+### 20. `DataRefresh` — enum named after the noun, not the property
 
-**Location:** `src/v1/model.ts:52-62`
+**Location:** `src/v1/model.ts:51-61`
 
 ```ts
 export enum DataRefresh {
@@ -461,14 +397,14 @@ export enum DataRefresh {
 }
 ```
 
-The enum is a *time unit / interval*, not a "data refresh". It's used as `DataRefreshInfo.unit: DataRefresh` (line 216) which the wire format calls `data_refresh.unit`. Reading `DataRefresh.HOURLY` requires knowing the value names a frequency, not a refresh event. Also note: values mix nouns (`SECOND`, `MINUTE`) with adjectives (`HOURLY`, `DAILY`, `WEEKLY`) within the same enum — `SECONDLY` and `MINUTELY` are not used.
+The enum is a *time unit / interval*, not a "data refresh". It's used as `DataRefreshInfo.unit: DataRefresh` (line 258) which the wire format calls `data_refresh.unit`. Reading `DataRefresh.HOURLY` requires knowing the value names a frequency, not a refresh event. Also note: values mix nouns (`SECOND`, `MINUTE`) with adjectives (`HOURLY`, `DAILY`, `WEEKLY`) within the same enum — `SECONDLY` and `MINUTELY` are not used.
 - **Category:** 1 (vague: name is the noun, not the unit), 17 (inconsistent value form: nouns vs adverbs).
 - **Suggested name:** `RefreshInterval`, `TimeUnit`, or `DataRefreshUnit`.
 - **Rationale:** Self-documenting enum name; consistent value form.
 
-### 23. `DataRefresh.NONE` vs `SECOND`/`MINUTE`/`HOURLY` — second is special
+### 21. `DataRefresh.NONE` vs `SECOND`/`MINUTE`/`HOURLY` — second is special
 
-**Location:** `src/v1/model.ts:53-55`
+**Location:** `src/v1/model.ts:52-55`
 
 ```ts
 NONE = 'NONE',
@@ -480,28 +416,28 @@ HOURLY = 'HOURLY',
 `NONE` reads as "no refresh"; `SECOND` reads as "every second"; `HOURLY` reads as "every hour". The first two follow noun-naming; the third follows adverb-naming. Mixing the two within the same enum produces inconsistency.
 - **Category:** 17 (inconsistent value form).
 - **Suggested name:** Pick one convention. If "every X" adverbs are used, change `SECOND` → `SECONDLY`, `MINUTE` → `MINUTELY`, `NONE` → unchanged.
-- **Rationale:** See #22.
+- **Rationale:** See #20.
 
-### 24. `Category` — generic enum name with 23 values
+### 22. `Category` — generic enum name with 22 values
 
-**Location:** `src/v1/model.ts:21-45`
+**Location:** `src/v1/model.ts:21-44`
 
 ```ts
 export enum Category {
   ADVERTISING_AND_MARKETING = 'ADVERTISING_AND_MARKETING',
   ...
-  OPEN_SOURCE = 'OPEN_SOURCE',
+  TRAVEL_AND_TOURISM = 'TRAVEL_AND_TOURISM',
 }
 ```
 
 `Category` is generic without a domain qualifier (compare with `AssetType`, `ListingType`, `MarketplaceFileType`). The other enums use a domain prefix; `Category` does not. Also, it's exported at the package root and a user importing `Category` doesn't know it's marketplace-scoped.
 - **Category:** 1 (vague), 17 (inconsistent qualifier convention).
-- **Suggested name:** `ListingCategory` (since the only usage is `ListingSummary.categories: Category[]` at line 528).
+- **Suggested name:** `ListingCategory` (since the only usage is `ListingSummary.categories: Category[]` at line 732).
 - **Rationale:** Cross-package collision avoidance and self-documentation.
 
-### 25. `ListingDetail.size` — ambiguous unit
+### 23. `ListingDetail.size` — ambiguous unit
 
-**Location:** `src/v1/model.ts:489-490`
+**Location:** `src/v1/model.ts:685-686`
 
 ```ts
 /** size of the dataset in GB */
@@ -513,9 +449,9 @@ The JSDoc says "in GB", but the field name is just `size`. The wire field is `si
 - **Suggested name:** `sizeInGigabytes` or `sizeGb`.
 - **Rationale:** Numeric fields without unit suffix are a bug magnet.
 
-### 26. `ListingDetail.cost` typed as `Cost` (enum), but doc says price
+### 24. `ListingDetail.cost` typed as `Cost` (enum), but doc says price
 
-**Location:** `src/v1/model.ts:472-473, 477-478`
+**Location:** `src/v1/model.ts:668-669, 673-674`
 
 ```ts
 /** Whether the dataset is free or paid */
@@ -532,9 +468,9 @@ Two related fields: `cost: Cost (= 'FREE' | 'PAID')` and `pricingModel: string` 
 - **Suggested name:** Combine into one discriminated union: `pricing?: { $case: 'free' } | { $case: 'paid', model: string }`.
 - **Rationale:** Type-system can encode the relationship the prose tries to.
 
-### 27. `ListingDetail.geographicalCoverage` — long camelCase
+### 25. `ListingDetail.geographicalCoverage` — long camelCase
 
-**Location:** `src/v1/model.ts:470-471`
+**Location:** `src/v1/model.ts:666-667`
 
 ```ts
 /** Which geo region the listing data is collected from */
@@ -546,9 +482,9 @@ geographicalCoverage?: string | undefined;
 - **Suggested name:** `geoRegion`, `regions`, or `coverage`.
 - **Rationale:** Shorter, matches sibling naming.
 
-### 28. `ListingDetail.collectionDateStart` / `collectionDateEnd` — Date suffix on number
+### 26. `ListingDetail.collectionDateStart` / `collectionDateEnd` — Date suffix on number
 
-**Location:** `src/v1/model.ts:483-486`
+**Location:** `src/v1/model.ts:679-682`
 
 ```ts
 /** The starting date timestamp for when the data spans */
@@ -562,9 +498,9 @@ Field names include "Date" but the type is `number` (Unix timestamp). A consumer
 - **Suggested name:** `collectionStartAt` / `collectionEndAt`, or `collectionPeriodStart` / `collectionPeriodEnd`.
 - **Rationale:** "Date" is ambiguous about underlying type; `At` is the existing in-file convention for Unix timestamps.
 
-### 29. `ListingDetail.updateFrequency` vs `collectionGranularity` — same type, different naming
+### 27. `ListingDetail.updateFrequency` vs `collectionGranularity` — same type, different naming
 
-**Location:** `src/v1/model.ts:479-482`
+**Location:** `src/v1/model.ts:675-678`
 
 ```ts
 /** How often data is updated */
@@ -578,9 +514,9 @@ Both are `DataRefreshInfo` (an interval), but one is named "frequency" and the o
 - **Suggested name:** Rename type → `TimeInterval`; keep the field-level distinction.
 - **Rationale:** Reuse a generic type name for a reusable type.
 
-### 30. `ListingDetail.dataSource` — single-word vague field
+### 28. `ListingDetail.dataSource` — single-word vague field
 
-**Location:** `src/v1/model.ts:487-488`
+**Location:** `src/v1/model.ts:683-684`
 
 ```ts
 /** Where/how the data is sourced */
@@ -592,9 +528,9 @@ dataSource?: string | undefined;
 - **Suggested name:** `dataSourceDescription`, `dataProvenance`, or `dataOriginNote`.
 - **Rationale:** Disambiguate from the more common DB-connection meaning of "data source".
 
-### 31. `ListingDetail.tags: ListingTag[]` — typed-but-not-typed tags
+### 29. `ListingDetail.tags: ListingTag[]` — typed-but-not-typed tags
 
-**Location:** `src/v1/model.ts:493-508`
+**Location:** `src/v1/model.ts:689-704`
 
 ```ts
 export interface ListingDetail {
@@ -613,21 +549,16 @@ export interface ListingTag {
   /** String representation of the tag value. Values should be string literals (no complex types) */
   tagValues?: string[] | undefined;
 }
-
-export enum ListingTagType {
-  LISTING_TAG_TYPE_LANGUAGE = 'LISTING_TAG_TYPE_LANGUAGE',
-  LISTING_TAG_TYPE_TASK = 'LISTING_TAG_TYPE_TASK',
-}
 ```
 
-The enum constrains tag *names* to 2 values. Values are free-form strings. So a "tag" is really a `(name: enum, values: string[])` pair — that's not a tag in the colloquial sense (tag = single label). Compare with how `kubernetes` or `aws` model tags: `{ key: string, value: string }`. The marketplace model is `{ tagName: enum, tagValues: string[] }` — many-to-many.
+The enum constrains tag *names* to a small set. Values are free-form strings. So a "tag" is really a `(name: enum, values: string[])` pair — that's not a tag in the colloquial sense (tag = single label). Compare with how `kubernetes` or `aws` model tags: `{ key: string, value: string }`. The marketplace model is `{ tagName: enum, tagValues: string[] }` — many-to-many.
 - **Category:** 6 (misleading: name implies free-form labels, structure is constrained), 7 (`tagName` / `tagValues` add `tag` prefix repeated from type name).
 - **Suggested name:** `ListingTag.name` / `ListingTag.values`; rename type to clarify (e.g. `ListingAttribute`).
 - **Rationale:** "Tag" colloquially means a single label; this structure is closer to an attribute or property bag.
 
-### 32. `ListingTag.tagName` / `ListingTag.tagValues` — type-prefix tautology
+### 30. `ListingTag.tagName` / `ListingTag.tagValues` — type-prefix tautology
 
-**Location:** `src/v1/model.ts:538-543`
+**Location:** `src/v1/model.ts:742-747`
 
 ```ts
 export interface ListingTag {
@@ -639,11 +570,11 @@ export interface ListingTag {
 Inside `ListingTag`, what else could `tagName` and `tagValues` be? `name` and `values` carry the same information.
 - **Category:** 20 (type-suffix tautology).
 - **Suggested name:** `name`, `values`.
-- **Rationale:** See #17.
+- **Rationale:** See #15.
 
-### 33. `ContactInfo` — generic suffix on a single-purpose type
+### 31. `ContactInfo` — generic suffix on a single-purpose type
 
-**Location:** `src/v1/model.ts:151-156`
+**Location:** `src/v1/model.ts:171-177`
 
 ```ts
 /** contact info for the consumer requesting data or performing a listing installation */
@@ -655,14 +586,14 @@ export interface ContactInfo {
 }
 ```
 
-`*Info` suffix is generic. The type is reused only via `PersonalizationRequest.contactInfo: ContactInfo` (line 548). Also note: `firstName` / `lastName` / `email` / `company` describes a person, not generic "contact info". `Person`, `Contact`, or `ConsumerContact` would be more specific.
+`*Info` suffix is generic. The type is reused only via `PersonalizationRequest.contactInfo: ContactInfo` (line 752). Also note: `firstName` / `lastName` / `email` / `company` describes a person, not generic "contact info". `Person`, `Contact`, or `ConsumerContact` would be more specific.
 - **Category:** 8 (redundant `Info` suffix), 1 (vague).
 - **Suggested name:** `Contact` or `ConsumerContact`.
 - **Rationale:** Cross-package, every `*Info` reads as "the info type"; specificity helps autocomplete.
 
-### 34. `RegionInfo` — `Info` suffix on a single-purpose type
+### 32. `RegionInfo` — `Info` suffix on a single-purpose type
 
-**Location:** `src/v1/model.ts:587-590`
+**Location:** `src/v1/model.ts:791-794`
 
 ```ts
 export interface RegionInfo {
@@ -671,14 +602,14 @@ export interface RegionInfo {
 }
 ```
 
-Same problem as #33. Also note: both fields are `string` — there's no enum of cloud providers or regions. The type name suggests rich info; the shape is two strings.
+Same problem as #31. Also note: both fields are `string` — there's no enum of cloud providers or regions. The type name suggests rich info; the shape is two strings.
 - **Category:** 8 (redundant `Info` suffix), 19 (underspecified — no enum constraints).
 - **Suggested name:** `Region` (the cloud is implicitly part of the region in many SDKs) or `CloudRegion`.
 - **Rationale:** Avoid `*Info` suffix; consider richer typing.
 
-### 35. `ShareInfo` — `Info` suffix on a sharing concept
+### 33. `ShareInfo` — `Info` suffix on a sharing concept
 
-**Location:** `src/v1/model.ts:604-607`
+**Location:** `src/v1/model.ts:839-842`
 
 ```ts
 export interface ShareInfo {
@@ -687,14 +618,14 @@ export interface ShareInfo {
 }
 ```
 
-Same problem as #33 and #34. Additionally, `ShareInfo.type: ListingShareType` reads as "the listing-share-type of the share" — three nouns to communicate "is this a sample or full share".
+Same problem as #31 and #32. Additionally, `ShareInfo.type: ListingShareType` reads as "the listing-share-type of the share" — three nouns to communicate "is this a sample or full share".
 - **Category:** 8 (redundant `Info` suffix).
 - **Suggested name:** `Share`, `ListingShare`.
-- **Rationale:** See #33.
+- **Rationale:** See #31.
 
-### 36. `ProviderInfo` — `Info` suffix on the canonical provider type
+### 34. `ProviderInfo` — `Info` suffix on the canonical provider type
 
-**Location:** `src/v1/model.ts:568-585`
+**Location:** `src/v1/model.ts:772-789`
 
 ```ts
 export interface ProviderInfo {
@@ -706,14 +637,14 @@ export interface ProviderInfo {
 }
 ```
 
-Same problem as #33. The package also has `CreateProvider`, `GetProvider`, `UpdateProvider`, `DeleteProvider`, `ListProviders` — all referencing the noun `Provider`. The canonical full type is named `ProviderInfo`, but consumers would expect `Provider`.
+Same problem as #31. The package also has `CreateProviderRequest`, `GetProviderRequest`, `UpdateProviderRequest`, `DeleteProviderRequest`, `ListProvidersRequest` — all referencing the noun `Provider`. The canonical full type is named `ProviderInfo`, but consumers would expect `Provider`.
 - **Category:** 8 (redundant `Info` suffix), 17 (inconsistent: the rest of the package uses `Provider` alone).
 - **Suggested name:** `Provider`.
 - **Rationale:** Consistency with method/request type names.
 
-### 37. `DataRefreshInfo` — `Info` suffix on an interval type
+### 35. `DataRefreshInfo` — `Info` suffix on an interval type
 
-**Location:** `src/v1/model.ts:214-217`
+**Location:** `src/v1/model.ts:256-259`
 
 ```ts
 export interface DataRefreshInfo {
@@ -722,14 +653,14 @@ export interface DataRefreshInfo {
 }
 ```
 
-Same problem as #33. Also note: the type is reused for `collectionGranularity` (#29), so the name `DataRefreshInfo` is wrong for half of its uses.
+Same problem as #31. Also note: the type is reused for `collectionGranularity` (#27), so the name `DataRefreshInfo` is wrong for half of its uses.
 - **Category:** 8 (redundant `Info` suffix), 6 (misleading: name doesn't fit `collectionGranularity` use).
-- **Suggested name:** `TimeInterval` (matches #29).
-- **Rationale:** See #29.
+- **Suggested name:** `TimeInterval` (matches #27).
+- **Rationale:** See #27.
 
-### 38. `FileInfo` — `Info` suffix on the canonical file type
+### 36. `FileInfo` — `Info` suffix on the canonical file type
 
-**Location:** `src/v1/model.ts:288-301`
+**Location:** `src/v1/model.ts:330-343`
 
 ```ts
 export interface FileInfo {
@@ -739,14 +670,14 @@ export interface FileInfo {
 }
 ```
 
-Same problem as #33. The package also has `CreateFile`, `GetFile`, `DeleteFile`, `ListFiles` — all referencing the noun `File`. The canonical full type is named `FileInfo`, breaking the pattern.
+Same problem as #31. The package also has `CreateFileRequest`, `GetFileRequest`, `DeleteFileRequest`, `ListFilesRequest` — all referencing the noun `File`. The canonical full type is named `FileInfo`, breaking the pattern.
 - **Category:** 8 (redundant `Info` suffix), 17 (inconsistent with siblings).
 - **Suggested name:** `File`.
-- **Rationale:** See #36.
+- **Rationale:** See #34.
 
-### 39. `Listing.summary` / `Listing.detail` — opaque fields on the central type
+### 37. `Listing.summary` / `Listing.detail` — opaque fields on the central type
 
-**Location:** `src/v1/model.ts:456-460`
+**Location:** `src/v1/model.ts:652-656`
 
 ```ts
 export interface Listing {
@@ -759,11 +690,11 @@ export interface Listing {
 `Listing` is essentially `(id, summary, detail)` — a 3-field passthrough. The two interesting fields are named `summary` and `detail`, opaque on their own. A consumer with `listing.summary.name` and `listing.detail.description` has to navigate two sub-objects to reach the actual content.
 - **Category:** 1 (vague), 11 (could be merged).
 - **Suggested name:** Flatten or rename `summary` → `metadata`, `detail` → `content`.
-- **Rationale:** See #9.
+- **Rationale:** See #6.
 
-### 40. `ListingSummary.setting` — singular field name
+### 38. `ListingSummary.setting` — singular field name
 
-**Location:** `src/v1/model.ts:521`
+**Location:** `src/v1/model.ts:725`
 
 ```ts
 export interface ListingSummary {
@@ -777,15 +708,15 @@ export interface ListingSummary {
 - **Suggested name:** `settings: ListingSettings`.
 - **Rationale:** Plural matches the conventional naming for a settings bag.
 
-### 41. `ListingSummary.providerRegion` — region of what?
+### 39. `ListingSummary.providerRegion` — region of what?
 
-**Location:** `src/v1/model.ts:520`
+**Location:** `src/v1/model.ts:724`
 
 ```ts
 providerRegion?: RegionInfo | undefined;
 ```
 
-`PersonalizationRequest.consumerRegion` (line 547) uses the same `RegionInfo` type with the `consumer` qualifier. So the package has `providerRegion` and `consumerRegion` — two different qualifiers for the same `RegionInfo` type. Fine; flagged because the *type* name (`RegionInfo`) is unqualified, while every *use* requires a qualifier.
+`PersonalizationRequest.consumerRegion` (line 751) uses the same `RegionInfo` type with the `consumer` qualifier. So the package has `providerRegion` and `consumerRegion` — two different qualifiers for the same `RegionInfo` type. Fine; flagged because the *type* name (`RegionInfo`) is unqualified, while every *use* requires a qualifier.
 - **Category:** 1 (vague type, qualified field), 17 (qualifier convention not encoded in the type).
 - **Suggested name:** No rename; this is the price of reusing `RegionInfo`.
 - **Rationale:** Observation.
@@ -794,25 +725,25 @@ providerRegion?: RegionInfo | undefined;
 
 ## Low severity
 
-### 42. `Listing.id` vs `ListingDetail.fileIds: string[]` vs `ListingSummary.exchangeIds: string[]` — id pluralization
+### 40. `Listing.id` vs `ListingDetail.fileIds: string[]` vs `ListingSummary.exchangeIds: string[]` — id pluralization
 
-**Location:** `src/v1/model.ts:457, 467, 533`
+**Location:** `src/v1/model.ts:653, 663, 737`
 
 Mixed singular/plural id fields:
 - `Listing.id` — single id of the listing.
 - `ListingDetail.fileIds: string[]` — many file ids.
 - `ListingSummary.exchangeIds: string[]` — many exchange ids.
 - `ListingSummary.providerId: string` — single provider id.
-- `ListingSummary.createdById: number` — single id, type `number` (not `string` like other ids — see #43).
+- `ListingSummary.createdById: number` — single id, type `number` (not `string` like other ids — see #41).
 
 Within one transitive type (`Listing → ListingSummary | ListingDetail`), id fields use 4 different patterns: `id`, `*Id` (number), `*Id` (string), `*Ids` (string[]). Internal consistency check fails.
-- **Category:** 9 (singular/plural mismatch), 17 (inconsistent suffix convention), 19 (underspecified — see #43).
+- **Category:** 9 (singular/plural mismatch), 17 (inconsistent suffix convention), 19 (underspecified — see #41).
 - **Suggested name:** Pick one — `*Id`/`*Ids` is standard.
 - **Rationale:** Observation; flagged for completeness.
 
-### 43. `ListingSummary.createdById: number` and `updatedById: number` — id typed as number
+### 41. `ListingSummary.createdById: number` and `updatedById: number` — id typed as number
 
-**Location:** `src/v1/model.ts:530-531`
+**Location:** `src/v1/model.ts:734-735`
 
 ```ts
 createdById?: number | undefined;
@@ -824,9 +755,9 @@ User ids are typed as `number`. JS `number` only safely represents integers up t
 - **Suggested name:** `createdById: string` or `bigint`.
 - **Rationale:** Lossy representation; consistency with other id fields (all `string`).
 
-### 44. `Visibility.PUBLIC` / `Visibility.PRIVATE` — binary enum named `Visibility`
+### 42. `Visibility.PUBLIC` / `Visibility.PRIVATE` — binary enum named `Visibility`
 
-**Location:** `src/v1/model.ts:136-139`
+**Location:** `src/v1/model.ts:137-140`
 
 ```ts
 export enum Visibility {
@@ -840,9 +771,9 @@ Two-value enum. Could be a boolean (`isPublic?: boolean`) or a string literal ty
 - **Suggested name:** Could be `'public' | 'private'` literal union.
 - **Rationale:** Observation.
 
-### 45. `ListingShareType.SAMPLE` / `ListingShareType.FULL` — adjective vs noun
+### 43. `ListingShareType.SAMPLE` / `ListingShareType.FULL` — adjective vs noun
 
-**Location:** `src/v1/model.ts:90-93`
+**Location:** `src/v1/model.ts:99-102`
 
 ```ts
 export enum ListingShareType {
@@ -856,9 +787,9 @@ export enum ListingShareType {
 - **Suggested name:** `SAMPLE` / `COMPLETE` (both nouns) or `PARTIAL` / `FULL` (both adjectives).
 - **Rationale:** Internal consistency.
 
-### 46. `ListingType.STANDARD` / `ListingType.PERSONALIZED` — adjective values
+### 44. `ListingType.STANDARD` / `ListingType.PERSONALIZED` — adjective values
 
-**Location:** `src/v1/model.ts:109-112`
+**Location:** `src/v1/model.ts:118-121`
 
 ```ts
 export enum ListingType {
@@ -867,14 +798,14 @@ export enum ListingType {
 }
 ```
 
-Two adjective values. Fine. Flagged because the package also has `PersonalizationRequest` (line 545) — the noun for `PERSONALIZED` mode. Cross-reference unclear.
+Two adjective values. Fine. Flagged because the package also has `PersonalizationRequest` (line 749) — the noun for `PERSONALIZED` mode. Cross-reference unclear.
 - **Category:** Observation.
 - **Suggested name:** No rename.
 - **Rationale:** Internal consistency check.
 
-### 47. `ProviderInfo.iconFilePath` vs `iconFileId` — id and path co-located
+### 45. `ProviderInfo.iconFilePath` vs `iconFileId` — id and path co-located
 
-**Location:** `src/v1/model.ts:572, 580`
+**Location:** `src/v1/model.ts:776, 784`
 
 ```ts
 iconFilePath?: string | undefined;
@@ -882,14 +813,14 @@ iconFilePath?: string | undefined;
 iconFileId?: string | undefined;
 ```
 
-Same icon represented two ways — `iconFilePath` (a URL or storage path) and `iconFileId` (a Marketplace file id). The pairing repeats with `darkModeIconFileId` and `darkModeIconFilePath` (lines 583-584). No doc explains when to use which or whether one is derived from the other.
+Same icon represented two ways — `iconFilePath` (a URL or storage path) and `iconFileId` (a Marketplace file id). The pairing repeats with `darkModeIconFileId` and `darkModeIconFilePath` (lines 787-788). No doc explains when to use which or whether one is derived from the other.
 - **Category:** 12 (duplicate concept), 17 (inconsistent — the relationship is implicit).
 - **Suggested name:** No rename; flag for doc clarification.
 - **Rationale:** Observation.
 
-### 48. `ProviderInfo.darkModeIconFileId` / `darkModeIconFilePath` — naming for a UI mode
+### 46. `ProviderInfo.darkModeIconFileId` / `darkModeIconFilePath` — naming for a UI mode
 
-**Location:** `src/v1/model.ts:583-584`
+**Location:** `src/v1/model.ts:787-788`
 
 ```ts
 darkModeIconFileId?: string | undefined;
@@ -901,9 +832,9 @@ The `darkMode` prefix encodes a UI rendering mode in a server-side data type. Th
 - **Suggested name:** `iconDarkFileId` / `iconDarkFilePath` or just `darkIcon*`.
 - **Rationale:** Observation.
 
-### 49. Method docstring inconsistency — `client.ts`
+### 47. Method docstring inconsistency — `client.ts`
 
-**Location:** `src/v1/client.ts:178, 207, 232, 261, 287, 313, 339, 371, 396, 424, 449, 474, 499, 524, 549, 577, 602, 656, 713, 738, 795, 846, 903, 961, 1018, 1046, 1097, 1125, 1151, 1180, 1206, 1238, 1264`
+**Location:** `src/v1/client.ts:235, 266, 297, 326, 380, 437, 491, 542, 600, 628, 656, 735, 763, 789, 849, 927, 952, 986, 1015, 1041, 1070, 1096, 1125, 1154, 1186, 1211, 1239, 1264, 1292, 1320, 1345, 1370, 1400, 1425, 1479, 1539, 1567, 1624, 1675, 1732, 1790, 1847, 1875, 1929, 1957, 1983, 2012, 2041, 2073, 2102`
 
 ```ts
 /** Associate an exchange with a listing */
@@ -918,8 +849,8 @@ The `darkMode` prefix encodes a UI rendering mode in a server-side data type. Th
 Inconsistent docstring style:
 - Mix of trailing period ("Add an exchange filter.", "Create a file. ...") and no period ("Create an exchange", "Create a new listing").
 - Mix of imperative verbs ("Create", "Get", "Delete") and full sentences ("This removes a listing from marketplace.").
-- "Get provider analytics dashboard" appears on `listProviderAnalyticsDashboard` (line 1018) — verb mismatch (it's a list method but the doc says "Get").
-- "This removes a listing from marketplace" appears on `deleteExchange` (line 371) — text describes the wrong concept (says "listing", method is `deleteExchange`).
+- "Get provider analytics dashboard" appears on `listProviderAnalyticsDashboard` (line 1847) — verb mismatch (it's a list method but the doc says "Get").
+- "This removes a listing from marketplace" appears on `deleteExchange` (line 1186) — text describes the wrong concept (says "listing", method is `deleteExchange`).
 - **Category:** 17 (inconsistent action verbs / doc style), 6 (misleading: docstring text contradicts method name).
 - **Suggested name:** No rename; flag for doc consistency.
 - **Rationale:** Observation.
@@ -928,26 +859,29 @@ Inconsistent docstring style:
 
 ## Observations
 
-### 50. v1-only audit
+### 48. v1-only audit
 The marketplaces package has only v1 today (`packages/marketplaces/src/v1/`), so no v1↔v2 comparison to make.
 
-### 51. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:147`
+### 49. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:205`
 Same generic-name issue flagged in other audits — every package emits a `PACKAGE_SEGMENT` constant for User-Agent assembly. Cross-package consistency observation only.
 - **Category:** 1 (vague), 15 (generic name).
 
-### 52. `flattenQueryParams` — `src/v1/utils.ts:123`
-The helper is used by `client.ts:911-915` to flatten the `file_parent` nested query object in `listFiles`. Most other packages emit this helper unused; here it's actually used. Cross-package consistency observation.
+### 50. `flattenQueryParams` — `src/v1/utils.ts:123`
+The helper is used by `client.ts` to flatten the `file_parent` nested query object in `listFiles`. Most other packages emit this helper unused; here it's actually used. Cross-package consistency observation.
 - **Category:** Observation.
 
-### 53. `readAll` — `src/v1/utils.ts:40`
+### 51. `readAll` — `src/v1/utils.ts:40`
 Internal helper, same as in other packages. Generic name (`io.ReadAll` Go idiom). Could be `readStreamToEnd` or `bufferStream`.
 - **Category:** 1 (vague), 14 (Go-style name).
 
-### 54. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 52. `HttpCallOptions` — `src/v1/utils.ts:15`
 Yet another `Options` suffix; `Options` (from `@databricks/sdk-core/api`) and `CallOptions` are also in scope. Could be `HttpCallContext`. Cross-package consistency observation.
 - **Category:** 1 (vague suffix), 17 (inconsistent).
 
-### 55. AssetType/ListingTagType/DeltaSharingRecipientType/FileStatus enum prefixes — generator-only
+---
 
-These enum types use the proto convention of prefixing every value with the type name (e.g. `AssetType.ASSET_TYPE_GIT_REPO`, `FileStatus.FILE_STATUS_PUBLISHED`). Per the generator-only recommendations in `_SUMMARY.md`, redundant enum prefixes are tracked at the template level rather than per-package.
-- **Category:** Observation.
+## Fixed
+
+- #1 Verb-shaped request types (originally cited at `src/v1/model.ts:174, 188, 197, 207, 233, 240, 247, 317, 331, 339, 348, 359, 370, 411, 434, 445, 627, 637, 650, 660`): Fixed in regeneration on 2026-05-20 — all top-level request DTOs now uniformly use the `*Request` suffix (e.g., `CreateFileRequest`, `GetListingRequest`, `ListProvidersRequest`, `UpdateProviderAnalyticsDashboardRequest`, etc.); response payloads for these now follow the proto-style `<Op>Request_Response` nested-message pattern.
+- #2 Two competing request-type naming conventions in one file (originally cited throughout `src/v1/model.ts`): Fixed in regeneration on 2026-05-20 — the verb-shaped (Go-style) vs `*Request`-suffixed split is gone; every operation type now uses the `*Request` suffix consistently across provider, exchange, file, listing, personalization, and analytics-dashboard surfaces.
+- #7 `MarketplaceFileType.COMMIT_DRAWDOWN_REQUEST_ATTACHMENT` (originally cited at `src/v1/model.ts:119-126`): Fixed in regeneration on 2026-05-20 — the `COMMIT_DRAWDOWN_REQUEST_ATTACHMENT` enum value and its associated JSDoc have been removed; `MarketplaceFileType` is now `PROVIDER_ICON | EMBEDDED_NOTEBOOK | APP` (also dropping `EMBEDDED_MARKDOWN`).

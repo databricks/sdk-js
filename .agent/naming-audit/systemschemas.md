@@ -3,12 +3,12 @@
 **Path:** `packages/systemschemas/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog *system schemas* (curated, server-managed schemas such as `access`, `billing`, `lineage`, `query`) — enable/disable a system schema in a metastore and list the system schemas under a metastore.
-**Total weird names flagged:** 14
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 5 |
+| High | 4 |
 | Medium | 5 |
 | Low | 2 |
 | Observation | 2 |
@@ -21,57 +21,51 @@
 - **Suggested name:** Either fold `systemschemas` into `schemas` as a `system` sub-namespace (`@databricks/sdk-schemas/system`), or rename to something less collision-prone such as `unityCatalogSystemSchemas` / `metastoreSystemSchemas`.
 - **Rationale:** The two packages export different `Client` classes; the domain word `Schema` appears in both with overlapping vocabulary. Anything that lessens that overlap — even just keeping them under one package — would reduce caller confusion.
 
-### 2. `DisableSystemSchema` — `src/v1/model.ts:5`
-- **Why weird:** Type name is a verb phrase that looks like a function. The same broken pattern is repeated for `EnableSystemSchema` (model.ts:15) and `ListSystemSchemas` (model.ts:27). Index re-exports these as types, so consumers write `import type {DisableSystemSchema}` which reads as "import a function".
-- **Category:** 6 (misleading: name implies behaviour, actually a request DTO), 14 (Go-style naming).
-- **Suggested name:** `DisableSystemSchemaRequest`, `EnableSystemSchemaRequest`, `ListSystemSchemasRequest`.
-- **Rationale:** TS convention names request DTOs with a `Request` suffix; verb-phrase nouns mislead. This mirrors the same audit finding in every other generated package.
-
-### 3. `SystemSchemaInfo` — `src/v1/model.ts:53`
+### 2. `SystemSchemaInfo` — `src/v1/model.ts:53`
 - **Why weird:** `Info` is a generic, content-free suffix on the package's central domain entity. This is *the* system schema — it should just be `SystemSchema`. The `Info` suffix is on the vague-suffix list in `typescript.mdc`. It also infects the field name (`schemas: SystemSchemaInfo[]`) which awkwardly reads as "an array of info".
 - **Category:** 1 (vague `Info`), 8 (redundant type suffix).
 - **Suggested name:** `SystemSchema`.
 - **Rationale:** `SystemSchema` is the noun consumers think about. `schemas: SystemSchema[]` reads cleanly; `schemas: SystemSchemaInfo[]` does not.
 
-### 4. `SystemSchemaInfo.state: string` — `src/v1/model.ts:60`
+### 3. `SystemSchemaInfo.state: string` — `src/v1/model.ts:60`
 - **Why weird:** Typed as `string` despite the doc enumerating six concrete values (`AVAILABLE | ENABLE_INITIALIZED | ENABLE_COMPLETED | DISABLE_INITIALIZED | UNAVAILABLE | MANAGED`). This is the package's only enum-shaped field and the only piece of state the consumer reads back, yet it ships as a stringly-typed value. Every other package in the SDK exposes such fields as TS enums. The comment "An empty string means the system schema is available and ready for opt-in" further muddles things — it contradicts `AVAILABLE` being one of the listed values.
 - **Category:** 16 (field type contradicts the documented domain), 6 (misleading — doc says enum, type says `string`).
 - **Suggested name:** Introduce `SystemSchemaState` enum with members `Available | EnableInitialized | EnableCompleted | DisableInitialized | Unavailable | Managed` and type the field `state: SystemSchemaState`.
 - **Rationale:** Almost certainly a generator/upstream-API miss; the wire surface is enum-shaped and should round-trip through a TS enum. Worth raising upstream.
 
-### 5. `schema` field on every request/response — `src/v1/model.ts:7,17,55`
-- **Why weird:** Field is bare `schema: string` on `DisableSystemSchema`, `EnableSystemSchema`, and `SystemSchemaInfo`. Doc on the first two says "Full name of the system schema" while the doc on `SystemSchemaInfo` (model.ts:54) says "Name of the system schema". So the same field name carries two different semantics (full-qualified vs short name) across two types that ship in the same module. Also collides with the type name (`SystemSchema`) and the package name (`systemschemas`), making greps unhelpful.
+### 4. `schema` field on every request/response — `src/v1/model.ts:7,17,55`
+- **Why weird:** Field is bare `schema: string` on `DisableSystemSchemaRequest`, `EnableSystemSchemaRequest`, and `SystemSchemaInfo`. Doc on the first two says "Full name of the system schema" while the doc on `SystemSchemaInfo` (model.ts:54) says "Name of the system schema". So the same field name carries two different semantics (full-qualified vs short name) across two types that ship in the same module. Also collides with the type name (`SystemSchema`) and the package name (`systemschemas`), making greps unhelpful.
 - **Category:** 1 (vague — what kind of "schema"?), 6 (misleading — same field name, different meaning), 19 (underspecified id).
 - **Suggested name:** Pick one of `schemaName` / `systemSchemaName` / `name` and apply it consistently. If the wire is `schema` (string), keep the wire and rename the TS surface; the marshaller already handles the gap for other fields.
 - **Rationale:** The URL template `.../systemschemas/${req.schema ?? ''}` (client.ts:75) confirms `schema` is in fact an identifier slug. Calling it `schemaName` or `name` makes intent obvious; bare `schema` collides with everything.
 
 ## Medium severity
 
-### 6. `DisableSystemSchema.metastoreId: string | undefined` is in fact required — `src/v1/model.ts:9`
-- **Why weird:** Marked optional, but `client.ts:75` template-interpolates `${req.metastoreId ?? ''}` straight into the URL path `metastores/.../systemschemas/...`. An empty path segment yields a malformed URL (or a 404). The "optional" annotation is misleading. Same pattern on `EnableSystemSchema.metastoreId`, `DisableSystemSchema.schema`, `EnableSystemSchema.schema`, `ListSystemSchemas.metastoreId`.
+### 5. `DisableSystemSchemaRequest.metastoreId: string | undefined` is in fact required — `src/v1/model.ts:9`
+- **Why weird:** Marked optional, but `client.ts:75` template-interpolates `${req.metastoreId ?? ''}` straight into the URL path `metastores/.../systemschemas/...`. An empty path segment yields a malformed URL (or a 404). The "optional" annotation is misleading. Same pattern on `EnableSystemSchemaRequest.metastoreId`, `DisableSystemSchemaRequest.schema`, `EnableSystemSchemaRequest.schema`, `ListSystemSchemasRequest.metastoreId`.
 - **Category:** 6 (misleading optionality), 16 (field type contradicts domain — these are mandatory path params).
 - **Suggested name:** Keep names; change type to non-optional. (Out of scope for a *naming* audit, but the optionality leaks into how the names should be interpreted.)
 - **Rationale:** Path-required fields must be required. Treating them as optional weakens the contract; the name `metastoreId` reads as "the metastore id" but the type says "you can omit this".
 
-### 7. `SystemSchemaInfo.schema: string` (required) vs `EnableSystemSchema.schema: string | undefined` (optional) — `src/v1/model.ts:55,17`
+### 6. `SystemSchemaInfo.schema: string` (required) vs `EnableSystemSchemaRequest.schema: string | undefined` (optional) — `src/v1/model.ts:55,17`
 - **Why weird:** Same field name, opposite optionality, same module. The reader has to keep two mental versions of `schema` in their head.
 - **Category:** 17 (inconsistency in field shape between sibling types).
-- **Suggested name:** Same as #5 — rename one or both and unify optionality where possible.
+- **Suggested name:** Same as #4 — rename one or both and unify optionality where possible.
 - **Rationale:** Symmetry across request/response pairs improves readability; identical names with diverging contracts do not.
 
-### 8. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:37`
+### 7. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:37`
 - **Why weird:** `Segment` is a generic CS term. Comment explains it's the User-Agent identity segment; without the comment the constant name doesn't communicate intent.
 - **Category:** 1 (vague), 15 (generic field name).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Minor; flagged for cross-SDK consistency since the same constant appears in every generated client.
 
-### 9. `Client` — `src/v1/client.ts:42`
+### 8. `Client` — `src/v1/client.ts:42`
 - **Why weird:** Class is just `Client` (no domain qualifier). Once a consumer imports `import {Client} from '@databricks/sdk-systemschemas/v1'`, the bare name carries no clue about which API surface it talks to. The other generated packages have the same problem, so they all clash on import.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `SystemSchemasClient`.
 - **Rationale:** Forces consumers to alias on import (`import {Client as SystemSchemasClient}`) if they ever combine clients. Every generated package has this issue; flagged for consistency.
 
-### 10. `ListSystemSchemas.maxResults` doc semantics — `src/v1/model.ts:31-36`
+### 9. `ListSystemSchemasRequest.maxResults` doc semantics — `src/v1/model.ts:31-37`
 - **Why weird:** Field is named `maxResults` but the doc describes three semantically distinct modes (0 = server default, >0 = bounded, <0 = error) and one quirky default (not set = "all", "not recommended"). The name "maxResults" implies an upper bound, not a tri-state control. Same pattern in every other List request, but here the doc highlights how overloaded the name is.
 - **Category:** 6 (misleading — name suggests a single integer cap), 1 (vague).
 - **Suggested name:** `pageSize` (matching most modern paginated APIs) and let the value 0 mean "server default". Drop the negative-error branch entirely.
@@ -79,13 +73,13 @@
 
 ## Low severity
 
-### 11. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:50`, `client.ts:182`
-- **Why weird:** `listSystemSchemasIter` (client.ts:182) checks `resp.nextPageToken === undefined || resp.nextPageToken === ''` to know it's done — i.e., the wire uses an empty string as a sentinel. The TS type `nextPageToken: string | undefined` doesn't capture this contract; readers must inspect the iterator code to learn that `''` is a terminator.
+### 10. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:50`, `client.ts:185`
+- **Why weird:** `listSystemSchemasIter` (client.ts:185) checks `resp.nextPageToken === undefined || resp.nextPageToken === ''` to know it's done — i.e., the wire uses an empty string as a sentinel. The TS type `nextPageToken: string | undefined` doesn't capture this contract; readers must inspect the iterator code to learn that `''` is a terminator.
 - **Category:** 6 (misleading — type allows `''` but doc says "Absent if there are no more pages"), 16 (field-vs-doc mismatch).
 - **Suggested name:** Keep the name; tighten the contract by replacing `''` with `undefined` in the zod transform (model.ts:78-83) so callers see a consistent sentinel.
 - **Rationale:** A naming review surfaces the contract drift even though the renaming target is the marshaller, not the field.
 
-### 12. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 11. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions whose names differ by a single `Http` infix, handling very different layers (retry/rate-limit wrapper vs raw HTTP send + logging).
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runWithCallOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
@@ -93,10 +87,10 @@
 
 ## Observations
 
-### 13. Action-verb consistency in `Client`
+### 12. Action-verb consistency in `Client`
 Methods are `disable`, `enable`, `list` — no mixed `delete`/`remove` or `fetch`/`get`. The pair `enable` / `disable` is also a clean antonym, which is good. Flagged per rule 17 because the audit asked for inconsistency *and* notable consistency.
 
-### 14. Domain noun overlap: `Schema`, `SystemSchema`, `schemas:` field, `Schema` zod
+### 13. Domain noun overlap: `Schema`, `SystemSchema`, `schemas:` field, `Schema` zod
 The word "schema" appears in this single package as a wire field, a domain noun (`SystemSchema`), the package name (`systemschemas`), and a library term (zod's `Schema`). Multiple overlapping uses of the same word in a 106-line model file. Worth raising as a package-design issue rather than a per-name fix.
 - **Category:** 12 (duplicate concept), 17 (inconsistent meaning of same word within one module).
 
@@ -110,6 +104,9 @@ The word "schema" appears in this single package as a wire field, a domain noun 
 
 ## File coverage
 - `src/v1/model.ts` (106 lines): read fully.
-- `src/v1/client.ts` (188 lines): read fully.
+- `src/v1/client.ts` (191 lines): read fully.
 - `src/v1/utils.ts` (151 lines): read fully.
 - `src/v1/index.ts` (16 lines): read fully.
+
+## Fixed
+- #2 `DisableSystemSchema` / `EnableSystemSchema` / `ListSystemSchemas` (originally cited at `src/v1/model.ts:5,15,27`): Fixed in regeneration on 2026-05-20 — verb-phrase request DTOs renamed to `DisableSystemSchemaRequest`, `EnableSystemSchemaRequest`, `ListSystemSchemasRequest`.

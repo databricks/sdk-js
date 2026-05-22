@@ -34,19 +34,23 @@ rename suggestion. Findings are grouped by category.
 `BudgetConfigurationFilter`, `BudgetConfigurationFilter_Clause`,
 `BudgetConfigurationFilter_TagClause`,
 `BudgetConfigurationFilter_WorkspaceIdClause`,
-`CreateBudgetConfiguration`, `CreateBudgetConfiguration_Response`,
-`CreateBudgetConfigurationBudget`, `DeleteBudgetConfiguration`,
-`DeleteBudgetConfiguration_Response`, `GetBudgetConfiguration`,
-`GetBudgetConfiguration_Response`, `ListBudgetConfigurations`,
-`ListBudgetConfigurations_Response`, `UpdateBudgetConfiguration`,
-`UpdateBudgetConfiguration_Response`,
-`UpdateBudgetConfigurationBudget`.
+`CreateBudgetConfigurationBudget`, `CreateBudgetConfigurationRequest`,
+`CreateBudgetConfigurationRequest_Response`,
+`DeleteBudgetConfigurationRequest`,
+`DeleteBudgetConfigurationRequest_Response`,
+`GetBudgetConfigurationRequest`,
+`GetBudgetConfigurationRequest_Response`,
+`ListBudgetConfigurationsRequest`,
+`ListBudgetConfigurationsRequest_Response`,
+`UpdateBudgetConfigurationBudget`,
+`UpdateBudgetConfigurationRequest`,
+`UpdateBudgetConfigurationRequest_Response`.
 
 ### Client methods (`client.ts`)
 
 `createBudgetConfiguration`, `deleteBudgetConfiguration`,
 `getBudgetConfiguration`, `listBudgetConfigurations`,
-`updateBudgetConfiguration`.
+`listBudgetConfigurationsIter`, `updateBudgetConfiguration`.
 
 ### Utility functions (`utils.ts`)
 
@@ -125,7 +129,7 @@ rename suggestion. Findings are grouped by category.
   `BudgetsClient` consistently across packages. Cross-cutting.
 
 #### F1.7 — `req` parameter name on every client method (LOW)
-- **Where:** `client.ts:80, 109, 137, 171, 213, 231`.
+- **Where:** `client.ts:80, 112, 140, 174, 216, 234`.
 - **Why flagged:** `req` is a Go-ism (see category 14). It is also
   generic — a reader has to look at the type to know what the
   request is.
@@ -137,34 +141,15 @@ rename suggestion. Findings are grouped by category.
 
 ### 2. Redundant enum prefixes
 
-#### F2.1 — `ActionConfigurationType.EMAIL_NOTIFICATION` (LOW)
-- **Where:** `model.ts:5-7`.
-- **Why flagged:** Not redundant with the enum name, but
-  `EMAIL_NOTIFICATION` could be `EMAIL` since this enum is
-  scoped under "action" — the "_NOTIFICATION" suffix is the
-  enum's role, not the member's role. Compare `Color.RED` vs
-  `Color.RED_COLOR`.
-- **Suggestion:** Treat as wire-protocol value; do not rename in
-  TS unless the API spec changes. Leave with a comment.
-
-#### F2.2 — `AlertConfigurationTimePeriod.MONTH` (acceptable)
-- No redundancy. `MONTH` is concise.
-
-#### F2.3 — `AlertConfigurationTriggerType.CUMULATIVE_SPENDING_EXCEEDED` (acceptable)
-- Long but descriptive; the redundancy is not with the enum name. See
-  F18.
-
-#### F2.4 — `AlertConfigurationQuantityType.LIST_PRICE_DOLLARS_USD` (acceptable)
-- Long; see F18.
+_None._
 
 ---
 
 ### 3. Acronym casing inconsistencies
 
 #### F3.1 — `Id` vs `ID` (acceptable)
-- **Where:** `model.ts:28, 37, 52, 54, 72, 111, 113, 135, 137, 145,
-  147, 157, 177, 190, 192`; `client.ts:53, 66, 83, 112, 140, 174,
-  234`.
+- **Where:** `model.ts:28, 37, 52, 54, 100, 102, 135, 137, 145, 147,
+  158, 177, 179, 197`; `client.ts:53, 66, 83, 115, 143, 177, 237`.
 - **Why flagged:** This SDK uses **lower-camel `Id`** consistently
   (`accountId`, `budgetId`, `budgetConfigurationId`,
   `actionConfigurationId`, `alertConfigurationId`, `workspaceId`,
@@ -187,7 +172,7 @@ rename suggestion. Findings are grouped by category.
 
 #### F3.4 — `USD` in enum value `LIST_PRICE_DOLLARS_USD` (LOW)
 - Wire value, leave as-is. But note that `DOLLARS_USD` is doubly
-  redundant — USD already is dollars. See F8.2.
+  redundant — USD already is dollars. See F7.1.
 
 ---
 
@@ -201,20 +186,20 @@ _None._
 
 #### F5.1 — `req` (LOW, Go-ism)
 - **Where:** `client.ts` every method, `utils.ts:103`.
-- Already flagged under F1.7 / F14.1.
+- Already flagged under F1.7 / F13.1.
 
 #### F5.2 — `resp` (LOW, Go-ism)
-- **Where:** `client.ts:85, 113, 147, 190, 236`; `utils.ts:73, 81`.
-- See F14.1.
+- **Where:** `client.ts:88, 116, 150, 193, 242`; `utils.ts:73, 75, 81, 84, 88`.
+- See F13.1.
 
 #### F5.3 — `respBody` (LOW)
-- **Where:** `client.ts:90, 118, 152, 195, 241`.
+- **Where:** `client.ts:93, 121, 155, 198, 247`.
 - **Why flagged:** "resp" abbreviation. Spell out `responseBody`
   for clarity in TS where verbosity is cheap.
 - **Suggestion:** `responseBody`.
 
 #### F5.4 — `httpReq` (LOW)
-- **Where:** `client.ts:89, 117, 151, 194, 240`.
+- **Where:** `client.ts:92, 120, 154, 197, 246`.
 - **Why flagged:** `httpRequest` is clearer and matches the type
   `HttpRequest` exactly.
 - **Suggestion:** `httpRequest`.
@@ -231,11 +216,11 @@ _None._
 - **Suggestion:** `packageJson`.
 
 #### F5.7 — `acc`, `val`, `opts`, `e` (LOW)
-- **Where:** `utils.ts:55, 137, 30, 68-92, 76`.
+- **Where:** `utils.ts:55, 137, 30, 66-92, 76`.
 - **Why flagged:**
   - `acc` (utils.ts:55) — reduce accumulator, conventional. OK.
   - `val` (utils.ts:137) — local destructure, OK.
-  - `opts` (utils.ts:30, 68, 73, 75, 81, 83, 88) — Go-ism;
+  - `opts` (utils.ts:30, 37, 66, 68, 69, 70, 75, 77, 83) — Go-ism;
     `options` is preferred but `opts` is also widely used in JS
     libraries. **Inconsistent with itself:** the public parameter
     is `options` (utils.ts:28) but the internal one is `opts`. Pick
@@ -284,13 +269,13 @@ _None._
 - **Suggestion:** This is API-shape, not a TS rename concern. Flag for
   the source spec to fix; in TS, document the invariant in JSDoc and
   consider a tuple `[AlertConfiguration]` (overkill in practice).
-  See also F9.1.
+  See also F8.1.
 
 #### F6.4 — `flattenQueryParams` is exported but unused in this
   package (LOW)
 - **Where:** `utils.ts:123-150`.
 - **Why flagged:** The name suggests it is a query-param helper for
-  this client; the client does not call it (lines 141-145, 175-187
+  this client; the client does not call it (lines 144-148, 178-190
   use `URLSearchParams.append` directly). The function is dead code
   inside this package. Either there is an intended caller that has
   not landed, or the helper should not be in this package.
@@ -298,8 +283,8 @@ _None._
   delete from this package's `utils.ts`.
 
 #### F6.5 — JSDoc "previous get all budget configurations call"
-  (`pageToken` on `ListBudgetConfigurations`) (LOW)
-- **Where:** `model.ts:160-163`.
+  (`pageToken` on `ListBudgetConfigurationsRequest`) (LOW)
+- **Where:** `model.ts:160-162`.
 - **Why flagged:** Documentation, not identifier. The method is
   `listBudgetConfigurations`, not "get all". JSDoc text is stale
   vs. the method name.
@@ -321,10 +306,12 @@ _None._
   package name carries the qualifier. Combined with F7.2 / F7.3
   this collapses naming significantly.
 
-#### F7.2 — `CreateBudgetConfiguration`, `GetBudgetConfiguration`,
-  `UpdateBudgetConfiguration`, `DeleteBudgetConfiguration`,
-  `ListBudgetConfigurations` (HIGH)
-- **Where:** `model.ts:98, 133, 143, 156, 175`; `index.ts:21-31`.
+#### F7.2 — `CreateBudgetConfigurationRequest`,
+  `GetBudgetConfigurationRequest`,
+  `UpdateBudgetConfigurationRequest`,
+  `DeleteBudgetConfigurationRequest`,
+  `ListBudgetConfigurationsRequest` (HIGH)
+- **Where:** `model.ts:118, 133, 143, 156, 195`; `index.ts:22-31`.
 - **Why flagged:** Long request type names. Combined with method
   names that already say `createBudgetConfiguration(...)`, the
   argument type is highly redundant. Compare typical TS SDK
@@ -335,7 +322,7 @@ _None._
 
 #### F7.3 — `CreateBudgetConfigurationBudget` and
   `UpdateBudgetConfigurationBudget` (HIGH)
-- **Where:** `model.ts:109, 188`; `index.ts:23, 32`.
+- **Where:** `model.ts:98, 175`; `index.ts:21, 30`.
 - **Why flagged:** These types are literally `<Verb>BudgetConfiguration` +
   the noun `Budget`. The name is `Budget` repeated twice plus
   `Configuration`. Reads as
@@ -359,10 +346,10 @@ _None._
   ```
   The duplication serves no schema purpose. Delete both wrapper
   types and have `Create.../Update...` request types embed
-  `BudgetConfiguration` (or `Budget`) directly. See also F11 / F12.
+  `BudgetConfiguration` (or `Budget`) directly. See also F10 / F11.
 
 #### F7.4 — Method names mirror request types (MEDIUM)
-- **Where:** `client.ts:79, 108, 136, 170, 230`.
+- **Where:** `client.ts:79, 111, 139, 173, 233`.
 - **Why flagged:** Methods are
   `createBudgetConfiguration`, `deleteBudgetConfiguration`,
   `getBudgetConfiguration`, `listBudgetConfigurations`,
@@ -373,45 +360,20 @@ _None._
   `update`. The class itself already conveys "budgets". This is a
   cross-package convention to decide once.
 
----
-
-### 8. Redundant suffixes
-
-#### F8.1 — `LIST_PRICE_DOLLARS_USD` (LOW)
+#### F7.5 — `LIST_PRICE_DOLLARS_USD` doubly redundant (LOW)
 - **Where:** `model.ts:10`.
 - **Why flagged:** `DOLLARS_USD` is tautological — USD *is* dollars.
   This is a wire-protocol value, so the SDK cannot change it
   unilaterally, but worth noting upstream.
 - **Suggestion:** Wire protocol; leave with a comment.
 
-#### F8.2 — `ActionConfigurationType` enum name (LOW)
-- **Where:** `model.ts:5`.
-- **Why flagged:** `ConfigurationType` is partially tautological with
-  the wrapping `ActionConfiguration` type — `ActionConfiguration.actionType:
-  ActionConfigurationType`. Reads as
-  "actionType: ActionConfigurationType" with "action" said three times.
-- **Suggestion:** Rename enum to `ActionType` (within an
-  `ActionConfiguration` parent, or after renaming the parent to
-  `BudgetAlertAction`, the enum becomes `BudgetAlertAction.Type` or
-  simply `BudgetAlertActionType`).
-
-#### F8.3 — `AlertConfigurationQuantityType`,
-  `AlertConfigurationTimePeriod`, `AlertConfigurationTriggerType` (LOW)
-- **Where:** `model.ts:9, 13, 17`.
-- **Why flagged:** Same pattern as F8.2 — `AlertConfiguration` parent +
-  `QuantityType`/`TimePeriod`/`TriggerType` suffix. With parent renamed to
-  `BudgetAlert` (see F7), suffixes become reasonable:
-  `BudgetAlertQuantityType`, `BudgetAlertTimePeriod`,
-  `BudgetAlertTriggerType`.
-- **Suggestion:** Tie to F7.
-
 ---
 
-### 9. Singular / plural mismatches
+### 8. Singular / plural mismatches
 
-#### F9.1 — `alertConfigurations: AlertConfiguration[]` plural but
+#### F8.1 — `alertConfigurations: AlertConfiguration[]` plural but
   semantically singular (HIGH)
-- **Where:** `model.ts:59-60, 118-119, 197-198`.
+- **Where:** `model.ts:59-60, 107-108, 184-185`.
 - **Why flagged:** JSDoc states "Budgets must have exactly one alert
   configuration." Field is plural array. Documented earlier (F6.3) as
   misleading.
@@ -419,15 +381,15 @@ _None._
   switch to singular `alertConfiguration: AlertConfiguration` when
   the API allows.
 
-#### F9.2 — `actionConfigurations: ActionConfiguration[]` (acceptable)
+#### F8.2 — `actionConfigurations: ActionConfiguration[]` (acceptable)
 - **Where:** `model.ts:47`.
 - **Why flagged:** No mismatch — multiple actions per alert are
   allowed. Plural is correct.
 
-#### F9.3 — `tags: BudgetConfigurationFilter_TagClause[]` (acceptable)
+#### F8.3 — `tags: BudgetConfigurationFilter_TagClause[]` (acceptable)
 - Plural-array, no mismatch.
 
-#### F9.4 — `workspaceId: BudgetConfigurationFilter_WorkspaceIdClause`
+#### F8.4 — `workspaceId: BudgetConfigurationFilter_WorkspaceIdClause`
   on `BudgetConfigurationFilter` (HIGH)
 - **Where:** `model.ts:72`.
 - **Why flagged:** The field is singular `workspaceId` but its type
@@ -437,57 +399,57 @@ _None._
 - **Suggestion:** Rename the field to `workspaceIds`, `workspaceFilter`,
   or `workspaces`. Pair with renaming the type from
   `WorkspaceIdClause` to `WorkspaceFilter`. The whole clause
-  abstraction is unnecessary in TS — see F11.
+  abstraction is unnecessary in TS — see F10.
 
-#### F9.5 — `budgets` field in `ListBudgetConfigurations_Response`
+#### F8.5 — `budgets` field in `ListBudgetConfigurationsRequest_Response`
   (acceptable)
 - Plural, correct.
 
 ---
 
-### 10. Reserved-word / built-in collisions
+### 9. Reserved-word / built-in collisions
 
-#### F10.1 — `filter` field (LOW)
-- **Where:** `model.ts:65, 124, 203`.
+#### F9.1 — `filter` field (LOW)
+- **Where:** `model.ts:65, 113, 190`.
 - **Why flagged:** `filter` is `Array.prototype.filter` — not a
   reserved word, but shadowing a built-in causes mental hiccups
   during code review. Acceptable here because the field is on
   `BudgetConfiguration`, not on an array.
 - **Suggestion:** Keep; not worth churn.
 
-#### F10.2 — `target` field (LOW)
+#### F9.2 — `target` field (LOW)
 - **Where:** `model.ts:32`.
 - **Why flagged:** `target` collides with `EventTarget` /
   `event.target` semantics in DOM. Minor.
 - **Suggestion:** See F1.2 — rename to `recipient` resolves both.
 
-#### F10.3 — `values` (LOW)
+#### F9.3 — `values` (LOW)
 - **Where:** `model.ts:83, 95`.
 - **Why flagged:** `Object.values` is a popular built-in. Property
   shadowing only, not a true collision.
 - **Suggestion:** See F1.4 — specialize per type.
 
-#### F10.4 — `Headers` constructor use vs DOM `Headers` (acceptable)
-- **Where:** `client.ts:87, 115, 149, 192, 238`.
+#### F9.4 — `Headers` constructor use vs DOM `Headers` (acceptable)
+- **Where:** `client.ts:90, 118, 152, 195, 244`.
 - The code intentionally uses the global `Headers`. No new identifier
   shadows it. Fine.
 
-#### F10.5 — `URLSearchParams`, `TextDecoder` (acceptable)
+#### F9.5 — `URLSearchParams`, `TextDecoder` (acceptable)
 - Used as global classes, no shadowing.
 
 ---
 
-### 11. Empty / trivial wrapper types
+### 10. Empty / trivial wrapper types
 
 _None._
 
 ---
 
-### 12. Duplicate concepts
+### 11. Duplicate concepts
 
-#### F12.1 — `BudgetConfiguration` vs `CreateBudgetConfigurationBudget`
+#### F11.1 — `BudgetConfiguration` vs `CreateBudgetConfigurationBudget`
   vs `UpdateBudgetConfigurationBudget` (HIGH)
-- **Where:** `model.ts:50, 109, 188`.
+- **Where:** `model.ts:50, 98, 175`.
 - **Why flagged:** Three types with byte-for-byte identical fields.
   Already noted in F7.3. They exist because the API contract
   *might* diverge later (e.g. `Update` strips server-managed fields),
@@ -496,7 +458,7 @@ _None._
   `Budget`) where the spec allows. If the spec mandates separate
   shapes, document *why* each is distinct in JSDoc.
 
-#### F12.2 — `BudgetConfigurationFilter_Clause` and
+#### F11.2 — `BudgetConfigurationFilter_Clause` and
   `BudgetConfigurationFilter_WorkspaceIdClause` are the same shape
   with `values` typed differently (MEDIUM)
 - **Where:** `model.ts:81, 93`.
@@ -508,8 +470,8 @@ _None._
   collapse to a generic clause type — but only if the generator
   supports it.
 
-#### F12.3 — Per-method header construction duplicated (LOW, code style)
-- **Where:** `client.ts:87, 115, 149, 192, 238`.
+#### F11.3 — Per-method header construction duplicated (LOW, code style)
+- **Where:** `client.ts:90, 118, 152, 195, 244`.
 - **Why flagged:** Every method runs:
   ```ts
   const headers = new Headers(...);
@@ -520,17 +482,17 @@ _None._
 - **Suggestion:** Out of scope for naming audit. Mentioned for
   completeness.
 
-#### F12.4 — `accountId` declared on both the request envelope and
+#### F11.4 — `accountId` declared on both the request envelope and
   the inner `Budget` (LOW)
 - **Where:**
-  - `CreateBudgetConfigurationBudget.accountId` (model.ts:113)
-  - `UpdateBudgetConfigurationBudget.accountId` (model.ts:192)
-  - `DeleteBudgetConfiguration.accountId` (model.ts:137)
-  - `GetBudgetConfiguration.accountId` (model.ts:147)
-  - `ListBudgetConfigurations.accountId` (model.ts:158)
-  - `UpdateBudgetConfiguration` has no top-level `accountId`; it
-    pulls from `req.budget?.accountId` (`client.ts:234`)
-  - `CreateBudgetConfiguration` likewise uses
+  - `CreateBudgetConfigurationBudget.accountId` (model.ts:102)
+  - `UpdateBudgetConfigurationBudget.accountId` (model.ts:179)
+  - `DeleteBudgetConfigurationRequest.accountId` (model.ts:137)
+  - `GetBudgetConfigurationRequest.accountId` (model.ts:147)
+  - `ListBudgetConfigurationsRequest.accountId` (model.ts:158)
+  - `UpdateBudgetConfigurationRequest` has no top-level `accountId`; it
+    pulls from `req.budget?.accountId` (`client.ts:237`)
+  - `CreateBudgetConfigurationRequest` likewise uses
     `req.budget?.accountId` (`client.ts:83`)
 - **Why flagged:** Inconsistent location of `accountId` between
   request types. Some have it at the top level, some require it
@@ -541,23 +503,24 @@ _None._
   request envelope for *all* methods. The Go/proto layer can keep
   nesting; the TS client should flatten.
 
-#### F12.5 — `budgetId` on
-  `Delete/Get/UpdateBudgetConfiguration` vs `budgetConfigurationId`
-  on `BudgetConfiguration` and
+#### F11.5 — `budgetId` on
+  `Delete/Get/UpdateBudgetConfigurationRequest` vs
+  `budgetConfigurationId` on `BudgetConfiguration` and
   `Create/UpdateBudgetConfigurationBudget` (HIGH)
 - **Where:**
-  - `DeleteBudgetConfiguration.budgetId` (model.ts:135)
-  - `GetBudgetConfiguration.budgetId` (model.ts:145)
-  - `UpdateBudgetConfiguration.budgetId` (model.ts:177)
+  - `DeleteBudgetConfigurationRequest.budgetId` (model.ts:135)
+  - `GetBudgetConfigurationRequest.budgetId` (model.ts:145)
+  - `UpdateBudgetConfigurationRequest.budgetId` (model.ts:197)
   - `BudgetConfiguration.budgetConfigurationId` (model.ts:52)
   - `CreateBudgetConfigurationBudget.budgetConfigurationId`
-    (model.ts:111)
+    (model.ts:100)
   - `UpdateBudgetConfigurationBudget.budgetConfigurationId`
-    (model.ts:190)
+    (model.ts:177)
 - **Why flagged:** Same conceptual ID, two different names. This is
   the prototypical "same thing, two names" duplicate concept. Most
-  egregious example: `UpdateBudgetConfiguration` has both
-  `budgetId` (top-level) *and* the nested `budget.budgetConfigurationId`.
+  egregious example: `UpdateBudgetConfigurationRequest` has both
+  `budgetId` (top-level) *and* the nested
+  `budget.budgetConfigurationId`.
 - **Suggestion:** Pick one. `budgetId` is shorter and matches the
   REST path segment (`/budgets/{budgetId}`). Rename
   `budgetConfigurationId → budgetId` everywhere. Combined with
@@ -565,15 +528,15 @@ _None._
 
 ---
 
-### 13. Verb-tense inconsistency
+### 12. Verb-tense inconsistency
 
-#### F13.1 — Method verbs (acceptable)
+#### F12.1 — Method verbs (acceptable)
 - `create*`, `delete*`, `get*`, `list*`, `update*` — uniform
   imperative present. Good.
 
-#### F13.2 — `createTime`, `updateTime` vs `created_at`/`updated_at`
+#### F12.2 — `createTime`, `updateTime` vs `created_at`/`updated_at`
   conventions (LOW)
-- **Where:** `model.ts:56-58, 115-117, 194-196`.
+- **Where:** `model.ts:56-58, 104-106, 181-183`.
 - **Why flagged:** Past-tense `createdTime` / `updatedTime` (or
   `createdAt`/`updatedAt`) is more idiomatic; current form reads
   as imperative ("create the time"). This is a noun form ("the
@@ -585,18 +548,18 @@ _None._
 
 ---
 
-### 14. Go / Java-style names
+### 13. Go / Java-style names
 
-#### F14.1 — `req`, `resp`, `err`, `httpReq`, `apiErr`,
+#### F13.1 — `req`, `resp`, `err`, `httpReq`, `apiErr`,
   `pkgJson`, `opts` (HIGH, but cross-cutting)
 - **Where:**
   - `req` everywhere in `client.ts`
-  - `resp` everywhere in `client.ts` and `utils.ts:73, 81`
+  - `resp` everywhere in `client.ts` and `utils.ts:73, 75, 81, 84, 88`
   - `e` in `utils.ts:76` (with rethrow)
   - `httpReq` in client.ts
   - `apiErr` in utils.ts:88
   - `pkgJson` in client.ts:19
-  - `opts` in utils.ts:30, 68
+  - `opts` in utils.ts:30, 66
 - **Why flagged:** These are all classic Go idioms ported verbatim.
   TS convention favors spelled-out names (`request`, `response`,
   `error`, `httpRequest`, `apiError`, `packageJson`, `options`).
@@ -604,24 +567,24 @@ _None._
   gain. This is a porting-convention decision and should be made
   globally at the generator level.
 
-#### F14.2 — Comment style (acceptable)
+#### F13.2 — Comment style (acceptable)
 - Comments are sentences. Good — but the file-top comment is the
   generator banner.
 
 ---
 
-### 15. Generic field names losing meaning
+### 14. Generic field names losing meaning
 
-#### F15.1 — `target` on `ActionConfiguration` (HIGH)
+#### F14.1 — `target` on `ActionConfiguration` (HIGH)
 - See F1.2 / F1.3.
 
-#### F15.2 — `values` on Clauses (MEDIUM)
+#### F14.2 — `values` on Clauses (MEDIUM)
 - See F1.4.
 
-#### F15.3 — `operator` on Clauses (LOW)
+#### F14.3 — `operator` on Clauses (LOW)
 - See F1.5.
 
-#### F15.4 — `key` and `value` on `BudgetConfigurationFilter_TagClause`
+#### F14.4 — `key` and `value` on `BudgetConfigurationFilter_TagClause`
   (LOW)
 - **Where:** `model.ts:88-89`.
 - **Why flagged:** "key/value" is generic enough that without the
@@ -632,14 +595,14 @@ _None._
   is `key`/`value`, so renaming costs an extra mapping in the
   marshaller.
 
-#### F15.5 — `req` parameter on every client method (HIGH)
+#### F14.5 — `req` parameter on every client method (HIGH)
 - See F1.7.
 
 ---
 
-### 16. Field contradicting type domain
+### 15. Field contradicting type domain
 
-#### F16.1 — `ActionConfiguration.target` (HIGH)
+#### F15.1 — `ActionConfiguration.target` (HIGH)
 - **Where:** `model.ts:32`.
 - **Why flagged:** Type domain is "alert action" (currently
   email-only); field name is the generic "target". JSDoc admits "For
@@ -647,11 +610,11 @@ _None._
 - **Suggestion:** `recipient` (or `emailAddress` if email-only is
   hard-wired). See F1.2.
 
-#### F16.2 — `BudgetConfigurationFilter_WorkspaceIdClause` typed
+#### F15.2 — `BudgetConfigurationFilter_WorkspaceIdClause` typed
   as `number[]` (MEDIUM)
 - **Where:** `model.ts:95`. See F6.1.
 
-#### F16.3 — `LIST_PRICE_DOLLARS_USD` member on
+#### F15.3 — `LIST_PRICE_DOLLARS_USD` member on
   `AlertConfigurationQuantityType` (LOW)
 - **Where:** `model.ts:10`.
 - **Why flagged:** Name implies *currency*, type is "quantity type".
@@ -661,42 +624,42 @@ _None._
 
 ---
 
-### 17. Inconsistent action verbs
+### 16. Inconsistent action verbs
 
-#### F17.1 — `Get` vs `List` for read endpoints (acceptable)
+#### F16.1 — `Get` vs `List` for read endpoints (acceptable)
 - `get` for single, `list` for collection. Standard REST verbs.
 
 ---
 
-### 18. Long enum values
+### 17. Long enum values
 
-#### F18.1 — `CUMULATIVE_SPENDING_EXCEEDED` (MEDIUM)
+#### F17.1 — `CUMULATIVE_SPENDING_EXCEEDED` (MEDIUM)
 - **Where:** `model.ts:18`.
 - **Why flagged:** 28 characters. Long but informative.
 - **Suggestion:** Wire value; cannot rename in TS without losing
   parity. Acceptable.
 
-#### F18.2 — `LIST_PRICE_DOLLARS_USD` (MEDIUM)
+#### F17.2 — `LIST_PRICE_DOLLARS_USD` (MEDIUM)
 - **Where:** `model.ts:10`.
 - **Why flagged:** 22 characters; `DOLLARS_USD` is doubly redundant
-  (F8.1). Could be `LIST_PRICE_USD` or `USD`.
+  (F7.5). Could be `LIST_PRICE_USD` or `USD`.
 - **Suggestion:** Wire value; report upstream.
 
-#### F18.3 — `EMAIL_NOTIFICATION` (LOW)
+#### F17.3 — `EMAIL_NOTIFICATION` (LOW)
 - **Where:** `model.ts:6`. 18 characters; reasonable.
 
 ---
 
-### 19. Underspecified IDs
+### 18. Underspecified IDs
 
-#### F19.1 — `budgetId` vs `budgetConfigurationId` for the same thing
+#### F18.1 — `budgetId` vs `budgetConfigurationId` for the same thing
   (HIGH)
-- See F12.5. The `budgetId` form is *less* underspecified than
+- See F11.5. The `budgetId` form is *less* underspecified than
   `budgetConfigurationId` if the package name carries "budgets"
   context — both are unambiguous in this package; the issue is
   inconsistency.
 
-#### F19.2 — `actionConfigurationId`, `alertConfigurationId` (LOW)
+#### F18.2 — `actionConfigurationId`, `alertConfigurationId` (LOW)
 - **Where:** `model.ts:28, 37`.
 - **Why flagged:** Long. If `ActionConfiguration` renames to
   `BudgetAlertAction`, the ID becomes `budgetAlertActionId`
@@ -705,44 +668,12 @@ _None._
   just `id`. The full form is only needed when referenced
   externally.
 
-#### F19.3 — `accountId` (acceptable)
+#### F18.3 — `accountId` (acceptable)
 - Specific enough; matches platform-wide convention.
 
-#### F19.4 — `workspaceId` on `BudgetConfigurationFilter` field, but
+#### F18.4 — `workspaceId` on `BudgetConfigurationFilter` field, but
   the field holds a *clause* not an ID (HIGH)
-- See F9.4. The name *says* it is one ID; it isn't.
-
----
-
-### 20. Type-suffix tautology
-
-#### F20.1 — `ActionConfigurationType` enum + `actionType` field on
-  `ActionConfiguration` (MEDIUM)
-- **Where:** `model.ts:5, 30`.
-- **Why flagged:** Three layers of "action":
-  `ActionConfiguration.actionType: ActionConfigurationType`. The
-  type name has "ActionConfiguration" twice, the field name has
-  "action" + "Type". Drop tokens.
-- **Suggestion:** With `BudgetAlertAction` parent renamed, the field
-  is `type: BudgetAlertActionType` (or use a discriminated union
-  if there are sub-shapes).
-
-#### F20.2 — `AlertConfigurationQuantityType` enum +
-  `quantityType` field (MEDIUM)
-- **Where:** `model.ts:9, 43`.
-- **Why flagged:** `quantityType: AlertConfigurationQuantityType`
-  reads with "quantity" said three times.
-- **Suggestion:** Rename enum to `BudgetAlertQuantityType`; field
-  remains `quantityType`. Acceptable shape.
-
-#### F20.3 — `AlertConfigurationTriggerType` enum + `triggerType`
-  field (LOW)
-- **Where:** `model.ts:17, 41`.
-- Same pattern as F20.2.
-
-#### F20.4 — `AlertConfigurationTimePeriod` enum + `timePeriod` field
-  (LOW)
-- **Where:** `model.ts:13, 39`. Same pattern.
+- See F8.4. The name *says* it is one ID; it isn't.
 
 ---
 
@@ -796,49 +727,46 @@ This SDK exposes two separate packages whose names both start with
 | # | Category                                | Findings |
 | - | --------------------------------------- | -------- |
 | 1 | Vague / generic                         | 7        |
-| 2 | Redundant enum prefixes                 | 4 (3 acceptable) |
+| 2 | Redundant enum prefixes                 | 0 |
 | 3 | Acronym casing                          | 4 (4 acceptable) |
 | 4 | Underscores in TS identifiers           | 0 |
 | 5 | Cryptic abbreviations                   | 7 |
 | 6 | Misleading names                        | 5 |
-| 7 | Overly verbose                          | 4 |
-| 8 | Redundant suffixes                      | 3 |
-| 9 | Singular / plural mismatch              | 5 (3 acceptable) |
-| 10 | Reserved-word collisions               | 5 (3 acceptable) |
-| 11 | Empty / trivial wrappers               | 0 |
-| 12 | Duplicate concepts                     | 5 |
-| 13 | Verb-tense inconsistency               | 2 (1 acceptable) |
-| 14 | Go / Java-style names                  | 2 (1 acceptable) |
-| 15 | Generic field names                    | 5 |
-| 16 | Field contradicting type domain        | 3 |
-| 17 | Inconsistent action verbs              | 1 (1 acceptable) |
-| 18 | Long enum values                       | 3 |
-| 19 | Underspecified IDs                     | 4 (1 acceptable) |
-| 20 | Type-suffix tautology                  | 4 |
+| 7 | Overly verbose                          | 5 |
+| 8 | Singular / plural mismatch              | 5 (3 acceptable) |
+| 9 | Reserved-word collisions                | 5 (3 acceptable) |
+| 10 | Empty / trivial wrappers               | 0 |
+| 11 | Duplicate concepts                     | 5 |
+| 12 | Verb-tense inconsistency               | 2 (1 acceptable) |
+| 13 | Go / Java-style names                  | 2 (1 acceptable) |
+| 14 | Generic field names                    | 5 |
+| 15 | Field contradicting type domain        | 3 |
+| 16 | Inconsistent action verbs              | 1 (1 acceptable) |
+| 17 | Long enum values                       | 3 |
+| 18 | Underspecified IDs                     | 4 (1 acceptable) |
 | OVERLAP | budgets vs budgetpolicy             | 3 |
 
 ---
 
 ## Top highest-impact renames (recommended order)
 
-1. **F12.5:** `budgetConfigurationId` → `budgetId` (or pick one
+1. **F11.5:** `budgetConfigurationId` → `budgetId` (or pick one
    universally). Same concept under two names is the worst smell here.
-2. **F7.1 / F7.3 / F12.1:** Collapse `BudgetConfiguration`,
+2. **F7.1 / F7.3 / F11.1:** Collapse `BudgetConfiguration`,
    `CreateBudgetConfigurationBudget`,
    `UpdateBudgetConfigurationBudget` into a single `Budget` type.
-3. **F9.4 / F19.4:** Rename
+3. **F8.4 / F18.4:** Rename
    `BudgetConfigurationFilter.workspaceId` to `workspaces` (and
    its type to `WorkspaceFilter`); fix singular-noun-for-plural-clause
    mismatch.
-4. **F1.1 / F1.2 / F16.1 / F20.1:** Rename `ActionConfiguration`
-   to `BudgetAlertAction`, `target` to `recipient`,
-   `ActionConfigurationType` to `BudgetAlertActionType`.
+4. **F1.1 / F1.2 / F15.1:** Rename `ActionConfiguration`
+   to `BudgetAlertAction`, `target` to `recipient`.
 5. **F7.2 / F7.4:** Drop "Configuration" from request type names
    (`CreateBudgetRequest`) and method names
    (`budgets.create(...)`).
-6. **F12.4:** Lift `accountId` to top-level on all request types
+6. **F11.4:** Lift `accountId` to top-level on all request types
    (currently nested under `budget` for create/update only).
-7. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
+7. **F13.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson` etc. across all generated code.
 
 ---
@@ -851,3 +779,120 @@ This SDK exposes two separate packages whose names both start with
   spec. This audit is a backlog for that generator.
 - This package has no `tests/` directory (verified by repo
   structure check), so the audit does not cover test naming.
+
+---
+
+## Proto / Architectural Leaks
+
+### 1. `BudgetConfiguration` — model.ts:50
+
+- **Why:** Repeated `Configuration` token threaded through nearly every
+  type in the package (`BudgetConfiguration`, `BudgetConfigurationFilter`,
+  `BudgetConfigurationFilter_Clause`,
+  `BudgetConfigurationFilter_TagClause`,
+  `BudgetConfigurationFilter_WorkspaceIdClause`,
+  `BudgetConfigurationFilter_Operator`,
+  `CreateBudgetConfigurationRequest`, etc.). Inside a package named
+  `budgets`, the `Configuration` suffix carries no signal — it is a
+  proto/RPC service-naming artifact, not a domain word.
+- **Category:** Proto leak — repeated `Config`/`Configuration` suffix.
+- **Suggested:** `Budget` (drop `Configuration`).
+- **Rationale:** A budget is the domain noun; "configuration" is a proto
+  naming convention bleeding through.
+
+### 2. `AlertConfiguration` / `AlertConfigurationType` /
+  `AlertConfigurationQuantityType` / `AlertConfigurationTimePeriod` /
+  `AlertConfigurationTriggerType` — model.ts:9, 13, 17, 35
+
+- **Why:** Same `Configuration` proto suffix repeated on the alert
+  domain (and on every alert-related enum). The alert *is* a
+  configuration, so the suffix is redundant.
+- **Category:** Proto leak — repeated `Config`/`Configuration` suffix.
+- **Suggested:** `Alert`, `AlertType`, `AlertQuantityType`,
+  `AlertTimePeriod`, `AlertTriggerType`.
+- **Rationale:** Drop `Configuration` — it's a proto-message-name
+  artifact.
+
+### 3. `ActionConfiguration` / `ActionConfigurationType` /
+  `actionConfigurationId` / `actionType` — model.ts:5, 26
+
+- **Why:** Repeated `Configuration` proto suffix on the action domain.
+  `actionConfigurationId` is `<domain>Configuration<entity>Id` —
+  three nouns where one would do.
+- **Category:** Proto leak — repeated `Config`/`Configuration` suffix.
+- **Suggested:** `Action`, `ActionType`, `actionId`.
+- **Rationale:** `Configuration` adds no semantic value here.
+
+### 4. `BudgetConfigurationFilter` /
+  `BudgetConfigurationFilter_Clause` /
+  `BudgetConfigurationFilter_TagClause` /
+  `BudgetConfigurationFilter_WorkspaceIdClause` /
+  `BudgetConfigurationFilter_Operator` — model.ts:22, 70, 81, 87, 93
+
+- **Why:** The `BudgetConfiguration` proto-message prefix is dragged
+  into the filter family even though every reader is already inside
+  the budgets package. Nested-message scoping (`Filter_Clause`,
+  `Filter_TagClause`, `Filter_WorkspaceIdClause`, `Filter_Operator`)
+  is a proto/Go pattern — the underscore segregation exists only
+  because Go nests message types as `Outer_Inner`.
+- **Category:** Proto leak — proto-nested-message names + repeated
+  `Configuration`.
+- **Suggested:** `BudgetFilter`, `BudgetFilterClause`,
+  `BudgetFilterTagClause`, `BudgetFilterWorkspaceClause`,
+  `BudgetFilterOperator` (or simply `Filter*` inside the package).
+- **Rationale:** TS does not need the proto outer-message qualifier;
+  drop both `Configuration` and the underscore-nesting convention.
+
+### 5. `CreateBudgetConfigurationBudget` /
+  `UpdateBudgetConfigurationBudget` — model.ts:98, 175
+
+- **Why:** Reads as `<Verb>-Budget-Configuration-Budget`. The
+  `Configuration` proto token is wedged between the verb prefix and
+  the domain noun it already qualifies. Pure proto-message-naming
+  artifact.
+- **Category:** Proto leak — `Configuration` infix duplicating domain.
+- **Suggested:** Inline `Budget` (drop the wrapper entirely; see F7.3),
+  or rename to `CreateBudget` / `UpdateBudget`.
+- **Rationale:** The mid-position `Configuration` adds nothing the
+  package name and outer type don't already convey.
+
+### 6. `CreateBudgetConfigurationRequest` /
+  `DeleteBudgetConfigurationRequest` /
+  `GetBudgetConfigurationRequest` /
+  `ListBudgetConfigurationsRequest` /
+  `UpdateBudgetConfigurationRequest` — model.ts:118, 133, 143,
+  156, 195
+
+- **Why:** `Configuration` infix between verb and `Request`/`Response`
+  is a proto/gRPC service-method naming artifact. TS request types
+  rarely embed the inner message name verbatim.
+- **Category:** Proto leak — repeated `Configuration` infix.
+- **Suggested:** `CreateBudgetRequest`, `DeleteBudgetRequest`,
+  `GetBudgetRequest`, `ListBudgetsRequest`, `UpdateBudgetRequest`.
+- **Rationale:** Drop the proto inner-message qualifier — the verb +
+  domain noun is sufficient.
+
+### 7. `CreateBudgetConfigurationRequest_Response` /
+  `DeleteBudgetConfigurationRequest_Response` /
+  `GetBudgetConfigurationRequest_Response` /
+  `ListBudgetConfigurationsRequest_Response` /
+  `UpdateBudgetConfigurationRequest_Response` — model.ts:124, 141,
+  152, 169, 203
+
+- **Why:** Two proto leaks stacked: (a) `Configuration` infix
+  duplicating domain, (b) `Request_Response` nested-message pattern
+  where the underscore segregates a proto inner type. The
+  `_Response` suffix in particular is the canonical proto-nested-type
+  artifact (`<Service>.<RpcName>Request.Response` in proto IDL).
+- **Category:** Proto leak — proto-nested `_Response` + `Configuration`
+  infix.
+- **Suggested:** `CreateBudgetResponse`, `DeleteBudgetResponse`,
+  `GetBudgetResponse`, `ListBudgetsResponse`, `UpdateBudgetResponse`.
+- **Rationale:** Drop both the `Configuration` token and the
+  `Request_Response` proto nesting; use flat `<Verb><Domain>Response`.
+
+---
+
+## Fixed
+
+_None._

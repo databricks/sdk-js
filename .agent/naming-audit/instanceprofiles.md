@@ -32,47 +32,47 @@ are graded:
 
 ### 1.2 Interfaces (`model.ts`)
 
-| Name                              | Purpose                                                  |
-| --------------------------------- | -------------------------------------------------------- |
-| `AddInstanceProfile`              | Request body for register/add.                           |
-| `AddInstanceProfile_Response`     | Empty response from add.                                 |
-| `EditInstanceProfile`             | Request body for edit/update.                            |
-| `EditInstanceProfile_Response`    | Empty response from edit.                                |
-| `InstanceProfile`                 | The instance-profile entity (AWS-scoped).                |
-| `ListInstanceProfiles`            | Empty request body for list.                             |
-| `ListInstanceProfiles_Response`   | Response from list.                                      |
-| `RemoveInstanceProfile`           | Request body for unregister/remove.                      |
-| `RemoveInstanceProfile_Response`  | Empty response from remove.                              |
+| Name                                       | Purpose                                                  |
+| ------------------------------------------ | -------------------------------------------------------- |
+| `AddInstanceProfileRequest`                | Request body for register/add.                           |
+| `AddInstanceProfileRequest_Response`       | Empty response from add.                                 |
+| `EditInstanceProfileRequest`               | Request body for edit/update.                            |
+| `EditInstanceProfileRequest_Response`      | Empty response from edit.                                |
+| `InstanceProfile`                          | The instance-profile entity (AWS-scoped).                |
+| `ListInstanceProfilesRequest`              | Empty request body for list.                             |
+| `ListInstanceProfilesRequest_Response`     | Response from list.                                      |
+| `RemoveInstanceProfileRequest`             | Request body for unregister/remove.                      |
+| `RemoveInstanceProfileRequest_Response`    | Empty response from remove.                              |
 
 ### 1.3 Fields (entity / request / response — combined catalog)
 
-| Type                              | Field                    | Type / Notes                          |
-| --------------------------------- | ------------------------ | ------------------------------------- |
-| `AddInstanceProfile`              | `skipValidation`         | `boolean?`                            |
-| `AddInstanceProfile`              | `instanceProfileArn`     | `string?` (AWS ARN, marked required)  |
-| `AddInstanceProfile`              | `isMetaInstanceProfile`  | `boolean?`                            |
-| `AddInstanceProfile`              | `iamRoleArn`             | `string?` (AWS IAM role ARN)          |
-| `AddInstanceProfile_Response`     | _(no fields)_            | _(empty body)_                        |
-| `EditInstanceProfile`             | `instanceProfileArn`     | `string?` (AWS ARN, marked required)  |
-| `EditInstanceProfile`             | `isMetaInstanceProfile`  | `boolean?`                            |
-| `EditInstanceProfile`             | `iamRoleArn`             | `string?`                             |
-| `EditInstanceProfile_Response`    | _(no fields)_            | _(empty body)_                        |
-| `InstanceProfile`                 | `instanceProfileArn`     | `string?` (AWS ARN, marked required)  |
-| `InstanceProfile`                 | `isMetaInstanceProfile`  | `boolean?`                            |
-| `InstanceProfile`                 | `iamRoleArn`             | `string?`                             |
-| `ListInstanceProfiles`            | _(no fields)_            | _(empty request)_                     |
-| `ListInstanceProfiles_Response`   | `instanceProfiles`       | `InstanceProfile[]?`                  |
-| `RemoveInstanceProfile`           | `instanceProfileArn`     | `string?` (ARN, marked required)      |
-| `RemoveInstanceProfile_Response`  | _(no fields)_            | _(empty body)_                        |
+| Type                                       | Field                    | Type / Notes                          |
+| ------------------------------------------ | ------------------------ | ------------------------------------- |
+| `AddInstanceProfileRequest`                | `skipValidation`         | `boolean?`                            |
+| `AddInstanceProfileRequest`                | `instanceProfileArn`     | `string?` (AWS ARN, marked required)  |
+| `AddInstanceProfileRequest`                | `isMetaInstanceProfile`  | `boolean?`                            |
+| `AddInstanceProfileRequest`                | `iamRoleArn`             | `string?` (AWS IAM role ARN)          |
+| `AddInstanceProfileRequest_Response`       | _(no fields)_            | _(empty body)_                        |
+| `EditInstanceProfileRequest`               | `instanceProfileArn`     | `string?` (AWS ARN, marked required)  |
+| `EditInstanceProfileRequest`               | `isMetaInstanceProfile`  | `boolean?`                            |
+| `EditInstanceProfileRequest`               | `iamRoleArn`             | `string?`                             |
+| `EditInstanceProfileRequest_Response`      | _(no fields)_            | _(empty body)_                        |
+| `InstanceProfile`                          | `instanceProfileArn`     | `string?` (AWS ARN, marked required)  |
+| `InstanceProfile`                          | `isMetaInstanceProfile`  | `boolean?`                            |
+| `InstanceProfile`                          | `iamRoleArn`             | `string?`                             |
+| `ListInstanceProfilesRequest`              | _(no fields)_            | _(empty request)_                     |
+| `ListInstanceProfilesRequest_Response`     | `instanceProfiles`       | `InstanceProfile[]?`                  |
+| `RemoveInstanceProfileRequest`             | `instanceProfileArn`     | `string?` (ARN, marked required)      |
+| `RemoveInstanceProfileRequest_Response`    | _(no fields)_            | _(empty body)_                        |
 
 ### 1.4 Methods (`client.ts`)
 
-| Method                  | Verb | URL path                          | Returns                            |
-| ----------------------- | ---- | --------------------------------- | ---------------------------------- |
-| `addInstanceProfile`    | POST | `/api/2.0/instance-profiles/add`    | `AddInstanceProfile_Response`      |
-| `editInstanceProfile`   | POST | `/api/2.0/instance-profiles/edit`   | `EditInstanceProfile_Response`     |
-| `listInstanceProfiles`  | GET  | `/api/2.0/instance-profiles/list`   | `ListInstanceProfiles_Response`    |
-| `removeInstanceProfile` | POST | `/api/2.0/instance-profiles/remove` | `RemoveInstanceProfile_Response`   |
+| Method                  | Verb | URL path                          | Returns                                       |
+| ----------------------- | ---- | --------------------------------- | --------------------------------------------- |
+| `addInstanceProfile`    | POST | `/api/2.0/instance-profiles/add`    | `AddInstanceProfileRequest_Response`        |
+| `editInstanceProfile`   | POST | `/api/2.0/instance-profiles/edit`   | `EditInstanceProfileRequest_Response`       |
+| `listInstanceProfiles`  | GET  | `/api/2.0/instance-profiles/list`   | `ListInstanceProfilesRequest_Response`      |
+| `removeInstanceProfile` | POST | `/api/2.0/instance-profiles/remove` | `RemoveInstanceProfileRequest_Response`     |
 
 ### 1.5 Other identifiers
 
@@ -90,10 +90,10 @@ are graded:
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| V-01  | `InstanceProfile` (interface)       | High     | The unqualified name reads as a general "instance profile" concept, but the type is **AWS-specific** (an AWS IAM Instance Profile, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html). The Databricks SDK supports multiple clouds (AWS, Azure, GCP) — peers in this SDK (e.g. `AzureServicePrincipal`, `GcpAttributes`) lead with the cloud prefix. `AwsInstanceProfile` would prevent collision with future Azure/GCP "instance" abstractions and align with the cloud-prefixed naming in `compute`, `clusters`, etc. Inherited from the API; flagged for visibility. |
-| V-02  | `AddInstanceProfile.skipValidation` | Medium   | `skipValidation` is generic — *which* validation? Reading the JSDoc reveals it specifically skips the AWS `RunInstances` dry-run permission check. `skipIamValidation` or `skipPermissionDryRun` would self-document. |
-| V-03  | `flattenQueryParams` (utils)        | Low      | Reasonable. |
-| V-04  | `readAll` (utils, private)          | Low      | Standard name for "read all bytes from a stream". OK. |
+| V-01  | `InstanceProfile` (interface, `model.ts:64`) | High     | The unqualified name reads as a general "instance profile" concept, but the type is **AWS-specific** (an AWS IAM Instance Profile, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html). The Databricks SDK supports multiple clouds (AWS, Azure, GCP) — peers in this SDK (e.g. `AzureServicePrincipal`, `GcpAttributes`) lead with the cloud prefix. `AwsInstanceProfile` would prevent collision with future Azure/GCP "instance" abstractions and align with the cloud-prefixed naming in `compute`, `clusters`, etc. Inherited from the API; flagged for visibility. |
+| V-02  | `AddInstanceProfileRequest.skipValidation` (`model.ts:14`) | Medium   | `skipValidation` is generic — *which* validation? Reading the JSDoc reveals it specifically skips the AWS `RunInstances` dry-run permission check. `skipIamValidation` or `skipPermissionDryRun` would self-document. |
+| V-03  | `flattenQueryParams` (`utils.ts:123`) | Low      | Reasonable. |
+| V-04  | `readAll` (`utils.ts:40`, private)  | Low      | Standard name for "read all bytes from a stream". OK. |
 
 ### 2.2 Redundant enum prefixes — N/A
 
@@ -125,36 +125,36 @@ are graded:
 | C-03  | `meta` (within `isMetaInstanceProfile`) | Medium | "Meta instance profile" is a Databricks-specific term not defined anywhere except the JSDoc ("contains an meta IAM role which could assume a wide range of roles"). The name doesn't make the concept self-evident. `isCredentialPassthrough` or `isAssumableMetaRole` would convey intent better. |
 | C-04  | `req`, `resp`, `httpReq`, `respBody` (`client.ts` locals) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
 | C-05  | `opts` (`utils.ts` parameter, `executeHttpCall`) | Low | Inside fn scope; minor. |
-| C-06  | `pkgJson` (`client.ts`)             | Low      | Standard short name for `package.json` import. OK. |
+| C-06  | `pkgJson` (`client.ts:19`)          | Low      | Standard short name for `package.json` import. OK. |
 
 ### 2.6 Misleading names — High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| M-01  | `AddInstanceProfile` / `addInstanceProfile()` | High | "Add" is ambiguous between "create a new resource" and "register an existing resource". The JSDoc clarifies this method **registers** an existing AWS instance profile (it does **not** create one in AWS). `registerInstanceProfile` would be more accurate and would pair semantically with `removeInstanceProfile` (where "remove" actually means "unregister"). The current naming implies CRUD-create semantics that aren't true — the AWS resource exists independent of this call. |
-| M-02  | `RemoveInstanceProfile` / `removeInstanceProfile()` | High | Same domain mismatch as M-01: the method **unregisters** the instance profile from Databricks (the AWS resource is untouched). The JSDoc even notes "Existing clusters with this instance profile will continue to function." `unregisterInstanceProfile` would be more accurate. |
-| M-03  | `EditInstanceProfile` / `editInstanceProfile()` | Medium | "Edit" is a non-standard CRUD verb (the standard is "update"). Other Databricks SDK surfaces use `update*` for the same operation. Matches the wire path `/edit`, so this is a per-API upstream decision. |
-| M-04  | `InstanceProfile.instanceProfileArn` (marked required, but `?: string \| undefined`) | High | The JSDoc says "This field is required" but the TS type is `string \| undefined`. Across the SDK, every field is optional in the generated type; the doc note is informational. Not a name issue per se, but the type contradicts the documented contract. Flagged because the *name* implies it should always be populated, yet the type doesn't enforce it. |
-| M-05  | `skipValidation` (`AddInstanceProfile`) | Medium | The name implies skipping *all* validation; the JSDoc clarifies it only skips the AWS dry-run permission check. See V-02. |
+| M-01  | `AddInstanceProfileRequest` / `addInstanceProfile()` (`model.ts:5`, `client.ts:77`) | High | "Add" is ambiguous between "create a new resource" and "register an existing resource". The JSDoc clarifies this method **registers** an existing AWS instance profile (it does **not** create one in AWS). `registerInstanceProfile` would be more accurate and would pair semantically with `removeInstanceProfile` (where "remove" actually means "unregister"). The current naming implies CRUD-create semantics that aren't true — the AWS resource exists independent of this call. |
+| M-02  | `RemoveInstanceProfileRequest` / `removeInstanceProfile()` (`model.ts:95`, `client.ts:185`) | High | Same domain mismatch as M-01: the method **unregisters** the instance profile from Databricks (the AWS resource is untouched). The JSDoc even notes "Existing clusters with this instance profile will continue to function." `unregisterInstanceProfile` would be more accurate. |
+| M-03  | `EditInstanceProfileRequest` / `editInstanceProfile()` (`model.ts:39`, `client.ts:119`) | Medium | "Edit" is a non-standard CRUD verb (the standard is "update"). Other Databricks SDK surfaces use `update*` for the same operation. Matches the wire path `/edit`, so this is a per-API upstream decision. |
+| M-04  | `InstanceProfile.instanceProfileArn` (marked required, but `?: string \| undefined`, `model.ts:66`) | High | The JSDoc says "This field is required" but the TS type is `string \| undefined`. Across the SDK, every field is optional in the generated type; the doc note is informational. Not a name issue per se, but the type contradicts the documented contract. Flagged because the *name* implies it should always be populated, yet the type doesn't enforce it. |
+| M-05  | `skipValidation` (`AddInstanceProfileRequest`, `model.ts:14`) | Medium | The name implies skipping *all* validation; the JSDoc clarifies it only skips the AWS dry-run permission check. See V-02. |
 | M-06  | `isMetaInstanceProfile`             | Medium | The boolean's semantics ("for credential passthrough scenarios where the instance profile contains a meta-IAM role that can assume a wide range of roles") is much narrower than "is this a meta instance profile". Calling it `isCredentialPassthrough` or `isMetaIamRole` would describe the actual behaviour. |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| O-01  | `instanceProfileArn` (in `InstanceProfile`) | Medium | Inside a type already called `InstanceProfile`, prefixing the field with `instanceProfile` is redundant — `arn` alone (or `instanceProfileArn` only on request types, with `arn` on the entity) would suffice. Tautology pattern: `instanceProfile.instanceProfileArn`. |
-| O-02  | `isMetaInstanceProfile` (in `InstanceProfile`) | Medium | Same tautology: `instanceProfile.isMetaInstanceProfile`. `isMeta` alone (or `isMetaRole`) would suffice within the entity. |
-| O-03  | `PACKAGE_SEGMENT` (`client.ts`)     | Low      | OK in context. |
-| O-04  | `ListInstanceProfiles_Response.instanceProfiles` | Medium | Inside `ListInstanceProfiles_Response`, the field `instanceProfiles` re-states the type prefix. `items` or `profiles` would suffice. Per-API codegen output. |
+| O-01  | `instanceProfileArn` (in `InstanceProfile`, `model.ts:66`) | Medium | Inside a type already called `InstanceProfile`, prefixing the field with `instanceProfile` is redundant — `arn` alone (or `instanceProfileArn` only on request types, with `arn` on the entity) would suffice. Tautology pattern: `instanceProfile.instanceProfileArn`. |
+| O-02  | `isMetaInstanceProfile` (in `InstanceProfile`, `model.ts:74`) | Medium | Same tautology: `instanceProfile.isMetaInstanceProfile`. `isMeta` alone (or `isMetaRole`) would suffice within the entity. |
+| O-03  | `PACKAGE_SEGMENT` (`client.ts:41`)  | Low      | OK in context. |
+| O-04  | `ListInstanceProfilesRequest_Response.instanceProfiles` (`model.ts:92`) | Medium | Inside `ListInstanceProfilesRequest_Response`, the field `instanceProfiles` re-states the type prefix. `items` or `profiles` would suffice. Per-API codegen output. |
 
 ### 2.8 Singular / plural mismatches — Low
 
 | ID    | Symbol                                              | Severity | Issue |
 | ----- | --------------------------------------------------- | -------- | ----- |
-| P-01  | `ListInstanceProfiles` (plural) vs `listInstanceProfiles()` (plural) | Low | Consistent. |
-| P-02  | `ListInstanceProfiles_Response.instanceProfiles`    | Low      | Plural field for an array — correct. |
+| P-01  | `ListInstanceProfilesRequest` (plural) vs `listInstanceProfiles()` (plural) | Low | Consistent. |
+| P-02  | `ListInstanceProfilesRequest_Response.instanceProfiles` | Low      | Plural field for an array — correct. |
 | P-03  | `InstanceProfile` (singular entity) vs `instanceProfiles` (plural array) | Low | Correct pluralisation throughout. |
-| P-04  | `AddInstanceProfile` / `EditInstanceProfile` / `RemoveInstanceProfile` (all singular) | Low | Correct — single-entity operations. |
+| P-04  | `AddInstanceProfileRequest` / `EditInstanceProfileRequest` / `RemoveInstanceProfileRequest` (all singular) | Low | Correct — single-entity operations. |
 
 ### 2.9 Reserved-word collisions — Low
 
@@ -172,9 +172,9 @@ revisions can add fields without breaking the type signature. Not flagged.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| D-01  | `InstanceProfile` vs `EditInstanceProfile` vs `AddInstanceProfile` | Medium | Three types with substantially overlapping field sets (`instanceProfileArn`, `isMetaInstanceProfile`, `iamRoleArn`). `EditInstanceProfile` and `InstanceProfile` are byte-identical; `AddInstanceProfile` adds only `skipValidation`. Could be expressed as a base type with extension. Codegen constraint; flagged for visibility. |
+| D-01  | `InstanceProfile` vs `EditInstanceProfileRequest` vs `AddInstanceProfileRequest` (`model.ts:5`, `model.ts:39`, `model.ts:64`) | Medium | Three types with substantially overlapping field sets (`instanceProfileArn`, `isMetaInstanceProfile`, `iamRoleArn`). `EditInstanceProfileRequest` and `InstanceProfile` are byte-identical; `AddInstanceProfileRequest` adds only `skipValidation`. Could be expressed as a base type with extension. Codegen constraint; flagged for visibility. |
 | D-02  | `instanceProfileArn` across all 4 request/entity types | Low | Same field, same semantics — duplication is expected for codegen output. OK. |
-| D-03  | `iamRoleArn` across `InstanceProfile`, `AddInstanceProfile`, `EditInstanceProfile` | Low | Same observation as D-02. OK. |
+| D-03  | `iamRoleArn` across `InstanceProfile`, `AddInstanceProfileRequest`, `EditInstanceProfileRequest` | Low | Same observation as D-02. OK. |
 
 ### 2.12 Verb-tense inconsistency — Low
 
@@ -188,7 +188,7 @@ revisions can add fields without breaking the type signature. Not flagged.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| G-01  | `RemoveInstanceProfile`            | Low | Pairs with `addInstanceProfile`. The "add/remove" pair is idiomatic in many languages; OK. |
+| G-01  | `RemoveInstanceProfileRequest`     | Low | Pairs with `addInstanceProfile`. The "add/remove" pair is idiomatic in many languages; OK. |
 
 ### 2.14 Generic field names losing meaning — Low
 
@@ -197,16 +197,16 @@ revisions can add fields without breaking the type signature. Not flagged.
 | F-01  | `instanceProfileArn`, `iamRoleArn`  | Low      | Well-qualified; meaning preserved out of context. Good. |
 | F-02  | `isMetaInstanceProfile`             | Medium   | Without the JSDoc, "meta instance profile" is a Databricks-internal term and conveys little. See C-03 / M-06. |
 | F-03  | `skipValidation`                    | Medium   | Without the JSDoc, unclear which validation. See V-02. |
-| F-04  | `instanceProfiles` (in `ListInstanceProfiles_Response`) | Low | Self-describing. Good. |
+| F-04  | `instanceProfiles` (in `ListInstanceProfilesRequest_Response`) | Low | Self-describing. Good. |
 | F-05  | `httpReq`, `respBody`, `body` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.15 Field contradicting type domain — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| FD-01 | `InstanceProfile.iamRoleArn`        | Medium   | "IAM role" is a related-but-distinct AWS concept from "instance profile". An instance profile *contains* a role, but the role itself is a separate AWS resource. The field is conditionally required (JSDoc says "required if your role name and instance profile name do not match and you want to use the instance profile with Databricks SQL Serverless"). Mixing two AWS resource ARNs in one entity is the API design; flagged. |
-| FD-02 | `AddInstanceProfile.skipValidation` | Low      | A request-only behaviour flag in a "domain entity"-shaped request. Acceptable for an "add"/"create" request type. |
-| FD-03 | `RemoveInstanceProfile.instanceProfileArn` | Low | Identifier-only payload for delete — appropriate. |
+| FD-01 | `InstanceProfile.iamRoleArn` (`model.ts:83`) | Medium   | "IAM role" is a related-but-distinct AWS concept from "instance profile". An instance profile *contains* a role, but the role itself is a separate AWS resource. The field is conditionally required (JSDoc says "required if your role name and instance profile name do not match and you want to use the instance profile with Databricks SQL Serverless"). Mixing two AWS resource ARNs in one entity is the API design; flagged. |
+| FD-02 | `AddInstanceProfileRequest.skipValidation` | Low      | A request-only behaviour flag in a "domain entity"-shaped request. Acceptable for an "add"/"create" request type. |
+| FD-03 | `RemoveInstanceProfileRequest.instanceProfileArn` | Low | Identifier-only payload for delete — appropriate. |
 
 ### 2.16 Inconsistent action verbs — High
 
@@ -239,18 +239,18 @@ package is exemplary in using ARNs as identifiers.)
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| TS-01 | `InstanceProfile.instanceProfileArn` | Medium  | Inside a type called `InstanceProfile`, the `instanceProfile` prefix on the field is tautological. See O-01. |
-| TS-02 | `InstanceProfile.isMetaInstanceProfile` | Medium | Same tautology: `isMeta` inside `InstanceProfile`. See O-02. |
-| TS-03 | `ListInstanceProfiles_Response.instanceProfiles` | Medium | Field re-states the entity type that fills the array. `items` or `profiles` would suffice. See O-04. |
+| TS-01 | `InstanceProfile.instanceProfileArn` (`model.ts:66`) | Medium  | Inside a type called `InstanceProfile`, the `instanceProfile` prefix on the field is tautological. See O-01. |
+| TS-02 | `InstanceProfile.isMetaInstanceProfile` (`model.ts:74`) | Medium | Same tautology: `isMeta` inside `InstanceProfile`. See O-02. |
+| TS-03 | `ListInstanceProfilesRequest_Response.instanceProfiles` (`model.ts:92`) | Medium | Field re-states the entity type that fills the array. `items` or `profiles` would suffice. See O-04. |
 
 ### 2.20 Other observations
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| X-01  | `HttpCallOptions` (utils)           | Low      | Local interface; precise. |
+| X-01  | `HttpCallOptions` (`utils.ts:15`)   | Low      | Local interface; precise. |
 | X-02  | `executeHttpCall`, `executeCall`    | Low      | Both exist, one wraps the other. The naming difference (`HttpCall` vs `Call`) communicates layering: HTTP-aware vs. transport-agnostic. OK. |
-| X-03  | `flattenQueryParams` (utils, exported but unused in this package) | Low | The package has no GET endpoints with query params (the list endpoint takes none). Either remove or use it. Not strictly a naming issue. |
-| X-04  | `Client` (the class name itself)    | Medium   | The class is just `Client`. The package exports it as the top-level symbol, but a reader importing it as `import {Client} from '@databricks/sdk-instanceprofiles/v2'` may collide with other packages' `Client`. Most consumers will alias it (`InstanceProfilesClient`); flagging that the bare name doesn't carry scope. This is a repo-wide pattern (every package exports `Client`); not a per-package fix. |
+| X-03  | `flattenQueryParams` (`utils.ts:123`, exported but unused in this package) | Low | The package has no GET endpoints with query params (the list endpoint takes none). Either remove or use it. Not strictly a naming issue. |
+| X-04  | `Client` (the class name itself, `client.ts:46`) | Medium   | The class is just `Client`. The package exports it as the top-level symbol, but a reader importing it as `import {Client} from '@databricks/sdk-instanceprofiles/v2'` may collide with other packages' `Client`. Most consumers will alias it (`InstanceProfilesClient`); flagging that the bare name doesn't carry scope. This is a repo-wide pattern (every package exports `Client`); not a per-package fix. |
 | X-05  | `pkgJson` (import alias)            | Low      | Standard short alias for `package.json`. OK. |
 | X-06  | `PACKAGE_SEGMENT.key` derives from `pkgJson.name.replace(/^@[^/]+\//, '')` (string transform on a constant) | Low | Identifier semantics OK; observation only. |
 
@@ -263,9 +263,9 @@ package is exemplary in using ARNs as identifiers.)
 | Severity | Count |
 | -------- | ----- |
 | High     | 9     |
-| Medium   | 19    |
-| Low      | 25    |
-| **Total**| **53**|
+| Medium   | 17    |
+| Low      | 35    |
+| **Total**| **61**|
 
 ### 3.2 Top themes
 
@@ -309,3 +309,32 @@ package is exemplary in using ARNs as identifiers.)
   per-package fix.
 - `Client` as the exported class name is repo-wide; aliasing on import is
   the de-facto solution.
+
+---
+
+## Proto-Architectural Leaks
+
+_None._ Scanned every identifier (interfaces, fields, methods, locals,
+constants) in `model.ts`, `client.ts`, `utils.ts`, and `index.ts` for the
+flagged patterns: `Public`/`Internal`/`External` mid-position, `Proto`
+suffix/infix, `Service`/`Server`/`Backend`/`Frontend`, `Rpc`/`Grpc`,
+`Manager`/`Handler`/`Controller`/`Processor`/`Daemon`/`Worker`, `Impl`,
+non-real `Proxy`, mid-position `Action`/`Op` duplicating a verb,
+`Wrapper`/`Adapter`, `Old`/`New`/`Legacy`/`Modern`, mid-position
+`V1`/`V2`, mid-position `Api`/`Sdk`/`Client`, repeated
+`Spec`/`Config`/`Details`/`Info`, and `Foo_PublicRequest`-style
+visibility infixes. No matches. The package is exemplary on this rubric.
+
+---
+
+## Fixed
+
+_None._ The regeneration on 2026-05-20 added `Request` suffixes to all
+request DTOs (`AddInstanceProfile` → `AddInstanceProfileRequest`,
+`EditInstanceProfile` → `EditInstanceProfileRequest`, `ListInstanceProfiles`
+→ `ListInstanceProfilesRequest`, `RemoveInstanceProfile` →
+`RemoveInstanceProfileRequest`), but no audit finding was contingent on
+the prior names — every concern (misleading verbs, tautological fields,
+duplicate concepts, AWS-specific entity name) carries over to the renamed
+types. Findings have been updated in-place to reference the new symbol
+names and current line numbers.

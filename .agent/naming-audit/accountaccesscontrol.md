@@ -1,5 +1,9 @@
 # Naming Audit: accountaccesscontrol
 
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
+
+**All findings retired on 2026-05-22.**
+
 **Path:** `packages/accountaccesscontrol/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level Databricks IAM rule sets — list assignable roles for a resource and read/replace the grant rules attached to that resource.
@@ -128,3 +132,9 @@
 - `src/v1/utils.ts` (151 lines): read fully.
 - `src/v1/index.ts` (17 lines): read fully.
 - `package.json` (41 lines): read for context.
+
+## Fixed
+
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
+
+Fixed in regeneration on 2026-05-22.

@@ -19,11 +19,11 @@ Notation: file paths are relative to the package root. Findings reference
 
 | Severity    | Count |
 | ----------- | ----- |
-| High        | 5     |
-| Medium      | 14    |
+| High        | 4     |
+| Medium      | 12    |
 | Low         | 9     |
 | Observation | 5     |
-| **Total**   | **33** |
+| **Total**   | **30** |
 
 Headline themes:
 
@@ -34,17 +34,11 @@ Headline themes:
    and `serviceprincipalsecretsproxy` (workspace-level proxy for the same).
    All four export a class literally named `Client` and types with the noun
    `Secret`. Cross-package usage is opaque without aliasing.
-2. **Action-verb request types collide with same-named client methods.**
-   `interface CreateScope` describes the request body; `client.createScope`
-   performs the action. The reader has to mentally distinguish the noun-from-
-   verb each time. Six pairs in this file (`CreateScope`, `DeleteAcl`,
-   `DeleteScope`, `DeleteSecret`, `GetAcl`, `GetSecret`, `ListAcls`,
-   `ListScopes`, `ListSecrets`, `PutAcl`, `PutSecret`).
-3. **Inconsistent action verb across mutating operations.** `Put` for
+2. **Inconsistent action verb across mutating operations.** `Put` for
    creating/updating ACLs and secrets, `Create` for scopes, `Delete` for
    all three. There is no `Update`. Go's REST SDK adopts the same shape, but
    `Put` reads as Go/HTTP-method jargon rather than a TS-side action verb.
-4. **`scope: string | undefined` everywhere — but required in practice.**
+3. **`scope: string | undefined` everywhere — but required in practice.**
    Eleven of twelve operation request types have `scope?: string | undefined`
    as their primary identifier. Every server endpoint will reject an absent
    scope. The "optional" marker is a generator artifact (all proto fields
@@ -98,38 +92,18 @@ Headline themes:
   class name (`SecretsClient`) aligns it with the rest of the package's
   exports and also eliminates the cross-package alias dance flagged in H1.
 
-### H3. Six request types are verb phrases (action collision with client methods)
+### H3. Inconsistent action verb: `Put*` mixed with `Create*` and `Delete*`
 
-- **Files / lines:** `src/v1/model.ts:51` (`CreateScope`), `:65` (`DeleteAcl`),
-  `:75` (`DeleteScope`), `:83` (`DeleteSecret`), `:93` (`GetAcl`), `:100`
-  (`GetSecret`), `:115` (`ListAcls`), `:127` (`ListScopes`), `:135`
-  (`ListSecrets`), `:146` (`PutAcl`), `:158` (`PutSecret`).
-- **Category:** #14 Go/Java-style name (action used as data type).
-- **Current example:** `client.createScope(req: CreateScope)`.
-- **Suggestion:** `CreateScopeRequest`, `DeleteAclRequest`,
-  `DeleteScopeRequest`, `DeleteSecretRequest`, `GetAclRequest`,
-  `GetSecretRequest`, `ListAclsRequest`, `ListScopesRequest`,
-  `ListSecretsRequest`, `PutAclRequest`, `PutSecretRequest`. (See sibling
-  package `secretsuc` which already uses the `…Request` suffix —
-  `CreateSecretRequest`, `DeleteSecretRequest`, etc.)
-- **Rationale:** Reading `client.createScope(req: CreateScope)` requires
-  the reader to distinguish noun-from-verb each time. `secretsuc/model.ts`
-  is the live counter-example for the correct convention within this very
-  repo: `CreateSecretRequest`, `GetSecretRequest`, `ListSecretsRequest`,
-  etc. Two sibling packages, two conventions. Pick one.
-
-### H4. Inconsistent action verb: `Put*` mixed with `Create*` and `Delete*`
-
-- **Files / lines:** `src/v1/client.ts:584` (`putAcl`), `:638` (`putSecret`);
-  contrast `:137` (`createScope`), `:262` (`deleteSecret`), `:220`
-  (`deleteScope`), `:180` (`deleteAcl`).
+- **Files / lines:** `src/v1/client.ts:596` (`putAcl`), `:653` (`putSecret`);
+  contrast `:137` (`createScope`), `:268` (`deleteSecret`), `:223`
+  (`deleteScope`), `:183` (`deleteAcl`).
 - **Category:** #17 inconsistent action verbs.
 - **Current:** `Put` for ACLs and secrets, `Create` for scopes, `Delete`
   for all three. No `Update`.
 - **Issue:** A consumer who learned `createScope` will not guess that the
   way to create or update a secret is `putSecret`, not `createSecret` or
-  `setSecret`. The JSDoc itself says "Inserts a secret" (client.ts:607) and
-  "Creates or overwrites the ACL" (client.ts:551) — three different verbs
+  `setSecret`. The JSDoc itself says "Inserts a secret" (client.ts:622) and
+  "Creates or overwrites the ACL" (client.ts:563) — three different verbs
   for the same upsert semantic.
 - **Suggestion:** unify on one verb pair: either
   (a) `Create*` for new + `Update*` for existing, or
@@ -139,16 +113,16 @@ Headline themes:
   `/secrets/put` — so the wire format is *also* inconsistent and the
   generator is faithfully reproducing it.
 
-### H5. Scope name field `scope` is severely overloaded across types
+### H4. Scope name field `scope` is severely overloaded across types
 
-- **Files / lines:** `src/v1/model.ts:53` (`CreateScope.scope`), `:67`
-  (`DeleteAcl.scope`), `:77` (`DeleteScope.scope`), `:85`
-  (`DeleteSecret.scope`), `:95` (`GetAcl.scope`), `:102` (`GetSecret.scope`),
-  `:117` (`ListAcls.scope`), `:137` (`ListSecrets.scope`), `:148`
-  (`PutAcl.scope`), `:160` (`PutSecret.scope`). Then `SecretScope.name`
-  (`:198`) names the same value, and the *type* `SecretScope` describes
-  what `scope` actually contains. Then `ScopeBackendType` describes the
-  scope's backend.
+- **Files / lines:** `src/v1/model.ts:53` (`CreateScopeRequest.scope`), `:67`
+  (`DeleteAclRequest.scope`), `:77` (`DeleteScopeRequest.scope`), `:85`
+  (`DeleteSecretRequest.scope`), `:95` (`GetAclRequest.scope`), `:102`
+  (`GetSecretRequest.scope`), `:117` (`ListAclsRequest.scope`), `:137`
+  (`ListSecretsRequest.scope`), `:148` (`PutAclRequest.scope`), `:160`
+  (`PutSecretRequest.scope`). Then `SecretScope.name` (`:198`) names the
+  same value, and the *type* `SecretScope` describes what `scope` actually
+  contains. Then `ScopeBackendType` describes the scope's backend.
 - **Category:** #1 vague/generic, #15 generic field names losing meaning,
   #6 misleading names.
 - **Issue:** `scope` is the *string name* of a `SecretScope`. The naming
@@ -169,35 +143,7 @@ Headline themes:
 
 ## Medium Severity
 
-### M1. `AclPermission` enum values are bare verbs
-
-- **File / line:** `src/v1/model.ts:6-13`.
-- **Category:** #2 redundant enum prefixes (inverse: no prefix at all).
-- **Current:** `READ = 'READ'`, `WRITE = 'WRITE'`, `MANAGE = 'MANAGE'`.
-- **Suggestion:** as-is is acceptable since the enum name (`AclPermission`)
-  contributes the noun; `AclPermission.READ` reads as
-  "ACL-permission-read". Flagging only because three other places in
-  `model.ts` (the JSDoc) refer to the values as `"READ"`, `"WRITE"`,
-  `"MANAGE"` — string-literal style. The TS enum auto-stringifies, so
-  the wire-level value matches. Acceptable as-is.
-
-### M2. `ScopeBackendType` enum values stutter `_KEYVAULT`
-
-- **File / line:** `src/v1/model.ts:19-30`.
-- **Category:** #2 redundant enum prefixes, #18 long enum values.
-- **Current:** `DATABRICKS = 'DATABRICKS'`, `AZURE_KEYVAULT = 'AZURE_KEYVAULT'`.
-- **Suggestion:** values are externally-mandated wire strings; cannot
-  change. The enum *member identifier* could be `AzureKeyvault` (PascalCase)
-  while keeping the wire value `'AZURE_KEYVAULT'`. Flagging because:
-  - The string casing of `KEYVAULT` (one word) clashes with surrounding
-    code (`AzureKeyVault` — two-word casing in type names like
-    `AzureKeyVaultSecretScopeMetadata`).
-  - Three different spellings of "key vault" in one file: `KEYVAULT` (enum
-    value), `KeyVault` (type names), and `keyvault` (field names like
-    `keyvaultMetadata`, `backendAzureKeyvault`).
-- **See also:** M3 below.
-
-### M3. `KeyVault` / `KeyvaultMetadata` / `keyvault` casing inconsistency
+### M1. `KeyVault` / `KeyvaultMetadata` / `keyvault` casing inconsistency
 
 - **Files / lines:**
   - `model.ts:29` `AZURE_KEYVAULT` (one word, upper).
@@ -206,8 +152,8 @@ Headline themes:
   - `model.ts:202` `keyvaultMetadata` (one word, lower-camel).
   - `model.ts:215` `unmarshalAzureKeyVaultSecretScopeMetadataSchema` (two
     words, "Vault").
-  - `model.ts:308` `keyvault_metadata` (the *wire* form).
-  - `model.ts:333` `marshalAzureKeyVaultSecretScopeMetadataSchema`.
+  - `model.ts:309` `keyvault_metadata` (the *wire* form).
+  - `model.ts:319` `marshalAzureKeyVaultSecretScopeMetadataSchema`.
 - **Category:** #3 acronym casing inconsistency, #4 underscores (in wire
   names — acceptable, but interacts).
 - **Current:** simultaneously `KeyVault`, `Keyvault`, `keyvault`,
@@ -223,21 +169,7 @@ Headline themes:
   Microsoft-canonical spelling. The fields just need to match the type
   names they describe.
 
-### M4. `AzureKeyVaultSecretScopeMetadata` is 33 characters long
-
-- **File / line:** `src/v1/model.ts:44`.
-- **Category:** #7 overly verbose.
-- **Current:** `AzureKeyVaultSecretScopeMetadata`.
-- **Suggestion:** since the type only appears in the context of
-  `SecretScope.keyvaultMetadata` and `CreateScope.backendAzureKeyvault`,
-  it could be `KeyVaultBackend` or `AzureKeyVaultBackend` — both shorter
-  and clearer that it's the backend configuration, not arbitrary metadata.
-- **Rationale:** "Metadata" is the most generic possible suffix and tells
-  the reader nothing the surrounding name doesn't. The field `resourceId`
-  and `dnsName` are the two real pieces of information — they're
-  *configuration*, not metadata about anything.
-
-### M5. `AzureKeyVaultSecretScopeMetadata.resourceId` is underspecified
+### M2. `AzureKeyVaultSecretScopeMetadata.resourceId` is underspecified
 
 - **File / line:** `src/v1/model.ts:46`.
 - **Category:** #19 underspecified IDs.
@@ -249,7 +181,7 @@ Headline themes:
   Resource ID — it could be a Databricks resource ID, a UC resource ID,
   etc.
 
-### M6. `AzureKeyVaultSecretScopeMetadata.dnsName` is underspecified
+### M3. `AzureKeyVaultSecretScopeMetadata.dnsName` is underspecified
 
 - **File / line:** `src/v1/model.ts:48`.
 - **Category:** #1 vague/generic, #15 generic field name.
@@ -263,25 +195,25 @@ Headline themes:
   but the example value in `client.ts:113` is the full URI
   `https://xxxx.vault.azure.net/`. The field name lies about its content.
 
-### M7. `AclItem` is generic-suffix tautology
+### M4. `AclItem` is generic-suffix tautology
 
 - **File / line:** `src/v1/model.ts:36`.
 - **Category:** #20 type-suffix tautology, #15 generic field names.
 - **Current:** `AclItem` describes "an ACL rule". The `Item` suffix is
   meaningless.
 - **Suggestion:** rename to `Acl` or `AclEntry` or `AclRule`. The
-  enclosing `ListAcls_Response.items: AclItem[]` is then
-  `ListAcls_Response.acls: Acl[]`. The Go SDK uses `AclItem`, but in TS
-  the suffix doesn't carry weight: `AclItem` and `AclRule` carry exactly
+  enclosing `ListAclsRequest_Response.items: AclItem[]` is then
+  `ListAclsRequest_Response.acls: Acl[]`. The Go SDK uses `AclItem`, but in
+  TS the suffix doesn't carry weight: `AclItem` and `AclRule` carry exactly
   the same information.
 - **Rationale:** Look at the surrounding code:
-  - `ListAcls_Response.items` (`model.ts:123`) — the field is `items`, not
-    `acls`. Generic name lost the domain.
+  - `ListAclsRequest_Response.items` (`model.ts:123`) — the field is
+    `items`, not `acls`. Generic name lost the domain.
   - JSDoc on `:122` says "The associated ACLs rule applied to principals"
     — so the type is conceptually "an ACL rule", but it's spelled
     "AclItem". The doc disagrees with the name.
 
-### M8. `SecretMetadata` describes a list-item, not metadata
+### M5. `SecretMetadata` describes a list-item, not metadata
 
 - **File / line:** `src/v1/model.ts:184`.
 - **Category:** #1 vague/generic, #20 type-suffix tautology.
@@ -297,7 +229,7 @@ Headline themes:
   (tags, schema, labels). Here the type *is* the secret as exposed by
   list — it lacks only the value. `SecretSummary` reads correctly.
 
-### M9. `SecretMetadata.lastUpdatedTimestamp` carries unit in name but not type
+### M6. `SecretMetadata.lastUpdatedTimestamp` carries unit in name but not type
 
 - **File / line:** `src/v1/model.ts:188`.
 - **Category:** #6 misleading names, #15 generic field names.
@@ -310,33 +242,62 @@ Headline themes:
   or `Date`. The codebase elsewhere uses `*At` (`createdAt`, `updatedAt`)
   for epoch-ms ints; this field breaks the pattern.
 
-### M10. `SecretScope.backendType` vs `CreateScope.scopeBackendType`
+### M7. `SecretScope.backendType` vs `CreateScopeRequest.scopeBackendType`
 
 - **Files / lines:** `src/v1/model.ts:200` (`SecretScope.backendType`),
-  `:57` (`CreateScope.scopeBackendType`).
+  `:57` (`CreateScopeRequest.scopeBackendType`).
 - **Category:** #1 vague/generic, #13 verb-tense inconsistency (form).
 - **Current:** the very same enum-typed field appears as `backendType` on
   the response shape and `scopeBackendType` on the request shape.
 - **Suggestion:** pick one. `backendType` is sufficient since both types
   are scope-related and the prefix `scope` is redundant.
 - **Rationale:** Inconsistent naming for the same conceptual field is
-  pure noise; a consumer mapping a `SecretScope` back to a `CreateScope`
-  re-creation will trip on the field-name mismatch.
+  pure noise; a consumer mapping a `SecretScope` back to a
+  `CreateScopeRequest` re-creation will trip on the field-name mismatch.
 
-### M11. `CreateScope.backendAzureKeyvault` vs `SecretScope.keyvaultMetadata`
+### M8. `Backend` mid-position is an architectural leak
+
+- **Files / lines:** `src/v1/model.ts:19` (`ScopeBackendType` enum),
+  `:57` (`CreateScopeRequest.scopeBackendType`), `:59`
+  (`CreateScopeRequest.backendAzureKeyvault`), `:200`
+  (`SecretScope.backendType`), `:308, :315, :333, :341` (marshal/unmarshal
+  schema field names).
+- **Category:** proto-architectural-leak (`Backend` mid-position, not a
+  domain noun).
+- **Issue:** the public surface uses `Backend` to mean "where the secret
+  data is stored" — either Databricks-managed storage or Azure KeyVault.
+  `Backend` is an implementation/architecture term (frontend/backend
+  layering), not a user-facing domain concept. A consumer sees
+  `ScopeBackendType` and reads it as a deployment/architecture flag,
+  rather than what the field actually denotes: the *storage provider* or
+  *vault provider* of the scope.
+- **Suggestion:** rename to a domain term. Options:
+  - `ScopeBackendType` → `ScopeStorageType` or `SecretStorageProvider`.
+  - `backendType` → `storageType` or `provider`.
+  - `scopeBackendType` → `storageType`.
+  - `backendAzureKeyvault` → `azureKeyVault` (drop the `backend` prefix;
+    M9 already wants this field renamed to `keyVaultBackend` for
+    round-trip parity — pick whichever direction prefers domain language).
+- **Rationale:** every other field in the package uses domain nouns
+  (`scope`, `key`, `principal`, `permission`). `Backend` is the one
+  outlier that smuggles in implementation jargon. Same defect appears in
+  several other audits where "backend" describes an integration/provider
+  layer (e.g., `connections.md` flags `ConnectionType` analogues).
+
+### M9. `CreateScopeRequest.backendAzureKeyvault` vs `SecretScope.keyvaultMetadata`
 
 - **Files / lines:** `src/v1/model.ts:59`, `:202`.
 - **Category:** #12 duplicate concepts, #1 vague/generic.
 - **Current:** the same conceptual field (`AzureKeyVaultSecretScopeMetadata`
   payload, the backend configuration for an Azure KeyVault scope) is named
-  `backendAzureKeyvault` on `CreateScope` and `keyvaultMetadata` on
+  `backendAzureKeyvault` on `CreateScopeRequest` and `keyvaultMetadata` on
   `SecretScope`. Both names describe the same payload at the same role
   (the KeyVault backend config) but use different framings.
 - **Suggestion:** rename both to the same — `keyVaultBackend` (preferred,
-  short, describes role) or `azureKeyVaultBackend`. Then `CreateScope` and
-  `SecretScope` round-trip naturally.
+  short, describes role) or `azureKeyVaultBackend`. Then `CreateScopeRequest`
+  and `SecretScope` round-trip naturally.
 
-### M12. `CreateScope.initialManagePrincipal` is verbose
+### M10. `CreateScopeRequest.initialManagePrincipal` is verbose
 
 - **File / line:** `src/v1/model.ts:55`.
 - **Category:** #7 overly verbose.
@@ -350,12 +311,13 @@ Headline themes:
   unit. Acceptable as-is if alternates feel too clever; flagging only the
   verbosity.
 
-### M13. `GetSecret_Response` returned by `getSecret` carries `key` redundantly
+### M11. `GetSecretRequest_Response` returned by `getSecret` carries `key` redundantly
 
 - **File / line:** `src/v1/model.ts:108-113`.
 - **Category:** #12 duplicate concepts (request → response).
-- **Current:** `GetSecret_Response { key?: string; value?: Uint8Array }`.
-  The caller has just passed `key` in via `GetSecret.key`, so they have it.
+- **Current:** `GetSecretRequest_Response { key?: string; value?: Uint8Array }`.
+  The caller has just passed `key` in via `GetSecretRequest.key`, so they
+  have it.
 - **Issue:** the response echoes the key. Two interpretations:
   - The server is *confirming* which key was returned, useful for any
     callers using multi-stage pipelines.
@@ -367,16 +329,16 @@ Headline themes:
   callers writing `(await client.getSecret({scope, key: 'foo'})).value`
   spell `foo` twice.
 
-### M14. `ListAcls_Response.items` should be `ListAcls_Response.acls`
+### M12. `ListAclsRequest_Response.items` should be `ListAclsRequest_Response.acls`
 
 - **File / line:** `src/v1/model.ts:123`.
 - **Category:** #15 generic field name losing meaning.
 - **Current:** `items?: AclItem[] | undefined`.
-- **Suggestion:** `acls: Acl[]` (combined with M7).
-- **Rationale:** Compare to `ListScopes_Response.scopes` (`:132`) and
-  `ListSecrets_Response.secrets` (`:143`) which both use the domain-typed
-  plural. `items` is the odd-one-out; the field name should match the
-  pattern.
+- **Suggestion:** `acls: Acl[]` (combined with M4).
+- **Rationale:** Compare to `ListScopesRequest_Response.scopes` (`:132`)
+  and `ListSecretsRequest_Response.secrets` (`:143`) which both use the
+  domain-typed plural. `items` is the odd-one-out; the field name should
+  match the pattern.
 
 ---
 
@@ -390,9 +352,9 @@ Headline themes:
   enum (`'READ' | 'WRITE' | 'MANAGE'`). If the server adds a new permission
   level, zod will throw at decode. Not a name issue, just notable.
 
-### L2. `PutSecret.value` discriminator names duplicate property names
+### L2. `PutSecretRequest.value` discriminator names duplicate property names
 
-- **File / line:** `src/v1/model.ts:165-174`.
+- **File / line:** `src/v1/model.ts:163-174`.
 - **Category:** #15 generic field names, #20 type-suffix tautology.
 - **Current:** `{ $case: 'stringValue', stringValue: string }`. The
   discriminator value is the same string as the property name.
@@ -402,9 +364,9 @@ Headline themes:
   value: Uint8Array }`. The discriminator becomes a clean enum-of-strings,
   the value field has a uniform name.
 
-### L3. `PutSecret.value` `stringValue` JSDoc references "UTF-8 (MB4)"
+### L3. `PutSecretRequest.value` `stringValue` JSDoc references "UTF-8 (MB4)"
 
-- **File / line:** `src/v1/model.ts:167`.
+- **File / line:** `src/v1/model.ts:166`.
 - **Category:** #5 cryptic abbreviations.
 - **Current JSDoc:** "If specified, note that the value will be stored in
   UTF-8 (MB4) form."
@@ -420,7 +382,7 @@ Headline themes:
 - **Files / lines:** `model.ts:38, 69, 97, 150`.
 - **Category:** #1 vague/generic.
 - **Current:** `principal?: string | undefined` — JSDoc says "The principal
-  in which the permission is applied." `client.ts:550-583` clarifies:
+  in which the permission is applied." `client.ts:562-594` clarifies:
   "user or group name".
 - **Suggestion:** acceptable as-is, as "principal" is the Databricks
   platform-wide term for user-or-group; consistent with other packages.
@@ -433,12 +395,13 @@ Headline themes:
 - **Files / lines:** `model.ts:52, 67, 77, 85, 95, 102, 117, 137, 148, 160`.
 - **Category:** observation; documentation only.
 - **Current:** various JSDoc:
-  - `CreateScope.scope`: "Scope name requested by the user. Scope names
-    are unique."
-  - `DeleteAcl.scope`: "The name of the scope to remove permissions from."
-  - `DeleteScope.scope`: "Name of the scope to delete." (no "the")
-  - `DeleteSecret.scope`: "The name of the scope that contains the secret
-    to delete."
+  - `CreateScopeRequest.scope`: "Scope name requested by the user. Scope
+    names are unique."
+  - `DeleteAclRequest.scope`: "The name of the scope to remove permissions
+    from."
+  - `DeleteScopeRequest.scope`: "Name of the scope to delete." (no "the")
+  - `DeleteSecretRequest.scope`: "The name of the scope that contains the
+    secret to delete."
 - **Suggestion:** the JSDocs are written by hand per-operation, with minor
   grammar variation. Not a naming defect; flagging because it makes
   cross-reference annoying.
@@ -456,8 +419,8 @@ Headline themes:
 - **File / line:** `src/v1/utils.ts:123`.
 - **Category:** #21 dead code.
 - **Issue:** function defined but not imported in `client.ts`. The client
-  builds query strings inline (`client.ts:307-315, :370-377, :425-429,
-  :525-528`). Same defect noted in `credentials.md` #57 — appears
+  builds query strings inline (`client.ts:316-323, :379-386, :434-438,
+  :534-538`). Same defect noted in `credentials.md` #57 — appears
   generator-wide.
 - **Suggestion:** drop dead code, or move it to a shared utils package.
 
@@ -485,12 +448,12 @@ Headline themes:
 
 ### O1. `scope` is optional on every request type, but required at the server
 
-- **Files / lines:** see H5.
+- **Files / lines:** see H4.
 - The generator marks every proto field optional. The runtime contract
   requires `scope` for ten of eleven operations. Not a naming defect but
   worth noting: the type is wider than the API allows.
 
-### O2. `CreateScope` request fields are out of order vs. domain intuition
+### O2. `CreateScopeRequest` fields are out of order vs. domain intuition
 
 - **File / line:** `src/v1/model.ts:51-60`.
 - The order is `scope`, `initialManagePrincipal`, `scopeBackendType`,
@@ -510,7 +473,7 @@ Headline themes:
   Databricks platform, this level is often called OWNER. Naming
   inconsistency with the wider platform; the wire format is fixed.
 
-### O4. `marshalPutSecretSchema` does a `btoa` on the bytes value
+### O4. `marshalPutSecretRequestSchema` does a `btoa` on the bytes value
 
 - **File / line:** `src/v1/model.ts:393-397`.
 - The `bytesValue` field is encoded via `btoa(Array.from(d, b =>
@@ -523,8 +486,8 @@ Headline themes:
 - **Files / lines:** `src/v1/index.ts`, `model.ts`.
 - The package is called `secrets` but exports `SecretScope`,
   `SecretMetadata`, and various `Secret*` operations. There is no bare
-  `Secret` type. The closest is `GetSecret_Response { key, value }` —
-  the actual full secret. Compare to the sibling `secretsuc` package
+  `Secret` type. The closest is `GetSecretRequest_Response { key, value }`
+  — the actual full secret. Compare to the sibling `secretsuc` package
   which exports a top-level `Secret` type (`secretsuc/model.ts:89`).
 - Naming the type would help: e.g., `Secret { key, value }`. As-is, the
   package's primary domain entity has no named type.
@@ -534,23 +497,27 @@ Headline themes:
 ## Recommended renames (high-confidence, in priority order)
 
 1. `Client` → `SecretsClient` (H1, H2).
-2. `CreateScope`, `DeleteAcl`, `DeleteScope`, `DeleteSecret`, `GetAcl`,
-   `GetSecret`, `ListAcls`, `ListScopes`, `ListSecrets`, `PutAcl`,
-   `PutSecret` → suffix with `Request` to match sibling
-   `secretsuc` (H3).
-3. Verb harmonization: pick `Create`/`Update` *or* `Put` and apply
-   consistently across all mutating methods (H4).
-4. `scope: string` field on every request type → `scopeName: string` (H5).
-5. `AclItem` → `Acl` or `AclEntry`; `ListAcls_Response.items` →
-   `ListAclsResponse.acls` (M7, M14).
-6. `SecretMetadata` → `SecretSummary` or `SecretInfo` (M8).
-7. `SecretMetadata.lastUpdatedTimestamp` → `lastUpdatedAt` (M9).
-8. Casing standardization: `KeyVault` everywhere (`keyVaultMetadata`,
-   `backendAzureKeyVault`) (M3).
-9. `AzureKeyVaultSecretScopeMetadata.dnsName` → `vaultUri` (M6).
-10. `AzureKeyVaultSecretScopeMetadata.resourceId` → `azureResourceId` or
-    `keyVaultResourceId` (M5).
-11. `SecretScope.backendType` ↔ `CreateScope.scopeBackendType` → pick one
-    (`backendType`) (M10).
-12. `CreateScope.backendAzureKeyvault` ↔ `SecretScope.keyvaultMetadata`
-    → pick one (`keyVaultBackend`) (M11).
+2. Verb harmonization: pick `Create`/`Update` *or* `Put` and apply
+   consistently across all mutating methods (H3).
+3. `scope: string` field on every request type → `scopeName: string` (H4).
+4. `AclItem` → `Acl` or `AclEntry`; `ListAclsRequest_Response.items` →
+   `ListAclsRequest_Response.acls` (M4, M12).
+5. `SecretMetadata` → `SecretSummary` or `SecretInfo` (M5).
+6. `SecretMetadata.lastUpdatedTimestamp` → `lastUpdatedAt` (M6).
+7. Casing standardization: `KeyVault` everywhere (`keyVaultMetadata`,
+   `backendAzureKeyVault`) (M1).
+8. `AzureKeyVaultSecretScopeMetadata.dnsName` → `vaultUri` (M3).
+9. `AzureKeyVaultSecretScopeMetadata.resourceId` → `azureResourceId` or
+   `keyVaultResourceId` (M2).
+10. `SecretScope.backendType` ↔ `CreateScopeRequest.scopeBackendType` →
+    pick one (`backendType`) (M7).
+11. `ScopeBackendType` → `ScopeStorageType`; drop `Backend` mid-position
+    in `backendType` / `scopeBackendType` fields (M8).
+12. `CreateScopeRequest.backendAzureKeyvault` ↔ `SecretScope.keyvaultMetadata`
+    → pick one (`keyVaultBackend`) (M9).
+
+---
+
+## Fixed
+
+- #H3 (original) Six request types are verb phrases (action collision with client methods) (originally cited at `src/v1/model.ts:51, 65, 75, 83, 93, 100, 115, 127, 135, 146, 158`): Fixed in regeneration on 2026-05-20 — all request DTOs now carry the `Request` suffix (`CreateScopeRequest`, `DeleteAclRequest`, `DeleteScopeRequest`, `DeleteSecretRequest`, `GetAclRequest`, `GetSecretRequest`, `ListAclsRequest`, `ListScopesRequest`, `ListSecretsRequest`, `PutAclRequest`, `PutSecretRequest`).

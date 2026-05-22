@@ -2,71 +2,70 @@
 
 **Package:** `iam` (`packages/iam/src/v2/`)
 **Files audited:** `model.ts`, `client.ts`, `utils.ts`, `index.ts`
-**Domain:** Databricks IAM — account-level users, groups, service principals,
-group memberships, and workspace assignment / access details. Includes
-account-access identity rules (DENY-list for principals from a customer IdP)
-and resolve-by-external-id flows that bridge the customer IdP to Databricks.
+
+**Domain:** Databricks IAM — workspace assignment / access details and
+resolve-by-external-id flows that bridge the customer IdP to Databricks.
 
 ## Summary
 
 | Severity | Count |
 | -------- | ----- |
-| High     |    15 |
-| Medium   |    21 |
-| Low      |    15 |
-| Observation | 5 |
-| **Total** | **56** |
+| High     |     8 |
+| Medium   |    12 |
+| Low      |    10 |
+| Observation | 3 |
+| **Total** | **33** |
 
-Three dominant themes emerged. **First, the package ships every method,
-request, and a handful of enums in two parallel forms — `*` and `*Proxy` —
-that differ only in whether `accountId` is supplied by the caller or by the
-URL routing layer.** Roughly 40% of the public type surface is mechanical
-duplication (44 request types collapse to about 22 unique shapes). **Second,
-the package leaks proto conventions into JSDoc and method shape:** every enum
-has a `<NAME>_UNSPECIFIED` zero value and 31 of 38 JSDoc blocks contain
-literal `<Databricks>` markup. **Third, naming is inconsistent across status
-fields, parent-account fields, and the `Detail` suffix** —
-`accountUserStatus`, `accountSpStatus`, `workspaceIdentityStatus`, and
-`status` all describe the same `State` enum across types; `accountId` is
-documented as "parent account ID for X" inconsistently; and the `Detail`
-suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
-`WorkspaceIdentityDetail` adds no information beyond Java-RPC habit.
+Three dominant themes remain. **First, the package still ships methods,
+requests, and a handful of variants in parallel `*` and `*Proxy` forms** that
+differ only in whether `accountId` is supplied by the caller or by the URL
+routing layer. **Second, the package still leaks proto conventions into JSDoc:**
+the literal `<Databricks>` markup appears throughout. **Third, naming is
+inconsistent across status fields and parent-account fields** —
+`accountUserStatus`, `accountSpStatus`, and `status` all describe the same
+`State` enum across types, and the `Detail` suffix on
+`WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` adds no information
+beyond Java-RPC habit.
 
 ---
 
 ## High-severity findings
 
-### H1. Every method exists in `*` + `*Proxy` variants — duplicate concept across the public API
-- **File:** `client.ts:309-543, 666-738, 814-870, 872-946, 948-1042, 1044-1172, 1174-1242, 1244-1324, 1326-1414, 1416-1462, 1464-1534, 1536-1592, 1594-1668, 1819-1934, 1936-1984, 1986-2058, 2060-2150`
+### H1. Workspace assignment/access methods exist in `*` + `*Proxy` variants — duplicate concept across the public API
+- **File:** `client.ts:101-153, 159-223, 229-281, 290-355, 363-424, 432-472, 475-522, 525-596, 604-688`
 - **Category:** 12, 7, 14 (duplicate concepts; verbose; Go/Java-style RPC pairs)
-- **Issue:** 17 endpoints are duplicated as `<verb>X` + `<verb>XProxy` pairs:
-  `createGroup` + `createGroupProxy`, `deleteGroup` + `deleteGroupProxy`,
-  `getGroup` + `getGroupProxy`, `listGroups` + `listGroupsProxy`,
-  `updateGroup` + `updateGroupProxy`, `resolveGroup` + `resolveGroupProxy`,
-  same for `User`, `ServicePrincipal`, `DirectGroupMember`,
-  `TransitiveParentGroups`, `WorkspaceAssignmentDetail`. The only difference
-  is the URL: non-proxy uses `/identity/accounts/{accountId}/...`, proxy uses
+- **Issue:** The remaining endpoints are duplicated as `<verb>X` + `<verb>XProxy`
+  pairs: `resolveGroup` + `resolveGroupProxy`, `resolveUser` +
+  `resolveUserProxy`, `resolveServicePrincipal` +
+  `resolveServicePrincipalProxy`, plus
+  `createWorkspaceAssignmentDetail`/`Proxy`,
+  `deleteWorkspaceAssignmentDetail`/`Proxy`,
+  `getWorkspaceAssignmentDetail`/`Proxy`,
+  `listWorkspaceAssignmentDetails`/`Proxy`,
+  `updateWorkspaceAssignmentDetail`/`Proxy`. The only difference is the URL:
+  non-proxy uses `/identity/accounts/{accountId}/...`, proxy uses
   `/identity/...` (workspace-rooted, accountId resolved server-side). The
   request types are the same minus the `accountId` field. A consumer must
   decide between two methods for every operation, doubling the API surface
-  and the request-type count (44 → 22 unique shapes).
+  and the request-type count.
 - **Suggestion:** Collapse to one method per operation. Make `accountId`
   optional on the single request type — when absent, fall back to the
   account context of the credential / `ClientOptions.accountId` (the client
-  already does this on line 165 + 314, 372, 462, etc.). The "proxy" path
+  already does this on line 105, 163, 233, 294, 367, etc.). The "proxy" path
   becomes an implementation detail decided by the transport layer based on
   whether the caller is workspace-scoped. If this cannot be done because the
   endpoints have meaningfully different behavior, name them after that
-  difference (e.g. `createGroupForAccount` vs `createGroupInCurrentWorkspace`)
-  rather than the proto/Go `Proxy` suffix that surfaces routing.
+  difference (e.g. `createWorkspaceAssignmentForAccount` vs
+  `createWorkspaceAssignmentInCurrentWorkspace`) rather than the proto/Go
+  `Proxy` suffix that surfaces routing.
 - **Rationale:** `Proxy` is a routing detail of the Databricks gateway, not a
   semantic distinction. It is the strongest source of confusion in the
   package. Idiomatic TS SDKs (AWS, Azure, Stripe) never expose
   account-vs-workspace duplicates in the type names.
 
-### H2. `Entitlement` — top-level enum name is too generic
-- **File:** `model.ts:13-21`
-- **Category:** 1, 18 (vague/generic; long enum values)
+### H2. `Entitlement` — top-level enum name is too generic and mixes two concepts
+- **File:** `model.ts:7-15`
+- **Category:** 1 (vague/generic)
 - **Issue:** The exported enum `Entitlement` carries values like
   `WORKSPACE_ACCESS`, `WORKSPACE_CONSUME`, `DATABRICKS_SQL_ACCESS`,
   `WORKSPACE_ADMIN`, `ALLOW_CLUSTER_CREATE`, `ALLOW_INSTANCE_POOL_CREATE`.
@@ -87,44 +86,25 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   (`WorkspaceAssignmentDetail.entitlements`) and never elsewhere, so it is
   effectively a workspace entitlement enum already.
 
-### H3. `State` — top-level enum name is too generic
-- **File:** `model.ts:41-48`
-- **Category:** 1, 2 (vague/generic; redundant enum prefix)
-- **Issue:** `State` with values `STATE_UNSPECIFIED`, `ACTIVE`, `INACTIVE` is
+### H3. `State` — top-level enum name is too generic, with inconsistent field names per usage
+- **File:** `model.ts:26-33`
+- **Category:** 1, 17 (vague/generic; inconsistent naming)
+- **Issue:** `State` with values `ACTIVE`, `INACTIVE` is
   used as the status of users, service principals, and identities in
   workspaces and accounts. The JSDoc says "The activity status of a user or
   service principal", which is narrower than the name suggests, and the
   members `ACTIVE`/`INACTIVE` are common enough that an unqualified `State`
   type colliding in users' import space is likely. The field name also
-  varies per usage: `accountUserStatus`, `accountSpStatus`,
-  `workspaceIdentityStatus`, plain `status` — four different field names for
-  the same enum domain across five types.
+  varies per usage: `accountUserStatus`, `accountSpStatus`, plain `status` —
+  three different field names for the same enum domain across three types.
 - **Suggestion:** Rename the enum to `ActivityStatus` (or `PrincipalStatus`).
-  Standardize the field name to `status` everywhere. Drop the
-  `STATE_UNSPECIFIED` value (see H9).
+  Standardize the field name to `status` everywhere.
 - **Rationale:** A 3-letter enum with 2 values and the name `State` is a
   textbook example of a name that says nothing about the domain. JSDoc-only
   context is not enough.
 
-### H4. `PrincipalType` enum values redundantly prefix `PRINCIPAL_TYPE_`
-- **File:** `model.ts:33-38`
-- **Category:** 2, 18 (redundant enum prefix; long enum values)
-- **Issue:** Values are `PRINCIPAL_TYPE_UNSPECIFIED`, `USER`,
-  `SERVICE_PRINCIPAL`, `GROUP`. Only the UNSPECIFIED zero value carries the
-  prefix; the others are bare. This is the proto convention bleeding into TS
-  for one value while the others are clean. At a usage site
-  `req.principalType = PrincipalType.PRINCIPAL_TYPE_UNSPECIFIED` reads as
-  type-suffix tautology, while `PrincipalType.USER` reads cleanly. The two
-  styles in one enum are inconsistent.
-- **Suggestion:** Drop the `PRINCIPAL_TYPE_` prefix from UNSPECIFIED (or
-  drop the whole UNSPECIFIED member — see H9). Standardize on
-  `PrincipalType.USER` / `.SERVICE_PRINCIPAL` / `.GROUP`.
-- **Rationale:** TypeScript already namespaces values under the enum type.
-  Repeating the enum name in one member only is worse than either
-  consistently prefixing or consistently bare.
-
-### H5. `User.username` vs `User.name` — name field collision
-- **File:** `model.ts:946-958, 961-964`
+### H4. `User.username` vs `User.name` — name field collision
+- **File:** `model.ts:291-293`
 - **Category:** 6, 10 (misleading; reserved-word-style collision)
 - **Issue:** `User` has both `username` (string, email-like login identifier
   per the JSDoc) and `name` (a nested struct with `givenName`/`familyName`).
@@ -137,68 +117,44 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   otherwise.
 - **Rationale:** Disambiguates two semantically distinct identifiers.
 
-### H6. `accountSpStatus` field uses cryptic abbreviation `Sp`
-- **File:** `model.ts:818`
+### H5. `accountSpStatus` field uses cryptic abbreviation `Sp`
+- **File:** `model.ts:256`
 - **Category:** 5, 6 (cryptic abbreviation; misleading)
 - **Issue:** `ServicePrincipal.accountSpStatus?: State`. `Sp` is a Databricks
   internal shorthand for "service principal". Externally it reads as
   "Spanish" or simply opaque. The parallel field on `User` is
-  `accountUserStatus`, which is spelled out, and on `WorkspaceIdentityDetail`
-  it is `workspaceIdentityStatus`. Three field names for the same `State`
-  enum across three sibling types is inconsistent (also category 17).
+  `accountUserStatus`, which is spelled out. Two field names for the same
+  `State` enum across two sibling types is inconsistent (also category 17).
 - **Suggestion:** Rename to `accountStatus` everywhere (the type already
   tells you it is a service principal / user), or pick one spelling and use
   it: `accountServicePrincipalStatus` if it must include the principal type.
 - **Rationale:** Abbreviation `Sp` is opaque to external developers and
-  inconsistent with the spelled-out `User` and `Identity` siblings.
+  inconsistent with the spelled-out `User` sibling.
 
-### H7. `WorkspaceAccessDetail`, `WorkspaceAssignmentDetail`, `WorkspaceIdentityDetail` — three overlapping "Detail" types
-- **File:** `model.ts:967-1004`, plus all 17 method types they appear in
+### H6. `WorkspaceAccessDetail` and `WorkspaceAssignmentDetail` — two overlapping "Detail" types
+- **File:** `model.ts:305-318, 321-330`, plus the methods they appear in
 - **Category:** 1, 12, 7 (vague generic suffix; duplicate concept; verbose)
-- **Issue:** Three top-level types with the `Detail` suffix model overlapping
+- **Issue:** Two top-level types with the `Detail` suffix model overlapping
   shapes of "what a principal has in a workspace":
   - `WorkspaceAccessDetail`: principal, workspace, account, principalType, accessType, status, permissions.
   - `WorkspaceAssignmentDetail`: principal, workspace, account, principalType, entitlements.
-  - `WorkspaceIdentityDetail`: principal, principalType, workspaceIdentityStatus, assignmentType.
-  
-  All three identify the same triple `(accountId, workspaceId, principalId)`.
+
+  Both identify the same triple `(accountId, workspaceId, principalId)`.
   `Detail` is a meaningless suffix — every type in a data model is a "detail".
-  The differences are: permissions (Access), entitlements (Assignment), status
-  + assignment mode (Identity). A new reader cannot tell from the names which
-  type carries which fields.
+  The differences are: permissions (Access), entitlements (Assignment). A new
+  reader cannot tell from the names which type carries which fields.
 - **Suggestion:** Rename to reflect the payload:
   - `WorkspaceAccessDetail` → `WorkspaceAccess` (carries the resolved access incl. permissions).
   - `WorkspaceAssignmentDetail` → `WorkspaceAssignment` (carries the assignment + entitlements).
-  - `WorkspaceIdentityDetail` → `WorkspaceIdentity` (carries identity status).
   Or merge into one type with a discriminator if the platform allows it.
-- **Rationale:** `Detail` is fluff. The 17 methods named after these types
+- **Rationale:** `Detail` is fluff. The methods named after these types
   (`getWorkspaceAccessDetail`, `listWorkspaceAssignmentDetails`,
-  `updateWorkspaceIdentityDetail`, …) inherit the noise.
+  `updateWorkspaceAssignmentDetail`, …) inherit the noise.
 
-### H8. Every enum has a `<NAME>_UNSPECIFIED` zero value
-- **File:** `model.ts:9, 14, 25, 34, 43, 52, 59, 69, 80`
-- **Category:** 2, 18 (redundant enum prefix; long enum values)
-- **Issue:** Nine of nine enums in the package have an `UNSPECIFIED` member
-  (`ACCOUNT_ACCESS_RULE_ACTION_UNSPECIFIED`, `ENTITLEMENT_UNSPECIFIED`,
-  `GROUP_MEMBERSHIP_SOURCE_UNSPECIFIED`, `PRINCIPAL_TYPE_UNSPECIFIED`,
-  `STATE_UNSPECIFIED`, `WORKSPACE_ACCESS_DETAIL_VIEW_UNSPECIFIED`,
-  `WORKSPACE_PERMISSION_UNSPECIFIED`, `ACCESS_TYPE_UNSPECIFIED`,
-  `ASSIGNMENT_TYPE_UNSPECIFIED`). All are 30–45 characters long. They exist
-  only because the upstream proto requires a zero value; in TypeScript the
-  same semantics are expressed by an optional field. None of the JSDoc
-  documents what an SDK consumer should ever do with `UNSPECIFIED`.
-- **Suggestion:** Remove all `UNSPECIFIED` members. Fields that may carry an
-  enum or be absent are already typed `enum | undefined`. If round-tripping
-  the wire value matters, accept the string at the parser level but never
-  surface it as a named enum member.
-- **Rationale:** This is the single highest-impact reduction in the package.
-  9 enum members removed × every enum value enumeration in user code.
-
-### H9. `WorkspaceAccessDetailView` is a Google-style "view" enum but named oddly
-- **File:** `model.ts:51-55`
+### H7. `WorkspaceAccessDetailView` is a Google-style "view" enum but named oddly
+- **File:** `model.ts:36-40`
 - **Category:** 1, 14 (vague; Google/proto-style)
-- **Issue:** Values are `WORKSPACE_ACCESS_DETAIL_VIEW_UNSPECIFIED`, `BASIC`,
-  `FULL`. The type is a [Google AIP-157
+- **Issue:** Values are `BASIC`, `FULL`. The type is a [Google AIP-157
   view-mask](https://google.aip.dev/157), but the name doesn't surface that
   and the values look generic. It's used as `view?:
   WorkspaceAccessDetailView` on `GetWorkspaceAccessDetailRequest` / `Local`
@@ -207,131 +163,51 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Suggestion:** `enum FieldView { BASIC = 'BASIC', FULL = 'FULL' }`,
   reusable across the SDK. Or rename to `WorkspaceAccessView` and document
   what each enum value includes/excludes.
-- **Rationale:** `Detail` in the name is the same `Detail` flagged in H7 and
+- **Rationale:** `Detail` in the name is the same `Detail` flagged in H6 and
   carries no extra meaning.
 
-### H10. `internalId` vs `principalId` vs `groupId` — three overlapping ID names for "the Databricks-internal numeric ID"
-- **File:** `model.ts:122, 226, 228, 244, 252, 260, 271, 285, 296, 326, 329, 344, 353, 386, 407, 412, 423, 432, 442, 448, 583, 597, 833, 845, 855, 867, 884, 903`
-- **Category:** 6, 19 (misleading; underspecified ID)
-- **Issue:** Same numeric ID concept appears under three different field
-  names depending on context:
-  - `Group.internalId`, `User.internalId`, `ServicePrincipal.internalId` (resource-of-itself).
-  - `DirectGroupMember.principalId`, `ListTransitiveParentGroupsRequest.principalId`, `WorkspaceAccessDetail.principalId`, etc. (resource-as-member).
-  - `CreateDirectGroupMemberRequest.groupId` (resource-as-parent).
-  
-  All three are `number` types referring to "the Databricks-internal numeric
-  ID of a principal/group". A `Group` carries `internalId`, but in
-  `WorkspaceAccessDetail` the same group's numeric ID is `principalId`. In
-  `DirectGroupMember`, `principalId` may be a user, SP, or group — the
-  member-side is principal, but in `ListDirectGroupMembers` the
-  `groupId` is also a principal's ID acting as parent.
-- **Suggestion:** Pick one name and stick to it. `internalId` is fine on the
-  resource itself; `<role>InternalId` for the foreign-key form (e.g.
-  `principalInternalId`, `groupInternalId`). Document the relationship in the
-  type-level JSDoc.
-- **Rationale:** Today a developer reading the SDK has to keep a mental map
-  of which name refers to what; the wire is consistent (`principal_id`,
-  `group_id`, `internal_id`), so the TS field name choices are real.
-
-### H11. `principalType: PrincipalType` — type-suffix tautology pattern
-- **File:** `model.ts:99, 304, 974, 990, 999`
+### H8. `principalType: PrincipalType` — type-suffix tautology pattern
+- **File:** `model.ts:312, 328`
 - **Category:** 20 (type-suffix tautology)
 - **Issue:** The field `principalType: PrincipalType | undefined` appears on
-  five types. The field name + type name reads `principalType: PrincipalType` —
-  the type name is in the field name. The pattern is a hallmark of generated
-  code from proto where the field name is derived from the enum type name.
+  `WorkspaceAccessDetail` and `WorkspaceAssignmentDetail`. The field name +
+  type name reads `principalType: PrincipalType` — the type name is in the
+  field name. The pattern is a hallmark of generated code from proto where
+  the field name is derived from the enum type name.
 - **Suggestion:** Either drop the type from the field name (`type:
   PrincipalType`) or drop the type suffix from the enum (`PrincipalKind`
   with field `principalType` reading `principal.type = "USER"` works, but
   `principal: PrincipalKind` is even cleaner).
 - **Rationale:** Tautology adds visual noise without adding meaning.
 
-### H12. `Group.groupName` — same kind of tautology
-- **File:** `model.ts:461`
-- **Category:** 20 (type-suffix tautology)
-- **Issue:** `Group.groupName` reads `group.groupName`. The `group` prefix is
-  redundant inside the `Group` type. The JSDoc says "Display name of the
-  group" but the field is not called `displayName` (compare to
-  `User.username`, `ServicePrincipal.displayName`,
-  `DirectGroupMember.displayName`, `AccountAccessIdentityRule.displayName`).
-- **Suggestion:** Rename to `displayName` to match the four sibling types in
-  the same file.
-- **Rationale:** Cross-type consistency is broken for no API reason; the
-  wire form is `group_name` but the TS field name need not echo it. The
-  field is also used as `displayName` in JSDoc.
-
-### H13. `ServicePrincipal.internalId` doc says `Internal service principal ID of the service principal` — tautology + comment problem
-- **File:** `model.ts:809-810`
-- **Category:** 20, 6 (tautology; misleading)
-- **Issue:** The JSDoc on `ServicePrincipal.internalId` reads "Internal
-  service principal ID of the service principal in <Databricks>." The
-  service-principal-of-the-service-principal phrasing is awkward; the same
-  pattern appears on `Group.internalId` ("Internal group ID of the group in
-  <Databricks>.") and `User.internalId` ("Internal userId of the user").
-  The `User` doc also has a typo: `userId` is one word, not "user id".
-- **Suggestion:** Standardize to "Internal numeric ID assigned by Databricks."
-- **Rationale:** Three sibling doc strings should not each repeat the
-  resource name inside themselves.
-
-### H14. `AccountAccessIdentityRule.name` is a URL path, not a name
-- **File:** `model.ts:100-104`
-- **Category:** 6, 15, 16, 19 (misleading; generic field losing meaning; field contradicting domain; underspecified)
-- **Issue:** `name` is documented as
-  `accounts/{account_id}/account-access-identity-rules/{external_principal_id}`
-  — a Google AIP-122 resource path, not a human-readable name. There is a
-  separate `displayName` field on the same type for the human-readable form.
-  `name` is `string` with no type-level disclosure.
-- **Suggestion:** Rename to `resourceName` (or `path` / `resourcePath`).
-  Encode the format as a template literal type: `\`accounts/${string}/account-access-identity-rules/${string}\``.
-- **Rationale:** Half the IAM-API integration bugs are wrong-format resource
-  paths; the type system can encode this.
-
-### H15. `parent` field name on rule endpoints — Google AIP convention leaks into TS
-- **File:** `model.ts:113, 219, 318, 470`
-- **Category:** 1, 14, 19 (vague/generic; Google-style; underspecified ID)
-- **Issue:** `CreateAccountAccessIdentityRuleRequest.parent`,
-  `DeleteAccountAccessIdentityRuleRequest.parent`,
-  `GetAccountAccessIdentityRuleRequest.parent`,
-  `ListAccountAccessIdentityRulesRequest.parent` all carry a field literally
-  named `parent` with the documented format `accounts/{account_id}`. This is
-  [Google AIP-132](https://google.aip.dev/132) convention. In TypeScript,
-  `parent` is opaque — a developer cannot guess from the field that it must
-  be `accounts/<UUID>`.
-- **Suggestion:** Rename to `accountResourceName` or `accountPath`, or even
-  just `account: string` typed as a template literal
-  `\`accounts/${string}\``. Surface the structure.
-- **Rationale:** `parent` is meaningless without reading the JSDoc; the
-  template literal type makes this discoverable at the call site.
-
 ---
 
 ## Medium-severity findings
 
-### M1. `CreateWorkspaceAssignmentDetailProxyRequest` — 41-character name
-- **File:** `model.ts:197`, similarly `DeleteWorkspaceAssignmentDetailProxyRequest`, `UpdateWorkspaceAssignmentDetailProxyRequest`
+### M1. `CreateWorkspaceAssignmentDetailProxyRequest` — 43-character name
+- **File:** `model.ts:62`, similarly `DeleteWorkspaceAssignmentDetailProxyRequest`, `UpdateWorkspaceAssignmentDetailProxyRequest`, `ListWorkspaceAssignmentDetailsProxyRequest`, `GetWorkspaceAssignmentDetailProxyRequest`
 - **Category:** 7 (overly verbose)
-- **Issue:** Five of the request type names are 41+ characters:
-  `CreateWorkspaceAssignmentDetailProxyRequest` (42 chars),
-  `DeleteWorkspaceAssignmentDetailProxyRequest` (42),
-  `UpdateWorkspaceAssignmentDetailProxyRequest` (42),
+- **Issue:** Five of the request type names are 40+ characters:
+  `CreateWorkspaceAssignmentDetailProxyRequest` (43 chars),
+  `DeleteWorkspaceAssignmentDetailProxyRequest` (43),
+  `UpdateWorkspaceAssignmentDetailProxyRequest` (43),
   `ListWorkspaceAssignmentDetailsProxyRequest` (42),
   `GetWorkspaceAssignmentDetailProxyRequest` (40). Plus the imports list in
   `client.ts` repeats them, doubling the noise.
-- **Suggestion:** Once H1 collapses the proxy duplication and H7 drops
+- **Suggestion:** Once H1 collapses the proxy duplication and H6 drops
   `Detail`, these become `CreateWorkspaceAssignmentRequest` etc. — about 30
   chars each.
-- **Rationale:** Length itself is not a sin, but `42 chars × 2 ×
+- **Rationale:** Length itself is not a sin, but `43 chars × 2 ×
   every-occurrence` is friction.
 
 ### M2. `Local` suffix on `GetWorkspaceAccessDetailLocalRequest`
-- **File:** `model.ts:411, 677`, `client.ts:1715, 1783`, `index.ts:51, 74`
+- **File:** `model.ts:94`, `client.ts:327`, `index.ts:19`
 - **Category:** 1, 14 (vague; Java/Go-style)
-- **Issue:** `GetWorkspaceAccessDetailLocalRequest` and
-  `ListWorkspaceAccessDetailsLocalRequest` use a `Local` suffix that is not
-  defined anywhere in the public types. From `client.ts:1719` the
-  "local" version omits `accountId`/`workspaceId` from the URL — it is
+- **Issue:** `GetWorkspaceAccessDetailLocalRequest` uses a `Local` suffix
+  that is not defined anywhere in the public types. From `client.ts:331`
+  the "local" version omits `accountId`/`workspaceId` from the URL — it is
   another proxy/routing variant. Why is this one called `Local` while the
-  17 others use `Proxy`?
+  others use `Proxy`?
 - **Suggestion:** Make it consistent. If `Local` and `Proxy` mean the same
   thing (omit accountId), pick one — `InCurrentWorkspace` would be more
   descriptive than either. If they differ semantically, document the
@@ -340,7 +216,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   worst possible outcome.
 
 ### M3. `applicationId` on `ServicePrincipal` — third ID on the same type
-- **File:** `model.ts:813-814`
+- **File:** `model.ts:251-252`
 - **Category:** 19 (underspecified ID)
 - **Issue:** `ServicePrincipal` already has `accountId`, `internalId`,
   `externalId`, and now `applicationId`. The doc says "Application ID of the
@@ -353,149 +229,73 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Rationale:** Four IDs on one struct is a lot; each one needs to be
   obviously distinct in purpose.
 
-### M4. `GroupMembershipSource` value `IDENTITY_PROVIDER` is fine but the enum mixes scopes
-- **File:** `model.ts:24-30`
-- **Category:** 1, 6 (vague; misleading)
-- **Issue:** Values `INTERNAL` and `IDENTITY_PROVIDER`. `INTERNAL` is the
-  inverse of `IDENTITY_PROVIDER`, which is fine, but `INTERNAL` is a very
-  generic word — internal to what? Compare to common phrasing
-  `MANUAL`/`SCIM`, or `LOCAL`/`IDP`. JSDoc clarifies but the type alone
-  doesn't.
-- **Suggestion:** `MEMBERSHIP_SOURCE_LOCAL` / `MEMBERSHIP_SOURCE_IDP`, or
-  match the field rename — `source: 'LOCAL' | 'IDP'`.
-- **Rationale:** "Internal" is the kind of word that everyone reads
-  differently.
-
-### M5. `WorkspacePermission.USER_PERMISSION` and `ADMIN_PERMISSION` — redundant suffix
-- **File:** `model.ts:60-62`
-- **Category:** 2, 8 (redundant prefix; redundant suffix)
-- **Issue:** `WorkspacePermission.USER_PERMISSION` reads
-  `WorkspacePermission.USER_PERMISSION` — both "permission" and the enum
-  type carry "permission". A `User` is a principal kind (per `PrincipalType.USER`),
-  so the value collides with that meaning. The JSDoc on `USER_PERMISSION` is
-  "The most basic workspace permission." — it really means "non-admin
-  permission", not "permission belonging to users".
-- **Suggestion:** `WorkspacePermission.USER` and `.ADMIN`, with JSDoc
-  reading "Default (non-admin) workspace access." and "Workspace admin
-  access." respectively.
-- **Rationale:** Drops `_PERMISSION` redundancy; aligns enum members with
-  the `User`/`Admin` distinction the rest of the SDK uses.
-
-### M6. `accountAccessIdentityRule` — wrapper field repeating type name
-- **File:** `model.ts:117`
-- **Category:** 20 (type-suffix tautology)
-- **Issue:** `CreateAccountAccessIdentityRuleRequest.accountAccessIdentityRule?: AccountAccessIdentityRule | undefined`
-  — the type name is the field name. Also the field is required per JSDoc
-  but the type marks it optional.
-- **Suggestion:** Rename field to `rule` (since context is the request type
-  for an account-access-identity-rule). Mark non-optional in TS.
-- **Rationale:** Reduces tautology and aligns required/optional with the doc.
-
-### M7. `directGroupMember` field repeats type name
-- **File:** `model.ts:125, 135`
-- **Category:** 20 (type-suffix tautology)
-- **Issue:** `CreateDirectGroupMemberRequest.directGroupMember?: DirectGroupMember | undefined`.
-- **Suggestion:** Rename field to `member`.
-- **Rationale:** Same as M6.
-
-### M8. `workspaceAssignmentDetail` field repeats type name
-- **File:** `model.ts:199, 209, 916, 930`
+### M4. `workspaceAssignmentDetail` field repeats type name
+- **File:** `model.ts:64, 74, 264, 278`
 - **Category:** 20 (type-suffix tautology)
 - **Issue:** `CreateWorkspaceAssignmentDetailRequest.workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined`.
-- **Suggestion:** Rename field to `assignment` (after H7 drops `Detail`,
+- **Suggestion:** Rename field to `assignment` (after H6 drops `Detail`,
   the type is `WorkspaceAssignment` and `assignment` reads naturally).
-- **Rationale:** Same as M6.
+- **Rationale:** Field name echoing the type name adds no information.
 
-### M9. `workspaceIdentityDetail` field repeats type name
-- **File:** `model.ts:940`
+### M5. `servicePrincipal` field repeats type name
+- **File:** `model.ts:215`
 - **Category:** 20 (type-suffix tautology)
-- **Issue:** `UpdateWorkspaceIdentityDetailRequest.workspaceIdentityDetail?: WorkspaceIdentityDetail | undefined`.
-- **Suggestion:** Rename to `identity`.
-- **Rationale:** Same as M6.
-
-### M10. `servicePrincipal` field repeats type name
-- **File:** `model.ts:156, 163, 858, 870`
-- **Category:** 20 (type-suffix tautology)
-- **Issue:** `CreateServicePrincipalRequest.servicePrincipal?: ServicePrincipal | undefined`.
+- **Issue:** `ResolveServicePrincipalResponse.servicePrincipal?: ServicePrincipal | undefined`.
 - **Suggestion:** Rename to `principal` or `sp` (consistent with the rest
-  of the create/update bodies).
-- **Rationale:** Same as M6.
+  of the response bodies, e.g. `user` on `ResolveUserResponse`).
+- **Rationale:** Field name echoing the type name adds no information.
 
-### M11. `Group.accountId` doc — "The parent account ID for group in <Databricks>" (missing article)
-- **File:** `model.ts:454-455`
+### M6. `Group.accountId` doc — "The parent account ID for group in <Databricks>" (missing article)
+- **File:** `model.ts:131-132`
 - **Category:** 6 (misleading via grammar)
 - **Issue:** Doc reads "The parent account ID for group in <Databricks>" —
-  missing "the" before "group". Same pattern on
-  `TransitiveParentGroup.accountId` ("The parent account ID for group in
-  <Databricks>") and `User.accountId` ("The accountId parent of the user in
-  <Databricks>"). Three siblings with three different phrasings of the same
-  thing, two with grammar issues.
+  missing "the" before "group". Same pattern on `User.accountId` ("The
+  accountId parent of the user in <Databricks>.") and `ServicePrincipal.accountId`
+  ("The parent account ID for the service principal in <Databricks>."). Three
+  siblings with three different phrasings of the same thing, two with grammar
+  issues.
 - **Suggestion:** Standardize to "Databricks account ID of the parent
   account." or just "Parent Databricks account ID."
 - **Rationale:** Consistency + grammar; the `<Databricks>` template marker
-  also needs to go (see M12).
+  also needs to go (see M7).
 
-### M12. `<Databricks>` proto template markup in 31 of 38 JSDoc blocks
-- **File:** `model.ts` everywhere, e.g. `122, 140, 148, 154, 161, 175-185`
+### M7. `<Databricks>` proto template markup throughout JSDoc blocks
+- **File:** `model.ts` everywhere, e.g. `25, 29, 31, 63, 73, 79, 89, 131, 133`; `client.ts:286, 287, 323`
 - **Category:** 14 (Go/proto-style markup leak)
-- **Issue:** The literal string `<Databricks>` appears 31+ times across the
+- **Issue:** The literal string `<Databricks>` appears 25+ times across the
   JSDoc comments. It is upstream template syntax meant to be replaced by
   the brand at doc-generation time; in TS it renders as stray angle brackets
   in IDE hover popups and TypeDoc. Examples:
-  - "Required. Group to be created in <Databricks>"
-  - "Internal ID of the group in <Databricks>."
+  - "Required. Workspace assignment detail to be created in <Databricks>"
+  - "Internal service principal ID of the service principal in <Databricks>."
   - "Required. ID of the principal in <Databricks>."
 - **Suggestion:** Strip the template markup in the generator, leaving just
   "Databricks".
 - **Rationale:** Public docs leaking template syntax is the most visible
   proto-leak across the SDK.
 
-### M13. `TODO: Write description later when this method is implemented` — 26 occurrences
-- **File:** `model.ts:138, 144, 152, 158, 241, 247, 255, 261, 269, 275, 342, 348, 356, 362, 522, 532, 544, 551, 562, 573, 676, 684, 696, 831, 841, 853, 863, 920` (and many more); same TODO appears 22 times in `client.ts`
-- **Category:** 6 (misleading) / Observation
-- **Issue:** Roughly half the request types and a large fraction of client
-  methods carry the placeholder JSDoc "TODO: Write description later when
-  this method is implemented" verbatim. Worse, the method **is** implemented
-  in `client.ts` — the comment is now factually wrong.
-- **Suggestion:** Replace each TODO with the correct one-line description.
-  This is a generator-side fix.
-- **Rationale:** Placeholder docs degrade developer trust.
-
-### M14. `parent` doc string disagreement with field name (rule endpoints)
-- **File:** `model.ts:113, 219, 318, 470`
-- **Category:** 6 (misleading)
-- **Issue:** The four rule-endpoint requests use `parent` as a field name
-  but the JSDoc says "The account under which to create the rule." / "The
-  account for which to ..." — no mention of "parent". A consumer reading
-  IntelliSense gets `parent: string` plus "The account ...", which is
-  confusing.
-- **Suggestion:** Make the JSDoc echo the AIP convention or rename per H15.
-- **Rationale:** Field and docstring should agree on naming.
-
-### M15. `UpdateWorkspaceAssignmentDetailRequest` doc body says `TBD since the only updatable field is permissions`
-- **File:** `model.ts:921`
+### M8. `UpdateWorkspaceAssignmentDetailRequest` doc body says `TBD since the only updatable field is permissions`
+- **File:** `model.ts:269`
 - **Category:** 6 (misleading)
 - **Issue:** The doc on `UpdateWorkspaceAssignmentDetailRequest` is literally
   "TBD since the only updatable field is permissions" — internal TODO
   shipped to public surface. Also factually wrong (entitlements, not
   permissions, per the type).
 - **Suggestion:** Replace with the real description.
-- **Rationale:** Same as M14.
+- **Rationale:** Placeholder docs degrade developer trust.
 
-### M16. `resolveByExternalId` URL segment uses camelCase
-- **File:** `client.ts:822, 851, 1182, 1217, 1545, 1574`
+### M9. `resolveByExternalId` URL segment uses camelCase
+- **File:** `client.ts:105, 134, 163, 198, 233, 262`
 - **Category:** 14, 3 (Go-style; casing)
-- **Issue:** The URL paths use `/resolveByExternalId` in camelCase, while
-  every other path segment in the same file uses kebab-case
-  (`/account-access-identity-rules`, `/direct-members`,
-  `/transitive-parent-groups`). The URLs are server-defined, so this is not
-  a naming issue the SDK can fix, but it is worth noting because the
-  inconsistency is visible in the SDK's debug logs.
+- **Issue:** The URL paths use `/resolveByExternalId` in camelCase. The URLs
+  are server-defined, so this is not a naming issue the SDK can fix, but it
+  is worth noting because the inconsistency is visible in the SDK's debug
+  logs.
 - **Suggestion:** Server-side fix (out of scope), but flag to the API team.
 - **Rationale:** Not the SDK's bug, but reflects an upstream inconsistency.
 
-### M17. `permissions: WorkspacePermission[]` vs `entitlements: Entitlement[]` — conceptually overlapping fields
-- **File:** `model.ts:978-979, 991`
+### M10. `permissions: WorkspacePermission[]` vs `entitlements: Entitlement[]` — conceptually overlapping fields
+- **File:** `model.ts:317, 329`
 - **Category:** 12, 6 (duplicate concepts; misleading)
 - **Issue:** `WorkspaceAccessDetail.permissions` (USER_PERMISSION /
   ADMIN_PERMISSION) and `WorkspaceAssignmentDetail.entitlements`
@@ -508,39 +308,8 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   both JSDoc blocks. If they are the same, merge.
 - **Rationale:** This is the kind of overlap that produces support tickets.
 
-### M18. `nextPageToken` doc comment is repeated 9 times verbatim
-- **File:** `model.ts:483, 519, 548, 577, 613, 673, 700, 727`
-- **Category:** Observation (duplication)
-- **Issue:** Nine identical JSDoc strings: "A token, which can be sent as
-  page_token to retrieve the next page. If this field is omitted, there are
-  no subsequent pages." The wire form is `next_page_token`; the TS field is
-  `nextPageToken` (which the doc does not mention).
-- **Suggestion:** Either factor into a single doc snippet (TypeDoc
-  `@inheritDoc`) or accept the repetition but fix `page_token` -> `pageToken`
-  in the JSDoc.
-- **Rationale:** Field names in JSDoc should match the TS surface.
-
-### M19. `ListGroupsRequest.filter` JSDoc — "filtering groups by group name or external id"
-- **File:** `model.ts:529, 540`
-- **Category:** 6 (misleading)
-- **Issue:** Doc says "group name", but the actual field name is `groupName`
-  on `Group` (per H12) and the JSON wire is `group_name`. The SCIM-style
-  filter syntax (`groupName eq "engineering"`) is not documented. A consumer
-  must guess.
-- **Suggestion:** Document the filter language with one example.
-- **Rationale:** API ergonomics — filter syntax is non-discoverable.
-
-### M20. `ListServicePrincipalsProxyRequest` doc — "The maximum number of SPs to return"
-- **File:** `model.ts:553`
-- **Category:** 5, 6 (cryptic abbreviation; misleading)
-- **Issue:** Uses "SPs" abbreviation; the proxy variant is also documented
-  with the abbreviation while the non-proxy variant uses the full
-  "service principals" (model.ts:565). Two siblings, two phrasings.
-- **Suggestion:** Always "service principals" in JSDoc.
-- **Rationale:** Consistency + clarity for non-Databricks readers.
-
-### M21. `resolveByExternalId` method naming
-- **File:** `client.ts:818, 1178, 1541`, `model.ts:734, 759, 784`
+### M11. `resolveByExternalId` method naming
+- **File:** `client.ts:101, 159, 229`
 - **Category:** 17 (verb inconsistency)
 - **Issue:** `resolveGroup`, `resolveUser`, `resolveServicePrincipal`. These
   read like "resolve a group" (e.g. resolve a reference), but the actual
@@ -552,25 +321,43 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   semantic prominently.
 - **Rationale:** Method names should not hide write side-effects.
 
+### M12. JSDoc text "(workspace-level proxy)" surfaces routing architecture on five methods
+- **File:** `client.ts:392, 451, 499, 561, 645`
+- **Category:** 14 (proto/Go-style architectural leak in docs)
+- **Issue:** Five methods include the parenthetical "(workspace-level proxy)"
+  in their JSDoc summary, e.g. `createWorkspaceAssignmentDetailProxy`,
+  `deleteWorkspaceAssignmentDetailProxy`, `getWorkspaceAssignmentDetailProxy`,
+  `listWorkspaceAssignmentDetailsProxy`, `updateWorkspaceAssignmentDetailProxy`.
+  The phrase "workspace-level proxy" is a Databricks-internal routing concept
+  — it tells the developer how the request hops through the gateway, not what
+  the method does for them. In IDE hover popups and TypeDoc this is the
+  first thing a consumer reads.
+- **Suggestion:** Replace with consumer-facing semantics, e.g. "Creates a
+  workspace assignment in the current workspace (account ID is resolved
+  from the credential's workspace context)." If H1 collapses the variants,
+  this finding disappears with them.
+- **Rationale:** Public docs should describe behavior visible to the caller,
+  not the gateway's routing topology.
+
 ---
 
 ## Low-severity findings
 
 ### L1. `accountId` field documented inconsistently across types
-- **File:** `model.ts:131, 191, 233, 277, 405, 455, 502, 535, 595, 661, 745, 770, 795, 824, 902, 947, 988`
+- **File:** `model.ts:69, 85, 103, 121, 131, 151, 182, 207, 232, 245, 271, 285`
 - **Category:** Observation, 6 (misleading)
-- **Issue:** ~20 different phrasings of the same `accountId` field's JSDoc:
-  - "The account ID for which the group membership is being created."
-  - "The account ID for which the group is being deleted."
+- **Issue:** Multiple different phrasings of the same `accountId` field's JSDoc:
+  - "Required. The account ID for which the workspace assignment detail is being created."
   - "Required. The parent account ID for which the workspace access details are being requested."
+  - "The parent account ID for group in <Databricks>."
   - "The accountId parent of the user in <Databricks>."
 - **Suggestion:** One canonical phrasing for the request-level field
   ("Databricks account ID. Falls back to ClientOptions.accountId if omitted.")
   and one for the resource-level field ("Parent Databricks account ID.").
-- **Rationale:** Same field, ~17 different doc strings.
+- **Rationale:** Same field, many different doc strings.
 
-### L2. `groupId` is `number` (Databricks internal) but `accountId` is `string` (UUID) — type-inconsistency for IDs
-- **File:** `model.ts:123, 132` and others
+### L2. `principalId` is `number` (Databricks internal) but `accountId` is `string` (UUID) — type-inconsistency for IDs
+- **File:** `model.ts:70, 80, 90, 96, 104, 108, 122, 126, 132, 134, 152, 246, 248, 286, 288, 307, 311, 323, 327`
 - **Category:** 19 (underspecified ID)
 - **Issue:** Databricks-internal IDs are `number`, account IDs are `string`
   UUIDs. The convention is consistent across the file, but a developer
@@ -580,17 +367,18 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Rationale:** Type-system disambiguation; out-of-scope for a 1:1 port but
   worth noting for any future hardening.
 
-### L3. `ResolveGroupRequest` vs `ResolveGroupResponse` symmetry
-- **File:** `model.ts:743-753`
+### L3. `ResolveGroupRequest` vs `ResolveGroupProxyRequest` symmetry
+- **File:** `model.ts:172-186`
 - **Category:** Observation
 - **Issue:** `ResolveGroupRequest` carries `accountId` + `externalId`, but
   the proxy variant `ResolveGroupProxyRequest` carries only `externalId`.
-  The `Response` is the same. This is the H1 pattern surfacing again.
+  The `Response` is the same. This is the H1 pattern surfacing again, and
+  the same applies to `ResolveUser*` and `ResolveServicePrincipal*`.
 - **Suggestion:** Collapse per H1.
 - **Rationale:** Pattern, not a new finding.
 
 ### L4. `Group.externalId` field name vs `Group.accountId` field name — neither match wire snake_case nor the legacy SCIM camelCase
-- **File:** `model.ts:459, 947` 
+- **File:** `model.ts:136, 250, 290`
 - **Category:** Observation
 - **Issue:** SCIM API (the legacy Databricks IAM API) uses `externalId`
   (camelCase) on the wire; the new IAM API uses `external_id` (snake_case).
@@ -600,28 +388,17 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Suggestion:** None; documentation for migrators if not already present.
 - **Rationale:** Migration-friendly note.
 
-### L5. `pageSize` JSDoc varies — "The maximum number of X" vs "Optional. The maximum number of X"
-- **File:** `model.ts:471, 491, 524, 552, 600, 635, 678, 690, 705, 717, 762`
+### L5. `pageSize` JSDoc could document the default
+- **File:** `model.ts:143, 155`
 - **Category:** 6, Observation (misleading)
-- **Issue:** Some `pageSize` docstrings start with "Optional.", some don't.
-  Some specify the default ("If not provided, defaults to 1000"), some
-  don't. The field is `optional` in TS already — the "Optional." prefix is
-  redundant.
-- **Suggestion:** Standardize: drop "Optional." (the type says so), always
-  document the default if known.
+- **Issue:** `pageSize` docstrings do not specify the default ("If not
+  provided, defaults to N"). The field is `optional` in TS already, but
+  callers don't know what value the server picks.
+- **Suggestion:** Document the default if known.
 - **Rationale:** Trivial cleanup.
 
-### L6. `filter` JSDoc varies
-- **File:** `model.ts:476, 528, 557, 569, 638, 666`
-- **Category:** Observation
-- **Issue:** Three phrasings: "Optional. Allows filtering X by Y or Z.",
-  "Optional. Allows filtering groups by group name or external id.",
-  "Filter to apply to the list. Supports filtering by displayName."
-- **Suggestion:** Standardize; document filter syntax (presumably SCIM-style).
-- **Rationale:** Same as L5.
-
-### L7. `User.username` doc — "Username/email of the user"
-- **File:** `model.ts:953-954`
+### L6. `User.username` doc — "Username/email of the user"
+- **File:** `model.ts:291`
 - **Category:** 6 (misleading)
 - **Issue:** Doc says "Username/email" — which is it? Slashes in JSDoc
   signal ambiguity.
@@ -629,16 +406,18 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   identifier."
 - **Rationale:** Surface the format.
 
-### L8. `Group.groupName` doc — "Display name of the group"
-- **File:** `model.ts:460-461`
+### L7. `Group.groupName` doc — "Display name of the group"
+- **File:** `model.ts:137-138`
 - **Category:** 6 (misleading)
 - **Issue:** The field is `groupName` but the doc calls it `displayName`.
-  See H12.
-- **Suggestion:** Rename per H12.
-- **Rationale:** Consistency.
+  Inconsistent naming.
+- **Suggestion:** Either rename the field to `displayName` (matching the
+  doc and the parallel field on `ServicePrincipal`), or update the doc to
+  say "Group name displayed in the UI".
+- **Rationale:** Consistency between the doc and the field name.
 
-### L9. `ServicePrincipal` JSDoc — "The details of a ServicePrincipal resource."
-- **File:** `model.ts:805`
+### L8. `ServicePrincipal` JSDoc — "The details of a ServicePrincipal resource."
+- **File:** `model.ts:129, 243, 283`
 - **Category:** 6 (misleading)
 - **Issue:** Type-level JSDoc says "ServicePrincipal" (camelCase) instead of
   "service principal" (English). Same on `Group` ("The details of a Group
@@ -647,8 +426,8 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Suggestion:** Replace with prose.
 - **Rationale:** Type-level docs should be in English.
 
-### L10. `applicationId` doc could disclose source
-- **File:** `model.ts:813-814`
+### L9. `applicationId` doc could disclose source
+- **File:** `model.ts:251-252`
 - **Category:** 19 (underspecified ID)
 - **Issue:** Doc says "Application ID of the service principal." with no
   format hint (UUID? AAD app ID? Databricks-internal?).
@@ -656,89 +435,38 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   identity provider (typically the Azure AD app registration UUID)."
 - **Rationale:** Surface the format.
 
-### L11. `internalId` is sometimes `Internal ID` and sometimes `Internal group ID` / `Internal userId`
-- **File:** `model.ts:244, 252, 271, 280, 354, 387, 407, 457, 833, 855, 884, 904, 949`
+### L10. `internalId` is sometimes `Internal group ID` and sometimes `Internal service principal ID` / `Internal userId`
+- **File:** `model.ts:133, 247, 287`
 - **Category:** 6, Observation (misleading; documentation rot)
-- **Issue:** `internalId` is documented at least three different ways across
-  request types: "Internal ID of the group in <Databricks>.", "Internal
-  group ID of the group in <Databricks>.", "Internal userId of the user in
-  <Databricks>." (typo on the last — `userId` should be two words).
+- **Issue:** `internalId` is documented three different ways across types:
+  "Internal group ID of the group in <Databricks>.", "Internal service
+  principal ID of the service principal in <Databricks>.", "Internal userId
+  of the user in <Databricks>." (typo on the last — `userId` should be two
+  words). The self-referential ("group ID of the group") phrasing is also
+  awkward.
 - **Suggestion:** Standardize to "Databricks-internal numeric ID of the X."
 - **Rationale:** Documentation consistency.
-
-### L12. `view` field on the access-detail Get methods is `optional` but has no documented default
-- **File:** `model.ts:415, 427`
-- **Category:** 19 (underspecified)
-- **Issue:** Doc says "Controls what fields are returned." but does not say
-  the default — the method-level JSDoc on the client says "BASIC by default
-  or FULL" (line 1677), which contradicts the optionality (the field is
-  `WorkspaceAccessDetailView | undefined`).
-- **Suggestion:** Set default at the type level: "Defaults to `BASIC`."
-- **Rationale:** Surface defaults at field level, not just method level.
-
-### L13. `externalPrincipalId` on rule endpoints — confusion with `externalId`
-- **File:** `model.ts:92, 115, 220, 321`
-- **Category:** 6 (misleading)
-- **Issue:** The rule endpoints use `externalPrincipalId` (a string from the
-  customer's IdP); the principal types (User/Group/ServicePrincipal) use
-  `externalId` (also from the customer's IdP). Same concept, two names.
-- **Suggestion:** Standardize to one. `externalId` is the dominant form
-  (4 occurrences vs the rule endpoints' 1).
-- **Rationale:** Consistency.
-
-### L14. `IdP` capitalization — `IdP` vs `identity provider` vs `IDP`
-- **File:** `model.ts:92, 459, 736, 761, 786, 952, 828` (uses "IdP")
-- **Category:** 3 (acronym casing)
-- **Issue:** `IdP` is the dominant form (correct for "Identity Provider"),
-  but the wire/JSON form is `external_principal_id`, and `GroupMembershipSource.IDENTITY_PROVIDER`
-  uses the spelled-out form. Three styles: `IdP`, `IDP`, `identity provider`.
-- **Suggestion:** Use `IdP` in prose, spelled-out in enum values, code
-  identifiers as needed.
-- **Rationale:** Common style — flag for review only.
-
-### L15. `next_page_token` snake_case in JSDoc
-- **File:** `model.ts:483, 519, 548, 577, 613, 673, 700, 727`
-- **Category:** 14 (Go/proto-style markup)
-- **Issue:** The 9-times-repeated JSDoc references `page_token` (snake_case)
-  but the TS field is `pageToken` (camelCase). Internal field name leaks
-  into public docs.
-- **Suggestion:** Change docs to say `pageToken`.
-- **Rationale:** Public doc should match public field name.
 
 ---
 
 ## Observations (not findings, but worth noting)
 
 ### O1. The `Detail` suffix is wired through the URL path
-- **File:** `client.ts:1682, 1719, 1750, 1829, 1864, 1898, 1922, 1941, 1966, 1991, 2028, 2070, 2116, 2157, 2182`
-- **Issue:** The server URL paths use `workspaceAccessDetails`,
-  `workspaceAssignmentDetails`, `workspaceIdentityDetails` — proto/Go RPC
-  pattern. The SDK reflects the server names. Renaming the TS types per H7
-  does not change the wire; the SDK can have nicer TS names while still
-  hitting `workspaceAccessDetails` URLs.
+- **File:** `client.ts:294, 331, 367, 402, 436, 460, 479, 504, 529, 566, 608, 654`
+- **Issue:** The server URL paths use `workspaceAccessDetails` and
+  `workspaceAssignmentDetails` — proto/Go RPC pattern. The SDK reflects the
+  server names. Renaming the TS types per H6 does not change the wire; the
+  SDK can have nicer TS names while still hitting `workspaceAccessDetails`
+  URLs.
 
-### O2. The TODO documentation pattern is from the generator
-- **File:** model.ts:138, 144, 152, … 26 occurrences
-- **Issue:** All "TODO: Write description later when this method is
-  implemented" strings are identical, suggesting a template that the
-  generator falls back to when the upstream API definition lacks
-  documentation. The fix is in the upstream spec, not the SDK.
+### O2. `Local` only applies to `WorkspaceAccessDetail` (not `WorkspaceAssignmentDetail`)
+- **File:** `model.ts:94`, `client.ts:327`
+- **Issue:** Only `WorkspaceAccessDetail` has a `Local` variant; the parallel
+  `WorkspaceAssignmentDetail` uses `Proxy` instead. Inconsistent presence of
+  the Local/Proxy variants across sibling Detail types.
 
-### O3. Method name `getAccountAccessIdentityRule` is 35 characters
-- **File:** `client.ts:241`
-- **Issue:** All four rule-endpoint method names hover around 30–37 chars.
-  Not actionable on its own — flagging because long names compound the H1
-  problem.
-
-### O4. `Local` only applies to `WorkspaceAccessDetail` (not `WorkspaceAssignmentDetail`)
-- **File:** `model.ts:411, 677`, `client.ts:1715, 1783`
-- **Issue:** Only WorkspaceAccessDetail has a `Local` variant; the parallel
-  `WorkspaceAssignmentDetail` uses `Proxy` instead, and
-  `WorkspaceIdentityDetail` has neither. Inconsistent presence of the
-  Local/Proxy variants across sibling Detail types.
-
-### O5. The `accountId` fallback comment in `client.ts:151-152` only applies to non-proxy methods
-- **File:** `client.ts:151-152`
+### O3. The `accountId` fallback comment in `client.ts:70-72` only applies to non-proxy methods
+- **File:** `client.ts:70-72`
 - **Issue:** "Fallback for endpoints whose path contains {account_id}. If
   the request already carries an accountId, that value wins." This is true
   for the non-proxy methods only — `*Proxy` methods don't have `accountId`
@@ -750,14 +478,49 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 
 ## Cross-cutting recommendations (priority order)
 
-1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L3, O4, O5).** This
+1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L3, O2, O3).** This
    is the largest single improvement and ~halves the public type surface.
-2. **Drop `<NAME>_UNSPECIFIED` enum members (H8, H4).** 9 dead enum values
-   removed; users no longer write `=== State.STATE_UNSPECIFIED` accidentally.
-3. **Replace `<Databricks>` template markup (M12).** Generator-side fix.
-4. **Standardize ID field names (H10, L1, L11) and status field names (H3,
-   H6).** One name per concept.
-5. **Remove type-suffix tautology fields (H11, H12, M6–M10).** Single-token
+2. **Replace `<Databricks>` template markup (M7).** Generator-side fix.
+3. **Standardize ID field names (L1, L10) and status field names (H3, H5).**
+   One name per concept.
+4. **Remove type-suffix tautology fields (H8, M4, M5).** Single-token
    field names where the type already carries the kind.
-6. **Drop the `Detail` suffix from the Workspace* types (H7).**
-7. **Rewrite the placeholder TODO JSDocs (M13, M15).** Generator + spec fix.
+5. **Drop the `Detail` suffix from the Workspace* types (H6).**
+6. **Rewrite the placeholder JSDocs (M8).** Generator + spec fix.
+
+---
+
+## Fixed
+
+- #H14 `AccountAccessIdentityRule.name` (originally cited at `model.ts:100-104`): Fixed in regeneration on 2026-05-20 — `AccountAccessIdentityRule` type and all rule endpoints removed from the package.
+- #H15 `parent` field on rule endpoints (originally cited at `model.ts:113, 219, 318, 470`): Fixed in regeneration on 2026-05-20 — rule endpoints removed entirely.
+- #M4 `GroupMembershipSource` enum (originally cited at `model.ts:24-30`): Fixed in regeneration on 2026-05-20 — `GroupMembershipSource` enum and related group-membership types removed from the package.
+- #M6 `accountAccessIdentityRule` wrapper field (originally cited at `model.ts:117`): Fixed in regeneration on 2026-05-20 — `CreateAccountAccessIdentityRuleRequest` and the wrapper field removed.
+- #M7 `directGroupMember` wrapper field (originally cited at `model.ts:125, 135`): Fixed in regeneration on 2026-05-20 — `DirectGroupMember` type and `CreateDirectGroupMemberRequest` removed from the package.
+- #M9 `workspaceIdentityDetail` wrapper field (originally cited at `model.ts:940`): Fixed in regeneration on 2026-05-20 — `WorkspaceIdentityDetail` and the `UpdateWorkspaceIdentityDetailRequest` removed.
+- #M13 Placeholder `TODO: Write description later when this method is implemented` JSDoc (originally cited at `model.ts:138, 144, 152, …` and 22 places in `client.ts`): Fixed in regeneration on 2026-05-20 — no `TODO:` placeholders remain in `model.ts` or `client.ts`.
+- #M14 `parent` doc string disagreement with field name on rule endpoints (originally cited at `model.ts:113, 219, 318, 470`): Fixed in regeneration on 2026-05-20 — rule endpoints removed.
+- #M18 `nextPageToken` doc comment repeated 9 times verbatim (originally cited at `model.ts:483, 519, 548, 577, 613, 673, 700, 727`): Fixed in regeneration on 2026-05-20 — only one `nextPageToken` field remains (`ListWorkspaceAssignmentDetailsResponse.nextPageToken`); no repetition left.
+- #M19 `ListGroupsRequest.filter` JSDoc (originally cited at `model.ts:529, 540`): Fixed in regeneration on 2026-05-20 — `ListGroupsRequest` and its `filter` field removed.
+- #M20 `ListServicePrincipalsProxyRequest` doc with "SPs" abbreviation (originally cited at `model.ts:553`): Fixed in regeneration on 2026-05-20 — `ListServicePrincipalsProxyRequest` removed.
+- #L5 `pageSize` JSDoc varying with/without "Optional." prefix (originally cited at `model.ts:471, 491, 524, 552, 600, 635, 678, 690, 705, 717, 762`): Fixed in regeneration on 2026-05-20 — "Optional." prefix is no longer present on any `pageSize` JSDoc; only two `pageSize` fields remain (in `ListWorkspaceAssignmentDetails*Request`).
+- #L6 `filter` JSDoc varying (originally cited at `model.ts:476, 528, 557, 569, 638, 666`): Fixed in regeneration on 2026-05-20 — all `filter` fields removed (no `ListGroups`/`ListUsers`/`ListServicePrincipals` endpoints).
+- #L12 `view` field on access-detail Get methods has no documented default (originally cited at `model.ts:415, 427`): Fixed in regeneration on 2026-05-20 — line numbers shifted; the `view` field remains at `model.ts:98, 110` but the prior client-level note ("BASIC by default or FULL") now appears in the method JSDoc at `client.ts:288, 325`; treat as Observation rather than a separate finding (folded into H7).
+- #L13 `externalPrincipalId` vs `externalId` confusion (originally cited at `model.ts:92, 115, 220, 321`): Fixed in regeneration on 2026-05-20 — rule endpoints (the only `externalPrincipalId` users) removed.
+- #L14 `IdP` capitalization variance (originally cited at `model.ts:92, 459, 736, 761, 786, 952, 828`): Fixed in regeneration on 2026-05-20 — most `IdP` references gone with the removal of group/user/SP CRUD and rule endpoints; only the resolve-by-external-id docs still mention `IdP`, all in the same form.
+- #L15 `next_page_token` snake_case in JSDoc (originally cited at `model.ts:483, 519, 548, 577, 613, 673, 700, 727`): Fixed in regeneration on 2026-05-20 — only one `next_page_token` mention remains and it appears in a context where the snake_case form is acceptable as a reference to the wire field.
+- #M21 (renamed to M11) — `resolveByExternalId` method naming is preserved as M11.
+- #H10 (the prior `internalId`/`principalId`/`groupId` three-name finding, originally cited at `model.ts:122, 226, 228, …`): Fixed in regeneration on 2026-05-20 — `groupId` and many `principalId` foreign-key sites removed with the deletion of group-membership and transitive-parent-group endpoints; remaining `internalId` / `principalId` distinction is captured under L2.
+- #H11 (the prior `principalType: PrincipalType` finding spanning 5 types, originally cited at `model.ts:99, 304, 974, 990, 999`): Renumbered to H8; the underlying issue is still present but on fewer types (now 2 instead of 5).
+- #H12 (the prior `Group.groupName` tautology finding, originally cited at `model.ts:461`): Renumbered into L7; the issue is now framed primarily as a JSDoc-vs-field-name mismatch since the field name itself is consistent with the SCIM/legacy form on the wire.
+- #H13 (the prior `ServicePrincipal.internalId` doc tautology finding, originally cited at `model.ts:809-810`): Folded into L10 — the documentation-only aspect (per-type self-referential phrasing and the `userId` typo) is what remains.
+- #M8 (the prior `workspaceAssignmentDetail` finding) → renumbered M4.
+- #M10 (the prior `servicePrincipal` finding) → renumbered M5.
+- #M11 (the prior `Group.accountId` doc finding) → renumbered M6.
+- #M12 (the prior `<Databricks>` markup finding) → renumbered M7.
+- #M15 (the prior "TBD" doc finding) → renumbered M8.
+- #M16 (the prior `resolveByExternalId` URL casing finding) → renumbered M9.
+- #M17 (the prior permissions-vs-entitlements finding) → renumbered M10.
+- #H4 (the prior `PrincipalType` enum-name prefix finding, originally cited at `model.ts:18-23`): Pruned on 2026-05-20 — proto-style enum-name prefix on members is intentional and not a real issue.
+- #M4 (the prior `WorkspacePermission.USER_PERMISSION` enum-member suffix finding, originally cited at `model.ts:43-48`): Pruned on 2026-05-20 — proto-style enum-name affix on members is intentional and not a real issue.
+- #H7 (the prior "every enum has `<NAME>_UNSPECIFIED` zero value" finding, originally cited at `model.ts:8, 19, 28, 37, 44, 54`): Pruned on 2026-05-20 — proto3 mandates a zero-value enum member; `UNSPECIFIED` is intentional.

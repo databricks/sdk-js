@@ -8,15 +8,15 @@
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 9 |
-| Medium | 12 |
+| High | 8 |
+| Medium | 13 |
 | Low | 7 |
 | Observation | 4 |
 
 ## High severity
 
 ### 1. `Llm` casing throughout — every file
-- **Why weird:** Every public type, field, method, and schema collapses the acronym `LLM` to title-case `Llm` (`CustomLlm`, `customLlm`, `createCustomLlm`, `customLlmFieldMask`, etc.). `LLM` is a well-known three-letter initialism, not a word. The Google TypeScript Style Guide (https://google.github.io/styleguide/tsguide.html#identifiers) explicitly says "treat abbreviations like acronyms in names as whole words" — that produces `LLM` if you choose the all-caps convention, or `Llm` if you choose the title-case convention. The package is internally consistent on `Llm` (and so are the sibling packages `accountsettings.LlmProxyPartnerPoweredAccount` and `workspacesettings.LlmProxyPartnerPoweredWorkspace`), so this is a *category* finding for the SDK rather than a local fix: `Llm` is harder to read than `LLM` because the human eye expects `Ll` to be a digraph rather than the start of an initialism. Microsoft's .NET guidelines (https://learn.microsoft.com/dotnet/standard/design-guidelines/capitalization-conventions) flip the other direction: capitalize all letters of two-letter acronyms (`IO`) and pascal-case three-or-more-letter acronyms (`Xml`, `Html`) — by that rule `Llm` *is* the consistent choice. There is no globally correct answer, but the SDK should pick *one* convention and apply it across all packages (`http` vs `Http`, `url` vs `Url`, `id` vs `Id` are already mixed — see Observation #31).
+- **Why weird:** Every public type, field, method, and schema collapses the acronym `LLM` to title-case `Llm` (`CustomLlm`, `customLlm`, `createCustomLlm`, `customLlmFieldMask`, etc.). `LLM` is a well-known three-letter initialism, not a word. The Google TypeScript Style Guide (https://google.github.io/styleguide/tsguide.html#identifiers) explicitly says "treat abbreviations like acronyms in names as whole words" — that produces `LLM` if you choose the all-caps convention, or `Llm` if you choose the title-case convention. The package is internally consistent on `Llm` (and so are the sibling packages `accountsettings.LlmProxyPartnerPoweredAccount` and `workspacesettings.LlmProxyPartnerPoweredWorkspace`), so this is a *category* finding for the SDK rather than a local fix: `Llm` is harder to read than `LLM` because the human eye expects `Ll` to be a digraph rather than the start of an initialism. Microsoft's .NET guidelines (https://learn.microsoft.com/dotnet/standard/design-guidelines/capitalization-conventions) flip the other direction: capitalize all letters of two-letter acronyms (`IO`) and pascal-case three-or-more-letter acronyms (`Xml`, `Html`) — by that rule `Llm` *is* the consistent choice. There is no globally correct answer, but the SDK should pick *one* convention and apply it across all packages (`http` vs `Http`, `url` vs `Url`, `id` vs `Id` are already mixed — see Observation #30).
 - **Category:** 3 (acronym casing — the audit prompt singles this out).
 - **Suggested name:** Pick a project-wide policy in `typescript.mdc` and apply globally. If the SDK keeps `Llm`, document the choice; if it switches to `LLM`, every type and field in this package and the two sibling packages needs the rename.
 - **Rationale:** This is the highest-impact naming question in the package because it touches every single exported identifier. Currently the only consumer-facing precedent in the codebase is `Llm`, so flipping to `LLM` is a breaking change across at least three packages.
@@ -33,37 +33,31 @@
 - **Suggested name:** `OptimizationRunState` (matches the `optimizationState` field on `CustomLlm` and the request types `StartCustomLlmOptimizationRunRequest`/`CancelCustomLlmOptimizationRunRequest`).
 - **Rationale:** Specific enum names make import lists self-documenting and avoid alias collisions when consumers combine multiple SDK packages.
 
-### 4. `State.STATE_UNSPECIFIED` redundant prefix — `src/v1/model.ts:10`
-- **Why weird:** The enum value `STATE_UNSPECIFIED` repeats the enum name as a prefix — at the call site it reads `State.STATE_UNSPECIFIED`, which is doubled. The `_UNSPECIFIED` sentinel is also redundant in TypeScript, where `optimizationState?: State | undefined` already expresses "not set".
-- **Category:** 2 (redundant enum prefix), 18 (questionable enum value).
-- **Suggested name:** Drop `STATE_UNSPECIFIED` (rely on `optimizationState?: State | undefined`); rename the remaining values to title-case: `OptimizationRunState.Created | Running | Completed | Failed | Pending | Cancelled`.
-- **Rationale:** The Google TS style guide treats enum members as constants, so SCREAMING_SNAKE is defensible — but at minimum the redundant `STATE_` prefix should go, and the unspecified sentinel duplicates what `undefined` already conveys.
-
-### 5. `StartCustomLlmOptimizationRunRequest.id` doc says "Id of the tile" — `src/v1/model.ts:79`
+### 4. `StartCustomLlmOptimizationRunRequest.id` doc says "Id of the tile" — `src/v1/model.ts:79`
 - **Why weird:** Doc comment "The Id of the tile." refers to a "tile" that does not exist anywhere else in the package. This is almost certainly a copy-paste from another generated API (dashboards/tiles). Either the field name or the doc is wrong; reading the surrounding code, the field is the custom-LLM id (same as `CancelCustomLlmOptimizationRunRequest.id` on line 20). Public SDK doc bug.
 - **Category:** 6 (misleading — doc contradicts the actual domain).
 - **Suggested name:** Field name stays `id`; fix the JSDoc to "The id of the custom LLM whose optimization run to start." (matches `DeleteCustomLlmRequest.id` and `GetCustomLlmRequest.id` docs on lines 69 and 74).
 - **Rationale:** A naming audit should flag doc-text bugs on identifiers as well as the identifier itself; consumers learn the semantics from JSDoc and a wrong doc is as harmful as a wrong name.
 
-### 6. `id` field on every request and on `CustomLlm` — `src/v1/model.ts:20,44,70,75,80,93`
+### 5. `id` field on every request and on `CustomLlm` — `src/v1/model.ts:20,44,70,75,80,94`
 - **Why weird:** Bare `id` shows up on six places (`Cancel...Request.id`, `CustomLlm.id`, `Delete...Request.id`, `Get...Request.id`, `Start...Request.id`, `Update...Request.id`). Every JSDoc has to redundantly say "The id of the custom llm". A typed `customLlmId` makes the wire/TS surface self-documenting and avoids confusion with future API extensions (the endpoint is at `/api/2.0/custom-llms/{id}` — `id` here is the LLM id, not a generic id).
 - **Category:** 1 (vague), 19 (underspecified id).
 - **Suggested name:** `customLlmId` (or `llmId` if the `Custom` prefix is dropped per #2). Wire stays `id`.
 - **Rationale:** When grepping logs or stack-traces for `customLlmId`, you'll find the right call site. Today you'll grep for `id` and get 50 false positives across the SDK.
 
-### 7. `CustomLlmFieldMask` only has 10 keys, missing 1 — `src/v1/model.ts:246-257`
+### 6. `CustomLlmFieldMask` only has 10 keys, missing 1 — `src/v1/model.ts:246-257`
 - **Why weird:** The `FieldMask` for `CustomLlm` enumerates 10 fields, but `CustomLlm` declares 10 fields too (`id`, `name`, `endpointName`, `instructions`, `datasets`, `guidelines`, `optimizationState`, `creator`, `creationTime`, `agentArtifactPath`). On a strict read this is exactly aligned, *but* `endpointName` is documented as a server-populated read-only field ("Name of the endpoint that will be used to serve the custom LLM"). Exposing it in the field-mask suggests it is updatable, which would be a server bug — but consistent with the field-mask being machine-generated rather than designed. Worth a sanity check with the upstream API team.
 - **Category:** Observation / 6 (misleading — field-mask implies updatable).
 - **Suggested name:** No rename; flag the entry `endpointName: {wire: 'endpoint_name'}` for review.
 - **Rationale:** This is the kind of thing a careful TS API designer would notice; a generator running over the proto schema will not.
 
-### 8. `customLlm` is both a field name and a type name (different casings) — `src/v1/model.ts:96`
+### 7. `customLlm` is both a field name and a type name (different casings) — `src/v1/model.ts:96`
 - **Why weird:** `UpdateCustomLlmRequest.customLlm: CustomLlm | undefined`. The TS naming convention makes the field/type distinction work via casing — but at a call site you'll write `req.customLlm = {...} satisfies CustomLlm`, and `customLlm` (the field) is one character of casing away from `CustomLlm` (the type). Type-suffix tautology under rule 20.
 - **Category:** 20 (type-suffix tautology).
 - **Suggested name:** Rename `customLlm` field → `llm` (paired with type rename `CustomLlm` → `Llm` per #2). Even without the type rename, the field can be `target` or `update`.
 - **Rationale:** `req.llm` reads cleanly; `req.customLlm` is the kind of name that survives code review only because nobody wants to argue with the generator.
 
-### 9. `CustomLlm.creator: string` — `src/v1/model.ts:58`
+### 8. `CustomLlm.creator: string` — `src/v1/model.ts:58`
 - **Why weird:** "Creator of the custom LLM" — but a `creator` could be a username, an email, a UUID, a Databricks principal-id, or a service-principal client-id. The type is `string` so there is no help. Other Databricks SDK packages (catalog, jobs) use `createdBy` or `creator` similarly inconsistently. The name does not say *what kind* of identifier it is.
 - **Category:** 1 (vague), 19 (underspecified id).
 - **Suggested name:** `createdBy` if it is a user/principal id (matches Unity Catalog convention); add `@format` JSDoc clarifying whether it is an email or a UUID.
@@ -71,71 +65,77 @@
 
 ## Medium severity
 
-### 10. `CustomLlm.creationTime` vs `Dataset.table` field naming style — `src/v1/model.ts:60,65`
+### 9. `CustomLlm.creationTime` vs `Dataset.table` field naming style — `src/v1/model.ts:60,65`
 - **Why weird:** `creationTime` is named with the type-suffix convention (`*Time`), while peer fields on the same struct use bare nouns (`creator`, `name`, `instructions`). The other generated SDKs sometimes use `createdAt` or `createTime`. Naming `creationTime` is fine, but it is the *only* type-suffix field on `CustomLlm`.
 - **Category:** 17 (inconsistency within the same struct).
 - **Suggested name:** `createdAt` (Stripe/GitHub convention, https://stripe.com/docs/api/charges/object) or `createTime` (Google AIP-142, https://google.aip.dev/142). Either is more standard than `creationTime`.
 - **Rationale:** AIP-142 (Google API design) says: "Fields representing the time at which a resource was created should be of type google.protobuf.Timestamp and called `create_time`." The Go SDK and Java SDK tend to mirror this; TS should too.
 
-### 11. `instructions: string` vs `guidelines: string[]` — `src/v1/model.ts:50,54`
+### 10. `instructions: string` vs `guidelines: string[]` — `src/v1/model.ts:50,54`
 - **Why weird:** Two near-synonyms with different cardinalities. `instructions` is a single string, `guidelines` is a string array. The semantic difference is not obvious from the names; both feel like "things the model should follow". This is an API-design issue more than a naming issue, but the names amplify the confusion.
 - **Category:** 6 (misleading), 12 (duplicate concept).
 - **Suggested name:** `systemPrompt` (or `instruction`) for the single-string case; `rules` or `constraints` for the array. The bigger fix is to consolidate at the API level.
 - **Rationale:** Reading `instructions` + `guidelines` side-by-side, a consumer cannot guess which goes where without reading the prose docs.
 
-### 12. `Table.tablePath` — `src/v1/model.ts:85`
+### 11. `Table.tablePath` — `src/v1/model.ts:85`
 - **Why weird:** Type-suffix tautology (`Table.tablePath`). Doc says "Full UC table path in catalog.schema.table_name format" — but the field name does not communicate that it's a *fully qualified* three-part name. Compare with sibling SDK packages where the same concept is called `fullName` or `qualifiedName`.
 - **Category:** 20 (type-suffix tautology), 1 (vague — "path" is generic; a filesystem path? a JSON pointer?).
 - **Suggested name:** `fullName` (matches `catalog.TableInfo.full_name`) or `qualifiedName`.
 - **Rationale:** Unity Catalog already has a canonical term for three-part names (`full_name`); reusing it makes cross-API code less surprising.
 
-### 13. `Table.requestCol` / `Table.responseCol` — `src/v1/model.ts:87,89`
+### 12. `Table.requestCol` / `Table.responseCol` — `src/v1/model.ts:87,89`
 - **Why weird:** `Col` is a cryptic abbreviation for `Column`. The same package spells out `endpointName` and `agentArtifactPath` and `optimizationState`, so `Col` is inconsistent. Doc strings even use the full word: "Name of the request column".
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistent with sibling fields).
 - **Suggested name:** `requestColumn` / `responseColumn`.
 - **Rationale:** Three saved characters is not worth the cognitive split between the doc ("column") and the identifier ("col").
 
-### 14. `agentArtifactPath` field with explicit "soon be deprecated!!" comment — `src/v1/model.ts:36-40,61`
+### 13. `agentArtifactPath` field with explicit "soon be deprecated!!" comment — `src/v1/model.ts:36-40,61`
 - **Why weird:** Field carries a self-deprecated marker in its doc ("This will soon be deprecated!!") but is not tagged `@deprecated` and lives on both `CreateCustomLlmRequest` and `CustomLlm`. SDK consumers will not see "soon to be deprecated" from IDE hover unless they read the body of the comment. Also the name conflates two ideas: it is an *output* artifact destination for the agent, framed as if it were an input — but actually the doc says "If you are using a dataset that you only have read permissions, please provide a destination path where you have write permissions." So this is a "destination" path, not an artifact-locating path.
 - **Category:** 6 (misleading), 1 (vague — "agent artifact" is a generic term).
 - **Suggested name:** Mark `@deprecated` and consider renaming to `outputDestinationPath` or `artifactWritePath`.
 - **Rationale:** The public surface should not silently carry a soft-deprecation note. Tag it properly.
 
-### 15. `optimizationState: State` type-suffix tautology — `src/v1/model.ts:56`
+### 14. `optimizationState: State` type-suffix tautology — `src/v1/model.ts:56`
 - **Why weird:** Field `optimizationState` of type `State`. If `State` is renamed to `OptimizationRunState` per #3, the field can be renamed `optimization: OptimizationRunState` or `runState: OptimizationRunState`.
 - **Category:** 20 (type-suffix tautology).
 - **Suggested name:** `optimization` (if type renamed) or just `state` with `State` more specific. Best is the pair `optimization: OptimizationRunState`.
 - **Rationale:** Reduces the noise once the enum name is specific.
 
-### 16. `creationTime: Temporal.Instant` — `src/v1/model.ts:60`
+### 15. `creationTime: Temporal.Instant` — `src/v1/model.ts:60`
 - **Why weird:** `Temporal.Instant` is correct (good!) but the field name `creationTime` reads as a `Date` and many callers will accidentally `new Date(customLlm.creationTime)`, which throws because `Temporal.Instant` does not coerce. Worth a comment in JSDoc; not a rename.
 - **Category:** Observation.
 - **Suggested name:** Keep `creationTime`; expand JSDoc to mention `Temporal.Instant`.
 - **Rationale:** Friction is from the type more than the name, but the name does not warn the reader of the unusual type.
 
-### 17. Method names mix `Llm` and verb tense — `src/v1/client.ts:69,92,118,137,162,191`
+### 16. Method names mix `Llm` and verb tense — `src/v1/client.ts:69,92,118,137,162,191`
 - **Why weird:** Methods are `cancelCustomLlmOptimizationRun`, `createCustomLlm`, `deleteCustomLlm`, `getCustomLlm`, `startCustomLlmOptimizationRun`, `updateCustomLlm`. They are verb-noun and consistent — but the noun is *always* `CustomLlm` which doubles the package name. After the fix in #2 these collapse to `cancelOptimizationRun`, `createLlm`, `deleteLlm`, `getLlm`, `startOptimizationRun`, `updateLlm` — much shorter.
 - **Category:** 7 (overly verbose).
 - **Suggested name:** Drop the redundant `CustomLlm` infix on the client methods; the package namespace already supplies it.
 - **Rationale:** Compare to `accountSettings.Client.deleteLlmProxyPartnerPoweredWorkspace` (accountsettings package) — that name is 41 chars long. SDK ergonomics suffer. Worth a project-wide convention question.
 
-### 18. `cancelCustomLlmOptimizationRun` vs `startCustomLlmOptimizationRun` plural noun — `src/v1/client.ts:69,162`
+### 17. `cancelCustomLlmOptimizationRun` vs `startCustomLlmOptimizationRun` plural noun — `src/v1/client.ts:69,162`
 - **Why weird:** Both methods refer to "Optimization Run" (singular) — but a custom LLM has multiple optimization runs over its lifetime. The current API is `POST .../custom-llms/{id}/optimize/cancel` and `POST .../custom-llms/{id}/optimize` — so the URL has no run-id; the API operates on "the current run" implicitly. The method name `startOptimizationRun` is therefore not quite right; it should be `startOptimization` (the verb that starts a run) or `startCurrentOptimizationRun` (explicit). Same for `cancel`. As-is, the names imply a `runId` is being passed; it is not.
 - **Category:** 6 (misleading — name implies run-level addressing).
 - **Suggested name:** `startOptimization` / `cancelOptimization` (the singular "run" is implicit).
 - **Rationale:** Method names should reflect the resource the verb operates on. The URL operates on the LLM, not on a specific run.
 
-### 19. `executeCall` / `executeHttpCall` in `utils.ts:26,65` — naming pair
+### 18. `executeCall` / `executeHttpCall` in `utils.ts:26,65` — naming pair
 - **Why weird:** Two functions with nearly identical names handling different layers (retry/rate-limit wrapper vs raw HTTP send + logging). Easy to confuse at the call site.
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runWithCallOptions` / `sendHttp` or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Names should differ in more than the `Http` infix.
 
-### 20. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 19. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Same word `Options` is reused for many unrelated concepts (`ClientOptions`, `CallOptions`, this one). The file also imports `Options` from `@databricks/sdk-core/api` (line 3) — three things named `Options` in the same file.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` or `HttpCallParams` (it is not user-facing options; it is an internal arg bag).
 - **Rationale:** Distinguish internal context bags from user-tunable option structs.
+
+### 20. `STATE_UNSPECIFIED` enum sentinel — `src/v1/model.ts:10`
+- **Why weird:** The `State` enum's first member `STATE_UNSPECIFIED` is a proto-architectural leak. Proto3 requires every enum to declare a zero-value sentinel (typically `FOO_UNSPECIFIED`); that requirement does not exist in TypeScript. Exposing it on the public TS surface forces every consumer to handle a member that semantically means "the server forgot to set this field" — a proto wire-format concern, not a domain concern. The screaming-snake-case casing (`STATE_UNSPECIFIED`) also leaks proto's enum-value convention into a TS type system that conventionally uses PascalCase for enum members (https://google.github.io/styleguide/tsguide.html#enums).
+- **Category:** Proto-architectural leak (enum sentinel + screaming-snake casing).
+- **Suggested name:** Drop the `STATE_UNSPECIFIED` member entirely; if a "not yet set" value is needed, use `undefined` (the field is already `State | undefined`). If kept, rename to PascalCase `Unspecified` and document that it is a wire-format sentinel.
+- **Rationale:** Optional TS fields express "unset" via `undefined`; a redundant enum sentinel doubles the representation of "no value" and forces consumers to write `state !== undefined && state !== State.STATE_UNSPECIFIED`. The all-caps casing further signals that the value is a proto artifact rather than a designed TS API member.
 
 ### 21. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:38`
 - **Why weird:** `Segment` is a generic CS term. Comment explains it is the User-Agent identity segment; without the comment the constant name does not communicate that.
@@ -198,7 +198,7 @@ The package exposes singleton CRUD plus optimization start/cancel, but no `listC
 - **Category:** Observation.
 
 ### 31. Mixed acronym casing in core types
-The codebase imports `HttpClient`, `HttpRequest`, `HttpResponse`, `APIError`, `URLSearchParams`, `userAgent`. The acronyms are cased every which way: `Http` (title), `API` (all-caps), `URL` (all-caps), `userAgent` (camel). This is consistent with the broader JS ecosystem (`fetch` returns a `Response`, `XMLHttpRequest` is its own caps, `URL` is all-caps in `URLSearchParams`), but it explains why `Llm` vs `LLM` feels arbitrary — the SDK has no single policy.
+The codebase imports `HttpClient`, `HttpRequest`, `HttpResponse`, `ApiError`, `URLSearchParams`, `userAgent`. The acronyms are cased every which way: `Http` (title), `Api` (title), `URL` (all-caps), `userAgent` (camel). This is consistent with the broader JS ecosystem (`fetch` returns a `Response`, `XMLHttpRequest` is its own caps, `URL` is all-caps in `URLSearchParams`), but it explains why `Llm` vs `LLM` feels arbitrary — the SDK has no single policy.
 - **Category:** 3 (acronym casing).
 
 ### 32. `flattenQueryParams` array-of-objects TODO — `src/v1/utils.ts:132`

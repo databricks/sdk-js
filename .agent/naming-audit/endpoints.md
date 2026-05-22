@@ -1,7 +1,11 @@
 # Naming Audit: `endpoints` (v1)
 
-**Package:** `@databricks/sdk-endpoints`
-**Path:** `/home/parth.bansal/sdk-js/packages/endpoints/`
+> **Status: Package source removed/consolidated in regeneration on 2026-05-22.** All findings below pre-date the consolidation and are no longer actionable against active source. Retained as historical record per the audit policy.
+
+**All findings retired on 2026-05-22.**
+
+**Package:** `@databricks/sdk-vectorsearch` (formerly `@databricks/sdk-endpoints`)
+**Path:** `/home/parth.bansal/sdk-js/packages/vectorsearch/`
 **Version audited:** `v1`
 **Files audited:**
 - `src/v1/model.ts`
@@ -10,11 +14,12 @@
 - `src/v1/index.ts`
 
 This audit applies the 20 numbered concern categories from the audit
-checklist plus a special section on the package name itself, which is
-the single most problematic naming choice in the whole package. Each
-finding lists the offending identifier(s), the category number,
-severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete rename
-suggestion. Findings are grouped by category.
+checklist plus a special section on the package name itself. The
+package was previously named `@databricks/sdk-endpoints`; in the
+2026-05-20 regeneration the package was renamed to `@databricks/sdk-vectorsearch`
+and absorbed the contents of the former `@databricks/sdk-indexes`
+package. Many of the F0 findings about package ambiguity are now
+fixed. Findings are grouped by category.
 
 ---
 
@@ -24,54 +29,54 @@ suggestion. Findings are grouped by category.
 
 | Item            | Value                              |
 | --------------- | ---------------------------------- |
-| Package name    | `@databricks/sdk-endpoints`        |
-| Directory       | `packages/endpoints/`              |
+| Package name    | `@databricks/sdk-vectorsearch`     |
+| Directory       | `packages/vectorsearch/`           |
 | Subpath export  | `./v1`                             |
-| REST base path  | `/api/2.0/vector-search/endpoints` |
-| Concept         | Vector Search endpoints            |
+| REST base path  | `/api/2.0/vector-search/endpoints` and `/indexes` |
+| Concept         | Vector Search endpoints and indexes |
 
 ### Enums (`model.ts`)
 
 | Name                            | Members                                                                                                    |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `EndpointType`                  | `STORAGE_OPTIMIZED`, `STANDARD`, `STANDARD_ON_ORION`                                                       |
+| `EndpointType`                  | `STORAGE_OPTIMIZED`, `STANDARD`                                                                            |
+| `IndexSubtype`                  | `VECTOR`, `FULL_TEXT`, `HYBRID`                                                                            |
+| `PipelineType`                  | `TRIGGERED`, `CONTINUOUS`                                                                                  |
 | `ScalingChangeState`            | `SCALING_CHANGE_UNSPECIFIED`, `SCALING_CHANGE_APPLIED`, `SCALING_CHANGE_IN_PROGRESS`                       |
-| `ThroughputChangeRequestState`  | `CHANGE_SUCCESS`, `CHANGE_FAILED`, `CHANGE_REACHED_MINIMUM`, `CHANGE_REACHED_MAXIMUM`, `CHANGE_IN_PROGRESS`, `CHANGE_ADJUSTED` |
-| `ThroughputPatchStatus`         | `PATCH_ACCEPTED`, `PATCH_REJECTED`, `PATCH_FAILED`                                                         |
+| `UpsertDeleteDataStatus`        | `SUCCESS`, `PARTIAL_SUCCESS`, `FAILURE`                                                                    |
+| `VectorIndexType`               | `DELTA_SYNC`, `DIRECT_ACCESS`                                                                              |
 | `EndpointStatus_State`          | `PROVISIONING`, `ONLINE`, `OFFLINE`, `RED_STATE`, `YELLOW_STATE`, `DELETED`                                |
 
 ### Interfaces (`model.ts`)
 
-`AdjustedThroughputRequest`, `CreateEndpointRequest`, `CustomTag`,
-`DeleteEndpointRequest`, `DeleteEndpointResponse`, `Endpoint`,
-`EndpointScalingInfo`, `EndpointStatus`, `EndpointThroughputInfo`,
-`GetEndpointRequest`, `ListEndpointRequest`, `ListEndpointResponse`,
-`PatchEndpointBudgetPolicyRequest`,
+`ColumnInfo`, `CreateEndpointRequest`, `CreateVectorIndexRequest`,
+`CustomTag`, `DeleteDataVectorIndexRequest`, `DeleteDataVectorIndexResponse`,
+`DeleteEndpointRequest`, `DeleteEndpointResponse`, `DeleteVectorIndexRequest`,
+`DeleteVectorIndexResponse`, `DeltaSyncVectorIndexSpec`,
+`DeltaSyncVectorIndexSpecRequest`, `DirectAccessVectorIndexSpec`,
+`EmbeddingSourceColumn`, `EmbeddingVectorColumn`, `Endpoint`,
+`EndpointScalingInfo`, `EndpointStatus`, `GetEndpointRequest`,
+`GetVectorIndexRequest`, `ListEndpointRequest`, `ListEndpointResponse`,
+`ListValue`, `ListVectorIndexRequest`, `ListVectorIndexResponse`,
+`MapStringValueEntry`, `MiniVectorIndex`, `PatchEndpointBudgetPolicyRequest`,
 `PatchEndpointBudgetPolicyResponse`, `PatchEndpointRequest`,
-`PatchEndpointThroughputRequest`, `PatchEndpointThroughputResponse`.
-
-### Schemas (`model.ts`)
-
-`unmarshalAdjustedThroughputRequestSchema`,
-`unmarshalCustomTagSchema`,
-`unmarshalDeleteEndpointResponseSchema`,
-`unmarshalEndpointSchema`,
-`unmarshalEndpointScalingInfoSchema`,
-`unmarshalEndpointStatusSchema`,
-`unmarshalEndpointThroughputInfoSchema`,
-`unmarshalListEndpointResponseSchema`,
-`unmarshalPatchEndpointBudgetPolicyResponseSchema`,
-`unmarshalPatchEndpointThroughputResponseSchema`,
-`marshalCreateEndpointRequestSchema`,
-`marshalPatchEndpointBudgetPolicyRequestSchema`,
-`marshalPatchEndpointRequestSchema`,
-`marshalPatchEndpointThroughputRequestSchema`.
+`QueryVectorIndexNextPageRequest`, `QueryVectorIndexRequest`,
+`QueryVectorIndexResponse`, `RerankerConfig`,
+`RerankerConfig_RerankerParameters`, `ResultData`, `ResultManifest`,
+`ScanVectorIndexRequest`, `ScanVectorIndexResponse`, `Struct`,
+`SyncVectorIndexRequest`, `SyncVectorIndexResponse`,
+`UpsertDataVectorIndexRequest`, `UpsertDataVectorIndexResponse`,
+`UpsertDeleteDataResult`, `Value`, `VectorIndex`, `VectorIndexStatus`.
 
 ### Client methods (`client.ts`)
 
-`createEndpoint`, `createEndpointWaiter`, `deleteEndpoint`,
-`getEndpoint`, `listEndpoint`, `listEndpointIter`, `patchEndpoint`,
-`patchEndpointBudgetPolicy`, `patchEndpointThroughput`.
+`createEndpoint`, `createEndpointWaiter`, `createVectorIndex`,
+`deleteDataVectorIndex`, `deleteEndpoint`, `deleteVectorIndex`,
+`getEndpoint`, `getVectorIndex`, `listEndpoint`, `listEndpointIter`,
+`listVectorIndex`, `listVectorIndexIter`, `patchEndpoint`,
+`patchEndpointBudgetPolicy`, `queryVectorIndex`,
+`queryVectorIndexNextPage`, `scanVectorIndex`, `syncVectorIndex`,
+`upsertDataVectorIndex`.
 
 ### Client classes (`client.ts`)
 
@@ -88,62 +93,23 @@ suggestion. Findings are grouped by category.
 
 ---
 
-## F0 — Package-level: the word "endpoint" is dangerously overloaded
+## F0 — Package-level: "endpoint" is dangerously overloaded
 
-This is the single most important finding and applies to every other
-finding below. Reproducing it once up front avoids re-stating it in
-each category.
+The package rename to `@databricks/sdk-vectorsearch` resolved much of
+the ambiguity called out in the original audit. Some residual concerns
+remain about the unqualified `Endpoint` type name.
 
-### F0.1 — Package name `@databricks/sdk-endpoints` is ambiguous to the point of being misleading (HIGH, blocking)
-- **Where:** `package.json:2`, the directory name
-  `packages/endpoints/`, every public export, and every type alias.
-- **Why flagged:** "Endpoint" is one of the most overloaded nouns in
-  the Databricks API surface. Concrete evidence from this monorepo:
-  - `packages/warehouses/src/v1` exports `EndpointSecurityPolicy`,
-    `EndpointSpotInstancePolicy`, `EndpointState`
-    — SQL Warehouses are internally called "endpoints" (and SQL endpoint
-    is a legacy term for warehouse).
-  - `packages/modelservingmanagement/src/v1` exports
-    `InferenceEndpoint`, `ServingEndpointDetailedPermissionLevel`,
-    with waiters `CreateInferenceEndpointWaiter`,
-    `PutInferenceEndpointConfigWaiter`, etc. — model serving uses
-    "endpoint" as its primary noun.
-  - **This** package: vector-search endpoints, evidenced by
-    `model.ts:78` ("Name of the vector search endpoint"),
-    `client.ts:86` URL `/api/2.0/vector-search/endpoints`,
-    `client.ts:118` JSDoc "Delete a vector search endpoint."
-  An import line `import {Client, Endpoint} from
-  '@databricks/sdk-endpoints'` gives the reader zero clue which of
-  the three concepts is being touched.  Autocompletion across the
-  monorepo conflates them.
-- **Suggestion:** Rename the package to one of:
-  - `@databricks/sdk-vectorsearchendpoints` (long, unambiguous,
-    matches the REST path), or
-  - `@databricks/sdk-vectorsearch` (short, matches the product
-    name; the package can hold both endpoints and indexes in
-    future), or
-  - `@databricks/sdk-vector-endpoints`.
-  Pair the rename with `Endpoint` → `VectorSearchEndpoint` in
-  `model.ts` (see F1.1). This single rename is the highest-leverage
-  fix in the audit.
-
-### F0.2 — Directory name lacks any "vector"/"search" qualifier (HIGH)
-- **Where:** `/home/parth.bansal/sdk-js/packages/endpoints/`.
-- **Why flagged:** Same root cause as F0.1. A monorepo `grep -r
-  endpoint` over the repo will surface this package alongside the
-  serving and warehouse packages with no visual differentiation.
-- **Suggestion:** Rename to `packages/vectorsearchendpoints/`
-  (matches `cleanroomtaskruns`, `oauthpublishedapp` flat style) or
-  `packages/vectorsearch/` if the package will grow.
-
-### F0.3 — Companion package `indexes` is also under-qualified (LOW, cross-package)
-- **Where:** `packages/indexes/` exports `Client`, `MiniVectorIndex`,
-  `VectorIndex`, `ListVectorIndexResponse`, etc.
-- **Why flagged:** "Index" alone is even more generic than "endpoint"
-  in software. The contents make clear it is vector-search, but the
-  package name does not. Same fix as F0.1.
-- **Suggestion:** Cross-cutting; align with whatever decision is
-  taken for `endpoints`.
+### F0.1 — `Endpoint` type still unqualified inside the package (MEDIUM)
+- **Where:** `model.ts:274`, `index.ts:31`.
+- **Why flagged:** The package rename to `vectorsearch` qualifies the
+  package identity, but the exported type is still `Endpoint`. A
+  consumer who imports
+  `import {Endpoint} from '@databricks/sdk-vectorsearch'` and then
+  passes it into a function `process(e: Endpoint)` loses the
+  package-level qualification once the import is destructured.
+- **Suggestion:** Rename `Endpoint` → `VectorSearchEndpoint` to mirror
+  `modelserving.InferenceEndpoint`. Slightly verbose but eliminates
+  the ambiguity at the type level.
 
 ---
 
@@ -151,46 +117,46 @@ each category.
 
 ### 1. Vague / generic names
 
-#### F1.1 — `Endpoint` type name (HIGH)
-- **Where:** `model.ts:111`, `index.ts:19`, return type of
+#### F1.1 — `Endpoint` type name (MEDIUM)
+- **Where:** `model.ts:274`, `index.ts:31`, return type of
   `createEndpoint`, `getEndpoint`, `patchEndpoint`, items of
   `listEndpointIter`.
 - **Why flagged:** "Endpoint" alone is one of the most generic nouns
-  in REST APIs (every URL is an endpoint). Combined with F0, a user
+  in REST APIs (every URL is an endpoint). Combined with F0.1, a user
   reading `function process(e: Endpoint)` cannot tell whether this
   is a vector-search endpoint, a model-serving endpoint, or a SQL
   warehouse endpoint.
 - **Suggestion:** Rename to `VectorSearchEndpoint`. Mirrors
-  `modelservingmanagement.InferenceEndpoint` and provides parity
+  `modelserving.InferenceEndpoint` and provides parity
   across packages. All sibling type names (`EndpointType`,
-  `EndpointStatus`, `EndpointThroughputInfo`, `EndpointScalingInfo`)
-  follow: `VectorSearchEndpointType`, etc. — long, but unambiguous.
+  `EndpointStatus`, `EndpointScalingInfo`) follow.
 
-#### F1.2 — `EndpointType` enum, `EndpointStatus` interface (HIGH)
-- **Where:** `model.ts:6, 153`; `index.ts:7, 20`.
+#### F1.2 — `EndpointType` enum, `EndpointStatus` interface (MEDIUM)
+- **Where:** `model.ts:18, 314`; `index.ts:6, 33`.
 - **Why flagged:** Same generic-noun problem as F1.1. `Endpoint*`
   symbols collide across the monorepo (cf. `warehouses.EndpointState`,
-  `modelservingmanagement.InferenceEndpoint`).
+  `modelserving.InferenceEndpoint`).
 - **Suggestion:** Qualify with `VectorSearch` prefix —
   `VectorSearchEndpointType`, `VectorSearchEndpointStatus`. Or move
   these into a namespace `VectorSearchEndpoint.Status` /
   `VectorSearchEndpoint.Type`.
 
 #### F1.3 — `Client` class name (MEDIUM, cross-cutting)
-- **Where:** `client.ts:56`, `index.ts:3`.
+- **Where:** `client.ts:85`, `index.ts:3`.
 - **Why flagged:** Every package in this SDK exports a `Client`.
-  `import {Client} from '@databricks/sdk-endpoints'` is unqualified
-  and routinely needs `import {Client as VectorSearchEndpointsClient}`
+  `import {Client} from '@databricks/sdk-vectorsearch'` is unqualified
+  and routinely needs `import {Client as VectorSearchClient}`
   at the call site. Project-wide pattern.
 - **Suggestion:** Keep `Client` and document the per-package
-  alias convention, or rename to `VectorSearchEndpointsClient`
+  alias convention, or rename to `VectorSearchClient`
   consistently across packages. Cross-cutting decision.
 
 #### F1.4 — `name` field everywhere (MEDIUM)
-- **Where:** `model.ts:79, 105, 113, 184, 189, 201, 214, 234`;
+- **Where:** `model.ts:91, 98, 115, 139, 147, 161, 169, 254, 269, 276,
+  323, 328, 339, 378, 403, 416, 427, 436, 512, 534, 542, 574`;
   `client.ts` throughout.
 - **Why flagged:** `name` is one of the most generic identifiers
-  possible. JSDoc explains "Name of the vector search endpoint", but
+  possible. JSDoc explains "Name of the AI Search endpoint", but
   the field name alone gives no domain hint. Worse, this `name` is
   used as the *path-segment identifier* (`/endpoints/${req.name ??
   ''}`) — i.e. it is functionally an ID. Other packages call this
@@ -202,7 +168,8 @@ each category.
     — see F12.3 / F19.2 for the duplicate-identifier problem.
 
 #### F1.5 — `req` parameter name on every client method (LOW, Go-ism)
-- **Where:** `client.ts:83, 108, 120, 145, 170, 200, 218, 244, 276`.
+- **Where:** `client.ts:112, 137, 149, 175, 209, 234, 259, 284, 318,
+  348, 366, 399, 417, 443, 475, 501, 530, 556, 582`.
 - **Why flagged:** `req` is a Go-ism (see category 14). It is also
   generic — a reader has to look at the type to know what the
   request is.
@@ -210,26 +177,19 @@ each category.
   `options` (which is spelled out). See F14.1.
 
 #### F1.6 — `state` field on `EndpointScalingInfo` and `EndpointStatus` (LOW)
-- **Where:** `model.ts:144, 155`.
+- **Where:** `model.ts:305, 316`.
 - **Why flagged:** `state` is generic. Disambiguated by container
   type, but `scalingState` / `endpointState` would be clearer in
   isolation.
 - **Suggestion:** Acceptable as-is given the containing type; leave.
 
-#### F1.7 — `message` field on `EndpointStatus` and `PatchEndpointThroughputResponse` (LOW)
-- **Where:** `model.ts:157, 259`.
+#### F1.7 — `message` field on `EndpointStatus` and `VectorIndexStatus` (LOW)
+- **Where:** `model.ts:318, 599`.
 - **Why flagged:** Generic. Compare `statusMessage`,
   `errorMessage`.
 - **Suggestion:** Add JSDoc clarifying purpose; rename optional.
 
-#### F1.8 — `status` field on `PatchEndpointThroughputResponse` (LOW)
-- **Where:** `model.ts:257`.
-- **Why flagged:** Field is `status: ThroughputPatchStatus`. Generic
-  field name typed against a non-generic enum. Reads as "status" with
-  three layers of "status".
-- **Suggestion:** `patchStatus` or `result`. See F20.4.
-
-#### F1.9 — `Call`, `Options` (imported, cross-package) (acceptable)
+#### F1.8 — `Call`, `Options` (imported, cross-package) (acceptable)
 - **Where:** `utils.ts:3-5`, `client.ts:4-5`.
 - These come from `@databricks/sdk-core/api`. Generic but
   intentional. Out of scope for this package's audit.
@@ -238,55 +198,8 @@ each category.
 
 ### 2. Redundant enum prefixes
 
-#### F2.1 — `ScalingChangeState.SCALING_CHANGE_*` (HIGH)
-- **Where:** `model.ts:13-17`.
-  ```ts
-  export enum ScalingChangeState {
-    SCALING_CHANGE_UNSPECIFIED = 'SCALING_CHANGE_UNSPECIFIED',
-    SCALING_CHANGE_APPLIED = 'SCALING_CHANGE_APPLIED',
-    SCALING_CHANGE_IN_PROGRESS = 'SCALING_CHANGE_IN_PROGRESS',
-  }
-  ```
-- **Why flagged:** Every member prefixes `SCALING_CHANGE_` — the
-  exact enum name. Reads
-  `ScalingChangeState.SCALING_CHANGE_APPLIED`, which says
-  "scaling change" twice. Compare `Color.RED_COLOR`.
-- **Suggestion:** Drop the prefix on the *TS* identifier; keep the
-  wire string. The TS-idiomatic shape is:
-  ```ts
-  export enum ScalingChangeState {
-    UNSPECIFIED = 'SCALING_CHANGE_UNSPECIFIED',
-    APPLIED = 'SCALING_CHANGE_APPLIED',
-    IN_PROGRESS = 'SCALING_CHANGE_IN_PROGRESS',
-  }
-  ```
-  Wire compatibility preserved; TS readability massively improved.
-  Generator-level decision.
-
-#### F2.2 — `ThroughputChangeRequestState.CHANGE_*` (HIGH)
-- **Where:** `model.ts:20-33`.
-  ```ts
-  CHANGE_SUCCESS, CHANGE_FAILED, CHANGE_REACHED_MINIMUM,
-  CHANGE_REACHED_MAXIMUM, CHANGE_IN_PROGRESS, CHANGE_ADJUSTED
-  ```
-- **Why flagged:** Every member starts with `CHANGE_`. The enum is
-  `ThroughputChangeRequestState` so `CHANGE_` is redundant.
-- **Suggestion:** Same as F2.1 — keep wire strings, strip the
-  `CHANGE_` prefix on the TS identifier:
-  `SUCCESS`, `FAILED`, `REACHED_MINIMUM`, `REACHED_MAXIMUM`,
-  `IN_PROGRESS`, `ADJUSTED`.
-
-#### F2.3 — `ThroughputPatchStatus.PATCH_*` (HIGH)
-- **Where:** `model.ts:36-43`.
-- **Why flagged:** `PATCH_ACCEPTED`, `PATCH_REJECTED`, `PATCH_FAILED`
-  — every member prefixed with `PATCH_`, which is exactly the enum's
-  domain. Reads `ThroughputPatchStatus.PATCH_ACCEPTED` —
-  "patch status . patch accepted".
-- **Suggestion:** Strip prefix:
-  `ACCEPTED`, `REJECTED`, `FAILED`.
-
-#### F2.4 — `EndpointStatus_State.RED_STATE`, `YELLOW_STATE` (MEDIUM)
-- **Where:** `model.ts:57-58`.
+#### F2.1 — `EndpointStatus_State.RED_STATE`, `YELLOW_STATE` (MEDIUM)
+- **Where:** `model.ts:79-80`.
 - **Why flagged:** `_STATE` is redundant — the enum is already
   `EndpointStatus_State`. Reads `EndpointStatus_State.RED_STATE` —
   "endpoint status state . red state". Other members in the same
@@ -297,49 +210,42 @@ each category.
   `YELLOW`. Otherwise, document the asymmetry. Worth fixing at the
   spec level.
 
-#### F2.5 — `EndpointType.STANDARD_ON_ORION` (LOW)
-- **Where:** `model.ts:10`.
-- **Why flagged:** Not technically redundant, but `ON_ORION` is an
-  implementation-leak — the enum should describe *what the user
-  sees*, not *which infra backs it*. See F6.x.
-- **Suggestion:** Discussed in F6.4.
-
 ---
 
 ### 3. Acronym casing inconsistencies
 
 #### F3.1 — `Id` vs `ID` (acceptable, cross-cutting)
-- **Where:** `model.ts:125, 131, 133, 199, 203, 207, 209`.
+- **Where:** `model.ts:102, 104, 188, 220, 288, 294, 296, 405, 409,
+  411`.
 - **Why flagged:** Field uses `id`, `budgetPolicyId`,
-  `effectiveBudgetPolicyId`, `usagePolicyId` — consistent lower-camel
-  `Id`. This matches the SDK-wide convention.
+  `effectiveBudgetPolicyId`, `usagePolicyId`, `pipelineId` — consistent
+  lower-camel `Id`. This matches the SDK-wide convention.
 - **Suggestion:** No change.
 
-#### F3.2 — `QPS` rendered as `Qps` (HIGH)
+#### F3.2 — `QPS` rendered as `Qps` (MEDIUM)
 - **Where:**
-  - `CreateEndpointRequest.targetQps` (`model.ts:93`)
-  - `EndpointScalingInfo.requestedTargetQps` (`model.ts:149`)
-  - `PatchEndpointRequest.targetQps` (`model.ts:229`)
+  - `CreateEndpointRequest.targetQps` (`model.ts:110`)
+  - `EndpointScalingInfo.requestedTargetQps` (`model.ts:310`)
+  - `PatchEndpointRequest.targetQps` (`model.ts:421`)
 - **Why flagged:** "QPS" (queries per second) is a TLA. The SDK
   applies "first letter cap, rest lower" for camelCase — so `Qps`
-  here. But the wire form is `target_qps` (all-lower), Go SDK uses
-  `TargetQps`, the JSDoc and comments mix "QPS" (uppercase) and
-  "qps". This SDK has a precedent: `URL`/`url` is lowercase,
-  `HTTP`/`http` matches casing context (`HttpClient`, `HttpRequest`),
-  `id` is lowercase. So `Qps` is consistent with `Http`/`Url`
+  here. The JSDoc uses "QPS" (uppercase) and the wire form is
+  `target_qps`. So `Qps` is consistent with `Http`/`Url`
   casing for acronyms; flag is only against the JSDoc/comment mix.
 - **Suggestion:** Standardize comments to use `QPS` consistently when
   the prose is talking about the term, and `targetQps` for the TS
   identifier. Or rename to `targetQueriesPerSecond` (verbose but
-  self-documenting). See also F5.x.
+  self-documenting).
 
-#### F3.3 — `CPU` rendered in JSDoc as "(total CPU)" (acceptable)
-- **Where:** `model.ts:69, 162, 165, 235`.
-- JSDoc only; no identifier impact. Fine.
-
-#### F3.4 — `URL` / `Url` (acceptable for this file)
-- `client.ts:86, 123, 148, 174, 179, 221, 247, 279` uses lowercase
+#### F3.3 — `URL` / `Url` (acceptable for this file)
+- `client.ts:115, 152, 178, 184, 212, 237, 262, 287, 296, 321, 327,
+  369, 378, 420, 446, 478, 504, 533, 559, 585` uses lowercase
   `url` consistently. No casing inconsistency.
+
+#### F3.4 — `JSON` rendered as `Json` (acceptable)
+- **Where:** `model.ts:247, 452, 544`; `inputsJson`, `schemaJson`,
+  `filtersJson`.
+- Matches SDK-wide convention; no change.
 
 ---
 
@@ -352,24 +258,29 @@ _None._
 ### 5. Cryptic abbreviations
 
 #### F5.1 — `req` (LOW, Go-ism)
-- **Where:** `client.ts:83, 108, 120, 145, 170, 200, 218, 244, 276`,
-  `client.ts:202, 212`.
+- **Where:** `client.ts:112, 137, 149, 175, 209, 234, 259, 284, 318,
+  348, 366, 399, 417, 443, 475, 501, 530, 556, 582` plus
+  `client.ts:351, 360, 402, 411`.
 - **Why flagged:** Already flagged under F1.5 / F14.1.
 
 #### F5.2 — `resp` / `respBody` (LOW, Go-ism)
-- **Where:** `client.ts:88, 93, 98, 101, 124, 128, 134, 137, 149,
-  154, 159, 162, 180, 184, 190, 193, 205, 209, 223, 228, 233, 236,
-  252, 257, 262, 268, 280, 285, 289, 294, 300, 322, 363, 370`.
+- **Where:** `client.ts:117, 122, 127, 130, 154, 159, 164, 167, 185,
+  190, 195, 201, 213, 218, 223, 226, 238, 243, 248, 251, 263, 268,
+  273, 276, 297, 302, 307, 310, 328, 333, 338, 341, 353, 379, 384,
+  389, 392, 404, 422, 427, 432, 435, 451, 456, 461, 467, 480, 485,
+  490, 493, 509, 514, 519, 522, 535, 540, 545, 548, 561, 566, 571,
+  574, 587, 592, 597, 603, 625, 666`.
 - **Why flagged:** `response` is two extra characters and unambiguous.
 - **Suggestion:** `response`, `responseBody`.
 
 #### F5.3 — `pollResp` (LOW)
-- **Where:** `client.ts:322, 329, 339, 363, 370`.
+- **Where:** `client.ts:625, 632, 642, 666, 673`.
 - **Why flagged:** Same `resp` Go-ism inside the waiter.
 - **Suggestion:** `pollResponse`.
 
 #### F5.4 — `httpReq` (LOW)
-- **Where:** `client.ts:92, 128, 153, 184, 227, 256, 288`.
+- **Where:** `client.ts:121, 158, 189, 217, 242, 267, 301, 332, 383,
+  426, 455, 484, 513, 539, 565, 591`.
 - **Why flagged:** `httpRequest` is clearer and matches the type
   `HttpRequest` exactly.
 - **Suggestion:** `httpRequest`.
@@ -380,13 +291,13 @@ _None._
 - **Suggestion:** `apiError`.
 
 #### F5.6 — `pkgJson` (LOW)
-- **Where:** `client.ts:20, 50-52`.
+- **Where:** `client.ts:20, 79-80`.
 - **Why flagged:** "pkg" abbreviation. `packageJson` is two extra
   characters and unambiguous.
 - **Suggestion:** `packageJson`.
 
 #### F5.7 — `msg` (LOW)
-- **Where:** `client.ts:339-340`.
+- **Where:** `client.ts:642-643`.
   ```ts
   const msg = pollResp.endpointStatus?.message ?? '(no message)';
   throw new Error(`terminal state ${status}: ${msg}`);
@@ -409,8 +320,8 @@ _None._
 - **Suggestion:** Rename `opts → options` inside `executeHttpCall`
   for consistency; leave `acc`, `val`, `e` alone.
 
-#### F5.9 — `info` in `client.ts:71-77` (LOW)
-- **Where:** `client.ts:71-77`.
+#### F5.9 — `info` in `client.ts:100-105` (LOW)
+- **Where:** `client.ts:100-105`.
   ```ts
   let info = createDefault().with(PACKAGE_SEGMENT);
   ```
@@ -427,12 +338,12 @@ _None._
 ### 6. Misleading names
 
 #### F6.1 — `Endpoint.name` is functionally the primary key (HIGH)
-- **Where:** `model.ts:113`.
-- **Why flagged:** The field is described as "Name of the vector
-  search endpoint" but used as the path-segment identifier in
+- **Where:** `model.ts:276`.
+- **Why flagged:** The field is described as "Name of the AI Search
+  endpoint" but used as the path-segment identifier in
   `getEndpoint`, `deleteEndpoint`, `patchEndpoint`, etc.
-  (`client.ts:123, 148, 221, 247, 279`). Also, `Endpoint` has both
-  `name` and `id` (line 125), with `id` documented as "Unique
+  (`client.ts:212, 262, 420, 446`). Also, `Endpoint` has both
+  `name` and `id` (line 288), with `id` documented as "Unique
   identifier of the endpoint" — so the type has *two* identifiers
   and only one of them ever shows up in URLs.
 - **Suggestion:** Document explicitly: "Used as the primary
@@ -442,17 +353,17 @@ _None._
   See F12.3 / F19.2.
 
 #### F6.2 — `numIndexes` reads as "number of *array* indexes" (MEDIUM)
-- **Where:** `model.ts:129`.
+- **Where:** `model.ts:292`.
 - **Why flagged:** In TS, "index" almost universally means a numeric
   position in an array. Here it means "number of vector-search
   indexes attached to this endpoint" — a domain term, not the
   data-structure term.
 - **Suggestion:** Rename `numIndexes → numVectorIndexes` (matches
-  `MiniVectorIndex` / `VectorIndex` in the sibling `indexes`
-  package). Even better: pluralize naturally, `vectorIndexCount`.
+  `MiniVectorIndex` / `VectorIndex` in the same package). Even
+  better: pluralize naturally, `vectorIndexCount`.
 
 #### F6.3 — `EndpointStatus_State.OFFLINE` as a *terminal failure* state (HIGH)
-- **Where:** `model.ts:50`, `client.ts:338-341, 376-380`.
+- **Where:** `model.ts:72`, `client.ts:641-644, 680-681`.
   ```ts
   case EndpointStatus_State.OFFLINE: {
     const msg = pollResp.endpointStatus?.message ?? '(no message)';
@@ -468,56 +379,32 @@ _None._
   intent) or `TERMINATED`. Otherwise add a prominent JSDoc note on
   the enum value explaining the waiter contract.
 
-#### F6.4 — `EndpointType.STANDARD_ON_ORION` leaks infra implementation (MEDIUM)
-- **Where:** `model.ts:9-10`.
-- **Why flagged:** "Orion" is an internal Databricks infrastructure
-  name; the JSDoc says "Standard endpoint backed by Orion
-  infrastructure with endpoint-scoped reconciliation." This is a
-  *user-visible* enum value that exposes internal architecture. If
-  Orion is renamed, this enum value cannot change without breaking
-  callers.
-- **Suggestion:** Wire-protocol value; cannot rename in TS. Flag for
-  upstream API redesign — public enum members should describe user
-  semantics (e.g. `STANDARD_V2`), not internal infra.
-
-#### F6.5 — `minimalConcurrencyAllowed` vs "minimum concurrency" in JSDoc (LOW)
-- **Where:** `model.ts:71-72, 168-169, 237-238`.
-- **Why flagged:** Field uses `minimal` but the JSDoc says
-  "minimum". `minimal` is a different word — "the least possible"
-  vs `minimum` "the lower bound". For a lower-bound limit
-  `minimumConcurrencyAllowed` is the correct English word; "minimal
-  concurrency" suggests "barely any concurrency".
-- **Suggestion:** Rename `minimalConcurrencyAllowed →
-  minimumConcurrencyAllowed`. Wire field is `minimal_concurrency_allowed`
-  (model.ts:271, 356) — needs a generator-level fix or remapping in
-  the marshaller.
-
-#### F6.6 — `Endpoint.creator` is a user *identifier*, not the user (LOW)
-- **Where:** `model.ts:115`. JSDoc: "Creator of the endpoint".
+#### F6.4 — `Endpoint.creator` is a user *identifier*, not the user (LOW)
+- **Where:** `model.ts:278`. JSDoc: "Creator of the endpoint".
 - **Why flagged:** "Creator" suggests a `User` object; the field type
   is `string`. Compare `lastUpdatedUser` (also `string`).
 - **Suggestion:** `creatorUserName` or `creatorEmail`, depending on
   what the wire returns. Or `createdBy` (matches REST convention).
 
-#### F6.7 — `lastUpdatedUser` vs `creator` asymmetry (LOW)
-- **Where:** `model.ts:115, 123`.
+#### F6.5 — `lastUpdatedUser` vs `creator` asymmetry (LOW)
+- **Where:** `model.ts:278, 286`.
 - **Why flagged:** Two fields, both `string`, both identify a user,
   with different naming patterns: `creator` (noun) vs
   `lastUpdatedUser` (compound). Inconsistent.
 - **Suggestion:** `createdBy` and `updatedBy` (matches REST common
   practice) or `creator` and `lastUpdater`. Pick one form.
 
-#### F6.8 — `flattenQueryParams` is exported but unused in this package (LOW)
+#### F6.6 — `flattenQueryParams` is exported but unused in this package (LOW)
 - **Where:** `utils.ts:123-150`.
-- **Why flagged:** The package's only list endpoint uses
-  `URLSearchParams.append` directly (`client.ts:175-177`). The
-  helper is dead in this package — same finding as in the `budgets`
-  audit.
+- **Why flagged:** The package's list endpoints use
+  `URLSearchParams.append` directly (`client.ts:179-182, 322-325,
+  370-376`). The helper is dead in this package — same finding as
+  in the `budgets` audit.
 - **Suggestion:** Move shared helpers to `@databricks/sdk-core` or
   delete from per-package `utils.ts`. Cross-cutting.
 
-#### F6.9 — JSDoc `"Update an endpoint"` on `patchEndpoint` lacks the verb match (LOW)
-- **Where:** `client.ts:216`.
+#### F6.7 — JSDoc `"Update an endpoint"` on `patchEndpoint` lacks the verb match (LOW)
+- **Where:** `client.ts:415`.
 - **Why flagged:** JSDoc says "Update", the method is `patchEndpoint`.
   Inconsistent verb. (See F17.1.)
 - **Suggestion:** Either rename the method or rewrite the JSDoc:
@@ -527,10 +414,10 @@ _None._
 
 ### 7. Overly verbose
 
-#### F7.1 — `Endpoint` *would* be fine — but combined with package
-  rename, becomes `VectorSearchEndpoint` (HIGH)
-- **Where:** `model.ts:111`, `index.ts:19`.
-- **Why flagged:** Today `Endpoint` is too generic (F1.1). After the
+#### F7.1 — `Endpoint` *would* be fine — but with package qualification
+  removed, becomes `VectorSearchEndpoint` (MEDIUM)
+- **Where:** `model.ts:274`, `index.ts:31`.
+- **Why flagged:** Today `Endpoint` is unqualified (F1.1). After the
   F0/F1 rename it becomes `VectorSearchEndpoint` — long but
   necessary. Worth noting as a deliberate tradeoff, not a bug.
 - **Suggestion:** Accept the verbosity; mitigate by aliasing at
@@ -538,7 +425,7 @@ _None._
 
 #### F7.2 — `PatchEndpointBudgetPolicyRequest`,
   `PatchEndpointBudgetPolicyResponse` (HIGH)
-- **Where:** `model.ts:199, 206`, `index.ts:26-27`.
+- **Where:** `model.ts:401, 408`, `index.ts:43-44`.
 - **Why flagged:** 32+ characters. Inside a method literally named
   `patchEndpointBudgetPolicy(...)`, the request type repeats every
   token. Compare typical TS SDK shape:
@@ -547,45 +434,23 @@ _None._
   token. The method belongs to a vector-search-endpoint client, so
   `PatchBudgetPolicyRequest` / `PatchBudgetPolicyResponse` is enough.
 
-#### F7.3 — `PatchEndpointThroughputRequest`,
-  `PatchEndpointThroughputResponse` (HIGH)
-- **Where:** `model.ts:232, 255`, `index.ts:28-30`.
-- **Why flagged:** Same as F7.2.
-- **Suggestion:** `PatchThroughputRequest` /
-  `PatchThroughputResponse`.
-
-#### F7.4 — Method names: `patchEndpointBudgetPolicy`,
-  `patchEndpointThroughput`, `createEndpoint`, `deleteEndpoint`,
+#### F7.3 — Method names: `patchEndpointBudgetPolicy`,
+  `createEndpoint`, `deleteEndpoint`,
   `getEndpoint`, `listEndpoint`, `patchEndpoint` (MEDIUM)
-- **Where:** `client.ts:82, 119, 144, 169, 217, 243, 275`.
-- **Why flagged:** "Endpoint" repeats in every method name. The
-  containing class is *already* the endpoints client (or will be
-  after F0 rename — `VectorSearchEndpointsClient`). Compare typical
-  TS SDK shape: `endpoints.create(...)`, `endpoints.patchBudgetPolicy(...)`.
-- **Suggestion:** `create`, `delete`, `get`, `list`,
-  `patch`, `patchBudgetPolicy`, `patchThroughput`. Cross-package
-  convention.
+- **Where:** `client.ts:111, 208, 258, 317, 416, 442`.
+- **Why flagged:** "Endpoint" repeats in every method name. Compare
+  typical TS SDK shape: `client.createEndpoint(...)`. Now that
+  the package contains both endpoints and indexes, the verbose form
+  is more justified — but the names could be split into nested
+  resource clients (`client.endpoints.create(...)`,
+  `client.indexes.create(...)`).
+- **Suggestion:** Nested resource clients, or keep as-is given the
+  multi-resource scope of the package. Cross-package convention.
 
-#### F7.5 — `currentConcurrencyUtilizationPercentage` (HIGH)
-- **Where:** `model.ts:166-167`, `model.ts:355, 366`.
-- **Why flagged:** 39 characters. Three concept tokens
-  (concurrency + utilization + percentage). The "percentage" can be
-  inferred from the JSDoc unit (0-100).
-- **Suggestion:** `concurrencyUtilization` plus JSDoc that documents
-  the unit. Or `concurrencyUtilizationPct` if the abbreviated form
-  is preferred.
-
-#### F7.6 — `EndpointThroughputInfo`, `EndpointScalingInfo` (LOW)
-- **Where:** `model.ts:142, 161`.
-- **Why flagged:** `Info` suffix is a generic filler word. The types
-  describe throughput state and scaling state, respectively.
-- **Suggestion:** `EndpointThroughput`, `EndpointScaling`. Or align
-  with `EndpointStatus` (already there, no `Info`).
-
-#### F7.7 — `createEndpointWaiter` method (MEDIUM)
-- **Where:** `client.ts:107-116`.
+#### F7.4 — `createEndpointWaiter` method (MEDIUM)
+- **Where:** `client.ts:136-145`.
 - **Why flagged:** This method is `createEndpoint` + return-a-waiter.
-  All sibling SDKs (`warehouses`, `modelservingmanagement`) export
+  All sibling SDKs (`warehouses`, `modelserving`) export
   the waiter as a separate type and the create method returns it
   directly. Reads as `client.createEndpoint(...)` returning an
   `Endpoint`, then a second method `createEndpointWaiter(...)`
@@ -598,13 +463,21 @@ _None._
     type entirely.
   See F17.3.
 
-#### F7.8 — `STILL_RUNNING` / `StillRunningError` (LOW)
-- **Where:** `client.ts:54`.
+#### F7.5 — `STILL_RUNNING` / `StillRunningError` (LOW)
+- **Where:** `client.ts:83`.
 - **Why flagged:** Private error class used as a control-flow signal
   for `retryOn`. Three concepts in one name ("still" + "running" +
   "error"). It is essentially "not yet done".
 - **Suggestion:** Acceptable as-is; alternative
   `RetryablePendingError` or `NotYetDoneError`.
+
+#### F7.6 — `QueryVectorIndexNextPageRequest` (LOW)
+- **Where:** `model.ts:425`, `index.ts:46`.
+- **Why flagged:** 30+ characters. Could be `QueryVectorIndexPageRequest`
+  or `QueryNextPageRequest`.
+- **Suggestion:** `QueryNextPageRequest` keeps the meaning and drops
+  the redundant `VectorIndex` token (context: it's a vector-search
+  package).
 
 ---
 
@@ -617,39 +490,44 @@ _None._
 - **Suggestion:** No change.
 
 #### F8.2 — `EndpointType` enum tautology (LOW)
-- **Where:** `model.ts:6`, `Endpoint.endpointType: EndpointType`
-  (`model.ts:121`).
+- **Where:** `model.ts:18`, `Endpoint.endpointType: EndpointType`
+  (`model.ts:284`).
 - **Why flagged:** Three layers of "endpoint": `Endpoint` has a
   field `endpointType` typed as `EndpointType`. Reads as
   `endpoint.endpointType : EndpointType`.
 - **Suggestion:** Rename field `endpointType → type` (loses one
   redundancy, becomes `endpoint.type : EndpointType`). Wire field
-  is `endpoint_type` (`model.ts:299, 424`), so a remap is needed.
+  is `endpoint_type` (`model.ts:725, 1028`), so a remap is needed.
   See F20.1.
 
 #### F8.3 — `EndpointStatus` interface + `endpointStatus` field on `Endpoint` (LOW)
-- **Where:** `model.ts:127, 153`.
+- **Where:** `model.ts:290, 314`.
 - **Why flagged:** Same pattern as F8.2:
   `endpoint.endpointStatus : EndpointStatus`.
 - **Suggestion:** Rename field `endpointStatus → status`. Wire field
   is `endpoint_status` — generator-level remap.
 
-#### F8.4 — `EndpointThroughputInfo` / `EndpointScalingInfo` `Info` suffix (LOW)
-- See F7.6.
+#### F8.4 — `EndpointScalingInfo` `Info` suffix (LOW)
+- **Where:** `model.ts:303`.
+- **Why flagged:** `Info` suffix is a generic filler word. The type
+  describes scaling state.
+- **Suggestion:** `EndpointScaling`. Or align with `EndpointStatus`
+  (already there, no `Info`).
 
-#### F8.5 — `ThroughputChangeRequestState` (LOW)
-- **Where:** `model.ts:20`.
-- **Why flagged:** `Throughput` + `Change` + `Request` + `State` —
-  four concept tokens. `RequestState` is partially redundant with
-  `ChangeRequestState`.
-- **Suggestion:** `ThroughputChangeState` (3 tokens) is enough.
+#### F8.5 — `DeltaSyncVectorIndexSpec` vs `DeltaSyncVectorIndexSpecRequest` (LOW)
+- **Where:** `model.ts:175, 207`.
+- **Why flagged:** Two types with the same prefix differing only by
+  `Request` suffix; the `Request` variant is the input shape, the
+  bare variant is the output. Asymmetric: most request-shape
+  duplicates in the codebase don't carry the suffix.
+- **Suggestion:** Document the distinction in JSDoc. Acceptable.
 
 ---
 
 ### 9. Singular / plural mismatches
 
 #### F9.1 — `listEndpoint` method singular for a collection (HIGH)
-- **Where:** `client.ts:169`.
+- **Where:** `client.ts:317`.
 - **Why flagged:** Method returns `ListEndpointResponse` whose
   `endpoints` field is `Endpoint[]`. The method should be
   `listEndpoints` (plural). Same applies to its request type:
@@ -660,44 +538,46 @@ _None._
   consistent with the URL.
 
 #### F9.2 — `ListEndpointRequest` / `ListEndpointResponse` types (HIGH)
-- **Where:** `model.ts:187, 192`.
+- **Where:** `model.ts:338, 343`.
 - See F9.1.
 
-#### F9.3 — `Endpoint.numIndexes` plural (acceptable)
-- **Where:** `model.ts:129`.
+#### F9.3 — `listVectorIndex` method singular for a collection (HIGH)
+- **Where:** `client.ts:365`.
+- **Why flagged:** Same issue as F9.1 — method returns a list of
+  indexes. Should be `listVectorIndexes`.
+- **Suggestion:** Pluralize throughout: `listVectorIndexes`,
+  `ListVectorIndexesRequest`, `ListVectorIndexesResponse`.
+
+#### F9.4 — `ListVectorIndexRequest` / `ListVectorIndexResponse` types (HIGH)
+- **Where:** `model.ts:355, 362`.
+- See F9.3.
+
+#### F9.5 — `Endpoint.numIndexes` plural (acceptable)
+- **Where:** `model.ts:292`.
 - Plural is correct for a count of indexes.
 
-#### F9.4 — `Endpoint.customTags: CustomTag[]` plural (acceptable)
-- **Where:** `model.ts:135`.
+#### F9.6 — `Endpoint.customTags: CustomTag[]` plural (acceptable)
+- **Where:** `model.ts:298`.
 - Plural is correct for an array.
-
-#### F9.5 — `CreateEndpointRequest.numReplicas` vs
-  `PatchEndpointThroughputRequest.numReplicas` vs
-  `EndpointThroughputInfo.requestedNumReplicas` /
-  `currentNumReplicas` (acceptable)
-- **Where:** `model.ts:87, 252, 177, 179`.
-- Consistent use of `numReplicas` (plural) as a count.
 
 ---
 
 ### 10. Reserved-word / built-in collisions
 
 #### F10.1 — `delete` method name (LOW)
-- **Where:** `client.ts:119` (`deleteEndpoint`).
+- **Where:** `client.ts:208` (`deleteEndpoint`).
 - **Why flagged:** TS allows `delete` as method name. `deleteEndpoint`
-  is unambiguous; flag would apply only if F7.4 renames it to bare
-  `delete` (then it would shadow the `delete` keyword visually but is
-  still legal).
-- **Suggestion:** Acceptable; relevant only if F7.4 is applied.
+  is unambiguous; flag would apply only if renamed to bare `delete`.
+- **Suggestion:** Acceptable.
 
 #### F10.2 — `status` field (LOW)
-- **Where:** `model.ts:257`.
+- **Where:** `model.ts:154, 394, 549, 590`.
 - **Why flagged:** `Response.status` collides with `Response.status`
   in the Fetch API. Mild shadowing concern in code review.
-- **Suggestion:** See F1.8.
+- **Suggestion:** Acceptable inside the type domain.
 
 #### F10.3 — `state` field (LOW)
-- **Where:** `model.ts:144, 155`.
+- **Where:** `model.ts:305, 316`.
 - **Why flagged:** No reserved-word collision. `state` is a popular
   React/Redux concept, but that is library-level not language-level.
 - **Suggestion:** Acceptable.
@@ -714,96 +594,38 @@ _None._
 
 ### 11. Empty / trivial wrapper types
 
-#### F11.1 — `AdjustedThroughputRequest` exposed as a *response*
-  payload (MEDIUM)
-- **Where:** `model.ts:68-75, 264`.
-- **Why flagged:** Type name says "Request" (line 67 JSDoc:
-  "Adjusted throughput request parameters") but it appears in a
-  response field: `PatchEndpointThroughputResponse.adjustedRequest`
-  (line 264). This is OK semantically — it's the *request that was
-  applied after adjustment* — but a reader sees `AdjustedThroughputRequest`
-  in a *response* and double-takes. Borderline misleading.
-- **Suggestion:** Either:
-  - Rename to `AdjustedThroughputParameters` (drop "Request"), or
-  - Rename to `AppliedThroughputAdjustment` (explicit), or
-  - Document the dual role prominently in JSDoc.
+#### F11.1 — `DeleteEndpointResponse`, `DeleteVectorIndexResponse`,
+  `SyncVectorIndexResponse` empty (LOW)
+- **Where:** `model.ts:165, 173, 538`.
+- **Why flagged:** Empty `{}` types. Conventional placeholder for
+  REST endpoints that return an empty body. Useful for future
+  evolution.
+- **Suggestion:** Acceptable.
 
 ---
 
 ### 12. Duplicate concepts
 
-#### F12.1 — `numReplicas` in three different places (HIGH)
-- **Where:**
-  - `CreateEndpointRequest.numReplicas` (`model.ts:87`)
-  - `PatchEndpointThroughputRequest.numReplicas` (`model.ts:252`)
-  - `EndpointThroughputInfo.requestedNumReplicas` (`model.ts:177`)
-  - `EndpointThroughputInfo.currentNumReplicas` (`model.ts:179`)
-- **Why flagged:** Same conceptual field, different names depending
-  on context. `numReplicas` on create vs `requestedNumReplicas`
-  in info vs `currentNumReplicas` in info. The asymmetry is
-  intentional (request vs current vs target), but the naming pattern
-  is inconsistent — see F12.2.
-- **Suggestion:** Standardize: input fields stay `numReplicas`;
-  state fields become `requestedReplicas` / `currentReplicas` (drop
-  the `Num` — see F14.x).
-
-#### F12.2 — `targetQps`, `requestedTargetQps`,
-  `replicationFactor`, `numReplicas` describe overlapping concepts (HIGH)
-- **Where:**
-  - `CreateEndpointRequest.targetQps` (`model.ts:93`)
-  - `PatchEndpointRequest.replicationFactor` (`model.ts:224`)
-  - `PatchEndpointRequest.targetQps` (`model.ts:229`)
-  - `PatchEndpointThroughputRequest.numReplicas` (`model.ts:252`)
-  - `EndpointScalingInfo.requestedTargetQps` (`model.ts:149`)
-- **Why flagged:** Three different ways to express how big the
-  endpoint should be:
-  - `targetQps` (queries per second; high-level intent)
-  - `replicationFactor` (low-level OpenSearch parameter)
-  - `numReplicas` (user-facing replica count)
-
-  The JSDoc on `PatchEndpointRequest.replicationFactor` even says:
-  "This is the raw replication factor, not 'total data copies'.
-  For the user-facing replica count (which uses total-copies
-  semantics), see `PatchEndpointThroughputRequest.num_replicas`."
-  That cross-reference inside JSDoc is a strong smell — these are
-  three names for two distinct concepts, and the type system does
-  not enforce which goes where.
-- **Suggestion:** API-shape concern. Consolidate at the spec level:
-  pick one of (qps, replicas) as the public dimension; demote
-  `replicationFactor` to "advanced" with a clearer name like
-  `openSearchReplicationFactor` (so the implementation leak is
-  explicit).
-
-#### F12.3 — `Endpoint.name` vs `Endpoint.id` (HIGH)
-- **Where:** `model.ts:113, 125`.
+#### F12.1 — `Endpoint.name` vs `Endpoint.id` (HIGH)
+- **Where:** `model.ts:276, 288`.
 - **Why flagged:** Both fields are documented as identifiers
-  ("Name of the vector search endpoint" / "Unique identifier of the
+  ("Name of the AI Search endpoint" / "Unique identifier of the
   endpoint"). Every URL uses `name`, never `id`. Two identifiers
   for the same entity confuse users; see F1.4, F6.1, F19.2.
 - **Suggestion:** Document the distinction prominently
   (`name` = user-chosen URL-safe key, `id` = opaque GUID). Or
   collapse to one identifier at the API level.
 
-#### F12.4 — `concurrency` (CPU) vs `numReplicas` vs `targetQps` mixed (MEDIUM)
-- **Where:** `model.ts:69, 73, 87, 93, 162, 165, 168, 171, 177,
-  235, 238, 240, 252`.
-- **Why flagged:** Concurrency in `EndpointThroughputInfo` is "total
-  CPU"; replicas are "data copies including primary"; QPS is a
-  performance target. Three orthogonal dimensions, all related to
-  "how big the endpoint is". The terms are easy to confuse.
-- **Suggestion:** API-shape concern. Add a single explainer JSDoc on
-  the `Endpoint` type explaining the relationship.
-
-#### F12.5 — `budgetPolicyId` vs `effectiveBudgetPolicyId` (LOW)
-- **Where:** `model.ts:131, 133, 207, 209`.
+#### F12.2 — `budgetPolicyId` vs `effectiveBudgetPolicyId` (LOW)
+- **Where:** `model.ts:294, 296, 405, 409, 411`.
 - **Why flagged:** Two fields, same domain, distinguished by the
   word "effective". A reader needs JSDoc to know which is the
   request and which is the result of policy resolution.
 - **Suggestion:** Acceptable convention; JSDoc clarifies. Not a
   duplicate, just adjacent.
 
-#### F12.6 — `usagePolicyId` vs `budgetPolicyId` (LOW)
-- **Where:** `model.ts:83, 85`.
+#### F12.3 — `usagePolicyId` vs `budgetPolicyId` (LOW)
+- **Where:** `model.ts:102, 104`.
 - **Why flagged:** Two different policy IDs whose JSDoc says one
   will be replaced by the other ("usagePolicyId" — "to be applied
   once we've migrated to usage policies"). Transitional API — both
@@ -811,8 +633,23 @@ _None._
 - **Suggestion:** Acceptable transition; should be cleaned up post
   migration.
 
-#### F12.7 — Per-method header construction duplicated (LOW, code style)
-- **Where:** `client.ts:90, 126, 151, 182, 225, 254, 286`.
+#### F12.4 — `DeltaSyncVectorIndexSpec` vs `DeltaSyncVectorIndexSpecRequest`
+  near-duplicate types (LOW)
+- **Where:** `model.ts:175, 207`.
+- **Why flagged:** The two types have an identical set of fields.
+  The split is purely for request vs response.
+- **Suggestion:** Acceptable convention; document the asymmetry.
+
+#### F12.5 — `MiniVectorIndex` vs `VectorIndex` near-duplicate types (LOW)
+- **Where:** `model.ts:376, 572`.
+- **Why flagged:** Both types share identical fields. `MiniVectorIndex`
+  appears to be used in list responses for lighter weight payloads.
+- **Suggestion:** Document the distinction in JSDoc.
+
+#### F12.6 — Per-method header construction duplicated (LOW, code style)
+- **Where:** `client.ts:119-120, 156-157, 187-188, 215-216, 240-241,
+  265-266, 299-300, 330-331, 381-382, 424-425, 453-454, 482-483,
+  511-512, 537-538, 563-564, 589-590`.
 - **Why flagged:** Every method runs:
   ```ts
   const headers = new Headers(...);
@@ -828,34 +665,35 @@ _None._
 ### 13. Verb-tense inconsistency
 
 #### F13.1 — Method verbs (acceptable for CRUD)
-- `create*`, `delete*`, `get*`, `list*`, `patch*` — all uniform
+- `create*`, `delete*`, `get*`, `list*`, `patch*`, `query*`,
+  `scan*`, `sync*`, `upsert*` — all uniform
   imperative present. Good.
 
 #### F13.2 — `patch*` vs `update*` (MEDIUM)
-- **Where:** Method `patchEndpoint` (`client.ts:217`), JSDoc says
-  "Update an endpoint" (`client.ts:216`).
+- **Where:** Method `patchEndpoint` (`client.ts:416`), JSDoc says
+  "Update an endpoint" (`client.ts:415`).
 - **Why flagged:** REST verbs in the SDK are mixed. Most packages
   use `update*` (e.g. `updateBudgetConfiguration`); this package
   uses `patch*`. Both describe the same HTTP verb (`PATCH`) but
   with different SDK ergonomics.
 - **Suggestion:** Cross-package decision. If the SDK standardizes
   on `update`, rename to `updateEndpoint`,
-  `updateEndpointBudgetPolicy`, `updateEndpointThroughput`. If on
-  `patch`, fix the JSDoc to say "Patch". See F17.1.
+  `updateEndpointBudgetPolicy`. If on `patch`, fix the JSDoc to say
+  "Patch". See F17.1.
 
 #### F13.3 — `createEndpoint` / `createEndpointWaiter` overlap (MEDIUM)
-- **Where:** `client.ts:82, 107`.
+- **Where:** `client.ts:111, 136`.
 - **Why flagged:** Two methods with the same verb start; only one
   actually performs the create — the waiter version *calls* the
   create then wraps. Reader might think `createEndpointWaiter` is
   a *different* operation.
-- **Suggestion:** See F7.7. Acceptable if the verb pattern is
+- **Suggestion:** See F7.4. Acceptable if the verb pattern is
   applied consistently across the SDK; flag for cross-cutting
   decision.
 
 #### F13.4 — `creationTimestamp` / `lastUpdatedTimestamp` past-tense
   asymmetry (LOW)
-- **Where:** `model.ts:117, 119`.
+- **Where:** `model.ts:280, 282`.
 - **Why flagged:** "creation" (noun) vs "lastUpdated" (past
   participle). Not parallel. Other SDK packages use
   `createTime`/`updateTime` (noun-form) or `createdAt`/`updatedAt`
@@ -877,9 +715,9 @@ _None._
   - `e` in `utils.ts:76`
   - `httpReq` in `client.ts`
   - `apiErr` in `utils.ts:88`
-  - `pkgJson` in `client.ts:20, 50`
+  - `pkgJson` in `client.ts:20, 79-80`
   - `opts` in `utils.ts:30, 65-92`
-  - `msg` in `client.ts:339`
+  - `msg` in `client.ts:642`
 - **Why flagged:** All classic Go idioms ported verbatim. TS
   convention favors spelled-out names: `request`, `response`,
   `error`, `httpRequest`, `apiError`, `packageJson`, `options`,
@@ -889,14 +727,14 @@ _None._
   in the `budgets` audit.
 
 #### F14.2 — `for (;;)` infinite loop (acceptable)
-- **Where:** `client.ts:204`, `utils.ts:48`.
+- **Where:** `client.ts:352, 403`, `utils.ts:48`.
 - **Why flagged:** Style; this is a `for (;;)` Go-idiom (the Go form
   is `for { … }`). TS prefers `while (true)` or `do { … } while (…)`.
   But `for (;;)` is also legal and idiomatic in C-derived languages.
 - **Suggestion:** Acceptable; consistent within the SDK.
 
 #### F14.3 — `Waiter` suffix (Go-style) (MEDIUM)
-- **Where:** `client.ts:107-116, 307`. Exported as
+- **Where:** `client.ts:136-145, 610`. Exported as
   `CreateEndpointWaiter` (`index.ts:3`).
 - **Why flagged:** "Waiter" is an AWS SDK / Go SDK pattern. TS
   ecosystems more often expose a `Promise`-returning method (e.g.
@@ -908,12 +746,13 @@ _None._
   for parity with other Databricks SDKs (Go has Waiters; users
   porting may expect them).
 
-#### F14.4 — `numIndexes`, `numReplicas` `num` prefix (LOW)
-- **Where:** `model.ts:87, 129, 177, 179, 252`.
+#### F14.4 — `numIndexes`, `numResults` `num` prefix (LOW)
+- **Where:** `model.ts:292, 438, 513`.
 - **Why flagged:** `num` is shortened from "number of". TS often
-  uses the bare noun (`replicas`, `indexCount`) or `count` suffix.
-- **Suggestion:** `replicaCount`, `indexCount` (more idiomatic).
-  Wire field is `num_replicas` — generator-level remap.
+  uses the bare noun (`indexCount`, `resultCount`) or `count` suffix.
+- **Suggestion:** `indexCount`, `resultCount` (more idiomatic).
+  Wire fields are `num_indexes` / `num_results` — generator-level
+  remap.
 
 ---
 
@@ -923,17 +762,18 @@ _None._
 - See F1.4 / F6.1.
 
 #### F15.2 — `Endpoint.id` (LOW)
-- **Where:** `model.ts:125`.
+- **Where:** `model.ts:288`.
 - **Why flagged:** Bare `id` is the most generic identifier name
   possible. Acceptable inside the type domain — but only because
   the type is `Endpoint`.
 - **Suggestion:** Keep; the type context disambiguates.
 
 #### F15.3 — `state`, `status`, `message` (LOW)
-- See F1.6, F1.7, F1.8.
+- See F1.6, F1.7.
 
-#### F15.4 — `key` / `value` on `CustomTag` (LOW)
-- **Where:** `model.ts:98-100`.
+#### F15.4 — `key` / `value` on `CustomTag` and
+  `MapStringValueEntry` (LOW)
+- **Where:** `model.ts:139, 141, 371, 373`.
 - **Why flagged:** Generic; same finding as `BudgetConfigurationFilter_TagClause.key/value`
   in `budgets`. Wrapping type supplies context, but `tagKey` /
   `tagValue` would self-document.
@@ -943,38 +783,25 @@ _None._
 #### F15.5 — `req` parameter on every client method (HIGH)
 - See F1.5.
 
-#### F15.6 — `concurrency` field (MEDIUM)
-- **Where:** `model.ts:70, 236`.
-- **Why flagged:** "Concurrency" alone is generic. JSDoc clarifies
-  "(total CPU) for the endpoint" but the field name doesn't. Compare
-  `currentConcurrency` / `requestedConcurrency` (descriptive) vs
-  bare `concurrency` (ambiguous).
-- **Suggestion:** Document "total CPU" semantics in JSDoc explicitly;
-  consider `concurrencyCpu` or `totalCpu` rename. Or move CPU into
-  its own dimension.
+#### F15.6 — `result` field on `QueryVectorIndexResponse`,
+  `UpsertDataVectorIndexResponse`, `DeleteDataVectorIndexResponse`
+  (LOW)
+- **Where:** `model.ts:156, 475, 551`.
+- **Why flagged:** Generic. Disambiguated by container type.
+- **Suggestion:** Acceptable.
+
+#### F15.7 — `data` field on `ScanVectorIndexResponse` (LOW)
+- **Where:** `model.ts:522`.
+- **Why flagged:** `data` is generic.
+- **Suggestion:** Acceptable in the response domain.
 
 ---
 
 ### 16. Field contradicting type domain
 
-#### F16.1 — `AdjustedThroughputRequest` appears in a response (MEDIUM)
-- See F11.1.
-
-#### F16.2 — `EndpointThroughputInfo.changeRequestState:
-  ThroughputChangeRequestState` (MEDIUM)
-- **Where:** `model.ts:173`.
-- **Why flagged:** The field name says "change request state"; the
-  enum is `ThroughputChangeRequestState`. The type is *not* a state
-  about *throughput change requests* abstractly — it's the state of
-  the most recent throughput change request for *this* endpoint.
-  Field name + type name both bury that scope. Compare a more
-  direct `lastThroughputChangeState`.
-- **Suggestion:** Rename field to `lastChangeState` (drop redundant
-  "request"); or add JSDoc clarifying "Most recent" semantics.
-
-#### F16.3 — `state` on `EndpointScalingInfo` is a *change* state, not
+#### F16.1 — `state` on `EndpointScalingInfo` is a *change* state, not
   a *scaling* state (LOW)
-- **Where:** `model.ts:144`.
+- **Where:** `model.ts:305`.
 - **Why flagged:** Field is `state: ScalingChangeState` — the
   field-on-type domain is "scaling info", but the field type is
   "scaling **change** state". JSDoc says "The current state of the
@@ -983,9 +810,9 @@ _None._
 - **Suggestion:** Rename field to `changeState` or
   `lastChangeState`.
 
-#### F16.4 — `EndpointStatus_State.RED_STATE`, `YELLOW_STATE` health
+#### F16.2 — `EndpointStatus_State.RED_STATE`, `YELLOW_STATE` health
   semantics (LOW)
-- **Where:** `model.ts:57-58`.
+- **Where:** `model.ts:79-80`.
 - **Why flagged:** These are health-color states, not lifecycle states.
   Lumping them with `PROVISIONING`, `ONLINE`, `OFFLINE`, `DELETED`
   (lifecycle states) in the same enum mixes two orthogonal
@@ -1007,36 +834,28 @@ _None._
 
 #### F17.3 — `createEndpoint` returns `Endpoint`,
   `createEndpointWaiter` returns `CreateEndpointWaiter` (MEDIUM)
-- **Where:** `client.ts:82, 107`.
-- See F7.7 / F13.3.
+- **Where:** `client.ts:111, 136`.
+- See F7.4 / F13.3.
 
 #### F17.4 — `wait` vs `done` on `CreateEndpointWaiter` (acceptable)
-- **Where:** `client.ts:318, 362`.
+- **Where:** `client.ts:621, 665`.
 - Both verbs are well-chosen. `wait` is blocking-until-terminal;
   `done` is a non-blocking check. Symmetric and clear.
+
+#### F17.5 — `upsert*`, `scan*`, `sync*`, `query*` (acceptable)
+- **Where:** `client.ts:529, 555, 474, 500, 581`.
+- New action verbs from the index-side of the package (formerly
+  `indexes`). All are unambiguous and consistent.
+- **Suggestion:** No change.
 
 ---
 
 ### 18. Long enum values
 
-#### F18.1 — `SCALING_CHANGE_IN_PROGRESS` (MEDIUM)
-- **Where:** `model.ts:16`. 26 characters; mostly the redundant
-  `SCALING_CHANGE_` prefix (F2.1).
-- **Suggestion:** With prefix stripped → `IN_PROGRESS` (11 chars).
+#### F18.1 — `STORAGE_OPTIMIZED` (LOW)
+- 17 chars. Reasonable.
 
-#### F18.2 — `SCALING_CHANGE_UNSPECIFIED` (MEDIUM)
-- **Where:** `model.ts:14`. 26 characters; same root cause.
-- **Suggestion:** With prefix stripped → `UNSPECIFIED` (11 chars).
-
-#### F18.3 — `CHANGE_REACHED_MINIMUM`, `CHANGE_REACHED_MAXIMUM` (MEDIUM)
-- **Where:** `model.ts:26, 28`. 22 characters each.
-- **Suggestion:** With prefix stripped → `REACHED_MINIMUM` /
-  `REACHED_MAXIMUM` (15 chars).
-
-#### F18.4 — `STORAGE_OPTIMIZED`, `STANDARD_ON_ORION` (LOW)
-- 17 chars each; reasonable. `ON_ORION` is an infra leak (F6.4).
-
-#### F18.5 — `PROVISIONING` (acceptable)
+#### F18.2 — `PROVISIONING` (acceptable)
 - 12 chars. Standard.
 
 ---
@@ -1047,20 +866,24 @@ _None._
 - See F15.2. Bare `id` inside `Endpoint` is fine.
 
 #### F19.2 — `Endpoint.name` doubles as ID (HIGH)
-- See F1.4 / F6.1 / F12.3. Two identifiers (`name` and `id`) for
+- See F1.4 / F6.1 / F12.1. Two identifiers (`name` and `id`) for
   the same entity is the underspecification problem.
 
 #### F19.3 — `budgetPolicyId`, `usagePolicyId`,
   `effectiveBudgetPolicyId` (acceptable)
-- **Where:** `model.ts:83, 85, 131, 133, 201, 203, 207, 209`.
+- **Where:** `model.ts:102, 104, 188, 220, 294, 296, 405, 409, 411`.
 - Specific enough; matches platform-wide convention.
+
+#### F19.4 — `MiniVectorIndex.endpointName` (acceptable)
+- **Where:** `model.ts:380`.
+- Domain-qualified; clear.
 
 ---
 
 ### 20. Type-suffix tautology
 
 #### F20.1 — `Endpoint.endpointType: EndpointType` (MEDIUM)
-- **Where:** `model.ts:121`, `model.ts:81`.
+- **Where:** `model.ts:284, 100`.
 - **Why flagged:** Three layers of "endpoint":
   `endpoint.endpointType : EndpointType`. The container provides
   the "endpoint" context.
@@ -1069,81 +892,115 @@ _None._
   `endpoint_type`; needs a marshaller remap.
 
 #### F20.2 — `Endpoint.endpointStatus: EndpointStatus` (MEDIUM)
-- **Where:** `model.ts:127`, `model.ts:153`.
+- **Where:** `model.ts:290, 314`.
 - **Why flagged:** Same pattern.
 - **Suggestion:** Rename field `endpointStatus → status`.
 
 #### F20.3 — `EndpointStatus.state: EndpointStatus_State` (LOW)
-- **Where:** `model.ts:155`.
+- **Where:** `model.ts:316`.
 - **Why flagged:** Field is `state`, enum is `EndpointStatus_State`.
   Not strictly tautological (the field is the bare noun, the type
   is the qualified noun). Acceptable.
 
-#### F20.4 — `PatchEndpointThroughputResponse.status:
-  ThroughputPatchStatus` (LOW)
-- **Where:** `model.ts:257`, `model.ts:36`.
-- **Why flagged:** Field is `status`; type is `ThroughputPatchStatus`.
-  Reading `response.status : ThroughputPatchStatus` is "status . throughput
-  patch status".
-- **Suggestion:** Rename field to `result` (less tautological), or
-  rename enum to drop `Status` (becomes `ThroughputPatch`). Or
-  accept the tautology.
-
-#### F20.5 — `EndpointScalingInfo.state: ScalingChangeState` (LOW)
-- **Where:** `model.ts:144`.
+#### F20.4 — `EndpointScalingInfo.state: ScalingChangeState` (LOW)
+- **Where:** `model.ts:305`.
 - **Why flagged:** Same pattern. Field `state` typed against
   `ScalingChangeState` reads "scaling info . state : scaling change
   state".
 - **Suggestion:** Rename field to `changeState` (matches the enum's
-  domain better). See F16.3.
+  domain better). See F16.1.
 
-#### F20.6 — `EndpointThroughputInfo.changeRequestState:
-  ThroughputChangeRequestState` (LOW)
-- **Where:** `model.ts:173`.
-- **Why flagged:** Field name and type name carry the same tokens
-  (`changeRequestState` ↔ `ChangeRequestState`).
-- **Suggestion:** Acceptable; this is the standard pattern.
+#### F20.5 — `MiniVectorIndex.indexType: VectorIndexType`,
+  `VectorIndex.indexType: VectorIndexType` (LOW)
+- **Where:** `model.ts:383, 579`.
+- **Why flagged:** Field `indexType` typed against `VectorIndexType`;
+  reads "vector index . index type : vector index type".
+- **Suggestion:** Rename field `indexType → type`. Wire field is
+  `index_type` — marshaller remap.
+
+#### F20.6 — `MiniVectorIndex.indexSubtype: IndexSubtype`,
+  `VectorIndex.indexSubtype: IndexSubtype` (LOW)
+- **Where:** `model.ts:398, 594`.
+- **Why flagged:** Same pattern.
+- **Suggestion:** Rename field `indexSubtype → subtype`.
 
 ---
 
-## Package overlap: `endpoints` vs `warehouses` vs `modelservingmanagement` vs `indexes`
+## Package overlap: `vectorsearch` vs `warehouses` vs `modelserving`
 
-This SDK exposes *three* distinct "endpoint" packages plus a sibling
-"index" package, all conceptually distinct but lexically similar.
+The `endpoints` package was merged into `vectorsearch` in the
+2026-05-20 regeneration, resolving the F0.1 / F0.2 / F-OVERLAP.2
+findings about package ambiguity. Some residual concerns remain
+about the unqualified `Endpoint` symbol.
 
-### F-OVERLAP.1 — `Endpoint` symbol exists in three places (HIGH)
+### F-OVERLAP.1 — `Endpoint` symbol exists in three places (MEDIUM)
 - **Where:**
-  - `packages/endpoints/src/v1` exports `Endpoint`
+  - `packages/vectorsearch/src/v1` exports `Endpoint`
   - `packages/warehouses/src/v1` exports `EndpointState`,
     `EndpointSecurityPolicy`, `EndpointSpotInstancePolicy`
-  - `packages/modelservingmanagement/src/v1` exports
-    `InferenceEndpoint`, `ServingEndpointDetailedPermissionLevel`
+  - `packages/modelserving/src/v1` exports
+    `InferenceEndpoint`, etc.
 - **Why flagged:** Project-wide `grep -r Endpoint` returns hits across
   all three packages. Autocomplete on "Endpoint" collides. Even with
   qualified imports, mental load is high.
-- **Suggestion:** Rename per F0.1. The model serving package already
+- **Suggestion:** Rename per F1.1. The model serving package already
   qualifies its primary type as `InferenceEndpoint`; this package
   should qualify as `VectorSearchEndpoint`; the warehouse package's
   legacy `Endpoint*` names are wire-protocol and should be deprecated
   but left for compatibility.
 
-### F-OVERLAP.2 — `indexes` companion package is also under-qualified (LOW)
-- See F0.3.
-
-### F-OVERLAP.3 — Pluralization of package names (`endpoints` plural
-  vs `modelservingmanagement` singular vs `warehouses` plural) (LOW)
-- Cross-package style decision. Some packages use plural
-  (`endpoints`, `warehouses`, `clusters`, `budgets`), some
-  singular (`modelservingmanagement`, `budgetpolicy`, `bundle`).
-- **Suggestion:** Pick one. Cross-cutting.
-
-### F-OVERLAP.4 — `EndpointType` exists in this package vs
+### F-OVERLAP.2 — `EndpointType` exists in this package vs
   `WarehouseType` exists in `warehouses` (LOW)
-- **Where:** `model.ts:6` here vs
+- **Where:** `model.ts:18` here vs
   `warehouses/src/v1/index.ts` line for `WarehouseType`.
 - **Why flagged:** `WarehouseType` is qualified; `EndpointType` is
-  bare. After F0/F1 rename it becomes `VectorSearchEndpointType` —
+  bare. After F1.2 rename it becomes `VectorSearchEndpointType` —
   symmetric with `WarehouseType`.
+
+---
+
+## Proto-architectural-leak names
+
+Names that leak the upstream proto/IDL or service architecture into the
+TS public surface. These are not standard suffix conventions; they
+reflect internal class/file layout that should not be visible to SDK
+consumers.
+
+### 1. `EndpointStatus_State` — model.ts:69, index.ts:12
+- **Why:** Underscore-separated identifier mirrors the proto nested-enum
+  shape (`EndpointStatus.State` in the IDL). TS has no nested-enum
+  concept, so the underscore leaks the proto file layout. Also exported
+  at `index.ts:12`.
+- **Category:** Proto-nested type leak (underscore infix).
+- **Suggested:** `EndpointState`, or move it under the `EndpointStatus`
+  namespace via a TS `namespace EndpointStatus { export enum State }`.
+- **Rationale:** TS consumers do not see the proto enclosing message.
+  The underscore is purely a generator artifact; the public type name
+  should read as a plain TS identifier.
+
+### 2. `RerankerConfig_RerankerParameters` — model.ts:490, index.ts:50
+- **Why:** Proto-nested message name leaked as an underscore-separated
+  TS interface. Also repeats the `Reranker` token inside its own parent
+  type ("reranker config . reranker parameters").
+- **Category:** Proto-nested type leak (underscore infix) + token
+  repetition.
+- **Suggested:** `RerankerParameters` at the top level, or
+  `RerankerConfig.Parameters` via a TS namespace. Drop the duplicated
+  `Reranker` token regardless.
+- **Rationale:** The wire form `RerankerConfig.RerankerParameters` is
+  a proto nesting convention; the SDK consumer only sees an interface
+  reference, so `RerankerParameters` is unambiguous in context.
+
+### 3. `marshalRerankerConfig_RerankerParametersSchema` — model.ts:1217
+- **Why:** Schema constant name carries the same proto-nested
+  underscore as finding 2. The Zod schema for the nested message
+  inherits the leaked name.
+- **Category:** Proto-nested type leak (underscore infix) — schema
+  variant.
+- **Suggested:** `marshalRerankerParametersSchema` (consistent with the
+  renamed interface in finding 2).
+- **Rationale:** Same as 2 — internal naming bleeding into the public
+  module surface.
 
 ---
 
@@ -1151,60 +1008,50 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
 
 | # | Category                                | Findings |
 | - | --------------------------------------- | -------- |
-| 0 | **Package name (special)**              | 3        |
-| 1 | Vague / generic                         | 9        |
-| 2 | Redundant enum prefixes                 | 5        |
+| 0 | **Package name (special)**              | 1        |
+| 1 | Vague / generic                         | 8 (1 acceptable) |
+| 2 | Redundant enum prefixes                 | 1        |
 | 3 | Acronym casing                          | 4 (3 acceptable) |
 | 4 | Underscores in TS identifiers           | 0        |
 | 5 | Cryptic abbreviations                   | 10       |
-| 6 | Misleading names                        | 9        |
-| 7 | Overly verbose                          | 8        |
-| 8 | Redundant suffixes                      | 5        |
-| 9 | Singular / plural mismatch              | 5 (3 acceptable) |
+| 6 | Misleading names                        | 7        |
+| 7 | Overly verbose                          | 6        |
+| 8 | Redundant suffixes                      | 5 (1 acceptable) |
+| 9 | Singular / plural mismatch              | 6 (2 acceptable) |
 | 10 | Reserved-word collisions               | 5 (3 acceptable) |
 | 11 | Empty / trivial wrappers               | 1        |
-| 12 | Duplicate concepts                     | 7        |
+| 12 | Duplicate concepts                     | 6        |
 | 13 | Verb-tense inconsistency               | 4 (1 acceptable) |
 | 14 | Go / Java-style names                  | 4 (1 acceptable) |
-| 15 | Generic field names                    | 6        |
-| 16 | Field contradicting type domain        | 4        |
-| 17 | Inconsistent action verbs              | 4 (2 acceptable) |
-| 18 | Long enum values                       | 5 (1 acceptable) |
-| 19 | Underspecified IDs                     | 3 (2 acceptable) |
-| 20 | Type-suffix tautology                  | 6 (3 acceptable) |
-| OVERLAP | endpoints vs warehouses vs serving | 4 |
-| **Total** |                                     | **111**  |
+| 15 | Generic field names                    | 7        |
+| 16 | Field contradicting type domain        | 2        |
+| 17 | Inconsistent action verbs              | 5 (3 acceptable) |
+| 18 | Long enum values                       | 2 (1 acceptable) |
+| 19 | Underspecified IDs                     | 4 (3 acceptable) |
+| 20 | Type-suffix tautology                  | 6 (2 acceptable) |
+| OVERLAP | vectorsearch vs warehouses vs serving | 2 |
+| PROTO   | Proto-architectural-leak names        | 3        |
+| **Total** |                                     | **99**  |
 
 ---
 
 ## Top highest-impact renames (recommended order)
 
-1. **F0.1 / F0.2 / F1.1 / F1.2 / F-OVERLAP.1:** Rename the package
-   to `@databricks/sdk-vectorsearchendpoints` (or
-   `@databricks/sdk-vectorsearch`); rename `Endpoint` to
-   `VectorSearchEndpoint`. This single change eliminates the most
-   confusing ambiguity in the package.
-2. **F2.1 / F2.2 / F2.3:** Strip the redundant member prefixes from
-   `ScalingChangeState` (`SCALING_CHANGE_*`),
-   `ThroughputChangeRequestState` (`CHANGE_*`), and
-   `ThroughputPatchStatus` (`PATCH_*`).
-3. **F9.1 / F9.2:** Pluralize the list method, request, and response:
-   `listEndpoints`, `ListEndpointsRequest`, `ListEndpointsResponse`.
-4. **F6.5:** Rename `minimalConcurrencyAllowed →
-   minimumConcurrencyAllowed` (the existing name is grammatically
-   wrong English).
-5. **F12.3 / F1.4 / F6.1 / F19.2:** Resolve the `Endpoint.name` vs
+1. **F1.1 / F1.2 / F-OVERLAP.1:** Rename `Endpoint` to
+   `VectorSearchEndpoint`. The package rename to
+   `@databricks/sdk-vectorsearch` already happened; aligning the
+   exported type name closes the loop.
+2. **F9.1 / F9.2 / F9.3 / F9.4:** Pluralize the list methods, requests,
+   and responses: `listEndpoints`, `ListEndpointsRequest`,
+   `ListEndpointsResponse`, and same for `VectorIndex`.
+3. **F12.1 / F1.4 / F6.1 / F19.2:** Resolve the `Endpoint.name` vs
    `Endpoint.id` duality — either document the distinction
    prominently or unify at the API level.
-6. **F8.2 / F20.1 / F20.2:** Drop redundant tokens from
+4. **F8.2 / F20.1 / F20.2:** Drop redundant tokens from
    `Endpoint.endpointType` and `Endpoint.endpointStatus` to bare
    `type` / `status`.
-7. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
+5. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson`/`msg` across the generated code.
-8. **F12.2:** Resolve the `targetQps` / `replicationFactor` /
-   `numReplicas` overlap at the API spec level — three names for
-   related concepts, with JSDoc cross-references between them, is
-   a strong smell.
 
 ---
 
@@ -1230,3 +1077,46 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
   — the term is used by Vector Search, Model Serving, and SQL
   Warehouses for three different concepts. Disambiguation at the
   SDK level is unavoidable.
+
+---
+
+## Fixed
+
+The 2026-05-20 regeneration renamed the `endpoints` package to
+`vectorsearch` and absorbed the contents of the former `indexes`
+package. The throughput-management surface
+(`PatchEndpointThroughputRequest/Response`,
+`patchEndpointThroughput` method,
+`ThroughputChangeRequestState`/`ThroughputPatchStatus` enums,
+`EndpointThroughputInfo` interface, `AdjustedThroughputRequest`
+interface) was removed from the public surface, and several
+implementation-leaking enum values and verbose field names were
+dropped.
+
+- #F0.1 Package name `@databricks/sdk-endpoints` (originally cited at `package.json:2`): Fixed in regeneration on 2026-05-20 — package renamed to `@databricks/sdk-vectorsearch`, eliminating the cross-package ambiguity with model serving and SQL warehouses.
+- #F0.2 Directory name `packages/endpoints/` (originally cited at `packages/endpoints/`): Fixed in regeneration on 2026-05-20 — directory renamed to `packages/vectorsearch/`.
+- #F0.3 Companion package `indexes` (originally cited at `packages/indexes/`): Fixed in regeneration on 2026-05-20 — `indexes` package was absorbed into `vectorsearch`, so the cross-package qualification concern no longer applies.
+- #F2.2 `ThroughputChangeRequestState.CHANGE_*` (originally cited at `model.ts:20-33`): Fixed in regeneration on 2026-05-20 — `ThroughputChangeRequestState` enum was removed entirely along with the throughput-management surface.
+- #F2.3 `ThroughputPatchStatus.PATCH_*` (originally cited at `model.ts:36-43`): Fixed in regeneration on 2026-05-20 — `ThroughputPatchStatus` enum was removed entirely.
+- #F2.5 `EndpointType.STANDARD_ON_ORION` (originally cited at `model.ts:10`): Fixed in regeneration on 2026-05-20 — `STANDARD_ON_ORION` enum value was dropped; `EndpointType` now has only `STORAGE_OPTIMIZED` and `STANDARD`.
+- #F6.4 `EndpointType.STANDARD_ON_ORION` implementation leak (originally cited at `model.ts:9-10`): Fixed in regeneration on 2026-05-20 — `STANDARD_ON_ORION` enum value was removed, eliminating the infra-naming leak.
+- #F6.5 `minimalConcurrencyAllowed` field (originally cited at `model.ts:71-72, 168-169, 237-238`): Fixed in regeneration on 2026-05-20 — concurrency fields removed from the public API surface.
+- #F7.3 `PatchEndpointThroughputRequest/Response` (originally cited at `model.ts:232, 255`): Fixed in regeneration on 2026-05-20 — throughput-management surface was removed entirely.
+- #F7.5 `currentConcurrencyUtilizationPercentage` (originally cited at `model.ts:166-167`): Fixed in regeneration on 2026-05-20 — field removed along with the throughput-management surface.
+- #F7.6 `EndpointThroughputInfo` `Info` suffix (originally cited at `model.ts:142`): Fixed in regeneration on 2026-05-20 — `EndpointThroughputInfo` interface was removed entirely.
+- #F8.4 `EndpointThroughputInfo` `Info` suffix (originally cited at `model.ts:142, 161`): Fixed in regeneration on 2026-05-20 — `EndpointThroughputInfo` interface was removed.
+- #F8.5 `ThroughputChangeRequestState` (originally cited at `model.ts:20`): Fixed in regeneration on 2026-05-20 — enum was removed.
+- #F11.1 `AdjustedThroughputRequest` exposed in a response (originally cited at `model.ts:68-75, 264`): Fixed in regeneration on 2026-05-20 — `AdjustedThroughputRequest` interface was removed along with the throughput-management surface.
+- #F12.1 `numReplicas` in three different places (originally cited at `model.ts:87, 252, 177, 179`): Fixed in regeneration on 2026-05-20 — `numReplicas` field removed from the public API surface.
+- #F12.2 `targetQps`, `requestedTargetQps`, `replicationFactor`, `numReplicas` overlap (originally cited at `model.ts:87, 93, 224, 229, 252, 149`): Fixed in regeneration on 2026-05-20 — `replicationFactor` and `numReplicas` fields removed; only `targetQps` remains as the public dimension.
+- #F12.4 `concurrency` (CPU) vs `numReplicas` vs `targetQps` mixed (originally cited at `model.ts:69, 73, 87, 93, 162, 165, 168, 171, 177, 235, 238, 240, 252`): Fixed in regeneration on 2026-05-20 — `concurrency` and `numReplicas` fields removed; only `targetQps` remains.
+- #F15.6 `concurrency` field (originally cited at `model.ts:70, 236`): Fixed in regeneration on 2026-05-20 — `concurrency` field was removed from the public API surface.
+- #F16.2 `EndpointThroughputInfo.changeRequestState` (originally cited at `model.ts:173`): Fixed in regeneration on 2026-05-20 — `EndpointThroughputInfo` interface was removed.
+- #F18.3 `CHANGE_REACHED_MINIMUM`, `CHANGE_REACHED_MAXIMUM` (originally cited at `model.ts:26, 28`): Fixed in regeneration on 2026-05-20 — `ThroughputChangeRequestState` enum was removed.
+- #F18.4 `STANDARD_ON_ORION` (originally cited at `model.ts`): Fixed in regeneration on 2026-05-20 — enum value was removed; the remaining `STORAGE_OPTIMIZED` and `STANDARD` are no longer flagged as infra leaks.
+- #F20.4 `PatchEndpointThroughputResponse.status: ThroughputPatchStatus` (originally cited at `model.ts:257, 36`): Fixed in regeneration on 2026-05-20 — both the response type and the enum were removed.
+- #F20.6 `EndpointThroughputInfo.changeRequestState: ThroughputChangeRequestState` (originally cited at `model.ts:173`): Fixed in regeneration on 2026-05-20 — interface and enum were both removed.
+
+All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
+
+Fixed in regeneration on 2026-05-22.
