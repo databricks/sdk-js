@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
 import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
@@ -373,6 +374,40 @@ export interface MapStringValueEntry {
   value?: Value | undefined;
 }
 
+/** Metric specification */
+export interface Metric {
+  /** Metric name */
+  name?: string | undefined;
+  /** Metric labels */
+  labels?: MetricLabel[] | undefined;
+  /** Percentile for the metric */
+  percentile?: number | undefined;
+}
+
+/** Label for a metric */
+export interface MetricLabel {
+  /** Label name */
+  name?: string | undefined;
+  /** Label value */
+  value?: string | undefined;
+}
+
+/** Single metric value at a specific timestamp */
+export interface MetricValue {
+  /** Timestamp of the metric value (milliseconds since epoch) */
+  timestamp?: number | undefined;
+  /** Metric value */
+  value?: number | undefined;
+}
+
+/** Collection of metric values for a specific metric */
+export interface MetricValues {
+  /** Metric specification */
+  metric?: Metric | undefined;
+  /** Time series of metric values */
+  values?: MetricValue[] | undefined;
+}
+
 export interface MiniVectorIndex {
   /** Name of the index */
   name?: string | undefined;
@@ -507,6 +542,30 @@ export interface ResultManifest {
   columns?: ColumnInfo[] | undefined;
 }
 
+/** Request to retrieve user-visible metrics */
+export interface RetrieveUserVisibleMetricsRequest {
+  /** AI Search endpoint name */
+  name?: string | undefined;
+  /** Start time for metrics query */
+  startTime?: Temporal.Instant | undefined;
+  /** End time for metrics query */
+  endTime?: Temporal.Instant | undefined;
+  /** Granularity in seconds */
+  granularityInSeconds?: number | undefined;
+  /** List of metrics to retrieve */
+  metrics?: Metric[] | undefined;
+  /** Token for pagination */
+  pageToken?: string | undefined;
+}
+
+/** Response containing user-visible metrics */
+export interface RetrieveUserVisibleMetricsResponse {
+  /** Collection of metric values */
+  metricValues?: MetricValues[] | undefined;
+  /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
+  nextPageToken?: string | undefined;
+}
+
 export interface ScanVectorIndexRequest {
   /** Name of the vector index to scan. */
   name?: string | undefined;
@@ -536,6 +595,20 @@ export interface SyncVectorIndexRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SyncVectorIndexResponse {}
+
+export interface UpdateEndpointCustomTagsRequest {
+  /** Name of the AI Search endpoint */
+  name?: string | undefined;
+  /** The new custom tags for the AI Search endpoint */
+  customTags?: CustomTag[] | undefined;
+}
+
+export interface UpdateEndpointCustomTagsResponse {
+  /** The name of the AI Search endpoint whose custom tags were updated. */
+  name?: string | undefined;
+  /** All the custom tags that are applied to the AI Search endpoint. */
+  customTags?: CustomTag[] | undefined;
+}
 
 export interface UpsertDataVectorIndexRequest {
   /** Name of the vector index where data is to be upserted. Must be a Direct Vector Access Index. */
@@ -812,6 +885,48 @@ export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> 
       value: d.value,
     }));
 
+export const unmarshalMetricSchema: z.ZodType<Metric> = z
+  .object({
+    name: z.string().optional(),
+    labels: z.array(z.lazy(() => unmarshalMetricLabelSchema)).optional(),
+    percentile: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    labels: d.labels,
+    percentile: d.percentile,
+  }));
+
+export const unmarshalMetricLabelSchema: z.ZodType<MetricLabel> = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+  }));
+
+export const unmarshalMetricValueSchema: z.ZodType<MetricValue> = z
+  .object({
+    timestamp: z.number().optional(),
+    value: z.number().optional(),
+  })
+  .transform(d => ({
+    timestamp: d.timestamp,
+    value: d.value,
+  }));
+
+export const unmarshalMetricValuesSchema: z.ZodType<MetricValues> = z
+  .object({
+    metric: z.lazy(() => unmarshalMetricSchema).optional(),
+    values: z.array(z.lazy(() => unmarshalMetricValueSchema)).optional(),
+  })
+  .transform(d => ({
+    metric: d.metric,
+    values: d.values,
+  }));
+
 export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
   .object({
     name: z.string().optional(),
@@ -894,6 +1009,19 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
     columns: d.columns,
   }));
 
+export const unmarshalRetrieveUserVisibleMetricsResponseSchema: z.ZodType<RetrieveUserVisibleMetricsResponse> =
+  z
+    .object({
+      metric_values: z
+        .array(z.lazy(() => unmarshalMetricValuesSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      metricValues: d.metric_values,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalScanVectorIndexResponseSchema: z.ZodType<ScanVectorIndexResponse> =
   z
     .object({
@@ -917,6 +1045,17 @@ export const unmarshalStructSchema: z.ZodType<Struct> = z
 
 export const unmarshalSyncVectorIndexResponseSchema: z.ZodType<SyncVectorIndexResponse> =
   z.object({});
+
+export const unmarshalUpdateEndpointCustomTagsResponseSchema: z.ZodType<UpdateEndpointCustomTagsResponse> =
+  z
+    .object({
+      name: z.string().optional(),
+      custom_tags: z.array(z.lazy(() => unmarshalCustomTagSchema)).optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      customTags: d.custom_tags,
+    }));
 
 export const unmarshalUpsertDataVectorIndexResponseSchema: z.ZodType<UpsertDataVectorIndexResponse> =
   z
@@ -1069,6 +1208,16 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     index_subtype: d.indexSubtype,
   }));
 
+export const marshalCustomTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
 export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
   .object({
     sourceTable: z.string().optional(),
@@ -1141,6 +1290,28 @@ export const marshalEmbeddingVectorColumnSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     embedding_dimension: d.embeddingDimension,
+  }));
+
+export const marshalMetricSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    labels: z.array(z.lazy(() => marshalMetricLabelSchema)).optional(),
+    percentile: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    labels: d.labels,
+    percentile: d.percentile,
+  }));
+
+export const marshalMetricLabelSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
   }));
 
 export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
@@ -1222,6 +1393,30 @@ export const marshalRerankerConfig_RerankerParametersSchema: z.ZodType = z
     columns_to_rerank: d.columnsToRerank,
   }));
 
+export const marshalRetrieveUserVisibleMetricsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    startTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    endTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    granularityInSeconds: z.number().optional(),
+    metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    start_time: d.startTime,
+    end_time: d.endTime,
+    granularity_in_seconds: d.granularityInSeconds,
+    metrics: d.metrics,
+    page_token: d.pageToken,
+  }));
+
 export const marshalScanVectorIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1240,6 +1435,16 @@ export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalUpdateEndpointCustomTagsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    custom_tags: d.customTags,
   }));
 
 export const marshalUpsertDataVectorIndexRequestSchema: z.ZodType = z
