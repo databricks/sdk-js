@@ -14,11 +14,11 @@
 
 | Severity     | Count | Notes                                                                                       |
 | ------------ | ----- | ------------------------------------------------------------------------------------------- |
-| High         | 17    | Verb/noun overloading (`Update`), DLT-era rebrand leakage, identifier collisions, plural `Pipelines` prefix. |
+| High         | 16    | Verb/noun overloading (`Update`), DLT-era rebrand leakage, identifier collisions.           |
 | Medium       | 19    | Vague names, acronym casing, generic IDs, misleading enum values.                           |
 | Low          | 20    | Mild verbosity, plural mismatches, stylistic inconsistencies.                               |
-| Observations | 8     | Patterns spanning the whole file (branding history, plural/singular split, proto-architectural leakage). |
-| **Total**    | **64** | |
+| Observations | 7     | Patterns spanning the whole file (branding history, proto-architectural leakage).           |
+| **Total**    | **62** | |
 
 Issues are catalogued below by severity, then by file/line. Throughout this document I use **"Update" (proper noun)** to refer to the DLT/Lakeflow concept of a pipeline run, since that overload is the most pervasive and most confusing naming choice in the package.
 
@@ -44,85 +44,79 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Suggestion:** Rename `start(req: StartUpdateRequest)` → `run(req: RunPipelineRequest)` or `startRun(req: StartRunRequest)`. Pair with `stop(req: StopPipelineRequest)`.
 - **Rationale:** Reading `client.start({pipelineId})` you assume it "starts the pipeline". It actually queues a new **run** (Update). The asymmetry with `stop(req: StopPipelineRequest)` (which DOES stop the pipeline) is silent and dangerous. `run` is the verb Databricks uses in marketing copy and now in the UI; `start` is the legacy name.
 
-### H4. `Pipelines*` prefix (plural) on a single-pipeline package — proto-package leakage
-- **Locations:** `model.ts:117` (`PipelinesAwsAvailability`), `model.ts:130` (`PipelinesAzureAvailability`), `model.ts:146` (`PipelinesEbsVolumeType`), `model.ts:154` (`PipelinesGcpAvailability`), `model.ts:1897` (`PipelinesAutoScale`), `model.ts:1916` (`PipelinesAwsAttributes`), `model.ts:2005` (`PipelinesAzureAttributes`), `model.ts:2032` (`PipelinesClusterLogConf`), `model.ts:2046` (`PipelinesDbfsStorageInfo`), `model.ts:2055` (`PipelinesEnvironment`), `model.ts:2078` (`PipelinesGcpAttributes`), `model.ts:2119` (`PipelinesInitScriptInfo`), `model.ts:2147` (`PipelinesJobRunAs`), `model.ts:2162` (`PipelinesMavenLibrary`), `model.ts:2180` (`PipelinesS3StorageInfo`).
-- **Category:** 8 (redundant suffix/prefix), 9 (singular/plural mismatch), 14 (Go/Java-style names).
-- **Suggestion:** Drop the `Pipelines` prefix. The package itself is `@databricks/sdk-pipelines` and the import disambiguates from `@databricks/sdk-clusters`. The types become `AwsAvailability`, `AwsAttributes`, `AutoScale`, `ClusterLogConf`, `DbfsStorageInfo`, `Environment`, `GcpAttributes`, `InitScriptInfo`, `JobRunAs`, `MavenLibrary`, `S3StorageInfo`. If global collision is feared, use `PipelineCluster`-style singular: `PipelineEnvironment`, `PipelineAwsAttributes`, etc.
-- **Rationale:** The proto package is `pipelines.proto`, so the generator prefixed every type with `Pipelines`. A consumer types `new PipelinesJobRunAs(...)` and the plural reads as "RunAs for many jobs in many pipelines" — neither is true. `PipelineCluster` (singular, `model.ts:1573`) shows the convention the package would have if generated consistently.
-
-### H5. `PipelinesJobRunAs` references `Job` from a `Pipelines` package
+### H4. `PipelinesJobRunAs` references `Job` from a `Pipelines` package
 - **Location:** `model.ts:2147`.
 - **Category:** 6 (misleading — `Job` is a separate Databricks product), 14 (Go-style).
 - **Suggestion:** Rename to `RunAs` or `PipelineRunAs`. Drop the `Job` token entirely — this type is not used by `@databricks/sdk-jobs`.
 - **Rationale:** `Job` belongs to the `jobs` API. A user reading `runAs: PipelinesJobRunAs` cannot tell whether the pipeline is associated with a job or just borrows the shape. The proto comment ("Write-only setting, available only in Create/Update calls. Specifies the user or service principal that the pipeline runs as.") confirms this is a pipeline-only concept.
 
-### H6. `Pipeline` is never used as a type name — the central domain entity is missing
+### H5. `Pipeline` is never used as a type name — the central domain entity is missing
 - **Locations:** N/A — the package has `PipelineSpec`, `PipelineStateInfo`, `GetPipelineRequest_Response`, `BaseJob`-style scattering, but no plain `Pipeline` type.
 - **Category:** 1 (vague/generic alternative missing), 6 (misleading).
 - **Suggestion:** Add an exported `Pipeline` type that consolidates the runtime view (`GetPipelineRequest_Response` is the closest). Alternatively rename `GetPipelineRequest_Response` → `Pipeline`. Keep `PipelineSpec` as the write-form (the "settings" sub-object).
 - **Rationale:** A user installs `@databricks/sdk-pipelines` and expects to `import {Pipeline} from '@databricks/sdk-pipelines'`. Instead they have to discover `GetPipelineRequest_Response`, `PipelineSpec`, `PipelineStateInfo`, or `BaseRun`-style scatter. The Go SDK does the same thing — but Go has package-namespace `pipelines.Pipeline`, while TS uses bare identifiers and benefits from a primary name.
 
-### H7. `EditPipelineRequest` / `CreatePipelineRequest` / `ClonePipelineRequest` / `PipelineSpec` all duplicate 25 of the same fields
+### H6. `EditPipelineRequest` / `CreatePipelineRequest` / `ClonePipelineRequest` / `PipelineSpec` all duplicate 25 of the same fields
 - **Locations:** `model.ts:336` (`ClonePipelineRequest`), `model.ts:479` (`CreatePipelineRequest`), `model.ts:622` (`EditPipelineRequest`), `model.ts:1783` (`PipelineSpec`).
 - **Category:** 12 (duplicate concepts).
 - **Suggestion:** Extract `PipelineSpec` as the shared base and have `CreatePipelineRequest`, `EditPipelineRequest`, `ClonePipelineRequest` use TS intersection: `type CreatePipelineRequest = PipelineSpec & {allowDuplicateNames?: boolean; dryRun?: boolean; ...}`.
 - **Rationale:** Each of the four interfaces redeclares `id`, `name`, `storage`, `configuration`, `clusters`, `libraries`, `ingestionDefinition`, `gatewayDefinition`, `trigger`, `target`, `schema`, `filters`, `continuous`, `development`, `photon`, `edition`, `channel`, `catalog`, `notifications`, `serverless`, `deployment`, `restartWindow`, `budgetPolicyId`, `tags`, `eventLog`, `rootPath`, `environment`, `usagePolicyId`. Drift between the four is silent.
 
-### H8. `Update` field names on `Origin` reference the "pipeline run" sense of Update — silent overloading
+### H7. `Update` field names on `Origin` reference the "pipeline run" sense of Update — silent overloading
 - **Locations:** `model.ts:1476` (`Origin.updateId`), `model.ts:2504` (`UpdateInfo.updateId`), `model.ts:2545` (`UpdateStateInfo.updateId`).
 - **Category:** 19 (underspecified IDs), 1 (vague).
 - **Suggestion:** Rename `updateId` → `runId` (paired with H1). Document that the wire JSON key is `update_id` for compatibility.
 - **Rationale:** A field named `updateId` on `Origin` (event source) leaves "update of what?" unanswered. Users wonder if it refers to the last-modification timestamp.
 
-### H9. `client.events()` method name is too generic
+### H8. `client.events()` method name is too generic
 - **Location:** `client.ts:272`.
 - **Category:** 1 (vague), 17 (inconsistent action verbs — should be `listEvents`).
 - **Suggestion:** Rename to `listEvents()` for symmetry with `listUpdates()`, `list()`.
 - **Rationale:** Bare `events()` reads as a property accessor or event emitter, not an HTTP `GET`. Every other paginating method uses `list*` (`list`, `listUpdates`).
 
-### H10. `client.list()` — too generic for the package's bare-`list` slot
+### H9. `client.list()` — too generic for the package's bare-`list` slot
 - **Location:** `client.ts:385`.
 - **Category:** 1 (vague), 17 (inconsistent verbs).
 - **Suggestion:** Rename to `listPipelines()` to match the request type `ListPipelinesRequest` and to disambiguate from `listUpdates`/`listEvents`.
 - **Rationale:** `client.list(req)` requires the user to remember `list` of *what*. Adjacent methods are `listUpdates`, `events` (sic), and the request type is already `ListPipelinesRequest`. Bare `list` is a Go-SDK convention (where the package name disambiguates) but loses information in TS.
 
-### H11. `ScdType_ScdType` enum uses the cryptic acronym SCD
+### H10. `ScdType_ScdType` enum uses the cryptic acronym SCD
 - **Locations:** `model.ts:268` (`ScdType_ScdType`), `index.ts:27`.
 - **Category:** 5 (cryptic abbreviation).
 - **Suggestion:** Rename to `SlowlyChangingDimensionType` since "SCD" is jargon for "Slowly Changing Dimension" — the values themselves are `SCD_TYPE_1` / `SCD_TYPE_2` (Kimball-style dimensional modeling).
 - **Rationale:** SCD is a dimensional-modelling acronym (slowly-changing dimensions, from Kimball's data-warehousing canon). A casual reader does not know that. The enum values then re-spell `SCD_TYPE_*` redundantly (`SCD_TYPE_1`, `SCD_TYPE_2`, `APPEND_ONLY`).
 
-### H12. `PipelineState_PipelineState.IDLE` is the terminal state — but the JSDoc says "Pipeline is stopped and is not processing data. Can be resumed by calling `run`"
+### H11. `PipelineState_PipelineState.IDLE` is the terminal state — but the JSDoc says "Pipeline is stopped and is not processing data. Can be resumed by calling `run`"
 - **Location:** `model.ts:262`.
 - **Category:** 6 (misleading — references method `run` that does not exist; the method is `start`).
 - **Suggestion:** Fix JSDoc to reference `start()`. After H3, both will line up at `run()`.
 - **Rationale:** Currently the user reads "call `run`" and finds no `run()` method on `Client`.
 
-### H13. `client.delete()` collides with JS `delete` keyword
+### H12. `client.delete()` collides with JS `delete` keyword
 - **Location:** `client.ts:206`.
 - **Category:** 10 (reserved-word collision).
 - **Suggestion:** Rename to `deletePipeline()`. Alternatively, `remove()`.
 - **Rationale:** `delete` is a JS reserved keyword. While methods can be named `delete` since ES5, every IDE highlights it and parsers in some contexts choke.
 
-### H14. `EventLevel.METRICS` — value on a "severity level" enum that is not a severity
+### H13. `EventLevel.METRICS` — value on a "severity level" enum that is not a severity
 - **Location:** `model.ts:56`.
 - **Category:** 6 (misleading), 16 (field contradicts type domain).
 - **Suggestion:** Either move `METRICS` to a separate `EventCategory` enum or rename the enum to `EventKind`. The JSDoc says "The severity level of the event" — but `METRICS` is a category, not a severity.
 - **Rationale:** Filtering `where level='ERROR'` makes sense; `where level='METRICS'` is "where this event is a metric measurement, regardless of severity." Mixing the two leads to user mistakes.
 
-### H15. `UpdateState.QUEUED` description references the wrong noun ("update") instead of "run"
+### H14. `UpdateState.QUEUED` description references the wrong noun ("update") instead of "run"
 - **Location:** `model.ts:187` ("Update is waiting for previous update to finish.").
 - **Category:** 6 (misleading).
 - **Suggestion:** Doc rewrite (English) after H1: "Run is waiting for previous run to finish."
 - **Rationale:** Same as H1 — once `Update` is renamed to `Run`, every JSDoc that mentions "update" in this enum needs to follow.
 
-### H16. `Notifications` (plural type, singular plural-prefixed) — a single-notification spec named in plural
+### H15. `Notifications` (plural type, singular plural-prefixed) — a single-notification spec named in plural
 - **Locations:** `model.ts:1431`, plus all `notifications?: Notifications[]` field declarations.
 - **Category:** 9 (singular/plural mismatch).
 - **Suggestion:** Rename to `NotificationRule` (singular). The field becomes `notificationRules?: NotificationRule[]`.
 - **Rationale:** `notifications: Notifications[]` reads as "a list of lists of notifications". The type holds one `{emailRecipients, alerts}` pair — singular by definition.
 
-### H17. `connectorOptions` field-name reuses parent-type token (`ConnectorOptions.connectorOptions`)
+### H16. `connectorOptions` field-name reuses parent-type token (`ConnectorOptions.connectorOptions`)
 - **Locations:** `model.ts:457-477` (interface `ConnectorOptions`), `model.ts:1056`, `model.ts:1078`.
 - **Category:** 20 (type-suffix tautology), 12 (duplicate naming).
 - **Suggestion:** Rename the outer interface to `ConnectorOptions` and the inner discriminator to `options` (or `payload`). Then `connectorOptions: {payload: {...}}` reads cleanly.
@@ -348,35 +342,32 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Locations:** `model.ts:47` (`DAB` in DeploymentKind comment), `model.ts:379` (`SDP` in `channel` JSDoc), `model.ts:923` (`Spark Declarative Pipelines` in JSDoc), `model.ts:932` (`Lakeflow Connect`), `model.ts:2052` (`SDP's environment`), `client.ts:384` (`Spark Declarative Pipelines`).
 - **Suggestion:** Settle on one product name in JSDoc. The TS types should be backwards-compatible (no rename) but the docstrings should agree.
 
-### O2. `Pipelines*` (plural) vs `Pipeline*` (singular) split: 15 plural-prefixed vs 15 singular-prefixed types
-- **Cross-reference:** H4.
-
-### O3. There are FIVE separate `connectorOptions` / `sourceOptions` discriminators in the ingestion pipeline definition — connector wiring is too nested
+### O2. There are FIVE separate `connectorOptions` / `sourceOptions` discriminators in the ingestion pipeline definition — connector wiring is too nested
 - **Locations:** `IngestionPipelineDefinition.connectorType`, `IngestionPipelineDefinition.sourceConfigurations[].catalog.options`, `IngestionPipelineDefinition_SchemaSpec.connectorOptions`, `IngestionPipelineDefinition_TableSpec.connectorOptions`.
 - **Suggestion:** Document the resolution order between schema-level and table-level options. JSDoc currently fragments the rules across multiple types.
 
-### O4. JSDoc uses `<Databricks>` placeholder — leak from the Go SDK's template substitution
+### O3. JSDoc uses `<Databricks>` placeholder — leak from the Go SDK's template substitution
 - **Search:** `<Databricks>` appears 18 times in `model.ts`.
 - **Suggestion:** Replace with literal "Databricks" before TS compilation.
 
-### O5. `Notifications.alerts: string[]` is a hand-rolled enum of `on-update-success`, `on-update-failure`, `on-update-fatal-failure`, `on-flow-failure`
+### O4. `Notifications.alerts: string[]` is a hand-rolled enum of `on-update-success`, `on-update-failure`, `on-update-fatal-failure`, `on-flow-failure`
 - **Location:** `model.ts:1443`.
 - **Category:** 16.
 - **Suggestion:** Define `AlertCondition` enum. Currently typed `string[]` with values listed only in JSDoc.
 
-### O6. `OutlookOptions` carries three `*Filter` fields marked deprecated (`folderFilter`, `senderFilter`, `subjectFilter`) plus the new `include*` versions side-by-side
+### O5. `OutlookOptions` carries three `*Filter` fields marked deprecated (`folderFilter`, `senderFilter`, `subjectFilter`) plus the new `include*` versions side-by-side
 - **Locations:** `model.ts:1513-1566`.
 - **Category:** Generator artifact / Go-SDK fidelity issue.
 - **Suggestion:** Mark deprecated fields with `@deprecated` JSDoc tag (currently only mentioned in plain text).
 
-### O7. `ConnectorOptions` JSDoc opens with "Wrapper message for source-specific options" — proto-architectural terminology leak
+### O6. `ConnectorOptions` JSDoc opens with "Wrapper message for source-specific options" — proto-architectural terminology leak
 - **Location:** `model.ts:456`.
 - **Why:** "Wrapper message" is a protobuf concept (the proto2/proto3 well-known wrapper types: `BoolValue`, `StringValue`, etc., plus the generic "wrapper message" pattern used to box discriminated unions). It is visible in user-facing JSDoc on a public interface.
 - **Category:** Generator artifact leakage / proto-architectural leak.
 - **Suggested:** Rewrite JSDoc as "Source-specific options for ingestion connectors. Exactly one option must be specified for the connector type." Drop "Wrapper message".
 - **Rationale:** TypeScript developers do not know what a "wrapper message" is — the term reveals the proto IDL underneath. The shape is just a discriminated union over connector option types; describe it in TS terms.
 
-### O8. `Internal` proto-field tag leaks into JSDoc on two public fields
+### O7. `Internal` proto-field tag leaks into JSDoc on two public fields
 - **Locations:** `model.ts:926` (`IngestionGatewayPipelineDefinition.connectionParameters` — "Optional, Internal. Parameters required to establish an initial connection with the source."), `model.ts:1262` (`KafkaOptions.maxOffsetsPerTrigger` — "Internal option to control the maximum number of offsets to process per trigger.").
 - **Why:** `Internal` is a proto-level annotation (`google.api.field_visibility = INTERNAL` or similar) indicating the field is not part of the public API surface. If these fields are truly internal, they should be stripped from the public SDK at generation time; if they are public, the "Internal" label should not appear in user-visible documentation.
 - **Category:** Generator artifact leakage / proto-architectural leak.
@@ -391,11 +382,11 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - #H7 `EditPipeline`/`CreatePipeline`/`ClonePipeline` (originally cited at `model.ts:508`/`672`/`830`): Renamed to `*Request` variants. References updated in active H7.
 - #H8 `Origin.graphId` (originally cited at `model.ts:1816`): Fixed in regeneration on 2026-05-20 — `graphId` field removed from `Origin`.
 - #H12 `StorageMode` enum duplicate of `ScdType` (originally cited at `model.ts:263`): Fixed in regeneration on 2026-05-20 — `StorageMode` enum removed; only `ScdType_ScdType` remains.
-- #H14 `client.delete()` reserved-word collision (originally cited at `client.ts:204`): Line updated; still present as H13. Sibling reference to `restorePipeline()` removed since the restore endpoint no longer exists.
+- #H14 `client.delete()` reserved-word collision (originally cited at `client.ts:204`): Line updated; still present as H12. Sibling reference to `restorePipeline()` removed since the restore endpoint no longer exists.
 - #H15 `client.restorePipeline()` (originally cited at `client.ts:475`): Fixed in regeneration on 2026-05-20 — `restorePipeline()` method and `RestorePipelineRequest` removed entirely from the package.
 - #H16 `RestorePipelineRequest` suffix asymmetry (originally cited at `model.ts:2618`): Fixed in regeneration on 2026-05-20 — `Request` suffix added uniformly to every request DTO (`DeletePipelineRequest`, `GetPipelineRequest`, `ClonePipelineRequest`, `EditPipelineRequest`, `CreatePipelineRequest`, `StartUpdateRequest`, `StopPipelineRequest`, `ApplyEnvironmentRequest`, etc.); `RestorePipelineRequest` itself was deleted along with the restore endpoint.
 - #H19 `StartUpdate.fullRefresh`/`refreshSelection`/`fullRefreshSelection`/`resetCheckpointSelection`/`refreshFlowSelection` (originally cited at `model.ts:2738-2780`): Fixed in regeneration on 2026-05-20 — `resetCheckpointSelection` and `refreshFlowSelection` fields removed; remaining three (`fullRefresh`, `refreshSelection`, `fullRefreshSelection`) reduced to the documented pattern.
-- #H22 `PipelinesEnvironment` vs `IngestionPipelineDefinition` prefix split (originally cited at `model.ts:2382`/`1173`): Fixed in regeneration on 2026-05-20 — the underlying `Pipelines*` plural prefix issue is now consolidated under H4 alongside other plural-prefixed types; no longer a standalone H finding.
+- #H22 `PipelinesEnvironment` vs `IngestionPipelineDefinition` prefix split (originally cited at `model.ts:2382`/`1173`): Pruned per Workflow B — type-name prefix repeating the package name (`Pipelines*`) is treated as a generator-pattern issue, not fixed individually.
 - #M11 `GoogleDriveOptions_GoogleDriveIngestionScope` (originally cited at `model.ts:372-379`): Fixed in regeneration on 2026-05-20 — enum removed; only `GoogleDriveOptions_GoogleDriveEntityType` remains.
 - #M13 `PeriodicTrigger_TimeUnit` (originally cited at `model.ts:384`): Fixed in regeneration on 2026-05-20 — enum and parent type `PeriodicTrigger` removed.
 - #M31 `IngestionSourceType.COMMUNITY` (originally cited at `model.ts:88-92`): Fixed in regeneration on 2026-05-20 — `COMMUNITY` value removed from `IngestionSourceType`.

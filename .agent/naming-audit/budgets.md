@@ -348,23 +348,11 @@ _None._
   types and have `Create.../Update...` request types embed
   `BudgetConfiguration` (or `Budget`) directly. See also F10 / F11.
 
-#### F7.4 — Method names mirror request types (MEDIUM)
-- **Where:** `client.ts:79, 111, 139, 173, 233`.
-- **Why flagged:** Methods are
-  `createBudgetConfiguration`, `deleteBudgetConfiguration`,
-  `getBudgetConfiguration`, `listBudgetConfigurations`,
-  `updateBudgetConfiguration`. Inside a `Budgets` client, the
-  `Budget`/`Budgets` suffix is repetitive. Compare typical TS SDK
-  shape: `budgets.create(...)`, `budgets.list(...)`.
-- **Suggestion:** `create`, `delete`, `get`, `list`,
-  `update`. The class itself already conveys "budgets". This is a
-  cross-package convention to decide once.
-
-#### F7.5 — `LIST_PRICE_DOLLARS_USD` doubly redundant (LOW)
+#### F7.4 — `LIST_PRICE_DOLLARS_USD` doubly redundant (LOW)
 - **Where:** `model.ts:10`.
 - **Why flagged:** `DOLLARS_USD` is tautological — USD *is* dollars.
   This is a wire-protocol value, so the SDK cannot change it
-  unilaterally, but worth noting upstream.
+  unilaterally, but worth noting upstream. See also F17.2.
 - **Suggestion:** Wire protocol; leave with a comment.
 
 ---
@@ -642,7 +630,7 @@ _None._
 #### F17.2 — `LIST_PRICE_DOLLARS_USD` (MEDIUM)
 - **Where:** `model.ts:10`.
 - **Why flagged:** 22 characters; `DOLLARS_USD` is doubly redundant
-  (F7.5). Could be `LIST_PRICE_USD` or `USD`.
+  (F7.4). Could be `LIST_PRICE_USD` or `USD`.
 - **Suggestion:** Wire value; report upstream.
 
 #### F17.3 — `EMAIL_NOTIFICATION` (LOW)
@@ -732,7 +720,7 @@ This SDK exposes two separate packages whose names both start with
 | 4 | Underscores in TS identifiers           | 0 |
 | 5 | Cryptic abbreviations                   | 7 |
 | 6 | Misleading names                        | 5 |
-| 7 | Overly verbose                          | 5 |
+| 7 | Overly verbose                          | 4 |
 | 8 | Singular / plural mismatch              | 5 (3 acceptable) |
 | 9 | Reserved-word collisions                | 5 (3 acceptable) |
 | 10 | Empty / trivial wrappers               | 0 |
@@ -761,9 +749,8 @@ This SDK exposes two separate packages whose names both start with
    mismatch.
 4. **F1.1 / F1.2 / F15.1:** Rename `ActionConfiguration`
    to `BudgetAlertAction`, `target` to `recipient`.
-5. **F7.2 / F7.4:** Drop "Configuration" from request type names
-   (`CreateBudgetRequest`) and method names
-   (`budgets.create(...)`).
+5. **F7.2:** Drop "Configuration" from request type names
+   (`CreateBudgetRequest`).
 6. **F11.4:** Lift `accountId` to top-level on all request types
    (currently nested under `budget` for create/update only).
 7. **F13.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/

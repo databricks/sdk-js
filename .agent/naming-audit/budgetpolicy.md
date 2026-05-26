@@ -3,13 +3,13 @@
 **Path:** `packages/budgetpolicy/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level "Budget Policy" management — create/get/list/update/delete cost-control policies that attach custom tags to billing usage and can be bound to specific workspaces. Distinct from the sibling `budgets` package, which manages spend-alert configurations.
-**Total weird names flagged:** 29
+**Total weird names flagged:** 28
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 6 |
-| Medium | 11 |
+| Medium | 10 |
 | Low | 7 |
 | Observation | 5 |
 
@@ -53,67 +53,61 @@
 
 ## Medium severity
 
-### 7. `CustomPolicyTag` type name — `src/v1/model.ts:51`
-- **Why weird:** Type is just `{key, value}` — i.e. a plain tag. `CustomPolicyTag` is a triple-loaded name: "custom" (versus what? a built-in tag?), "policy" (which policy? the only one in scope), "tag" (the actual semantic noun). Two of the three words are redundant in context.
-- **Category:** 7 (overly verbose), 8 (redundant prefix `CustomPolicy*` already implied by location).
-- **Suggested name:** `Tag` (in this package it's unambiguous) or `PolicyTag`.
-- **Rationale:** `customTags: CustomPolicyTag[]` reads as type-suffix tautology + redundant `Custom`. The doc on `CustomPolicyTag.key` even calls them "custom tags".
-
-### 8. `CustomPolicyTag` reserved-key documentation — `src/v1/model.ts:55-56`
+### 7. `CustomPolicyTag` reserved-key documentation — `src/v1/model.ts:55-56`
 - **Why weird:** Doc says key cannot be `"budget-policy-name"`, `"budget-policy-id"` or `"budget-policy-resolution-result"`. These reserved keys are the wire-form spelling. They aren't surfaced as constants or an enum.
 - **Category:** 6 (misleading: hard-coded magic strings that callers must memorise), 18 (long magic string sentinels).
 - **Suggested name:** Either expose a `RESERVED_TAG_KEYS` constant, or validate in marshal step and throw a typed error.
 - **Rationale:** Documentation-only constraints are easy to violate and produce server-side 400s. Worth flagging because the names are stable wire-level identifiers.
 
-### 9. `Filter.policyName` / `Filter.creatorUserId` / `Filter.creatorUserName` — `src/v1/model.ts:80,85,90`
+### 8. `Filter.policyName` / `Filter.creatorUserId` / `Filter.creatorUserName` — `src/v1/model.ts:80,85,90`
 - **Why weird:** `Filter` has three optional fields whose names imply they specify *one* policy, but the JSDoc says they apply as substring/equality filters across the list. Names like `policyName: 'foo'` read as "the policy named foo"; what it actually means is "policies whose name contains 'foo'". The JSDoc clarifies but the name misleads.
 - **Category:** 6 (misleading — singular noun for a substring/multi-match filter).
 - **Suggested name:** `policyNameContains`, `creatorUserIdEquals`, `creatorUserNameContains` (or pluralise to `creatorUserNames: string[]`).
 - **Rationale:** Filter DSLs benefit from explicit operators. Bare names suggest exact match.
 
-### 10. `Filter.creatorUserId: number` vs `Filter.creatorUserName: string` — `src/v1/model.ts:85,90`
+### 9. `Filter.creatorUserId: number` vs `Filter.creatorUserName: string` — `src/v1/model.ts:85,90`
 - **Why weird:** Same conceptual entity (the creator) exposed twice as two filter fields, with no doc clarification on whether they are AND or OR. `creatorUserId` is `number` (a JS-unsafe representation for 64-bit IDs — but at least the Go SDK numeric type is `int64` here), while `creatorUserName` is `string`.
 - **Category:** 12 (duplicate concept — two ways to filter on the same domain object), 19 (underspecified ID — `creatorUserId` is a numeric id from an unknown id space).
 - **Suggested name:** Collapse to `creator?: Creator` with `{id?: number; name?: string}`, or document AND/OR.
 - **Rationale:** Two parallel "filter by creator" fields beg the question of how they combine. Even the JSDoc says "If unspecified, all policies will be returned" on each one — but doesn't say what happens if both are set.
 
-### 11. `Filter.creatorUserId: number` representation — `src/v1/model.ts:85`
+### 10. `Filter.creatorUserId: number` representation — `src/v1/model.ts:85`
 - **Why weird:** User IDs are typed as `number`. Databricks user IDs are 64-bit integers (this SDK uses `number` for `bindingWorkspaceIds` too — line 30). JS `number` only has 53-bit safe integer precision, so user IDs `>2^53` will silently lose precision.
 - **Category:** 16 (field type contradicts domain — int64 in a 53-bit number type), 19 (underspecified id).
 - **Suggested name:** `creatorUserId: bigint` or `string` (matches Databricks REST API serialisation of large IDs).
 - **Rationale:** Worth flagging as a generator/policy issue. Same problem for `BudgetPolicy.bindingWorkspaceIds: number[]` on line 30 and `Filter.creatorUserId` here.
 
-### 12. `SortSpec` type — `src/v1/model.ts:147`
+### 11. `SortSpec` type — `src/v1/model.ts:147`
 - **Why weird:** `Spec` is a generic suffix — every type is a spec of something. The suffix communicates nothing about what kind of specification this is or how it differs from a plain options bag.
 - **Category:** 1 (vague suffix `Spec`).
 - **Suggested name:** `SortOptions` or `SortOrder`.
 - **Rationale:** `Spec` adds no information. A name that says what the type *describes* (sort options / sort order) is more direct.
 
-### 13. `SortSpec.field` JSDoc typo "The filed to sort by" — `src/v1/model.ts:148`
+### 12. `SortSpec.field` JSDoc typo "The filed to sort by" — `src/v1/model.ts:148`
 - **Why weird:** `filed` typo for `field`. Generated comment text is permanent unless the API spec is fixed.
 - **Category:** Observation (typo).
 - **Suggested name:** Fix spelling.
 - **Rationale:** Minor; flagging because it surfaces in IntelliSense.
 
-### 14. `ListBudgetPoliciesResponse.policies` field name — `src/v1/model.ts:134`
+### 13. `ListBudgetPoliciesResponse.policies` field name — `src/v1/model.ts:134`
 - **Why weird:** Field `policies` of type `BudgetPolicy[]`. Within the `budgetpolicy` package, `policies` is fine — but within a multi-package consumer with `BudgetConfigurations.budgets` (line 170 of budgets) and `usagepolicy.policies`, the field `policies` becomes ambiguous when copy-pasted.
 - **Category:** 1 (vague when out of context), 9 (singular/plural — paired with `policy:` field on request).
 - **Suggested name:** `budgetPolicies: BudgetPolicy[]`.
 - **Rationale:** Tied to type rename suggestion #4. If `BudgetPolicy` becomes `Policy` (in-package), `policies` is fine; otherwise `budgetPolicies` matches.
 
-### 15. `ListBudgetPoliciesResponse.previousPageToken` — `src/v1/model.ts:144`
+### 14. `ListBudgetPoliciesResponse.previousPageToken` — `src/v1/model.ts:144`
 - **Why weird:** Response supports both forward (`nextPageToken`) and backward (`previousPageToken`) pagination — but `listBudgetPoliciesIter` (client.ts:193) only walks forward. The bidirectional surface area exists but is unused by the iterator helper.
 - **Category:** Observation / 12 (duplicate-but-asymmetric concept).
 - **Suggested name:** Keep name; consider documenting that the iterator does not honor `previousPageToken`.
 - **Rationale:** Field name is fine on its own; flagging because it hints at unsupported reverse pagination.
 
-### 16. `ListBudgetPoliciesResponse.previousPageToken` doc typo — `src/v1/model.ts:142`
+### 15. `ListBudgetPoliciesResponse.previousPageToken` doc typo — `src/v1/model.ts:142`
 - **Why weird:** Doc reads "In this field is omitted, there are no previous pages." — "In" should be "If".
 - **Category:** Observation (typo).
 - **Suggested name:** Fix doc.
 - **Rationale:** Generated; surfaces in IntelliSense.
 
-### 17. `SortSpec_Field` enum name — `src/v1/model.ts:6`
+### 16. `SortSpec_Field` enum name — `src/v1/model.ts:6`
 - **Why weird:** Proto-architectural-leak: the underscore-joined `ParentType_NestedType` form is the protobuf/Go-SDK convention for emitting nested enum types into a flat namespace. TS already supports namespaces and modules natively, so the underscore is a wire-protocol artifact bleeding into the public TS API. The eslint-disable comment on the prior line even labels it "Proto-style nested enum name", confirming the generator knows it is non-idiomatic.
 - **Category:** Proto-architectural leak (proto-style nested-type encoding leaking into TS identifiers).
 - **Suggested name:** `SortField` (drop the `Spec_` prefix entirely; the enum stands on its own as the set of sortable fields) or `SortSpecField` (camel-join, no underscore).
@@ -121,43 +115,43 @@
 
 ## Low severity
 
-### 18. `CreateBudgetPolicyRequest.policy` field with confusing JSDoc — `src/v1/model.ts:44-46`
+### 17. `CreateBudgetPolicyRequest.policy` field with confusing JSDoc — `src/v1/model.ts:44-46`
 - **Why weird:** Doc: "The policy to create. `policy_id` needs to be empty as it will be generated. `policy_name` must be provided, custom_tags may need to be provided depending on the cloud provider. All other fields are optional." — wire-name leak again (`policy_id`, `policy_name`, `custom_tags`) in TS docs.
 - **Category:** Observation, 14 (wire-style identifiers in TS docs).
 - **Suggested name:** Fix the doc to reference TS field names.
 - **Rationale:** Editing UX: hovers should show TS, not proto.
 
-### 19. `UpdateBudgetPolicyRequest.policy` doc mentions `creator_user_id` — `src/v1/model.ts:157`
+### 18. `UpdateBudgetPolicyRequest.policy` doc mentions `creator_user_id` — `src/v1/model.ts:157`
 - **Why weird:** Doc: "`creator_user_id` cannot be specified in the request" — but `BudgetPolicy` (the type of `policy` here) doesn't have a `creatorUserId` field! It has `policyId`, `policyName`, `customTags`, `bindingWorkspaceIds`. The doc refers to a field that doesn't exist on the model.
 - **Category:** 6 (misleading documentation — refers to non-existent field), 17 (inconsistency: doc says creator is part of `BudgetPolicy`, model says otherwise).
 - **Suggested name:** Fix doc; likely a Go-SDK paste from a richer struct.
 - **Rationale:** Real bug.
 
-### 20. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 19. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions with nearly identical names handling different layers (retry/rate-limit wrapper vs raw HTTP send + logging). Easy to confuse at call sites in `client.ts`.
 - **Category:** 1 (vague), 17 (inconsistent — names differ only by `Http` infix).
 - **Suggested name:** `runWithCallOptions` / `sendHttpRequest`.
 - **Rationale:** Same pair flagged in the `abacpolicies` audit. Generator-wide.
 
-### 21. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 20. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** `Options` is reused across the SDK for many unrelated concepts (`ClientOptions`, `CallOptions`, and the imported `Options` type from `@databricks/sdk-core/api` on line 3). Within `utils.ts` alone, two `Options`-named types collide cognitively.
 - **Category:** 1 (vague suffix), 17 (collides with the imported `Options`).
 - **Suggested name:** `HttpCallContext` (it's not user-facing options; it's an internal bag of arguments).
 - **Rationale:** Generator-wide concern; same as `abacpolicies` finding #37.
 
-### 22. `readAll` — `src/v1/utils.ts:40`
+### 21. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Function reads an entire response body stream into a buffer. Generic name; collides cognitively with `Array.prototype` or stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` or `readStreamToEnd`.
 - **Rationale:** Internal helper. Generator-wide.
 
-### 23. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 22. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Used by `client.ts:158,165,221` for nested query-param flattening; OK in this package but exported per package which makes it a duplicated utility across every generated package.
 - **Category:** Observation / 12 (duplicate utility across packages).
 - **Suggested name:** Keep name; consider hoisting to `@databricks/sdk-core`.
 - **Rationale:** Naming is fine; flagging duplication.
 
-### 24. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
+### 23. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
 - **Why weird:** `Segment` is a generic CS term. Comment explains it's the User-Agent identity segment; without the comment the constant name doesn't communicate that.
 - **Category:** 1 (vague), 15 (generic name losing meaning).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
@@ -165,27 +159,27 @@
 
 ## Observations
 
-### 25. `Client` class plain name — `src/v1/client.ts:46`
+### 24. `Client` class plain name — `src/v1/client.ts:46`
 Top-level export `Client`. When a consumer imports `Client` from `@databricks/sdk-budgetpolicy/v1`, they will likely alias it (`import {Client as BudgetPolicyClient}`) to avoid collision with `Client` from every other package.
 - **Category:** 1 (vague — `Client` is the most generic name in the SDK ecosystem), 12 (duplicate across all packages).
 - **Suggested name:** `BudgetPolicyClient`.
 - **Rationale:** Each generated package emits a `Client`. Forcing aliasing on every import is a usability cost. Generator-wide; not specific to this package.
 
-### 26. `req` parameter name on client methods — `src/v1/client.ts:77,103,122,147,194,212`
+### 25. `req` parameter name on client methods — `src/v1/client.ts:77,103,122,147,194,212`
 Abbreviation `req` instead of `request`. Six occurrences in `client.ts`.
 - **Category:** 5 (cryptic abbreviation when the long form fits comfortably).
 - **Suggested name:** `request`.
 - **Rationale:** Style. Comments on `client.ts` already use the full word. Same convention should apply to params for hovers.
 
-### 27. Action-verb conventions in `Client`
+### 26. Action-verb conventions in `Client`
 The client consistently uses `create`/`delete`/`get`/`list`/`update` verbs (matching the JSDoc method documentation). No mixed `fetch`/`retrieve`/`read`. (`abacpolicies` audit noted the same.)
 - **Category:** 17 (observation of consistency, per rule that we flag inconsistencies — this is the inverse).
 
-### 28. Wire-form vs TS-form casing of `policyId` (path interpolation) — `src/v1/client.ts:80,106,125,150,215`
+### 27. Wire-form vs TS-form casing of `policyId` (path interpolation) — `src/v1/client.ts:80,106,125,150,215`
 The URL path uses `accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies` and the policy id is substituted via `req.policyId ?? ''`. The kebab-case URL segment `budget-policies` is fine; flagging that the SDK uses three different casings (`budget_policies` wire-form for query params, `budget-policies` for the URL, `budgetPolicies` for TS) — readers must mentally translate.
 - **Category:** 3 (acronym/casing inconsistency — three forms of the same identifier).
 
-### 29. Package name `budgetpolicy` overlaps with `budgets` and `usagepolicy`
+### 28. Package name `budgetpolicy` overlaps with `budgets` and `usagepolicy`
 Three sibling packages exist with related-sounding names:
 - `budgetpolicy` — tag attribution policy (this package).
 - `budgets` — spend-alert budget configurations.

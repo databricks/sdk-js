@@ -124,7 +124,7 @@ read like leftover scaffolding. The path-parameter nature is invisible
 to users and already documented prose-style ("The three-level (fully
 qualified) name of the registered model"). Recommended names:
 `fullName`, `version`, and `alias` — but those collide with response
-fields, which is the actual problem (see §12.1 below). The right fix is
+fields, which is the actual problem (see §15 below). The right fix is
 to drop the path-parameter fields from the request type entirely and
 accept them as method positional arguments (mirroring how `getModelVersion`
 already URL-encodes them).
@@ -172,12 +172,7 @@ typical semantic versioning expectations is a real footgun. Rename
 
 ### 6. Overly verbose names
 
-#### 6.1 `Client.setRegisteredModelAlias` versus `Client.deleteRegisteredModelAlias` (client.ts:202, 507)
-Method names hover around 30 characters. Java/Go style. In TS prefer
-`setAlias` / `deleteAlias` on a `RegisteredModelsClient` whose role is
-already established. The current names imply you could also call
-`setUnregisteredModelAlias` or `setExperimentAlias` from the same client,
-which you cannot. See also §11.1.
+_None._
 
 ---
 
@@ -295,20 +290,10 @@ flagged because it is a common reader stumbling block.
 
 ### 12. Go / Java-style names
 
-#### 12.1 `Client.createRegisteredModel`, `Client.deleteRegisteredModel`, etc.
-Verb + full-noun method names mirror the Go SDK's
-`WorkspaceClient.RegisteredModels.Create` style. In idiomatic TS, the
-client itself is namespaced (you import from `registeredmodels/v1`), so
-the methods could be `create`, `delete`, `get`, `list`, `update`. The
-current `createRegisteredModel` is doubly redundant with the package
-name. Same for `getModelVersion`, `listRegisteredModels`,
-`setRegisteredModelAlias`, `updateRegisteredModel`,
-`updateModelVersion`, and so on (12 methods total).
-
-#### 12.2 `Info` suffix everywhere
+#### 12.1 `Info` suffix everywhere
 Pure Go-ism (`ServerInfo`, `WorkspaceInfo`, `RegisteredModelInfo`). See §7.1.
 
-#### 12.3 PascalCase exported `Client` (client.ts:63)
+#### 12.2 PascalCase exported `Client` (client.ts:63)
 The exported `Client` class is named bare-`Client`. Most TS SDKs export
 a context-qualified name like `RegisteredModelsClient` or
 `UcRegisteredModelsClient`. The bare `Client` works with the

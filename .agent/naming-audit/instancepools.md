@@ -21,11 +21,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 10    |
-| Medium       | 11    |
+| High         | 9     |
+| Medium       | 7     |
 | Low          | 16    |
 | Observation  | 7     |
-| **Total**    | **44**|
+| **Total**    | **39**|
 
 ### Top themes
 
@@ -33,11 +33,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
    `EditInstancePoolRequest` (29 fields), `GetInstancePoolRequest_Response`
    (30 fields), and `InstancePoolAndStats` (30 fields) are byte-identical
    apart from one or two fields. They could share a single base type.
-2. **`InstancePool*` prefix on every type is redundant** — the package is
-   already `instancepools`; the v2 namespace is even smaller. `Pool` (or even
-   nothing) would do for `InstancePoolStats`, `InstancePoolStatus`,
-   `InstancePoolAndStats`.
-3. **Cross-package shape duplication** — eleven types/enums are duplicated
+2. **Cross-package shape duplication** — eleven types/enums are duplicated
    verbatim between this package and `clusters`. A shared `compute` module
    would eliminate the dual maintenance burden.
 
@@ -160,11 +156,10 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | O-01  | `idleInstanceAutoterminationMinutes` (5-word identifier, present in 4 types) | Medium | 33-char field. Inside a type called `CreateInstancePoolRequest` etc., `idleAutoterminationMinutes` or `idleTimeoutMinutes` would be 27 / 18 chars. The wire uses `idle_instance_autotermination_minutes` so any change is generator-side. |
-| O-02  | `InstancePool*` prefix on `InstancePoolStats`, `InstancePoolStatus`, `InstancePoolAndStats`, `InstancePoolAwsAttributes`, `InstancePoolAzureAttributes`, `InstancePoolGcpAttributes`, `InstancePoolState` | High | The package is already `@databricks/sdk-instancepools`. Inside the package, the prefix is redundant. `Stats`, `Status`, `AwsAttributes` would all suffice and remove ~12 chars from each name. Compare `clusters` (`clusters.md` #75) and `apps` packages, which face the same recurring issue. |
-| O-03  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
-| O-04  | `NodeTypeFlexibility.alternateNodeTypeIds` | Low | Field name re-states `node` twice (once from parent type, once in the field). Could be `alternates` or `fallbacks`. The wire path is the constraint. |
-| O-05  | `totalInitialRemoteDiskSize`        | Low      | 25-char field, four concept words. Reasonable but heavy. |
-| O-06  | `spotBidPricePercent`               | Low      | Five concept words crammed into one camelCase identifier. The JSDoc explains what each part means. |
+| O-02  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
+| O-03  | `NodeTypeFlexibility.alternateNodeTypeIds` | Low | Field name re-states `node` twice (once from parent type, once in the field). Could be `alternates` or `fallbacks`. The wire path is the constraint. |
+| O-04  | `totalInitialRemoteDiskSize`        | Low      | 25-char field, four concept words. Reasonable but heavy. |
+| O-05  | `spotBidPricePercent`               | Low      | Five concept words crammed into one camelCase identifier. The JSDoc explains what each part means. |
 
 ### 2.6 Singular / plural mismatches — Low / High
 
@@ -256,14 +251,10 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| TS-01 | `InstancePoolAwsAttributes` / `InstancePoolAzureAttributes` / `InstancePoolGcpAttributes` | Medium | All three carry the `Attributes` suffix and the redundant `InstancePool` prefix (see O-02). Could be `AwsAttributes` / `AzureAttributes` / `GcpAttributes` (matching `clusters`). |
-| TS-02 | `InstancePoolStats`                 | Medium   | `Stats` is already abbreviated; the `InstancePool` prefix is redundant inside this package. |
-| TS-03 | `InstancePoolStatus`                | Medium   | Same as TS-02. |
-| TS-04 | `InstancePoolState` (enum)          | Medium   | Same. Could be `State` or `PoolState`. |
-| TS-05 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-02). Doubly off. |
-| TS-06 | `NodeTypeFlexibility`               | Low      | "Flexibility" is the noun-form of a feature, not a type-suffix tautology. OK. |
-| TS-07 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix (M-04) the type-name still echoes. |
-| TS-08 | `EbsVolumeType`, `AzureDiskVolumeType` | Low | `VolumeType` / `DiskVolumeType` — standard cloud-storage terminology. OK. |
+| TS-01 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-02). Doubly off. |
+| TS-02 | `NodeTypeFlexibility`               | Low      | "Flexibility" is the noun-form of a feature, not a type-suffix tautology. OK. |
+| TS-03 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix (M-04) the type-name still echoes. |
+| TS-04 | `EbsVolumeType`, `AzureDiskVolumeType` | Low | `VolumeType` / `DiskVolumeType` — standard cloud-storage terminology. OK. |
 
 ### 2.17 Other observations
 
@@ -417,11 +408,11 @@ artefact and the leading underscore at the same time.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 10    |
-| Medium       | 11    |
+| High         | 9     |
+| Medium       | 7     |
 | Low          | 16    |
 | Observation  | 7     |
-| **Total**    | **44**|
+| **Total**    | **39**|
 
 ## 4. Cross-package consistency notes
 

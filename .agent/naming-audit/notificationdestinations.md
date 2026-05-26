@@ -3,16 +3,16 @@
 **Path:** `packages/notificationdestinations/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-level CRUD over "notification destinations" — named, persisted records that pair a `displayName` with one config out of five wire-format channels (Slack, Email, GenericWebhook, PagerDuty, MicrosoftTeams). The REST surface is `/api/2.0/notification-destinations`, with the usual `create` / `get` / `list` / `update` / `delete` plus a paged async iterator. Every channel-config carries the same `*Set: boolean` companion shape: secret fields are write-only on input and the server echoes only a "is it set?" mirror on output. There are zero typed timestamps, zero enum sub-types beyond `DestinationType`, and the only oneof is the discriminated `Config` union.
-**Total weird names flagged:** 24
+**Total weird names flagged:** 20
 
 ## Summary
 
 | Severity | Count |
 | --- | --- |
 | High | 6 |
-| Medium | 8 |
-| Low | 6 |
-| Observation | 4 |
+| Medium | 6 |
+| Low | 5 |
+| Observation | 3 |
 
 ## Summary table
 
@@ -25,23 +25,19 @@
 | 5 | High | `model.ts:117` | `PagerdutyConfig` (type) and `pagerduty` ($case) | 3 (acronym casing inconsistency) |
 | 6 | High | `model.ts:42-55` | `GenericWebhookConfig` | 1 (vague — "generic" carries no info) |
 | 7 | Medium | `model.ts:46`, `:50`, `:54`, `:87` etc. | `urlSet` / `usernameSet` / `passwordSet` / `appIdSet` / `authSecretSet` / `channelUrlSet` / `tenantIdSet` / `integrationKeySet` / `oauthTokenSet` / `channelIdSet` | 6 (misleading), 15 (generic field naming pattern) |
-| 8 | Medium | `model.ts:23-28` / `:139-146` | `CreateNotificationDestinationRequest` / `UpdateNotificationDestinationRequest` | 7 (overly verbose), 8 (redundant `Request` suffix conjoined with full noun phrase) |
-| 9 | Medium | `model.ts:66-70` | `ListNotificationDestinationsResponse` | 7 (overly verbose), 8 (redundant `Response` suffix) |
-| 10 | Medium | `client.ts:45` | `Client` (unprefixed class) | 1 (vague), 12 (duplicate across SDK) |
-| 11 | Medium | `model.ts:67` | `ListNotificationDestinationsResponse.results` | 1 (vague), 15 (generic field name) |
-| 12 | Medium | `model.ts:74`, `:108` | `id` (UUID) | 19 (underspecified ID) |
-| 13 | Medium | `model.ts:117` | `PagerdutyConfig.integrationKey` (vs `*Set` companion) | 6 (misleading optionality semantics, output-only mirror) |
-| 14 | Medium | `model.ts:78`, `:112` | `destinationType` field | 20 (type-suffix tautology when combined with the type name) |
-| 15 | Low | `model.ts:8` | `WEBHOOK` enum singular while wire-config implies "generic" | 9 (singular/plural / qualifier mismatch with `GenericWebhookConfig`) |
-| 16 | Low | `client.ts:71`, `:100`, `:125`, `:150`, `:204` | `createNotificationDestination` / `deleteNotificationDestination` / `getNotificationDestination` / `listNotificationDestinations` / `updateNotificationDestination` | 7 (overly verbose method names) |
-| 17 | Low | `client.ts:40-43` | `PACKAGE_SEGMENT` | 1 (vague), 15 (generic) |
-| 18 | Low | `utils.ts:15-19` | `HttpCallOptions` | 1 (vague), 12 (duplicate `Options`) |
-| 19 | Low | `utils.ts:26` / `:65` | `executeCall` / `executeHttpCall` near-duplicate | 1 (vague), 17 (inconsistent layer naming) |
-| 20 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
-| 21 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
-| 22 | Obs | `index.ts:5-23` | Re-exports the verbose names verbatim, no friendlier aliases | — |
-| 23 | Obs | — | `NEXT_CHANGELOG.md` and pre-existing build/lint workflows | — |
-| 24 | Obs | `model.ts:47`, `:51` | `[Input-Only][Optional]` doc marker inconsistency | — |
+| 8 | Medium | `client.ts:45` | `Client` (unprefixed class) | 1 (vague), 12 (duplicate across SDK) |
+| 9 | Medium | `model.ts:67` | `ListNotificationDestinationsResponse.results` | 1 (vague), 15 (generic field name) |
+| 10 | Medium | `model.ts:74`, `:108` | `id` (UUID) | 19 (underspecified ID) |
+| 11 | Medium | `model.ts:117` | `PagerdutyConfig.integrationKey` (vs `*Set` companion) | 6 (misleading optionality semantics, output-only mirror) |
+| 12 | Medium | `model.ts:78`, `:112` | `destinationType` field | 20 (type-suffix tautology when combined with the type name) |
+| 13 | Low | `model.ts:8` | `WEBHOOK` enum singular while wire-config implies "generic" | 9 (singular/plural / qualifier mismatch with `GenericWebhookConfig`) |
+| 14 | Low | `client.ts:40-43` | `PACKAGE_SEGMENT` | 1 (vague), 15 (generic) |
+| 15 | Low | `utils.ts:15-19` | `HttpCallOptions` | 1 (vague), 12 (duplicate `Options`) |
+| 16 | Low | `utils.ts:26` / `:65` | `executeCall` / `executeHttpCall` near-duplicate | 1 (vague), 17 (inconsistent layer naming) |
+| 17 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
+| 18 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
+| 19 | Obs | — | `NEXT_CHANGELOG.md` and pre-existing build/lint workflows | — |
+| 20 | Obs | `model.ts:47`, `:51` | `[Input-Only][Optional]` doc marker inconsistency | — |
 
 ## High severity
 
@@ -157,40 +153,9 @@
   3. The paired fields are **modal** — on input you set `url`, on output you read `urlSet`. The type system has no way to express this; both fields are simultaneously optional, so a user could try to set `urlSet: true` on input and the server will silently ignore it.
 - **Category:** 6 (misleading — three-valued boolean), 15 (generic field-naming pattern losing meaning).
 - **Suggested name:** Rename the pattern to `hasUrl`, `hasUsername`, etc. (English-correct boolean predicates). Better: split the input and output types so input has `url` only and output has `hasUrl` only. Or merge into a union: `url?: { write: string } | { read: { isSet: boolean } }`.
-- **Rationale:** This is the dominant naming smell in the file — it occurs ten times. Worth a coordinated rename across all config types, not piecemeal. The `[Input-Only]`/`[Output-Only]` JSDoc markers (finding 21) hint that the type was originally split in the API spec and was flattened for TS.
+- **Rationale:** This is the dominant naming smell in the file — it occurs ten times. Worth a coordinated rename across all config types, not piecemeal. The `[Input-Only]`/`[Output-Only]` JSDoc markers (finding 18) hint that the type was originally split in the API spec and was flattened for TS.
 
-### 8. `CreateNotificationDestinationRequest` / `UpdateNotificationDestinationRequest` — overly verbose — `src/v1/model.ts:23-28`, `:139-146`
-- **Code:**
-  ```ts
-  export interface CreateNotificationDestinationRequest {
-    displayName?: string | undefined;
-    config?: Config | undefined;
-  }
-  export interface UpdateNotificationDestinationRequest {
-    id?: string | undefined;
-    displayName?: string | undefined;
-    config?: Config | undefined;
-  }
-  ```
-- **Why weird:** 39 and 40 character identifiers respectively. Inside the package, the verb is already redundant with the method name (`createNotificationDestination(req: CreateNotificationDestinationRequest)`) — the request type name repeats the verb the method also carries. Compare to leaner conventions: `Create(input: NotificationDestination)` or, in TS, just accepting the partial `NotificationDestination` shape and dropping the `Request` types.
-- **Category:** 7 (overly verbose), 8 (redundant `Request` suffix conjoined with full noun phrase that is already specific).
-- **Suggested name:** Shorter alternatives: `CreateInput`, `UpdateInput` (scoped to the package; relies on `import * as nd from '@databricks/sdk-notificationdestinations/v1'` for disambiguation). Or merge with the response: `accept Partial<NotificationDestination>`. Or, if keeping verbose names, at least drop the `Request` suffix (already implied by being the input to a request).
-- **Rationale:** Even in `alerts` (which is heavier), the create/update request types were criticised for this pattern. Worth normalising at the SDK level.
-
-### 9. `ListNotificationDestinationsResponse` — overly verbose response wrapper — `src/v1/model.ts:66-70`
-- **Code:**
-  ```ts
-  export interface ListNotificationDestinationsResponse {
-    results?: ListNotificationDestinationsResult[] | undefined;
-    /** Page token for next of results. */
-    nextPageToken?: string | undefined;
-  }
-  ```
-- **Why weird:** Two fields, 41-character type name. The JSDoc says "Page token for next of results" — broken English (should be "Page token for next page of results" or "Page token for the next set of results"). And see #11 for `results`.
-- **Category:** 7 (verbose), 8 (`Response` suffix added on top of the verb-prefixed noun phrase).
-- **Suggested name:** `ListPage<NotificationDestination>` — a generic page wrapper used across the SDK. Or `NotificationDestinationPage`.
-
-### 10. `Client` — unprefixed class — `src/v1/client.ts:45`
+### 8. `Client` — unprefixed class — `src/v1/client.ts:45`
 - **Code:** `export class Client { ... }`
 - **Why weird:** Every package in the SDK exports a class named `Client`. A user wiring up two packages (`notificationdestinations` + `alerts`, say) writes:
   ```ts
@@ -202,7 +167,7 @@
 - **Suggested name:** `NotificationDestinationsClient`, or expose only the namespace import (`import * as notificationDestinations from '@databricks/sdk-notificationdestinations/v1'`).
 - **Rationale:** Cross-SDK consistency, but every consumer pays the rename cost. Worth a generator-level fix.
 
-### 11. `ListNotificationDestinationsResponse.results` — vague field name — `src/v1/model.ts:67`
+### 9. `ListNotificationDestinationsResponse.results` — vague field name — `src/v1/model.ts:67`
 - **Code:**
   ```ts
   results?: ListNotificationDestinationsResult[] | undefined;
@@ -211,7 +176,7 @@
 - **Category:** 1 (vague), 15 (generic field name).
 - **Suggested name:** `destinations` (drop the `notification` qualifier since the package context supplies it) or `items`.
 
-### 12. `id` as a top-level field — underspecified — `src/v1/model.ts:31, 58, 74, 108, 141`
+### 10. `id` as a top-level field — underspecified — `src/v1/model.ts:31, 58, 74, 108, 141`
 - **Code:**
   ```ts
   /** UUID identifying notification destination. */
@@ -222,7 +187,7 @@
 - **Suggested name:** `destinationId` (within the package context the qualifier "notification" is implicit). Or `id` is acceptable if the type is always accessed as `destination.id`.
 - **Rationale:** Bare `id` is conventional and tolerated; the optionality is the real bug. Demoted to medium.
 
-### 13. `PagerdutyConfig.integrationKey` — meaning depends on direction — `src/v1/model.ts:117-122`
+### 11. `PagerdutyConfig.integrationKey` — meaning depends on direction — `src/v1/model.ts:117-122`
 - **Code:**
   ```ts
   export interface PagerdutyConfig {
@@ -237,7 +202,7 @@
 - **Suggested name:** see #7.
 - **Rationale:** Listed separately because PagerDuty is the simplest case (one secret field) and best illustrates the pattern.
 
-### 14. `destinationType` field — type-suffix tautology — `src/v1/model.ts:78`, `:112`
+### 12. `destinationType` field — type-suffix tautology — `src/v1/model.ts:78`, `:112`
 - **Code:**
   ```ts
   destinationType?: DestinationType | undefined;
@@ -248,26 +213,12 @@
 
 ## Low severity
 
-### 15. `WEBHOOK` enum value drops the qualifier "generic" — `src/v1/model.ts:8`
+### 13. `WEBHOOK` enum value drops the qualifier "generic" — `src/v1/model.ts:8`
 - See #3 (high). Listed separately as a low-severity naming-only issue: even if the enum name stays, the value `WEBHOOK` is **singular** while the config name `GenericWebhookConfig` is **qualifier-prefixed**. The qualifier is lost in transit between enum and config.
 - **Category:** 9 (qualifier mismatch).
 - **Suggested name:** `GENERIC_WEBHOOK = 'GENERIC_WEBHOOK'`. See #3 for the rationale.
 
-### 16. `createNotificationDestination` / etc. — overly verbose method names — `src/v1/client.ts:71, 100, 125, 150, 204`
-- **Code:**
-  ```ts
-  async createNotificationDestination(...)
-  async deleteNotificationDestination(...)
-  async getNotificationDestination(...)
-  async listNotificationDestinations(...)
-  async updateNotificationDestination(...)
-  ```
-- **Why weird:** Method names repeat the package name (`@databricks/sdk-notificationdestinations`) and the request-type name. A user writes `client.createNotificationDestination(...)` — 30 characters before the args. Shorter conventions: `client.create(...)`, `client.list(...)`, `client.get(...)` — relying on the package import to provide context.
-- **Category:** 7 (overly verbose).
-- **Suggested name:** Drop the suffix: `create`, `delete`, `get`, `list`, `update`. The class name (`Client` or `NotificationDestinationsClient`) supplies the domain context.
-- **Rationale:** Conventions differ across SDKs. AWS uses verbose method names; GCP / Azure use shorter. Demoted to low because the existing convention is consistent across the SDK and changing it is disruptive. Flagging for completeness.
-
-### 17. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:40-43`
+### 14. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:40-43`
 - **Code:**
   ```ts
   // Package identity segment for this client to be used in the User-Agent header.
@@ -281,7 +232,7 @@
 - **Suggested name:** `USER_AGENT_PACKAGE_INFO` or `PACKAGE_USER_AGENT`.
 - **Rationale:** Cross-package — same finding appears in every audited file.
 
-### 18. `HttpCallOptions` — `src/v1/utils.ts:15-19`
+### 15. `HttpCallOptions` — `src/v1/utils.ts:15-19`
 - **Code:**
   ```ts
   export interface HttpCallOptions {
@@ -294,13 +245,13 @@
 - **Category:** 1 (vague suffix), 12 (duplicate `Options` naming).
 - **Suggested name:** `HttpCallContext` (it is an internal context bag, not user-tunable options).
 
-### 19. `executeCall` vs `executeHttpCall` — near-duplicate function names — `src/v1/utils.ts:26`, `:65`
+### 16. `executeCall` vs `executeHttpCall` — near-duplicate function names — `src/v1/utils.ts:26`, `:65`
 - **Code:** lines 26-38 and 65-94.
 - **Why weird:** Two functions named almost identically, doing very different things: `executeCall` wraps in retry/rate-limit/timeout semantics, `executeHttpCall` does the raw HTTP send + decode + ApiError check.
 - **Category:** 1 (vague), 17 (inconsistent layer naming).
 - **Suggested name:** `runWithCallOptions` (the wrapper) and `sendHttpRequest` (the executor).
 
-### 20. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 84, 101, 105, 126, 130, 151, 164, 187, 192, 205, 213`
+### 17. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 84, 101, 105, 126, 130, 151, 164, 187, 192, 205, 213`
 - **Code:** parameter and local-variable names throughout the client.
 - **Why weird:** Three-to-five-letter abbreviations everywhere. Project rules (typescript.mdc) discourage cryptic abbreviations.
 - **Category:** 5 (cryptic abbreviation).
@@ -308,28 +259,16 @@
 
 ## Observations
 
-### 21. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-99`, `:117-136`
+### 18. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-99`, `:117-136`
 JSDoc bracket prefixes mark every secret-bearing field as either input-only or output-only. The TS type system makes both fields `... | undefined` simultaneously, so callers can construct an object that sets both a secret and its `*Set` mirror; the latter is silently ignored on the wire. A cleaner design splits the input and output types or uses TS template literal types / branded types to enforce the modality.
 - **Category:** 6 (type-level dishonesty).
 - **Suggested:** Split `SlackConfigInput` / `SlackConfigOutput`, etc. Or accept that secrets cannot round-trip and document at type level (`type Secret<T> = T | { isSet: boolean }`).
 - **Rationale:** Improvement opportunity. Not strictly a naming issue, hence observation.
 
-### 22. `index.ts` re-exports verbose names verbatim — `src/v1/index.ts:5-23`
-The barrel re-exports every type with its long generated name. An opportunity to expose friendlier aliases:
-```ts
-export type {
-  NotificationDestination as Destination,
-  CreateNotificationDestinationRequest as CreateRequest,
-  ...
-} from './model';
-```
-Not done. So consumers always work with the verbose names. The 1:1 port philosophy probably prohibits this, but flagging as an observation — the barrel could improve ergonomics without removing the underlying names.
-- **Category:** 7 (verbose), Observation.
-
-### 23. `NEXT_CHANGELOG.md` and pre-existing build/lint workflows
+### 19. `NEXT_CHANGELOG.md` and pre-existing build/lint workflows
 Out of scope for naming but worth noting: the package has both a `CHANGELOG.md` and `NEXT_CHANGELOG.md` — the duplicate-file convention is a project-wide pattern, not a naming bug.
 
-### 24. JSDoc inconsistency in `[Input-Only][Optional]` markers
+### 20. JSDoc inconsistency in `[Input-Only][Optional]` markers
 The `GenericWebhookConfig.username` (line 47) and `.password` (line 51) use the marker `[Input-Only][Optional]` — concatenating two brackets — while every other field uses single-bracket markers. The `[Optional]` is also redundant because the TS type already shows `?: undefined`. Minor doc inconsistency.
 
 ## Domain glossary

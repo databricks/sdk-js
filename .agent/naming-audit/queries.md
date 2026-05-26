@@ -3,7 +3,7 @@
 **Path:** `packages/queries/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace SQL queries — a stored, named SQL statement bound to a SQL warehouse, with parameterisable values, a "Run as" identity, visualizations attached to it, and a soft-delete (trash) lifecycle.
-**Total weird names flagged:** 35 (last rescanned 2026-05-22)
+**Total weird names flagged:** 33 (last rescanned 2026-05-22)
 
 ## Summary table
 
@@ -15,35 +15,33 @@
 | 4 | High | package vs siblings | `queries` package vs `queryexecution`, `queryhistory`, `modelservingquery` | Duplicate concept across 4 packages, no shared prefix |
 | 5 | High | `model.ts` enum value | `LifecycleState.TRASHED` vs method `trashQuery` | Inconsistent verb — most of the SDK uses `delete`; only the SQL surface uses `trash` |
 | 6 | High | `model.ts` enum names | `LifecycleState`, `RunAsMode`, `DatePrecision` | Missing domain prefix (no `Query*`) — collide with identical enums in `alerts` package |
-| 7 | High | `model.ts` field | `Query.queryText` | Type-suffix tautology (`Query.queryText`) |
-| 8 | High | `model.ts` field | `Query.parameters` of type `QueryParameter[]` | Inconsistent action verb: `QueryParameter` re-uses `Query` prefix while sibling types (`TextValue`, `NumericValue`, `EnumValue`) don't |
-| 9 | High | `model.ts` interface | `QueryBackedValue` | Misleading — name says "backed by a query" but it's a dropdown parameter source |
-| 10 | High | `model.ts` field | `QueryParameter.parameterValue` (oneof key) | Type-suffix tautology |
-| 11 | High | `model.ts` interface | `EnumValue` | Vague/generic top-level name — generic word `enum` reused as identifier |
-| 12 | High | `model.ts` field | `QueryParameter.title` vs `.name` | Misleading: docs call `name` the parameter marker and `title` the user-facing label — pair should be `(marker, label)` |
-| 13 | High | `model.ts` field | `Query.queryText` JSDoc says "Text of the query to be run" on a type already called `Query` | Type-suffix tautology + redundant doc |
-| 14 | High | `model.ts` interface | `Empty` | Proto architectural leak — `google.protobuf.Empty` surfaced as a TS export |
-| 15 | Medium | `client.ts` method | `trashQuery` | Inconsistent action verb (HTTP `DELETE`, docs say "permanently deleted after 30 days", but method named `trash`) |
-| 16 | Medium | `model.ts` interface | `TrashQueryRequest` | Same verb inconsistency at the type layer |
-| 17 | Medium | `client.ts` method | `listVisualizationsForQuery` | Overly verbose vs sibling `listQueries`; "ForQuery" is a Go-style nested-resource pattern |
-| 18 | Medium | `model.ts` interface | `Visualization` | Vague/generic top-level name (no `Query` prefix) — `QueryVisualization` would mirror `QueryParameter` |
-| 19 | Medium | `model.ts` field | `Query.warehouseId` | Underspecified ID — `sqlWarehouseId` would match the JSDoc ("SQL warehouse") |
-| 20 | Medium | `model.ts` field | `Query.ownerUserName`, `lastModifierUserName` | Inconsistent action verb — `owner` is a noun, `lastModifier` is an agent noun; mismatched grammar |
-| 21 | Medium | `model.ts` field | `Query.lastModifierUserName` | Overly verbose — `lastModifiedBy` would parse more naturally |
-| 22 | Medium | `model.ts` enum value | `LifecycleState.TRASHED` | Verb-tense inconsistency vs imperative method `trashQuery` |
-| 23 | Medium | `model.ts` enum | `RunAsMode` | Verb-as-noun; `Mode` is filler since the enum has only two values |
-| 24 | Medium | `model.ts` enum values | `LAST_8_HOURS`, `LAST_24_HOURS`, `LAST_14_DAYS`, `LAST_30_DAYS`, etc. | Long enum values — numeric suffix per-bucket forms an open-ended discrete enum |
-| 25 | Medium | `model.ts` field | `Query.applyAutoLimit` | Misleading — the JSDoc explains it's a 1000-row cap, but `applyAutoLimit` reads as a verb predicate |
-| 26 | Medium | `model.ts` field | `Query.runAsMode` of type `RunAsMode` | Type-suffix tautology |
-| 27 | Medium | `model.ts` field | `Query.parentPath` | Underspecified ID (path of what?) — JSDoc clarifies it is workspace-folder path |
-| 28 | Medium | `model.ts` interface | `MultiValuesOptions` | Singular/plural mismatch — `MultiValueOptions` or `MultiSelectOptions` reads naturally |
-| 29 | Medium | `model.ts` field | `MultiValuesOptions.prefix`, `.separator`, `.suffix` | Generic field names losing meaning outside the `MultiValuesOptions` context |
-| 30 | Medium | `model.ts` field | `Visualization.type` | Reserved-word collision (`type` is a TS keyword; field is typed `string`) |
-| 31 | Medium | `model.ts` field | `Visualization.serializedQueryPlan`, `.serializedOptions` | Misleading — the JSDoc admits "is unsupported" and "do not modify directly"; the names suggest internal-only fields the user must still construct |
-| 32 | Medium | `model.ts` field | `DateRangeValue.startDayOfWeek` | Underspecified type (int 0–6? string? Mon-first or Sun-first?) |
-| 33 | Low | `model.ts` field | `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` | Underspecified IDs at field level — `queryId`/`visualizationId` would be self-documenting |
-| 34 | Low | `model.ts` fields | `pageToken`, `pageSize`, `nextPageToken` | Conventional; flagged for completeness only |
-| 35 | Low | `model.ts` JSDoc | snake_case identifiers in JSDoc (e.g. "`dynamic_date_value` or `date_value`") | Wire-format leakage into TS docstrings |
+| 7 | High | `model.ts` field | `Query.parameters` of type `QueryParameter[]` | Inconsistent action verb: `QueryParameter` re-uses `Query` prefix while sibling types (`TextValue`, `NumericValue`, `EnumValue`) don't |
+| 8 | High | `model.ts` interface | `QueryBackedValue` | Misleading — name says "backed by a query" but it's a dropdown parameter source |
+| 9 | High | `model.ts` field | `QueryParameter.parameterValue` (oneof key) | Type-suffix tautology |
+| 10 | High | `model.ts` interface | `EnumValue` | Vague/generic top-level name — generic word `enum` reused as identifier |
+| 11 | High | `model.ts` field | `QueryParameter.title` vs `.name` | Misleading: docs call `name` the parameter marker and `title` the user-facing label — pair should be `(marker, label)` |
+| 12 | High | `model.ts` interface | `Empty` | Proto architectural leak — `google.protobuf.Empty` surfaced as a TS export |
+| 13 | Medium | `client.ts` method | `trashQuery` | Inconsistent action verb (HTTP `DELETE`, docs say "permanently deleted after 30 days", but method named `trash`) |
+| 14 | Medium | `model.ts` interface | `TrashQueryRequest` | Same verb inconsistency at the type layer |
+| 15 | Medium | `client.ts` method | `listVisualizationsForQuery` | Overly verbose vs sibling `listQueries`; "ForQuery" is a Go-style nested-resource pattern |
+| 16 | Medium | `model.ts` interface | `Visualization` | Vague/generic top-level name (no `Query` prefix) — `QueryVisualization` would mirror `QueryParameter` |
+| 17 | Medium | `model.ts` field | `Query.warehouseId` | Underspecified ID — `sqlWarehouseId` would match the JSDoc ("SQL warehouse") |
+| 18 | Medium | `model.ts` field | `Query.ownerUserName`, `lastModifierUserName` | Inconsistent action verb — `owner` is a noun, `lastModifier` is an agent noun; mismatched grammar |
+| 19 | Medium | `model.ts` field | `Query.lastModifierUserName` | Overly verbose — `lastModifiedBy` would parse more naturally |
+| 20 | Medium | `model.ts` enum value | `LifecycleState.TRASHED` | Verb-tense inconsistency vs imperative method `trashQuery` |
+| 21 | Medium | `model.ts` enum | `RunAsMode` | Verb-as-noun; `Mode` is filler since the enum has only two values |
+| 22 | Medium | `model.ts` enum values | `LAST_8_HOURS`, `LAST_24_HOURS`, `LAST_14_DAYS`, `LAST_30_DAYS`, etc. | Long enum values — numeric suffix per-bucket forms an open-ended discrete enum |
+| 23 | Medium | `model.ts` field | `Query.applyAutoLimit` | Misleading — the JSDoc explains it's a 1000-row cap, but `applyAutoLimit` reads as a verb predicate |
+| 24 | Medium | `model.ts` field | `Query.runAsMode` of type `RunAsMode` | Type-suffix tautology |
+| 25 | Medium | `model.ts` field | `Query.parentPath` | Underspecified ID (path of what?) — JSDoc clarifies it is workspace-folder path |
+| 26 | Medium | `model.ts` interface | `MultiValuesOptions` | Singular/plural mismatch — `MultiValueOptions` or `MultiSelectOptions` reads naturally |
+| 27 | Medium | `model.ts` field | `MultiValuesOptions.prefix`, `.separator`, `.suffix` | Generic field names losing meaning outside the `MultiValuesOptions` context |
+| 28 | Medium | `model.ts` field | `Visualization.type` | Reserved-word collision (`type` is a TS keyword; field is typed `string`) |
+| 29 | Medium | `model.ts` field | `Visualization.serializedQueryPlan`, `.serializedOptions` | Misleading — the JSDoc admits "is unsupported" and "do not modify directly"; the names suggest internal-only fields the user must still construct |
+| 30 | Medium | `model.ts` field | `DateRangeValue.startDayOfWeek` | Underspecified type (int 0–6? string? Mon-first or Sun-first?) |
+| 31 | Low | `model.ts` field | `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` | Underspecified IDs at field level — `queryId`/`visualizationId` would be self-documenting |
+| 32 | Low | `model.ts` fields | `pageToken`, `pageSize`, `nextPageToken` | Conventional; flagged for completeness only |
+| 33 | Low | `model.ts` JSDoc | snake_case identifiers in JSDoc (e.g. "`dynamic_date_value` or `date_value`") | Wire-format leakage into TS docstrings |
 
 ## High severity
 
@@ -128,22 +126,7 @@ export enum RunAsMode { ... }
 
 Three top-level enums in a domain-specific package, none prefixed with `Query*`. The same package also indirectly uses an identical `LifecycleState` concept that exists with the same values (`ACTIVE`/`TRASHED`) in `alerts` v1; when a user imports both they collide by name. `QueryLifecycleState`, `QueryRunAsMode`, `QueryDatePrecision` (or simply re-using shared `LifecycleState` from a common package) would address this; the current state is the worst of both worlds.
 
-### 7. `Query.queryText` — type-suffix tautology
-
-**Location:** `src/v1/model.ts:234-235`, `model.ts:175-176`, `model.ts:235`
-
-```ts
-export interface Query {
-  ...
-  /** Text of the query to be run. */
-  queryText?: string | undefined;
-  ...
-}
-```
-
-A field on `Query` named `queryText` — the access pattern is `q.queryText` where the `q` already implies "query." Inside an `Alert`, `queryText` is meaningful (it disambiguates from `alertText`). Inside `Query`, the `query` prefix is redundant. `text`, `sql`, or `statement` would suffice.
-
-### 8. `QueryParameter` vs sibling value types — inconsistent prefixing
+### 7. `QueryParameter` vs sibling value types — inconsistent prefixing
 
 **Location:** `src/v1/model.ts:268-306`, `308-310`, `219-221`, `140-147`
 
@@ -159,7 +142,7 @@ export interface QueryBackedValue { ... } // prefixed
 
 Some value-type wrappers are prefixed (`Query*`), others are not. The choice appears to be based on whether the type "feels generic" — but `EnumValue`, `DateValue`, `DateRange` are arguably even more generic than `QueryParameter`. The package picks `QueryParameter` and `QueryBackedValue` for prefixing, while leaving `TextValue`, `NumericValue`, `EnumValue`, `DateValue`, `DateRangeValue` unprefixed. Result: importing this package brings ambient types like `EnumValue` and `TextValue` into the user's scope.
 
-### 9. `QueryBackedValue` — misleading
+### 8. `QueryBackedValue` — misleading
 
 **Location:** `src/v1/model.ts:259-266`
 
@@ -176,7 +159,7 @@ export interface QueryBackedValue {
 
 The name reads as "a value that is backed by a query" — implying the value itself comes from query state. The actual semantics, per JSDoc, is: a dropdown widget whose options are populated by running another saved query. `QuerySourcedDropdownParameter`, `QueryBackedDropdown`, or `DropdownFromQuery` would describe the actual concept. As written, the name is at the same abstraction level as `QueryBackedView` or `QueryBackedTable` — neither of which describes what this is.
 
-### 10. `QueryParameter.parameterValue` (oneof key) — type-suffix tautology
+### 9. `QueryParameter.parameterValue` (oneof key) — type-suffix tautology
 
 **Location:** `src/v1/model.ts:268-306`
 
@@ -197,7 +180,7 @@ export interface QueryParameter {
 
 `QueryParameter.parameterValue` repeats "parameter" — access pattern `p.parameterValue` where `p` is already `QueryParameter`. The plain `value` would suffice (mirroring `AlertOperand.operand` from the alerts audit — same anti-pattern, opposite name).
 
-### 11. `EnumValue` — vague/generic top-level name
+### 10. `EnumValue` — vague/generic top-level name
 
 **Location:** `src/v1/model.ts:140-147`
 
@@ -214,7 +197,7 @@ export interface EnumValue {
 
 `EnumValue` exported at the package root. `enum` is a TypeScript keyword and a generic concept; the type is in fact a *dropdown* parameter source (a list of valid options + the selected subset). `DropdownParameter`, `EnumParameter`, or `QueryEnumParameter` would name the actual concept.
 
-### 12. `QueryParameter.title` vs `.name` — misleading pair
+### 11. `QueryParameter.title` vs `.name` — misleading pair
 
 **Location:** `src/v1/model.ts:268-272`
 
@@ -230,22 +213,7 @@ export interface QueryParameter {
 
 Reading the field names alone, `name` is the identifier and `title` is a richer/longer display string. The JSDoc inverts this: `name` is the literal `{{marker}}` text that appears in the SQL, and `title` is the human-readable widget label. The conventional pairing in this codebase (and most others) is `(name, displayName)`. Here it is `(name, title)` *and* `name` plays the role most SDK shapes give to `key`/`marker`/`identifier` and `title` plays the role of `displayName`. A reader has to consult JSDoc to tell which is which.
 
-### 13. `Query.queryText` JSDoc — "Text of the query to be run" on a type already called `Query`
-
-**Location:** `src/v1/model.ts:68-69`, `174-175`, `234-235`, `335-336`
-
-```ts
-export interface Query {
-  ...
-  /** Text of the query to be run. */
-  queryText?: string | undefined;
-  ...
-}
-```
-
-Both the field name and the JSDoc embed the word "query" on a type called `Query`. The field exists on four near-identical interfaces (see #2), so the redundancy multiplies. The same field is the *only* part of `Query` that is actually a SQL statement — pulling it up as `Query.text` or `Query.sql` would simplify both name and doc.
-
-### 14. `Empty` — proto architectural leak
+### 12. `Empty` — proto architectural leak
 
 **Location:** `src/v1/model.ts:133-138`
 
@@ -258,7 +226,7 @@ Both the field name and the JSDoc embed the word "query" on a type called `Query
 export interface Empty {}
 ```
 
-**Why:** Proto/RPC architectural leak — `google.protobuf.Empty` is a wire-format construct used by code generators to express "no body." The JSDoc explicitly admits this ("similar to google.protobuf.Empty"). Exporting it as a public TS interface forces every `Promise<Empty>` return type (e.g. `trashQuery`, see #15) to surface the proto abstraction to callers.
+**Why:** Proto/RPC architectural leak — `google.protobuf.Empty` is a wire-format construct used by code generators to express "no body." The JSDoc explicitly admits this ("similar to google.protobuf.Empty"). Exporting it as a public TS interface forces every `Promise<Empty>` return type (e.g. `trashQuery`, see #13) to surface the proto abstraction to callers.
 
 **Category:** Proto architectural leak.
 
@@ -268,7 +236,7 @@ export interface Empty {}
 
 ## Medium severity
 
-### 15. `trashQuery` — inconsistent action verb (`trash` vs SDK-wide `delete`)
+### 13. `trashQuery` — inconsistent action verb (`trash` vs SDK-wide `delete`)
 
 **Location:** `src/v1/client.ts:228-250`
 
@@ -282,7 +250,7 @@ async trashQuery(
 
 The HTTP verb is `DELETE`, the docstring talks about "permanently deleted," but the method is `trashQuery`. Across the SDK this is the only place where soft-delete uses `trash`-prefix outside `alerts`. The standard SDK shape is `deleteX` with a flag for `permanent: true/false` or two endpoints (`deleteX` + `purgeX`).
 
-### 16. `TrashQueryRequest` — same as #15, in the type layer
+### 14. `TrashQueryRequest` — same as #13, in the type layer
 
 **Location:** `src/v1/model.ts:312-314`
 
@@ -294,7 +262,7 @@ export interface TrashQueryRequest {
 
 Same verb inconsistency at the type layer. Carries only `id`.
 
-### 17. `listVisualizationsForQuery` — overly verbose
+### 15. `listVisualizationsForQuery` — overly verbose
 
 **Location:** `src/v1/client.ts:174-208`
 
@@ -307,7 +275,7 @@ async listVisualizationsForQuery(
 
 `For` infixed between the resource and its parent is a Go-style nested-resource pattern. REST endpoint is `/api/2.0/sql/queries/{id}/visualizations` — TypeScript naming would more naturally be `listVisualizations(req: ListVisualizationsRequest)` where the request shape has `queryId` (or the method lives on a sub-client `client.queries(id).visualizations.list()`). The current name is 28 characters.
 
-### 18. `Visualization` — vague/generic top-level name
+### 16. `Visualization` — vague/generic top-level name
 
 **Location:** `src/v1/model.ts:360-377`
 
@@ -317,7 +285,7 @@ export interface Visualization { ... }
 
 `Visualization` is a top-level export in a package about *query* visualizations. The sibling type `QueryParameter` has a domain prefix; `Visualization` does not. `QueryVisualization` would mirror `QueryParameter` and avoid collisions with the visualizations exposed by Lakeview, Dashboards, MLflow, etc.
 
-### 19. `Query.warehouseId` — underspecified ID
+### 17. `Query.warehouseId` — underspecified ID
 
 **Location:** `src/v1/model.ts:66-67`, `172-173`, `232-233`, `333-334`
 
@@ -328,7 +296,7 @@ warehouseId?: string | undefined;
 
 The JSDoc says "SQL warehouse"; the field says `warehouseId`. Databricks has data warehouses, Lakehouse, SQL warehouses, etc. `sqlWarehouseId` would self-document.
 
-### 20. `Query.ownerUserName`, `Query.lastModifierUserName` — inconsistent agent-noun grammar
+### 18. `Query.ownerUserName`, `Query.lastModifierUserName` — inconsistent agent-noun grammar
 
 **Location:** `src/v1/model.ts:64-65`, `74-75`
 
@@ -342,7 +310,7 @@ lastModifierUserName?: string | undefined;
 
 `owner` is a noun. `lastModifier` is an agent noun constructed from the verb "modify." The pairing is mismatched — either both should be agent nouns (`ownerUserName`, `lastModifierUserName`) or both should be participial (`ownedBy`, `lastModifiedBy`). The Go convention is the former; idiomatic TS leans toward the latter. Also note the JSDoc inconsistency: "the user that owns" vs "the user who last saved" — different relative pronouns.
 
-### 21. `Query.lastModifierUserName` — overly verbose
+### 19. `Query.lastModifierUserName` — overly verbose
 
 **Location:** `src/v1/model.ts:74-75`
 
@@ -352,13 +320,13 @@ lastModifierUserName?: string | undefined;
 
 21 characters for what is, semantically, "last-modified-by." `lastModifiedBy` is 14 characters and more natural English.
 
-### 22. `LifecycleState.TRASHED` — verb-tense inconsistency
+### 20. `LifecycleState.TRASHED` — verb-tense inconsistency
 
 **Location:** `src/v1/model.ts:14-17`
 
 The enum value is past-participle (`TRASHED`), the method is imperative (`trashQuery`). When the SDK adds future lifecycle values like `ARCHIVED`, the new value will match this pattern, but the lifecycle vocabulary will diverge further from the verb vocabulary (`trash`/`archive`/`restore`).
 
-### 23. `RunAsMode` — verb-as-noun, filler `Mode`
+### 21. `RunAsMode` — verb-as-noun, filler `Mode`
 
 **Location:** `src/v1/model.ts:19-22`
 
@@ -371,7 +339,7 @@ export enum RunAsMode {
 
 `RunAs` is an imperative phrase pressed into noun service (see same flag in `alerts` audit). `Mode` is filler — the enum has only two values and they describe *who* the query runs as, not *how*. `RunAsIdentity`, `Authority`, or even `runAs: 'OWNER' | 'VIEWER'` (a string literal union) would be cleaner.
 
-### 24. Open-ended discrete enum — `LAST_8_HOURS`, `LAST_24_HOURS`, `LAST_14_DAYS`, ...
+### 22. Open-ended discrete enum — `LAST_8_HOURS`, `LAST_24_HOURS`, `LAST_14_DAYS`, ...
 
 **Location:** `src/v1/model.ts:25-42`
 
@@ -389,7 +357,7 @@ LAST_12_MONTHS = 'LAST_12_MONTHS',
 
 The user gets 16 hard-coded time windows. If they want "last 45 days," there is no value. A `{ unit: 'DAY' | 'HOUR' | ...; n: number }` shape would express the same thing without the enum-value explosion. (Acknowledged that the underlying API likely accepts only these buckets — but the API design itself is the smell.)
 
-### 25. `Query.applyAutoLimit` — misleading verb predicate
+### 23. `Query.applyAutoLimit` — misleading verb predicate
 
 **Location:** `src/v1/model.ts:85-87`
 
@@ -400,7 +368,7 @@ applyAutoLimit?: boolean | undefined;
 
 The name reads as an imperative action ("apply the auto limit!") rather than a flag. `autoLimit` (boolean) or `autoLimitRows` (number) would parse more naturally as state. The "1000" rule is in the JSDoc, not the type — `autoLimit: number` with the convention "1000 if true, 0 if disabled" would surface the magic number.
 
-### 26. `Query.runAsMode` — type-suffix tautology
+### 24. `Query.runAsMode` — type-suffix tautology
 
 **Location:** `src/v1/model.ts:70-71`
 
@@ -411,7 +379,7 @@ runAsMode?: RunAsMode | undefined;
 
 Field of type `RunAsMode` named `runAsMode`. `runAs` would suffice (the type already encodes "mode").
 
-### 27. `Query.parentPath` — underspecified
+### 25. `Query.parentPath` — underspecified
 
 **Location:** `src/v1/model.ts:76-77`
 
@@ -422,7 +390,7 @@ parentPath?: string | undefined;
 
 "Parent" of what? The JSDoc clarifies it is the workspace-folder path. `workspaceFolderPath` would self-document. `parentPath` reads like a filesystem path or a Git ref to first-time readers. (The same field appears in `alerts` — flagged there too.)
 
-### 28. `MultiValuesOptions` — singular/plural mismatch
+### 26. `MultiValuesOptions` — singular/plural mismatch
 
 **Location:** `src/v1/model.ts:210-217`
 
@@ -439,13 +407,13 @@ export interface MultiValuesOptions {
 
 `MultiValuesOptions` (plural-values, singular-options) is grammatically inconsistent. `MultiValueOptions` or `MultiSelectOptions` would be conventional. The type expresses "options for a multi-value selection" — option (singular for each field) of multi-value (one feature).
 
-### 29. `MultiValuesOptions.prefix`, `separator`, `suffix` — fields lose meaning outside context
+### 27. `MultiValuesOptions.prefix`, `separator`, `suffix` — fields lose meaning outside context
 
 **Location:** `src/v1/model.ts:210-217`
 
 `prefix`, `separator`, `suffix` are completely generic outside the surrounding type. The JSDoc says "Character that prefixes each selected parameter value" — they are not characters, they are arbitrary strings (typed `string`). `valuePrefix`, `valueSeparator`, `valueSuffix` would be self-documenting and the type-level `MultiValuesOptions` could drop the leading "Multi-Values" altogether.
 
-### 30. `Visualization.type` — reserved-word collision
+### 28. `Visualization.type` — reserved-word collision
 
 **Location:** `src/v1/model.ts:365-366`
 
@@ -456,7 +424,7 @@ type?: string | undefined;
 
 `type` is a TS keyword (used in `type Foo = …`) and a generic field name. The JSDoc admits it is "counter, table, funnel, and so on" — i.e., an open-ended string enum (no domain enum is defined). `visualizationType` or `kind` would avoid the keyword issue.
 
-### 31. `Visualization.serializedQueryPlan`, `.serializedOptions` — misleading
+### 29. `Visualization.serializedQueryPlan`, `.serializedOptions` — misleading
 
 **Location:** `src/v1/model.ts:371-374`
 
@@ -469,7 +437,7 @@ serializedOptions?: string | undefined;
 
 Field names imply "the data, in serialized form." JSDoc admits the format is undocumented and the field should not be modified. If users are not supposed to construct these, they should not be on a public type (or they should be typed `Readonly<unknown>` with a clear name like `internalQueryPlan`/`opaqueOptions`).
 
-### 32. `DateRangeValue.startDayOfWeek` — underspecified type
+### 30. `DateRangeValue.startDayOfWeek` — underspecified type
 
 **Location:** `src/v1/model.ts:113`
 
@@ -481,19 +449,19 @@ startDayOfWeek?: number | undefined;
 
 ## Low severity
 
-### 33. `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` — id-vs-queryId inconsistency
+### 31. `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` — id-vs-queryId inconsistency
 
 **Location:** `src/v1/model.ts:224-225`, `361-362`, `262-263`
 
 Top-level types use bare `id`; cross-referencing types use `queryId`. `Query.queryId` would be consistent with `Visualization.queryId` and `QueryBackedValue.queryId`. Currently `Query.id`, `Visualization.id`, `QueryBackedValue.queryId` means there are two conventions side-by-side.
 
-### 34. `pageToken`, `pageSize`, `nextPageToken` — conventional pagination
+### 32. `pageToken`, `pageSize`, `nextPageToken` — conventional pagination
 
 **Location:** `src/v1/model.ts:153-156`, `158-161`
 
 Standard Google AIP-158 names. Flagged for completeness; no action recommended.
 
-### 35. snake_case in JSDoc — `dynamic_date_value`, `date_value`, etc.
+### 33. snake_case in JSDoc — `dynamic_date_value`, `date_value`, etc.
 
 **Location:** `src/v1/model.ts:292`, `297`
 
