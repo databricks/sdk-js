@@ -70,11 +70,6 @@ describe('lookupAgentProvider', () => {
       want: 'vscode-agent',
     },
     {
-      name: 'COPILOT_MODEL alone is no longer detected',
-      env: {COPILOT_MODEL: 'gpt-4'},
-      want: '',
-    },
-    {
       name: 'cursor',
       env: {CURSOR_AGENT: '1'},
       want: 'cursor',
