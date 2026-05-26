@@ -22,17 +22,17 @@ covers three resources in one client:
 All three share the `TokenAccessPolicy` type for access/refresh-token
 TTL and session-rotation configuration. The package is the Databricks
 account-side complement to RFC 6749 client registration.
-**Total weird names flagged:** 9
+**Total weird names flagged:** 5
 
 ## Summary table
 
 | Severity | Count |
 | --- | --- |
-| High | 3 |
-| Medium | 3 |
+| High | 2 |
+| Medium | 0 |
 | Low | 3 |
 | Observation | 2 |
-| **Total** | **9 (+ 2 observations)** |
+| **Total** | **5 (+ 2 observations)** |
 
 The audit excludes the `OAuth*` brand-name spelling (RFC 6749 platform-name
 exception), `*_UNSPECIFIED` proto sentinels, `*_Response` proto-nested
@@ -41,8 +41,7 @@ empty wrapper types, `*Iter` pagination duplicates, redundant enum prefixes,
 JS-built-in acronym casing (`URLSearchParams`, `JSON.parse`), and
 wire-format strings preserved in JSDoc. The remaining findings cluster
 around (1) the consolidated package surfacing intra-package
-inconsistencies that used to be cross-package, (2) `appId` being a
-human-readable slug rather than an opaque ID, and (3) leftover
+inconsistencies that used to be cross-package and (2) leftover
 generator/template artefacts (stale `:method:` cross-refs, `<Databricks>`
 template tokens, dead helper exports).
 
@@ -50,36 +49,7 @@ template tokens, dead helper exports).
 
 ## High severity (must fix)
 
-### 1. `appId` is a slug, not an opaque ID — `model.ts:34, 156, 173`
-- **Why:** Three types in this file expose a string field named `appId`.
-  On `CreatePublishedOAuthAppIntegrationRequest` (line 34) the JSDoc
-  reads "For example power-bi, tableau-deskop"; on `PublishedOAuthApp`
-  (line 156) it reads "Unique ID of the published OAuth app"; on
-  `PublishedOAuthAppIntegration` (line 173) it reads "App-id of the
-  published app integration". So `appId` is actually a human-readable
-  catalog slug such as `power-bi`, `tableau-desktop`, `looker`. Every
-  other `xId` field in this package and across the SDK
-  (`accountId`, `integrationId`, `clientId`, `createdBy`,
-  `principalId`) is an opaque server-issued identifier. Mixing a slug
-  in under the `Id` suffix is a teaching trap, and the three doc strings
-  describe the same value three different ways.
-- **Category:** 6, 19 (misleading; underspecified ID — what kind of ID?)
-- **Suggested:** Rename to `appSlug` (or `publishedAppKey`) on all three
-  types, narrow the type to a string literal union populated from the
-  Databricks published-app catalog
-  (`'power-bi' | 'tableau-desktop' | 'looker' | ...`), and replace the
-  three divergent doc strings with one canonical line ("Dash-separated
-  lowercase slug from the Databricks published-app catalog, e.g.
-  `power-bi`."). Fix the `tableau-deskop` typo on line 32 in the
-  process.
-- **Rationale:** A slug typed as `string` and named `appId` is the
-  worst possible mix of soft-typing — it advertises opacity while
-  accepting any string, and the only documented examples are
-  catalog-specific values. A literal union plus a non-`Id` name puts
-  the value space in the type system instead of in a doc-comment
-  asterisk-list.
-
-### 2. Stale JSDoc cross-references to non-existent services — `client.ts:101, 137, 172, 203, 458, 493`
+### 1. Stale JSDoc cross-references to non-existent services — `client.ts:101, 137, 172, 203, 458, 493`
 - **Why:** Six method docs say "You can retrieve the … OAuth app
   integration via `:method:CustomAppIntegration/get`" or
   "`:method:PublishedAppIntegration/get`". Neither `CustomAppIntegration`
@@ -100,7 +70,7 @@ template tokens, dead helper exports).
   worse than no documentation. The leak is a generator template
   failing to rewrite proto-cross-reference syntax for TS output.
 
-### 3. `confidential` vs `isConfidentialClient` — same flag spelled two ways in one file — `model.ts:12, 55, 164`
+### 2. `confidential` vs `isConfidentialClient` — same flag spelled two ways in one file — `model.ts:12, 55, 164`
 - **Why:** The RFC 6749 §2.1 "confidential client" boolean flag appears
   three times in `model.ts`. On
   `CreateCustomOAuthAppIntegrationRequest.confidential` (line 12) and
@@ -126,78 +96,7 @@ template tokens, dead helper exports).
 
 ## Medium severity (worth pushing back on)
 
-### 1. `userAuthorizedScopes` reads as past-tense "did consent" but is configuration of "will ask for consent" — `model.ts:25, 67, 226`
-- **Why:** Three sites expose `userAuthorizedScopes?: string[]` —
-  `CreateCustomOAuthAppIntegrationRequest`,
-  `CustomOAuthAppIntegration`, and
-  `UpdateCustomOAuthAppIntegrationRequest`. The doc reads "Scopes that
-  will need to be consented by end user to mint the access token. If
-  the user does not authorize the access token will not be minted.
-  Must be a subset of scopes." So this is a *configuration* of the
-  consent gate the server will enforce, not a record of past consent.
-  The name `userAuthorizedScopes` reads as a state field — what the
-  user already authorised — and a caller can easily misread it that
-  way. A second issue: the subset relationship to `scopes` is invisible
-  from the type — setting `scopes = ['all-apis']` and
-  `userAuthorizedScopes = ['sql']` is a runtime-error, not a
-  type-error.
-- **Category:** 1, 6, 13 (vague; misleading verb tense; configuration
-  vs state confusion)
-- **Suggested:** Rename to `consentRequiredScopes` (configuration —
-  "scopes that require explicit end-user consent"). At minimum, add
-  inline JSDoc on `scopes` that backreferences this subset constraint
-  and cite RFC 6749 §3.3 for the scope vocabulary.
-- **Rationale:** Bug class: caller assumes `userAuthorizedScopes` is
-  "what the user actually consented to" (read-after-write state) when
-  it is actually "what we will ask the user to consent to" (write-only
-  configuration). The current name reads past-tense and is easily
-  misread. The same trap exists on the matching `update` request,
-  which makes it possible to clobber a consent policy by accident.
-
-### 2. `createdBy: number` is a user ID disguised as an activity verb — `model.ts:59, 180`
-- **Why:** `CustomOAuthAppIntegration.createdBy` (line 59) and
-  `PublishedOAuthAppIntegration.createdBy` (line 180) are both
-  `number | undefined`. The custom variant pairs it 2 lines below with
-  `creatorUsername: string` (line 61); the published variant lacks the
-  username pair. The undocumented numeric `createdBy` is the
-  Databricks user ID of the creator. The name reads as a verb phrase
-  ("created by"), not as an identifier, and the bare `number` type
-  carries no clue. The published variant's missing `creatorUsername`
-  pair is itself an asymmetry — `includeCreatorUsername` (line 114)
-  exists for custom but no equivalent for published.
-- **Category:** 1, 15, 19 (vague; generic field; underspecified ID)
-- **Suggested:** Rename to `creatorUserId: number` on both types and
-  document explicitly as "Databricks numeric user ID of the
-  registration creator." Keep `creatorUsername` next to it on
-  `CustomOAuthAppIntegration` and add it to
-  `PublishedOAuthAppIntegration` if the published API exposes it.
-- **Rationale:** A bare `createdBy: number` is the worst kind of
-  numeric ID — no type information, no JSDoc, and a name that reads
-  as an activity-verb phrase rather than as a field. The asymmetry
-  with `creatorUsername` (present on one of the two registration
-  types) compounds the confusion.
-
-### 3. `enableSingleUseRefreshTokens` is verb-first while the rest of the file is predicate-style — `model.ts:199`
-- **Why:** `TokenAccessPolicy.enableSingleUseRefreshTokens` (line 199)
-  uses the imperative-verb-first convention (`enableX`). The rest of
-  `TokenAccessPolicy` uses predicate-noun naming
-  (`accessTokenTtlInMinutes`, `refreshTokenTtlInMinutes`,
-  `absoluteSessionLifetimeInMinutes`). The neighbour
-  `confidential` / `isConfidentialClient` flags in the file are also
-  predicate-style. So this boolean is the only verb-first identifier
-  in a configuration object full of nouns. It reads as a method
-  ("call this to enable …") rather than as a state ("this is the
-  enabled state").
-- **Category:** 13, 17 (verb-tense inconsistency; inconsistent action
-  verbs)
-- **Suggested:** Rename to `singleUseRefreshTokensEnabled` (predicate)
-  or `rotateRefreshTokens` (behavioural noun matching the JSDoc's
-  "refresh token rotation"). Avoid `useSingleUseRefreshTokens` — too
-  close to a method name.
-- **Rationale:** `enableX` configuration flags drift from state
-  semantics. The matching JSDoc on line 195 already calls the feature
-  "single-use refresh tokens (refresh token rotation)" — a
-  predicate/state noun mirrors that vocabulary.
+_None._
 
 ---
 
@@ -302,11 +201,11 @@ template tokens, dead helper exports).
 - `confidential` / `isConfidentialClient` — RFC 6749 §2.1 client
   type. `true` means the client has a secret and authenticates
   itself; `false` means it is a public client and relies on PKCE.
-  Currently spelled two ways in this file (finding H3).
+  Currently spelled two ways in this file (finding H2).
 - `Custom` integration — Caller-defined OAuth client (caller-owned
   redirect URLs, scopes, secret).
 - `createdBy` — Numeric Databricks user ID of the registration
-  creator. Field is named like a verb (finding M2).
+  creator.
 - `creatorUsername` — Username string of the registration creator.
   Server-side joined when `includeCreatorUsername` is set on the
   list request.
@@ -325,8 +224,9 @@ template tokens, dead helper exports).
 - `TokenAccessPolicy` — Per-integration token TTL and
   refresh-rotation policy.
 - `userAuthorizedScopes` — Subset of `scopes` requiring explicit
-  end-user consent. Misleading verb tense — this is *will-ask*,
-  not *did-grant* (finding M1).
+  end-user consent. Despite the past-tense name, this is the
+  *configuration* of which scopes will require consent, not a
+  record of past consent.
 
 ---
 
@@ -334,13 +234,12 @@ template tokens, dead helper exports).
 
 - The 2026-05-22 regeneration consolidated the prior
   `oauthcustomappintegration` and `oauthpublishedapp` packages into
-  this single `@databricks/sdk-oauth` package. Three former
+  this single `@databricks/sdk-oauth` package. Former
   cross-package inconsistencies are now intra-package issues:
-  `confidential` vs `isConfidentialClient` (H3), `appId` slug-vs-ID
-  agreement (H1), and the shape of the `scopes` documented value
-  space across the published and custom surfaces. The consolidation
-  is reflected in the import list at `index.ts:7-31`, which now
-  re-exports 25 types from one model file.
+  `confidential` vs `isConfidentialClient` (H2) and the shape of the
+  `scopes` documented value space across the published and custom
+  surfaces. The consolidation is reflected in the import list at
+  `index.ts:7-31`, which now re-exports 25 types from one model file.
 
 ---
 

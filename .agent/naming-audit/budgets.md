@@ -82,42 +82,14 @@ rename suggestion. Findings are grouped by category.
   weight here (see also F7). If the type *must* keep the "Config"
   word, `BudgetAlertActionConfig` is shorter and clearer.
 
-#### F1.2 — `target` field of `ActionConfiguration` (MEDIUM)
-- **Where:** `model.ts:32`.
-- **Why flagged:** "target" alone is generic — it could be a URL,
-  Slack channel, account ID, etc. The JSDoc clarifies "For example,
-  an email address," but the field name does not. Compare to similar
-  webhook-style "target" fields elsewhere in the SDK.
-- **Suggestion:** `recipient` or `destination`. If the value really is
-  always an email today, `emailAddress` is unambiguous; `recipient`
-  is more future-proof.
-
-#### F1.3 — `target` (cont.): also generic at the type-domain level (LOW)
-- **Where:** `model.ts:32`.
-- See category 16 (F16.1) for the contradiction angle — "target" is
-  also too generic *and* implies a generic destination when the
-  domain is narrower.
-
-#### F1.4 — `values` (`BudgetConfigurationFilter_Clause`,
-  `BudgetConfigurationFilter_WorkspaceIdClause`) (LOW)
-- **Where:** `model.ts:83, 95`.
-- **Why flagged:** "values" is generic. Inside a clause it is
-  acceptable because the operator/values pair is a well-known proto
-  pattern, but a more descriptive name (`workspaceIds`, `tagValues`)
-  would document intent without a JSDoc.
-- **Suggestion:** Leave for parity with proto/Go, but consider
-  specializing in TS:
-  `BudgetConfigurationFilter_WorkspaceIdClause.values → workspaceIds`,
-  `BudgetConfigurationFilter_Clause.values → tagValues`.
-
-#### F1.5 — `operator` (LOW)
+#### F1.2 — `operator` (LOW)
 - **Where:** `model.ts:82, 94`.
 - **Why flagged:** Generic given there is only one allowed value
   (`IN`). Acceptable for forward-compat but worth a JSDoc note.
 - **Suggestion:** Keep, but add JSDoc clarifying allowed values and
   semantics (currently has none).
 
-#### F1.6 — `Client` class name (MEDIUM)
+#### F1.3 — `Client` class name (MEDIUM)
 - **Where:** `client.ts:49`, `index.ts:3`.
 - **Why flagged:** Every package in this SDK exports a `Client`.
   Re-exported in a barrel like
@@ -128,7 +100,7 @@ rename suggestion. Findings are grouped by category.
   package-qualified import convention, or rename to
   `BudgetsClient` consistently across packages. Cross-cutting.
 
-#### F1.7 — `req` parameter name on every client method (LOW)
+#### F1.4 — `req` parameter name on every client method (LOW)
 - **Where:** `client.ts:80, 112, 140, 174, 216, 234`.
 - **Why flagged:** `req` is a Go-ism (see category 14). It is also
   generic — a reader has to look at the type to know what the
@@ -186,7 +158,7 @@ _None._
 
 #### F5.1 — `req` (LOW, Go-ism)
 - **Where:** `client.ts` every method, `utils.ts:103`.
-- Already flagged under F1.7 / F13.1.
+- Already flagged under F1.4 / F13.1.
 
 #### F5.2 — `resp` (LOW, Go-ism)
 - **Where:** `client.ts:88, 116, 150, 193, 242`; `utils.ts:73, 75, 81, 84, 88`.
@@ -377,19 +349,7 @@ _None._
 #### F8.3 — `tags: BudgetConfigurationFilter_TagClause[]` (acceptable)
 - Plural-array, no mismatch.
 
-#### F8.4 — `workspaceId: BudgetConfigurationFilter_WorkspaceIdClause`
-  on `BudgetConfigurationFilter` (HIGH)
-- **Where:** `model.ts:72`.
-- **Why flagged:** The field is singular `workspaceId` but its type
-  is a clause whose `values: number[]` holds *multiple* workspace IDs.
-  Reading `filter.workspaceId.values` is confusing — you would expect
-  `workspaceId` to be one ID, but it's a clause.
-- **Suggestion:** Rename the field to `workspaceIds`, `workspaceFilter`,
-  or `workspaces`. Pair with renaming the type from
-  `WorkspaceIdClause` to `WorkspaceFilter`. The whole clause
-  abstraction is unnecessary in TS — see F10.
-
-#### F8.5 — `budgets` field in `ListBudgetConfigurationsRequest_Response`
+#### F8.4 — `budgets` field in `ListBudgetConfigurationsRequest_Response`
   (acceptable)
 - Plural, correct.
 
@@ -405,24 +365,12 @@ _None._
   `BudgetConfiguration`, not on an array.
 - **Suggestion:** Keep; not worth churn.
 
-#### F9.2 — `target` field (LOW)
-- **Where:** `model.ts:32`.
-- **Why flagged:** `target` collides with `EventTarget` /
-  `event.target` semantics in DOM. Minor.
-- **Suggestion:** See F1.2 — rename to `recipient` resolves both.
-
-#### F9.3 — `values` (LOW)
-- **Where:** `model.ts:83, 95`.
-- **Why flagged:** `Object.values` is a popular built-in. Property
-  shadowing only, not a true collision.
-- **Suggestion:** See F1.4 — specialize per type.
-
-#### F9.4 — `Headers` constructor use vs DOM `Headers` (acceptable)
+#### F9.2 — `Headers` constructor use vs DOM `Headers` (acceptable)
 - **Where:** `client.ts:90, 118, 152, 195, 244`.
 - The code intentionally uses the global `Headers`. No new identifier
   shadows it. Fine.
 
-#### F9.5 — `URLSearchParams`, `TextDecoder` (acceptable)
+#### F9.3 — `URLSearchParams`, `TextDecoder` (acceptable)
 - Used as global classes, no shadowing.
 
 ---
@@ -563,46 +511,21 @@ _None._
 
 ### 14. Generic field names losing meaning
 
-#### F14.1 — `target` on `ActionConfiguration` (HIGH)
-- See F1.2 / F1.3.
+#### F14.1 — `operator` on Clauses (LOW)
+- See F1.2.
 
-#### F14.2 — `values` on Clauses (MEDIUM)
+#### F14.2 — `req` parameter on every client method (HIGH)
 - See F1.4.
-
-#### F14.3 — `operator` on Clauses (LOW)
-- See F1.5.
-
-#### F14.4 — `key` and `value` on `BudgetConfigurationFilter_TagClause`
-  (LOW)
-- **Where:** `model.ts:88-89`.
-- **Why flagged:** "key/value" is generic enough that without the
-  wrapping type, readers can't tell it is a *tag* key. Acceptable
-  because the wrapping type's name supplies context, but
-  `tagKey`/`tagValue` would be self-documenting.
-- **Suggestion:** Optional rename to `tagKey`/`tagValue`. Wire field
-  is `key`/`value`, so renaming costs an extra mapping in the
-  marshaller.
-
-#### F14.5 — `req` parameter on every client method (HIGH)
-- See F1.7.
 
 ---
 
 ### 15. Field contradicting type domain
 
-#### F15.1 — `ActionConfiguration.target` (HIGH)
-- **Where:** `model.ts:32`.
-- **Why flagged:** Type domain is "alert action" (currently
-  email-only); field name is the generic "target". JSDoc admits "For
-  example, an email address." Type-domain dissonance.
-- **Suggestion:** `recipient` (or `emailAddress` if email-only is
-  hard-wired). See F1.2.
-
-#### F15.2 — `BudgetConfigurationFilter_WorkspaceIdClause` typed
+#### F15.1 — `BudgetConfigurationFilter_WorkspaceIdClause` typed
   as `number[]` (MEDIUM)
 - **Where:** `model.ts:95`. See F6.1.
 
-#### F15.3 — `LIST_PRICE_DOLLARS_USD` member on
+#### F15.2 — `LIST_PRICE_DOLLARS_USD` member on
   `AlertConfigurationQuantityType` (LOW)
 - **Where:** `model.ts:10`.
 - **Why flagged:** Name implies *currency*, type is "quantity type".
@@ -647,21 +570,8 @@ _None._
   context — both are unambiguous in this package; the issue is
   inconsistency.
 
-#### F18.2 — `actionConfigurationId`, `alertConfigurationId` (LOW)
-- **Where:** `model.ts:28, 37`.
-- **Why flagged:** Long. If `ActionConfiguration` renames to
-  `BudgetAlertAction`, the ID becomes `budgetAlertActionId`
-  (still long) or just `actionId` inside its parent.
-- **Suggestion:** Inside the parent, the local field name can be
-  just `id`. The full form is only needed when referenced
-  externally.
-
-#### F18.3 — `accountId` (acceptable)
+#### F18.2 — `accountId` (acceptable)
 - Specific enough; matches platform-wide convention.
-
-#### F18.4 — `workspaceId` on `BudgetConfigurationFilter` field, but
-  the field holds a *clause* not an ID (HIGH)
-- See F8.4. The name *says* it is one ID; it isn't.
 
 ---
 
@@ -714,24 +624,24 @@ This SDK exposes two separate packages whose names both start with
 
 | # | Category                                | Findings |
 | - | --------------------------------------- | -------- |
-| 1 | Vague / generic                         | 7        |
+| 1 | Vague / generic                         | 4        |
 | 2 | Redundant enum prefixes                 | 0 |
 | 3 | Acronym casing                          | 4 (4 acceptable) |
 | 4 | Underscores in TS identifiers           | 0 |
 | 5 | Cryptic abbreviations                   | 7 |
 | 6 | Misleading names                        | 5 |
 | 7 | Overly verbose                          | 4 |
-| 8 | Singular / plural mismatch              | 5 (3 acceptable) |
-| 9 | Reserved-word collisions                | 5 (3 acceptable) |
+| 8 | Singular / plural mismatch              | 4 (3 acceptable) |
+| 9 | Reserved-word collisions                | 3 (3 acceptable) |
 | 10 | Empty / trivial wrappers               | 0 |
 | 11 | Duplicate concepts                     | 5 |
 | 12 | Verb-tense inconsistency               | 2 (1 acceptable) |
 | 13 | Go / Java-style names                  | 2 (1 acceptable) |
-| 14 | Generic field names                    | 5 |
-| 15 | Field contradicting type domain        | 3 |
+| 14 | Generic field names                    | 2 |
+| 15 | Field contradicting type domain        | 2 |
 | 16 | Inconsistent action verbs              | 1 (1 acceptable) |
 | 17 | Long enum values                       | 3 |
-| 18 | Underspecified IDs                     | 4 (1 acceptable) |
+| 18 | Underspecified IDs                     | 2 (1 acceptable) |
 | OVERLAP | budgets vs budgetpolicy             | 3 |
 
 ---
@@ -743,17 +653,12 @@ This SDK exposes two separate packages whose names both start with
 2. **F7.1 / F7.3 / F11.1:** Collapse `BudgetConfiguration`,
    `CreateBudgetConfigurationBudget`,
    `UpdateBudgetConfigurationBudget` into a single `Budget` type.
-3. **F8.4 / F18.4:** Rename
-   `BudgetConfigurationFilter.workspaceId` to `workspaces` (and
-   its type to `WorkspaceFilter`); fix singular-noun-for-plural-clause
-   mismatch.
-4. **F1.1 / F1.2 / F15.1:** Rename `ActionConfiguration`
-   to `BudgetAlertAction`, `target` to `recipient`.
-5. **F7.2:** Drop "Configuration" from request type names
+3. **F1.1:** Rename `ActionConfiguration` to `BudgetAlertAction`.
+4. **F7.2:** Drop "Configuration" from request type names
    (`CreateBudgetRequest`).
-6. **F11.4:** Lift `accountId` to top-level on all request types
+5. **F11.4:** Lift `accountId` to top-level on all request types
    (currently nested under `budget` for create/update only).
-7. **F13.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
+6. **F13.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson` etc. across all generated code.
 
 ---
@@ -879,7 +784,3 @@ This SDK exposes two separate packages whose names both start with
   `Request_Response` proto nesting; use flat `<Verb><Domain>Response`.
 
 ---
-
-## Fixed
-
-_None._

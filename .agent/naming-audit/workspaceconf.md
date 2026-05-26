@@ -249,9 +249,3 @@
 5. **Type `keys` as `string[]`** (§5) and have the client serialize the CSV.
 
 ---
-
-## Fixed
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

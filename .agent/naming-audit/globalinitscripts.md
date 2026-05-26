@@ -93,9 +93,7 @@ None. This package defines no enums.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| V-01  | `CreateGlobalInitScriptRequest.script` / `UpdateGlobalInitScriptRequest.script` (`model.ts:9`, `model.ts:74`) | High | The field name `script` is overloaded inside a type whose entity name is already "script". A `CreateGlobalInitScriptRequest` whose payload field is `script` reads as "the script of the script". Worse, the JSDoc says it carries "Base64-encoded content". A name like `content`, `body`, or `scriptContent` would convey what the bytes actually are. |
-| V-02  | `GlobalInitScriptDetails.position` (`model.ts:47`) | Medium | `position` is generic. Without the JSDoc the reader cannot tell whether it is an array index, a UI ordering hint, a priority, or an execution-order rank. `executionOrder`, `runOrder`, or `priority` would be more self-describing. |
-| V-03  | `GlobalInitScriptDetails.name` (`model.ts:45`) | Low | Generic but standard across the SDK; acceptable in entity context. |
+| V-01  | `GlobalInitScriptDetails.name` (`model.ts:45`) | Low | Generic but standard across the SDK; acceptable in entity context. |
 
 ### 2.2 Redundant enum prefixes — None
 
@@ -127,9 +125,7 @@ No enums are declared in this package; this rubric category does not apply.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| M-01  | `CreateGlobalInitScriptRequest.script` (field type `Uint8Array`, `model.ts:9`) | High | The field is documented as "Base64-encoded content" but its TS type is `Uint8Array` — the marshal schema converts the bytes to Base64 via `btoa`. Callers therefore supply **raw bytes**, not Base64. The JSDoc is misleading: it describes the wire format, not what the caller hands in. A better split would be either rename to `scriptBytes` (matching the runtime type) or change the doc to "Raw bytes; the SDK Base64-encodes before sending." |
-| M-02  | `UpdateGlobalInitScriptRequest.script` (`model.ts:74`) | High | Same as M-01. |
-| M-03  | `GlobalInitScriptDetails` (returned by `getGlobalInitScript`, `client.ts:133`) — JSDoc says "including its Base64-encoded contents" | High | The entity type defines no `script` / `content` field at all, despite the method JSDoc claiming the contents are returned. Either the JSDoc is wrong, or the entity is missing a `script` field. This is a high-severity inconsistency between method docs and the entity shape — readers will look for content in the response and not find it. |
+| M-01  | `GlobalInitScriptDetails` (returned by `getGlobalInitScript`, `client.ts:133`) — JSDoc says "including its Base64-encoded contents" | High | The entity type defines no `script` / `content` field at all, despite the method JSDoc claiming the contents are returned. Either the JSDoc is wrong, or the entity is missing a `script` field. This is a high-severity inconsistency between method docs and the entity shape — readers will look for content in the response and not find it. |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
@@ -183,10 +179,8 @@ _None._
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| F-01  | `GlobalInitScriptDetails.position` (`model.ts:47`) | Medium | `position` standing alone (e.g. inside a generic list-item display) is ambiguous: file position? UI position? Order index? Adding context (`runOrder`) would survive destructuring. |
-| F-02  | `CreateGlobalInitScriptRequest.script` (`Uint8Array`, `model.ts:9`) | High | A field called `script` of type `Uint8Array` does not communicate "bytes of the script content". Outside the interface it could be mistaken for a script object/handle. See V-01, M-01. |
-| F-03  | `GlobalInitScriptDetails.name` (`model.ts:45`) | Low | Standard entity field; meaning preserved in context. |
-| F-04  | `httpReq`, `respBody`, `body`, `headers`, `text`, `parsed`, `info` (locals in `client.ts` / `utils.ts`) | Low | Local-scope identifiers only. |
+| F-01  | `GlobalInitScriptDetails.name` (`model.ts:45`) | Low | Standard entity field; meaning preserved in context. |
+| F-02  | `httpReq`, `respBody`, `body`, `headers`, `text`, `parsed`, `info` (locals in `client.ts` / `utils.ts`) | Low | Local-scope identifiers only. |
 
 ### 2.15 Field contradicting type domain — Low
 
@@ -207,10 +201,7 @@ No enums declared; not applicable.
 
 ### 2.18 Underspecified IDs — Medium
 
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| I-01  | `scriptId` | Medium | The field name `scriptId` is the API-level field but inside a workspace-scoped SDK there is at least one other ID concept called "script" (e.g. cluster init scripts via `clusters` package — see `InitScriptInfo`). A globally-unique identifier across the Databricks SDK surface would be `globalInitScriptId`. The shorter `scriptId` is in line with the API wire field, so this is a known trade-off, but ID names should generally be fully qualified to avoid cross-package ambiguity. |
-| I-02  | `scriptId` (in `DeleteGlobalInitScriptRequest`, `GetGlobalInitScriptRequest`, `UpdateGlobalInitScriptRequest`) | Medium | Same as I-01. All five locations use the bare `scriptId`. |
+_None._
 
 ### 2.19 Type-suffix tautology — Medium
 
@@ -252,34 +243,26 @@ No enums declared; not applicable.
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 14    |
-| Medium   | 11    |
-| Low      | 23    |
-| **Total**| **48**|
+| High     | 10    |
+| Medium   | 5     |
+| Low      | 28    |
+| **Total**| **43**|
 
 ### 3.2 Top themes
 
-1. **`script` field overload conflates "script bytes" with "the entity".**
-   The field is typed as `Uint8Array` (raw bytes), documented as
-   "Base64-encoded content" (the wire format), and lives on a type
-   already called `GlobalInitScript`. Renaming the field to `content`
-   (or `scriptBytes`) — and clarifying the JSDoc — removes both the
-   self-reference ("script.script") and the format-vs-runtime confusion.
-
-2. **`GlobalInitScriptDetails` should just be `GlobalInitScript`.**
+1. **`GlobalInitScriptDetails` should just be `GlobalInitScript`.**
    The `Details` suffix is a Java-style hangover with no peer type to
    disambiguate from. The method JSDoc also claims to return Base64
    content while the entity has no content field — a documentation /
    shape inconsistency.
 
-3. **`createdAt`/`updatedAt` naming is good** — unlike sibling packages
+2. **`createdAt`/`updatedAt` naming is good** — unlike sibling packages
    that use `createdAtTimestamp`, this package uses the cleaner
    `createdAt` / `updatedAt`. Worth keeping as the cross-package
    reference.
 
 ### 3.3 Suggested quick wins (advisory — codegen-level)
 
-- Rename `script` field to `content` (or `scriptContent`).
 - Rename entity `GlobalInitScriptDetails` -> `GlobalInitScript`.
 - Add the missing content field on the entity (or fix the JSDoc on
   `getGlobalInitScript` that claims contents are returned).
@@ -293,7 +276,3 @@ No enums declared; not applicable.
   preferred reference for timestamp naming.
 
 ---
-
-## Fixed
-
-_None._

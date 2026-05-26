@@ -11,6 +11,12 @@ to one or more recipients (other Databricks metastores or external OIDC /
 token-authenticated clients).
 **Total weird names flagged:** 5
 
+**Last rescanned:** 2026-05-26 (post regeneration #156). All five findings
+re-verified against the regenerated source; none addressed upstream.
+`client.ts` line numbers drifted with the regen (the `getActivationUrlInfo`
+method moved from line 369 to line 398), but the underlying naming pattern
+is unchanged.
+
 ## Summary
 
 | Severity | Count |
@@ -145,8 +151,8 @@ end suffixes are not flagged.
 
 ## Low severity (nits)
 
-### 1. `GetActivationUrlInfoRequest` injects `Info` into a method/type name with no payload — `model.ts:363, 369, client.ts:369`
-- **Why:** The method `getActivationUrlInfo` (client.ts:369) returns
+### 1. `GetActivationUrlInfoRequest` injects `Info` into a method/type name with no payload — `model.ts:363, 369, client.ts:398`
+- **Why:** The method `getActivationUrlInfo` (client.ts:398) returns
   `GetActivationUrlInfoRequest_Response`, an empty interface
   (model.ts:369). The mid-position `Info` in both the method and the
   request type adds nothing semantic: the method just gets the

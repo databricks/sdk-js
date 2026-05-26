@@ -12,14 +12,12 @@ grouped by category, and each finding cites the file/line where it appears.
 
 ## Summary
 
-- **Total findings:** 28
+- **Total findings:** 12
 - **Highest-impact themes:**
-  1. Several field names use vague or generic terms (`type`, `protocol`,
-     `name`, `destination`, `status`) that lose meaning out of context.
-  2. Misleading field names (`remoteDetailedInfo`, boolean-shaped
-     `accessRestricted` enum).
-  3. Cloud-asymmetric fields (`bucketName` vs. `azureContainer`) leak
-     cloud taxonomy into a single struct.
+  1. Misleading boolean-shaped `accessRestricted` enum.
+  2. Acronym casing inconsistencies (`Id` vs `ID`, `Dns` vs `DNS`,
+     `aws/azure/gcp`, `FEDRAMP`).
+  3. Duplicate `Status` enum types and overlapping collaborator types.
   4. Proto-architectural leaks: stray `Handler` suffix on list methods
      for notebook task runs.
 
@@ -27,45 +25,7 @@ grouped by category, and each finding cites the file/line where it appears.
 
 ## 1. Vague / Generic Names
 
-### 1.1 `name?: string` on `CleanRoom` (model.ts:247)
-The top-level field `name` is the clean room identifier. Combined with the
-request shape `GetCleanRoomRequest { name }`, the name "name" is too
-generic — there is no signal that this is a UC securable name vs. a display
-name vs. a UUID. Go SDK has the same problem, but consider `cleanRoomName`.
-
-### 1.2 `name?: string` on `GetCleanRoomRequest`, `DeleteCleanRoomRequest`,
-`UpdateCleanRoomRequest` (model.ts:836, 738, 1009)
-Same issue — when used inside a request DTO, `name` is ambiguous as to
-**which** name. `cleanRoomName` would self-document. The request schema
-in `CreateCleanRoomOutputCatalogRequest` uses the more specific
-`cleanRoomName` (model.ts:703), so the codebase is inconsistent with itself.
-
-### 1.3 `type?: ...InternetDestinationType` (model.ts:777)
-The field `type` on `InternetDestination` is generic. `destinationType` or
-`kind` would be clearer at call sites
-(`internetDestination.type === FQDN` reads as a meta-property).
-
-### 1.4 `type?: ...StorageDestinationType` (model.ts:800)
-Same issue on `StorageDestination` — bare `type` field.
-
-### 1.5 `protocol?: ...InternetDestinationFilteringProtocol` (model.ts:780)
-`protocol` is generic. A consumer cannot tell from `destination.protocol`
-whether this is TCP/UDP/HTTP/SSH/etc. `filteringProtocol` matches the
-underlying enum semantics.
-
-### 1.6 `destination?: string` (model.ts:776)
-Bare `destination` on `InternetDestination` is tautological with its
-container. The string is the FQDN/hostname/IP literal. `value` or
-`fqdn`/`host` would convey intent.
-
-### 1.7 `region?: string` (model.ts:581, 799)
-`region` field appears on both `CleanRoomRemoteDetail` (cloud region) and
-`StorageDestination` (bucket region). Not necessarily wrong, but the
-ambiguity is worth noting — `cloudRegion` / `bucketRegion` would disambiguate.
-
-### 1.8 `workloads?: WorkloadType[]` (model.ts:790)
-On `LogOnlyMode`, the field `workloads` is plural-of-type. `workloadTypes`
-would match the enum. (See also §4 — singular/plural mismatch.)
+_None._
 
 ---
 
@@ -96,41 +56,15 @@ text should match.
 
 ## 3. Misleading Names
 
-### 3.1 `remoteDetailedInfo` (model.ts:253)
-Field name suggests "verbose info about a remote endpoint." Actually
-contains the central clean room state (collaborators, network policy,
-compliance) — the meaty payload of `CleanRoom`. JSON tag is
-`remote_detailed_info` but the type is `CleanRoomRemoteDetail` (singular,
-no "Info"). The name is **misleading** and **internally inconsistent with
-its type**: field says `remoteDetailedInfo`, type says `RemoteDetail`.
-
-### 3.2 `accessRestricted?: CleanRoom_AccessRestricted` (model.ts:271)
+### 3.1 `accessRestricted?: CleanRoom_AccessRestricted` (model.ts:271)
 Reads as a boolean ("is access restricted?"). It is actually an enum with
-values `NO_RESTRICTION` and `CSP_MISMATCH`. `accessRestrictedReason` or
-`accessRestriction` would not suggest a boolean. The JSDoc reinforces the
+values `NO_RESTRICTION` and `CSP_MISMATCH`. The JSDoc reinforces the
 miscommunication: "Whether clean room access is restricted…" — implying a
 yes/no. The shape itself is boolean-like (two values, one of which is the
 absence sentinel) — a `boolean` field would model the domain more
 honestly.
 
-### 3.3 `isEnabled?: boolean` on `ComplianceSecurityProfile` (model.ts:664)
-The `is` prefix is acceptable, but inside an object literal one writes
-`profile.isEnabled` (reading "is enabled" of a non-question subject) which
-becomes awkward; simply `enabled` is more idiomatic and aligns with
-JavaScript norms (HTML `disabled`, `aria-disabled`, etc.).
-
-### 3.4 `logOnlyMode?: ...LogOnlyMode` (model.ts:764)
-Field name and type name both have `LogOnlyMode`. But the field's container
-already declares "this is the LogOnlyMode submessage" — `logOnly` would
-suffice.
-
-### 3.5 `localCollaboratorAlias?: string` (model.ts:264) vs.
-`collaboratorAlias` on `CleanRoomCollaborator` (model.ts:515)
-The "local" prefix here is a fragment of metastore-domain jargon. A reader
-who does not already know about "single-metastore vs. x-metastore" clean
-rooms cannot tell what "local" means.
-
-### 3.6 `CreateCleanRoomWaiter` class (client.ts:816)
+### 3.2 `CreateCleanRoomWaiter` class (client.ts:881)
 The waiter polls `getCleanRoom` and resolves when status reaches `ACTIVE`.
 Naming it `CreateCleanRoomWaiter` ties it to `createCleanRoom`, but the
 waiter is operationally generic (any clean room name can be polled). A
@@ -140,16 +74,7 @@ better name is `CleanRoomActivationWaiter` or `CleanRoomStatusWaiter`.
 
 ## 4. Singular / Plural Mismatches
 
-### 4.1 `workloads?: WorkloadType[]` (model.ts:790)
-Field is plural and array-typed, but the element type is **`WorkloadType`**
-(singular noun + `Type` suffix). Consumers write `mode.workloads[0]` which
-is a `WorkloadType` — readable, but the field could be `workloadTypes` to
-match the element. Alternative: rename the enum to `Workload`.
-
-### 4.2 `complianceStandards?: ComplianceStandard[]` (model.ts:666)
-Correctly plural. But `allowedInternetDestinations` and
-`allowedStorageDestinations` (model.ts:757, 760) inherit the `allowed`
-prefix; while the parent `restrictionMode` is singular. Mild inconsistency.
+_None._
 
 ---
 
@@ -170,11 +95,7 @@ Per the JSDoc, `creator` is also **one of the collaborators in the
 collaborators list**. So we have the same logical entity reachable through
 two paths. Mild — not a renamed-target, but flagged as a shape concern.
 
-### 5.3 `cleanRoomName` (model.ts:703) vs. `name` (model.ts:247, 836, 738, 1009)
-Two names for the same thing: the clean-room identifier. Picking one
-consistently would simplify call sites.
-
-### 5.4 `CleanRoomCollaborator` (model.ts:490) vs.
+### 5.3 `CleanRoomCollaborator` (model.ts:490) vs.
 `CollaboratorJobRunInfo` (model.ts:606)
 Both types now live in `cleanrooms` (the `cleanroomtaskruns` package was
 consolidated into `cleanrooms`). Within the package, two "Collaborator-
@@ -186,9 +107,9 @@ prefixes. Consistency would suggest renaming `CollaboratorJobRunInfo` to
 
 ## 6. Inconsistent Action Verbs
 
-### 6.1 `createCleanRoom` returns the new clean room (client.ts:120);
+### 6.1 `createCleanRoom` returns the new clean room (client.ts:125);
 `createCleanRoomOutputCatalog` returns a **response wrapper**
-(`CreateCleanRoomOutputCatalogResponse`) (client.ts:250).
+(`CreateCleanRoomOutputCatalogResponse`) (client.ts:267).
 Inconsistent return shapes for two `create*` methods. The Go SDK has the
 same wart, but it surfaces here as inconsistent ergonomics:
 `(await c.createCleanRoom(...)).name` vs.
@@ -198,14 +119,7 @@ same wart, but it surfaces here as inconsistent ergonomics:
 
 ## 7. Cloud Asymmetry / Cross-Cloud Field Naming
 
-### 7.1 `bucketName`, `region`, `type`, `azureStorageAccount`,
-`allowedPaths`, `azureStorageService`, `azureDnsZone`, `azureContainer`
-on `StorageDestination` (model.ts:798–807)
-The same struct mixes AWS-, Azure-, and GCP-shaped fields. `bucketName`
-is S3-flavored; `azureStorageAccount` is Azure-flavored. The fact that the
-fields share one struct **and** the field names are not prefixed with the
-cloud (`bucketName` vs. `azureContainer`) leaks the cloud taxonomy into
-field naming inconsistently.
+_None._
 
 ---
 
@@ -217,7 +131,7 @@ _None._
 
 ## 9. Proto / Architectural Leaks
 
-### 9.1 `listCleanRoomNotebookTaskRunsHandler` — client.ts:612
+### 9.1 `listCleanRoomNotebookTaskRunsHandler` — client.ts:662
 - **Why:** Mid/end-position `Handler` on a public method (not a domain term).
   All sibling list methods (`listCleanRooms`, `listCleanRoomAssets`,
   `listCleanRoomAutoApprovalRules`) omit the `Handler` suffix. The stray
@@ -228,7 +142,7 @@ _None._
   like `Handler` in client-method names; consistency with the other
   `list*` methods is the principal benefit.
 
-### 9.2 `listCleanRoomNotebookTaskRunsHandlerIter` — client.ts:651
+### 9.2 `listCleanRoomNotebookTaskRunsHandlerIter` — client.ts:704
 - **Why:** Same stray `Handler` infix in the async-iterator companion to
   §9.1. Sibling iterators (`listCleanRoomsIter`,
   `listCleanRoomAssetsIter`, `listCleanRoomAutoApprovalRulesIter`) follow
@@ -253,12 +167,3 @@ _None._
   is appropriately namespaced.
 
 ---
-
-## Fixed
-
-- #4.2 `ARC_AMPE` (originally cited at model.ts:51): Fixed in regeneration on 2026-05-20 — enum value no longer present in `ComplianceStandard`.
-- #5.3 `enableSharedOutput?: boolean` (originally cited at model.ts:173): Fixed in regeneration on 2026-05-20 — field removed from `CleanRoom`.
-- #5.2 `CleanRoomCollaborator` overlap with `cleanroomtaskruns.CollaboratorJobRunInfo`: Fixed in regeneration on 2026-05-22 — the `cleanroomtaskruns` package was consolidated into `cleanrooms`, eliminating the cross-package overlap concern. In-package overlap is now tracked under §5.4.
-- #8.1 Cross-package shared "clean room" concept across `cleanrooms` / `cleanroomassets` / `cleanroomautoapprovalrules` / `cleanroomtaskruns`: Fixed in regeneration on 2026-05-22 — the three sibling packages were consolidated into `cleanrooms`, so all `CleanRoom*` types now live in a single canonical package.
-- #8.2 Cross-package `CleanRoomCollaborator` (cleanrooms) vs. `CollaboratorJobRunInfo` (cleanroomtaskruns): Fixed in regeneration on 2026-05-22 — packages consolidated; the in-package concern is tracked under §5.4.
-- #8.3 Cross-package resource-name pattern repetition (`name` slot across cleanrooms / cleanroomassets / cleanroomautoapprovalrules): Fixed in regeneration on 2026-05-22 — sibling packages consolidated into `cleanrooms`, eliminating cross-package shape-collision risk.

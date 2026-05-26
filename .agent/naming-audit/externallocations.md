@@ -257,11 +257,3 @@ Primary themes:
    JSDoc.
 
 ---
-
-## Fixed
-
-- #5 `IsolationMode.ISOLATION_MODE_OPEN_IN_ACCOUNT` (originally cited at model.ts:9): Fixed in regeneration on 2026-05-20 — enum member removed from `IsolationMode`.
-- #8 `OneLakeEventQueue` type as part of four-queue inconsistency set (originally cited at model.ts:18, 28, 186, 240): Fixed in regeneration on 2026-05-20 — `OneLakeEventQueue` type and the `providedOnelake`/`managedOnelake` FileEventQueue cases were removed, reducing the set to three providers; the remaining three-way inconsistency is retracked as finding #4.
-- #12 `OneLakeEventQueue` (no Azure/Fabric prefix) (originally cited at model.ts:240): Fixed in regeneration on 2026-05-20 — type removed entirely.
-- #13 `Pubsub` casing inside `GcpPubsub` (originally cited at model.ts:186): Fixed in regeneration on 2026-05-20 — duplicate of finding #8 (now #6 in renumbered audit); collapsed into the single `GcpPubsub` casing entry.
-- #15 `providedOnelake` / `managedOnelake` case key spelling (originally cited at model.ts:176, 182): Fixed in regeneration on 2026-05-20 — `OneLake` cases removed from `FileEventQueue` provided/managed unions.

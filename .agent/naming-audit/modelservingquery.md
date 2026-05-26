@@ -11,7 +11,10 @@
 
 **Inferred domain:** Model-serving *inference path*. The single client method `query()` POSTs an inference request body to `/api/serving-endpoints/{name}/invocations`. Supports four payload shapes simultaneously: chat (LLM), completions (LLM), embeddings (LLM), and traditional MLflow models (dataframes / tensors). The package is a *sibling* of `servingendpoints` (which owns CRUD on the endpoint resource itself) — this package only owns the **query/invoke** verb. The package name and its types share vocabulary with the unrelated SQL packages `queries`, `queryexecution`, `queryhistory` — none of which have anything to do with model serving.
 
-**Total weird names flagged:** 30
+**Total weird names flagged:** 18 (0 fixed, 18 still, 0 superseded)
+
+Rescanned on 2026-05-26 after regeneration #156. All 18 findings remain
+unchanged in the regenerated output; no items have moved to `## Fixed`.
 
 ---
 
@@ -21,34 +24,22 @@
 |----|----------|-----------------------------------|--------------------------------------------------------------|----------------------------------------------|
 | 1  | High     | package + dir                     | `modelservingquery` / `@databricks/sdk-modelservingquery`    | Duplicate concept; "query" overloaded SDK-wide |
 | 2  | High     | `model.ts` interface              | `QueryEndpointInputRequest` / `QueryEndpointResponse`        | Four unrelated payload shapes packed into one type; double-suffix `Input` + `Request` |
-| 3  | High     | `model.ts` field                  | `QueryEndpointInputRequest.name`                             | Generic field name losing meaning (= endpoint name) |
-| 4  | High     | `model.ts` field                  | `QueryEndpointInputRequest.input` / `inputs` / `instances` / `prompt` / `messages` / `dataframeRecords` / `dataframeSplit` | 7 mutually-exclusive "input" fields, no oneof |
-| 5  | High     | `model.ts` field                  | `QueryEndpointInputRequest.n`                                | Cryptic abbreviation (single letter) |
-| 6  | High     | `model.ts` interface              | `V1ResponseChoiceElement`                                    | Version segment leaked into type name; empty `Element` suffix |
-| 7  | High     | `model.ts` interface              | `EmbeddingsV1ResponseEmbeddingElement`                       | Version segment leaked into type name; empty `Element` suffix |
-| 8  | High     | `model.ts` interface              | `ExternalModelUsageElement`                                  | Misleading scope ("External" implies non-Databricks) and "Element" suffix is meaningless |
-| 9  | High     | `model.ts` interface              | `QueryEndpointInputRequest_ExtraParamsEntry`                 | Proto-architectural-leak: `_Entry` is Protobuf map-entry generator suffix |
-| 10 | High     | `model.ts` interface              | `QueryEndpointInputRequest_UsageContextEntry`                | Proto-architectural-leak: `_Entry` is Protobuf map-entry generator suffix |
-| 11 | Medium   | `client.ts` method                | `query()`                                                    | Verb-tense / reserved-word feel; conflicts with SQL packages |
-| 12 | Medium   | `model.ts` interface              | `DataframeSplitInput`                                        | Generic field names lose meaning (`index`, `columns`, `data`) |
-| 13 | Medium   | `model.ts` field                  | `QueryEndpointResponse.data`                                 | Vague (it's the *embeddings* array, not arbitrary data) |
-| 14 | Medium   | `model.ts` field                  | `QueryEndpointResponse.object`                               | Reserved-word collision (`Object` is a JS built-in) |
-| 15 | Medium   | `model.ts` field                  | `QueryEndpointResponse.choices` vs `.data` vs `.predictions` vs `.outputs` | 4 mutually-exclusive output fields, no oneof |
-| 16 | Medium   | `model.ts` field                  | `QueryEndpointResponse.created`                              | Verb-tense / underspecified ("created" timestamp typed as `number`) |
-| 17 | Medium   | `model.ts` field                  | `QueryEndpointResponse.servedModelName`                      | Generic name (wire form `served-model-name` with hyphen) |
-| 18 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.text` / `.message`                  | Singular/plural mismatch with `messages` request field |
-| 19 | Medium   | `model.ts` enum                   | `ChatMessageRole`                                            | Singular/plural — type is `ChatMessage`, but role values are `SYSTEM`/`USER`/`ASSISTANT` — none of which are *types of message* |
-| 20 | Medium   | `model.ts` field                  | `ExternalModelUsageElement.promptTokens` / `.completionTokens` / `.totalTokens` | Type-suffix tautology — every field carries `Tokens` |
-| 21 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.logprobs`                           | Cryptic abbreviation; typed as `number` (the OpenAI spec returns an object) |
-| 22 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.finishReason`                       | Underspecified — typed `string`, but in practice an enum (`stop`, `length`, …) |
-| 23 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.stop`                             | Reserved-word feel (verb-as-noun used as field) |
-| 24 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.stream`                           | Reserved-word feel (collides with web-stream `ReadableStream`) and field is `boolean`, not a stream |
-| 25 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.extraParams`                      | Vague — what counts as "extra"? Also typed `Record<string,string>` though OpenAI passes arbitrary JSON |
-| 26 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.usageContext`                     | Vague pair with `extraParams`; both `Record<string,string>` |
-| 27 | Low      | `client.ts` JSDoc                 | `/** Query a serving endpoint */`                            | Verb-tense / missing period (project rule) |
-| 28 | Low      | `model.ts` enum value             | `ChatMessageRole.ASSISTANT`                                  | OK, but missing common values (`tool`, `function`) — incomplete enum |
-| 29 | Low      | `model.ts` field                  | `EmbeddingsV1ResponseEmbeddingElement.index`                 | Underspecified (index of what?) |
-| 30 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
+| 3  | High     | `model.ts` field                  | `QueryEndpointInputRequest.input` / `inputs` / `instances` / `prompt` / `messages` / `dataframeRecords` / `dataframeSplit` | 7 mutually-exclusive "input" fields, no oneof |
+| 4  | High     | `model.ts` interface              | `V1ResponseChoiceElement`                                    | Version segment leaked into type name; empty `Element` suffix |
+| 5  | High     | `model.ts` interface              | `EmbeddingsV1ResponseEmbeddingElement`                       | Version segment leaked into type name; empty `Element` suffix |
+| 6  | High     | `model.ts` interface              | `ExternalModelUsageElement`                                  | Misleading scope ("External" implies non-Databricks) and "Element" suffix is meaningless |
+| 7  | High     | `model.ts` interface              | `QueryEndpointInputRequest_ExtraParamsEntry`                 | Proto-architectural-leak: `_Entry` is Protobuf map-entry generator suffix |
+| 8  | High     | `model.ts` interface              | `QueryEndpointInputRequest_UsageContextEntry`                | Proto-architectural-leak: `_Entry` is Protobuf map-entry generator suffix |
+| 9  | Medium   | `client.ts` method                | `query()`                                                    | Verb-tense / reserved-word feel; conflicts with SQL packages |
+| 10 | Medium   | `model.ts` field                  | `QueryEndpointResponse.choices` vs `.data` vs `.predictions` vs `.outputs` | 4 mutually-exclusive output fields, no oneof |
+| 11 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.text` / `.message`                  | Singular/plural mismatch with `messages` request field |
+| 12 | Medium   | `model.ts` enum                   | `ChatMessageRole`                                            | Singular/plural — type is `ChatMessage`, but role values are `SYSTEM`/`USER`/`ASSISTANT` — none of which are *types of message* |
+| 13 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.logprobs`                           | Cryptic abbreviation; typed as `number` (the OpenAI spec returns an object) |
+| 14 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.finishReason`                       | Underspecified — typed `string`, but in practice an enum (`stop`, `length`, …) |
+| 15 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.extraParams`                      | Vague — what counts as "extra"? Also typed `Record<string,string>` though OpenAI passes arbitrary JSON |
+| 16 | Low      | `client.ts` JSDoc                 | `/** Query a serving endpoint */`                            | Verb-tense / missing period (project rule) |
+| 17 | Low      | `model.ts` enum value             | `ChatMessageRole.ASSISTANT`                                  | OK, but missing common values (`tool`, `function`) — incomplete enum |
+| 18 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
 
 ---
 
@@ -106,20 +97,7 @@ Better: split into `ChatQueryRequest`, `CompletionsQueryRequest`, `EmbeddingsQue
 
 `QueryEndpointResponse` has the same problem in mirror image: `choices` (chat/completions), `data` (embeddings), `predictions` (traditional), `outputs` (feature serving). The Go SDK has the same union, so the smell is inherited from the wire protocol.
 
-### 3. `QueryEndpointInputRequest.name` — generic field name losing meaning
-
-**Location:** `src/v1/model.ts:77-78`
-
-**Categories:** 15 (generic field names), 19 (underspecified IDs)
-
-```ts
-/** The name of the serving endpoint. This field is required and is provided via the path parameter. */
-name?: string | undefined;
-```
-
-`name` on a `QueryEndpointInputRequest` is unrelated to the *model* name, the *served-model* name (which appears in the response), the *user* name, or the *organisation* name — it's specifically the *serving endpoint* name, which then becomes a URL path segment. JSDoc clarifies but the field doesn't. `endpointName` would match the existing `servedModelName` field in `QueryEndpointResponse`. Also: the field is typed `string | undefined` but is required by JSDoc — and the client falls back to `req.name ?? ''`, silently producing a malformed URL when missing.
-
-### 4. Seven mutually-exclusive "input" fields with no discriminator
+### 3. Seven mutually-exclusive "input" fields with no discriminator
 
 **Location:** `src/v1/model.ts:79-134`
 
@@ -139,23 +117,7 @@ Note the singular/plural near-collision `input` (embeddings) vs `inputs` (tensor
 
 A user writing TS sees seven optional fields and has to read four JSDoc paragraphs to figure out which one to set. A discriminated union (`payload: { kind: 'chat'; messages: ... } | { kind: 'completions'; prompt: ... } | ...`) would make invalid combinations impossible.
 
-### 5. `QueryEndpointInputRequest.n` — cryptic single-letter field
-
-**Location:** `src/v1/model.ts:110-115`
-
-**Category:** 5 (cryptic abbreviation)
-
-```ts
-/**
- * The n (number of candidates) field used ONLY for __completions__ and __chat external & foundation model__
- * serving endpoints. This is an integer between 1 and 5 with a default of 1 ...
- */
-n?: number | undefined;
-```
-
-`n` is the wire-format shorthand inherited from the OpenAI API. In TS it parses as a counter loop variable. `numCandidates`, `candidateCount`, or even `numChoices` (matching the response's `choices` field) would be self-describing. The JSDoc literally has to explain what `n` means ("(number of candidates)").
-
-### 6. `V1ResponseChoiceElement` — version segment in type name + empty `Element` suffix
+### 4. `V1ResponseChoiceElement` — version segment in type name + empty `Element` suffix
 
 **Location:** `src/v1/model.ts:185-196`
 
@@ -167,7 +129,7 @@ export interface V1ResponseChoiceElement { ... }
 
 The `V1` prefix duplicates the directory it lives in (`src/v1/`). When a hypothetical v2 ships, the type will be either `V2ResponseChoiceElement` (now-impossible name collision with whatever the new shape is called) or renamed (breaking change). The `Element` suffix is also empty — the type is the choice itself, not an "element of a choice." `Choice` (no prefix, no suffix) would suffice — `QueryEndpointResponse.choices: Choice[]` reads cleanly. v2-style versioning should live exclusively in the import path, not in identifiers.
 
-### 7. `EmbeddingsV1ResponseEmbeddingElement` — version leak + empty `Element` suffix
+### 5. `EmbeddingsV1ResponseEmbeddingElement` — version leak + empty `Element` suffix
 
 **Location:** `src/v1/model.ts:58-65`
 
@@ -181,9 +143,9 @@ export interface EmbeddingsV1ResponseEmbeddingElement {
 }
 ```
 
-Same `V1` leak as finding #6. The `Element` suffix is empty — the type is the single embedding, not an "element of an embedding." `Embedding` (with `vector` for the numeric field) would convey the same data cleanly.
+Same `V1` leak as finding #4. The `Element` suffix is empty — the type is the single embedding, not an "element of an embedding." `Embedding` (with `vector` for the numeric field) would convey the same data cleanly.
 
-### 8. `ExternalModelUsageElement` — misleading scope + meaningless suffix
+### 6. `ExternalModelUsageElement` — misleading scope + meaningless suffix
 
 **Location:** `src/v1/model.ts:67-74`
 
@@ -205,9 +167,7 @@ Two problems:
 1. **"External" is misleading.** This type is the OpenAI-spec `usage` block, returned by Databricks Foundation Model and Databricks Provisioned Throughput endpoints — both of which are **internal** Databricks-managed models. JSDoc in `QueryEndpointResponse.usage` even says "external/foundation model", but Databricks Foundation Models are explicitly *first-party*. The "External" prefix mislabels its scope.
 2. **"Element" is meaningless.** The type is the single usage block, not "an element of a list." `TokenUsage`, `Usage`, or `ModelUsage` would suffice.
 
-Pairs with finding #20 (every field redundantly ends in `Tokens`).
-
-### 9. `QueryEndpointInputRequest_ExtraParamsEntry` — proto map-entry leak
+### 7. `QueryEndpointInputRequest_ExtraParamsEntry` — proto map-entry leak
 
 **Location:** `src/v1/model.ts:142-145`
 
@@ -219,23 +179,23 @@ Pairs with finding #20 (every field redundantly ends in `Tokens`).
 
 **Rationale:** `_Entry` types are a proto-generator implementation detail (`map<K, V>` lowers to a hidden nested message named `<FieldName>Entry`). Re-exporting them through a TS SDK forces language-specific generator scaffolding into the public API. The file's own ESLint disable comment is direct evidence that the name violates the project's naming convention — it is suppressed rather than fixed.
 
-### 10. `QueryEndpointInputRequest_UsageContextEntry` — proto map-entry leak
+### 8. `QueryEndpointInputRequest_UsageContextEntry` — proto map-entry leak
 
 **Location:** `src/v1/model.ts:148-151`
 
-**Why:** Same proto-architectural leak as finding #9, applied to the `usage_context` map field. The interface is exported, never used in the schema (which uses `z.record(z.string(), z.string())`), and the file's own ESLint directive on line 147 labels it "Proto-style nested message name." Duplicate leak from the same generator template.
+**Why:** Same proto-architectural leak as finding #7, applied to the `usage_context` map field. The interface is exported, never used in the schema (which uses `z.record(z.string(), z.string())`), and the file's own ESLint directive on line 147 labels it "Proto-style nested message name." Duplicate leak from the same generator template.
 
 **Category:** proto-architectural-leak (Protobuf generator artefact: `_Entry` map-entry message)
 
 **Suggested:** Delete the exported type entirely; `Record<string, string>` is the natural TS surface.
 
-**Rationale:** Mirror of #9. Two `_Entry` exports inflate the package surface area with proto-internal types that have no meaningful TS use case. They are a recurring pattern across packages with map fields, suitable for generator-level suppression.
+**Rationale:** Mirror of #7. Two `_Entry` exports inflate the package surface area with proto-internal types that have no meaningful TS use case. They are a recurring pattern across packages with map fields, suitable for generator-level suppression.
 
 ---
 
 ## Medium severity
 
-### 11. `query()` — verb-tense / reserved-word feel
+### 9. `query()` — verb-tense / reserved-word feel
 
 **Location:** `src/v1/client.ts:58-81`
 
@@ -248,48 +208,7 @@ async query(req: QueryEndpointInputRequest, options?: CallOptions): Promise<Quer
 
 The method is named `query` — a verb that doubles as the common SQL noun, and that already exists as a method on `IDBDatabase` and on the unrelated `queries` package. `invoke`, `predict`, or `call` would match the underlying REST verb (`POST /invocations`) and would not collide with SQL nomenclature. Also: the method signature omits `endpointName` as a first arg — it has to be supplied inside the input as `req.name`, which conflates the URL parameter with the request body.
 
-### 12. `DataframeSplitInput` — generic field names lose meaning
-
-**Location:** `src/v1/model.ts:49-56`
-
-**Categories:** 15 (generic field name), 14 (Pandas-style names)
-
-```ts
-export interface DataframeSplitInput {
-  index?: number[] | undefined;
-  columns?: JsonValue[] | undefined;
-  data?: JsonValue[] | undefined;
-}
-```
-
-The three field names `index`, `columns`, `data` are pulled verbatim from `pandas.DataFrame.to_dict(orient='split')`. In TS they read as a generic key-value bag with no hint that they form a tightly-coupled triple. `index` collides with `EmbeddingsV1ResponseEmbeddingElement.index` and `V1ResponseChoiceElement.index` (three different "index" fields in the same package, all `number`-typed). `columns` is `JsonValue[]` (column *names*, despite the JSON-value type). `data` is the row data. `rowIndex`, `columnNames`, `rows` would each carry meaning.
-
-### 13. `QueryEndpointResponse.data` — vague field
-
-**Location:** `src/v1/model.ts:156-157`
-
-**Categories:** 15 (generic), 16 (field contradicting type domain)
-
-```ts
-/** The list of the embeddings returned by the __embeddings external/foundation model__ serving endpoint. */
-data?: EmbeddingsV1ResponseEmbeddingElement[] | undefined;
-```
-
-A response with seven other typed fields (`choices`, `predictions`, `outputs`, `usage`, etc.) and one of them is called `data`. Without JSDoc the field is meaningless. `embeddings` matches the OpenAI spec naming and the element type.
-
-### 14. `QueryEndpointResponse.object` — JS built-in collision
-
-**Location:** `src/v1/model.ts:172-176`
-
-**Category:** 10 (reserved-word collision)
-
-```ts
-object?: QueryEndpointResponseObject | undefined;
-```
-
-`object` is a JS keyword (the type `object`, used in `typeof x === 'object'`). Field-name access `resp.object` doesn't break, but `const { object } = resp` shadows the global type. The OpenAI wire format uses `object` for the same field; idiomatic TS would rename to `objectType`, `kind`, or `responseType`.
-
-### 15. Four mutually-exclusive output fields, no oneof
+### 10. Four mutually-exclusive output fields, no oneof
 
 **Location:** `src/v1/model.ts:153-183`
 
@@ -302,34 +221,9 @@ object?: QueryEndpointResponseObject | undefined;
 | `predictions` | traditional ML       | `JsonValue[]`                             |
 | `outputs`     | feature serving      | `JsonValue[]`                             |
 
-Mirror of finding #4 on the response side. The TS user has to know which field will be populated given which input was sent. A discriminated union would be more honest.
+Mirror of finding #3 on the response side. The TS user has to know which field will be populated given which input was sent. A discriminated union would be more honest.
 
-### 16. `QueryEndpointResponse.created` — verb tense + underspecified
-
-**Location:** `src/v1/model.ts:170-171`
-
-**Categories:** 13 (verb-tense inconsistency), 15 (generic field name)
-
-```ts
-/** The timestamp in seconds when the query was created in Unix time returned by a __completions or chat external/foundation model__ serving endpoint. */
-created?: number | undefined;
-```
-
-`created` is a past-tense verb used as a noun. Most TS codebases use `createdAt` / `createTime`. Typed `number` (Unix seconds), not `Temporal.Instant` like the rest of the SDK uses for timestamps. Pairs poorly with the response shape — `resp.created` reads as a boolean assertion.
-
-### 17. `QueryEndpointResponse.servedModelName` — wire format leak
-
-**Location:** `src/v1/model.ts:181-182`, marshalled from `'served-model-name'` (line 252, 264)
-
-**Categories:** 4 (wire-format-driven naming), 19 (underspecified IDs)
-
-```ts
-servedModelName?: string | undefined;
-```
-
-JSON wire field is `served-model-name` (with hyphens) — the only hyphenated field in the whole package. In TS, "served model name" parses ambiguously: is it the *name* of the served-model resource, the *served-model identifier*, the *display name*, or the *model URI*? `servedEntityName` matches the `servingendpoints` package's `ServedEntity` type; `servedModelId` would explicitly mark it as a foreign key.
-
-### 18. `V1ResponseChoiceElement.text` / `.message` — singular vs plural mismatch
+### 11. `V1ResponseChoiceElement.text` / `.message` — singular vs plural mismatch
 
 **Location:** `src/v1/model.ts:185-196`
 
@@ -345,7 +239,7 @@ export interface V1ResponseChoiceElement {
 
 The *request* uses `messages: ChatMessage[]` (plural array). The *response* `Choice` carries a singular `message: ChatMessage`. That's correct because each choice is one message — but `messageS` request and `message` response with the same element type invites confusion. Pair this with `text` (chat completions response) vs `prompt` (completions request) and the asymmetry is real.
 
-### 19. `ChatMessageRole` enum — singular/plural odd
+### 12. `ChatMessageRole` enum — singular/plural odd
 
 **Location:** `src/v1/model.ts:17-23`
 
@@ -363,23 +257,7 @@ export enum ChatMessageRole {
 
 The values are not types of "chat message" — they are types of speaker / agent. `ChatRole` (drop `Message`) would parse more naturally because the *role* belongs to the *speaker*, not the *message*. The OpenAI vocabulary that this mirrors uses `role` (not `messageRole`) for the same reason.
 
-### 20. `ExternalModelUsageElement.promptTokens` / `.completionTokens` / `.totalTokens` — tautology
-
-**Location:** `src/v1/model.ts:67-74`
-
-**Category:** 20 (type-suffix tautology in fields)
-
-```ts
-export interface ExternalModelUsageElement {
-  promptTokens?: number | undefined;
-  completionTokens?: number | undefined;
-  totalTokens?: number | undefined;
-}
-```
-
-Every field carries the `Tokens` suffix. Once you've established the type is `TokenUsage`, the inner fields can be `prompt`, `completion`, `total`. The unit is implicit. The current shape is `usage.promptTokens` (10 chars), the cleaner form is `usage.prompt` (5 chars). When *every* field repeats the unit, the unit is part of the type, not the field.
-
-### 21. `V1ResponseChoiceElement.logprobs` — cryptic + wrong type
+### 13. `V1ResponseChoiceElement.logprobs` — cryptic + wrong type
 
 **Location:** `src/v1/model.ts:194-195`
 
@@ -395,7 +273,7 @@ logprobs?: number | undefined;
 1. `logProbabilities` would be readable.
 2. Typed `number` (a single number). The OpenAI spec for `logprobs` returns an *object* containing per-token log probabilities, top-k alternatives, and text offsets. The wire response is being shoe-horned into a scalar — either the type is wrong, or the field name is wrong.
 
-### 22. `V1ResponseChoiceElement.finishReason` — underspecified
+### 14. `V1ResponseChoiceElement.finishReason` — underspecified
 
 **Location:** `src/v1/model.ts:192-193`
 
@@ -408,31 +286,7 @@ finishReason?: string | undefined;
 
 In practice the value is always one of `"stop"`, `"length"`, `"content_filter"`, `"tool_calls"`, `"function_call"`. Typed as `string` instead of an enum — the user has no IDE help. The field name itself is fine; the absence of an enum is the smell.
 
-### 23. `QueryEndpointInputRequest.stop` — reserved-word feel
-
-**Location:** `src/v1/model.ts:100-104`
-
-**Category:** 10 (reserved-word collisions)
-
-```ts
-stop?: string[] | undefined;
-```
-
-`stop` is an imperative verb used as a noun. `stopSequences` (which the JSDoc literally calls them — "The stop sequences field") would be self-describing. The naming inherits from the OpenAI wire spec.
-
-### 24. `QueryEndpointInputRequest.stream` — collides with web streams
-
-**Location:** `src/v1/model.ts:117-120`
-
-**Category:** 10 (reserved-word collisions), 16 (field contradicting type domain)
-
-```ts
-stream?: boolean | undefined;
-```
-
-The field is a boolean ("do you want a streamed response?"). The name `stream` in TS evokes `ReadableStream` / `WritableStream`. The client method doesn't actually implement streaming — there's no `AsyncIterable` return type — so setting `stream: true` will produce a malformed buffered response. `useStreamingResponse` or `streaming` (adjective, not noun) would avoid the type collision.
-
-### 25. `QueryEndpointInputRequest.extraParams` — vague
+### 15. `QueryEndpointInputRequest.extraParams` — vague
 
 **Location:** `src/v1/model.ts:121-126`
 
@@ -446,24 +300,11 @@ extraParams?: Record<string, string> | undefined;
 
 "Extra" relative to what? The 8 other fields already on `QueryEndpointInputRequest` are the "main" params; everything else falls through to here. `passthroughParams`, `modelParams`, or `externalParamsOverride` would be clearer. Also: typed `Record<string, string>` — but OpenAI's "extra params" semantically include `top_p` (number), `presence_penalty` (number), and `tools` (array). The string-only typing forces stringification of values that should be passed through as JSON.
 
-### 26. `QueryEndpointInputRequest.usageContext` — vague pair
-
-**Location:** `src/v1/model.ts:137-138`
-
-**Category:** 1 (vague)
-
-```ts
-/** Optional user-provided context that will be recorded in the usage tracking table. */
-usageContext?: Record<string, string> | undefined;
-```
-
-Pairs with #25 (both are open-ended string maps). "Usage context" is ambiguous: usage of what? Context for what? The JSDoc says "recorded in the usage tracking table" — a clearer name would be `usageMetadata` or `trackingContext`.
-
 ---
 
 ## Low severity
 
-### 27. JSDoc `/** Query a serving endpoint */` — verb tense / no period
+### 16. JSDoc `/** Query a serving endpoint */` — verb tense / no period
 
 **Location:** `src/v1/client.ts:57`
 
@@ -476,7 +317,7 @@ async query(...) { ... }
 
 Imperative verb, no terminal punctuation. Project rule (`CLAUDE.md`) requires comments to be sentences ending with a period. `/** Queries a serving endpoint. */` would match the v2-style JSDoc in other packages (`alerts/src/v2/client.ts` uses third-person singular present).
 
-### 28. `ChatMessageRole.ASSISTANT` — incomplete enum
+### 17. `ChatMessageRole.ASSISTANT` — incomplete enum
 
 **Location:** `src/v1/model.ts:17-23`
 
@@ -493,20 +334,7 @@ export enum ChatMessageRole {
 
 Four values (counting the proto-style `UNSPECIFIED` sentinel), but the OpenAI spec also includes `tool` and `function` (and recent versions add `developer`). The enum is *closed* in TS (an exhaustive switch matches only 4 cases), so the wire format can outgrow the enum. Either the enum should be open (string union) or it should include the OpenAI-mandated values. Naming-adjacent; flagged because the SDK is meant to broker LLM traffic.
 
-### 29. `EmbeddingsV1ResponseEmbeddingElement.index` — underspecified
-
-**Location:** `src/v1/model.ts:61-62`
-
-**Category:** 19 (underspecified IDs)
-
-```ts
-/** The index of the embedding in the response. */
-index?: number | undefined;
-```
-
-`index` without qualification: index inside what? `responseIndex`, `embeddingIndex`, or `position` would be specific. Pairs with `V1ResponseChoiceElement.index` and `DataframeSplitInput.index` — three "index" fields with three different meanings.
-
-### 30. `flattenQueryParams` — orphaned export with conflicting "Query"
+### 18. `flattenQueryParams` — orphaned export with conflicting "Query"
 
 **Location:** `src/v1/utils.ts:123-150`
 
@@ -529,7 +357,7 @@ Two issues:
 
 ## Observations
 
-1. **The whole package is a thin wrapper around one POST.** `client.ts` has a single method (`query`) that does a single POST against `/api/serving-endpoints/{name}/invocations`. The entire surface area is the request and response *shape*, which is the union of four different OpenAI-like APIs plus traditional MLflow models. The naming difficulty is therefore concentrated in `model.ts`, which crams four request shapes and four response shapes into one type apiece. A discriminated union would solve roughly half the findings (4, 13, 16).
+1. **The whole package is a thin wrapper around one POST.** `client.ts` has a single method (`query`) that does a single POST against `/api/serving-endpoints/{name}/invocations`. The entire surface area is the request and response *shape*, which is the union of four different OpenAI-like APIs plus traditional MLflow models. The naming difficulty is therefore concentrated in `model.ts`, which crams four request shapes and four response shapes into one type apiece. A discriminated union would solve roughly half the findings (3, 10).
 
 2. **Wire-format leakage is severe.** Wire-format names show up almost verbatim in TS: `n`, `stop`, `stream`, `logprobs`, `object`, `data`, `extra_params`, `served-model-name`, `EmbeddingsV1ResponseEmbeddingElement`. The Go SDK shares the smell, but Go's `query_endpoint` request becomes `QueryEndpointInputRequest` in TS, where TS users have no way to distinguish the four valid combinations.
 

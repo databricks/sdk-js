@@ -138,6 +138,3 @@ There is no `ListBillingUsageDashboards`, no `Iterator`, no `nextPageToken`. The
 - `src/v1/client.ts` (136 lines): read fully.
 - `src/v1/utils.ts` (151 lines): read fully.
 - `src/v1/index.ts` (13 lines): read fully.
-
-## Fixed
-_None._

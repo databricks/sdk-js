@@ -3,16 +3,16 @@
 **Path:** `packages/lakeview/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks AI/BI Dashboards (formerly named "Lakeview"). CRUD of draft dashboards, publish/unpublish, schedule periodic refresh, and email subscriptions tied to schedules. Also includes a one-way migration entry point from the older "classic SQL" dashboards.
-**Total weird names flagged:** 34
+**Total weird names flagged:** 19
 
 ## Summary
 
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 6     |
-| Medium      | 14    |
-| Low         | 10    |
-| Observation | 5     |
+| Medium      | 5     |
+| Low         | 4     |
+| Observation | 4     |
 
 ## Summary table
 
@@ -25,34 +25,18 @@
 | 5  | High        | `model.ts` interface                  | `Dashboard`                                                                                     | 1, 15      |
 | 6  | High        | `model.ts` interface                  | `PublishedDashboard`                                                                            | 12         |
 | 7  | Medium      | `model.ts` interface                  | `CronSchedule`                                                                                  | 1          |
-| 8  | Medium      | `model.ts` field                      | `CronSchedule.quartzCronExpression`                                                             | 14, 20     |
-| 9  | Medium      | `model.ts` field                      | `CronSchedule.timezoneId`                                                                       | 19         |
-| 10 | Medium      | `model.ts` field                      | `Schedule.cronSchedule`                                                                         | 20         |
-| 11 | Medium      | `model.ts` enum                       | `SchedulePauseStatus`                                                                           | 1, 7       |
-| 12 | Medium      | `model.ts` field                      | `Schedule.pauseStatus`                                                                          | 6, 20      |
-| 13 | Medium      | `model.ts` interface                  | `MigrateDashboardRequest`                                                                       | 17         |
-| 14 | Medium      | `model.ts` field                      | `MigrateDashboardRequest.sourceDashboardId`                                                     | 16         |
-| 15 | Medium      | `model.ts` field                      | `MigrateDashboardRequest.updateParameterSyntax`                                                 | 6, 13, 15  |
-| 16 | Medium      | `client.ts` method                    | `trashDashboard` vs everywhere else `delete...`                                                 | 17         |
-| 17 | Medium      | `model.ts` interface                  | `PublishDashboardRequest` & `PublishedDashboard`                                                | 6, 12      |
-| 18 | Medium      | `model.ts` field                      | `GetPublishedDashboardTokenInfoResponse.customClaim`                                            | 15         |
-| 19 | Medium      | `model.ts` field                      | `AuthorizationDetails.type`                                                                     | 10, 15     |
-| 20 | Medium      | `model.ts` field                      | `AuthorizationDetails.resourceLegacyAclPath`                                                    | 6, 14, 16  |
-| 21 | Low         | `model.ts` field                      | `Subscription.skipNotify`                                                                       | 1, 14      |
-| 22 | Low         | `model.ts` field                      | `Subscription.createdByUserId` typed `number`                                                   | 19, 16     |
-| 23 | Low         | `model.ts` field                      | `Dashboard.warehouseId`                                                                         | 19         |
-| 24 | Low         | `model.ts` field                      | `Schedule.warehouseId`                                                                          | 19, 12     |
-| 25 | Low         | `model.ts` field                      | `Dashboard.etag` / `Schedule.etag` / `Subscription.etag`                                        | 3          |
-| 26 | Low         | `model.ts` field                      | `Dashboard.path` and `Dashboard.parentPath`                                                     | 15, 6      |
-| 27 | Low         | `model.ts` field                      | `Dashboard.serializedDashboard`                                                                 | 20         |
-| 28 | Low         | `model.ts` field                      | `Dashboard.createTime` / `updateTime` & `Schedule.*` / `Subscription.*`                         | 9          |
-| 29 | Low         | `model.ts` field                      | `PublishedDashboard.revisionCreateTime`                                                         | 15         |
-| 30 | Low         | `model.ts` field                      | `ListDashboardsRequest.showTrashed`                                                             | 13, 17     |
-| 31 | Observation | `model.ts` field                      | `Dashboard.dashboardId` (tautology in `dashboard.dashboardId`)                                  | 8, 20      |
-| 32 | Observation | `model.ts` field                      | `CreateDashboardRequest.datasetCatalog`/`datasetSchema`                                         | 15         |
-| 33 | Observation | `model.ts` field                      | `ListSchedulesRequest.dashboardId` doc typo                                                     | 9          |
-| 34 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
-| 35 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
+| 8  | Medium      | `model.ts` enum                       | `SchedulePauseStatus`                                                                           | 1, 7       |
+| 9  | Medium      | `model.ts` interface                  | `MigrateDashboardRequest`                                                                       | 17         |
+| 10 | Medium      | `client.ts` method                    | `trashDashboard` vs everywhere else `delete...`                                                 | 17         |
+| 11 | Medium      | `model.ts` interface                  | `PublishDashboardRequest` & `PublishedDashboard`                                                | 6, 12      |
+| 12 | Low         | `model.ts` field                      | `Subscription.createdByUserId` typed `number`                                                   | 19, 16     |
+| 13 | Low         | `model.ts` field                      | `Dashboard.warehouseId`                                                                         | 19         |
+| 14 | Low         | `model.ts` field                      | `Dashboard.etag` / `Schedule.etag` / `Subscription.etag`                                        | 3          |
+| 15 | Low         | `model.ts` field                      | `Dashboard.path` and `Dashboard.parentPath`                                                     | 15, 6      |
+| 16 | Observation | `model.ts` field                      | `CreateDashboardRequest.datasetCatalog`/`datasetSchema`                                         | 15         |
+| 17 | Observation | `model.ts` field                      | `ListSchedulesRequest.dashboardId` doc typo                                                     | 9          |
+| 18 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
+| 19 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
 
 ---
 
@@ -194,68 +178,7 @@ The package exports a top-level `CronSchedule`. The same name appears in `alerts
 
 **Rationale:** Future-proofing: the field set may diverge from other services' cron-schedule types (some add a `pauseStatus`, some add a `nextFireTime`). A domain-prefixed name prevents `import { CronSchedule } from '@databricks/sdk-lakeview'` from being a confusing rename.
 
-### 8. `CronSchedule.quartzCronExpression` — implementation-detail leak and type-suffix tautology
-
-**Location:** `src/v1/model.ts:85`
-
-```ts
-/**
- * A cron expression using quartz syntax. EX: `0 0 8 * * ?` represents everyday at 8am.
- */
-quartzCronExpression?: string | undefined;
-```
-
-Two concerns:
-
-1. `quartz` exposes the JVM scheduler library (Quartz Scheduler). A TypeScript SDK user will not know what "Quartz syntax" is, and even if they do, the *only* cron syntax the API accepts is Quartz — calling it out by name only serves to confuse beginners who write standard cron (5 fields instead of 6).
-2. `cronExpression` is a type-suffix tautology — the field is on a type called `CronSchedule`; calling the field `expression` (or even just `cron`) is enough.
-
-**Category:** 14 (Java implementation detail leak), 20 (type-suffix tautology).
-
-**Suggested name:** `expression` (with the doc clarifying "Quartz 6-field cron syntax: `seconds minutes hours dayOfMonth month dayOfWeek`"). The doc, not the field name, should explain the dialect.
-
-**Rationale:** The wire format `quartz_cron_expression` is locked, but the TS name is not. A simple, accurate field name with the dialect in the doc is more usable.
-
-### 9. `CronSchedule.timezoneId` — "Id" suffix is misleading
-
-**Location:** `src/v1/model.ts:90`
-
-```ts
-/**
- * A Java timezone id. The schedule will be resolved with respect to this timezone.
- */
-timezoneId?: string | undefined;
-```
-
-The field carries an IANA timezone name like `"America/Los_Angeles"`. That is not an "id" in any normal sense (no numeric handle, no opaque token); it's a string identifier in a documented registry. The doc also locks the value space to "Java timezone id" — meaning the JVM TZ database, which is IANA-compatible but not guaranteed identical (some abbreviations like `EST`, `PST` are accepted in Java but ambiguous in IANA).
-
-**Category:** 19 (underspecified ID — actually a string name).
-
-**Suggested name:** `timezone` (or `tz`), with the doc specifying "IANA timezone name (e.g. 'America/Los_Angeles' or 'UTC')". Drop the "Java" qualifier — JS users do not need to know the backend's runtime.
-
-**Rationale:** `timezoneId` makes callers think there's a separate `getTimezones()` API that returns IDs.
-
-### 10. `Schedule.cronSchedule` — type-suffix tautology
-
-**Location:** `src/v1/model.ts:332`
-
-```ts
-export interface Schedule {
-  ...
-  cronSchedule?: CronSchedule | undefined;
-  ...
-}
-```
-
-The field name and type name are the same. `schedule.cronSchedule.expression` reads as "schedule's cron-schedule's expression" — the middle term is redundant. Compare to `Schedule.cron` or `Schedule.cronExpression` (with `CronSchedule` as the type), which read as `schedule.cron.expression`.
-
-**Category:** 20 (type-suffix tautology).
-
-**Suggested name:** `cron: CronSchedule`. Field shows up at use sites as `schedule.cron.expression`, which is the intended mental model.
-
-**Rationale:** Field names should describe the *role* the value plays in the parent, not echo the type. The role is "the cron part of this schedule".
-
-### 11. `SchedulePauseStatus` — domain prefix only partially applied
+### 8. `SchedulePauseStatus` — domain prefix only partially applied
 
 **Location:** `src/v1/model.ts:18-21`
 
@@ -276,24 +199,7 @@ Also: a two-value enum named `*Status` for two paused-or-not states is overengin
 
 **Rationale:** Binary status enums are an anti-pattern in TS where booleans are first-class. The Go SDK is constrained to enums (no booleans for proto), but the TS SDK is not.
 
-### 12. `Schedule.pauseStatus` — field describes a control input, not a status
-
-**Location:** `src/v1/model.ts:334`
-
-```ts
-/** The status indicates whether this schedule is paused or not. */
-pauseStatus?: SchedulePauseStatus | undefined;
-```
-
-"Status" implies read-only state (something the system reports). But this field is also writable — clients send `pauseStatus: PAUSED` to *cause* the pause. The field is therefore the pause *setting*, not the pause *status*. The doc reinforces the misuse ("indicates whether…").
-
-**Category:** 6 (misleading), 20 (the type ends in `Status` and the field starts with `pauseStatus` — overlap).
-
-**Suggested name:** `paused: boolean` (see #11), or `pauseSetting`/`pauseMode`. Reserve `*Status` for read-only state.
-
-**Rationale:** Read/write distinction. If the user only learns the field name, they will not predict that setting `UNPAUSED` is how you un-pause.
-
-### 13. `MigrateDashboardRequest` / `migrateDashboard` — vague action verb
+### 9. `MigrateDashboardRequest` / `migrateDashboard` — vague action verb
 
 **Location:** `src/v1/model.ts:285`, `src/v1/client.ts:540`
 
@@ -305,48 +211,7 @@ pauseStatus?: SchedulePauseStatus | undefined;
 
 **Rationale:** The other Databricks "migrate" endpoints (e.g. `tables.migrate`, `permissions.migrate`) actually move state. This one creates a new asset. Same verb, two operations.
 
-### 14. `MigrateDashboardRequest.sourceDashboardId` — domain mismatch
-
-**Location:** `src/v1/model.ts:287`
-
-```ts
-/** UUID of the dashboard to be migrated. */
-sourceDashboardId?: string | undefined;
-```
-
-The package documents `dashboardId` as identifying a Lakeview / AI/BI dashboard. `sourceDashboardId` here is a **classic SQL dashboard** ID — a different ID space, fetched from a different API (`/api/2.0/sql/dashboards/{id}`). Using the same `dashboardId` type-name suggests they are interchangeable; they are not.
-
-**Category:** 16 (field contradicting type domain).
-
-**Suggested name:** `sourceLegacyDashboardId` / `classicSqlDashboardId` / `sqlDashboardId`. JSDoc should call out the ID space explicitly.
-
-**Rationale:** Cross-API IDs that share a name are a frequent source of integration bugs.
-
-### 15. `MigrateDashboardRequest.updateParameterSyntax` — confusing default + leaky implementation hint
-
-**Location:** `src/v1/model.ts:293-296`
-
-```ts
-/**
- * Flag to indicate if mustache parameter syntax ({{ param }}) should be auto-updated
- * to named syntax (:param) when converting datasets in the dashboard.
- */
-updateParameterSyntax?: boolean | undefined;
-```
-
-Issues:
-
-1. The default behavior (when omitted) is undocumented. From the wire form, server defaults are likely `false`, meaning the migration will leave mustache placeholders intact and break the query — which is the opposite of what most callers want.
-2. The doc invokes "mustache" (a template-engine name) without explanation; a TS reader who hasn't worked in classic SQL Dashboards will not know what `{{ param }}` is.
-3. "Update" is vague: it's actually a *rewrite* — `:param` is not an "update" of `{{ param }}` but a syntax replacement.
-
-**Category:** 6 (misleading), 13 (verb tense inconsistency: "update" vs "rewrite"), 15 (generic field name losing meaning).
-
-**Suggested name:** `rewriteParametersAsNamed: boolean` (verb explicit) or `mustacheCompatibilityMode: boolean` (opposite polarity, clearer default). Doc should state the default and provide an example.
-
-**Rationale:** Migration is a one-way operation; setting this wrong is hard to recover from.
-
-### 16. `trashDashboard` — soft-delete method without a paired restore (see also #4)
+### 10. `trashDashboard` — soft-delete method without a paired restore (see also #4)
 
 **Location:** `src/v1/client.ts:592`
 
@@ -358,7 +223,7 @@ Beyond the verb-mismatch with `LifecycleState.TRASHED`, the `trashDashboard` met
 
 **Rationale:** Symmetry. `deletePermanently` is also unavailable here — soft-delete is the only delete.
 
-### 17. `PublishDashboardRequest` vs `PublishedDashboard` — adjacent names with different roles
+### 11. `PublishDashboardRequest` vs `PublishedDashboard` — adjacent names with different roles
 
 **Location:** `src/v1/model.ts:299`, `src/v1/model.ts:315`
 
@@ -370,92 +235,11 @@ Beyond the verb-mismatch with `LifecycleState.TRASHED`, the `trashDashboard` met
 
 **Rationale:** Reduce typo bugs. The Databricks SDK already uses `*Options` in `ClientOptions`, `CallOptions`, so the pattern is precedented.
 
-### 18. `GetPublishedDashboardTokenInfoResponse.customClaim` — undescriptive field for opaque blob
-
-**Location:** `src/v1/model.ts:188`
-
-```ts
-/**
- * Custom claim generated from external_value and external_viewer_id.
- * Format: `urn:aibi:external_data:<external_value>:<external_viewer_id>:<dashboard_id>`
- */
-customClaim?: string | undefined;
-```
-
-The doc string is the only place that defines what the field is — a URN with a specific format. The field name `customClaim` is generic JWT-speak (a "custom claim" in OAuth/OIDC is any non-standard claim). The actual value is a *Databricks AI/BI external-data URN*. Two layers of indirection from the name.
-
-**Category:** 15 (generic field name).
-
-**Suggested name:** `externalDataUrn` or `embeddingUrn` (with `customClaim` mentioned in JSDoc as "this URN is embedded as a custom claim in the issued OAuth token").
-
-**Rationale:** Distinct from the OIDC sense of "custom claim".
-
-### 19. `AuthorizationDetails.type` — collides with TS reserved feeling
-
-**Location:** `src/v1/model.ts:28`
-
-```ts
-type?: string | undefined;
-```
-
-`type` is not a reserved word in TypeScript, but it is a *contextual* keyword (used in `type X = ...` declarations and in `import type { ... }`). Using `type` as a field name is legal but creates friction in tooling — auto-complete and rename-symbol can mis-fire.
-
-The field's documented value space is also limited: `"workspace_rule_set"` is the only documented constant; the rest is open. So the field is closer to a tag (`discriminator: 'workspace_rule_set'`) than a free string.
-
-**Category:** 10 (reserved-word-feel collision), 15 (generic).
-
-**Suggested name:** `kind` (matches K8s convention for discriminator fields), or `constraintType` to keep "type" but specialize it.
-
-**Rationale:** Avoid syntax-coloring confusion (`type: string` reads ambiguously) and signal that the field is a discriminator.
-
-### 20. `AuthorizationDetails.resourceLegacyAclPath` — legacy compatibility field in current API
-
-**Location:** `src/v1/model.ts:36`
-
-```ts
-/** The acl path of the tree store resource resource. */
-resourceLegacyAclPath?: string | undefined;
-```
-
-Three issues:
-
-1. The field name advertises `Legacy` — meaning a field deliberately kept around for backwards compatibility. There is no documented sunset date or replacement field. A public API surface that hard-codes "legacy" in the field name will be locked into supporting it forever (since the name itself is a contract).
-2. The doc has a typo: "tree store resource resource" — duplicated "resource".
-3. `acl` is lowercase (compare to the more common `Acl`/`ACL` in the SDK).
-
-**Category:** 6 (misleading — "legacy" is permanent here), 14 (TreeStore is an internal Databricks system, leaking implementation), 16 (field contradicts type domain).
-
-**Suggested name:** `legacyAclPath` (drop the duplicate "resource"; rename does not really fix the long-term problem, only the doc string typo).
-
-**Rationale:** Cosmetic doc fix is cheap; the structural issue is that the field name preserves an internal compat detail in the public API.
-
 ---
 
 ## Low severity
 
-### 21. `Subscription.skipNotify` — negative polarity boolean
-
-**Location:** `src/v1/model.ts:374`
-
-```ts
-/**
- * Controls whether notifications are sent to the subscriber for scheduled dashboard refreshes.
- * If not defined, defaults to false in the backend to match the current behavior (refresh and notify)
- */
-skipNotify?: boolean | undefined;
-```
-
-Negative-polarity booleans are an antipattern: callers must invert the meaning mentally (`subscription.skipNotify = false` means "do notify"). Combined with `?:` optionality, the field has three meaningful states (`undefined` = backend default = notify; `false` = notify; `true` = don't notify), where two of them mean the same thing.
-
-The doc also leaks "in the backend" — the default is the backend's, not the SDK's.
-
-**Category:** 1 (vague), 14 (the backend-leak phrasing).
-
-**Suggested name:** `notify?: boolean` (positive polarity) or `silent?: boolean`. Document the inverted default.
-
-**Rationale:** Positive-polarity booleans halve the cognitive load.
-
-### 22. `Subscription.createdByUserId` typed as `number`
+### 12. `Subscription.createdByUserId` typed as `number`
 
 **Location:** `src/v1/model.ts:360`
 
@@ -474,7 +258,7 @@ Also, the doc string is past-tense verb plus present-tense ("adds") — inconsis
 
 **Rationale:** Silent overflow is the worst kind of bug.
 
-### 23. `Dashboard.warehouseId` — underspecified ID
+### 13. `Dashboard.warehouseId` — underspecified ID
 
 **Location:** `src/v1/model.ts:112`
 
@@ -484,22 +268,7 @@ Also, the doc string is past-tense verb plus present-tense ("adds") — inconsis
 
 **Suggested name:** Keep `warehouseId`, but JSDoc should specify "SQL Warehouse ID (alphanumeric, found at `/sql/warehouses/{id}` in the UI)".
 
-### 24. `Schedule.warehouseId` — duplicate concept with `Dashboard.warehouseId`
-
-**Location:** `src/v1/model.ts:347`
-
-```ts
-/** The warehouse id to run the dashboard with for the schedule. */
-warehouseId?: string | undefined;
-```
-
-A schedule can override the dashboard's default warehouse. This is fine, but the field name does not signal "override" — at first read it looks like the dashboard's warehouse is being duplicated into the schedule.
-
-**Category:** 19 (underspecified), 12 (overlap with `Dashboard.warehouseId`).
-
-**Suggested name:** `warehouseIdOverride` or `overrideWarehouseId`.
-
-### 25. `Dashboard.etag`, `Schedule.etag`, `Subscription.etag` — `etag` lowercase casing
+### 14. `Dashboard.etag`, `Schedule.etag`, `Subscription.etag` — `etag` lowercase casing
 
 **Location:** `src/v1/model.ts:118`, `src/v1/model.ts:341`, `src/v1/model.ts:365`
 
@@ -509,7 +278,7 @@ Consistent within the package, but the HTTP spec spells it `ETag`. Most TS SDKs 
 
 **Suggested name:** Keep `etag`. Note the project convention.
 
-### 26. `Dashboard.path` vs `Dashboard.parentPath` — overlap
+### 15. `Dashboard.path` vs `Dashboard.parentPath` — overlap
 
 **Location:** `src/v1/model.ts:103`, `src/v1/model.ts:135`
 
@@ -524,81 +293,11 @@ parentPath?: string | undefined;    // workspace path of the folder containing t
 
 **Suggested name:** Keep both. Either rename `path → fullPath` for symmetry, or document the relationship in JSDoc on both fields.
 
-### 27. `Dashboard.serializedDashboard` — type-suffix tautology
-
-**Location:** `src/v1/model.ts:127`
-
-```ts
-serializedDashboard?: string | undefined;
-```
-
-Field is on `Dashboard`; suffix repeats the type name. The field holds a JSON string of the dashboard's layout — a stringified payload.
-
-**Category:** 20.
-
-**Suggested name:** `serialized` or `content` or `layoutJson`. The dashboard's "content" is a more useful description.
-
-### 28. `createTime`/`updateTime` suffix `Time` — convention question
-
-**Location:** Many fields on `Dashboard`, `Schedule`, `Subscription`
-
-The package uses `*Time` suffix (`createTime`, `updateTime`). The alerts v2 package uses `*At` (`lastEvaluatedAt`). Inconsistency across the SDK. The field type here is `Temporal.Instant`, which is point-in-time — `*At` reads more naturally for instants in English.
-
-**Category:** 9 (related; suffix-grammar inconsistency).
-
-**Suggested name:** Pick a project-wide convention. Recommend `*At` for instants (`createdAt`, `updatedAt`). Aligns with idiomatic JS/TS and the Rails-influenced ecosystem.
-
-### 29. `PublishedDashboard.revisionCreateTime` — over-qualified
-
-**Location:** `src/v1/model.ts:323`
-
-```ts
-/** The timestamp of when the published dashboard was last revised. */
-revisionCreateTime?: Temporal.Instant | undefined;
-```
-
-"Revision Create Time" reads as "the create time of the revision", i.e. when the latest revision was published. The field name carries three nouns (`revision`, `create`, `time`).
-
-**Category:** 15 (generic, layered).
-
-**Suggested name:** `publishedAt` or `lastPublishedAt`. Captures the user's mental model directly.
-
-### 30. `ListDashboardsRequest.showTrashed` — verb mismatch with state name (trash/delete vocabulary)
-
-**Location:** `src/v1/model.ts:227`
-
-```ts
-showTrashed?: boolean | undefined;
-```
-
-The field is named `showTrashed`, but the lifecycle state is `TRASHED`. Consistent within "trash vocabulary", but inconsistent if the rename in #4 lands (`DELETED` lifecycle would imply `showDeleted` flag). Same vocabulary split inherited from pre-v2 alerts (see #4 and #16).
-
-**Category:** 13 (verb tense across vocabulary), 17 (action verb consistency).
-
-**Suggested name:** Tie to whichever vocabulary wins. If `delete`/`DELETED`, then `includeDeleted`. The `show` prefix is also UI-flavored (compare `include`/`with` prefixes in REST APIs).
-
 ---
 
 ## Observations
 
-### 31. `Dashboard.dashboardId` — tautology at use site
-
-**Location:** `src/v1/model.ts:95`
-
-```ts
-export interface Dashboard {
-  dashboardId?: string | undefined;
-  ...
-}
-```
-
-Caller writes `dashboard.dashboardId`. Inside a type already named `Dashboard`, the field could be `id`. Many SDKs prefer the prefix-form for unambiguous logs and reflection, but the *consumer-facing* readability is poorer.
-
-**Category:** 8 (field name == type name with `Id` suffix), 20.
-
-**Suggested name:** `Dashboard.id` (and similarly `Schedule.id`, `Subscription.id`). Marshal/unmarshal already remaps to/from `dashboard_id`.
-
-### 32. `CreateDashboardRequest.datasetCatalog`/`datasetSchema` — generic prefix
+### 16. `CreateDashboardRequest.datasetCatalog`/`datasetSchema` — generic prefix
 
 **Location:** `src/v1/model.ts:61,67`
 
@@ -611,7 +310,7 @@ datasetSchema?: string | undefined;
 
 **Suggested name:** Keep. Add JSDoc clarifying "this is the Unity Catalog *catalog* / *schema* applied to dataset queries". Done already in the JSDoc, but worth flagging.
 
-### 33. `ListSchedulesRequest.dashboardId` doc typo
+### 17. `ListSchedulesRequest.dashboardId` doc typo
 
 **Location:** `src/v1/model.ts:242`
 
@@ -624,7 +323,7 @@ dashboardId?: string | undefined;
 
 **Category:** 9 (plural verb agreement).
 
-### 34. `index.ts` — mixed `export {...}` and `export type {...}`
+### 18. `index.ts` — mixed `export {...}` and `export type {...}`
 
 **Location:** `src/v1/index.ts:5,7-43`
 
@@ -635,7 +334,7 @@ export type {AuthorizationDetails, ...} from './model';
 
 Enums are exported as values (correct — they have runtime representation); interfaces are exported as types (correct — type-only). The pattern is right; flagging only because a reader scanning the index file might miss the distinction. Consistent with other SDK packages.
 
-### 35. URL paths still use `lakeview`
+### 19. URL paths still use `lakeview`
 
 **Location:** Every method's URL constant in `client.ts`, e.g. line 105: `/api/2.0/lakeview/dashboards`
 
@@ -650,15 +349,10 @@ Wire-format. The SDK cannot rename the URL without server cooperation. Flagged s
 Lakeview / AI/BI Dashboards is a relatively small surface (5 enums-and-resources, 19 client methods) but the naming smells cluster around:
 
 1. **The rebrand from "Lakeview" to "AI/BI Dashboards"** is incomplete — the package name and URLs preserve the old codename, while the JSDoc mixes the two.
-2. **The trash/delete vocabulary split** (#4, #16, #30) is inherited from the alerts package's pre-v2 design — already fixed in alerts v2 but not in lakeview.
+2. **The trash/delete vocabulary split** (#4, #10) is inherited from the alerts package's pre-v2 design — already fixed in alerts v2 but not in lakeview.
 3. **Generic top-level type names** (`Dashboard`, `LifecycleState`, `CronSchedule`, `SchedulePauseStatus`) overlap with other packages in the SDK monorepo and force consumers to import-rename.
-4. **`Schedule.pauseStatus` enum is a binary boolean** (#11, #12) — `paused: boolean` would be more idiomatic TS.
-5. **64-bit user IDs typed as `number`** (#22) silently truncate above 2^53. Same issue exists in other packages but is unsurfaced here.
+4. **64-bit user IDs typed as `number`** (#12) silently truncate above 2^53. Same issue exists in other packages but is unsurfaced here.
 
-If only one change were possible, completing the trash/delete vocabulary unification (renaming `trashDashboard` + `TRASHED` + `showTrashed` to the `delete`/`DELETED`/`includeDeleted` family used by alerts v2) would remove the most visible inconsistency.
+If only one change were possible, completing the trash/delete vocabulary unification (renaming `trashDashboard` + `TRASHED` to the `delete`/`DELETED` family used by alerts v2) would remove the most visible inconsistency.
 
 ---
-
-## Fixed
-
-- #18 `GetPublishedDashboardEmbeddedRequest` / `getPublishedDashboardEmbedded` (originally cited at `src/v1/model.ts:169-175` and `src/v1/client.ts:301`): Fixed in regeneration on 2026-05-20 — the embedded-view request type and method were removed from the generated client.

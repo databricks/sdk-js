@@ -13,7 +13,8 @@ creation and returns it everywhere else. Five operations:
 `create/get/list/update/delete`. No enums, no discriminated unions, no
 pagination, no list filtering beyond an optional `principalId` query
 parameter, no version negotiation.
-**Total weird names flagged:** 21
+**Total weird names flagged:** 15 (0 fixed, 15 still open)
+**Last rescan:** 2026-05-26 (post regen #156)
 
 ---
 
@@ -33,15 +34,9 @@ parameter, no version negotiation.
 | 10 | `gitLabEnterpriseEdition` wire value | model.ts:10, 75, 165 | enum-like wire value | Medium | 7 Overly verbose, 6 Misleading names | 25-char value. JSDoc clarifies that `gitLabEnterpriseEdition` is "GitLab Self-Managed". The product name was renamed from "GitLab Enterprise Edition" to "GitLab Self-Managed" — the wire value preserves the legacy name. The TS-side will outlive the rename. |
 | 11 | `bitbucketServer` wire value | model.ts:10, 75, 165 | enum-like wire value | Medium | 6 Misleading names | JSDoc clarifies "Bitbucket Data Center". Atlassian renamed "Bitbucket Server" to "Bitbucket Data Center" in 2024. Same problem as #10 — wire value is the legacy name. |
 | 12 | `awsCodeCommit` wire value | model.ts:10-11, 75-76, 165-166 | enum-like wire value | Low | 6 Misleading names | JSDoc says "deprecated by AWS, not accepting new customers" — but the value is still exported and accepted by the API. No `@deprecated` JSDoc tag on the values or the model. Caller has no programmatic way to detect deprecation. |
-| 13 | `gitUsername`, `gitEmail`, `gitProvider` prefixed with `git` | model.ts:20, 39, 13, 54, 65, 84, 95, 127, 138, 175, 188 | field set | Medium | 1 Vague/generic, 6 Misleading names | The package is *gitcredentials*; every field already lives under the package namespace. Re-prefixing each field with `git` is stuttering. `req.gitProvider`, `req.gitUsername`, `req.gitEmail` could be `req.provider`, `req.username`, `req.email`. The wire format requires the `git_` prefix on the JSON keys (see the zod schemas), but the TS field can be renamed in the zod `transform`. |
-| 14 | `Client` (unqualified class name) | client.ts:48 | class | Medium | 1 Vague/generic | `export class Client` — once imported it shadows every other package's `Client` (every package in this SDK exports its own `Client`). Should be `GitCredentialsClient` (matching the package name). |
-| 15 | `Client.createCredentials` / `getCredentials` / `listCredentials` / `updateCredentials` / `deleteCredentials` (plural method names) | client.ts:78, 141, 175, 209, 107 | method set | High | 9 Singular/plural mismatches | Five methods all named with the plural "Credentials" even though four of them act on a single credential at a time:<br>- `createCredentials(req)` creates **one** credential.<br>- `getCredentials(req)` gets **one** (selected by `id`).<br>- `updateCredentials(req)` updates **one**.<br>- `deleteCredentials(req)` deletes **one**.<br>- `listCredentials(req)` is the only legitimately plural one.<br>TS idiom for CRUD methods is singular for one-record operations (`createX`/`getX`/`updateX`/`deleteX`) and plural for collection ones (`listXs`/`searchXs`). The five-method API mixes the two and reads as "createCredentials" — i.e., a bulk create. |
-| 16 | `DeleteCredentialsRequest.id` and `GetCredentialsRequest.id` and `UpdateCredentialsRequest.id` (bare `id` field) | model.ts:100, 110, 154 | field | High | 19 Underspecified IDs, 15 Generic field names | The path parameter is named `id`. Three operations carry a bare `id` field. JSDoc on each says "The ID for the corresponding credential to access" — i.e., it is a *credential* ID. The response types call the same value `credentialId` (model.ts:45, 70, 118), so the same number has *two different names* depending on whether you are reading or writing it. Should be `credentialId` everywhere. |
-| 17 | `principalId` field (type `number`) | model.ts:28, 102, 112, 143, 177 | field | Medium | 5 Cryptic abbreviations, 19 Underspecified IDs | "Principal" without qualification means different things in different domains: AWS IAM Principal, Java Security Principal, Databricks service principal, etc. JSDoc clarifies "service principal" — but the field name does not. `servicePrincipalId` or `applicationId` would be self-documenting. The number type is also unusual for a Databricks principal ID (most are UUIDs or strings); the wire format may match Go's `int64` but JavaScript loses precision above 2^53. |
-| 18 | `name` field on `Credential` and on create/update | model.ts:30, 56, 86, 129, 179 | field | Medium | 1 Vague/generic, 15 Generic field names | "Name" on a credential resource — JSDoc says it is "the name of the git credential, used for identification and ease of lookup". So it is a *display* name (not a lookup key — `id` is the lookup key). Should be `displayName` or `label`. The bare `name` invites callers to think it is the primary key. |
-| 19 | `credentialId` field naming inconsistency vs `id` path parameter | model.ts:45, 70, 118 vs 100, 110, 154 | field pair | High | 17 Inconsistent action verbs, 15 Generic field names | The same conceptual value is `id` on requests (Delete/Get/Update) and `credentialId` on responses (Credential, Create/Get response). The wire JSON keys are `id` and `credential_id` respectively, so the divergence is on the server side; but TS callers will write `req.id = resp.credentialId` and pause every time. Should converge — either both `credentialId` or both `id`. |
-| 20 | `personalAccessToken` field | model.ts:26, 160 | field | Low | 7 Overly verbose | 19-character field name. JSDoc clarifies that the field also accepts "other types of scoped access tokens" for "certain providers". So "Personal" is not strictly accurate. `accessToken` or `token` is shorter and covers the JSDoc-documented use. |
-| 21 | `*Request_Response` underscore-nested response types (5 of them) | model.ts:43, 106, 116, 147, 192 | interface set | High | Proto-architectural-leak | All five response types use the proto-style `ParentRequest_Response` underscore-nested form: `CreateCredentialsRequest_Response`, `DeleteCredentialsRequest_Response`, `GetCredentialsRequest_Response`, `ListCredentialsRequest_Response`, `UpdateCredentialsRequest_Response`. The underscore is a protobuf-nested-message encoding bleeding into the public TS API — the generator even acknowledges it with `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` above every one. The matching zod schema constants (`unmarshalCreateCredentialsRequest_ResponseSchema`, etc.) inherit the same underscore. |
+| 13 | `Client` (unqualified class name) | client.ts:48 | class | Medium | 1 Vague/generic | `export class Client` — once imported it shadows every other package's `Client` (every package in this SDK exports its own `Client`). Should be `GitCredentialsClient` (matching the package name). |
+| 14 | `Client.createCredentials` / `getCredentials` / `listCredentials` / `updateCredentials` / `deleteCredentials` (plural method names) | client.ts:78, 141, 175, 209, 107 | method set | High | 9 Singular/plural mismatches | Five methods all named with the plural "Credentials" even though four of them act on a single credential at a time:<br>- `createCredentials(req)` creates **one** credential.<br>- `getCredentials(req)` gets **one** (selected by `id`).<br>- `updateCredentials(req)` updates **one**.<br>- `deleteCredentials(req)` deletes **one**.<br>- `listCredentials(req)` is the only legitimately plural one.<br>TS idiom for CRUD methods is singular for one-record operations (`createX`/`getX`/`updateX`/`deleteX`) and plural for collection ones (`listXs`/`searchXs`). The five-method API mixes the two and reads as "createCredentials" — i.e., a bulk create. |
+| 15 | `*Request_Response` underscore-nested response types (5 of them) | model.ts:43, 106, 116, 147, 192 | interface set | High | Proto-architectural-leak | All five response types use the proto-style `ParentRequest_Response` underscore-nested form: `CreateCredentialsRequest_Response`, `DeleteCredentialsRequest_Response`, `GetCredentialsRequest_Response`, `ListCredentialsRequest_Response`, `UpdateCredentialsRequest_Response`. The underscore is a protobuf-nested-message encoding bleeding into the public TS API — the generator even acknowledges it with `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` above every one. The matching zod schema constants (`unmarshalCreateCredentialsRequest_ResponseSchema`, etc.) inherit the same underscore. |
 
 ---
 
@@ -91,7 +86,7 @@ await client.createCredential({gitProvider: 'gitHub', ...});
 
 Recommendation: keep `listCredentials` (plural — list returns many) but
 rename the four single-resource methods and their request types to
-singular. See #5, #6, #15.
+singular. See #5, #6, #14.
 
 ### H3. Three field-for-field-identical "Credential" shapes
 
@@ -112,32 +107,7 @@ export interface GitCredential { /* 6 fields */ }
 // Return GitCredential directly from create() and get().
 ```
 
-### H4. `id` vs `credentialId` for the same value
-
-Requests use `id`:
-
-```ts
-interface DeleteCredentialsRequest { id?: number; principalId?: number; }
-interface GetCredentialsRequest    { id?: number; principalId?: number; }
-interface UpdateCredentialsRequest { id?: number; /* ... */ }
-```
-
-Responses use `credentialId`:
-
-```ts
-interface Credential                          { credentialId?: number; /* ... */ }
-interface CreateCredentialsRequest_Response { credentialId?: number; /* ... */ }
-interface GetCredentialsRequest_Response    { credentialId?: number; /* ... */ }
-```
-
-So callers write `req.id = resp.credentialId` and constantly translate
-between the two spellings. JSDoc on the request `id` field even says "the ID
-for the corresponding *credential* to access" — i.e., it is logically a
-credential ID. The wire format uses `id` (path parameter) on requests and
-`credential_id` (body field) on responses — the *server* mints the
-divergence; the TS-side should normalize to one spelling. See #16, #19.
-
-### H5. `gitProvider` is typed `string` but is closed-set
+### H4. `gitProvider` is typed `string` but is closed-set
 
 ```ts
 gitProvider?: string | undefined;
@@ -156,7 +126,7 @@ server rejects other values. But the TS-side surfaces it as `string`, so:
 Recommendation: emit a string-literal union or enum. The casing problem
 (#9) gets handled there.
 
-### H6. `Client` is unqualified
+### H5. `Client` is unqualified
 
 `export class Client` (client.ts:48). Every package in this SDK exports its
 own `Client`. Once imported in user code:
@@ -169,7 +139,7 @@ import {Client as GitCredentialsClient} from '@databricks/sdk-gitcredentials/v1'
 `GitCredentialsClient` directly (matching the package noun). This is a
 pattern-wide issue and was flagged in every audit so far.
 
-### H7. `*Request_Response` underscore-nested response types — `model.ts:43, 106, 116, 147, 192`
+### H6. `*Request_Response` underscore-nested response types — `model.ts:43, 106, 116, 147, 192`
 
 - **Why:** All five response types are emitted as proto-style nested
   messages joined by a literal underscore — `CreateCredentialsRequest_Response`,
@@ -206,62 +176,12 @@ pattern-wide issue and was flagged in every audit so far.
 
 ## Medium severity (worth pushing back on)
 
-### M1. `git`-prefix on every field
-
-Every field is `git`-prefixed: `gitProvider`, `gitUsername`, `gitEmail`.
-The package is `gitcredentials`; the type is `Credential` or
-`*Credentials`; the field is already scoped. Reading code:
-
-```ts
-const cred: Credential = await client.getCredentials({id: 42});
-console.log(cred.gitProvider, cred.gitUsername, cred.gitEmail);
-```
-
-The `git` prefix adds no information. Compare:
-
-```ts
-console.log(cred.provider, cred.username, cred.email);
-```
-
-The wire JSON key needs `git_provider`, so the rename is purely a zod
-`transform` change. The `git_*` keys must survive to the wire; the TS field
-names can be unprefixed. See #13.
-
-### M2. Plural `*Credentials` envelopes for single-resource operations
+### M1. Plural `*Credentials` envelopes for single-resource operations
 
 See H2. Repeating because the request-type and method names compound the
 plural problem.
 
-### M3. `name` field is a display label, not a key
-
-JSDoc says "the name of the git credential, used for identification and ease
-of lookup". So `name` is a *display* name. The actual lookup key is `id`.
-Callers reading the type signature will assume `name` is a primary key
-(because it is on most Databricks resources — e.g., `clusters/{name}`).
-`displayName` or `label` would clarify. See #18.
-
-### M4. `principalId` is a service-principal ID, not a user ID
-
-JSDoc on every `principalId` field says "The ID of the service principal
-whose credentials will be modified. Only service principal managers can
-perform this action." The field name says only "Principal" — which is
-overloaded in security/auth contexts. `servicePrincipalId` would
-self-document. See #17.
-
-### M5. `personalAccessToken` field name is narrower than its accepted values
-
-JSDoc:
-
-> The personal access token used to authenticate to the corresponding Git
-> provider. For certain providers, support may exist for other types of
-> scoped access tokens.
-
-So the field accepts more than just "personal access tokens" — also "fine-
-grained tokens", "deploy keys", etc. depending on the provider. The
-name `personalAccessToken` lies about that. `accessToken` (or `token`) is
-honest. See #20.
-
-### M6. `Credential` (singular) and `*Credentials` (plural) coexist as the same domain term
+### M2. `Credential` (singular) and `*Credentials` (plural) coexist as the same domain term
 
 The model has one *singular* type — `Credential` (the resource) — and
 five *plural* request/response types around it. Within one file the same
@@ -290,7 +210,7 @@ URL `/credentials`), singular for resource ops (`getCredential`,
 The JSDoc on `gitProvider` says "`awsCodeCommit` (deprecated by AWS, not
 accepting new customers)". But the model has no `@deprecated` tag on
 either the field's documentation or on a typed enum value (which doesn't
-exist — see H5). Callers cannot programmatically detect deprecated values.
+exist — see H4). Callers cannot programmatically detect deprecated values.
 See #12.
 
 ---
@@ -317,12 +237,11 @@ them for awareness — fixing requires an API-server change.
 
 | Issue | This package | `credentials` audit | `oauthcustomappintegration` (typical) |
 |---|---|---|---|
-| Bare `Client` class | Yes (#14) | Yes (#10) | Yes |
-| Bare `id` field on requests vs `<entity>Id` on responses | Yes (#16, #19) | Partial (#12, `nameArg`) | Common |
-| Plural request envelopes on single-resource ops | Yes (#5, #6, #15) | No (uses `nameArg`/singular shapes) | Mixed |
+| Bare `Client` class | Yes (#13) | Yes (#10) | Yes |
+| Plural request envelopes on single-resource ops | Yes (#5, #6, #14) | No (uses `nameArg`/singular shapes) | Mixed |
 | `string`-typed enum-domain field | Yes (#8) | No (uses real enums) | Rare |
 
-The `string`-typed `gitProvider` despite a documented closed set (#8, H5)
+The `string`-typed `gitProvider` despite a documented closed set (#8, H4)
 is the standout finding unique to this package. The plural request-type
 naming (#5, #6, H2) is also pronounced here — the `credentials` audit
 gets it right (`CreateCredential`, `UpdateCredential`).

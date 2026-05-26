@@ -124,11 +124,8 @@ rubric. Issues are graded:
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| V-01  | `Library.lib` (`model.ts:106`)      | High     | The field name `lib` is a meaningless abbreviation that conveys nothing the surrounding type doesn't already say. The wrapper interface is `Library`, so the discriminator field could be named `kind`, `variant`, `source`, or `spec`. As `lib`, callers must write `library.lib.$case === 'jar'`, which reads as "library library case". |
-| V-02  | `MavenLibrary.repo` (`model.ts:194`), `RCranLibrary.repo` (`model.ts:268`), `PythonPyPiLibrary.repo` (`model.ts:261`) | Medium | `repo` is generic and overloaded across types. For Maven it is a Maven repository URL; for CRAN it is a CRAN mirror; for PyPI it is a pip index. Renaming to `repositoryUrl` (or even `mavenRepoUrl` / `cranMirrorUrl` / `pipIndexUrl`) would be more self-describing. |
-| V-03  | `Policy.definition` (`model.ts:226`), `CreatePolicyRequest.definition` (`model.ts:24`), `EditPolicyRequest.definition` (`model.ts:72`) | Medium | `definition` is generic in a multi-domain SDK. Without the JSDoc it's unclear it's a JSON document. `policyDefinition` (matches `policyFamilyDefinitionOverrides`) would be self-consistent. |
-| V-04  | `Policy.description` (`model.ts:228`), `CreatePolicyRequest.description` (`model.ts:26`), `EditPolicyRequest.description` (`model.ts:74`) | Low | Generic but standard across the SDK; acceptable. |
-| V-05  | `flattenQueryParams` (`utils.ts:123`) | Low    | Reasonable. |
+| V-01  | `Policy.description` (`model.ts:228`), `CreatePolicyRequest.description` (`model.ts:26`), `EditPolicyRequest.description` (`model.ts:74`) | Low | Generic but standard across the SDK; acceptable. |
+| V-02  | `flattenQueryParams` (`utils.ts:123`) | Low    | Reasonable. |
 
 ### 2.2 Redundant enum prefixes
 
@@ -151,12 +148,11 @@ _None._
 
 | ID    | Symbol                  | Severity | Issue |
 | ----- | ----------------------- | -------- | ----- |
-| C-01  | `Library.lib` (`model.ts:106`) | High (also covered V-01) | `lib` is a cryptic abbreviation of "library" inside a type already called `Library`. |
-| C-02  | `Library.lib.$case === 'whl'` (`model.ts:145`) | Medium | `whl` (wheel) is a Python packaging file extension; readers unfamiliar with Python will not know it. Documented in JSDoc but the discriminator value itself is opaque. |
-| C-03  | `Library.lib.$case === 'egg'` (`model.ts:119`) | Medium | Same as C-02 for Python "egg" files. The JSDoc even notes it is "Deprecated". |
-| C-04  | `MavenLibrary.exclusions` (`model.ts:201`) | Low | Maven term, OK in context. |
-| C-05  | `req`, `resp`, `httpReq`, `respBody` (`client.ts`, throughout) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
-| C-06  | `opts` (`utils.ts:66`, `executeHttpCall` parameter) | Low | Inside fn scope; minor. |
+| C-01  | `Library.lib.$case === 'whl'` (`model.ts:145`) | Medium | `whl` (wheel) is a Python packaging file extension; readers unfamiliar with Python will not know it. Documented in JSDoc but the discriminator value itself is opaque. |
+| C-02  | `Library.lib.$case === 'egg'` (`model.ts:119`) | Medium | Same as C-01 for Python "egg" files. The JSDoc even notes it is "Deprecated". |
+| C-03  | `MavenLibrary.exclusions` (`model.ts:201`) | Low | Maven term, OK in context. |
+| C-04  | `req`, `resp`, `httpReq`, `respBody` (`client.ts`, throughout) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
+| C-05  | `opts` (`utils.ts:66`, `executeHttpCall` parameter) | Low | Inside fn scope; minor. |
 
 ### 2.6 Misleading names — High
 
@@ -170,10 +166,8 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | O-01  | `policyFamilyDefinitionOverrides` (`model.ts:42`, `model.ts:90`, `model.ts:244`) | Medium | Five-word camel-case identifier. Inherited from the API; very long but no shorter form is unambiguous. Accept as upstream constraint. |
-| O-02  | `createdAtTimestamp` (`model.ts:214`) | High | "Timestamp" is redundant — `createdAt` is the universal convention for epoch-millisecond fields (and the JSDoc says "in millisecond"). `createdAtTimestamp` is a tautology (`*-At` already implies a time value). |
-| O-03  | `creatorUserName` (`model.ts:212`) | Medium | Three words for "creator". `creator` alone would suffice if the value is a username; `createdBy` is the convention used elsewhere in the Databricks SDK. |
-| O-04  | `PACKAGE_SEGMENT` (`client.ts:44`) | Low | OK in context. |
-| O-05  | `Policy.maxClustersPerUser` (`model.ts:246`) | Low | Long but precise. |
+| O-02  | `PACKAGE_SEGMENT` (`client.ts:44`) | Low | OK in context. |
+| O-03  | `Policy.maxClustersPerUser` (`model.ts:246`) | Low | Long but precise. |
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -187,9 +181,7 @@ _None._
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| R-01  | `PythonPyPiLibrary.package` (`model.ts:256`) | Medium | `package` is a [reserved word in strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#future_reserved_words) for ES5+. It is legal as a property name but can't be used as a variable or import identifier without quoting. Consider `packageName` for forward compatibility. |
-| R-02  | `RCranLibrary.package` (`model.ts:266`) | Medium | Same as R-01. |
-| R-03  | None of the type names collide.     | —        | OK. |
+| R-01  | None of the type names collide.     | —        | OK. |
 
 ### 2.10 Empty / trivial wrapper types — Medium
 
@@ -222,11 +214,9 @@ _None._
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| F-01  | `Library.lib` (`model.ts:106`) | High | Loses all meaning once destructured outside the `Library` type. See V-01. |
-| F-02  | `MavenLibrary.repo` (`model.ts:194`) / `RCranLibrary.repo` (`model.ts:268`) / `PythonPyPiLibrary.repo` (`model.ts:261`) | Medium | Same field name across three sibling types but each refers to a different concept (Maven repo URL, CRAN mirror, PyPI index URL). Consistent for the API, but ambiguous when displayed without parent type context. |
-| F-03  | `Policy.name` (`model.ts:224`), `Policy.description` (`model.ts:228`) | Low | Standard entity fields; meaning preserved in context. |
-| F-04  | `MavenLibrary.coordinates` (`model.ts:189`) | Low | Maven-specific; precise. |
-| F-05  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
+| F-01  | `Policy.name` (`model.ts:224`), `Policy.description` (`model.ts:228`) | Low | Standard entity fields; meaning preserved in context. |
+| F-02  | `MavenLibrary.coordinates` (`model.ts:189`) | Low | Maven-specific; precise. |
+| F-03  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.15 Field contradicting type domain — Low
 
@@ -261,13 +251,12 @@ _None._
 | TS-01 | `MavenLibrary` (`model.ts:187`) | Medium | The type already lives in a `Library` discriminated union; the `Library` suffix is redundant when accessed as `library.lib.$case === 'maven' ? library.lib.maven : ...` — the value's *position* in the union already identifies it as a library variant. `MavenSpec` or just `Maven` would suffice. |
 | TS-02 | `PythonPyPiLibrary` (`model.ts:251`) | Medium | Same as TS-01. Could be `PyPISpec`. |
 | TS-03 | `RCranLibrary` (`model.ts:264`) | Medium | Same as TS-01. Could be `CRANSpec`. |
-| TS-04 | `Library` interface itself (`model.ts:105`) | Low | The interface name `Library` and its sole field `lib` share a stem, so call sites read as `library.lib` (a stem repetition). Field rename is covered by V-01 / F-01. |
 
 ### 2.20 Other observations
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| X-01  | `Policy.createdAtTimestamp` (`model.ts:214`, epoch ms, `number`) | Medium | Beyond redundancy (O-02), JS `Date` has a 53-bit safe-integer range that covers epoch-ms until year 285,000+, but a TS SDK conventionally exposes either `Date`, `string` (ISO-8601), or `bigint`. `number` is acceptable for ms timestamps; flagged. |
+| X-01  | `Policy.createdAtTimestamp` (`model.ts:214`, epoch ms, `number`) | Medium | JS `Date` has a 53-bit safe-integer range that covers epoch-ms until year 285,000+, but a TS SDK conventionally exposes either `Date`, `string` (ISO-8601), or `bigint`. `number` is acceptable for ms timestamps; flagged. |
 | X-02  | `Library.lib.$case` literal `'requirements'` (`model.ts:156`) | Low | The discriminator value `'requirements'` is the longest in the union (12 chars) and contrasts with three-letter peers (`jar`, `egg`, `whl`). Consistent with wire format, OK. |
 | X-03  | `HttpCallOptions` (`utils.ts:15`) | Low | Local interface; precise. |
 | X-04  | `executeHttpCall` (`utils.ts:65`), `executeCall` (`utils.ts:26`) | Low | Both exist, one wraps the other. The naming difference (`HttpCall` vs `Call`) communicates layering: HTTP-aware vs. transport-agnostic. OK. |
@@ -295,37 +284,31 @@ architectural-layer words leaking into domain identifiers.
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 4     |
-| Medium   | 16    |
-| Low      | 21    |
-| **Total**| **41**|
+| High     | 2     |
+| Medium   | 11    |
+| Low      | 30    |
+| **Total**| **43**|
 
 ### 3.2 Top themes
 
-1. **`Library.lib` repeats the type stem in its discriminator field.**
-   Callers write `library.lib?.$case` — `lib` adds no information the type
-   name doesn't. A concrete name like `source` / `kind` / `spec` reads
-   better at call sites.
+1. **`PyPi` casing should be `PyPI`** (acronym); the type name
+   `PythonPyPiLibrary` should be `PythonPyPILibrary`.
 
-2. **`PyPi` casing should be `PyPI`** (acronym), and `package` fields collide
-   with a JS strict-mode reserved word in `PythonPyPiLibrary` / `RCranLibrary`.
+2. **`editPolicy` vs ecosystem-standard `update`** — the SDK exposes
+   `editPolicy` to match the wire path `/edit`, but most modern Databricks
+   surfaces use `update*`. Flag for upstream alignment.
 
-3. **`createdAtTimestamp` is a tautology**; `createdAt` is the SDK-wide and
-   ecosystem-wide convention for epoch-millisecond fields.
+3. **Type-suffix tautology in the `Library` union**: `MavenLibrary`,
+   `PythonPyPiLibrary`, `RCranLibrary` all repeat the `Library` suffix even
+   though their *position* in the discriminated union already identifies
+   them as library variants.
 
 ### 3.3 Suggested quick wins (non-breaking renames are not possible — this
 section is advisory for the codegen owners)
 
-- Rename `Library.lib` -> `Library.source` (concrete discriminator name).
 - `PythonPyPiLibrary` -> `PythonPyPILibrary`.
-- `Policy.createdAtTimestamp` -> `Policy.createdAt`.
-- `Policy.creatorUserName` -> `Policy.createdBy`.
 
 ### 3.4 Cross-package consistency notes
 
 - `editPolicy` (vs `updatePolicy`) is a per-API decision driven by the
   upstream REST verb; flag for upstream alignment but no per-package fix.
-
-## Fixed
-
-_None._

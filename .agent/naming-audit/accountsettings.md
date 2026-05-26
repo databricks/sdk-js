@@ -348,9 +348,3 @@
 | `src/v1/utils.ts` | full | 100% — utility functions reviewed; `HttpCallOptions`, `executeCall`, `parseResponse`, `marshalRequest`, `flattenQueryParams` have no naming issues worth flagging (they are infrastructure shared across packages and follow consistent conventions). |
 
 ---
-
-## Fixed
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

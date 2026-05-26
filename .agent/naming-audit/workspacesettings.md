@@ -373,9 +373,3 @@
 8. **Proto-architectural-leak through `Message` suffix and `Parent_Nested` infix.** Top-level types `BooleanMessage`, `StringMessage`, `ClusterAutoRestartMessage`, `RestrictWorkspaceAdminsMessage` and the seven `*_Message_*` nested types expose the proto-generated naming convention directly to consumers. The codebase already acknowledges the leak via `eslint-disable -- Proto-style nested message name.` annotations on every such identifier. Generic `Details` suffix on `EnablementDetails` is the same pattern. (Severities #43, #44, #45.)
 
 ---
-
-## Fixed
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

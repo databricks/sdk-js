@@ -23,20 +23,7 @@ read-only output fields (`createdAt`, `createdBy`, `provisioningInfo`,
 
 ### 1. Vague / generic names
 
-#### 1.1 `EffectivePredictiveOptimizationFlag.value` (model.ts:201)
-Field name `value` on a type whose entire purpose is exposing a flag value
-is doubly redundant — the field is the only payload-bearing scalar on the
-type and conveys no semantics. The doc comment reveals it actually holds
-the enable/disable string ("Whether predictive optimization should be
-enabled..."). Better: `enabled`, `predictiveOptimizationEnabled`, or
-mirror the upstream `flagValue` if present.
-
-#### 1.2 `ProvisioningInfo.state` (model.ts:264)
-Generic field name `state`. Whose state? The name only acquires meaning
-from its surrounding type — if the field is ever inlined or destructured,
-the meaning is lost.
-
-#### 1.3 `inheritedFromType` / `inheritedFromName` (model.ts:203, 205)
+#### 1.1 `inheritedFromType` / `inheritedFromName` (model.ts:203, 205)
 `Type` here is a free-form `string`, not the `SecurableType` enum that
 governs the rest of the package. The name `inheritedFromType` suggests an
 enum/typed handle but is in fact human-readable text. Misleading — see
@@ -102,7 +89,7 @@ worth noting for consistency.
 The field is typed `string | undefined` but the comment ("Whether predictive
 optimization should be enabled…") implies a tri-state (enabled / disabled /
 inherit). Either the type should be an enum (`PredictiveOptimizationFlag`)
-or the field should be named explicitly (`enabled: string`). See also §1.1.
+or the field should be named explicitly (`enabled: string`).
 
 #### 4.2 `azureKeyVaultKeyId` is described as a URL (model.ts:215-216)
 Field is named `…Id` but doc says "the AKV URL in Azure". Either rename to
@@ -122,11 +109,6 @@ caller to know what distinguishes them. The doc duplication is verbatim
 in `CreateCatalogRequest` (171-174) and `UpdateCatalogRequest` (318-321).
 Either is underspecified or one of them is misnamed.
 
-#### 4.5 `EncryptionSettings.azureEncryptionSettings: AzureEncryptionSettings` (model.ts:218)
-A field on `EncryptionSettings` named `azureEncryptionSettings` whose type
-is also `AzureEncryptionSettings` reads like a copy-paste error. Drop the
-prefix: `azure: AzureEncryptionSettings` is clearer.
-
 ---
 
 ### 5. Overly verbose
@@ -143,10 +125,6 @@ the flag).
 Long field name for a single flag value. Acceptable, but tracked because
 it pairs with §5.1 to make every `CatalogInfo`-style object verbose.
 
-#### 5.3 `managedEncryptionSettings` (model.ts:105, 170, 317)
-Three-word field name on a securable that already implies "managed".
-Consider `encryption` or `encryptionSettings`.
-
 ---
 
 ### 6. Redundant suffixes
@@ -156,12 +134,10 @@ Consider `encryption` or `encryptionSettings`.
 this distinguishes the entity type from the resource handle; in JS/TS the
 convention is to drop it (`Catalog`, `Provisioning`).
 
-#### 6.2 `…Settings` repeated (`AzureEncryptionSettings`, `EncryptionSettings`, `azureEncryptionSettings`) — see §4.5.
-
-#### 6.3 `Flag` suffix on `EffectivePredictiveOptimizationFlag`
+#### 6.2 `Flag` suffix on `EffectivePredictiveOptimizationFlag`
 The whole type *is* the flag; the suffix is redundant. See §5.1.
 
-#### 6.4 `…Arg` suffix on `nameArg` — see §3.1 and §8.1.
+#### 6.3 `…Arg` suffix on `nameArg` — see §3.1 and §8.1.
 
 ---
 
@@ -182,8 +158,6 @@ fix is renaming the second client parameter to `callOptions`. See also
 This isn't a reserved word but it routinely shadows
 `Function.prototype.name` and is a common source of confusion when
 callers spread request objects. See also §3.1.
-
-#### 7.3 `value` field on `EffectivePredictiveOptimizationFlag` (model.ts:201) — generic, frequently shadows local variables. See §1.1.
 
 ---
 
@@ -246,12 +220,6 @@ Mirror issue in `UpdateCatalogRequest`.
 
 #### 9.3 `DeleteCatalogRequest.nameArg` — see §3.1.
 
-#### 9.4 `EncryptionSettings.azureEncryptionSettings`
-The outer type's domain is "all encryption settings"; the field is named
-as if scoped to Azure. The contradiction (parent claims breadth, child
-name claims specificity) is resolved by reading the type definition
-but is initially confusing. See §4.5.
-
 ---
 
 ### 10. Underspecified IDs
@@ -276,11 +244,6 @@ elsewhere — same conceptual ID, two formats, no unifying name.
 #### 10.5 `azureKeyVaultKeyId` (model.ts:216)
 Doc says "the AKV URL in Azure" — so it's actually a URL, not an ID. See
 §4.2.
-
-#### 10.6 `createdAt` / `updatedAt` (model.ts:84, 88)
-Type is `number` (epoch milliseconds). Conventional, but the field name
-doesn't convey unit. Pairs `createdAtMs` or `createdAtEpochMs` would be
-more honest.
 
 ---
 
@@ -456,18 +419,16 @@ passing for the broader review.
 | `CatalogInfo.securableType`                             | model.ts:103       | 8.4, 11.1 |
 | `CreateCatalogRequest`                                  | model.ts:124       | 8.5, 9.2 |
 | `DeleteCatalogRequest.nameArg`                          | model.ts:191       | 3.1, 9.3 |
-| `EffectivePredictiveOptimizationFlag`                   | model.ts:199       | 5.1, 6.3 |
-| `EffectivePredictiveOptimizationFlag.value`             | model.ts:201       | 1.1, 4.1, 7.3 |
-| `EffectivePredictiveOptimizationFlag.inheritedFromType` | model.ts:203       | 1.3     |
-| `EncryptionSettings`                                    | model.ts:212       | 6.2     |
+| `EffectivePredictiveOptimizationFlag`                   | model.ts:199       | 5.1, 6.2 |
+| `EffectivePredictiveOptimizationFlag.value`             | model.ts:201       | 4.1     |
+| `EffectivePredictiveOptimizationFlag.inheritedFromType` | model.ts:203       | 1.1     |
 | `EncryptionSettings.customerManagedKeyId`               | model.ts:214       | 2.1, 10.4 |
 | `EncryptionSettings.azureKeyVaultKeyId`                 | model.ts:216       | 2.2, 4.2, 10.5 |
-| `EncryptionSettings.azureEncryptionSettings`            | model.ts:218       | 4.5, 9.4 |
 | `GetCatalogRequest.nameArg`                             | model.ts:223       | 3.1     |
 | `ListCatalogsRequest.maxResults`                        | model.ts:240       | —       |
 | `ListCatalogsRequest.pageToken`                         | model.ts:242       | —       |
 | `ListCatalogsRequest.includeUnbound`                    | model.ts:247       | —       |
-| `ProvisioningInfo`                                      | model.ts:262       | 1.2, 6.1 |
+| `ProvisioningInfo`                                      | model.ts:262       | 6.1     |
 | `UpdateCatalogRequest.nameArg/newName/name`             | model.ts:269-273   | 3.1, 8.3, 9.1 |
 | `ProvisioningInfo_State` (proto-nested enum)            | model.ts:43        | 13.1    |
 | `CatalogInfo_OptionsEntry`                              | model.ts:113       | 13.2    |
@@ -496,16 +457,3 @@ passing for the broader review.
 6. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
 
 ---
-
-## Fixed
-
-- #1.3 `ConversionInfo.state` (originally cited at model.ts:145): Fixed in regeneration on 2026-05-20 — `ConversionInfo` type was removed from the model entirely.
-- #2.1 `DrReplicationStatus` enum redundant `DR_REPLICATION_STATUS_` prefix (originally cited at model.ts:21-25): Fixed in regeneration on 2026-05-20 — `DrReplicationStatus` enum was removed from the model.
-- #3.1 `DrReplicationStatus` / `DrReplicationInfo` / `drReplicationInfo` "DR" acronym casing (originally cited at model.ts:21, 228, 121): Fixed in regeneration on 2026-05-20 — all DR-related identifiers were removed from the model.
-- #4.2 `Dr` prefix throughout (originally cited at model.ts:21, 228, 121, 237): Fixed in regeneration on 2026-05-20 — all DR-related identifiers were removed.
-- #5.3 `DrReplicationInfo.replicatedEntities: Uint8Array` cardinal-plural misleading name (originally cited at model.ts:231): Fixed in regeneration on 2026-05-20 — `DrReplicationInfo` was removed from the model.
-- #1.2 `DrReplicationInfo.replicatedEntities` `Uint8Array` opacity (originally cited at model.ts:231): Fixed in regeneration on 2026-05-20 — `DrReplicationInfo` was removed from the model.
-- #14.7 (positive observation) `DrReplicationInfo.lastFailoverTimeMs` correctly suffixed unit (originally cited at model.ts:237): Removed in regeneration on 2026-05-20 — `DrReplicationInfo` was removed from the model, so the counter-example no longer exists.
-- #15.4 `DrReplicationStatus` enum with field `status` (originally cited at model.ts:21, 229): Fixed in regeneration on 2026-05-20 — `DrReplicationStatus` and its container were removed.
-- Verb-tense section (previously §10) (no findings, marked consistent): Retained content folded into commentary above; section dropped from numbering because it produced no enumerated issues.
-- Inconsistent action verbs (previously §12) (no findings, marked consistent): Retained content folded into commentary above; section dropped from numbering because it produced no enumerated issues.

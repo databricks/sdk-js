@@ -11,10 +11,10 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 1     |
-| Medium      | 6     |
+| Medium      | 4     |
 | Low         | 5     |
 | Observation | 3     |
-| **Total**   | **15** |
+| **Total**   | **13** |
 
 Headline themes:
 
@@ -81,37 +81,7 @@ verbs vs. UC sibling APIs
   `update…`. If the API spec dictates `Set`, this is correct; the audit
   flags it because the verb is unique within UC.
 
-### M3. `artifactMatchers` field is a Boolean-sounding plural of a matcher
-type that is itself a noun-from-verb
-
-- **File / line:** `src/v1/model.ts:23, 48`.
-- **Category:** #15 generic field name losing meaning.
-- **Current:** `artifactMatchers?: ArtifactMatcher[]`.
-- **Suggestion:** Consider `allowedPatterns` or `patterns` (matching the
-  field's own JSDoc: "A list of allowed artifact match patterns"). At
-  minimum, the inline doc should explain that an "ArtifactMatcher" is one
-  rule (artifact + match-type), not a function.
-- **Rationale:** The doc comment ("allowed artifact match patterns")
-  describes a different mental model than the type name suggests. A reader
-  encountering `artifactMatchers` may expect predicate functions rather than
-  a `{artifact, matchType}` rule object. Note: this name *does* match the
-  Go SDK convention, so changing it would be a breaking divergence.
-
-### M4. `artifact` (the field inside `ArtifactMatcher`) is dangerously generic
-
-- **File / line:** `src/v1/model.ts:34`.
-- **Category:** #1 vague/generic without domain context; #15 generic field
-  name losing meaning.
-- **Current:** `artifact?: string`.
-- **Suggestion:** `artifactPath` or `artifactPattern` (the docstring says
-  "The artifact path or maven coordinate").
-- **Rationale:** Inside a type already named `ArtifactMatcher`, `artifact`
-  contributes no information; the actual semantic is "the path/coordinate
-  this rule matches against." Either of `artifactPath` or `artifactPattern`
-  reflects that. Caveat: matches the Go SDK exactly, so a rename would
-  break the 1:1 port.
-
-### M5. `req` parameter name on `Client.getArtifactAllowlist` /
+### M3. `req` parameter name on `Client.getArtifactAllowlist` /
 `setArtifactAllowlist`
 
 - **File / line:** `src/v1/client.ts:67, 97`.
@@ -125,7 +95,7 @@ type that is itself a noun-from-verb
   it reads as Go-translated code. (Note: `resp` shows up locally in the
   same file at lines 71, 84, 102, 115 — a separate, lower-priority issue.)
 
-### M6. `ArtifactMatcher_MatchType` — proto-style nested enum with underscore leak
+### M4. `ArtifactMatcher_MatchType` — proto-style nested enum with underscore leak
 
 - **File / line:** `src/v1/model.ts:15`.
 - **Category:** proto-architectural-leak — `Proto` infix / nested-enum
@@ -275,15 +245,15 @@ constant. Not a naming defect, but typical naming-audit findings include
 Type & symbol checklist:
 
 - [x] `ArtifactType` enum (4 members) → no defect.
-- [x] `ArtifactMatcher_MatchType` enum (2 members) → M6.
+- [x] `ArtifactMatcher_MatchType` enum (2 members) → M4.
 - [x] `ArtifactAllowlistInfo` interface (4 fields) → M1, O1.
-- [x] `ArtifactMatcher` interface (2 fields) → M3, M4.
+- [x] `ArtifactMatcher` interface (2 fields) → no defect.
 - [x] `GetArtifactAllowlistRequest` interface (1 field) → no defect.
 - [x] `SetArtifactAllowlistRequest` interface (5 fields) → H1.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → no defect.
-- [x] `getArtifactAllowlist(req, options)` method → M2, M5.
-- [x] `setArtifactAllowlist(req, options)` method → M2, M5.
+- [x] `getArtifactAllowlist(req, options)` method → M2, M3.
+- [x] `setArtifactAllowlist(req, options)` method → M2, M3.
 - [x] `HttpCallOptions` interface → no defect.
 - [x] `executeCall` function → L1.
 - [x] `readAll` private function → no defect (name fits idiom).
@@ -296,18 +266,3 @@ Type & symbol checklist:
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).
 
 ---
-
-## Fixed
-
-- #H1 `GetArtifactAllowlist` (originally cited at `src/v1/model.ts:39`):
-  Fixed in regeneration on 2026-05-20 — renamed to
-  `GetArtifactAllowlistRequest`; verb/noun overload with the client method
-  resolved.
-- #H2 partial — `SetArtifactAllowlist` (originally cited at
-  `src/v1/model.ts:44–55`): Fixed in regeneration on 2026-05-20 — renamed to
-  `SetArtifactAllowlistRequest`. The response-only-fields concern was split
-  off into the new H1 above and remains open.
-- #O1 Bare `GetX`/`SetX` request shapes (originally cited as a repo-wide
-  pattern across `catalogs`, `connections`, `clusters`, `externallocations`,
-  `clusterpolicies`): Fixed in regeneration on 2026-05-20 — `Request`
-  suffix is now applied across the generator.

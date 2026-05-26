@@ -176,14 +176,3 @@ WorkspacePermissionAssignment surface continues to live in the
 2. **Duplicated domain modelling with `iam` package.** Findings 1, 6, 7, 17 highlight that `iam.WorkspaceAssignmentDetail`, `iam.WorkspacePermission`, and `iam.PrincipalType` already model the same concepts under different names and shapes. The two packages should either share types or one should redirect to the other.
 3. **Misleading verb assignment for list vs get.** Findings 3, 4, 23 — the array-returning method is named `get*`, the static-catalog method is named `list*`. This inverts the REST-list convention used elsewhere in the SDK.
 4. **Underspecified IDs and weak typing.** Findings 8, 9, 15, 19 — IDs are `number` (precision risk) or thinly typed `string`, with critical fallback / serialisation behaviour hidden in client.ts comments rather than the type.
-
-## Fixed
-- #2 `Permission` enum name (originally cited at `src/v1/model.ts:5`): Fixed in regeneration on 2026-05-20 — enum renamed to `WorkspacePermission` (model.ts:39), no longer a vague top-level `Permission` symbol.
-- #4 `DeleteWorkspacePermissionAssignment` verb-phrase type name (originally cited at `src/v1/model.ts:13`): Fixed in regeneration on 2026-05-20 — `Request` suffix now applied across `Delete…Request`, `Get…Request`, `List…Request`, `Update…Request` (model.ts:122,203,231,362).
-- #20 `nextPageToken` / `prevPageToken` asymmetric naming (originally cited at `src/v1/model.ts:44,46`): Fixed in regeneration on 2026-05-20 — pagination tokens removed from `GetWorkspacePermissionAssignmentsRequest_Response`; the response carries only `permissionAssignments` (model.ts:211-214).
-- #21 `GetWorkspacePermissionAssignments.filter?: string` (originally cited at `src/v1/model.ts:36`): Fixed in regeneration on 2026-05-20 — `filter` field removed from `GetWorkspacePermissionAssignmentsRequest` (model.ts:203-208).
-- #22 `GetWorkspacePermissionAssignments.maxResults` (originally cited at `src/v1/model.ts:34`): Fixed in regeneration on 2026-05-20 — `maxResults` field removed from `GetWorkspacePermissionAssignmentsRequest` (model.ts:203-208).
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

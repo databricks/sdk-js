@@ -81,11 +81,9 @@ The package defines no enums.
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
-| V-01  | `PolicyFamily.definition` (`model.ts:37`)            | Medium   | `definition` is generic in a multi-domain SDK. Without the JSDoc it is unclear whether this is a JSON document, a free-form string, or something else. Sibling field on the parent `clusterpolicies` package is `policyFamilyDefinitionOverrides` — so the convention within the SDK is `*Definition*`. `policyDefinition` would self-describe. (Codegen / API constraint.) |
-| V-02  | `PolicyFamily.name` (`model.ts:33`)                  | Low      | Generic but standard for entity types; meaning is preserved by the parent type. |
-| V-03  | `PolicyFamily.description` (`model.ts:35`)           | Low      | Generic but standard across the SDK; acceptable. |
-| V-04  | `GetPolicyFamilyRequest.version` (`model.ts:10`)     | Medium   | `version` is generic. The JSDoc says "version number for the family"; field could be `familyVersion` or `policyFamilyVersion` to make it self-describing when destructured (e.g. `const {version} = req` loses context). |
-| V-05  | `flattenQueryParams` (`utils.ts:123`)                | Low      | Reasonable. |
+| V-01  | `PolicyFamily.name` (`model.ts:33`)                  | Low      | Generic but standard for entity types; meaning is preserved by the parent type. |
+| V-02  | `PolicyFamily.description` (`model.ts:35`)           | Low      | Generic but standard across the SDK; acceptable. |
+| V-03  | `flattenQueryParams` (`utils.ts:123`)                | Low      | Reasonable. |
 
 ### 2.2 Redundant enum prefixes — High
 
@@ -160,8 +158,7 @@ _None._
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | D-01  | `PolicyFamily.policyFamilyId` (here) and `Policy.policyFamilyId` (in `clusterpolicies`) | Low | The field name is consistent across packages — good. No duplication concern. |
-| D-02  | `PolicyFamily.definition` vs `Policy.definition` / `Policy.policyFamilyDefinitionOverrides` (in `clusterpolicies`) | Medium | Three related "definition" concepts spread across two packages: `PolicyFamily.definition` (the canonical CPDL doc), `Policy.definition` (custom override), and `Policy.policyFamilyDefinitionOverrides` (delta). The current package has only one of the three, but the field name `definition` does not communicate which of the three roles it plays. Adding a JSDoc cross-link to the `clusterpolicies` `*Overrides` field would help; a rename to `policyDefinition` would align with the sibling field names. |
-| D-03  | `PolicyFamily` vs `Policy` (cross-package)           | Low      | Distinct concepts: a `PolicyFamily` is a template, a `Policy` is an instance. Cross-package linking (JSDoc `{@link}`) would help readers understand the relationship. Out of scope for naming. |
+| D-02  | `PolicyFamily` vs `Policy` (cross-package)           | Low      | Distinct concepts: a `PolicyFamily` is a template, a `Policy` is an instance. Cross-package linking (JSDoc `{@link}`) would help readers understand the relationship. Out of scope for naming. |
 
 ### 2.12 Verb-tense inconsistency — Low
 
@@ -182,11 +179,9 @@ _None._
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
-| F-01  | `version` (on `GetPolicyFamilyRequest`)              | Medium   | When destructured (`const {version} = req`) the meaning collapses to "some version number". Within the SDK there are also `Catalog.version`, `Volume.version`, `Schema.version` etc.; the field is overloaded in name space if not in scope. Renaming to `familyVersion` (or matching what the wire JSON key actually is — `version`) is a tradeoff between SDK-internal consistency and on-wire fidelity. Cf. V-04. |
-| F-02  | `name` (on `PolicyFamily`)                           | Low      | Universal noun; meaning is preserved through type context. OK. |
-| F-03  | `description` (on `PolicyFamily`)                    | Low      | Same as F-02. |
-| F-04  | `definition` (on `PolicyFamily`)                     | Medium   | See V-01 / D-02. Generic and overloaded — losing parent-type context makes it unclear whether this is JSON, YAML, or a free-form string. |
-| F-05  | `url`, `params`, `query`, `fullUrl`, `headers`, `body` (locals in `client.ts`) | Low | Locals only; standard naming. OK. |
+| F-01  | `name` (on `PolicyFamily`)                           | Low      | Universal noun; meaning is preserved through type context. OK. |
+| F-02  | `description` (on `PolicyFamily`)                    | Low      | Same as F-01. |
+| F-03  | `url`, `params`, `query`, `fullUrl`, `headers`, `body` (locals in `client.ts`) | Low | Locals only; standard naming. OK. |
 
 ### 2.15 Field contradicting type domain — Low
 
@@ -255,9 +250,9 @@ _None._
 | Severity | Count |
 | -------- | ----- |
 | High     | 2     |
-| Medium   | 11    |
+| Medium   | 6     |
 | Low      | 28    |
-| **Total**| **41**|
+| **Total**| **36**|
 
 ### 3.2 Top themes
 
@@ -267,19 +262,17 @@ _None._
    issues are repo-wide patterns (the bare `Client` class name) rather than
    per-package mistakes.
 
-2. **`definition` and `version` are over-generic on a generic entity.**
-   `PolicyFamily.definition` and `GetPolicyFamilyRequest.version` are the two
-   fields whose meaning is best inferred from the JSDoc rather than from
-   the field name itself. Renaming to `policyDefinition` /
-   `familyVersion` (or `policyFamilyVersion`) would self-describe.
+2. **Proto-architectural leak in response type name.**
+   `ListPolicyFamiliesRequest_Response` (and the matching
+   `unmarshalListPolicyFamiliesRequest_ResponseSchema`) carry the
+   proto-nested `Request_Response` compound suffix into idiomatic TS. The
+   `Request` token mid-name is meaningless on a response type and forces an
+   `eslint-disable` for the naming-convention rule.
 
 ### 3.3 Suggested quick wins
 (non-breaking renames are not possible — this section is advisory for the
 codegen owners)
 
-- Rename `PolicyFamily.definition` → `policyDefinition` (matches the
-  sibling field `policyFamilyDefinitionOverrides` in the
-  `clusterpolicies` package).
 - Fix the JSDoc on `getPolicyFamily()` ("an policy family" → "a policy
   family") and on `listPolicyFamilies()` ("policy definition types" →
   "policy families").
@@ -294,13 +287,5 @@ codegen owners)
   rename to `<Resource>Client` would help all packages.
 - `PolicyFamily.policyFamilyId` matches `Policy.policyFamilyId` in the
   `clusterpolicies` package — cross-package field naming is consistent.
-- `PolicyFamily.definition` does **not** match the more-qualified
-  `Policy.policyFamilyDefinitionOverrides` — partial inconsistency,
-  but defensible since the override is a delta and the canonical
-  definition lives on the family.
 
 ---
-
-## Fixed
-
-_None._

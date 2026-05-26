@@ -232,24 +232,6 @@ _None._
 #### F8.1 — `primaryMetric: string` (MEDIUM)
 - **Where:** `model.ts:34`. See F1.2.
 
-#### F8.2 — `registerTo: string` (MEDIUM)
-- **Where:** `model.ts:46`.
-- **Why flagged:** `registerTo` is a verb-phrase masquerading as a
-  noun field. The JSDoc clarifies it is "the fully qualified path
-  of a Unity Catalog model … used to store the best model." But the
-  name `registerTo` doesn't tell you *what* to register or *as what*.
-- **Suggestion:** Rename to `modelRegistrationPath` /
-  `modelTargetName` / `registeredModelName`. Cross-cutting if other
-  packages share the pattern.
-
-#### F8.3 — `maxRuntime: number` (LOW)
-- **Where:** `model.ts:40`.
-- **Why flagged:** Units are missing from the field name. JSDoc says
-  minutes, but `maxRuntime: number` doesn't.
-- **Suggestion:** Rename to `maxRuntimeMinutes`, or change the type
-  to a duration string (`ISO 8601` PT1H, etc.) if the API supports
-  it. Common SDK convention: suffix the unit on the field name.
-
 ---
 
 ### 9. Untyped string for closed enum
@@ -267,24 +249,13 @@ _None._
 
 ### 10. `*Path` fields contradicting type domain
 
-#### F10.1 — `*Path` fields holding three-part catalog names (MEDIUM)
-- **Where:** `model.ts:21 (trainDataPath), 52 (predictionDataPath),
-  63 (futureFeatureDataPath)`.
-- **Why flagged:** "Path" suggests a hierarchical workspace or
-  filesystem path. The values here are Unity Catalog three-part
-  names (`catalog.schema.table`), which are *not* slash-delimited
-  paths. The `experimentPath` field on the same type *is* a path
-  (workspace path). Domain dissonance within the same type.
-- **Suggestion:** Rename `*Path` → `*Table` /
-  `*TableFullName` / `*TableName`. E.g. `trainingDataTable`,
-  `predictionDataTable`. Or use UC's term: `*Reference`
-  (`trainingDataReference`).
+_None._
 
 ---
 
 ### 11. Proto / architectural leaks
 
-#### 11.1 — `ForecastingExperiment_State` — `model.ts:6`
+#### F11.1 — `ForecastingExperiment_State` — `model.ts:6`
 - **Why flagged:** The `Foo_Bar` underscore identifier is a verbatim
   proto-generated nested-enum form (`ForecastingExperiment.State` in
   the original proto). The underscore form leaks the proto IDL
@@ -297,7 +268,7 @@ _None._
   proto's `Foo.Bar`. The flat camel/Pascal form removes the IDL
   artifact and the eslint-disable.
 
-#### 11.2 — "Public RPC" in JSDoc — `client.ts:112`
+#### F11.2 — "Public RPC" in JSDoc — `client.ts:112`
 - **Why flagged:** The JSDoc `/** Public RPC to get forecasting
   experiment */` exposes the server-side classification
   (`Public` vs `Internal` RPC) and the transport term `RPC` to SDK
@@ -350,9 +321,9 @@ generic experiment but uses the same term and the same ID name.
 | 5 | Overly verbose                          | 5 |
 | 6 | Go-style `Waiter` pattern               | 1 |
 | 7 | Reserved-word collisions                | 1 |
-| 8 | Generic field names                     | 3 |
+| 8 | Generic field names                     | 1 |
 | 9 | Untyped string for closed enum          | 1 |
-| 10 | `*Path` fields contradicting domain    | 1 |
+| 10 | `*Path` fields contradicting domain    | 0 |
 | 11 | Proto / architectural leaks            | 2 |
 | OVERLAP | forecasting vs experiments         | 2 |
 
@@ -368,21 +339,10 @@ generic experiment but uses the same term and the same ID name.
 2. **F4.1 / F7.1:** Rename waiter `done()` method to
    `isTerminal()` (or `isDone()`) to signal that it is a
    server-poll predicate, not iterator state.
-3. **F10.1:** Rename `*Path` fields that hold Unity Catalog
-   three-part names to `*Table` (e.g. `trainDataPath →
-   trainingDataTable`, `predictionDataPath →
-   predictionsTable`, `futureFeatureDataPath →
-   futureFeaturesTable`). Distinguishes them from `experimentPath`
-   which is a real workspace path.
-4. **F8.2:** Rename `registerTo` to
-   `registeredModelName` (or `modelRegistrationTarget`). The
-   verb-phrase field name is confusing.
-5. **F8.3:** Rename `maxRuntime` → `maxRuntimeMinutes` to embed
-   units in the name.
-6. **F1.2 / F9.1:** Introduce string-literal union types for
+3. **F1.2 / F9.1:** Introduce string-literal union types for
    `primaryMetric` and `forecastGranularity`. Improves
    discoverability and type safety.
-7. **F5.1 / F5.2:** Drop the redundant `Forecasting` token from
+4. **F5.1 / F5.2:** Drop the redundant `Forecasting` token from
    type names where the package qualifier already conveys domain
    (`ForecastingExperiment` → `Experiment`,
    `CreateForecastingExperimentRequest` → `CreateExperimentRequest`,

@@ -3,12 +3,12 @@
 **Path:** `packages/billableusagedownload/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level CSV export of billable Databricks usage logs for a given month range. Single endpoint: `GET /api/2.0/accounts/{account_id}/usage/download`. No CRUD surface, no enums, no list/page semantics — just one streaming download method.
-**Total weird names flagged:** 20
+**Total weird names flagged:** 19
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 5 |
+| High | 4 |
 | Medium | 6 |
 | Low | 5 |
 | Observation | 4 |
@@ -39,45 +39,39 @@
 - **Suggested name:** Keep the field names; change the types to `string` (required) on both. Worth also renaming `startMonth`/`endMonth` to something more self-documenting like `fromMonth`/`toMonth` or `startMonth`/`untilMonth` — current names are fine.
 - **Rationale:** TS strict mode rewards required fields with non-optional types; the doc and the type should agree. The Go SDK probably models these as `string` (empty-string defaults), which is a Go-ism; in TS, required strings should not carry `| undefined`.
 
-### 5. `DownloadRequest.personalData: boolean` field name — `src/v1/model.ts:26`
-- **Why weird:** `personalData` is a boolean named after a noun. The field actually controls "include PII in the download". Boolean fields should read as predicates: `includePersonalData`, `includePii`, `withPii`. As written, the field reads as "the personal data" — a thing — not a flag.
-- **Category:** 6 (misleading — name implies a value, type is a flag), 1 (vague — "personal data" without a verb is not actionable), 15 (generic field name losing meaning).
-- **Suggested name:** `includePersonalData` (or `includePii`). Keep wire field as `personal_data`.
-- **Rationale:** TS convention for booleans is `is*` / `has*` / `include*` / `should*`. Without a verb, `if (req.personalData)` reads as "if there is personal data" rather than "if personal data is enabled". The JSDoc has to spell out "Specify whether to include..." precisely because the field name doesn't.
-
 ## Medium severity
 
-### 6. `DownloadRequest.accountId` field — `src/v1/model.ts:8`
+### 5. `DownloadRequest.accountId` field — `src/v1/model.ts:8`
 - **Why weird:** The `accountId` lives on the request DTO *and* on `ClientOptions` (see `client.ts:39`). The client falls back from `req.accountId` to `this.accountId` (`client.ts:69`). Having the same identifier in two places, with one-overrides-the-other semantics, is a footgun: callers may set it once on the client and forget that a stale request value silently shadows it.
 - **Category:** 12 (duplicate concept across types), 19 (underspecified id — same `accountId` means different things at different layers).
 - **Suggested name:** Drop `accountId` from `DownloadRequest`. Make it a client-level concern only (it's a path parameter, not a body field). If per-call override is needed, document it explicitly.
 - **Rationale:** The JSDoc on the field is a verbose explanation about getting your account ID from the console — content that belongs in `ClientOptions.accountId`, not duplicated per request. Removing it simplifies the API surface and eliminates the fallback chain in `client.ts`.
 
-### 7. `Client` class is unprefixed — `src/v1/client.ts:22`
+### 6. `Client` class is unprefixed — `src/v1/client.ts:22`
 - **Why weird:** Exported as `Client` (the only class). A user importing this package writes `import {Client} from '@databricks/sdk-billableusagedownload/v1'`, then has to rename it (`import {Client as BillableUsageClient}`) to avoid collision with every other Databricks SDK package's `Client` export. Consistent across the SDK but worth flagging.
 - **Category:** 1 (vague — `Client` of what?), 12 (every package defines its own `Client`).
 - **Suggested name:** `BillableUsageDownloadClient` or `BillableUsageClient`. Or expose a namespace export instead of a bare class.
 - **Rationale:** Cross-SDK consistency may justify keeping `Client`, but in practice every user re-aliases. The SDK could expose `import * as billableUsage from '@databricks/sdk-billableusagedownload/v1'` and remove the `Client` symbol entirely, letting `billableUsage.Client` be the qualified name.
 
-### 8. `Client.download` method name — `src/v1/client.ts:65`
+### 7. `Client.download` method name — `src/v1/client.ts:65`
 - **Why weird:** A bare `download` verb on the client. Outside the package context, `client.download(...)` reads as "download something" — the package name is the disambiguator. If a user composes multiple SDK clients (`billing.download()`, `files.download()`), the method names collide cognitively. Compare with `usagedashboards.Client` which probably exposes `createBillingUsageDashboard()` / `getBillingUsageDashboard()` — verb + domain noun.
 - **Category:** 1 (vague), 17 (inconsistent verb-pattern across sibling packages).
 - **Suggested name:** `downloadBillableUsage` (matches the request-type rename) or, if the package gets folded into `billing`, `downloadUsage`.
 - **Rationale:** Domain-qualified method names read better when imported into application code. Even within the package, `billableUsageDownloadClient.download()` has a pleasing redundancy that a single naked `download()` does not.
 
-### 9. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:17`
+### 8. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:17`
 - **Why weird:** `Segment` is a generic CS term. The comment ("Package identity segment for this client to be used in the User-Agent header") is the disambiguator; without it the constant name does not communicate what it is.
 - **Category:** 1 (vague), 15 (generic field name losing meaning).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Cross-package consistency — same finding appears in every audited package. Worth normalising at generator level.
 
-### 10. `flattenQueryParams` is exported but unused — `src/v1/utils.ts:123`
+### 9. `flattenQueryParams` is exported but unused — `src/v1/utils.ts:123`
 - **Why weird:** `client.ts` does its own query-param construction inline (lines 70-79) using `new URLSearchParams()` and three `params.append(...)` calls. The exported `flattenQueryParams` helper in `utils.ts` is never called.
 - **Category:** 11 (unused public helper — dead surface area).
 - **Suggested name:** Remove the export, or drop the function entirely if no caller in this package needs it.
 - **Rationale:** Every generated package ships this helper; in `billableusagedownload` (which has zero list/page operations and only three query params), the inline approach is clearly what the generator chose. The unused export is a generator artefact that should be pruned.
 
-### 11. `executeHttpCall` is exported but unused — `src/v1/utils.ts:65`
+### 10. `executeHttpCall` is exported but unused — `src/v1/utils.ts:65`
 - **Why weird:** `utils.ts` exports both `executeHttpCall` and `sendAndCheckError`; only the latter is used in `client.ts:96`. `executeHttpCall` is dead surface area.
 - **Category:** 11 (unused public helper — dead surface area).
 - **Suggested name:** Remove `executeHttpCall`; the package only needs `sendAndCheckError`.
@@ -85,31 +79,31 @@
 
 ## Low severity
 
-### 12. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 11. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** The word `Options` is reused throughout the SDK for unrelated concepts (`ClientOptions`, `CallOptions`, ...). Within this file the imported `Options` from `@databricks/sdk-core/api` (line 3) collides with this local interface name.
 - **Category:** 1 (vague suffix), 12 (duplicate `Options` naming).
 - **Suggested name:** `HttpCallContext` (it is not user-facing options; it is an internal bag of args).
 - **Rationale:** Distinguish internal context bags from user-tunable option structs. Same finding as `abacpolicies` audit #37.
 
-### 13. `readAll` helper — `src/v1/utils.ts:40`
+### 12. `readAll` helper — `src/v1/utils.ts:40`
 - **Why weird:** Function reads an entire response body stream into a buffer. Name is fine but generic; collides cognitively with `Array.prototype` or stream utilities. Also reads the body twice in `sendAndCheckError` (lines 176-181) — once for body content, once for error parsing — though this is fine because non-2xx is handled separately.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` / `readStreamToEnd`.
 - **Rationale:** Internal helper, low cost. Skip if generated.
 
-### 14. `buildHttpRequest` parameter order — `src/v1/utils.ts:96-102`
+### 13. `buildHttpRequest` parameter order — `src/v1/utils.ts:96-102`
 - **Why weird:** `(method, url, headers, signal?, body?)` — positional 5-arg function with two optional trailing params. Calling site (`client.ts:86`) passes `('GET', fullUrl, headers, callSignal)` — fine — but a caller adding a body has to remember the order. An options object would be clearer.
 - **Category:** 1 (no name issue per se), Observation.
 - **Suggested name:** Take `{method, url, headers, signal?, body?}` as an options object.
 - **Rationale:** Less of a naming issue, more of an API shape concern. Not a blocker.
 
-### 15. `req` / `resp` / `opts` / `httpReq` / `httpResp` abbreviations — `src/v1/client.ts:66,68,86,87,...`
+### 14. `req` / `resp` / `opts` / `httpReq` / `httpResp` abbreviations — `src/v1/client.ts:66,68,86,87,...`
 - **Why weird:** Three-letter abbreviations for local variables (`req`, `resp`, `opts`). The codebase guideline (typescript.mdc) discourages cryptic short abbreviations.
 - **Category:** 5 (cryptic abbreviation).
 - **Suggested name:** `request`, `response`, `options`, `httpRequest`, `httpResponse`.
 - **Rationale:** Spelling out four-letter names costs nothing and improves readability.
 
-### 16. `httpClient: HttpClient` field — `src/v1/client.ts:27` / `src/v1/utils.ts:17`
+### 15. `httpClient: HttpClient` field — `src/v1/client.ts:27` / `src/v1/utils.ts:17`
 - **Why weird:** Type-suffix tautology (`httpClient` field of type `HttpClient`). Minor — convention is widespread in this SDK.
 - **Category:** 20 (type-suffix tautology).
 - **Suggested name:** `client: HttpClient` — though arguably the longer name disambiguates from the (different) outer `Client` class in the same file.
@@ -117,25 +111,25 @@
 
 ## Observations
 
-### 17. Field type `ReadableStream` is un-parameterised — `src/v1/model.ts:31`
+### 16. Field type `ReadableStream` is un-parameterised — `src/v1/model.ts:31`
 The field is typed `ReadableStream` (no type parameter) rather than `ReadableStream<Uint8Array>`. Every other use in the codebase (`packages/files/src/v1/model.ts`, `utils.ts:42`, `utils.ts:101`) uses `ReadableStream<Uint8Array>` explicitly. The unparameterised version is the global lib type which is structurally `ReadableStream<any>`, weakening type safety for callers.
 - **Category:** 6 (misleading — type appears typed but is in fact `any`-typed), 17 (inconsistent across the SDK).
 - **Suggested name:** `contents?: ReadableStream<Uint8Array> | undefined`.
 
-### 18. Wire/TS mapping is correct
+### 17. Wire/TS mapping is correct
 The TS field `personalData` maps to wire `personal_data`, `startMonth` -> `start_month`, etc. The query-param construction in `client.ts:70-79` does it manually and correctly. Good — no naming bug here, just noting that no schema/codec layer is needed because this is a query-string-only request.
 
-### 19. No enums, no list-types, no FieldMask
+### 18. No enums, no list-types, no FieldMask
 This package is one of the simplest in the SDK: zero enums, zero list/paginated types. Audit-rule categories 2 (redundant enum prefix), 18 (long enum values), and 13 (verb tense inconsistency) do not apply here. That's why the finding count is comparatively low.
 
-### 20. CSV body is undocumented in types
+### 19. CSV body is undocumented in types
 `DownloadResponse.contents` is `ReadableStream` (untyped) but the JSDoc on `Client.download` (`client.ts:51-64`) makes clear the body is CSV. There is no type-level hint or branded type to mark this — a caller might treat the stream as JSON. Worth considering a documented branded type (`type CsvStream = ReadableStream<Uint8Array> & {readonly _csvBrand: unique symbol}`) or, more practically, a Content-Type assertion. Not a name problem; flagged because the response shape is uninformative.
 
 ## Domain glossary
 - `DBU` — Databricks Unit; standard billing unit for Databricks compute. Notably absent from this package's types and JSDoc — no DBU-related fields surface here despite the package being about billable usage. (User-mentioned in the task; verified via grep that the literal "DBU" never appears.)
 - `PII` — Personally Identifiable Information. Surfaced indirectly as the `personalData` field flag.
 - `E2` — Databricks deployment architecture. Mentioned in the JSDoc for `accountId` ("For non-E2 account types, get your account ID from the Accounts Console...").
-- `account ID` — Databricks account identifier. Surfaces as both `ClientOptions.accountId` and `DownloadRequest.accountId` (with fallback semantics — see finding #6).
+- `account ID` — Databricks account identifier. Surfaces as both `ClientOptions.accountId` and `DownloadRequest.accountId` (with fallback semantics — see finding #5).
 - `CSV` — Comma-Separated Values, the wire format of the download body. Documented in JSDoc, not in types.
 - `usage logs` — The actual data being downloaded (billable usage records). Not a type/field; only appears in JSDoc.
 

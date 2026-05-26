@@ -21,11 +21,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 9     |
-| Medium       | 7     |
-| Low          | 16    |
+| High         | 8     |
+| Medium       | 2     |
+| Low          | 12    |
 | Observation  | 7     |
-| **Total**    | **39**|
+| **Total**    | **29**|
 
 ### Top themes
 
@@ -111,20 +111,17 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `DockerImage.credsOneof`            | High     | `credsOneof` is a Go/proto-codegen leak — TS readers do not know what "Oneof" means in this context (the wire field uses a protobuf `oneof`). The "creds" abbreviation is also generic. Should be `credentials` (and the union shape itself satisfies the discriminator). |
-| V-02  | `PendingInstanceError.message`      | Medium   | `message` is generic. Could be `errorMessage` to match the type's purpose, or the type itself could be flattened. |
-| V-03  | `readAll` (`utils.ts:40`)           | Low      | Standard name for a read-to-end helper. |
-| V-04  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
-| V-05  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
+| V-02  | `readAll` (`utils.ts:40`)           | Low      | Standard name for a read-to-end helper. |
+| V-03  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
+| V-04  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
 
 ### 2.2 Acronym casing inconsistencies — High
 
 | ID    | Symbol                                | Severity | Issue |
 | ----- | ------------------------------------- | -------- | ----- |
 | A-01  | `InstancePoolAwsAttributes`           | High     | Google TS style says acronyms ≥3 chars get only-first-letter capitalised ("AWS" → "Aws"). The repo follows this (Aws/Azure/Gcp). Acceptable, but contrasts with `EbsVolumeType` where `Ebs` is only 3 chars (same rule, applied consistently). No defect — listed for parity with related audits. |
-| A-02  | `InstancePoolGcpAttributes.gcpAvailability` | High | The field name re-states the cloud already implied by the parent type `InstancePoolGcpAttributes`. Compare with `InstancePoolAwsAttributes.availability` (line 635) and `InstancePoolAzureAttributes.availability` (line 673) — both unprefixed. Three sibling types, two conventions. Should be `InstancePoolGcpAttributes.availability`. |
-| A-03  | `InstancePoolAwsAttributes.instanceProfileArn` | Low | "Arn" applies Google TS style for ≥3-char acronyms. Compare with `EbsVolumeType` (same package) and consistent. OK. |
-| A-04  | `InstancePoolGcpAttributes.localSsdCount` | Low | "Ssd" is 3 letters; same casing rule. OK. |
-| A-05  | `InstancePoolAzureAttributes.spotBidMaxPrice` vs `InstancePoolAwsAttributes.spotBidPricePercent` | Medium | Sibling fields describe the same concept (max price for spot bid) in opposite shapes. `MaxPrice` is an absolute USD value; `PricePercent` is relative. Names obscure this — `azureSpotBidMaxPriceUsd` and `awsSpotBidPricePercent` (or any clarifying suffix) would help. |
+| A-02  | `InstancePoolAwsAttributes.instanceProfileArn` | Low | "Arn" applies Google TS style for ≥3-char acronyms. Compare with `EbsVolumeType` (same package) and consistent. OK. |
+| A-03  | `InstancePoolGcpAttributes.localSsdCount` | Low | "Ssd" is 3 letters; same casing rule. OK. |
 
 ### 2.3 Cryptic abbreviations — Medium
 
@@ -145,27 +142,22 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | M-01  | `editInstancePool()` / `EditInstancePoolRequest` | Medium | Conventional REST/CRUD verb in TS is **update**. `clusterpolicies` (audit #M-01) and `clusters` make the same choice for the wire path `/edit`. Across-package inconsistency: most newer Databricks APIs use `update*`. Flag for upstream alignment. |
 | M-02  | `InstancePoolStatus`                | High     | The type carries *only* `pendingInstanceErrors`. The name promises a general "status" but the shape exposes only errors. `InstancePoolPendingErrors` or `InstancePoolFailures` would be more truthful. (`InstancePoolState` is the actual lifecycle state, on the entity itself.) |
 | M-03  | `InstancePoolAndStats`              | High     | The "AndStats" suffix implies it carries the pool *plus* statistics, but the type also carries `status`, `state`, `defaultTags`, and all 28 configuration fields. The "And" naming pattern is a Go-style listing-result idiom — TS readers expect just a single entity name. Consider `InstancePoolSummary` or `InstancePoolListEntry`. |
-| M-04  | `DiskSpec.diskCount`, `diskSize`, `diskIops`, `diskThroughput` | Low | Repetition of the `disk` prefix inside a type named `DiskSpec`. Inside the type, `count` / `size` / `iops` / `throughput` would suffice. Same pattern as `clusters.md` flagged elsewhere. |
-| M-05  | `DiskSpec.diskIops` (no JSDoc) and `diskSpec.diskThroughput` (no JSDoc) — `model.ts:239-240` | Low | Two fields with no JSDoc. Hard to know the unit without context. (Compare neighbouring `diskSize` which documents "GiB".) |
-| M-06  | `preloadedDockerImages` is plural but JSDoc says "Custom Docker Image BYOC" (singular) — `model.ts:141, 323, 445, 574` | Low | Field is `DockerImage[]`. Plural correctly matches type, but the JSDoc is misleading. |
-| M-07  | `preloadedSparkVersions: string[]` with JSDoc "A list containing at most one preloaded Spark image version" | High | Type is `string[]` but the JSDoc enforces a max length of 1. If only one value is allowed, the field should be `preloadedSparkVersion?: string` (singular). The array shape misleads callers into thinking they can pass several. |
-| M-08  | `InstancePoolStats.usedCount` / `idleCount` / `pendingUsedCount` / `pendingIdleCount` | Low | Adequate, but `usedCount` is ambiguous about what "used" means. JSDoc clarifies ("part of a cluster") — without it, readers might think "used = ever used". |
+| M-04  | `DiskSpec.diskIops` (no JSDoc) and `diskSpec.diskThroughput` (no JSDoc) — `model.ts:239-240` | Low | Two fields with no JSDoc. Hard to know the unit without context. (Compare neighbouring `diskSize` which documents "GiB".) |
+| M-05  | `preloadedDockerImages` is plural but JSDoc says "Custom Docker Image BYOC" (singular) — `model.ts:141, 323, 445, 574` | Low | Field is `DockerImage[]`. Plural correctly matches type, but the JSDoc is misleading. |
+| M-06  | `preloadedSparkVersions: string[]` with JSDoc "A list containing at most one preloaded Spark image version" | High | Type is `string[]` but the JSDoc enforces a max length of 1. If only one value is allowed, the field should be `preloadedSparkVersion?: string` (singular). The array shape misleads callers into thinking they can pass several. |
+| M-07  | `InstancePoolStats.usedCount` / `idleCount` / `pendingUsedCount` / `pendingIdleCount` | Low | Adequate, but `usedCount` is ambiguous about what "used" means. JSDoc clarifies ("part of a cluster") — without it, readers might think "used = ever used". |
 
-### 2.5 Overly verbose / Redundant suffixes — Medium
+### 2.5 Overly verbose / Redundant suffixes — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| O-01  | `idleInstanceAutoterminationMinutes` (5-word identifier, present in 4 types) | Medium | 33-char field. Inside a type called `CreateInstancePoolRequest` etc., `idleAutoterminationMinutes` or `idleTimeoutMinutes` would be 27 / 18 chars. The wire uses `idle_instance_autotermination_minutes` so any change is generator-side. |
-| O-02  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
-| O-03  | `NodeTypeFlexibility.alternateNodeTypeIds` | Low | Field name re-states `node` twice (once from parent type, once in the field). Could be `alternates` or `fallbacks`. The wire path is the constraint. |
-| O-04  | `totalInitialRemoteDiskSize`        | Low      | 25-char field, four concept words. Reasonable but heavy. |
-| O-05  | `spotBidPricePercent`               | Low      | Five concept words crammed into one camelCase identifier. The JSDoc explains what each part means. |
+| O-01  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
 
 ### 2.6 Singular / plural mismatches — Low / High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| P-01  | `preloadedSparkVersions: string[]`  | High (also M-07) | Plural array type but the JSDoc constrains it to at most one element. |
+| P-01  | `preloadedSparkVersions: string[]`  | High (also M-06) | Plural array type but the JSDoc constrains it to at most one element. |
 | P-02  | `preloadedDockerImages: DockerImage[]` | Low | Plural array; JSDoc says "Custom Docker Image BYOC" but the field accepts multiple. OK. |
 | P-03  | `ListInstancePoolsRequest` (request) vs `listInstancePools()` (method) | Low | Consistent plural. |
 | P-04  | `ListInstancePoolsRequest_Response.instancePools: InstancePoolAndStats[]` | Low | Plural array — correct. |
@@ -203,17 +195,15 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | G-02  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
 | G-03  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
-### 2.11 Generic field names losing meaning — Medium
+### 2.11 Generic field names losing meaning — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| F-01  | `DiskType.remoteVolumeType` (outside of `DiskType`) | Medium | When destructured, `remoteVolumeType: EbsVolumeType` reads as a category name colliding with the cloud-specific value. |
-| F-02  | `DockerImage.url` (outside of `DockerImage`) | Low | Standard. OK in context. |
-| F-03  | `DockerBasicAuth.username` / `password` | Low | Standard. OK. |
-| F-04  | `PendingInstanceError.message`      | Medium (also V-02) | When destructured, an error `message` field is the generic-est possible name. Adding `instanceMessage` would help. |
-| F-05  | `InstancePoolStatus.pendingInstanceErrors[]` | Low | OK. |
-| F-06  | `NodeTypeFlexibility.alternateNodeTypeIds` (outside the wrapper) | Low | Standalone, `alternateNodeTypeIds: string[]` is clear. OK. |
-| F-07  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
+| F-01  | `DockerImage.url` (outside of `DockerImage`) | Low | Standard. OK in context. |
+| F-02  | `DockerBasicAuth.username` / `password` | Low | Standard. OK. |
+| F-03  | `InstancePoolStatus.pendingInstanceErrors[]` | Low | OK. |
+| F-04  | `NodeTypeFlexibility.alternateNodeTypeIds` (outside the wrapper) | Low | Standalone, `alternateNodeTypeIds: string[]` is clear. OK. |
+| F-05  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.12 Field contradicting type domain — Low
 
@@ -253,7 +243,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ----- | ----------------------------------- | -------- | ----- |
 | TS-01 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-02). Doubly off. |
 | TS-02 | `NodeTypeFlexibility`               | Low      | "Flexibility" is the noun-form of a feature, not a type-suffix tautology. OK. |
-| TS-03 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix (M-04) the type-name still echoes. |
+| TS-03 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix the type-name still echoes. |
 | TS-04 | `EbsVolumeType`, `AzureDiskVolumeType` | Low | `VolumeType` / `DiskVolumeType` — standard cloud-storage terminology. OK. |
 
 ### 2.17 Other observations
@@ -408,11 +398,11 @@ artefact and the leading underscore at the same time.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 9     |
-| Medium       | 7     |
-| Low          | 16    |
+| High         | 8     |
+| Medium       | 2     |
+| Low          | 12    |
 | Observation  | 7     |
-| **Total**    | **39**|
+| **Total**    | **29**|
 
 ## 4. Cross-package consistency notes
 
@@ -434,11 +424,3 @@ artefact and the leading underscore at the same time.
 - `src/v2/index.ts` (43 lines): read fully.
 
 ---
-
-## Fixed
-
-- #M-04 `enableAutoAlternateNodeTypes` field (originally cited at `model.ts:164, 353, 482, 618`): Fixed in regeneration on 2026-05-20 — the deprecated field has been removed from all four request/response types.
-- #O-02 `enableAutoAlternateNodeTypes` (originally cited at `model.ts:164, 353, 482, 618`): Fixed in regeneration on 2026-05-20 — the deprecated field has been removed; the verbose-identifier concern no longer applies.
-- #C-07 `PuPr` in JSDoc `"deprecated before entering PuPr"` (originally cited at `model.ts:164, 353, 482, 618`): Fixed in regeneration on 2026-05-20 — the surrounding deprecated field and its JSDoc were removed.
-- #C-08 `Fleet-V2` in JSDoc `"For pools with node type flexibility (Fleet-V2)"` (originally cited within the deprecated `enableAutoAlternateNodeTypes` JSDoc block): Fixed in regeneration on 2026-05-20 — the surrounding deprecated field and its JSDoc were removed.
-- #X-03 TODO comment `TODO(CJ-71514): Remove this field after sufficient time has passed for all clients to migrate.` (originally cited at `model.ts:165, 354, 483, 619`): Fixed in regeneration on 2026-05-20 — the surrounding deprecated field and JSDoc with the internal ticket reference were removed.

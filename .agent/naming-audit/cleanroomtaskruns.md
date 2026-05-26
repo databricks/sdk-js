@@ -306,12 +306,3 @@ service name — but a reader is left to guess.
 findings touch multiple categories).
 
 ---
-
-## Fixed
-
-- #8 (partial) `sharedOutputSchemaExpirationTime` (originally cited at model.ts:73): Fixed in regeneration on 2026-05-20 — field removed from `CleanRoomNotebookTaskRun`; remaining `outputSchemaExpirationTime` retained as renumbered finding #8.
-- #9 `sharedOutputSchemaName` doc references missing `enable_shared_output` flag (originally cited at model.ts:72): Fixed in regeneration on 2026-05-20 — `sharedOutputSchemaName` field removed from `CleanRoomNotebookTaskRun`, so the misleading doc is gone.
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

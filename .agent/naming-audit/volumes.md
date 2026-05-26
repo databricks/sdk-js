@@ -11,10 +11,10 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 2     |
-| Medium      | 6     |
+| Medium      | 4     |
 | Low         | 6     |
 | Observation | 4     |
-| **Total**   | **18** |
+| **Total**   | **16** |
 
 Headline themes:
 
@@ -95,39 +95,7 @@ Headline themes:
   domain noun — note that `volumes` has no type with the bare name
   `Volume`, even though it is literally the "volumes" package.
 
-### M2. `SseEncryptionDetails.algorithm` — generic field name on a
-single-purpose type
-
-- **File / line:** `src/v1/model.ts:116`; cross-ref `model.ts:239, 243,
-  348, 352`.
-- **Category:** #1 vague/generic; #15 generic field name losing meaning.
-- **Current:** `algorithm?: SseEncryptionAlgorithm`.
-- **Suggestion:** `encryptionAlgorithm` — though, in context, the parent
-  type already says "SseEncryption", so `algorithm` is acceptable. This
-  is a borderline call.
-- **Rationale:** Inside `SseEncryptionDetails`, `algorithm` is fine. The
-  flag stands only if the field is ever exposed in flatter scopes (it
-  isn't, locally). Listed for completeness.
-
-### M3. `awsKmsKeyArn` vs. `accessPoint` — inconsistent AWS-specific
-field-naming style
-
-- **File / line:** `src/v1/model.ts:121` (`awsKmsKeyArn`); cross-ref
-  `model.ts:48, 160, 198` (`accessPoint`).
-- **Category:** #1 vague/generic; #3 acronym casing inconsistencies; #6
-  misleading name.
-- **Current:** `awsKmsKeyArn?: string` lives on `SseEncryptionDetails`
-  (AWS-specific). `accessPoint?: string` lives on `CreateVolumeRequest` /
-  `UpdateVolumeRequest` / `VolumeInfo` but is also AWS-specific (the doc
-  comment at `model.ts:47, 159, 197` reads "The AWS access point to use
-  when accesing s3 for this external location.").
-- **Suggestion:** Either prefix the latter as `awsAccessPoint` (matching
-  `awsKmsKeyArn`) or drop the prefix from both (`kmsKeyArn` and
-  `accessPoint`). Inconsistency is the issue.
-- **Rationale:** Two AWS-only fields side-by-side, one prefixed, one not.
-  The doc comment also has a typo ("accesing" → "accessing").
-
-### M4. `browseOnly` is a server-derived flag on request types
+### M2. `browseOnly` is a server-derived flag on request types
 
 - **File / line:** `src/v1/model.ts:51` (`CreateVolumeRequest.browseOnly`),
   `163` (`UpdateVolumeRequest.browseOnly`), `201`
@@ -146,7 +114,7 @@ field-naming style
   want browse-only access" rather than "the server has limited me to
   browse-only."
 
-### M5. `req` parameter name on all client methods
+### M3. `req` parameter name on all client methods
 
 - **File / line:** `src/v1/client.ts:90, 122, 157, 203, 248, 274`.
 - **Category:** #5 cryptic abbreviation; #14 Go-style name.
@@ -159,7 +127,7 @@ field-naming style
   encouraged; in TS this reads as Go-translated code. Pervasive in this
   package (every method uses `req`) and across the repo.
 
-### M6. Repeated `Details` suffix — `EncryptionDetails` wraps
+### M4. Repeated `Details` suffix — `EncryptionDetails` wraps
 `SseEncryptionDetails`
 
 - **File / line:** `src/v1/model.ts:63` (`EncryptionDetails`),
@@ -340,22 +308,22 @@ Type & symbol checklist:
 
 - [x] `SseEncryptionAlgorithm` enum (3 members) → no defect.
 - [x] `VolumeType` enum (2 members) → no defect.
-- [x] `CreateVolumeRequest` interface (17 fields) → H2, M3, M4.
+- [x] `CreateVolumeRequest` interface (17 fields) → H2, M2.
 - [x] `DeleteVolumeRequest` interface (1 field) → H1, L5.
-- [x] `EncryptionDetails` interface → M6.
+- [x] `EncryptionDetails` interface → M4.
 - [x] `GetVolumeRequest` interface (2 fields) → H1, L5.
 - [x] `ListVolumesRequest` interface (5 fields) → no additional defect.
-- [x] `SseEncryptionDetails` interface (2 fields) → M2, M3, M6.
-- [x] `UpdateVolumeRequest` interface (18 fields) → H1, H2, M3, M4, L5.
-- [x] `VolumeInfo` interface (16 fields) → M1, M3, M4, L5, O1.
+- [x] `SseEncryptionDetails` interface (2 fields) → M4.
+- [x] `UpdateVolumeRequest` interface (18 fields) → H1, H2, M2, L5.
+- [x] `VolumeInfo` interface (16 fields) → M1, M2, L5, O1.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → O4.
-- [x] `createVolume(req, options)` method → H2, M5, L2.
-- [x] `deleteVolume(req, options)` method → H1, M5, L2.
-- [x] `getVolume(req, options)` method → H1, M5, L2.
-- [x] `listVolumes(req, options)` method → M5, L2.
-- [x] `listVolumesIter(req, options)` async generator → M5, L6.
-- [x] `updateVolume(req, options)` method → H1, H2, M5, L2.
+- [x] `createVolume(req, options)` method → H2, M3, L2.
+- [x] `deleteVolume(req, options)` method → H1, M3, L2.
+- [x] `getVolume(req, options)` method → H1, M3, L2.
+- [x] `listVolumes(req, options)` method → M3, L2.
+- [x] `listVolumesIter(req, options)` async generator → M3, L6.
+- [x] `updateVolume(req, options)` method → H1, H2, M3, L2.
 - [x] `HttpCallOptions` interface → no defect.
 - [x] `executeCall` function → L1.
 - [x] `readAll` private function → no defect (name fits idiom).
@@ -365,16 +333,3 @@ Type & symbol checklist:
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).
 
 ---
-
-## Fixed
-
-- #M1 Bare verb-phrase request type names (originally cited at
-  `src/v1/model.ts:16, 54, 73, 80, 124`): Fixed in regeneration on
-  2026-05-20 — request DTOs renamed to `CreateVolumeRequest`,
-  `DeleteVolumeRequest`, `GetVolumeRequest`, `ListVolumesRequest`,
-  `UpdateVolumeRequest`; collision with client methods resolved.
-- #O1 Bare `Get*` / `Create*` / `Update*` / `Delete*` / `List*` request
-  shapes are a repo-wide pattern (originally cited as observation): Fixed
-  in regeneration on 2026-05-20 — local M1 finding resolved by the
-  `Request` suffix renaming; cross-package convention now matches sibling
-  packages that already used the suffix.

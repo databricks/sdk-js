@@ -3,14 +3,14 @@
 **Path:** `packages/externalmetadata/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog External Metadata — register, list, update, and delete metadata objects that describe data assets living outside Databricks (Tableau dashboards, Power BI reports, Kafka topics, ServiceNow tables, Snowflake tables, etc.), enabling cross-system lineage in the Databricks lineage-tracking subsystem.
-**Total weird names flagged:** 35
+**Total weird names flagged:** 26
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 9 |
-| Medium | 12 |
-| Low | 10 |
+| High | 8 |
+| Medium | 5 |
+| Low | 9 |
 | Observation | 4 |
 
 ## High severity
@@ -39,31 +39,25 @@
 - **Suggested name:** `ExternalAsset` or `ExternalEntity` (the type already has a `entityType` field describing what shape of external thing it is). Alternatively, embrace the proto-canonical name with `ExternalMetadataObject`.
 - **Rationale:** Reading `const x: ExternalMetadata = ...` does not communicate that `x` is a single named external asset. The JSDoc fix ("external metadata object") betrays that the type name needs help to read as a noun. Worth raising upstream.
 
-### 5. `ExternalMetadata.name` (and `req.name` in Get/Delete/Update) — `src/v1/model.ts:45,40,81`
-- **Why weird:** Field literally called `name` on an entity that uses `name` as the unique identifier in REST path segments (`/api/2.0/lineage-tracking/external-metadata/${req.name}`). The entity also has both `name` AND `id` (line 71) — two different identifier-shaped fields with no doc differentiation beyond "Unique identifier of the external metadata object" on `id` and "Name of the external metadata object" on `name`.
-- **Category:** 1 (vague — `name` is the canonical too-generic field name), 12 (duplicate concept — `name` and `id` both feel identity-shaped), 19 (underspecified ID).
-- **Suggested name:** Either rename to `objectName` / `assetName` and document the format constraint, or drop `id` if `name` is the canonical key. JSDoc must explain when callers use `name` vs `id`.
-- **Rationale:** Co-existence of `name?: string` and `id?: string` with no semantic separation in docs is a recipe for caller confusion. The URL routing uses `name` as the path segment, suggesting `name` is the canonical key; `id` is the implementation-detail UUID. The type does not communicate this.
+### 5. `ExternalMetadata.name` vs. `ExternalMetadata.id` — `src/v1/model.ts:45,71`
+- **Why weird:** The entity has both `name` AND `id` — two different identifier-shaped fields with no doc differentiation beyond "Unique identifier of the external metadata object" on `id` and "Name of the external metadata object" on `name`. The URL routing uses `name` as the path segment (`/api/2.0/lineage-tracking/external-metadata/${req.name}`), suggesting `name` is the canonical key; `id` is the implementation-detail UUID.
+- **Category:** 12 (duplicate concept — `name` and `id` both feel identity-shaped), 19 (underspecified ID).
+- **Suggested name:** Drop `id` if `name` is the canonical key, or document in JSDoc when callers use `name` vs `id`.
+- **Rationale:** Co-existence of `name?: string` and `id?: string` with no semantic separation in docs is a recipe for caller confusion. The type does not communicate which is canonical.
 
-### 6. `ExternalMetadata.id` — `src/v1/model.ts:71`
-- **Why weird:** Field `id` exists alongside `name`. JSDoc says "Unique identifier" — but `name` is also a unique identifier (the URL path key). Bare `id` without further qualification gives no hint that this is the system-generated UUID vs. the human-readable name. Also: bare `id: string` is rule-19 underspecified — no format constraint visible at the type.
-- **Category:** 1 (vague), 12 (duplicate concept with `name`), 19 (underspecified ID).
-- **Suggested name:** `objectId` / `assetId` / `externalMetadataId`, or drop entirely if `name` is the canonical key.
-- **Rationale:** Two unique identifiers on one type with no doc differentiation forces every caller to read the API docs to know which to use. The type should name the difference.
-
-### 7. `ListExternalMetadataResponseV2` — `src/v1/model.ts:94`
+### 6. `ListExternalMetadataResponseV2` — `src/v1/model.ts:94`
 - **Why weird:** Type name carries the API version suffix `V2`, but the enclosing file is already `v1/model.ts` and the package is mounted at `./v1`. Version is encoded twice — once in the directory, once in the type. If the user later imports a hypothetical `v2/`, they would get `V3`? Versioning the entity name within the version namespace creates an off-by-one collision risk.
 - **Category:** 8 (redundant suffix — version is in the path), 20 (type-suffix tautology between version-in-path and version-in-name), 14 (Go/proto-style — Go SDK carries the `V2` per RPC name; TS doesn't need it).
 - **Suggested name:** `ListExternalMetadataResponse` (drop `V2`).
 - **Rationale:** The directory is the namespace. Embedding the wire RPC version into the TS type name leaks an internal detail of the generator. If the package later gets a `v2/` directory, every type there ends up `V3` (one ahead of the dir), which is worse than the original problem.
 
-### 8. `Client.createExternalMetadataV2` / `deleteExternalMetadataV2` / `getExternalMetadataV2` / `listExternalMetadataV2` / `updateExternalMetadataV2` / `listExternalMetadataV2Iter` — `src/v1/client.ts:70,102,124,154,190,212`
+### 7. `Client.createExternalMetadataV2` / `deleteExternalMetadataV2` / `getExternalMetadataV2` / `listExternalMetadataV2` / `updateExternalMetadataV2` / `listExternalMetadataV2Iter` — `src/v1/client.ts:75,110,135,168,207,229`
 - **Why weird:** Every public method on `Client` ends with `V2`, but the directory is `v1/`. The version suffix is wire-RPC-name leakage (the upstream API is `ExternalMetadataServiceV2.Create`, hence `createExternalMetadataV2`). User code reads `client.createExternalMetadataV2(...)` for a method on a `v1/` import — confusing on first read.
 - **Category:** 8 (redundant suffix), 14 (Go/proto-style name leak), 20 (type/version suffix tautology).
 - **Suggested name:** `createExternalMetadata`, `deleteExternalMetadata`, etc. (drop `V2`).
-- **Rationale:** The user's call site is `import {Client} from '@databricks/sdk-externalmetadata/v1'; client.createExternalMetadataV2(...)` — `V2` is wire-RPC noise. Version belongs in the import path, not the method name. Same problem as #7; generator-wide concern.
+- **Rationale:** The user's call site is `import {Client} from '@databricks/sdk-externalmetadata/v1'; client.createExternalMetadataV2(...)` — `V2` is wire-RPC noise. Version belongs in the import path, not the method name. Same problem as #6; generator-wide concern.
 
-### 9. `Client` — `src/v1/client.ts:41`
+### 8. `Client` — `src/v1/client.ts:41`
 - **Why weird:** Class literally named `Client` at the top level of the package's surface. Re-exported through `index.ts` as just `Client`. Two packages co-existing in user code collide on import: `import {Client} from '@databricks/sdk-externalmetadata'` and `import {Client} from '@databricks/sdk-catalogs'` both fight for the same identifier.
 - **Category:** 1 (vague — `Client` is the most generic name), 15 (generic name).
 - **Suggested name:** `ExternalMetadataClient` (matches the package name and avoids collisions on combined imports).
@@ -71,73 +65,31 @@
 
 ## Medium severity
 
-### 10. `ExternalMetadata.systemType: SystemType` — `src/v1/model.ts:47`
-- **Why weird:** Type-suffix tautology — field `systemType` of type `SystemType` on a type called `ExternalMetadata`. Reads `externalMetadata.systemType: SystemType` — three "type"s in one declaration.
-- **Category:** 20 (type-suffix tautology), 8 (redundant suffix).
-- **Suggested name:** `system: SystemType` (would read `externalMetadata.system`).
-- **Rationale:** When the field's type already encodes "type", the field itself doesn't need to. Compare: `externalMetadata.system` reads cleaner than `externalMetadata.systemType`.
-
-### 11. `ExternalMetadata.entityType` — `src/v1/model.ts:49`
-- **Why weird:** Field `entityType` is typed `string` (free-form) rather than `EntityType` (an enum). Pairs awkwardly with `systemType: SystemType` two lines above — one is enumerated, the other is freeform string. The user has no idea what valid `entityType` values are without consulting external docs.
-- **Category:** 1 (vague), 6 (misleading — `Type` suffix implies a closed set, but it's freeform), 15 (generic field name losing meaning), 17 (inconsistency — `systemType` is closed enum, `entityType` is open string).
-- **Suggested name:** `entityKind` (less enum-implying), or define an `EntityType` enum if a closed set exists.
-- **Rationale:** A field named `xxxType: string` strongly suggests an enum without one. JSDoc says "Type of entity within the external system" — but for Tableau the entity might be a dashboard/workbook; for Kafka, a topic. Closed-set values would help; absent that, the name should not over-promise.
-
-### 12. `ExternalMetadata.url` — `src/v1/model.ts:51`
+### 9. `ExternalMetadata.url` — `src/v1/model.ts:51`
 - **Why weird:** Casing of acronym. The codebase uses `url` (lowercase) consistently for the property, but the Web platform/standards canonical is `URL` (uppercase). Compare to `userAgent` (camelCase) and `URLSearchParams` (Web standard SCREAMING). Internal inconsistency between `url` (field) and `URLSearchParams` (function/class).
 - **Category:** 3 (acronym casing).
 - **Suggested name:** Keep `url` (TS convention), but acknowledge the JS-ecosystem split.
 - **Rationale:** The JS world is split here — Node, browsers, and the URL spec all use `URL` for the class and `url` for member fields. Internal consistency within this file is preserved (`url` everywhere); the rule is conventional, not broken.
 
-### 13. `ExternalMetadata.description` — `src/v1/model.ts:53`
-- **Why weird:** Field `description` is on the entity but is "User-provided free-form text description" per JSDoc — i.e., not a generated description, not a vendor description, but specifically a description set by the metadata owner. The plain name `description` does not convey "you supply this".
-- **Category:** 1 (vague — `description` is the canonical too-generic field name).
-- **Suggested name:** `userDescription` or keep `description` and rely on JSDoc.
-- **Rationale:** Minor — `description` is the universal expectation. JSDoc is doing the work. Listed for completeness.
-
-### 14. `ExternalMetadata.columns: string[]` — `src/v1/model.ts:55`
-- **Why weird:** `columns` is typed as `string[]` (just names), but the JSDoc reads "List of columns associated with the external metadata object". A `Column` in Unity Catalog terms is a structured `{name, type, nullable, ...}` object — calling a list of column names `columns` invites the reader to expect structure that is not there.
-- **Category:** 6 (misleading — `columns` implies structured objects, is just names), 15 (generic field name losing meaning).
-- **Suggested name:** `columnNames: string[]` (matches the contents).
-- **Rationale:** When the field type and field name disagree about whether the values are objects or strings, the type wins (it has to compile); the name is the bug. `columnNames` is unambiguous.
-
-### 15. `ExternalMetadata.properties` — `src/v1/model.ts:57`
-- **Why weird:** Field name is the literal type-system-builtin reserved word for "object members" (`Object.properties`, `props`, etc). The map's role is "user-defined custom metadata" but the name `properties` is the most generic possible for a `Record<string,string>`. Also: `properties` co-exists with `metastoreId`, `owner`, `createdBy`, etc., which are *also* properties.
-- **Category:** 1 (vague), 6 (misleading — every other field is also a "property"), 10 (reserved-word-adjacent — `properties` clashes with `Object.properties`).
-- **Suggested name:** `tags`, `labels`, `attributes`, or `customProperties` — whatever the API doc calls them.
-- **Rationale:** `properties` on a `Record<string,string>` is bag-of-strings naming. A user reading `externalMetadata.properties.foo` cannot tell if `foo` is intrinsic or user-extended.
-
-### 16. `ExternalMetadata.owner` — `src/v1/model.ts:59`
+### 10. `ExternalMetadata.owner` — `src/v1/model.ts:59`
 - **Why weird:** Field `owner: string | undefined` with no hint of format. JSDoc says "Owner of the external metadata object" — owner is a Unity Catalog principal (user, group, or service principal). Common sister-package convention names this `owner` consistently, but a user has no idea what string format to put (`alice@example.com`? `users/alice`? a UUID?). Same problem applies to `createdBy` (line 65) and `updatedBy` (line 69).
 - **Category:** 1 (vague), 19 (underspecified ID — what format is the principal?).
 - **Suggested name:** Keep `owner` but document format. Or `ownerPrincipal`, matching other UC packages.
 - **Rationale:** Bare `owner: string` is the canonical UC principal-as-string pattern across the SDK, but the type does not communicate format. Minor — sister-package convention is the same. Listed for visibility.
 
-### 17. `ExternalMetadata.metastoreId` — `src/v1/model.ts:61`
+### 11. `ExternalMetadata.metastoreId` — `src/v1/model.ts:61`
 - **Why weird:** Bare `metastoreId: string | undefined` — a UUID identifier on a UC metastore, but the type does not hint at the format. Idiomatic across the SDK; here mentioned only for rule-19 completeness. Also note: this field is "Unique identifier of parent metastore" but `parent` is not named — the metastore relationship is communicated via the `metastoreId` field alone, not a `parent` field per AIP-160.
 - **Category:** 19 (underspecified ID — `string` doesn't tell you it's a UUID).
 - **Suggested name:** Keep `metastoreId` (canonical across SDK).
 - **Rationale:** SDK-wide pattern; field name is fine. Listed for completeness.
 
-### 18. `ExternalMetadata.createTime` / `updateTime` — `src/v1/model.ts:63,67`
-- **Why weird:** Verb-tense / part-of-speech inconsistency with `createdBy` and `updatedBy` (lines 65, 69). Times use the imperative ("create"); user fields use past-tense ("created"). A consistent set would be `createdAt` + `createdBy` and `updatedAt` + `updatedBy`. The Go SDK uses `create_time`/`update_time` on the wire; TS does not have to follow.
-- **Category:** 13 (verb-tense inconsistency), 17 (inconsistent action-tense pair).
-- **Suggested name:** `createdAt: Temporal.Instant` + `updatedAt: Temporal.Instant` (preserves the `createdBy`/`updatedBy` past-tense pair).
-- **Rationale:** Sibling fields should agree on tense. `createTime`/`createdBy` mixes imperative + past-tense for one event. JS/TS canon is `createdAt`/`updatedAt` (e.g., NoSQL drivers, Sequelize, TypeORM, Prisma).
-
-### 19. `ExternalMetadata.updateTime` vs. `Client.updateExternalMetadataV2` — `src/v1/model.ts:67, src/v1/client.ts:212`
-- **Why weird:** "Update" as a verb is overloaded — it names both an action (the PATCH method) and a state field (the last-modified timestamp). On the same entity, reading `externalMetadata.updateTime` while a request to `updateExternalMetadata` is in flight is confusing.
-- **Category:** 12 (duplicate concept), 17 (verb noun-vs-action collision).
-- **Suggested name:** `modifiedAt`/`modifiedBy` for the state, leave `update` for the action.
-- **Rationale:** Separating timestamp ("modified") from operation ("update") prevents the reader from conflating "this was just updated" with "this is being updated right now".
-
-### 20. `UpdateExternalMetadataRequest.updateMask: FieldMask<ExternalMetadata>` — `src/v1/model.ts:101`
+### 12. `UpdateExternalMetadataRequest.updateMask: FieldMask<ExternalMetadata>` — `src/v1/model.ts:101`
 - **Why weird:** Field name `updateMask` doesn't say what kind of mask. In context the mask describes "which fields to patch". The Google AIP-134 convention names this `updateMask`; the TS-idiomatic name would describe contents (`fieldsToUpdate`, `patchedFields`, `paths`).
 - **Category:** 1 (vague), 14 (Google-AIP-style name).
 - **Suggested name:** Keep `updateMask` (AIP-134 canon) or rename to `fieldsToUpdate`.
 - **Rationale:** Sticking to AIP-134 is fine; SDK-wide pattern. Listed for awareness.
 
-### 21. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
+### 13. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions named "execute" — one runs the retry/rate-limit shell, the other does the actual HTTP request. The names do not communicate the layering. A reader sees both `executeCall` and `executeHttpCall` called inside the same client method (the inner `call` wraps `executeHttpCall`, then `executeCall(call, options)` runs it) and must read the bodies to figure out who calls whom.
 - **Category:** 1 (vague), 12 (duplicate concept — both are "execute"), 17 (inconsistent layering name).
 - **Suggested name:** `runWithRetry(call, options)` (outer) and `sendHttpRequest(opts)` (inner). Or `executeWithPolicies` + `executeHttpRequest`.
@@ -145,79 +97,73 @@
 
 ## Low severity
 
-### 22. `ListExternalMetadataResponseV2.externalMetadata: ExternalMetadata[]` — `src/v1/model.ts:95`
-- **Why weird:** Singular/plural mismatch. The field holds an array but is named `externalMetadata` (singular). Convention is plural for arrays (e.g., `connections: Connection[]` in sister packages). Compare: `nextPageToken` is singular because it's a single token.
-- **Category:** 9 (singular/plural mismatch), 20 (type-suffix tautology — `externalMetadata: ExternalMetadata[]`).
-- **Suggested name:** `items: ExternalMetadata[]` or `externalMetadataObjects: ExternalMetadata[]` or `assets`. Wire stays `external_metadata`.
-- **Rationale:** "Metadata" is a mass noun (uncountable), which is why the generator left it singular. A plural-aware name like `items` or `assets` reads naturally.
-
-### 23. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
+### 14. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
 - **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. Constant is `UPPER_SNAKE_CASE` in a TS file otherwise dominated by camelCase. The casing is appropriate for a top-level constant, but the noun is weak.
 - **Category:** 1 (vague — `Segment` of what?).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
 - **Rationale:** Single word "segment" gives no domain. The comment above does the work the name should.
 
-### 24. `Call` type and `call` variable — `src/v1/client.ts:80,107,130,169,228`
+### 15. `Call` type and `call` variable — `src/v1/client.ts:85,115,141,183,245`
 - **Why weird:** Variable named `call` of type `Call` — same word for the variable, type, and the API method semantics. Inside `executeCall(call, options)` the verb-noun collision is jarring (`execute the call`).
 - **Category:** 1 (vague), 12 (duplicate concept).
 - **Suggested name:** `runRequest` / `sendRequest` for the variable; reserve `Call` for the type.
 - **Rationale:** Type-name collisions read fine in IDE but obscure prose-style reads.
 
-### 25. `req` / `resp` / `respBody` / `httpReq` variables — `src/v1/client.ts:71-95, 103-118, etc.`
+### 16. `req` / `resp` / `respBody` / `httpReq` variables — `src/v1/client.ts:75-104, 110-129, etc.`
 - **Why weird:** Three abbreviations of `request`/`response` in the same scope. `req: CreateExternalMetadataRequest` is the user input; `httpReq: HttpRequest` is the wire object; `resp: ExternalMetadata` is the parsed result; `respBody: Uint8Array` is the wire body. Easy to grab the wrong one.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency — `respBody` keeps `Body`, but `resp` drops the implied `Parsed`).
 - **Suggested name:** `request`, `response`, `rawBody`, `httpRequest` (no abbreviations) or distinguish stages by meaningful nouns (e.g., `input`, `result`).
 - **Rationale:** Avoid forking the same identifier across two layers in the same scope. Spelling out `httpRequest`/`response` solves it.
 
-### 26. `pageReq` — `src/v1/client.ts:194`
+### 17. `pageReq` — `src/v1/client.ts:211`
 - **Why weird:** Yet another `req` abbreviation (`pageReq: ListExternalMetadataRequest`). Inside `listExternalMetadataV2Iter`, the loop variable `pageReq` shares the `req` root with the outer parameter `req`.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency with `req`).
 - **Suggested name:** `nextPageRequest` or unwrap the variable entirely (just mutate `req.pageToken`).
 - **Rationale:** Sibling-scope variables with shared roots are easy to mis-grab. Spell out one or the other.
 
-### 27. `body` parameter on `buildHttpRequest` — `src/v1/utils.ts:101`
+### 18. `body` parameter on `buildHttpRequest` — `src/v1/utils.ts:101`
 - **Why weird:** Parameter `body?: string | ReadableStream<Uint8Array>` is bare-typed `string | ReadableStream` — no hint that this is JSON-string-or-streamed-bytes. Compare: callers pass the result of `marshalRequest` (always JSON string), so the stream variant is theoretical.
 - **Category:** 1 (vague — `body` is the most generic field name), 15 (generic field name losing meaning).
 - **Suggested name:** `requestBody: string | ReadableStream<Uint8Array>`.
 - **Rationale:** Inside a function building HTTP requests, `body` is fine because the type is `HttpRequest['body']`. Listed for completeness; not actionable on its own.
 
-### 28. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 19. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Function is exported but unused in `client.ts` — `listExternalMetadataV2` uses ad-hoc `params.append(...)` calls inline (`page_size`, `page_token`) rather than the flatten helper. Dead-code-shaped helper sitting in shared scaffolding.
 - **Category:** 6 (misleading — implies the package uses it), 18 (carry-over from a different template).
 - **Suggested name:** N/A — the function should not live in this package at all. Belongs in a shared utils package.
 - **Rationale:** Generator-wide concern: every package duplicates this helper. The naming is fine but the location is not.
 
-### 29. `readAll(body)` — `src/v1/utils.ts:40`
+### 20. `readAll(body)` — `src/v1/utils.ts:40`
 - **Why weird:** `readAll` is generic enough to read anything; here it specifically drains a `ReadableStream<Uint8Array>`. The name does not say "drain a stream into a single buffer".
 - **Category:** 1 (vague), 5 (cryptic — `readAll` is JS-conventional but not self-describing).
 - **Suggested name:** `drainStream` or `readStreamToUint8Array`.
 - **Rationale:** A name like `readAll` reads as if it took a file path. The function signature does the documentation work; the name does not.
 
-### 30. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 21. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Type called `Options` but it is an internal context bag (request + http client + logger), not user-tunable options. The user-facing options type is `CallOptions` (different file). Mixing "options" for two different concepts is confusing.
 - **Category:** 1 (vague suffix `Options`), 8 (redundant suffix — internal context bags should not be called `Options`).
 - **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
 - **Rationale:** Reserve `Options` for things callers tune; use `Context`/`Args` for the internal bag.
 
-### 31. `unmarshalListExternalMetadataResponseV2Schema` — `src/v1/model.ts:144`
-- **Why weird:** The Zod schema constant carries the `V2` mid-position infix just like the type it parses (#7) and the client methods (#8). The directory is `v1/`, so `V2` here is wire-RPC-name leakage embedded inside a TS identifier that has no business advertising the upstream RPC version. Architectural leak — the generator copied the proto `ResponseV2` name straight through into the parser symbol.
+### 22. `unmarshalListExternalMetadataResponseV2Schema` — `src/v1/model.ts:144`
+- **Why weird:** The Zod schema constant carries the `V2` mid-position infix just like the type it parses (#6) and the client methods (#7). The directory is `v1/`, so `V2` here is wire-RPC-name leakage embedded inside a TS identifier that has no business advertising the upstream RPC version. Architectural leak — the generator copied the proto `ResponseV2` name straight through into the parser symbol.
 - **Category:** 14 (Go/proto-style name leak — wire `V2` infix on a TS identifier), 8 (redundant suffix — version is in the path), 20 (type-version suffix tautology between version-in-path and version-in-name).
 - **Suggested name:** `unmarshalListExternalMetadataResponseSchema` (drop `V2`).
-- **Rationale:** The schema is local to `v1/model.ts`; nothing in this file disambiguates a `V2` schema from a `V1` schema because no `V1` schema exists. Same generator-wide concern as #7 and #8 — propagating the wire RPC version into TS identifiers leaks an architectural detail of the upstream service.
+- **Rationale:** The schema is local to `v1/model.ts`; nothing in this file disambiguates a `V2` schema from a `V1` schema because no `V1` schema exists. Same generator-wide concern as #6 and #7 — propagating the wire RPC version into TS identifiers leaks an architectural detail of the upstream service.
 
 ## Observations
 
-### 32. Identifier doubling for path + UUID
-The `ExternalMetadata` type has both `name` (the URL-path key) and `id` (the system UUID). Sister packages handle this differently — some collapse to `name` only, some collapse to `id` only, some keep both with explicit `nameOrId` semantics in JSDoc. The lack of a single SDK-wide convention is the underlying problem; per-package, this manifests as #5 and #6.
+### 23. Identifier doubling for path + UUID
+The `ExternalMetadata` type has both `name` (the URL-path key) and `id` (the system UUID). Sister packages handle this differently — some collapse to `name` only, some collapse to `id` only, some keep both with explicit `nameOrId` semantics in JSDoc. The lack of a single SDK-wide convention is the underlying problem; per-package, this manifests as #5.
 
-### 33. Action-verb conventions in `Client`
+### 24. Action-verb conventions in `Client`
 The client uses `Create`/`Get`/`Update`/`Delete`/`List` consistently — no `Fetch`/`Retrieve`/`Read`/`Remove`. Verb consistency is good.
 
-### 34. Acronym casing
+### 25. Acronym casing
 The codebase mixes `Http` (PascalCase capital-then-lower) with `URLSearchParams` (Web standard ALLCAPS imported by name). Field uses `url` lowercase. No `Id`/`URL`/`UC` clashes encountered in the user-facing types of this small package. The `Http`/`URL` split mirrors the JS ecosystem and is hard to fix locally.
 - **Category:** 3 (acronym casing).
 
-### 35. `externalmetadata` lowercase package name
+### 26. `externalmetadata` lowercase package name
 The package directory is `externalmetadata` (one word, no separator), but every type/field uses `ExternalMetadata` (two words) and the HTTP path uses kebab-case `/api/2.0/lineage-tracking/external-metadata` (note the *outer* `lineage-tracking` — not `external-metadata`-rooted). The directory name's collapsed spelling is unsegmented across word boundaries. Worth flagging for SDK-wide convention (compare: should be `external-metadata` to match other multi-word packages, but npm package names allow hyphens only via scopes).
 - **Category:** 3 (casing inconsistency: directory `externalmetadata` vs. wire `external-metadata` vs. types `ExternalMetadata`).
 
@@ -230,11 +176,11 @@ The package directory is `externalmetadata` (one word, no separator), but every 
 - `entity` / `entityType` — the kind of object *within* the external system (a Tableau workbook vs. a dashboard; a Kafka topic vs. a partition). Open string, not enumerated.
 - `BROWSE`, `MANAGE`, `MODIFY`, `CREATE_EXTERNAL_METADATA` — UC privileges referenced in method JSDoc but not modeled as types.
 - `wkt` — Well-Known Types (import path `@databricks/sdk-core/wkt`, used for `FieldMask`).
-- `properties` — user-defined `Record<string,string>` (see #15 for naming concern).
+- `properties` — user-defined `Record<string,string>`.
 - `oss`, `m2m`/`u2m`/`pat`, `iam`, `abac` — not encountered in this package.
 
 ## File coverage
-- `src/v1/model.ts` (222 lines): read fully.
-- `src/v1/client.ts` (252 lines): read fully.
-- `src/v1/utils.ts` (151 lines): read fully.
-- `src/v1/index.ts` (17 lines): read fully.
+- `src/v1/model.ts` (221 lines): read fully.
+- `src/v1/client.ts` (271 lines): read fully.
+- `src/v1/utils.ts` (150 lines): read fully.
+- `src/v1/index.ts` (16 lines): read fully.

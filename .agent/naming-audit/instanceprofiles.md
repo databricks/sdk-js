@@ -86,14 +86,13 @@ are graded:
 
 ## 2. Findings by Category
 
-### 2.1 Vague / generic names — Medium
+### 2.1 Vague / generic names — High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `InstanceProfile` (interface, `model.ts:64`) | High     | The unqualified name reads as a general "instance profile" concept, but the type is **AWS-specific** (an AWS IAM Instance Profile, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html). The Databricks SDK supports multiple clouds (AWS, Azure, GCP) — peers in this SDK (e.g. `AzureServicePrincipal`, `GcpAttributes`) lead with the cloud prefix. `AwsInstanceProfile` would prevent collision with future Azure/GCP "instance" abstractions and align with the cloud-prefixed naming in `compute`, `clusters`, etc. Inherited from the API; flagged for visibility. |
-| V-02  | `AddInstanceProfileRequest.skipValidation` (`model.ts:14`) | Medium   | `skipValidation` is generic — *which* validation? Reading the JSDoc reveals it specifically skips the AWS `RunInstances` dry-run permission check. `skipIamValidation` or `skipPermissionDryRun` would self-document. |
-| V-03  | `flattenQueryParams` (`utils.ts:123`) | Low      | Reasonable. |
-| V-04  | `readAll` (`utils.ts:40`, private)  | Low      | Standard name for "read all bytes from a stream". OK. |
+| V-02  | `flattenQueryParams` (`utils.ts:123`) | Low      | Reasonable. |
+| V-03  | `readAll` (`utils.ts:40`, private)  | Low      | Standard name for "read all bytes from a stream". OK. |
 
 ### 2.2 Redundant enum prefixes — N/A
 
@@ -116,16 +115,15 @@ are graded:
 | ----- | ----------------------------------------------- | -------- | ----- |
 | U-01  | Wire-format snake-case in zod schemas (`instance_profile_arn`, `is_meta_instance_profile`, `iam_role_arn`, `instance_profiles`, `skip_validation`) | Low | Underscores in *string literals* are correct — they match the JSON wire format. Not a violation. Noted for completeness. |
 
-### 2.5 Cryptic abbreviations — Medium
+### 2.5 Cryptic abbreviations — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | C-01  | `arn` (within `instanceProfileArn`, `iamRoleArn`) | Low | "ARN" is a well-known AWS acronym; not cryptic in the AWS context. Acceptable. |
 | C-02  | `iam` (within `iamRoleArn`)         | Low      | "IAM" = AWS Identity & Access Management. Well-known AWS acronym. Acceptable. |
-| C-03  | `meta` (within `isMetaInstanceProfile`) | Medium | "Meta instance profile" is a Databricks-specific term not defined anywhere except the JSDoc ("contains an meta IAM role which could assume a wide range of roles"). The name doesn't make the concept self-evident. `isCredentialPassthrough` or `isAssumableMetaRole` would convey intent better. |
-| C-04  | `req`, `resp`, `httpReq`, `respBody` (`client.ts` locals) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
-| C-05  | `opts` (`utils.ts` parameter, `executeHttpCall`) | Low | Inside fn scope; minor. |
-| C-06  | `pkgJson` (`client.ts:19`)          | Low      | Standard short name for `package.json` import. OK. |
+| C-03  | `req`, `resp`, `httpReq`, `respBody` (`client.ts` locals) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
+| C-04  | `opts` (`utils.ts` parameter, `executeHttpCall`) | Low | Inside fn scope; minor. |
+| C-05  | `pkgJson` (`client.ts:19`)          | Low      | Standard short name for `package.json` import. OK. |
 
 ### 2.6 Misleading names — High
 
@@ -135,17 +133,12 @@ are graded:
 | M-02  | `RemoveInstanceProfileRequest` / `removeInstanceProfile()` (`model.ts:95`, `client.ts:185`) | High | Same domain mismatch as M-01: the method **unregisters** the instance profile from Databricks (the AWS resource is untouched). The JSDoc even notes "Existing clusters with this instance profile will continue to function." `unregisterInstanceProfile` would be more accurate. |
 | M-03  | `EditInstanceProfileRequest` / `editInstanceProfile()` (`model.ts:39`, `client.ts:119`) | Medium | "Edit" is a non-standard CRUD verb (the standard is "update"). Other Databricks SDK surfaces use `update*` for the same operation. Matches the wire path `/edit`, so this is a per-API upstream decision. |
 | M-04  | `InstanceProfile.instanceProfileArn` (marked required, but `?: string \| undefined`, `model.ts:66`) | High | The JSDoc says "This field is required" but the TS type is `string \| undefined`. Across the SDK, every field is optional in the generated type; the doc note is informational. Not a name issue per se, but the type contradicts the documented contract. Flagged because the *name* implies it should always be populated, yet the type doesn't enforce it. |
-| M-05  | `skipValidation` (`AddInstanceProfileRequest`, `model.ts:14`) | Medium | The name implies skipping *all* validation; the JSDoc clarifies it only skips the AWS dry-run permission check. See V-02. |
-| M-06  | `isMetaInstanceProfile`             | Medium | The boolean's semantics ("for credential passthrough scenarios where the instance profile contains a meta-IAM role that can assume a wide range of roles") is much narrower than "is this a meta instance profile". Calling it `isCredentialPassthrough` or `isMetaIamRole` would describe the actual behaviour. |
 
-### 2.7 Overly verbose / Redundant suffixes — Medium
+### 2.7 Overly verbose / Redundant suffixes — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| O-01  | `instanceProfileArn` (in `InstanceProfile`, `model.ts:66`) | Medium | Inside a type already called `InstanceProfile`, prefixing the field with `instanceProfile` is redundant — `arn` alone (or `instanceProfileArn` only on request types, with `arn` on the entity) would suffice. Tautology pattern: `instanceProfile.instanceProfileArn`. |
-| O-02  | `isMetaInstanceProfile` (in `InstanceProfile`, `model.ts:74`) | Medium | Same tautology: `instanceProfile.isMetaInstanceProfile`. `isMeta` alone (or `isMetaRole`) would suffice within the entity. |
-| O-03  | `PACKAGE_SEGMENT` (`client.ts:41`)  | Low      | OK in context. |
-| O-04  | `ListInstanceProfilesRequest_Response.instanceProfiles` (`model.ts:92`) | Medium | Inside `ListInstanceProfilesRequest_Response`, the field `instanceProfiles` re-states the type prefix. `items` or `profiles` would suffice. Per-API codegen output. |
+| O-01  | `PACKAGE_SEGMENT` (`client.ts:41`)  | Low      | OK in context. |
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -195,10 +188,8 @@ revisions can add fields without breaking the type signature. Not flagged.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | F-01  | `instanceProfileArn`, `iamRoleArn`  | Low      | Well-qualified; meaning preserved out of context. Good. |
-| F-02  | `isMetaInstanceProfile`             | Medium   | Without the JSDoc, "meta instance profile" is a Databricks-internal term and conveys little. See C-03 / M-06. |
-| F-03  | `skipValidation`                    | Medium   | Without the JSDoc, unclear which validation. See V-02. |
-| F-04  | `instanceProfiles` (in `ListInstanceProfilesRequest_Response`) | Low | Self-describing. Good. |
-| F-05  | `httpReq`, `respBody`, `body` (locals in `client.ts`) | Low | Locals only. |
+| F-02  | `instanceProfiles` (in `ListInstanceProfilesRequest_Response`) | Low | Self-describing. Good. |
+| F-03  | `httpReq`, `respBody`, `body` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.15 Field contradicting type domain — Medium
 
@@ -235,13 +226,9 @@ revisions can add fields without breaking the type signature. Not flagged.
 (Section retained for parity with the rubric; no high findings — the
 package is exemplary in using ARNs as identifiers.)
 
-### 2.19 Type-suffix tautology — Medium
+### 2.19 Type-suffix tautology — N/A
 
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| TS-01 | `InstanceProfile.instanceProfileArn` (`model.ts:66`) | Medium  | Inside a type called `InstanceProfile`, the `instanceProfile` prefix on the field is tautological. See O-01. |
-| TS-02 | `InstanceProfile.isMetaInstanceProfile` (`model.ts:74`) | Medium | Same tautology: `isMeta` inside `InstanceProfile`. See O-02. |
-| TS-03 | `ListInstanceProfilesRequest_Response.instanceProfiles` (`model.ts:92`) | Medium | Field re-states the entity type that fills the array. `items` or `profiles` would suffice. See O-04. |
+_None._
 
 ### 2.20 Other observations
 
@@ -263,9 +250,9 @@ package is exemplary in using ARNs as identifiers.)
 | Severity | Count |
 | -------- | ----- |
 | High     | 9     |
-| Medium   | 17    |
+| Medium   | 5     |
 | Low      | 35    |
-| **Total**| **61**|
+| **Total**| **49**|
 
 ### 3.2 Top themes
 
@@ -280,16 +267,6 @@ package is exemplary in using ARNs as identifiers.)
    doesn't represent. `AwsInstanceProfile` (matching `AzureServicePrincipal`,
    `GcpAttributes`) would prevent future ambiguity.
 
-3. **Tautological field naming inside `InstanceProfile`.**
-   `instanceProfile.instanceProfileArn` and
-   `instanceProfile.isMetaInstanceProfile` repeat the type name. Inside the
-   entity, `arn` and `isMeta` (or `isCredentialPassthrough`) would suffice.
-
-4. **`isMetaInstanceProfile` and `skipValidation` need their JSDoc to be
-   intelligible.** "Meta instance profile" is a Databricks-specific term;
-   "validation" is overloaded. `isCredentialPassthrough` /
-   `skipIamValidation` (or similar) would be self-documenting.
-
 ### 3.3 Suggested quick wins (non-breaking renames are not possible — this section is advisory for the codegen owners)
 
 - Rename `InstanceProfile` → `AwsInstanceProfile` to scope to the cloud.
@@ -297,10 +274,6 @@ package is exemplary in using ARNs as identifiers.)
   `removeInstanceProfile` → `unregisterInstanceProfile` to match actual
   semantics.
 - Rename `editInstanceProfile` → `updateInstanceProfile` for CRUD consistency.
-- Inside `InstanceProfile`, rename `instanceProfileArn` → `arn` (and similarly
-  for nested entities); drop redundant prefixes.
-- Rename `isMetaInstanceProfile` → `isCredentialPassthrough` (or similar)
-  and `skipValidation` → `skipIamValidation`.
 
 ### 3.4 Cross-package consistency notes
 
@@ -326,15 +299,3 @@ non-real `Proxy`, mid-position `Action`/`Op` duplicating a verb,
 visibility infixes. No matches. The package is exemplary on this rubric.
 
 ---
-
-## Fixed
-
-_None._ The regeneration on 2026-05-20 added `Request` suffixes to all
-request DTOs (`AddInstanceProfile` → `AddInstanceProfileRequest`,
-`EditInstanceProfile` → `EditInstanceProfileRequest`, `ListInstanceProfiles`
-→ `ListInstanceProfilesRequest`, `RemoveInstanceProfile` →
-`RemoveInstanceProfileRequest`), but no audit finding was contingent on
-the prior names — every concern (misleading verbs, tautological fields,
-duplicate concepts, AWS-specific entity name) carries over to the renamed
-types. Findings have been updated in-place to reference the new symbol
-names and current line numbers.

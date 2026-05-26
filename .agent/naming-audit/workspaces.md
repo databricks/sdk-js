@@ -5,7 +5,7 @@
 **Inferred domain:** Account-level Databricks workspace management
 (create/get/list/update/delete a workspace under an account, with all
 its cloud, network, storage, and encryption configuration).
-**Total weird names flagged:** 5
+**Total weird names flagged:** 4
 
 This audit is scoped to proto-architectural-leak naming (mid-position
 `Public`/`Internal`/`External`, `Proto` suffix/infix, architectural-layer
@@ -18,7 +18,7 @@ words such as `Service`/`Manager`/`Wrapper`, `Impl`, `Rpc`/`Grpc`,
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 5     |
+| High         | 4     |
 | Medium       | 0     |
 | Low          | 0     |
 | Observation  | 0     |
@@ -26,28 +26,14 @@ words such as `Service`/`Manager`/`Wrapper`, `Impl`, `Rpc`/`Grpc`,
 The remaining findings all cluster around the `Public` mid-position
 infix on the client surface — the upstream proto/service "Public" vs
 internal-route split still leaks into the `Client` methods, the two
-waiter classes, the `customerFacingWorkspace` field on
-`UpdateWorkspaceRequest`, and the corresponding imports / re-exports.
+waiter classes, and the corresponding imports / re-exports.
 The model-side `Public` / `CustomerFacing` infixes on the request,
 response, container, and enum types have all been removed; see the
 `Fixed` section below.
 
 ## High severity
 
-### 1. `customerFacingWorkspace` field on `UpdateWorkspaceRequest` — `src/v1/model.ts:245`
-- **Why weird:** Field name embeds the `CustomerFacing` qualifier even
-  though the referenced type has been renamed to `Workspace`. The field
-  is the only field of this request body — a plain `workspace` field
-  carries the meaning fully.
-- **Category:** Proto-architectural leak — `CustomerFacing` mid-position
-  qualifier (field name mirroring the proto qualifier of the type that
-  has since been renamed).
-- **Suggested:** `workspace`.
-- **Rationale:** Field names should describe the role of the value in
-  the request, not echo the upstream proto qualifier. The type has
-  already been renamed; the field name should follow.
-
-### 2. `Client.createWorkspacePublic` / `createWorkspacePublicWaiter` — `src/v1/client.ts:88,113`
+### 1. `Client.createWorkspacePublic` / `createWorkspacePublicWaiter` — `src/v1/client.ts:88,113`
 - **Why weird:** `Client` method names end in `Public`. Reads as "the
   method on the public class that calls the public endpoint" — the
   suffix only exists because the underlying proto/spec uses `Public`
@@ -59,16 +45,16 @@ response, container, and enum types have all been removed; see the
 - **Rationale:** Methods on `Client` are inherently public; the suffix
   is meaningless to a TS caller.
 
-### 3. `Client.deleteWorkspacePublic` / `getWorkspacePublic` / `listWorkspacesPublic` / `updateWorkspacePublic` / `updateWorkspacePublicWaiter` — `src/v1/client.ts:127,155,180,210,250`
+### 2. `Client.deleteWorkspacePublic` / `getWorkspacePublic` / `listWorkspacesPublic` / `updateWorkspacePublic` / `updateWorkspacePublicWaiter` — `src/v1/client.ts:127,155,180,210,250`
 - **Why weird:** Same `Public` suffix on every other `Client` method
-  (and the update waiter factory) as #2.
+  (and the update waiter factory) as #1.
 - **Category:** Proto-architectural leak — `Public` suffix on client
   method.
 - **Suggested:** `deleteWorkspace`, `getWorkspace`, `listWorkspaces`,
   `updateWorkspace`, `updateWorkspaceWaiter`.
-- **Rationale:** Same as #2.
+- **Rationale:** Same as #1.
 
-### 4. `CreateWorkspacePublicWaiter` / `UpdateWorkspacePublicWaiter` classes — `src/v1/client.ts:264,344`
+### 3. `CreateWorkspacePublicWaiter` / `UpdateWorkspacePublicWaiter` classes — `src/v1/client.ts:264,344`
 - **Why weird:** Two exported waiter classes carry the `Public` infix
   between the verb (`Create`/`Update`) and the noun (`Workspace`) plus
   the `Waiter` role suffix. The class names are wholly SDK-side
@@ -80,13 +66,13 @@ response, container, and enum types have all been removed; see the
 - **Rationale:** Waiter classes are TS-only constructs; they have no
   business carrying the upstream proto's public/internal qualifier.
 
-### 5. `Public` imports in `client.ts` and the `index.ts` re-export list — `src/v1/client.ts:31-36`, `src/v1/index.ts:5-7`
+### 4. `Public` imports in `client.ts` and the `index.ts` re-export list — `src/v1/client.ts:31-36`, `src/v1/index.ts:5-7`
 - **Why weird:** Both files mirror the leaked `Public` names from the
   waiter classes in their import / re-export lists:
   `CreateWorkspacePublicWaiter`, `UpdateWorkspacePublicWaiter`.
 - **Category:** Proto-architectural leak — `Public` mid-position
   (import & re-export mirror).
-- **Suggested:** Track the renames of #2–#4.
+- **Suggested:** Track the renames of #1–#3.
 - **Rationale:** Re-export and import statements inherit the leaked
   names verbatim; nothing to do here independent of the upstream
   renames.
@@ -144,8 +130,7 @@ Type & symbol checklist:
 - [x] `ListWorkspacesResponse` interface — clean (renamed from
   `ListWorkspacesPublicResponse`).
 - [x] `UpdateWorkspaceRequest` interface — clean as a type name (renamed
-  from `UpdateWorkspacePublicRequest`); `customerFacingWorkspace` field
-  on it flagged (#1).
+  from `UpdateWorkspacePublicRequest`).
 - [x] `Workspace` interface — clean (renamed from `CustomerFacingWorkspace`).
 - [x] `Workspace_CustomTagsEntry` interface — clean (renamed from
   `CustomerFacingWorkspace_CustomTagsEntry`).
@@ -181,15 +166,15 @@ Type & symbol checklist:
 - [x] `Client` class itself — clean (terminal-position `Client` is the
   standard SDK convention).
 - [x] `Client.createWorkspacePublic` + `createWorkspacePublicWaiter` —
-  flagged (#2).
+  flagged (#1).
 - [x] `Client.deleteWorkspacePublic`, `getWorkspacePublic`,
   `listWorkspacesPublic`, `updateWorkspacePublic`,
-  `updateWorkspacePublicWaiter` — flagged (#3).
+  `updateWorkspacePublicWaiter` — flagged (#2).
 - [x] `CreateWorkspacePublicWaiter`, `UpdateWorkspacePublicWaiter`
-  classes — flagged (#4).
+  classes — flagged (#3).
 - [x] `StillRunningError` private sentinel class — clean (cross-package
   pattern; not a domain identifier).
-- [x] `client.ts` import list / `index.ts` re-exports — flagged (#5).
+- [x] `client.ts` import list / `index.ts` re-exports — flagged (#4).
 - [x] `utils.ts` (`executeCall`, `executeHttpCall`, `buildHttpRequest`,
   `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`,
   `HttpCallOptions`) — no proto-architectural-leak names. (The
@@ -199,53 +184,3 @@ Type & symbol checklist:
   `Public`/`Internal`/`Proto`/`Service`/`Manager` leak in domain
   identifiers. (The auth wrapper class itself is a cross-package
   pattern, not flagged here.)
-
-## Fixed
-
-### 1. `CreateWorkspacePublicRequest` → `CreateWorkspaceRequest`
-Fixed in regeneration on 2026-05-22.
-
-### 2. `CreateWorkspacePublicRequest_CustomTagsEntry` → `CreateWorkspaceRequest_CustomTagsEntry`
-Fixed in regeneration on 2026-05-22.
-
-### 3. `DeleteWorkspacePublicRequest` → `DeleteWorkspaceRequest`
-Fixed in regeneration on 2026-05-22.
-
-### 4. `GetWorkspacePublicRequest` → `GetWorkspaceRequest`
-Fixed in regeneration on 2026-05-22.
-
-### 5. `ListWorkspacesPublicRequest` → `ListWorkspacesRequest`
-Fixed in regeneration on 2026-05-22.
-
-### 6. `ListWorkspacesPublicResponse` → `ListWorkspacesResponse`
-Fixed in regeneration on 2026-05-22.
-
-### 7. `UpdateWorkspacePublicRequest` → `UpdateWorkspaceRequest`
-Fixed in regeneration on 2026-05-22.
-
-### 8. `PublicPricingTier` → `PricingTier`
-Fixed in regeneration on 2026-05-22.
-
-### 9. `CustomerFacingComputeMode` → `ComputeMode`
-Fixed in regeneration on 2026-05-22.
-
-### 10. `CustomerFacingStorageMode` → `StorageMode`
-Fixed in regeneration on 2026-05-22.
-
-### 11. `CustomerFacingCloudResourceContainer` → `CloudResourceContainer`
-Fixed in regeneration on 2026-05-22.
-
-### 12. `CustomerFacingGcpCloudResourceContainer` → `GcpCloudResourceContainer`
-Fixed in regeneration on 2026-05-22.
-
-### 13. `CustomerFacingWorkspace` → `Workspace`
-Fixed in regeneration on 2026-05-22.
-
-### 14. `CustomerFacingWorkspace_CustomTagsEntry` → `Workspace_CustomTagsEntry`
-Fixed in regeneration on 2026-05-22.
-
-### 15. `marshalCreateWorkspacePublicRequestSchema` → `marshalCreateWorkspaceRequestSchema`
-Fixed in regeneration on 2026-05-22.
-
-### 16. `unmarshalCustomerFacing*Schema` / `marshalCustomerFacing*Schema` (six schemas) → `unmarshalWorkspaceSchema`, `marshalWorkspaceSchema`, `unmarshalCloudResourceContainerSchema`, `marshalCloudResourceContainerSchema`, `unmarshalGcpCloudResourceContainerSchema`, `marshalGcpCloudResourceContainerSchema`
-Fixed in regeneration on 2026-05-22.

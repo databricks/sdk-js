@@ -233,14 +233,3 @@ Unlike `grants` (which has both unpaginated `Get*` and paginated `List*` methods
 - **Category:** Observation.
 
 ---
-
-## Fixed
-
-- #1 `GetObjectPermissions` (originally cited at `src/v1/model.ts:79`): Fixed in regeneration on 2026-05-20 — renamed to `GetObjectPermissionsRequest` (now `accessmanagement/src/v1/model.ts:154`), eliminating the verb-shaped type.
-- #2 `SetObjectPermissions` (originally cited at `src/v1/model.ts:115`): Fixed in regeneration on 2026-05-20 — renamed to `SetObjectPermissionsRequest` (now `accessmanagement/src/v1/model.ts:338`), eliminating the verb-shaped type.
-- #3 `UpdateObjectPermissions` (originally cited at `src/v1/model.ts:123`): Fixed in regeneration on 2026-05-20 — renamed to `UpdateObjectPermissionsRequest` (now `accessmanagement/src/v1/model.ts:346`), eliminating the verb-shaped type.
-- #4 `GetPermissionLevels` (originally cited at `src/v1/model.ts:86`): Fixed in regeneration on 2026-05-20 — renamed to `GetPermissionLevelsRequest` (now `accessmanagement/src/v1/model.ts:161`), eliminating the verb-shaped type.
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

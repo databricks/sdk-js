@@ -324,11 +324,3 @@ The constructor throws if `options.host` is undefined (`client.ts:59-61`) but ha
 - `src/v1/index.ts` (25 lines): read fully.
 
 ---
-
-## Fixed
-
-- #H1 `logdeliveryconfigurations` package name (originally cited at package directory): Fixed in regeneration on 2026-05-20 — package renamed to `logdelivery` (singular), matching the suggested name and the URL path segment `/log-delivery`.
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

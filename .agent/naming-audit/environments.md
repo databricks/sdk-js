@@ -5,14 +5,14 @@
 **Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
 **Inferred domain:** Workspace-level Python "base environment" management for serverless notebooks and jobs. A `WorkspaceBaseEnvironment` points at a YAML dependency manifest (on WSFS or UC Volumes) for either CPU or GPU compute; the workspace also has a singleton `DefaultWorkspaceBaseEnvironment` that names one CPU default and one GPU default. The package exposes CRUD plus a `refresh` action and three long-running-operation helper classes.
 
-**Total weird names flagged:** 28
+**Total weird names flagged:** 19
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
-| Medium | 11 |
-| Low | 7 |
+| Medium | 4 |
+| Low | 5 |
 | Observation | 2 |
 
 ---
@@ -89,55 +89,13 @@
 - **Suggested name:** `MaxChildNodeSizeExceeded`, `StorageCredentialAlreadyExists`, etc.
 - **Rationale:** TS conventions favour `PascalCase`. Wire format can keep SCREAMING_SNAKE via marshal/unmarshal.
 
-### 11. `DefaultWorkspaceBaseEnvironment.cpuWorkspaceBaseEnvironment` / `gpuWorkspaceBaseEnvironment` — fields stutter the type name — `model.ts:574, 579`
-- **Why weird:** Field names contain the wrapping type's name three times. Read aloud: "the cpu workspace base environment field on the default workspace base environment". The values are just resource-name *strings* pointing at another `WorkspaceBaseEnvironment` ("Format: workspace-base-environments/{workspace_base_environment}"). Field names `cpu` and `gpu` plus a typed `WorkspaceBaseEnvironmentRef` would be cleaner.
-- **Category:** 7 (overly verbose), 15 (generic field names — the value is just a resource name).
-- **Suggested name:** `cpu` / `gpu` (with field type `string` or `WorkspaceBaseEnvironmentName`), or `cpuEnvironmentName` / `gpuEnvironmentName`.
-- **Rationale:** The type is *already* `DefaultWorkspaceBaseEnvironment`. Repeating the prefix on every field makes consumers type `defEnv.cpuWorkspaceBaseEnvironment` instead of `defEnv.cpu`.
-
-### 12. `WorkspaceBaseEnvironment.baseEnvironmentType` — field prefix duplicates parent type name — `model.ts:743`
-- **Why weird:** On a type called `WorkspaceBaseEnvironment`, the field is `baseEnvironmentType`. The `baseEnvironment` prefix duplicates the parent. Plain `type` (or `computeType`) would suffice.
-- **Category:** 8 (redundant suffix/prefix), 7 (verbose).
-- **Suggested name:** `type` or `computeType`. Watch `type` — it is a reserved-like word in TS though not technically reserved.
-- **Rationale:** Same logic as #12.
-
-### 13. `WorkspaceBaseEnvironment.filepath` — single-word run-together identifier — `model.ts:727`
-- **Why weird:** `filepath` is run-together (one word in camelCase). TS/JS convention is `filePath`. The Go SDK and proto wire format both use `filepath` as one token, but in TS the camelCase rule should split it.
-- **Category:** 3 (casing inconsistency), 14 (Go-style name).
-- **Suggested name:** `filePath`.
-- **Rationale:** Every other compound field in the type (`displayName`, `creatorUserId`, `createTime`, `lastUpdatedUserId`, `updateTime`, `isDefault`, `baseEnvironmentType`) uses camelCase. `filepath` is the only exception.
-
-### 14. `WorkspaceBaseEnvironment.message` — generic field name — `model.ts:739`
-- **Why weird:** `message` is generic and could mean log message, error message, info text, user-facing description, etc. Doc says "Status message providing additional details about the environment status." `statusMessage` would be more precise.
-- **Category:** 1 (vague), 15 (generic field name losing meaning).
-- **Suggested name:** `statusMessage` or `statusDetails`.
-- **Rationale:** Same as `DefaultBaseEnvironment.message` in clusterlibraries audit (§1.2).
-
-### 15. `WorkspaceBaseEnvironment.name` — generic field name, holds a resource path — `model.ts:723`
-- **Why weird:** `name` is *not* a human-readable name in this API (there is a separate `displayName` for that, model.ts:725). The doc says: "The resource name of the workspace base environment. Format: workspace-base-environments/{workspace-base-environment}" — i.e. `name` is a slash-delimited *resource path*. Calling a path a `name` is a Google-AIP convention that confuses non-AIP-aware readers.
-- **Category:** 6 (misleading — value is a path, not a name), 15 (generic field name), 19 (underspecified ID).
-- **Suggested name:** `resourceName`, `path`, or `id`. Or document it with `(format: workspace-base-environments/...)` in the field name itself.
-- **Rationale:** This pattern recurs across the package (every request type's `name` field is actually a path: `GetWorkspaceBaseEnvironmentRequest.name`, `DeleteWorkspaceBaseEnvironmentRequest.name`, `RefreshWorkspaceBaseEnvironmentRequest.name`, `GetDefaultWorkspaceBaseEnvironmentRequest.name`, `Operation.name`, `GetOperationRequest.name`). Eight different `.name` fields, each a path.
-
-### 16. `WorkspaceBaseEnvironment.creatorUserId` / `lastUpdatedUserId` — verb tense inconsistency — `model.ts:729, 733`
-- **Why weird:** `creatorUserId` (noun: "the creator's id") vs `lastUpdatedUserId` (past-participle of verb-phrase: "the last-updated user's id"). The pair should agree. Symmetric pairs would be `creatorUserId`/`updaterUserId`, or `createdByUserId`/`lastUpdatedByUserId`.
-- **Category:** 13 (verb-tense inconsistency), 17 (inconsistent action verbs).
-- **Suggested name:** Pick one form for both: `createdByUserId` / `updatedByUserId`, or `creatorUserId` / `updaterUserId`.
-- **Rationale:** Internal consistency. As written, the noun↔verb mismatch reads oddly when sorted in IDE auto-complete.
-
-### 17. `CreateWorkspaceBaseEnvironmentRequest.workspaceBaseEnvironmentId` — 27-character optional string field — `model.ts:543`
-- **Why weird:** Field name `workspaceBaseEnvironmentId` is the type name + `Id` suffix. On a `CreateWorkspaceBaseEnvironment*Request*` it is redundant — every field on a create request already pertains to a workspace base environment. Compare `requestId` (model.ts:548) on the same type, which is correctly scoped (`request`+`Id`, not `createWorkspaceBaseEnvironmentRequestRequestId`).
-- **Category:** 7 (overly verbose), 8 (redundant suffix).
-- **Suggested name:** `environmentId`, `id`, or `resourceId`.
-- **Rationale:** Consumers writing `{workspaceBaseEnvironment: env, workspaceBaseEnvironmentId: 'foo'}` is awkward; `{environment: env, environmentId: 'foo'}` reads better.
-
-### 18. `UpdateWorkspaceBaseEnvironmentRequest.name` is undocumented — `model.ts:706`
+### 11. `UpdateWorkspaceBaseEnvironmentRequest.name` is undocumented — `model.ts:706`
 - **Why weird:** Most `*Request` types document their `name` field as "The resource name of the workspace base environment to ..." but `UpdateWorkspaceBaseEnvironmentRequest.name` (model.ts:706) is the only one with no JSDoc. The very next field (`workspaceBaseEnvironment`, line 711) is documented and even references `name`: "The name field is used to identify the environment to update."
 - **Category:** 19 (underspecified ID), 6 (misleading by omission).
 - **Suggested name:** Add JSDoc. The field is the resource name to update; say so. Or drop the field entirely if it duplicates `workspaceBaseEnvironment.name`.
 - **Rationale:** Inconsistent doc coverage in a generated file is a tell that the source proto field has no comment — should be fixed upstream.
 
-### 19. `DatabricksServiceExceptionWithDetailsProto` — `Service` mid-position is an architectural-layer leak, not domain — `model.ts:552, index.ts:18`
+### 12. `DatabricksServiceExceptionWithDetailsProto` — `Service` mid-position is an architectural-layer leak, not domain — `model.ts:552, index.ts:18`
 - **Why weird:** The mid-position word `Service` in `DatabricksServiceExceptionWithDetailsProto` describes a server-side architectural layer ("a service threw this exception"), not anything about the data the type carries. The type is a plain error payload with `errorCode`/`message`/`stackTrace`/`details`; no field references a "service". `Service` here mirrors the Java `*ServiceException` superclass pattern and the proto message name `DatabricksServiceExceptionWithDetails` — both server-internal concepts that have no meaning for a TS SDK consumer. Combined with the trailing `Proto` (codegen origin) the name is a stack of three architectural tags: `Service` (layer) + `Exception` (Java throwable) + `Proto` (wire format).
 - **Category:** proto-architectural-leak (mid-position `Service` is not the domain), 14 (Java-style naming), 20 (`Proto` suffix tautology).
 - **Suggested name:** `DatabricksErrorDetails`, `ServiceErrorPayload` is still leaky; prefer `ApiErrorDetails` or `RpcErrorDetails` if the gRPC framing is part of the public contract, otherwise just `ErrorDetails`/`DatabricksError`. Drop `Service`, `Exception`, and `Proto` together.
@@ -147,67 +105,50 @@
 
 ## Low severity
 
-### 20. `WorkspaceBaseEnvironment.isDefault` — boolean field on the resource, but `DefaultWorkspaceBaseEnvironment` is a separate type — `model.ts:741`
+### 13. `WorkspaceBaseEnvironment.isDefault` — boolean field on the resource, but `DefaultWorkspaceBaseEnvironment` is a separate type — `model.ts:741`
 - **Why weird:** A `WorkspaceBaseEnvironment` has an `isDefault` boolean (model.ts:741). The same package also has a separate `DefaultWorkspaceBaseEnvironment` type (model.ts:564) that represents the workspace's default. Two encodings of the same fact: a boolean on each environment, and a separate "default" type listing CPU/GPU defaults. A consumer can't tell from the type whether `isDefault` is computed from `DefaultWorkspaceBaseEnvironment` or vice versa.
 - **Category:** 12 (duplicate concept), 6 (misleading — which one is the source of truth?).
 - **Suggested name:** Document the relationship explicitly; or drop one. If `isDefault` is server-computed, it could be a `default: 'cpu' | 'gpu' | null` enum so a reader can tell which kind of default at a glance.
 - **Rationale:** Two representations of "is this the default" invite drift.
 
-### 21. `ListWorkspaceBaseEnvironmentsRequest.pageSize` doc says "Default is 1000" with no min/max — `model.ts:619`
+### 14. `ListWorkspaceBaseEnvironmentsRequest.pageSize` doc says "Default is 1000" with no min/max — `model.ts:619`
 - **Why weird:** Page-size doc says only "Default is 1000". No documented min/max, no behavior on `0`, no behavior on values exceeding server cap.
 - **Category:** 19 (underspecified).
 - **Suggested name:** Add doc bounds.
 - **Rationale:** Doc-only nit; not a name issue per se but worth flagging in a naming audit because `pageSize` is a known naming convention with known semantics that this doc partially undermines.
 
-### 22. `ListWorkspaceBaseEnvironmentsResponse.workspaceBaseEnvironments` — long plural field — `model.ts:629`
-- **Why weird:** Field name is 27 characters; type is a list of 27-character-typed items. Reading `resp.workspaceBaseEnvironments?.[0]?.workspaceBaseEnvironment...` is a chore. (No sub-field of this exact name; included to illustrate the chain length.)
-- **Category:** 7 (overly verbose), 8 (redundant suffix — same as the type name pluralised).
-- **Suggested name:** `environments` (the response type is already `ListWorkspaceBaseEnvironmentsResponse`, so the plural field doesn't need to re-state the qualifier). Wire stays `workspace_base_environments`.
-- **Rationale:** Matches the `clusterlibraries`/`database` audit critique that list responses don't need to repeat their qualifier.
-
-### 23. `requestId` doc says "A random UUID is recommended" but field is `string`, not UUID — `model.ts:545`
+### 15. `requestId` doc says "A random UUID is recommended" but field is `string`, not UUID — `model.ts:545`
 - **Why weird:** Doc strongly suggests UUID, but the type is `string`. If UUID is required for idempotency to work, that's a constraint the type doesn't capture.
 - **Category:** 19 (underspecified), 6 (slightly misleading).
 - **Suggested name:** Keep `requestId: string` but document constraints, or use a branded type `RequestId = string & {__brand: 'RequestId'}`.
 - **Rationale:** Doc-implied invariants that aren't in the type.
 
-### 24. `WorkspaceBaseEnvironment.createTime` / `updateTime` — `time` suffix unclear vs `Timestamp`/`At` — `model.ts:731, 735`
-- **Why weird:** Many TS APIs use `createdAt`/`updatedAt` (past-tense + `At` for timestamps) or `createTimestamp`/`updateTimestamp`. `createTime`/`updateTime` is Google-AIP/Go-style. Combined with `creatorUserId`/`lastUpdatedUserId` (finding #17) the verb tenses are mixed: noun `createTime`, past-participle `lastUpdated`. 
-- **Category:** 14 (Google-AIP/Go-style), 13 (verb tense inconsistency), 17 (inconsistent with `lastUpdated` sibling).
-- **Suggested name:** `createdAt` / `updatedAt`, or align with `creator`/`lastUpdater` — pick one verb tense and apply across the type.
-- **Rationale:** Stylistic; consistent with the broader codebase critique.
-
-### 25. `WorkspaceBaseEnvironment.displayName` — generic, lacks "human-readable" or constraints — `model.ts:725`
+### 16. `WorkspaceBaseEnvironment.displayName` — generic, lacks "human-readable" or constraints — `model.ts:725`
 - **Why weird:** Doc says "Human-readable display name". No documented uniqueness, max length, allowed characters. Compare `workspaceBaseEnvironmentId` (model.ts:543) which is constrained: "4-63 characters, valid characters /[a-z][0-9]-/". `displayName` deserves similar treatment in the doc.
 - **Category:** 19 (underspecified), 1 (slightly generic).
 - **Suggested name:** Keep but document constraints.
 - **Rationale:** Minor.
 
-### 26. `WorkspaceBaseEnvironment.filepath` — points at a YAML file but type is `string` — `model.ts:727`
+### 17. `WorkspaceBaseEnvironment.filepath` — points at a YAML file but type is `string` — `model.ts:727`
 - **Why weird:** Doc says "The WSFS or UC Volumes path to the environment YAML file." But the field is `string`. WSFS paths and UC Volume paths have different syntaxes (`/Workspace/...` vs `/Volumes/...`). The type permits any string. A union of the two path types would be more precise but probably not worth the porting effort.
 - **Category:** 19 (underspecified — the doc lists two valid path types but the type doesn't distinguish).
-- **Suggested name:** Keep `filepath`/`filePath` (see #14), but document the allowed prefixes.
+- **Suggested name:** Keep `filepath`, but document the allowed prefixes.
 - **Rationale:** Minor.
 
 ---
 
 ## Observation
 
-### 27. Package version is hard-coded `v1` while sibling `clusterlibraries` is `v2` for the same concept — `packages/environments/src/v1/`, `packages/clusterlibraries/src/v2/`
+### 18. Package version is hard-coded `v1` while sibling `clusterlibraries` is `v2` for the same concept — `packages/environments/src/v1/`, `packages/clusterlibraries/src/v2/`
 - **Why noteworthy:** The two packages model the same `BaseEnvironment` concept at different version numbers. `clusterlibraries/v2` has `DefaultBaseEnvironment`; `environments/v1` has `DefaultWorkspaceBaseEnvironment`. Likely `environments` is the newer, narrower carve-out (workspace-scoped), but the version numbers misleadingly suggest `clusterlibraries` is newer.
 - **Category:** 12 (duplicate concept), 6 (misleading lineage signal).
 - **Suggested action:** Document the relationship in `index.ts` of each package (e.g. "This supersedes / is superseded by / is independent of `clusterlibraries/v2`"). Or align versions.
 - **Rationale:** Generator-level; not actionable in TS alone, but worth recording.
 
-### 28. JSDoc comment "If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto" leaks internal-only path — `model.ts:8`
+### 19. JSDoc comment "If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto" leaks internal-only path — `model.ts:8`
 - **Why noteworthy:** The comment on `BaseEnvironmentType` references an internal proto path that public SDK consumers cannot see, cannot navigate to, and have no use for. It's a generator-cycle reminder to Databricks engineers that shouldn't have made it through the porting/codegen scrub.
 - **Category:** 6 (misleading — refers to a non-public artefact in a doc comment public users see).
 - **Suggested action:** Strip internal references from generated comments at codegen time.
 - **Rationale:** SDK hygiene; not a name issue but worth flagging in the audit since the comment is on a *public* type.
 
 ---
-
-## Fixed
-
-- #10 `WorkspaceBaseEnvironmentProvider.WORKSPACE_BASE_ENVIRONMENT_PROVIDER_UNSPECIFIED` (originally cited at `model.ts:518`): Fixed in regeneration on 2026-05-20 — the `WorkspaceBaseEnvironmentProvider` enum was removed from the source.
-- #22 `WorkspaceBaseEnvironmentProvider` Admin/Databricks part-of-speech mix (originally cited at `model.ts:517`): Fixed in regeneration on 2026-05-20 — the `WorkspaceBaseEnvironmentProvider` enum and the `baseEnvironmentProvider` field on `WorkspaceBaseEnvironment` were removed from the source.

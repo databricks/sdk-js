@@ -112,11 +112,11 @@
 34. `TableExistsRequest` (model.ts:699) — 1 field.
 35. `TableExistsRequest_Response` (model.ts:705) — 1 field (`tableExists`).
 36. `TableInfo` (model.ts:710) — 36 fields (duplicates `CreateTableRequest` /
-    `UpdateTableRequest` field-by-field).
+   `UpdateTableRequest` field-by-field).
 37. `TableInfo_PropertiesEntry` (model.ts:782) — 2 fields.
 38. `TableSummary` (model.ts:787) — 3 fields.
 39. `UpdateTableRequest` (model.ts:795) — 37 fields (`fullNameArg` + the same
-    set as `CreateTableRequest`).
+   set as `CreateTableRequest`).
 40. `UpdateTableRequest_PropertiesEntry` (model.ts:869) — 2 fields.
 41. `UpdateTableRequest_Response` (model.ts:875) — empty body.
 
@@ -152,11 +152,11 @@
 
 | Severity              | Count |
 | --------------------- | ----- |
-| High                  | 18    |
-| Medium                | 21    |
-| Low / SDK-wide note   | 10    |
+| High                  | 13    |
+| Medium                | 11    |
+| Low / SDK-wide note   | 7     |
 | Pass / acceptable     | 9     |
-| **Total findings**    | **58** |
+| **Total findings**    | **40** |
 
 (Findings often span multiple audit categories; counts above are unique
 findings.)
@@ -243,32 +243,7 @@ etc.) but is worth flagging for anyone reviewing this file fresh.
 
 ---
 
-### 4. `SseEncryptionDetails.awsKmsKeyArn` is the only field that names the cloud — category 3 (Acronym casing inconsistencies) and category 16 (Field contradicting type domain)
-
-**Symbol:** `SseEncryptionDetails.awsKmsKeyArn` (model.ts:669).
-
-**Issue:** `AWS`, `KMS`, and `ARN` are three back-to-back acronyms. The
-field is `awsKmsKeyArn`. The JSDoc explains it's "The ARN of the SSE-KMS
-key used with the S3 location, when algorithm = 'SSE-KMS'". Under the
-Google rule, `AwsKmsKeyArn` would become `awsKmsKeyArn` in camelCase form —
-which the code already uses. So far OK.
-
-But this is the *only* AWS-specific field in `tables`. `accessPoint`
-(model.ts:346) is also AWS S3-specific (JSDoc: "The AWS access point to
-use when accesing s3 for this external location") — but the field name
-does not say `awsAccessPoint`. The two AWS-specific fields in `TableInfo`
-use different naming conventions for their AWS-ness.
-
-**Suggested:** either rename `accessPoint` → `awsAccessPoint`, or drop the
-`aws` prefix on `awsKmsKeyArn` if it's understood to be AWS-only (the
-enclosing `SseEncryptionAlgorithm` already says `AWS_SSE_KMS`).
-
-(One JSDoc typo: "accesing" — single `s`, model.ts:345 — likely also in
-the upstream `.proto`.)
-
----
-
-### 5. `SecurableType` is a generic identifier name shared with `catalogs` / `connections` — category 12 (Duplicate concepts) and category 1 (Vague/generic)
+### 4. `SecurableType` is a generic identifier name shared with `catalogs` / `connections` — category 12 (Duplicate concepts) and category 1 (Vague/generic)
 
 **Symbol:** `SecurableType` (model.ts:162).
 
@@ -289,7 +264,7 @@ who already has a `TableInfo` knows it's a `TABLE`.
 
 ---
 
-### 6. `ColumnTypeName.TABLE_TYPE` collides with the `TableType` enum domain — category 6 (Misleading names) and category 16 (Field contradicting type domain)
+### 5. `ColumnTypeName.TABLE_TYPE` collides with the `TableType` enum domain — category 6 (Misleading names) and category 16 (Field contradicting type domain)
 
 **Symbol:** `ColumnTypeName.TABLE_TYPE` (model.ts:29).
 
@@ -314,7 +289,7 @@ holds a table"), the other is about UC table classifications.
 
 ---
 
-### 7. `ColumnTypeName.TIMESTAMP_NTZ` cryptic abbreviation — category 5 (Cryptic abbreviations)
+### 6. `ColumnTypeName.TIMESTAMP_NTZ` cryptic abbreviation — category 5 (Cryptic abbreviations)
 
 **Symbol:** `ColumnTypeName.TIMESTAMP_NTZ` (model.ts:25).
 
@@ -327,7 +302,7 @@ zone"`.
 
 ---
 
-### 8. `DataSourceFormat` enum values split between `_FORMAT` suffix and bare forms — category 17 (Inconsistent action verbs)
+### 7. `DataSourceFormat` enum values split between `_FORMAT` suffix and bare forms — category 17 (Inconsistent action verbs)
 
 **Symbols:** `DataSourceFormat` values (model.ts:33–75).
 
@@ -356,7 +331,7 @@ if (format === 'MYSQL_FORMAT' || format === 'POSTGRESQL_FORMAT') {} // suffix
 
 ---
 
-### 9. `DataSourceFormat.DELTASHARING` (no underscore) vs. `DELTA_UNIFORM_HUDI` (underscore-split) — category 17 (Inconsistent action verbs)
+### 8. `DataSourceFormat.DELTASHARING` (no underscore) vs. `DELTA_UNIFORM_HUDI` (underscore-split) — category 17 (Inconsistent action verbs)
 
 **Symbols:** `DataSourceFormat.DELTASHARING` (model.ts:43),
 `DataSourceFormat.DELTA_UNIFORM_HUDI` (model.ts:70).
@@ -375,7 +350,7 @@ consistent. **Not a per-package fix.**
 
 ---
 
-### 10. `SecurableKind` values like `TABLE_DELTASHARING_OPEN_DIR_BASED` — category 5 (Cryptic abbreviations) and category 18 (Long enum values)
+### 9. `SecurableKind` values like `TABLE_DELTASHARING_OPEN_DIR_BASED` — category 5 (Cryptic abbreviations) and category 18 (Long enum values)
 
 **Symbol:** `SecurableKind.TABLE_DELTASHARING_OPEN_DIR_BASED` (model.ts:93).
 
@@ -392,7 +367,7 @@ constraint), **flag for documentation cleanup.**
 
 ---
 
-### 11. `SecurableKind` deprecated values mixed with current — category 6 (Misleading names) and category 17 (Inconsistent action verbs)
+### 10. `SecurableKind` deprecated values mixed with current — category 6 (Misleading names) and category 17 (Inconsistent action verbs)
 
 **Symbols:**
 - `SecurableKind.TABLE_FEATURE_STORE` (model.ts:95) and
@@ -414,40 +389,7 @@ JSDoc tags (only inline comments). Consumers code-completing on
 
 ---
 
-### 12. `fullNameArg` field name across multiple request types — category 14 (Go/Java-style names) and category 5 (Cryptic abbreviations)
-
-**Symbols:** `fullNameArg` on `DeleteTableRequest` (model.ts:387),
-`DeleteTableConstraintRequest` (model.ts:372), `GetTableRequest`
-(model.ts:468), `TableExistsRequest` (model.ts:701), `UpdateTableRequest`
-(model.ts:797), `CreateTableConstraintRequest` (model.ts:283). 6
-occurrences in this file alone; also used in `schemas/v1`, `functions/v1`,
-`registeredmodels/v1`.
-
-**Issue:** The `Arg` suffix on a field name is a Go convention (Go SDK uses
-`FullNameArg` to mark a URL-path-argument vs. a query/body field). In TS,
-the convention is to use the bare field name (`fullName`) since the
-distinction between URL-path / query / body is handled by the client code
-and JSDoc. The wire form is `full_name_arg` — the suffix even reaches the
-wire, which is unusual.
-
-The same package also has a `fullName` field on response/struct types
-(`CreateTableRequest.fullName` model.ts:325, `TableInfo.fullName`
-model.ts:748, `TableSummary.fullName` model.ts:789, `UpdateTableRequest.fullName`
-model.ts:835). So the package has both `fullName` (noun) and `fullNameArg`
-(with `Arg` suffix) — distinguishing input from output by suffix, which is
-a Go-ism.
-
-**Suggested:** rename `fullNameArg` → `fullName` SDK-wide. The URL-path
-argument vs. response field distinction can be inferred from the request
-type (e.g. `DeleteTableRequest.fullName` is obviously a path argument
-because `DeleteTableRequest` is a delete request). Cross-reference Google
-AIP-122 (resource name in REST methods uses `name`, not `nameArg`).
-
-**Flag for SDK-wide cleanup.**
-
----
-
-### 13. `CreateTableRequest` and `TableInfo` and `UpdateTableRequest` share 36+ identical fields — category 12 (Duplicate concepts) and category 7 (Overly verbose)
+### 11. `CreateTableRequest` and `TableInfo` and `UpdateTableRequest` share 36+ identical fields — category 12 (Duplicate concepts) and category 7 (Overly verbose)
 
 **Symbols:** `CreateTableRequest` (model.ts:287, 38 fields), `TableInfo`
 (model.ts:710, 36 fields), `UpdateTableRequest` (model.ts:795, 37 fields).
@@ -486,7 +428,7 @@ messages map 1:1).
 
 ---
 
-### 14. `CreateTableRequest.fullName` is server-generated — category 6 (Misleading names)
+### 12. `CreateTableRequest.fullName` is server-generated — category 6 (Misleading names)
 
 **Symbol:** `CreateTableRequest.fullName?: string | undefined`
 (model.ts:325). JSDoc: "Full name of table, in form of
@@ -505,12 +447,12 @@ all server-output but exposed on the input type. Same critique applies to
 `UpdateTableRequest`.
 
 **Suggested:** mark with JSDoc `@readonly` and add a sentence "Output only;
-ignored on input." Or restructure types (finding 13). **Coordinate with
+ignored on input." Or restructure types (finding 11). **Coordinate with
 generator.**
 
 ---
 
-### 15. `CreateTableRequest.tableConstraints` not used on input — category 6 (Misleading names) and category 7 (Overly verbose)
+### 13. `CreateTableRequest.tableConstraints` not used on input — category 6 (Misleading names) and category 7 (Overly verbose)
 
 **Symbol:** `CreateTableRequest.tableConstraints?: TableConstraint[] | undefined`
 (model.ts:317). JSDoc: "List of table constraints. Note: this field is not
@@ -530,7 +472,7 @@ server might or might not honour it depending on the deployment.
 
 ---
 
-### 16. `CreateTableRequest.enablePredictiveOptimization` is a `string`, not a boolean — category 6 (Misleading names) and category 16 (Field contradicting type domain)
+### 14. `CreateTableRequest.enablePredictiveOptimization` is a `string`, not a boolean — category 6 (Misleading names) and category 16 (Field contradicting type domain)
 
 **Symbol:** `CreateTableRequest.enablePredictiveOptimization?: string | undefined`
 (model.ts:321). Same field on `TableInfo` (model.ts:744) and
@@ -546,7 +488,7 @@ also a `string` with the same domain.
 
 **Suggested:**
 - Type as an enum (e.g. `PredictiveOptimizationFlag = 'ENABLE' | 'DISABLE'
-  | 'INHERIT'`) and rename to `predictiveOptimization`.
+  | 'INHERIT'`).
 - Or document the accepted values in JSDoc.
 
 **Coordinate with protocol.** Cross-reference `catalogs/v1` which has the
@@ -554,7 +496,7 @@ same field.
 
 ---
 
-### 17. `CreateTableRequest.dataAccessConfigurationId` underspecified ID — category 19 (Underspecified IDs) and category 7 (Overly verbose)
+### 15. `CreateTableRequest.dataAccessConfigurationId` underspecified ID — category 19 (Underspecified IDs) and category 7 (Overly verbose)
 
 **Symbol:** `CreateTableRequest.dataAccessConfigurationId?: string | undefined`
 (model.ts:327). 28 chars. Same field on `TableInfo` (model.ts:750) and
@@ -573,26 +515,7 @@ choice. **Pass with note.**
 
 ---
 
-### 18. `CreateTableRequest.accessPoint` (S3-specific) leaks AWS into a generic-looking field — category 6 (Misleading names) and category 16 (Field contradicting type domain)
-
-**Symbol:** `CreateTableRequest.accessPoint?: string | undefined`
-(model.ts:346). JSDoc: "The AWS access point to use when accesing s3 for
-this external location." (Note also the JSDoc typo "accesing".)
-
-**Issue:** A field named `accessPoint` reads like a generic concept (the
-endpoint at which the table is accessed?). In reality it is AWS S3–specific.
-The JSDoc clarifies, but the field name does not. A caller targeting Azure
-or GCP will not know to skip the field.
-
-**Suggested:** rename to `awsAccessPoint` or `s3AccessPoint` (matches the
-JSDoc).
-
-**Cross-reference:** `SseEncryptionDetails.awsKmsKeyArn` (finding 4) takes
-the AWS prefix; `accessPoint` does not. Inconsistent within this file.
-
----
-
-### 19. `CreateTableRequest.browseOnly` is server-output but appears in request — category 6 (Misleading names)
+### 16. `CreateTableRequest.browseOnly` is server-output but appears in request — category 6 (Misleading names)
 
 **Symbol:** `CreateTableRequest.browseOnly?: boolean | undefined`
 (model.ts:348). JSDoc: "Indicates whether the principal is limited to
@@ -609,48 +532,7 @@ to `TableInfo` only.
 
 ---
 
-### 20. `ListTablesRequest.omitColumns` / `omitProperties` / `omitUsername` use negative form — category 13 (Verb-tense inconsistency) and category 17 (Inconsistent action verbs)
-
-**Symbols:** `ListTablesRequest.omitColumns?: boolean` (model.ts:531),
-`omitProperties?: boolean` (model.ts:533), `omitUsername?: boolean`
-(model.ts:535). Same package also has `includeBrowse?: boolean`
-(model.ts:537), `includeManifestCapabilities?: boolean` (model.ts:539).
-
-**Issue:** Five boolean flags on the same request type:
-- Two positive `include…` (which add output).
-- Three negative `omit…` (which subtract output).
-
-The mixing of positive and negative forms is unusual. Code completion
-shows both `omitColumns` and `includeBrowse` on the same type — a reader
-might miss that `omitColumns: false` is the default-include state, while
-`includeBrowse: false` is the default-exclude state.
-
-**Suggested:** unify on `include…` (the SDK-wide convention) — e.g.
-`includeColumns: boolean | undefined` defaulting to `true`. **Flag at port
-time.**
-
-(Note: `omitUsername` is also a singular — "username", not "usernames" —
-even though the JSDoc lists three fields (owner, updated_by, created_by).
-Should be `omitUsernames`. See finding 21.)
-
----
-
-### 21. `ListTablesRequest.omitUsername` singular but covers three fields — category 9 (Singular/plural mismatch)
-
-**Symbol:** `ListTablesRequest.omitUsername?: boolean | undefined`
-(model.ts:535). JSDoc: "Whether to omit the username of the table (e.g.
-owner, updated_by, created_by) from the response or not."
-
-**Issue:** Singular `Username` but the JSDoc lists three fields. Plural
-`omitUsernames` would match the impact ("omit *all* the username fields").
-
-**Suggested:** `omitUsernames`. Wire form (`omit_username`) is the
-single-token version; the TS-side identifier can be pluralised without
-changing the wire string. **Coordinate with protocol team.**
-
----
-
-### 22. `ListTablesRequest.maxResults` and `pageToken` paginate negatively-documented semantics — category 6 (Misleading names) — *pass with note*
+### 17. `ListTablesRequest.maxResults` and `pageToken` paginate negatively-documented semantics — category 6 (Misleading names) — *pass with note*
 
 **Symbol:** `ListTablesRequest.maxResults?: number | undefined`
 (model.ts:527), JSDoc: "Maximum number of tables to return. If not set, all
@@ -663,48 +545,7 @@ deprecated. The naming is fine; the API behaviour is the issue.
 
 ---
 
-### 23. `ListTableSummariesRequest.schemaNamePattern` / `tableNamePattern` vs. `ListTablesRequest.schemaName` field-name inconsistency — category 17 (Inconsistent action verbs)
-
-**Symbols:** `ListTableSummariesRequest.schemaNamePattern` (model.ts:484)
-and `ListTableSummariesRequest.tableNamePattern` (model.ts:489) vs.
-`ListTablesRequest.schemaName` (model.ts:519).
-
-**Issue:** Two sibling list endpoints accept the schema name as different
-shapes:
-- `ListTablesRequest.schemaName` — an exact string match.
-- `ListTableSummariesRequest.schemaNamePattern` — a SQL LIKE pattern.
-
-JSDoc explains the difference. But the *callers* must remember which
-endpoint uses which form. There is no naming hint that one is a pattern.
-
-**Suggested:** rename `ListTablesRequest.schemaName` to `schemaNameExact`
-or `schemaNameEquals` to surface the contrast — or rename
-`ListTableSummariesRequest.schemaNamePattern` to `schemaName` with JSDoc
-clarifying the pattern syntax. The former is the cleaner pick (less
-ambiguous on the input side).
-
-**Flag at port time.**
-
----
-
-### 24. `ListTableSummariesRequest_Response.tables` returns `TableSummary[]` not `TableInfo[]` — category 6 (Misleading names) and category 15 (Generic field names losing meaning)
-
-**Symbol:** `ListTableSummariesRequest_Response.tables?: TableSummary[] | undefined`
-(model.ts:507).
-
-**Issue:** A field named `tables` returns *summaries*, not full table info.
-The companion `ListTablesRequest_Response.tables` returns `TableInfo[]`. So
-`tables` on one response type vs. another means a different shape.
-
-**Suggested:** rename `ListTableSummariesRequest_Response.tables` to
-`summaries` (matches the response type name). Or rename to `tableSummaries`.
-Both expose the shape difference at the field name.
-
-**Flag at port time.**
-
----
-
-### 25. `Dependency` / `DependencyList` / `TableDependency` / `FunctionDependency` / `ConnectionDependency` / `CredentialDependency` defined in three packages — category 12 (Duplicate concepts)
+### 18. `Dependency` / `DependencyList` / `TableDependency` / `FunctionDependency` / `ConnectionDependency` / `CredentialDependency` defined in three packages — category 12 (Duplicate concepts)
 
 **Symbols:**
 - This file: `Dependency` (model.ts:412), `DependencyList` (model.ts:422),
@@ -724,55 +565,7 @@ from each service package. **Strong SDK-wide cleanup.**
 
 ---
 
-### 26. `Dependency.value` field name is generic — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
-
-**Symbol:** `Dependency.value` (model.ts:413). Type is the discriminated
-union.
-
-**Issue:** `value` is the maximally generic field name. The proto source
-likely models `Dependency` as `oneof`; the generator wraps each case in a
-`value` discriminator. In TS, the consumer writes:
-
-```ts
-if (dep.value?.$case === 'table') {
-  console.log(dep.value.table.tableFullName);
-}
-```
-
-`value` adds noise without distinguishing the shape. Compare to
-`EncryptionDetails.encryptionDetailsType` (model.ts:438) — same pattern,
-non-generic name (see finding 27). Compare to `TableConstraint.constraint`
-(model.ts:677) — same pattern, more descriptive name. Within this file,
-**three different naming conventions for the same generator pattern.**
-
-**Suggested:** `Dependency.dependency` (matches the type name) or
-`Dependency.kind` (consistent with discriminated-union nomenclature).
-**Flag at port time.**
-
----
-
-### 27. `EncryptionDetails.encryptionDetailsType` repeats the type name as the field name — category 8 (Redundant suffixes) and category 20 (Type-suffix tautology)
-
-**Symbol:** `EncryptionDetails.encryptionDetailsType` (model.ts:438).
-
-**Issue:** Inside the type `EncryptionDetails`, the field name
-`encryptionDetailsType` repeats two of the three tokens of the type name.
-A consumer writes:
-```ts
-encDetails.encryptionDetailsType?.$case
-```
-when `encDetails.kind?.$case` or `encDetails.details?.$case` would
-suffice.
-
-Compare to `Dependency.value` (finding 26) — same pattern, generic name.
-Compare to `TableConstraint.constraint` — same pattern, name is the type
-*concept* without `Type` suffix.
-
-**Suggested:** `EncryptionDetails.kind`.
-
----
-
-### 28. `ColumnInfo.position` underspecified field — category 1 (Vague/generic)
+### 19. `ColumnInfo.position` underspecified field — category 1 (Vague/generic)
 
 **Symbol:** `ColumnInfo.position?: number | undefined` (model.ts:240).
 JSDoc: "Ordinal position of column (starting at position 0)."
@@ -780,50 +573,11 @@ JSDoc: "Ordinal position of column (starting at position 0)."
 **Issue:** Bare `position` (number) — a consumer cannot tell from the
 field name that it's 0-indexed. The JSDoc clarifies.
 
-**Suggested:** `ColumnInfo.ordinal` (matches the JSDoc "Ordinal position")
-or `columnIndex`. **Pass with note** — the field is short and conventional.
+**Suggested:** **Pass with note** — the field is short and conventional.
 
 ---
 
-### 29. `ColumnInfo.typeText` / `typeName` / `typePrecision` / `typeScale` / `typeIntervalType` / `typeJson` — six `type*` fields — category 12 (Duplicate concepts)
-
-**Symbols:** `ColumnInfo.typeText` (model.ts:237), `typeName` (model.ts:238),
-`typePrecision` (model.ts:242), `typeScale` (model.ts:244),
-`typeIntervalType` (model.ts:246), `typeJson` (model.ts:248).
-
-**Issue:** Six fields all describing the column's data type, prefixed
-`type…`. The JSDoc says:
-- `typeText` — full SQL catalogString text.
-- `typeName` — the enum.
-- `typePrecision` — required for `DECIMAL`.
-- `typeScale` — required for `DECIMAL`.
-- `typeIntervalType` — for `INTERVAL`.
-- `typeJson` — full JSON serialisation of the type.
-
-The shape mirrors Spark's `StructField.dataType` (which is a tree). The
-six-field flat form is a wire encoding; in TS, a single `type` field of an
-algebraic type would be clearer.
-
-**Suggested:** group into a sub-object:
-```ts
-export interface ColumnInfo {
-  type?: {
-    name?: ColumnTypeName;
-    text?: string;
-    precision?: number;
-    scale?: number;
-    intervalType?: string;
-    json?: string;
-  };
-  // ...
-}
-```
-
-**Flag at port time.** Wire-level decision.
-
----
-
-### 30. `RowFilter.functionName` vs `RowFilter.inputColumnNames` vs `RowFilter.inputArguments` plural mismatch — category 9 (Singular/plural mismatch) and category 17 (Inconsistent action verbs)
+### 20. `RowFilter.functionName` vs `RowFilter.inputColumnNames` vs `RowFilter.inputArguments` plural mismatch — category 9 (Singular/plural mismatch) and category 17 (Inconsistent action verbs)
 
 **Symbols:** `RowFilter.functionName?: string` (model.ts:633),
 `RowFilter.inputColumnNames?: string[]` (model.ts:638),
@@ -843,119 +597,7 @@ deprecation note.
 
 ---
 
-### 31. `ColumnMask.usingArguments` vs `RowFilter.inputArguments` action-verb difference — category 17 (Inconsistent action verbs)
-
-**Symbols:** `ColumnMask.usingArguments?: PolicyFunctionArgument[]`
-(model.ts:272), `RowFilter.inputArguments?: PolicyFunctionArgument[]`
-(model.ts:644).
-
-**Issue:** Both fields have the same purpose (positional arguments to a
-SQL UDF), the same type (`PolicyFunctionArgument[]`), and the same JSDoc
-shape ("This is the replacement of the deprecated …_column_names field").
-But the verb prefix differs: `using…` for masks, `input…` for filters.
-
-**Suggested:** unify on one verb. `inputArguments` is more conventional
-(matches "input parameters" common in DB systems). **Flag at port time.**
-
----
-
-### 32. `PolicyFunctionArgument.arg` field name is too short — category 1 (Vague/generic)
-
-**Symbol:** `PolicyFunctionArgument.arg` (model.ts:606). Discriminated
-union of `column` / `constant`.
-
-**Issue:** `arg` is three letters — too short for a public field. The
-proto source likely uses `oneof arg`; the generator preserves the field
-name. Consumer writes:
-```ts
-if (positionalArg.arg?.$case === 'column') { ... }
-```
-
-Compare to `Dependency.value` (finding 26) and
-`EncryptionDetails.encryptionDetailsType` (finding 27) — same pattern,
-three different naming conventions. The `arg` here is the most cryptic.
-
-**Suggested:** `argument` (full word) or `kind`.
-
----
-
-### 33. `PrimaryKeyConstraint.childColumns` vs `ForeignKeyConstraint.childColumns` semantic mismatch — category 6 (Misleading names) and category 12 (Duplicate concepts)
-
-**Symbols:** `PrimaryKeyConstraint.childColumns?: string[]`
-(model.ts:624), `ForeignKeyConstraint.childColumns?: string[]`
-(model.ts:451).
-
-**Issue:** Both types use `childColumns` for "the columns of this table
-participating in the constraint." But:
-- For a primary key, "child" is wrong vocabulary — there's no parent. A
-  primary key has no parent table.
-- For a foreign key, "child" matches the FK domain (child references
-  parent). `ForeignKeyConstraint` has both `childColumns` and
-  `parentColumns` (model.ts:455) — natural pair.
-
-The `PrimaryKeyConstraint.childColumns` field name is misleading — in PK
-context, the columns are simply *the* columns. Cross-reference the wire
-form `child_columns` (model.ts:1017, 1125) which inherits the same issue
-from upstream.
-
-**Suggested:** rename `PrimaryKeyConstraint.childColumns` to
-`PrimaryKeyConstraint.columns`. **Coordinate with protocol team.**
-
----
-
-### 34. `PrimaryKeyConstraint.timeseriesColumns` vs `ColumnMask.usingColumnNames` plural-vs-singular inconsistency — category 9 (Singular/plural mismatch)
-
-**Symbols:** `PrimaryKeyConstraint.timeseriesColumns?: string[]`
-(model.ts:626), `ColumnMask.usingColumnNames?: string[]` (model.ts:266),
-`ColumnMask.functionName?: string` (model.ts:260).
-
-**Issue:** Within the same file:
-- `columns` (plural): `PrimaryKeyConstraint.childColumns`,
-  `PrimaryKeyConstraint.timeseriesColumns`, `ForeignKeyConstraint.childColumns`,
-  `ForeignKeyConstraint.parentColumns`.
-- `columnNames` (plural with `Names`): `ColumnMask.usingColumnNames`,
-  `RowFilter.inputColumnNames`.
-
-Both refer to lists of column-name strings (`string[]`). The shape is
-identical; the names differ in whether the `Names` suffix is included.
-
-**Suggested:** unify on one form. `columns` is shorter and matches the
-constraint vocabulary; `columnNames` is more explicit but verbose. Pick
-one. **Flag at port time.**
-
----
-
-### 35. `ForeignKeyConstraint.rely` boolean is cryptic — category 5 (Cryptic abbreviations)
-
-**Symbol:** `ForeignKeyConstraint.rely?: boolean | undefined` (model.ts:457).
-JSDoc: "True if the constraint is RELY, false or unset if NORELY."
-
-**Issue:** "RELY" / "NORELY" are SQL keywords (Spark's `ALTER TABLE ... RELY`
-hint). The JSDoc explains them; the field name alone is opaque. Same
-critique applies to `PrimaryKeyConstraint.rely` (model.ts:628).
-
-**Suggested:** rename to `relyEnabled` or `enableRely` — the boolean form
-needs an `is…` / `enable…` prefix to match SDK convention. **Coordinate
-with protocol team.**
-
----
-
-### 36. `OptionSpec.isCopiable` typo or unusual spelling — category 5 (Cryptic abbreviations) and category 6 (Misleading names)
-
-**Symbol:** `OptionSpec.isCopiable?: boolean | undefined` (model.ts:598).
-JSDoc: "Indicates whether an option should be displayed with copy button
-on the UI."
-
-**Issue:** "Copiable" is an unusual spelling — the standard English forms
-are "copyable" or "copy-able". The generator picked the less-common form
-(likely from the upstream `.proto`).
-
-**Suggested:** `isCopyable`. Wire form `is_copiable` stays for back-compat.
-**Coordinate with protocol team.**
-
----
-
-### 37. `OptionSpec` has many `is…` boolean fields — category 17 (Inconsistent action verbs) — *pass with note*
+### 21. `OptionSpec` has many `is…` boolean fields — category 17 (Inconsistent action verbs) — *pass with note*
 
 **Symbols:** `OptionSpec.isRequired` (model.ts:584),
 `OptionSpec.isSecret` (model.ts:586), `OptionSpec.isHidden` (model.ts:588),
@@ -973,7 +615,7 @@ correctly may want a richer type. **Note for upstream.**)
 
 ---
 
-### 38. `EffectivePredictiveOptimizationFlag.value` is a generic field on a specific type — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
+### 22. `EffectivePredictiveOptimizationFlag.value` is a generic field on a specific type — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
 
 **Symbol:** `EffectivePredictiveOptimizationFlag.value?: string`
 (model.ts:429). JSDoc: "Whether predictive optimization should be enabled
@@ -981,14 +623,14 @@ for this object and objects under it."
 
 **Issue:** The type's *purpose* is to indicate whether PO is enabled. The
 field name `value` says nothing about that. The type is also a `string`
-(not a `boolean`) — same problem as finding 16.
+(not a `boolean`) — same problem as finding 14.
 
-**Suggested:** rename `value` → `enabled` (boolean) or `state` (matching
+**Suggested:** type the field as a boolean (or a constrained enum matching
 the JSDoc's "enabled" sense). **Coordinate with protocol team.**
 
 ---
 
-### 39. `EffectivePredictiveOptimizationFlag.inheritedFromType` / `inheritedFromName` — category 17 (Inconsistent action verbs)
+### 23. `EffectivePredictiveOptimizationFlag.inheritedFromType` / `inheritedFromName` — category 17 (Inconsistent action verbs)
 
 **Symbols:** `EffectivePredictiveOptimizationFlag.inheritedFromType?: string`
 (model.ts:431), `EffectivePredictiveOptimizationFlag.inheritedFromName?: string`
@@ -997,35 +639,19 @@ the JSDoc's "enabled" sense). **Coordinate with protocol team.**
 **Issue:** Two fields describing the source of inheritance — the object
 type ("CATALOG"|"SCHEMA"|…) and the object's name. Naming is OK, but the
 suffix pair `…Type` / `…Name` repeats inside one struct that has only
-three fields. Could be folded:
-```ts
-inheritedFrom?: { type?: string; name?: string };
-```
+three fields.
 
-**Suggested:** flatten to a sub-object. **Pass with note** — the current
-flat form is wire-faithful.
+**Pass with note** — the current flat form is wire-faithful.
 
 ---
 
-### 40. `TableConstraint.constraint` and `TableConstraint` discriminated-union shape — category 8 (Redundant suffixes) and category 20 (Type-suffix tautology)
-
-**Symbol:** `TableConstraint.constraint` (model.ts:677).
-
-**Issue:** Same problem as finding 27 (`EncryptionDetails.encryptionDetailsType`).
-Field repeats the type name's primary token. The discriminated union of
-three constraint shapes is wrapped in a field literally named `constraint`.
-
-**Suggested:** rename to a non-repeating field (`kind`, `variant`).
-
----
-
-### 41. `Client` class name — category 1 (Vague/generic) — *pass*
+### 24. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. **Pass.**
 
 ---
 
-### 42. `Client.createTable` / `deleteTable` / `getTable` / `updateTable` / `listTables` / `tableExists` — *pass*
+### 25. `Client.createTable` / `deleteTable` / `getTable` / `updateTable` / `listTables` / `tableExists` — *pass*
 
 Standard `{verb}{Resource}` shape. Convention. **Pass.**
 
@@ -1036,19 +662,19 @@ level.**)
 
 ---
 
-### 43. `Client.createTableConstraint` / `deleteTableConstraint` — *pass*
+### 26. `Client.createTableConstraint` / `deleteTableConstraint` — *pass*
 
 Same `{verb}{Resource}` pattern. **Pass.**
 
 ---
 
-### 44. `Client` private fields `host`, `httpClient`, `logger`, `userAgent` — *pass*
+### 27. `Client` private fields `host`, `httpClient`, `logger`, `userAgent` — *pass*
 
 Standard. **Pass.**
 
 ---
 
-### 45. `PACKAGE_SEGMENT` SCREAMING_SNAKE — category 4 (Underscores in TS identifiers)
+### 28. `PACKAGE_SEGMENT` SCREAMING_SNAKE — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:55).
 
@@ -1062,7 +688,7 @@ SDK-wide cleanup.**
 
 ---
 
-### 46. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
+### 29. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
 
 **Symbol:** `HttpCallOptions` (utils.ts:15).
 
@@ -1076,7 +702,7 @@ SDK-wide cleanup** — generated boilerplate.
 
 ---
 
-### 47. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
+### 30. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
 
 **Symbols:** `executeCall` (utils.ts:26), `executeHttpCall` (utils.ts:65).
 
@@ -1088,7 +714,7 @@ layers. The names imply a hierarchical relationship that does not exist.
 
 ---
 
-### 48. `buildHttpRequest`, `readAll`, `flattenQueryParams` — *pass*
+### 31. `buildHttpRequest`, `readAll`, `flattenQueryParams` — *pass*
 
 Verb-prefixed. Naming is fine. `flattenQueryParams` is used by the
 multi-query-param list methods (client.ts:357, 444).
@@ -1101,7 +727,7 @@ file.)
 
 ---
 
-### 49. Singular/plural — package name `tables` vs type names singular — category 9 (Singular/plural mismatch) — *pass*
+### 32. Singular/plural — package name `tables` vs type names singular — category 9 (Singular/plural mismatch) — *pass*
 
 Package: `@databricks/sdk-tables` (plural — collection). Types: `TableInfo`,
 `TableSummary`, `TableConstraint`, etc. (singular — one item). SDK-wide
@@ -1109,7 +735,7 @@ pattern. **Pass.**
 
 ---
 
-### 50. `Dependency.value` $case literals (`'table'`, `'function'`, `'connection'`, `'credential'`) all lowercase, no prefix — category 17 (Inconsistent action verbs) — *pass with note*
+### 33. `Dependency.value` $case literals (`'table'`, `'function'`, `'connection'`, `'credential'`) all lowercase, no prefix — category 17 (Inconsistent action verbs) — *pass with note*
 
 **Symbols:** `Dependency.value.$case` literals (model.ts:414–417).
 
@@ -1130,7 +756,7 @@ their $case literals.
 
 ---
 
-### 51. `parseResponse` ignores `Content-Type` — category 6 (Misleading names) — *pass with note*
+### 34. `parseResponse` ignores `Content-Type` — category 6 (Misleading names) — *pass with note*
 
 **Symbol:** `parseResponse` (utils.ts:113) does `JSON.parse(text)`
 unconditionally. The name implies it can handle any response shape; in
@@ -1141,7 +767,7 @@ practice it only handles JSON.
 
 ---
 
-### 52. `_PropertiesEntry` / `_Response` underscore-suffixed proto-nested type names — category 4 (Underscores in TS identifiers) and category 14 (Go/Java-style names)
+### 35. `_PropertiesEntry` / `_Response` underscore-suffixed proto-nested type names — category 4 (Underscores in TS identifiers) and category 14 (Go/Java-style names)
 
 **Symbols:** `CreateTableRequest_PropertiesEntry` (model.ts:359),
 `DeleteTableConstraintRequest_Response` (model.ts:383),
@@ -1171,6 +797,92 @@ the proto definition.
   `TableExistsResponse` (PascalCase, no underscore).
 
 **Flag for SDK-wide generator cleanup.**
+
+---
+
+### 36. `OptionSpec_OauthStage` / `OptionSpec_OptionType` proto-nested infix — file:line model.ts:209, 222
+
+**Why:** Underscore-separated `OuterMessage_InnerEnum` naming is a literal
+transcription of proto nested-enum scoping. The infix `_` and the
+container-prefix on a sibling enum is a proto/grpc architectural leak;
+TypeScript has no nested-enum concept.
+
+**Category:** proto-architectural-leak (`Proto` infix / Go-Java nested-name
+form).
+
+**Suggested:** `OauthStage` and `OptionType` (drop the `OptionSpec_`
+prefix) — or, if collision risk exists, `OptionOauthStage` /
+`OptionTypeKind`.
+
+**Rationale:** the `OptionSpec_` prefix exists solely to mirror the proto
+nesting; the eslint-disable comments on lines 208, 221 acknowledge the
+non-idiomatic shape.
+
+---
+
+### 37. `OptionSpec` type name carries a `Spec` config-suffix — file:line model.ts:563
+
+**Why:** `Spec` is a generic config-style suffix that re-appears across
+the file (`SecurableKindManifest`, `EffectivePredictiveOptimizationFlag`,
+`SseEncryptionDetails`, `EncryptionDetails`). It echoes proto/k8s
+"Spec"-shaped messages whose only job is to describe a struct.
+
+**Category:** proto-architectural-leak (repeated `Spec` config-suffix).
+
+**Suggested:** `Option` (the type already lives in `SecurableKindManifest.options`
+and is self-describing) or `OptionDefinition`.
+
+**Rationale:** the `Spec` suffix adds no domain meaning beyond "this is a
+struct describing X" — a proto convention, not a TS one.
+
+---
+
+### 38. `SecurableKindManifest` type name — file:line model.ts:648
+
+**Why:** `Manifest` is a config-style suffix (analogous to `Spec`/`Config`).
+It tags the type as a descriptor message rather than a domain concept.
+
+**Category:** proto-architectural-leak (config-suffix style).
+
+**Suggested:** `SecurableKindCapabilities` (matches `capabilities` field
+content) or fold into a richer `SecurableKind`-keyed structure.
+
+**Rationale:** the type holds five fields (`securableType`, `securableKind`,
+`assignablePrivileges`, `options`, `capabilities`) — the `Manifest` token
+adds no information beyond "this is the descriptor".
+
+---
+
+### 39. `ColumnInfo`, `TableInfo`, `TableSummary` — repeated `Info`/`Summary` config-suffix — file:line model.ts:233, 710, 787
+
+**Why:** `Info` and `Summary` are generic descriptor-suffixes used to
+distinguish the wire/RPC message from the domain noun (`Column`, `Table`).
+Two `…Info` types and a `…Summary` type in the same file flag this as a
+repeated config-suffix pattern.
+
+**Category:** proto-architectural-leak (repeated `Info` config-suffix).
+
+**Suggested:** `Column`, `Table`, `TableOverview` (or collapse all three
+into `Table` per finding #11).
+
+**Rationale:** in a TS surface the noun *is* the type; the `Info`/`Summary`
+tag exists only to disambiguate from the proto request/response messages
+and from server-internal representations — a generator/architectural leak.
+
+---
+
+### 40. `EncryptionDetails` / `SseEncryptionDetails` — repeated `Details` config-suffix — file:line model.ts:437, 662
+
+**Why:** Two `…Details` types in the same file. `Details` is a generic
+"descriptor" suffix with no domain meaning — same family as `Info`/`Spec`.
+
+**Category:** proto-architectural-leak (repeated `Details` config-suffix).
+
+**Suggested:** `Encryption` and `SseEncryption` (or `SseEncryptionConfig`
+if disambiguation is needed).
+
+**Rationale:** `Details` is generator boilerplate for proto messages
+wrapping `oneof`s or option blobs; idiomatic TS uses the bare domain noun.
 
 ---
 
@@ -1235,14 +947,7 @@ and naming.
 
 ---
 
-### G. `fullNameArg` Go-style argument suffix used across many packages
-
-`tables`, `schemas`, `functions`, `registeredmodels` all use the `Arg`
-suffix on URL-path arguments. Drop SDK-wide.
-
----
-
-### H. Three-tier table-type confusion
+### G. Three-tier table-type confusion
 
 This package, `onlinetables`, `database`, `postgres`, and `featurestore`
 all model "table" concepts at different layers:
@@ -1266,10 +971,10 @@ documentation pass needed.**
 
 | Severity | Count | Findings |
 | -------- | ----- | -------- |
-| **High** (style guide violations, dead/empty types, cross-package collisions, misleading semantics, proto-architectural leaks) | 18 | #1, #5, #12, #13, #14, #16, #18, #25, #26, #33, #38, #45, #53, #54, #55, #56, #57, #58 |
-| **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 21 | #2, #4, #6, #7, #8, #9, #10, #11, #15, #17, #20, #21, #23, #24, #27, #29, #30, #31, #35, #40, #52 |
-| **Low / SDK-wide note** (generator boilerplate, not local fix) | 10 | #3, #19, #32, #34, #36, #39, #46, #47, #50, #51 |
-| **Pass / acceptable** | 9 | #22, #28, #37, #41, #42, #43, #44, #48, #49 |
+| **High** (style guide violations, dead/empty types, cross-package collisions, misleading semantics, proto-architectural leaks) | 13 | #1, #4, #11, #12, #14, #18, #22, #28, #36, #37, #38, #39, #40 |
+| **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 11 | #2, #5, #6, #7, #8, #9, #10, #13, #15, #20, #35 |
+| **Low / SDK-wide note** (generator boilerplate, not local fix) | 7 | #3, #16, #23, #29, #30, #33, #34 |
+| **Pass / acceptable** | 9 | #17, #19, #21, #24, #25, #26, #27, #31, #32 |
 
 ---
 
@@ -1278,127 +983,12 @@ documentation pass needed.**
 1. **#1** — fix `DeltaRuntimePropertiesKvpairs` (field) /
    `DeltaRuntimePropertiesKvPairs` (type) casing mismatch. Local, mechanical
    rename.
-2. **#12** — drop the `Arg` suffix from `fullNameArg` SDK-wide. Higher
-   impact (changes wire field name) but eliminates a Go-style convention.
-3. **#16** — type `enablePredictiveOptimization` as a real enum instead of
+2. **#14** — type `enablePredictiveOptimization` as a real enum instead of
    a free-form string. Improves type safety.
-4. **#26 / #27 / #32 / #40** — unify discriminated-union container field
-   names (`value` vs `encryptionDetailsType` vs `arg` vs `constraint`).
-   Within-file consistency fix.
-5. **#24** — rename `ListTableSummariesRequest_Response.tables` to
-   `summaries` (or `tableSummaries`). Easy local fix.
-
----
-
----
-
-### 53. `OptionSpec_OauthStage` / `OptionSpec_OptionType` proto-nested infix — file:line model.ts:209, 222
-
-**Why:** Underscore-separated `OuterMessage_InnerEnum` naming is a literal
-transcription of proto nested-enum scoping. The infix `_` and the
-container-prefix on a sibling enum is a proto/grpc architectural leak;
-TypeScript has no nested-enum concept.
-
-**Category:** proto-architectural-leak (`Proto` infix / Go-Java nested-name
-form).
-
-**Suggested:** `OauthStage` and `OptionType` (drop the `OptionSpec_`
-prefix) — or, if collision risk exists, `OptionOauthStage` /
-`OptionTypeKind`.
-
-**Rationale:** the `OptionSpec_` prefix exists solely to mirror the proto
-nesting; the eslint-disable comments on lines 208, 221 acknowledge the
-non-idiomatic shape.
-
----
-
-### 54. `OptionSpec` type name carries a `Spec` config-suffix — file:line model.ts:563
-
-**Why:** `Spec` is a generic config-style suffix that re-appears across
-the file (`SecurableKindManifest`, `EffectivePredictiveOptimizationFlag`,
-`SseEncryptionDetails`, `EncryptionDetails`). It echoes proto/k8s
-"Spec"-shaped messages whose only job is to describe a struct.
-
-**Category:** proto-architectural-leak (repeated `Spec` config-suffix).
-
-**Suggested:** `Option` (the type already lives in `SecurableKindManifest.options`
-and is self-describing) or `OptionDefinition`.
-
-**Rationale:** the `Spec` suffix adds no domain meaning beyond "this is a
-struct describing X" — a proto convention, not a TS one.
-
----
-
-### 55. `SecurableKindManifest` type name — file:line model.ts:648
-
-**Why:** `Manifest` is a config-style suffix (analogous to `Spec`/`Config`).
-It tags the type as a descriptor message rather than a domain concept.
-
-**Category:** proto-architectural-leak (config-suffix style).
-
-**Suggested:** `SecurableKindCapabilities` (matches `capabilities` field
-content) or fold into a richer `SecurableKind`-keyed structure.
-
-**Rationale:** the type holds five fields (`securableType`, `securableKind`,
-`assignablePrivileges`, `options`, `capabilities`) — the `Manifest` token
-adds no information beyond "this is the descriptor".
-
----
-
-### 56. `ColumnInfo`, `TableInfo`, `TableSummary` — repeated `Info`/`Summary` config-suffix — file:line model.ts:233, 710, 787
-
-**Why:** `Info` and `Summary` are generic descriptor-suffixes used to
-distinguish the wire/RPC message from the domain noun (`Column`, `Table`).
-Two `…Info` types and a `…Summary` type in the same file flag this as a
-repeated config-suffix pattern.
-
-**Category:** proto-architectural-leak (repeated `Info` config-suffix).
-
-**Suggested:** `Column`, `Table`, `TableOverview` (or collapse all three
-into `Table` per finding #13).
-
-**Rationale:** in a TS surface the noun *is* the type; the `Info`/`Summary`
-tag exists only to disambiguate from the proto request/response messages
-and from server-internal representations — a generator/architectural leak.
-
----
-
-### 57. `EncryptionDetails` / `SseEncryptionDetails` — repeated `Details` config-suffix — file:line model.ts:437, 662
-
-**Why:** Two `…Details` types in the same file. `Details` is a generic
-"descriptor" suffix with no domain meaning — same family as `Info`/`Spec`.
-
-**Category:** proto-architectural-leak (repeated `Details` config-suffix).
-
-**Suggested:** `Encryption` and `SseEncryption` (or `SseEncryptionConfig`
-if disambiguation is needed). The discriminated-union container field
-`encryptionDetailsType` (finding #27) then becomes `encryption.kind` — and
-the redundant `Details` token disappears.
-
-**Rationale:** `Details` is generator boilerplate for proto messages
-wrapping `oneof`s or option blobs; idiomatic TS uses the bare domain noun.
-
----
-
-### 58. `dataAccessConfigurationId` field — `Configuration` mid-position config-suffix — file:line model.ts:327, 750, 837
-
-**Why:** `Configuration` mid-token (between `DataAccess` and `Id`) is a
-config-suffix occurrence inside a field name. The wire form is
-`data_access_configuration_id`; the TS form repeats the noise.
-
-**Category:** proto-architectural-leak (`Config` family mid-position).
-
-**Suggested:** `dataAccessConfigId` (shorter) or `dataAccessId` if the
-"configuration" is implicit (the value already identifies a config record).
-
-**Rationale:** five-token field names with a mid `Configuration` token are
-a strong signal of proto-style verbose naming surviving the wire→TS port.
-
----
-
-## Fixed
-
-- #18 `TableExists` (originally cited at model.ts:761): Fixed in regeneration on 2026-05-20 — request type renamed to `TableExistsRequest`, resolving the verb-as-noun reading on the request surface.
-- #19 Request type naming pattern is inconsistent (originally cited at model.ts:322, 411, 417, 419, 432, 517, 528, 566, 594, 761, 857, 399): Fixed in regeneration on 2026-05-20 — all request types now carry the `Request` suffix (`CreateTableRequest`, `DeleteTableRequest`, `DeleteTableConstraintRequest`, `GetTableRequest`, `ListTablesRequest`, `ListTableSummariesRequest`, `TableExistsRequest`, `UpdateTableRequest`, `CreateTableConstraintRequest`).
-- #45 `ConditionalDisplay.dependsOnOption` vs `hiddenWhenValues` field naming asymmetry (originally cited at model.ts:307, 313): Fixed in regeneration on 2026-05-20 — the `ConditionalDisplay` interface is no longer generated for this package.
-- #32 (partial) — `VolumeDependency` and `SecretDependency` (originally cited at model.ts:704, 940 with the rest of the Dependency family): Fixed in regeneration on 2026-05-20 — those two leaf types and the `volume` / `secret` discriminated-union cases were removed from `Dependency`; the cross-package duplication concern (now finding #25) still applies to the four remaining leaf types.
+3. **#22** — type `EffectivePredictiveOptimizationFlag.value` as a real
+   boolean/enum instead of a free-form string. Same family as #14.
+4. **#35** — eliminate `_Response` empty bodies and `_PropertiesEntry`
+   map-entry shells. Local type-level cleanup.
+5. **#36 / #37 / #38 / #39 / #40** — drop proto-architectural type-name
+   suffixes (`_OauthStage`, `Spec`, `Manifest`, `Info`/`Summary`, `Details`)
+   in favour of bare domain nouns.

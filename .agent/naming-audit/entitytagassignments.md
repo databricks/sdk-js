@@ -3,14 +3,14 @@
 **Path:** `packages/entitytagassignments/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog entity tag assignments — create/get/list/update/delete key/value tags on UC entities (tables, schemas, columns, volumes, etc.), with provenance (`sourceType`) metadata. Sister of `tagassignments` (non-UC entities: apps, dashboards, geniespaces, notebooks) and `tagpolicies` (governed tag definitions).
-**Total weird names flagged:** 24
+**Total weird names flagged:** 20
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 7 |
+| High | 5 |
 | Medium | 9 |
-| Low | 4 |
+| Low | 2 |
 | Observation | 4 |
 
 ## High severity
@@ -21,37 +21,25 @@
 - **Suggested name:** Merge into a single package `tagassignments` keyed by `entityKind` ("uc" vs. "platform"), or rename to `uctagassignments` so the surface marker is "uc", not "entity". The non-UC sibling can drop its own `entityType` field discrimination and become `platformtagassignments`. As a smaller fix: `unitycatalogtags` here, `platformtags` there.
 - **Rationale:** Two `Client` classes called `Client`, with two `TagAssignment` / `EntityTagAssignment` types, both shipping `tagKey`/`tagValue`/`entityType`, will collide in user imports and force aliasing on every co-use. The split exists for backend reasons but leaks raw into the SDK. Worth flagging upstream as a generator-level concern.
 
-### 2. `EntityTagAssignment` field shape vs. sister `TagAssignment` shape — `src/v1/model.ts:32-47` vs. `tagassignments/src/v1/model.ts:46-55`
-- **Why weird:** The two sister types model the same conceptual object using different identifier fields: this package's `EntityTagAssignment` has `entityName: string`, while `tagassignments.TagAssignment` has `entityId: string`. Same column conceptually (the thing being tagged), different field name. A user porting code between the two has to translate. The JSDoc here says "fully qualified name" while the sister says "identifier"; the wire-side names are `entity_name` vs. `entity_id`.
-- **Category:** 12 (duplicate concept with divergent naming), 17 (verb/noun inconsistency across siblings), 16 (field contradicts type domain — "name" suggests a label, "id" suggests an opaque handle, but both fields are fully-qualified resource identifiers).
-- **Suggested name:** Unify on `entityFullName` (matches Unity Catalog vocabulary like `catalogs.fullName`, `tables.fullName`) or `entity` for both packages. At minimum, both packages should agree.
-- **Rationale:** Splitting "name vs id" by package makes the cross-package developer experience worse. The Unity Catalog product surface consistently calls these `full_name`/`fullName` (see `catalogs`, `schemas`, `tables`); using `entityName` here breaks that convention silently.
-
-### 3. `TagAssignmentSourceType` — `src/v1/model.ts:9`
+### 2. `TagAssignmentSourceType` — `src/v1/model.ts:9`
 - **Why weird:** Three-word enum name `TagAssignmentSourceType`. "Source" + "Type" is a tautology — an enum *is* a type, so `*Type` suffix is filler. Combined with the surrounding type `EntityTagAssignment`, the relevant field is `sourceType: TagAssignmentSourceType` — five words to say "where did this come from".
 - **Category:** 20 (type-suffix tautology — `Type` on an enum), 7 (overly verbose).
 - **Suggested name:** `TagSource` (drop both `Assignment` and `Type`). Field becomes `source: TagSource`.
 - **Rationale:** The shorter name is unambiguous in context (`EntityTagAssignment.source` reads better than `EntityTagAssignment.sourceType`). Sister Unity Catalog packages have analogous enums like `Privilege`, `SchemaType` — `Type` suffix is used inconsistently across the SDK.
 
-### 4. `entityName: string` doc says "fully qualified name" but type does not enforce — `src/v1/model.ts:24,34,52,62`
-- **Why weird:** Four places in this file have a field called `entityName` whose JSDoc says "The fully qualified name of the entity to which the tag is assigned". The shape `name?: string | undefined` cannot enforce qualification; users will pass bare names. Compare Unity Catalog convention `fullName` (used in `catalogs`, `schemas`, `tables`).
-- **Category:** 1 (vague — "name" is too generic), 6 (misleading — looks settable to a bare name, is actually structured), 15 (generic field name losing meaning), 19 (underspecified ID — what makes it "fully qualified"?).
-- **Suggested name:** `entityFullName` (or `entity`/`entityFqn`). Matches sister UC packages.
-- **Rationale:** "fully qualified" is wire-side; the SDK type should make the constraint visible in the identifier. A field literally called `entityName` reads as a display name to most TS users.
-
-### 5. `entityType: string` everywhere — `src/v1/model.ts:28,40,56,68`
+### 3. `entityType: string` everywhere — `src/v1/model.ts:28,40,56,68`
 - **Why weird:** Four occurrences of `entityType?: string | undefined` with no enum or string-literal union to constrain values. The JSDoc says "The type of the entity to which the tag is assigned" but never lists which values are valid (compare sister `tagassignments`: doc explicitly lists `apps, dashboards, geniespaces, notebooks`). For Unity Catalog entities, the actual valid set is something like `table`, `schema`, `catalog`, `column`, `volume`, `function`, `model` — none of which is documented or constrained in the type.
 - **Category:** 1 (vague — `string` for what is really an enum), 19 (underspecified ID — what type strings are valid?), 6 (misleading — looks free-form, is actually constrained).
 - **Suggested name:** `EntityKind` (string-literal union or enum) typed as the field. E.g. `entityKind?: 'table' | 'schema' | 'catalog' | 'column' | 'volume' | 'function' | 'model'`. The field name `Type` also collides with the JS reserved-ish word — `Kind` reads more cleanly.
 - **Rationale:** Stringly-typed enum fields are a generator anti-pattern. The valid set is closed; the type should say so. `Type` as a noun is also overused — `Kind` is the convention in TS standard library (`SyntaxKind`, `NodeKind`).
 
-### 6. `tagKey` field doc inconsistency: required marker on get/delete, not on `EntityTagAssignment` — `src/v1/model.ts:26,36,54`
+### 4. `tagKey` field doc inconsistency: required marker on get/delete, not on `EntityTagAssignment` — `src/v1/model.ts:26,36,54`
 - **Why weird:** `DeleteEntityTagAssignmentRequest.tagKey` says "Required. The key of the tag to delete". `GetEntityTagAssignmentRequest.tagKey` says "Required. The key of the tag". But `EntityTagAssignment.tagKey` (on the actual returned/created object) and `CreateEntityTagAssignmentRequest.tagAssignment.tagKey` are documented as just "The key of the tag" with no required marker — yet you cannot create or get a tag without a key. The `?: string | undefined` typing makes all of them optional in TS. Type and doc disagree.
 - **Category:** 6 (misleading — type says optional, semantics says required), 17 (inconsistent — some docs say "Required.", others don't, for what is the same logical field).
 - **Suggested name:** Keep `tagKey`; make non-optional (`tagKey: string`) and remove the "Required." doc preamble since the type enforces it. Apply uniformly across all four request types and the assignment type itself.
 - **Rationale:** "Required." in a docstring while the type is optional is a generator smell. Honest required-ness should travel through the type.
 
-### 7. `Client` class — `src/v1/client.ts:41`
+### 5. `Client` class — `src/v1/client.ts:41`
 - **Why weird:** A class literally named `Client` at the top level of the package's public API, re-exported through `index.ts:3` as just `Client`. The other tag packages (`tagassignments`, `tagpolicies`) ship their own `Client` class with the same name. Three `Client` classes in three sister packages.
 - **Category:** 1 (vague — `Client` is the most generic possible name), 15 (generic name), 12 (duplicate concept across sister packages).
 - **Suggested name:** `EntityTagAssignmentsClient` (or `UnityCatalogTagsClient`).
@@ -59,13 +47,13 @@
 
 ## Medium severity
 
-### 8. `ListEntityTagAssignmentsRequest` (plural) vs. `EntityTagAssignment` (singular) — `src/v1/model.ts:60` vs. `src/v1/model.ts:32`
+### 6. `ListEntityTagAssignmentsRequest` (plural) vs. `EntityTagAssignment` (singular) — `src/v1/model.ts:60` vs. `src/v1/model.ts:32`
 - **Why weird:** The plural appears only on the list endpoint; the rest of the surface is singular. Singular/plural mix is consistent with the Go SDK and other packages, but worth flagging that the resource name on the wire is `/entity-tag-assignments` (plural) while the type name is singular `EntityTagAssignment`. The list response is `ListEntityTagAssignmentsResponse` (plural).
 - **Category:** 9 (singular/plural mismatch — present and intentional, but inconsistent vocabulary).
 - **Suggested name:** Keep as is (this is the cross-SDK convention). Listed for completeness.
 - **Rationale:** Listed only to confirm: List endpoints use plural, item type is singular. No fix needed; flagged because rule 9 demands the audit.
 
-### 9. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
+### 7. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions named "execute" — `executeCall` runs the retry/rate-limit shell, `executeHttpCall` does the actual HTTP send. They appear together in every client method:
   ```ts
   const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -80,43 +68,43 @@
 - **Suggested name:** `runWithPolicies(call, options)` for outer, `sendHttpRequest(opts)` for inner.
 - **Rationale:** Names should reveal the layering, not require code-diving. Generator-wide concern.
 
-### 10. `Call` type and `call` variable — `src/v1/client.ts:86,119,139,178,242` and `src/v1/utils.ts:27`
+### 8. `Call` type and `call` variable — `src/v1/client.ts:86,119,139,178,242` and `src/v1/utils.ts:27`
 - **Why weird:** Variable `call` of type `Call`, called inside `executeCall(call, options)`. The same word is the variable, the type, and the verb. Inside one method scope we have `req`, `call`, `httpReq` — three layered names where one of them collides with its type.
 - **Category:** 1 (vague), 12 (duplicate concept).
 - **Suggested name:** `runRequest` / `sendRequest` for the variable; reserve `Call` for the type.
 - **Rationale:** Type-name collisions are tolerable but obscure prose-style code.
 
-### 11. `req.entityType ?? ''` / `req.entityName ?? ''` / `req.tagKey ?? ''` URL composition — `src/v1/client.ts:118,137,167,230`
+### 9. `req.entityType ?? ''` / `req.entityName ?? ''` / `req.tagKey ?? ''` URL composition — `src/v1/client.ts:118,137,167,230`
 - **Why weird:** Four endpoints silently substitute empty string for missing path components. `req.entityType` and `req.entityName` and `req.tagKey` are typed `string | undefined` but functionally required (URL is broken without them). When `entityType` is undefined the URL becomes `.../entity-tag-assignments//entity-name/tags/key`. Same problem flagged in `dataclassification` audit.
 - **Category:** 6 (misleading — optional in type but required in practice).
 - **Suggested name:** Make path-component fields required (non-optional) on the request types.
 - **Rationale:** Field name promises less than the API requires; the SDK silently produces malformed URLs.
 
-### 12. `respBody` (raw bytes) vs. `resp` (parsed object) — `src/v1/client.ts:90-95, 143-148, 182-187, 252-257`
+### 10. `respBody` (raw bytes) vs. `resp` (parsed object) — `src/v1/client.ts:90-95, 143-148, 182-187, 252-257`
 - **Why weird:** Two stages produce `respBody: Uint8Array` then `resp: EntityTagAssignment`. The names differ only by `Body`. Both are short for "response". The reader has to track which is bytes, which is parsed. Compare `req` (parameter, request) — also abbreviated, but no `reqBody` sibling.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency — `respBody` keeps `Body`, `resp` drops the implied `Parsed`).
 - **Suggested name:** `rawBody` + `result`, or `responseBytes` + `response`.
 - **Rationale:** Distinguish stages by meaningful nouns, not by suffix differences on the same root.
 
-### 13. `httpReq` local variable — `src/v1/client.ts:89,122,142,181,245`
+### 11. `httpReq` local variable — `src/v1/client.ts:89,122,142,181,245`
 - **Why weird:** Inside a method that already has `req: CreateEntityTagAssignmentRequest`, a second variable `httpReq: HttpRequest` shares the `req` root. Two `req`s in the same scope.
 - **Category:** 5 (cryptic abbreviation), 12 (duplicate concept — two `req`s).
 - **Suggested name:** `httpRequest` (no abbreviation), or `wireRequest`.
 - **Rationale:** Avoid forking the same identifier across two layers in one scope.
 
-### 14. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 12. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Type called `Options` but it is an internal context bag (request + http client + logger), not a user-tunable options struct. The user-facing options type is `CallOptions` (different file). Two different `Options` types for two different concepts.
 - **Category:** 1 (vague suffix `Options`), 8 (redundant suffix — internal context bags should not be called `Options`).
 - **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
 - **Rationale:** Reserve `Options` for caller-tunable knobs; use `Context`/`Args` for internal bags.
 
-### 15. `buildHttpRequest` returns `HttpRequest` — `src/v1/utils.ts:96`
+### 13. `buildHttpRequest` returns `HttpRequest` — `src/v1/utils.ts:96`
 - **Why weird:** Pure object-literal-with-optional-fields helper named "build". "Build" suggests builder-pattern construction; the function just spreads fields into a struct.
 - **Category:** 1 (vague — "build" suggests heavyweight construction), 6 (misleading — implies builder pattern, is just an object literal).
 - **Suggested name:** `makeHttpRequest` or inline at call sites.
 - **Rationale:** "Build" carries connotations from Java/JS Builder patterns; this is just shorthand.
 
-### 16. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 14. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** The function is exported but unused in `client.ts` (this package's list endpoint uses individual `params.append(...)` calls instead). Dead-code-shaped helper in shared scaffolding.
 - **Category:** 6 (misleading — implies the package uses it), 18 (carry-over from a different template).
 - **Suggested name:** N/A — should not live here at all. Belongs in a shared utils package.
@@ -124,44 +112,32 @@
 
 ## Low severity
 
-### 17. `readAll(body)` — `src/v1/utils.ts:40`
+### 15. `readAll(body)` — `src/v1/utils.ts:40`
 - **Why weird:** `readAll` is generic enough to read anything; here it specifically drains a `ReadableStream<Uint8Array>` into a single buffer. The name does not say "drain a stream into a buffer".
 - **Category:** 1 (vague), 5 (cryptic — `readAll` is JS-conventional but not self-describing).
 - **Suggested name:** `drainStream` or `readStreamToUint8Array`.
 - **Rationale:** A name like `readAll` reads as if it took a file path or array.
 
-### 18. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
+### 16. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
 - **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. Constant is `UPPER_SNAKE_CASE` in a TS file otherwise dominated by camelCase. Casing is appropriate for a module constant; the noun is weak.
 - **Category:** 1 (vague — `Segment` of what?).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
 - **Rationale:** Single word "segment" gives no domain; the comment above it does the work the name should.
 
-### 19. `tagKey` and `tagValue` co-located on `EntityTagAssignment` — `src/v1/model.ts:36,38`
-- **Why weird:** The pair encodes a `(key, value)` tag — that part is fine. But the type is *already* called `EntityTagAssignment`, so the `tag` prefix on each field is redundant within scope: `assignment.tagKey` reads as "the assignment's tag's key" when the assignment *is* a tag.
-- **Category:** 8 (redundant prefix — `tag` within `EntityTagAssignment`).
-- **Suggested name:** `key` and `value` (drop the `tag` prefix). Wire stays `tag_key` / `tag_value`.
-- **Rationale:** Field names should not re-state their containing type's noun. `assignment.key` / `assignment.value` reads cleaner.
-
-### 20. `updateTime` and `updatedBy` paired field naming — `src/v1/model.ts:42,44`
-- **Why weird:** Verb tense pair: `updateTime` (noun-noun, gerund stripped) vs. `updatedBy` (past participle). Cross-SDK convention should pick one. Compare: `createTime` (noun-noun) often pairs with `createdBy` (past participle) in Databricks — the same asymmetry. It is consistent across the SDK, but worth noting under rule 13.
-- **Category:** 13 (verb-tense inconsistency within a paired field).
-- **Suggested name:** `updateTime`/`updateBy` or `updatedTime`/`updatedBy`. Either works; the asymmetry is the issue.
-- **Rationale:** Established SDK pattern, but rule 13 demands the flag.
-
 ## Observations
 
-### 21. Action verb consistency
+### 17. Action verb consistency
 The client uses `create`/`get`/`update`/`delete`/`list` — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
 
-### 22. Acronym casing
+### 18. Acronym casing
 The file uses `HttpRequest`, `HttpResponse`, `HttpCallOptions` (Pascal `Http`), `URLSearchParams` (web standard `URL`), `userAgent` (camelCase). The `Http` vs. `URL` split is the JS-ecosystem norm. No `Id`/`Uri`/`UC` casing clashes encountered.
 - **Category:** 3 (acronym casing — consistent within the file, ecosystem-divergent overall).
 
-### 23. `entitytagassignments` lowercase package name
+### 19. `entitytagassignments` lowercase package name
 The package directory is `entitytagassignments` (single token, no separator), but every type uses `EntityTagAssignment` and the HTTP path uses `entity-tag-assignments`. Same problem as `dataclassification`. SDK-wide convention issue.
 - **Category:** 3 (casing inconsistency between directory token, kebab wire path, and Pascal types).
 
-### 24. Domain leakage from sister packages
+### 20. Domain leakage from sister packages
 Three packages — `entitytagassignments`, `tagassignments`, `tagpolicies` — all collide on the noun "tag". Each ships its own `Client`, its own `*TagAssignment` (or `TagPolicy`) type, and its own `tagKey`/`tagValue`. Co-import requires extensive aliasing. The split aligns to wire-side API groupings, not to a user mental model of "tag tools". Worth flagging upstream as a structure-level concern, not just naming.
 - **Category:** 12 (duplicate concept across siblings).
 
@@ -180,7 +156,3 @@ Three packages — `entitytagassignments`, `tagassignments`, `tagpolicies` — a
 - `src/v1/client.ts` (265 lines): read fully.
 - `src/v1/utils.ts` (150 lines): read fully.
 - `src/v1/index.ts` (15 lines): read fully.
-
-## Fixed
-- #9 `includeInherited` boolean doc is wrong (originally cited at `src/v1/model.ts:60,74`): Fixed in regeneration on 2026-05-20 — `includeInherited` field removed from request DTOs entirely.
-- #24 `inherited` boolean on `EntityTagAssignment` (originally cited at `src/v1/model.ts:48`): Fixed in regeneration on 2026-05-20 — `inherited` field removed from the response type.

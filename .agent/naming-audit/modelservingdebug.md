@@ -314,18 +314,3 @@ None.
 ## Observation
 
 _None._
-
-## Fixed
-
-- #F0.1 `modelservingdebug` package name (originally cited at `package.json:2`): Fixed in regeneration on 2026-05-20 — package merged into `@databricks/sdk-modelserving`; the misleading "debug" qualifier is gone.
-- #F0.2 Three-way split `modelserving{debug,management,query}` (originally cited at `packages/modelservingdebug/`, `packages/modelservingmanagement/`): Fixed in regeneration on 2026-05-20 — `modelservingdebug` (and `modelservingmanagement`) folded into the single `modelserving` package; `modelservingquery` remains separate for data-plane reasons.
-- #F0.3 Directory and `.package.json` declarator drift (originally cited at `.package.json:2`): Fixed in regeneration on 2026-05-20 — the `modelservingdebug` directory no longer exists, so the declarator/manifest drift is moot.
-- #1 `Client` class name unqualified (originally cited at `client.ts:39`, `index.ts:3`): Fixed in regeneration on 2026-05-20 — the dedicated `modelservingdebug.Client` no longer exists; the three RPCs are now methods on `@databricks/sdk-modelserving`'s `Client`, eliminating the three-way collision against `modelservingmanagement.Client` and `modelservingquery.Client`.
-- #6 (old) `servedModelName` doc echoes (originally cited at `model.ts:27-28,40-41`): Superseded — re-issued as finding #6 against the merged `model.ts:563-564,576-577`.
-- #13 (old) Passive-voice JSDoc on `GetServedModelLogs.servedModelName` (originally cited at `model.ts:41`): Fixed in regeneration on 2026-05-20 — JSDoc text was an observation-only note; the generator output still uses the same wording in the merged location but the finding was downgraded as it was never a name bug. Folded into the rewritten finding #6 above.
-- #20 (old) `pkgJson` import alias (originally cited at `client.ts:19,35,36`): Fixed in regeneration on 2026-05-20 — the generated client still uses `pkgJson` at `client.ts:21,76-77`, but this is a cross-package generator-only artefact already tracked in `_SUMMARY.md`; dropping the per-package entry to avoid duplication.
-- #21 (old) `readAll` chunk-accumulator (originally cited at `utils.ts:46-62`): Fixed in regeneration on 2026-05-20 — `utils.ts:40-63` still buffers via `getReader()`, but this is a cross-package performance observation already tracked in `_SUMMARY.md`; dropping the per-package entry to avoid duplication.
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

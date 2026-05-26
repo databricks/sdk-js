@@ -484,15 +484,3 @@ RAW = 'RAW',
 | `src/v1/client.ts` | 291 | yes |
 | `src/v1/utils.ts` | 151 | yes |
 | `src/v1/index.ts` | 21 | yes |
-
-## Fixed
-
-- #1 `workspace` package name (originally cited at `package.json` → `@databricks/sdk-workspace`): Fixed in regeneration on 2026-05-20 — package renamed to `workspaceobjects`, which conveys the filesystem-objects scope and no longer collides with the other "workspace*" packages.
-- #2 `Delete`, `Export`, `Import`, `List`, `Mkdirs`, `GetStatus` verb-as-type request interfaces (originally cited at `model.ts:65,:79,:121,:126,:163,:176`): Fixed in regeneration on 2026-05-20 — all request interfaces now carry a `Request` suffix (`DeleteRequest`, `ExportRequest`, `ImportRequest`, `ListRequest`, `MkdirsRequest`, `GetStatusRequest`), resolving the ES reserved-word collisions.
-- #22 `GetStatus` verb-as-type without `Request` suffix (originally cited at `model.ts:121-124`): Fixed in regeneration on 2026-05-20 — renamed to `GetStatusRequest`, consistent with the rest of the SDK.
-- #26 `ExportOutputs` plural enum type (originally cited at `model.ts:27-32`): Fixed in regeneration on 2026-05-20 — the `ExportOutputs` enum is no longer present in the generated model.
-- #27 `Export.outputs` typed `ExportOutputs` tautology (originally cited at `model.ts:104-106`): Fixed in regeneration on 2026-05-20 — the `outputs` field is no longer present on `ExportRequest`.
-
-All previous findings are obsolete: the package source was removed in the 2026-05-22 regen. See the status block at the top of this file.
-
-Fixed in regeneration on 2026-05-22.

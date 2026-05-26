@@ -6,7 +6,7 @@
 notebooks, folders, and files — import, export, delete, list, get-status,
 and mkdirs against absolute paths under `/Workspace`. Wire prefix:
 `/api/2.0/workspace/`.
-**Total weird names flagged:** 23
+**Total weird names flagged:** 14
 
 ## Scope note: `workspaceobjects` vs sibling packages
 
@@ -27,9 +27,9 @@ others differ in scope:
 
 | Severity | Count |
 | --- | --- |
-| High | 5 |
-| Medium | 12 |
-| Low | 6 |
+| High | 3 |
+| Medium | 6 |
+| Low | 5 |
 | Observation | 6 |
 
 ## Summary table
@@ -39,26 +39,17 @@ others differ in scope:
 | 1 | High | `model.ts:6` enum | `ExportFormat` used as `format` field of `ImportRequest` | Misleading name (an "ExportFormat" governs imports too) |
 | 2 | High | `model.ts:18` enum value | `ExportFormat.AUTO` | Ambiguous enum value (different behaviour for import vs. export) |
 | 3 | High | `model.ts:24` enum value | `ExportFormat.RAW` | Vague enum value (no documented format, only a use-case story) |
-| 4 | High | `model.ts:195,199` field | `ObjectInfo.objectId` and `ObjectInfo.resourceId` | Duplicate concept (two IDs for the same object, undifferentiated names) |
-| 5 | High | `model.ts:28` enum | `Language` | Vague/generic, no domain prefix |
-| 6 | Medium | `model.ts:48` enum value | `ObjectType.LIBRARY` | Misleading (workspace libraries are an obsolete concept) |
-| 7 | Medium | `model.ts:153` field | `ListRequest.notebooksModifiedAfter` | Field contradicts type domain (list returns all object types, filter only on notebooks) |
-| 8 | Medium | `model.ts:92` field | `ExportRequest.directDownload` | Verb-as-noun boolean (toggles response content-type entirely) |
-| 9 | Medium | `model.ts:104` field | `ExportRequest_Response.fileType` | Underspecified (extension? MIME? format enum?) |
-| 10 | Medium | `model.ts:102` field | `ExportRequest_Response.content` typed `Uint8Array` | Type contradicts JSDoc ("base64-encoded content") |
-| 11 | Medium | `model.ts:138` field | `ImportRequest.content` typed `Uint8Array` | Same type/JSDoc mismatch as 10 in reverse direction |
-| 12 | Medium | `model.ts:191,193` fields | `ObjectInfo.createdAt` and `ObjectInfo.modifiedAt` | Unit ambiguity (epoch millis as `number`), "only applicable to files" |
-| 13 | Medium | `model.ts:197` field | `ObjectInfo.size` | Underspecified — no unit in the name (bytes per JSDoc) |
-| 14 | Medium | `model.ts:167` field | `MkdirsRequest.path` | Singular/plural mismatch — type plural, field singular |
-| 15 | Medium | `model.ts:162` type | `MkdirsRequest` | Unix-ism (`mkdir -p`); sibling `files` package uses `createDirectory` |
-| 16 | Medium | `client.ts:157` method | `getStatus` | Vague verb; returns full `ObjectInfo` metadata (a `stat`, not a status) |
-| 17 | Medium | `model.ts:66` field | `DeleteRequest.recursive` | Unix flag (`rm -r`); no domain reading |
-| 18 | Low | `model.ts:16` enum value | `ExportFormat.R_MARKDOWN` | Shape mismatch — single underscored value among single-token values |
-| 19 | Low | `model.ts:14` enum value | `ExportFormat.DBC` | Cryptic product-specific abbreviation (Databricks archive) |
-| 20 | Low | `model.ts:174` interface | `ObjectInfo` | `Info` suffix carries no information; central entity is just an "Object" |
-| 21 | Low | `model.ts:159` field | `ListRequest_Response.objects` | Generic field name (`objects`) for `ObjectInfo[]` |
-| 22 | Low | `client.ts:266` method | `mkdirs` | Lower-case Unix contraction next to other `verbNoun` methods (`getStatus`, `import`, `export`) |
-| 23 | Low | `model.ts:17-23` JSDoc | "We will inspect…" / "This is introduced to unblock a DR use case" | First-person and ticket-driven prose in public JSDoc |
+| 4 | High | `model.ts:28` enum | `Language` | Vague/generic, no domain prefix |
+| 5 | Medium | `model.ts:48` enum value | `ObjectType.LIBRARY` | Misleading (workspace libraries are an obsolete concept) |
+| 6 | Medium | `model.ts:102` field | `ExportRequest_Response.content` typed `Uint8Array` | Type contradicts JSDoc ("base64-encoded content") |
+| 7 | Medium | `model.ts:138` field | `ImportRequest.content` typed `Uint8Array` | Same type/JSDoc mismatch as 6 in reverse direction |
+| 8 | Medium | `model.ts:162` type | `MkdirsRequest` | Unix-ism (`mkdir -p`); sibling `files` package uses `createDirectory` |
+| 9 | Medium | `client.ts:157` method | `getStatus` | Vague verb; returns full `ObjectInfo` metadata (a `stat`, not a status) |
+| 10 | Low | `model.ts:16` enum value | `ExportFormat.R_MARKDOWN` | Shape mismatch — single underscored value among single-token values |
+| 11 | Low | `model.ts:14` enum value | `ExportFormat.DBC` | Cryptic product-specific abbreviation (Databricks archive) |
+| 12 | Low | `model.ts:174` interface | `ObjectInfo` | `Info` suffix carries no information; central entity is just an "Object" |
+| 13 | Low | `client.ts:266` method | `mkdirs` | Lower-case Unix contraction next to other `verbNoun` methods (`getStatus`, `import`, `export`) |
+| 14 | Low | `model.ts:17-23` JSDoc | "We will inspect…" / "This is introduced to unblock a DR use case" | First-person and ticket-driven prose in public JSDoc |
 
 ## High severity
 
@@ -98,26 +89,7 @@ others differ in scope:
   server-side roadmap ("In workspace 3.0 folder import will be supported via
   a different API") that the SDK user does not see.
 
-### 4. `ObjectInfo.objectId` and `ObjectInfo.resourceId` — duplicate concept, undifferentiated names
-- **Location:** `model.ts:194-199`
-- **Category:** Duplicate concept; near-identical names hide a real
-  type/lifetime distinction.
-- **Suggested name:** `legacyObjectId` (deprecated, `bigint` or `string` to
-  preserve precision) and keep `resourceId`. Alternatively
-  `localObjectId` (workspace-scoped, numeric) and `globalResourceId`
-  (cross-API, string). Or drop the legacy one and only carry `resourceId`.
-- **Rationale:** Two distinct identifiers live on the same `ObjectInfo`,
-  both documented as "unique identifier for the object," differing only by
-  the trailing phrase "consistent across all Databricks APIs." The name
-  pair does not encode the difference — a reader sees `objectId` (number)
-  and `resourceId` (string) and cannot tell which one to pass into another
-  Databricks API. Likely truth: `objectId` is the legacy 64-bit numeric
-  workspace-local ID; `resourceId` is the newer string ID used by the
-  unified-resource API. The names should encode that distinction. Also:
-  `objectId` is typed `number` — JS numbers are 64-bit floats and lose
-  precision above 2^53; the field type should be `bigint` or `string`.
-
-### 5. `Language` — vague / generic, no domain prefix
+### 4. `Language` — vague / generic, no domain prefix
 - **Location:** `model.ts:28-37`
 - **Category:** Vague/generic top-level name.
 - **Suggested name:** `NotebookLanguage`.
@@ -130,7 +102,7 @@ others differ in scope:
 
 ## Medium severity
 
-### 6. `ObjectType.LIBRARY` — obsolete enum value
+### 5. `ObjectType.LIBRARY` — obsolete enum value
 - **Location:** `model.ts:48`
 - **Category:** Misleading enum value (encoded concept is obsolete).
 - **Suggested name:** Keep the name but mark `@deprecated` in JSDoc with a
@@ -142,49 +114,7 @@ others differ in scope:
   ObjectType.LIBRARY)` are coding against a branch the server almost never
   returns; that is a discoverability hazard.
 
-### 7. `ListRequest.notebooksModifiedAfter` — field contradicts type domain
-- **Location:** `model.ts:149-154`
-- **Category:** Field contradicts the type it lives on; unit hidden in JSDoc.
-- **Suggested name:** `modifiedAfterMillis` (drop the `notebooks` qualifier
-  and document the asymmetry) or `notebookModifiedAfterMillis` (singular
-  subject, matching the filter's actual scope) plus an explicit
-  millisecond suffix.
-- **Rationale:** `list` returns all workspace object types — notebooks,
-  directories, files, repos, dashboards. The filter parameter is named
-  `notebooksModifiedAfter`, i.e. the filter only applies to objects of
-  type `NOTEBOOK`. Non-notebook objects are not filtered, so a caller
-  expecting `modifiedAfter` semantics will see directories whose contents
-  post-date the supplied cutoff. The asymmetry is invisible from the name.
-  Also: the unit (milliseconds) lives only in JSDoc; the sibling
-  `ObjectInfo.createdAt` / `modifiedAt` fields are also `number` without
-  unit-in-name — see finding 12.
-
-### 8. `ExportRequest.directDownload` — verb-as-noun boolean
-- **Location:** `model.ts:88-92`
-- **Category:** Verb-as-noun naming; boolean named like a noun.
-- **Suggested name:** `streamBinary`, `responseAsBinary`, or
-  `returnBytesDirectly` — anything that parses as a boolean adjective.
-- **Rationale:** `directDownload` reads as a noun phrase. Booleans
-  conventionally use `is`/`has`/`should`/`return*` prefixes or adjective
-  forms. There is also a real semantic problem: when `true`, the server
-  returns raw bytes; when `false`, the server returns JSON with base64.
-  Setting `directDownload: true` would make `parseResponse` in `utils.ts`
-  crash (it does `JSON.parse` unconditionally), so the boolean cannot be
-  set safely from this client today. The name should at least flag the
-  fact that the response shape changes.
-
-### 9. `ExportRequest_Response.fileType` — underspecified
-- **Location:** `model.ts:103-105`
-- **Category:** Underspecified field — name is one of the most overloaded
-  strings in software, type is `string`.
-- **Suggested name:** `mimeType`, `extension`, or `format: ExportFormat`
-  (pick one and commit).
-- **Rationale:** "The file type" doesn't say in what form — extension
-  (`.ipynb`)? MIME (`application/x-ipynb+json`)? Enum (`JUPYTER`)? Object
-  kind (`NOTEBOOK`)? With the field typed as `string`, any of those is
-  syntactically valid; the user has to read upstream docs to know which.
-
-### 10. `ExportRequest_Response.content` — type contradicts "base64-encoded" JSDoc
+### 6. `ExportRequest_Response.content` — type contradicts "base64-encoded" JSDoc
 - **Location:** `model.ts:98-102`; decoded via `marshalSchema` transform at
   `model.ts:211-213`.
 - **Category:** Type/JSDoc mismatch.
@@ -197,59 +127,19 @@ others differ in scope:
   updated for the post-decode shape. "Uint8Array of base64-encoded data"
   is technically meaningless.
 
-### 11. `ImportRequest.content` — type contradicts "base64-encoded" JSDoc
+### 7. `ImportRequest.content` — type contradicts "base64-encoded" JSDoc
 - **Location:** `model.ts:132-138`; encoded via `marshalSchema` transform
   at `model.ts:276-281`.
-- **Category:** Type/JSDoc mismatch (mirror of 10).
+- **Category:** Type/JSDoc mismatch (mirror of 6).
 - **Suggested name:** Keep the name; fix the JSDoc to say "Raw bytes; the
   client base64-encodes before sending."
-- **Rationale:** The mirror of finding 10 in the reverse direction. The
+- **Rationale:** The mirror of finding 6 in the reverse direction. The
   client encodes the bytes to base64 before sending. A defensive caller
   who reads the JSDoc and base64-encodes their bytes will double-encode
   and corrupt the upload. The mismatch is silent and the failure mode is
   data corruption.
 
-### 12. `ObjectInfo.createdAt` / `modifiedAt` — unit ambiguity, `number` precision
-- **Location:** `model.ts:190-193`
-- **Category:** Underspecified unit; precision; conditional applicability
-  hidden in JSDoc.
-- **Suggested name:** `createdAtMillis` / `modifiedAtMillis`, or migrate
-  the values to `Temporal.Instant` (the package already depends on
-  `@js-temporal/polyfill`).
-- **Rationale:** Two issues. (a) The `At` suffix is TS-friendly, but the
-  type is `number` with no unit in the name — milliseconds vs. seconds is
-  documented only as "UTC timestamp" in JSDoc, which does not commit. The
-  sibling `ListRequest.notebooksModifiedAfter` is documented as
-  milliseconds; one infers consistency, but the type does not say so. (b)
-  "Only applicable to files" — `ObjectInfo` covers all object types
-  (notebooks, directories, files, repos, dashboards), so the field is
-  silently empty for most rows. Encoding partial applicability via
-  JSDoc is a smell; the field shape doesn't change based on `objectType`.
-
-### 13. `ObjectInfo.size` — underspecified, unit-less
-- **Location:** `model.ts:196-197`
-- **Category:** Underspecified field — name has no unit.
-- **Suggested name:** `sizeBytes` (matches Databricks convention used in
-  `clusters.clusterMemoryMb`, `pipelines.storageBytes`, etc.).
-- **Rationale:** `size` is unit-less. JSDoc says "file size in bytes can
-  be returned" — "can be" is ambiguous (always for files? sometimes?).
-  At scale-up time (>4 GiB on a 64-bit count) `number` precision is fine,
-  but `bigint` or `string` is safer for true byte counters approaching
-  2^53. The field also shares the "only applicable to files" caveat from
-  finding 12.
-
-### 14. `MkdirsRequest.path` — singular/plural mismatch with the type name
-- **Location:** `model.ts:162-168`
-- **Category:** Singular/plural mismatch between containing type and field.
-- **Suggested name:** `directoryPath` (singular) on the type, and rename
-  the type itself per finding 15.
-- **Rationale:** The type's verb is plural (`Mkdirs` — "make directories"),
-  but it takes one path. The Unix `mkdir -p` pluralization comes from
-  "create the directory and any missing parent directories," but the API
-  input is a single path. A user reading `MkdirsRequest` reasonably
-  expects to pass an array.
-
-### 15. `MkdirsRequest` — Unix-ism
+### 8. `MkdirsRequest` — Unix-ism
 - **Location:** `model.ts:162` (type), `client.ts:266` (method).
 - **Category:** Cryptic Unix abbreviation, cross-package inconsistency.
 - **Suggested name:** `CreateDirectoryRequest`.
@@ -260,7 +150,7 @@ others differ in scope:
   the wire path is `/api/2.0/workspace/mkdirs` (plural verb), but the
   request body holds one path, so even the wire name is misleading.
 
-### 16. `getStatus` — vague verb on the client
+### 9. `getStatus` — vague verb on the client
 - **Location:** `client.ts:157`
 - **Category:** Vague verb; misleading category (returns metadata, not a
   status enum); inconsistent return shape vs. peer methods.
@@ -273,23 +163,11 @@ others differ in scope:
   `Promise<ObjectInfo>` while `list` returns
   `Promise<ListRequest_Response>` (wrapper). One returns the bare entity,
   the other returns a wrapper — inconsistent shape across the same
-  client; see finding 21 too.
-
-### 17. `DeleteRequest.recursive` — Unix flag, no domain reading
-- **Location:** `model.ts:61-66`
-- **Category:** Unix-style flag name without domain meaning; understates
-  destructiveness.
-- **Suggested name:** `deleteContents` or `force`.
-- **Rationale:** `recursive` is a verbatim port of `rm -r`. For a
-  single-object delete, "recursive" only matters when the path is a
-  directory. The flag would read better as `deleteContents` (descriptive)
-  or `force` (matches the destructive intent). The JSDoc even admits the
-  deletion is non-atomic ("Please note this deleting directory is not
-  atomic"), a meaningful caveat hidden behind a one-word Unix flag.
+  client.
 
 ## Low severity
 
-### 18. `ExportFormat.R_MARKDOWN` — shape mismatch within the enum
+### 10. `ExportFormat.R_MARKDOWN` — shape mismatch within the enum
 - **Location:** `model.ts:15-16`
 - **Category:** Inconsistent shape inside an enum (most values single
   token, one with an underscore).
@@ -300,7 +178,7 @@ others differ in scope:
   `R_MARKDOWN` with an underscore. Inconsistent shape inside the same
   enum.
 
-### 19. `ExportFormat.DBC` — cryptic abbreviation
+### 11. `ExportFormat.DBC` — cryptic abbreviation
 - **Location:** `model.ts:13-14`
 - **Category:** Cryptic product-specific abbreviation.
 - **Suggested name:** `DATABRICKS_ARCHIVE` on the TS identifier; the wire
@@ -310,7 +188,7 @@ others differ in scope:
   expects) means the rename must happen on the enum-key layer, not the
   enum-value layer — TypeScript supports that cleanly.
 
-### 20. `ObjectInfo` — `Info` suffix
+### 12. `ObjectInfo` — `Info` suffix
 - **Location:** `model.ts:174-200`
 - **Category:** Vague suffix; Go/Java convention carried into TS without
   reason.
@@ -323,16 +201,7 @@ others differ in scope:
   a hat-tip to the Go SDK. A name like `WorkspaceObject` would also avoid
   the JS `Object` collision.
 
-### 21. `ListRequest_Response.objects` — generic field for `ObjectInfo[]`
-- **Location:** `model.ts:157-160`
-- **Category:** Generic field name on a wrapper type.
-- **Suggested name:** `items`, `entries`, or `workspaceObjects`.
-- **Rationale:** `objects` is the most generic noun in JavaScript; the
-  reader gets no scope information. `resp.objects` reads like "the
-  objects of the response" rather than "the workspace objects under the
-  listed path." A more specific name would convey scope.
-
-### 22. `mkdirs` client method — Unix contraction next to verb-noun siblings
+### 13. `mkdirs` client method — Unix contraction next to verb-noun siblings
 - **Location:** `client.ts:266`
 - **Category:** Verb-tense / shape inconsistency among sibling methods.
 - **Suggested name:** `createDirectory`.
@@ -341,7 +210,7 @@ others differ in scope:
   `mkdirs` is the only Unix-style contraction. `createDirectory` would
   align with `getStatus` and with the `files` package convention.
 
-### 23. First-person and ticket-driven prose in JSDoc
+### 14. First-person and ticket-driven prose in JSDoc
 - **Location:** `model.ts:17` ("We will inspect the content of the payload
   to determine the type"); `model.ts:19-23` ("This is introduced to
   unblock a DR use case importing .zip file as is. … In workspace 3.0
@@ -370,8 +239,7 @@ others differ in scope:
 2. **Two ID fields, one entity.** `ObjectInfo.objectId` (numeric, legacy)
    and `ObjectInfo.resourceId` (string, unified-resource) are both
    returned, both documented as "unique identifier for the object," with
-   no naming clue about which one to pass where. This is the single most
-   user-hostile naming issue in the file (also flagged as finding 4).
+   no naming clue about which one to pass where.
 
 3. **`ExportFormat` is the import format.** The single enum services both
    `ImportRequest` and `ExportRequest` (good — DRY), but the name says

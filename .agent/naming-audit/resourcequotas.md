@@ -13,17 +13,16 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 2     |
-| Medium      | 7     |
+| Medium      | 3     |
 | Low         | 5     |
 | Observation | 4     |
-| **Total**   | **18** |
+| **Total**   | **14** |
 
 
 Headline themes:
 
 1. **Singular/plural mismatch on the `listQuota` / `listQuotaIter` methods.** The package name (`resourcequotas`), HTTP path (`/all-resource-quotas`), and request/response types (`ListQuotasRequest`, `ListQuotasRequest_Response`) are all plural, but the client methods are `listQuota` / `listQuotaIter` (singular). This is the most user-visible naming defect.
-2. **`quotaName`/`quotaCount`/`quotaLimit` triple-tautology.** Every field on the `QuotaInfo` payload (and on the `GetQuotaRequest` request) is prefixed `quota…` even though the surrounding type is already `QuotaInfo` / `GetQuotaRequest`. The Go SDK necessitates this because Go embeds no enclosing namespace; TypeScript does, and the prefix becomes noise.
-3. **`SecurableType` is duplicated as a `string` on `GetQuotaRequest` but a typed enum on `QuotaInfo`.** The two views of the same field are inconsistent — see H2 below.
+2. **`SecurableType` is duplicated as a `string` on `GetQuotaRequest` but a typed enum on `QuotaInfo`.** The two views of the same field are inconsistent — see H2 below.
 
 ---
 
@@ -57,31 +56,7 @@ Headline themes:
 - **Suggestion:** `Quota`.
 - **Rationale:** "Info" adds no semantic content — the type *is* the quota record returned by the API. The codebase has no type named bare `Quota`; the natural noun is free. This mirrors the `CatalogInfo`/`ConnectionInfo` discussion in `catalogs.md` §8.1 — repo-wide pattern, flagged here for completeness. See also Observation O2.
 
-### M2. `quotaName`, `quotaCount`, `quotaLimit` — every field prefixed with the enclosing type
-
-- **File / line:** `src/v1/model.ts:66, 68, 70`; mirrored on `GetQuotaRequest.quotaName` (`model.ts:33`).
-- **Category:** #20 type-suffix tautology (here: type-prefix tautology); #1 vague/generic root nouns.
-- **Current:** `quotaName`, `quotaCount`, `quotaLimit` inside `QuotaInfo`.
-- **Suggestion:** Drop the `quota` prefix → `name`, `count`, `limit`.
-- **Rationale:** In Go the enclosing struct doesn't appear in the field's qualified name (`info.QuotaName` reads `QuotaName`). In TypeScript the access already includes the type via the variable: `quota.name`, `quota.count`, `quota.limit`. The current names produce `quotaInfo.quotaName`, which double-states the domain. (`parentSecurableType` and `parentFullName` legitimately need the `parent` prefix — they refer to a different entity.)
-
-### M3. `parentSecurableType` and `parentFullName` reference the *parent* of the quota — but a quota's parent is the resource it limits, not its container
-
-- **File / line:** `src/v1/model.ts:29, 31, 62, 64`.
-- **Category:** #6 misleading name (depending on reader's mental model).
-- **Current:** `parentSecurableType`, `parentFullName`.
-- **Suggestion:** Confirm whether `parent` here means "the securable the quota counts children of" (the documented meaning) versus "the parent of the quota object itself." Possible rename: `scopeSecurableType` / `scopeFullName` or `containerSecurableType` / `containerFullName`.
-- **Rationale:** The JSDoc on `model.ts:28, 30` says "Securable type of the quota parent" and "Full name of the parent resource. Provide the metastore ID if the parent is a metastore." A reader could plausibly think `parent` refers to the parent entity of *the quota record*, when it actually refers to the parent that *owns* the quota (i.e., the catalog/schema whose children are being counted). The doc's explanation that the metastore ID is acceptable as a `parentFullName` is the only reliable clue. Note: matches the Go SDK convention, so rename would diverge from the 1:1 port.
-
-### M4. `quotaName` carries a "follows the pattern of the quota type, with `-quota` added as a suffix" rule that is not enforced or documented in the type
-
-- **File / line:** `src/v1/model.ts:32` (JSDoc); field `model.ts:33, 66`.
-- **Category:** #5 cryptic abbreviation (the "-quota" suffix); #15 generic name losing meaning; #19 underspecified ID.
-- **Current:** `quotaName?: string`.
-- **Suggestion:** Either expose the quota *type* as an enum (`QuotaKind`?) and compute the suffix server-side, or rename to `quotaSlug` / `quotaIdentifier` and document the format inline.
-- **Rationale:** The JSDoc says the value "follows the pattern of the quota type, with `-quota` added as a suffix." Today the user must build the string by hand, e.g. `"schema-quota"` or `"table-quota"`. The naming gives no hint of this format; the type is plain `string`. Either the format should be encoded (enum or branded type) or the name should signal that this is a constructed slug. Compare: `lastFailoverTimeMs` (in `catalogs`) correctly carries the unit; `quotaName` carries no analogous hint.
-
-### M5. `quotaCount` and `quotaLimit` carry no unit / type signal — counts of *what*?
+### M2. `quotaCount` and `quotaLimit` carry no unit / type signal — counts of *what*?
 
 - **File / line:** `src/v1/model.ts:68, 70`.
 - **Category:** #1 vague/generic; #19 underspecified.
@@ -89,15 +64,7 @@ Headline themes:
 - **Suggestion:** Inline-doc the unit and reference what is being counted (number of *child securables*).
 - **Rationale:** From the field names alone, a reader doesn't know whether these are counts of children, megabytes, requests, etc. The package-level JSDoc on `client.ts:62` clarifies that quotas count child entities (e.g. tables under a schema), but the field-level doc says only "current usage of the resource quota" and "current limit of the resource quota." Names like `currentUsage` / `currentLimit` or doc-strings citing "number of child securables" would close the gap.
 
-### M6. `lastRefreshedAt` is `number` (epoch ms) but the name doesn't communicate units
-
-- **File / line:** `src/v1/model.ts:72`.
-- **Category:** #19 underspecified IDs (units of time).
-- **Current:** `lastRefreshedAt?: number`.
-- **Suggestion:** `lastRefreshedAtMs` or `lastRefreshedAtEpochMs`.
-- **Rationale:** The doc says only "The timestamp that indicates when the quota count was last updated." A reader doesn't know if the unit is seconds, milliseconds, or an ISO string. The Go SDK uses `int64`, but TS callers benefit from the `Ms` suffix convention used elsewhere in the codebase (e.g. `catalogs.DrReplicationInfo.lastFailoverTimeMs`). See `catalogs.md` §19.6 / §19.7.
-
-### M7. `nextPageToken` doc references `__page_token__` with double underscores
+### M3. `nextPageToken` doc references `__page_token__` with double underscores
 
 - **File / line:** `src/v1/model.ts:55` (JSDoc on `ListQuotasRequest_Response.nextPageToken`).
 - **Category:** #5 cryptic abbreviation; documentation defect more than naming defect, but mentions identifier syntax that doesn't exist.
@@ -202,25 +169,25 @@ Type & symbol checklist:
 
 - [x] `SecurableType` enum (17 members) → no defect.
 - [x] `SecurableType.STAGING_TABLE` (with TODO comment) → no defect (already flagged in source).
-- [x] `GetQuotaRequest` interface (3 fields) → H2, M3, M4; per-field below. Wrapper preserved for forward compatibility.
+- [x] `GetQuotaRequest` interface (3 fields) → H2; per-field below. Wrapper preserved for forward compatibility.
 - [x] `GetQuotaRequest.parentSecurableType` (`string`) → H2 (type mismatch with response).
-- [x] `GetQuotaRequest.parentFullName` → M3.
-- [x] `GetQuotaRequest.quotaName` → M2, M4.
+- [x] `GetQuotaRequest.parentFullName` → no defect.
+- [x] `GetQuotaRequest.quotaName` → no defect.
 - [x] `GetQuotaRequest_Response` interface (1 field) → Wrapper preserved for forward compatibility.
 - [x] `GetQuotaRequest_Response.quotaInfo` → no defect beyond M1 (`Info` suffix).
-- [x] `ListQuotasRequest` interface (2 fields) → no per-field defects beyond M7.
+- [x] `ListQuotasRequest` interface (2 fields) → no per-field defects beyond M3.
 - [x] `ListQuotasRequest.maxResults` → no defect.
 - [x] `ListQuotasRequest.pageToken` → no defect.
-- [x] `ListQuotasRequest_Response` interface (2 fields) → M7.
+- [x] `ListQuotasRequest_Response` interface (2 fields) → M3.
 - [x] `ListQuotasRequest_Response.quotas` → no defect; correctly plural.
-- [x] `ListQuotasRequest_Response.nextPageToken` → M7.
+- [x] `ListQuotasRequest_Response.nextPageToken` → M3.
 - [x] `QuotaInfo` interface (6 fields) → M1 (`Info` suffix), O1; per-field below.
-- [x] `QuotaInfo.parentSecurableType` (`SecurableType`) → H2, M3.
-- [x] `QuotaInfo.parentFullName` → M3.
-- [x] `QuotaInfo.quotaName` → M2, M4.
-- [x] `QuotaInfo.quotaCount` → M2, M5.
-- [x] `QuotaInfo.quotaLimit` → M2, M5.
-- [x] `QuotaInfo.lastRefreshedAt` → M6.
+- [x] `QuotaInfo.parentSecurableType` (`SecurableType`) → H2.
+- [x] `QuotaInfo.parentFullName` → no defect.
+- [x] `QuotaInfo.quotaName` → no defect.
+- [x] `QuotaInfo.quotaCount` → M2.
+- [x] `QuotaInfo.quotaLimit` → M2.
+- [x] `QuotaInfo.lastRefreshedAt` → no defect.
 - [x] `Client` class → L2.
 - [x] `Client.host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → O3.
@@ -240,20 +207,20 @@ Type & symbol checklist:
 | `SecurableType`                                          | model.ts:6        | —                        |
 | `SecurableType.STAGING_TABLE`                            | model.ts:24       | — (annotated TODO)       |
 | `GetQuotaRequest`                                        | model.ts:27       | —                        |
-| `GetQuotaRequest.parentSecurableType` (`string`)         | model.ts:29       | H2, M3                   |
-| `GetQuotaRequest.parentFullName`                         | model.ts:31       | M3                       |
-| `GetQuotaRequest.quotaName`                              | model.ts:33       | M2, M4                   |
+| `GetQuotaRequest.parentSecurableType` (`string`)         | model.ts:29       | H2                       |
+| `GetQuotaRequest.parentFullName`                         | model.ts:31       | —                        |
+| `GetQuotaRequest.quotaName`                              | model.ts:33       | —                        |
 | `ListQuotasRequest`                                      | model.ts:42       | —                        |
 | `ListQuotasRequest.maxResults`                           | model.ts:44       | —                        |
 | `ListQuotasRequest.pageToken`                            | model.ts:46       | —                        |
-| `ListQuotasRequest_Response.nextPageToken` (doc)         | model.ts:55-57    | M7                       |
+| `ListQuotasRequest_Response.nextPageToken` (doc)         | model.ts:55-57    | M3                       |
 | `QuotaInfo`                                              | model.ts:60       | M1, O1                   |
-| `QuotaInfo.parentSecurableType` (`SecurableType`)        | model.ts:62       | H2, M3                   |
-| `QuotaInfo.parentFullName`                               | model.ts:64       | M3                       |
-| `QuotaInfo.quotaName`                                    | model.ts:66       | M2, M4                   |
-| `QuotaInfo.quotaCount`                                   | model.ts:68       | M2, M5                   |
-| `QuotaInfo.quotaLimit`                                   | model.ts:70       | M2, M5                   |
-| `QuotaInfo.lastRefreshedAt`                              | model.ts:72       | M6                       |
+| `QuotaInfo.parentSecurableType` (`SecurableType`)        | model.ts:62       | H2                       |
+| `QuotaInfo.parentFullName`                               | model.ts:64       | —                        |
+| `QuotaInfo.quotaName`                                    | model.ts:66       | —                        |
+| `QuotaInfo.quotaCount`                                   | model.ts:68       | M2                       |
+| `QuotaInfo.quotaLimit`                                   | model.ts:70       | M2                       |
+| `QuotaInfo.lastRefreshedAt`                              | model.ts:72       | —                        |
 | `Client` (bare name)                                     | client.ts:37      | L2                       |
 | `PACKAGE_SEGMENT`                                        | client.ts:32      | O3                       |
 | `pkgJson` import alias                                   | client.ts:18      | L5                       |
@@ -271,15 +238,9 @@ Type & symbol checklist:
 
 1. **Rename `listQuota` → `listQuotas`** — single-character defect, highest user impact. (H1)
 2. **Reconcile `parentSecurableType` type — make `GetQuotaRequest.parentSecurableType: SecurableType`.** (H2)
-3. **Drop `quota` prefix on `quotaName` / `quotaCount` / `quotaLimit` inside `QuotaInfo`.** (M2)
-4. **Document units on `lastRefreshedAt` (Ms) and counts on `quotaCount`/`quotaLimit`.** (M5, M6)
-5. **Fix the `__page_token__` reference in `nextPageToken` doc to use the camelCase TS field.** (M7)
-6. **Drop `Info` suffix on `QuotaInfo`.** (M1, O2)
-7. **Spell out `req` → `request` (repo-wide policy).** (L1)
+3. **Document counts on `quotaCount`/`quotaLimit`.** (M2)
+4. **Fix the `__page_token__` reference in `nextPageToken` doc to use the camelCase TS field.** (M3)
+5. **Drop `Info` suffix on `QuotaInfo`.** (M1, O2)
+6. **Spell out `req` → `request` (repo-wide policy).** (L1)
 
 ---
-
-## Fixed
-
-- #H2 `GetQuota` verb-phrase request type (originally cited at `src/v1/model.ts:27`): Fixed in regeneration on 2026-05-20 — renamed to `GetQuotaRequest` (and `ListQuotas` → `ListQuotasRequest`), removing the verb/method collision; `…Request` suffix now applied across both request DTOs.
-- #O2 Bare `Get*` / `List*` request shapes are a repo-wide pattern (originally cited as Observation O2): Fixed in regeneration on 2026-05-20 — both request DTOs in this package now carry the `…Request` suffix, so the bare verb-phrase pattern no longer holds locally.

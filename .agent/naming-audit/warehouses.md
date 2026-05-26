@@ -28,11 +28,11 @@ This is the dominant theme of the audit (see F0).
 
 | Severity | Count |
 | ----------- | ----- |
-| High        |    25 |
-| Medium      |    13 |
-| Low         |    45 |
+| High        |    21 |
+| Medium      |    10 |
+| Low         |    40 |
 | Observation |    17 |
-| **Total**   | **100** |
+| **Total**   | **88** |
 
 ---
 
@@ -289,27 +289,7 @@ compatibility while updating the customer-visible type names.
   `DbsqlChannelName`). Note: the enum name `ChannelName`
   duplicates "name" — see F8.2.
 
-#### F1.8 — `name` field used both as a human name and as a path identifier (HIGH)
-- **Where:** `name` appears on `CreateWarehouseRequest`
-  (`model.ts:727`, "Logical name for the cluster"),
-  `EditWarehouseRequest` (`model.ts:871`), `EndpointInfo`
-  (`model.ts:989`), `GetWarehouseRequest_Response`
-  (`model.ts:1124`), `DefaultWarehouseOverride` (`model.ts:834`,
-  `default-warehouse-overrides/{default_warehouse_override_id}`),
-  `DeleteDefaultWarehouseOverrideRequest` (`model.ts:853`),
-  `GetDefaultWarehouseOverrideRequest` (`model.ts:1104`).
-- **Why flagged:** Two semantically different things share the
-  field name `name`. On warehouses, `name` is a human-readable
-  display name ("My SQL warehouse"). On default-warehouse-
-  overrides, `name` is the resource-name path identifier
-  (`default-warehouse-overrides/123`). The latter is functionally
-  an ID. Caller code paths in `client.ts:199, 290, 594` use
-  `req.name` as the URL path segment for the override APIs.
-- **Suggestion:** On the override types, rename `name` to
-  `resourceName` and document the path-id role. Alternatively,
-  document the dual role in JSDoc to make the contract explicit.
-
-#### F1.9 — `req` parameter name on every client method (LOW, Go-ism)
+#### F1.8 — `req` parameter name on every client method (LOW, Go-ism)
 - **Where:** `client.ts:108, 152, 180, 196, 215, 243, 271, 287,
   312, 340, 371, 407, 425, 464, 482, 514, 539, 551, 576, 591`.
 - **Why flagged:** `req` is a Go-ism (see category 14). It is
@@ -317,13 +297,13 @@ compatibility while updating the customer-visible type names.
 - **Suggestion:** Use `request` for stylistic consistency with
   `options` (which is spelled out). Cross-package decision.
 
-#### F1.10 — `resp` local variable everywhere (LOW)
+#### F1.9 — `resp` local variable everywhere (LOW)
 - **Where:** `client.ts` throughout (e.g. `resp:
   CreateWarehouseRequest_Response | undefined`).
 - **Why flagged:** Same Go abbreviation as `req`. See F14.1.
 - **Suggestion:** `response` for consistency. Generator-level.
 
-#### F1.11 — `Client` class name (MEDIUM, cross-cutting)
+#### F1.10 — `Client` class name (MEDIUM, cross-cutting)
 - **Where:** `client.ts:78`, `index.ts:4`.
 - **Why flagged:** Every package in this SDK exports a `Client`.
   `import {Client} from '@databricks/sdk-warehouses'` is
@@ -332,7 +312,7 @@ compatibility while updating the customer-visible type names.
   convention, or rename to `WarehousesClient` consistently
   across packages. Cross-cutting decision.
 
-#### F1.12 — `code` field on `TerminationReason` (LOW)
+#### F1.11 — `code` field on `TerminationReason` (LOW)
 - **Where:** `model.ts:1366`.
 - **Why flagged:** `code` is generic; disambiguated by container
   type, but `terminationCode` would be clearer in isolation.
@@ -340,43 +320,7 @@ compatibility while updating the customer-visible type names.
   Already typed against the `TerminationCode` enum, so renaming
   introduces redundancy. Leave.
 
-#### F1.13 — `type` field on `TerminationReason` and `DefaultWarehouseOverride` (LOW)
-- **Where:** `model.ts:838, 1368`.
-- **Why flagged:** `type` is one of the most generic identifier
-  names possible. Both are typed against domain-specific enums,
-  but the field name alone gives no hint.
-- **Suggestion:** Acceptable given typing; `terminationType` /
-  `overrideType` would be more self-documenting.
-
-#### F1.14 — `parameters` field on `TerminationReason` (LOW)
-- **Where:** `model.ts:1370`.
-- **Why flagged:** `parameters` is generic. JSDoc says "list of
-  parameters that provide additional information about why the
-  cluster was terminated" — these are debug context, not request
-  parameters.
-- **Suggestion:** Rename to `details` or `context`. Currently
-  conflicts with the `parameters` URL-query terminology used
-  elsewhere in the SDK.
-
-#### F1.15 — `details`, `message`, `summary` fields on `EndpointHealth` (LOW)
-- **Where:** `model.ts:970, 974, 976`.
-- **Why flagged:** Three generic prose fields. JSDoc clarifies:
-  `message` is deprecated; `summary` is short; `details` is long.
-  Their relationship is not obvious from names.
-- **Suggestion:** Rename `details` → `errorDetails`. Keep `summary`
-  and `message` (deprecated). Or merge `summary`+`details` into
-  a single nested structure.
-
-#### F1.16 — `customTags` field on `EndpointTags` (LOW)
-- **Where:** `model.ts:1094`.
-- **Why flagged:** "custom" is implied by the container type
-  `EndpointTags` (vs. a more specific name). The field is just
-  a list of tags, so the `custom` prefix adds no information
-  the container does not already supply.
-- **Suggestion:** Rename to `tags` (the container already
-  conveys the "custom" scope).
-
-#### F1.17 — `Call`, `Options` (imported, cross-package) (acceptable)
+#### F1.12 — `Call`, `Options` (imported, cross-package) (acceptable)
 - **Where:** `utils.ts:3`, `client.ts:4`.
 - These come from `@databricks/sdk-core/api`. Generic but
   intentional. Out of scope for this package's audit.
@@ -455,15 +399,7 @@ _None._
 
 ### 5. Cryptic abbreviations
 
-#### F5.1 — `Mins` for minutes (`autoStopMins`) (LOW)
-- **Where:** `model.ts:782, 926, 1044, 1179`.
-- **Why flagged:** "Mins" is mildly informal. Compare to other
-  duration fields in the SDK that use `Seconds`, `Hours`. JSDoc
-  always spells out "minutes" in prose.
-- **Suggestion:** Rename to `autoStopMinutes`. Wire stays
-  `auto_stop_mins` for compatibility.
-
-#### F5.2 — `Conf` for configuration (`EndpointConfPair`, `configPair`, `dataAccessConfig`) (MEDIUM)
+#### F5.1 — `Conf` for configuration (`EndpointConfPair`, `configPair`, `dataAccessConfig`) (MEDIUM)
 - **Where:** `model.ts:961, 1238, 1311, 1327`.
 - **Why flagged:** "Conf" is an abbreviation. Inconsistent
   within the package: `RepeatedEndpointConfPairs` has both
@@ -471,21 +407,9 @@ _None._
   spelled out). The package alternates between `Conf`,
   `Config`, `Configuration`.
 - **Suggestion:** Standardize on `Config` (already in
-  `dataAccessConfig`). Rename `EndpointConfPair` → `ConfigPair`,
-  `configPair` → `configPairs` (also plural; see F9.x).
+  `dataAccessConfig`). Rename `EndpointConfPair` → `ConfigPair`.
 
-#### F5.3 — `Param` for parameter (`globalParam`, `configParam`) (MEDIUM)
-- **Where:** `model.ts:1250, 1252, 1339, 1341, 1697-1698, 1935-1940`.
-- **Why flagged:** "Param" is a cryptic abbreviation when the
-  full word "parameter" is also in use in this package
-  (`sqlConfigurationParameters`, `TerminationReason.parameters`,
-  `TerminationReason_ParametersEntry`). Inconsistent.
-- **Suggestion:** Rename to `globalParameter`, `configParameter`
-  (or pluralize, see F9.x). JSDoc on both says "Deprecated: Use
-  sql_configuration_parameters" — they are slated for removal,
-  so the rename can be paired with deprecation removal.
-
-#### F5.4 — `Num` for number (`numClusters`, `numActiveSessions`, `maxNumClusters`, `minNumClusters`) (LOW)
+#### F5.2 — `Num` for number (`numClusters`, `numActiveSessions`, `maxNumClusters`, `minNumClusters`) (LOW)
 - **Where:** `model.ts:760, 771, 1022, 1033, 1075, 1077, 1157, 1168, 1210, 1212`.
 - **Why flagged:** "Num" is a programmer-ism. SDK and other
   packages occasionally spell it out as `count` or `number`.
@@ -495,14 +419,14 @@ _None._
   `minClusterCount` for clarity, but consistency with wire
   takes priority. Leave.
 
-#### F5.5 — `Arn` for AWS Resource Name (`instanceProfileArn`) (acceptable)
+#### F5.3 — `Arn` for AWS Resource Name (`instanceProfileArn`) (acceptable)
 - **Where:** `model.ts:786, 930, 1048, 1183, 1244, 1333`.
 - **Why flagged:** `ARN` is a well-known AWS acronym. Casing
   matches `instanceProfileArn` (first letter cap, rest lower).
   No issue.
 - **Suggestion:** No change.
 
-#### F5.6 — `Conf` vs. `Config` vs. `Configuration` (MEDIUM, internal inconsistency)
+#### F5.4 — `Conf` vs. `Config` vs. `Configuration` (MEDIUM, internal inconsistency)
 - **Where:** Repeated across `EndpointConfPair`,
   `dataAccessConfig`, `sqlConfigurationParameters`,
   `configPair`, `configurationPairs`, `globalParam`,
@@ -513,9 +437,9 @@ _None._
   names, `Configuration` for spelled-out prose. Or fully
   spell out everywhere.
 
-#### F5.7 — `req`, `resp` Go-ism abbreviations (LOW)
+#### F5.5 — `req`, `resp` Go-ism abbreviations (LOW)
 - **Where:** `client.ts` throughout.
-- Already covered in F1.9 and F1.10.
+- Already covered in F1.8 and F1.9.
 
 ---
 
@@ -673,16 +597,7 @@ _None._
 
 ### 9. Singular / plural mismatches
 
-#### F9.1 — `RepeatedEndpointConfPairs.configPair` is plural-content singular-name (HIGH)
-- **Where:** `model.ts:1311`.
-- **Why flagged:** Field type is `EndpointConfPair[]` (array)
-  but field name is singular `configPair`. The wire form is
-  `config_pair`. Compare to sibling `configurationPairs` (same
-  type, but plural name). Inconsistent within the type.
-- **Suggestion:** Rename to `configPairs`. Wire stays
-  `config_pair` if deprecated, or rename wire to `config_pairs`.
-
-#### F9.2 — `TerminationReason.parameters` is a map, not a list (LOW)
+#### F9.1 — `TerminationReason.parameters` is a map, not a list (LOW)
 - **Where:** `model.ts:1370`. Type `Record<string, string>`.
 - **Why flagged:** `parameters` is plural but typed as a map.
   Plural maps are fine but inconsistent — compare to
@@ -690,29 +605,20 @@ _None._
 - **Suggestion:** Acceptable; map semantics are clear from the
   type. Plural is correct.
 
-#### F9.3 — `globalParam`, `configParam` are singular names for list-valued fields (MEDIUM)
-- **Where:** `model.ts:1250, 1252, 1339, 1341`.
-- **Why flagged:** Both fields are of type
-  `RepeatedEndpointConfPairs` — a list. Singular name on a
-  list-valued field is misleading. Compare to
-  `sqlConfigurationParameters` (plural) for the same concept.
-- **Suggestion:** Rename to `globalParams` / `configParams`
-  (also pair with the `Param`/`Parameter` expansion in F5.3).
-
-#### F9.4 — `enabledWarehouseTypes` plural array (acceptable)
+#### F9.2 — `enabledWarehouseTypes` plural array (acceptable)
 - **Where:** `model.ts:1269, 1358`.
 - **Why flagged:** Plural name + array type. Correct.
 - **Suggestion:** No change.
 
-#### F9.5 — `defaultWarehouseOverrides` plural array (acceptable)
+#### F9.3 — `defaultWarehouseOverrides` plural array (acceptable)
 - **Where:** `model.ts:1294`.
 - **Why flagged:** Correct.
 - **Suggestion:** No change.
 
-#### F9.6 — `warehouses` plural array (acceptable)
+#### F9.4 — `warehouses` plural array (acceptable)
 - **Where:** `model.ts:1455`. Correct.
 
-#### F9.7 — `customTags` plural array (acceptable)
+#### F9.5 — `customTags` plural array (acceptable)
 - **Where:** `model.ts:1094`. Correct.
 
 ---
@@ -849,42 +755,32 @@ _None. Wrappers are retained for forward compatibility._
 
 ### 15. Generic field names losing meaning
 
-#### F15.1 — `name` overloaded with three meanings (HIGH)
-- **Where:** `Channel.name` (channel selector enum value),
-  `CreateWarehouseRequest.name` (human display name),
-  `DefaultWarehouseOverride.name` (path identifier).
-- **Why flagged:** Three completely different concepts share
-  the field name `name`.
-- **Suggestion:** See F1.8. Rename
-  `DefaultWarehouseOverride.name` → `resourceName`. Rename
-  `Channel.name` → `channelType` (also F8.2).
-
-#### F15.2 — `state` field on `EndpointInfo` / `GetWarehouseRequest_Response` (LOW)
+#### F15.1 — `state` field on `EndpointInfo` / `GetWarehouseRequest_Response` (LOW)
 - **Where:** `model.ts:1079, 1214`.
 - **Why flagged:** Disambiguated by type
   (`EndpointState`), but `warehouseState` would be clearer in
   isolation.
 - **Suggestion:** Leave.
 
-#### F15.3 — `status` field on `EndpointHealth` (LOW)
+#### F15.2 — `status` field on `EndpointHealth` (LOW)
 - **Where:** `model.ts:968`. Type `EndpointHealth_Status`.
 - **Why flagged:** Reads "endpoint health . status .
   endpoint health status". Three layers of "status".
 - **Suggestion:** Acceptable given typing.
 
-#### F15.4 — `enabled` field on `WarehouseTypePair` (LOW)
+#### F15.3 — `enabled` field on `WarehouseTypePair` (LOW)
 - **Where:** `model.ts:1413`.
 - **Why flagged:** Generic, but disambiguated by container.
 - **Suggestion:** Leave.
 
-#### F15.5 — `summary` field on `EndpointHealth` (LOW)
+#### F15.4 — `summary` field on `EndpointHealth` (LOW)
 - **Where:** `model.ts:974`.
 - **Why flagged:** Generic. JSDoc says "short summary of the
   health status". Could be `summaryMessage` or
   `healthSummary`, but field is rarely used in isolation.
 - **Suggestion:** Leave.
 
-#### F15.6 — `key`, `value` on every `*Pair` type (LOW)
+#### F15.5 — `key`, `value` on every `*Pair` type (LOW)
 - **Where:** `EndpointConfPair`, `EndpointTagPair`,
   `TerminationReason_ParametersEntry`.
 - **Why flagged:** Maximally generic. Domain is in the
@@ -892,13 +788,13 @@ _None. Wrappers are retained for forward compatibility._
 - **Suggestion:** Acceptable; conventional for key-value pair
   types.
 
-#### F15.7 — `code`, `type`, `parameters` on `TerminationReason` (LOW)
+#### F15.6 — `code`, `type`, `parameters` on `TerminationReason` (LOW)
 - **Where:** `model.ts:1366, 1368, 1370`.
 - **Why flagged:** All three are generic words. Disambiguated
   by container.
 - **Suggestion:** Leave.
 
-#### F15.8 — `host`, `path`, `protocol`, `port` on `OdbcParams` (LOW)
+#### F15.7 — `host`, `path`, `protocol`, `port` on `OdbcParams` (LOW)
 - **Where:** `model.ts:1303-1306`.
 - **Why flagged:** Generic connection-string fields. Standard.
 - **Suggestion:** Leave.
@@ -989,21 +885,7 @@ _None._
 
 ### 19. Underspecified IDs
 
-#### F19.1 — `id` on `CreateWarehouseRequest_Response`, `EndpointInfo`,
-`GetWarehouseRequest_Response`, `DeleteWarehouseRequest`,
-`EditWarehouseRequest`, `GetWarehouseRequest`, `StartRequest`,
-`StopRequest` (MEDIUM)
-- **Where:** Many places. Caller writes
-  `client.startWarehouse({id: '...'})` — but `id` here is the
-  warehouse id, not a generic id.
-- **Why flagged:** Bare `id` is acceptable in context, but
-  across the SDK, packages typically use the qualified form
-  (`pipelineId`, `clusterId`, `endpointId`). `id` is
-  underspecified.
-- **Suggestion:** Rename to `warehouseId` for self-documentation.
-  Wire stays `id` (path segment).
-
-#### F19.2 — `defaultWarehouseOverrideId` vs. `warehouseId` on
+#### F19.1 — `defaultWarehouseOverrideId` vs. `warehouseId` on
 `DefaultWarehouseOverride` (LOW)
 - **Where:** `model.ts:836, 843`.
 - **Why flagged:** Two ID fields on one type:
@@ -1012,24 +894,12 @@ _None._
   Both are clearly named, but a reader has to look carefully.
 - **Suggestion:** Acceptable; both names are explicit.
 
-#### F19.3 — `name` is functionally an ID on
-`DefaultWarehouseOverride` (HIGH)
-- **Where:** `model.ts:834`. Path form `default-warehouse-overrides/{id}`.
-- **Why flagged:** AIP-style "resource name" as a string —
-  conventional in Google APIs but unconventional in TS.
-  Customer sees `{name: 'default-warehouse-overrides/123'}` and
-  may try `{name: 'my-override-name'}`. Field name `name`
-  encourages misuse.
-- **Suggestion:** Rename to `resourceName` on the type and
-  request types. AIP convention is `name` on the wire — keep
-  wire, rename TS.
-
-#### F19.4 — `runAsUserId` on `ListWarehousesRequest` (deprecated) (LOW)
+#### F19.2 — `runAsUserId` on `ListWarehousesRequest` (deprecated) (LOW)
 - **Where:** `model.ts:1438`. Already deprecated. Numeric (`number`),
   not string — unusual; most IDs in the SDK are string.
 - **Suggestion:** Already deprecated. Leave.
 
-#### F19.5 — `ListDefaultWarehouseOverridesResponse.nextPageToken` (acceptable)
+#### F19.3 — `ListDefaultWarehouseOverridesResponse.nextPageToken` (acceptable)
 - **Where:** `model.ts:1299`. Standard pagination identifier.
 
 ---
@@ -1075,7 +945,7 @@ _None._
 #### F20.4 — `TerminationReason.code: TerminationCode` (LOW)
 - **Where:** `model.ts:1366`. Field `code` + enum suffix `Code`
   on `TerminationCode`. Generic field name with specific enum
-  — acceptable per F1.12.
+  — acceptable per F1.11.
 
 #### F20.5 — `TerminationReason.type: TerminationType` (LOW)
 - **Where:** `model.ts:1368`. Same pattern. Acceptable.
@@ -1119,7 +989,3 @@ _None._
   Splitting could simplify.
 
 ---
-
-## Fixed
-
-- #F8.1-sub `CreateWarehouse` / `GetWarehouse` lacking `Request` suffix (originally cited at `model.ts:746, model.ts:1141`): Fixed in regeneration on 2026-05-20 — the user added `Request` to those types so all request DTOs now carry the suffix consistently; only the broader "drop the Request suffix entirely" recommendation remains in F8.1.

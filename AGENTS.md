@@ -115,6 +115,47 @@ npm run clean
    description, follow the workflow in
    `.agent/skills/write-pr-description.mdc`.
 
+## Long-Running Command TODO List
+
+Because this repository is large, individual user-issued commands
+(e.g., audit rescans, theme prunes, batched renames) can take
+multiple agent rounds to complete. To avoid losing track across long
+sessions, every such command is logged in a TODO list at the top of
+this section before any subagent is dispatched, and the entry is
+deleted only after the command finishes end-to-end (including any
+synthesis step that updates `_SUMMARY.md` or similar).
+
+### Protocol
+
+1. **When the user issues a command** (e.g., "rescan the audit",
+   "prune Theme N", "rebase and rerun"), the assistant first appends
+   a one-line entry to the **`### Active TODOs`** section below
+   (before any subagent is dispatched). The entry captures the
+   verbatim command, the date received, and a short status note.
+2. **The assistant then dispatches the subagents** required to
+   execute the command per the relevant workflow (Workflow A / B / C
+   in `## Naming Audit Maintenance`, or another workflow as
+   applicable).
+3. **After all subagents finish and any synthesis step completes**,
+   the assistant deletes the entry from `### Active TODOs`. If the
+   command is partially complete (e.g., user paused mid-execution),
+   the entry stays with an updated status note (`paused 2026-05-26
+   after batch 1/3`).
+4. **The next user command starts the cycle again** — append, then
+   dispatch, then delete on completion. Only one command is
+   in-flight at a time; the assistant does not start a new entry
+   while a prior entry is still active unless the user explicitly
+   asks for it.
+
+### Active TODOs
+
+- 2026-05-26 — rebase + rerun audit on updated branch — rescan done (87/87 pkgs: 1 fix in logdelivery, rest still); `_SUMMARY.md` synthesis pending, will roll into the next cleanup synthesis.
+- 2026-05-26 — collapse retired/orphan audit bodies to just the title + status block (example given: `qualitymonitors`) — in progress.
+- 2026-05-26 — prune findings whose primary recommendation is a JSDoc/doc change (example: `apps.md` H9 `noCompute` doc clarification). Reason: "those can be anytime." — in progress.
+
+(When populated, each line is one TODO in the form:
+`- YYYY-MM-DD — <verbatim command> — <status>`.)
+
 ## Naming Audit Maintenance
 
 The naming audit lives at `.agent/naming-audit/`:

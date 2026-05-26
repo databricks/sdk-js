@@ -71,16 +71,3 @@ _None._
 _None._
 
 ---
-
-## Fixed
-
-### `*Public` infix on every request/response type — `model.ts:82, 136, 165, 176, 180`
-Fixed in regeneration on 2026-05-22. The `Public` infix was dropped from
-all five message types: `CreateCustomerManagedKeyRequest`,
-`DeleteCustomerManagedKeyRequest`, `GetCustomerManagedKeyRequest`,
-`ListCustomerManagedKeyRequest`, and `ListCustomerManagedKeyResponse`.
-
-### `Public` infix on marshal schema identifier — `model.ts:309`
-Fixed in regeneration on 2026-05-22. The schema identifier is now
-`marshalCreateCustomerManagedKeyRequestSchema`, matching the renamed
-type.
