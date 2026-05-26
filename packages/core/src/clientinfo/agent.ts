@@ -31,9 +31,6 @@ const KNOWN_AGENTS: readonly KnownAgent[] = [
   {envVar: 'CLINE_ACTIVE', product: 'cline'},
   {envVar: 'CODEX_CI', product: 'codex'},
   {envVar: 'COPILOT_CLI', product: 'copilot-cli'},
-  // VS Code Copilot terminal, best-effort heuristic, not officially
-  // identified.
-  {envVar: 'COPILOT_MODEL', product: 'copilot-vscode'},
   {envVar: 'CURSOR_AGENT', product: 'cursor'},
   {envVar: 'GEMINI_CLI', product: 'gemini-cli'},
   // The goose agent also sets AGENT=goose, handled by the central
@@ -42,6 +39,9 @@ const KNOWN_AGENTS: readonly KnownAgent[] = [
   {envVar: 'KIRO', product: 'kiro'},
   {envVar: 'OPENCLAW_SHELL', product: 'openclaw'},
   {envVar: 'OPENCODE', product: 'opencode'},
+  // Set by VS Code 1.121+ for agent-initiated terminal commands
+  // (https://code.visualstudio.com/updates/v1_121).
+  {envVar: 'VSCODE_AGENT', product: 'vscode-agent'},
   {envVar: 'WINDSURF_AGENT', product: 'windsurf'},
 ];
 
@@ -78,17 +78,11 @@ function agentEnvFallback(): string {
  * - `""` when nothing is set.
  */
 export function lookupAgentProvider(): string {
-  let matches: string[] = [];
+  const matches: string[] = [];
   for (const a of KNOWN_AGENTS) {
     if (a.envVar in process.env) {
       matches.push(a.product);
     }
-  }
-  // Known BYOK false positive: Copilot CLI users often set COPILOT_MODEL
-  // alongside COPILOT_CLI. Treat the pair as a single copilot-cli signal
-  // rather than a stacked multi-agent setup.
-  if (matches.includes('copilot-cli') && matches.includes('copilot-vscode')) {
-    matches = matches.filter(m => m !== 'copilot-vscode');
   }
   if (matches.length === 1) {
     return matches[0];
