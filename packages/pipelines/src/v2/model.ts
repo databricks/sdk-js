@@ -481,6 +481,11 @@ export interface CreatePipelineRequest {
   allowDuplicateNames?: boolean | undefined;
   dryRun?: boolean | undefined;
   runAs?: PipelinesJobRunAs | undefined;
+  /**
+   * Key/value map of default parameters to use for pipeline execution.
+   * Maximum total size: 10k characters (JSON format)
+   */
+  parameters?: Record<string, string> | undefined;
   /** Unique identifier for this pipeline. */
   id?: string | undefined;
   /** Friendly identifier for this pipeline. */
@@ -550,6 +555,12 @@ export interface CreatePipelineRequest {
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreatePipelineRequest_ConfigurationEntry {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreatePipelineRequest_ParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -631,6 +642,11 @@ export interface EditPipelineRequest {
    */
   expectedLastModified?: number | undefined;
   runAs?: PipelinesJobRunAs | undefined;
+  /**
+   * Key/value map of default parameters to use for pipeline execution.
+   * Maximum total size: 10k characters (JSON format)
+   */
+  parameters?: Record<string, string> | undefined;
   /** Unique identifier for this pipeline. */
   id?: string | undefined;
   /** Friendly identifier for this pipeline. */
@@ -700,6 +716,12 @@ export interface EditPipelineRequest {
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EditPipelineRequest_ConfigurationEntry {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EditPipelineRequest_ParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -850,6 +872,17 @@ export interface GetPipelineRequest_Response {
    * To find the value in all cases, explicit or implicit, use `run_as_user_name`.
    */
   runAs?: PipelinesJobRunAs | undefined;
+  /**
+   * Key/value map of default parameters to use for pipeline execution.
+   * Maximum total size: 10k characters (JSON format)
+   */
+  parameters?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetPipelineRequest_Response_ParametersEntry {
+  key?: string | undefined;
+  value?: string | undefined;
 }
 
 export interface GetUpdateRequest {
@@ -2845,6 +2878,7 @@ export const unmarshalGetPipelineRequest_ResponseSchema: z.ZodType<GetPipelineRe
       effective_budget_policy_id: z.string().optional(),
       effective_publishing_mode: z.enum(PublishingMode).optional(),
       run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
+      parameters: z.record(z.string(), z.string()).optional(),
     })
     .transform(d => ({
       pipelineId: d.pipeline_id,
@@ -2861,6 +2895,7 @@ export const unmarshalGetPipelineRequest_ResponseSchema: z.ZodType<GetPipelineRe
       effectiveBudgetPolicyId: d.effective_budget_policy_id,
       effectivePublishingMode: d.effective_publishing_mode,
       runAs: d.run_as,
+      parameters: d.parameters,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4251,6 +4286,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     allowDuplicateNames: z.boolean().optional(),
     dryRun: z.boolean().optional(),
     runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     storage: z.string().optional(),
@@ -4288,6 +4324,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     allow_duplicate_names: d.allowDuplicateNames,
     dry_run: d.dryRun,
     run_as: d.runAs,
+    parameters: d.parameters,
     id: d.id,
     name: d.name,
     storage: d.storage,
@@ -4346,6 +4383,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     allowDuplicateNames: z.boolean().optional(),
     expectedLastModified: z.number().optional(),
     runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     storage: z.string().optional(),
@@ -4384,6 +4422,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     allow_duplicate_names: d.allowDuplicateNames,
     expected_last_modified: d.expectedLastModified,
     run_as: d.runAs,
+    parameters: d.parameters,
     id: d.id,
     name: d.name,
     storage: d.storage,
