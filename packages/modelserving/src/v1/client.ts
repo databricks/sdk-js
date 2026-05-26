@@ -81,6 +81,10 @@ class StillRunningError extends Error {}
 
 export class Client {
   private readonly host: string;
+  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
+  // When set, workspace-level methods send X-Databricks-Org-Id on every
+  // request.
+  private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -93,6 +97,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -117,6 +122,9 @@ export class Client {
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -154,6 +162,9 @@ export class Client {
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -193,6 +204,9 @@ export class Client {
     let resp: DeleteInferenceEndpointRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -221,6 +235,9 @@ export class Client {
     let resp: ExportMetricsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const httpResp = await sendAndCheckError({
@@ -248,6 +265,9 @@ export class Client {
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -273,6 +293,9 @@ export class Client {
     let resp: GetOpenApiResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const httpResp = await sendAndCheckError({
@@ -300,6 +323,9 @@ export class Client {
     let resp: GetServedModelBuildLogsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -328,6 +354,9 @@ export class Client {
     let resp: GetServedModelLogsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -356,6 +385,9 @@ export class Client {
     let resp: ListInferenceEndpointsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -388,6 +420,9 @@ export class Client {
     let resp: PatchInferenceEndpointTagsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -420,6 +455,9 @@ export class Client {
     let resp: PutInferenceEndpointAiGatewayRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -452,6 +490,9 @@ export class Client {
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -492,6 +533,9 @@ export class Client {
     let resp: PutInferenceEndpointRateLimitsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -521,6 +565,9 @@ export class Client {
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -564,6 +611,9 @@ export class Client {
     let resp: UpdateInferenceEndpointNotificationsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -593,6 +643,9 @@ export class Client {
     let resp: ExternalFunctionResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const httpResp = await sendAndCheckError({

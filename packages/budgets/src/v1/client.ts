@@ -80,7 +80,7 @@ export class Client {
     req: CreateBudgetConfigurationRequest,
     options?: CallOptions
   ): Promise<CreateBudgetConfigurationRequest_Response> {
-    const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? ''}/budgets`;
+    const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? this.accountId ?? ''}/budgets`;
     const body = marshalRequest(
       req,
       marshalCreateBudgetConfigurationRequestSchema
@@ -234,7 +234,7 @@ export class Client {
     req: UpdateBudgetConfigurationRequest,
     options?: CallOptions
   ): Promise<UpdateBudgetConfigurationRequest_Response> {
-    const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
+    const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? this.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateBudgetConfigurationRequestSchema

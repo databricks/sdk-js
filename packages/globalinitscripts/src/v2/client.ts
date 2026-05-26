@@ -47,6 +47,10 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
+  // When set, workspace-level methods send X-Databricks-Org-Id on every
+  // request.
+  private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -59,6 +63,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -83,6 +88,9 @@ export class Client {
     let resp: CreateGlobalInitScriptRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -111,6 +119,9 @@ export class Client {
     let resp: DeleteGlobalInitScriptRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -139,6 +150,9 @@ export class Client {
     let resp: GlobalInitScriptDetails | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -167,6 +181,9 @@ export class Client {
     let resp: ListGlobalInitScriptsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -202,6 +219,9 @@ export class Client {
     let resp: UpdateGlobalInitScriptRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({

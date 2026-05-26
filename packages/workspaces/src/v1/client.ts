@@ -211,7 +211,7 @@ export class Client {
     req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
-    const url = `${this.host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
+    const url = `${this.host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? this.accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
