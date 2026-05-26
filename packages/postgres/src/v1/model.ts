@@ -786,14 +786,7 @@ export interface BranchStatus {
   logicalSizeBytes?: number | undefined;
   /** Absolute expiration time for the branch. Empty if expiration is disabled. */
   expireTime?: Temporal.Instant | undefined;
-  /**
-   * The short identifier of the branch, suitable for showing to the users.
-   * For a branch with name `projects/my-project/branches/my-branch`, the branch_id is `my-branch`.
-   *
-   * Use this field when building UI components that display branches to users (e.g., a drop-down
-   * selector). Prefer showing `branch_id` instead of the full resource name from `Branch.name`,
-   * which follows the `projects/{project_id}/branches/{branch_id}` format and is not user-friendly.
-   */
+  /** Part of the resource name. */
   branchId?: string | undefined;
   /**
    * A timestamp indicating when the branch was deleted.
@@ -879,14 +872,7 @@ export interface Catalog_CatalogStatus {
    * Format: projects/{project_id}/branches/{branch_id}.
    */
   branch?: string | undefined;
-  /**
-   * The short identifier of the catalog, suitable for showing to the users.
-   * For a catalog with name `catalogs/my-catalog`, the catalog_id is `my-catalog`.
-   *
-   * Use this field when building UI components that display catalogs to users (e.g., a drop-down
-   * selector). Prefer showing `catalog_id` instead of the full resource name from `Catalog.name`,
-   * which follows the `catalogs/{catalog_id}` format and is not user-friendly.
-   */
+  /** Part of the resource name. */
   catalogId?: string | undefined;
 }
 
@@ -1063,16 +1049,7 @@ export interface Database_DatabaseStatus {
   role?: string | undefined;
   /** The name of the Postgres database. */
   postgresDatabase?: string | undefined;
-  /**
-   * The short identifier of the database, suitable for showing to the users.
-   * For a database with name `projects/my-project/branches/my-branch/databases/my-db`,
-   * the database_id is `my-db`.
-   *
-   * Use this field when building UI components that display databases to users (e.g., a drop-down
-   * selector). Prefer showing `database_id` instead of the full resource name from `Database.name`,
-   * which follows the `projects/{project_id}/branches/{branch_id}/databases/{database_id}` format
-   * and is not user-friendly.
-   */
+  /** Part of the resource name. */
   databaseId?: string | undefined;
 }
 
@@ -1345,16 +1322,7 @@ export interface EndpointStatus {
   settings?: EndpointSettings | undefined;
   /** Details on the HA configuration of the endpoint. */
   group?: EndpointGroupStatus | undefined;
-  /**
-   * The short identifier of the endpoint, suitable for showing to the users.
-   * For an endpoint with name `projects/my-project/branches/my-branch/endpoints/my-endpoint`,
-   * the endpoint_id is `my-endpoint`.
-   *
-   * Use this field when building UI components that display endpoints to users (e.g., a drop-down
-   * selector). Prefer showing `endpoint_id` instead of the full resource name from `Endpoint.name`,
-   * which follows the `projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}` format
-   * and is not user-friendly.
-   */
+  /** Part of the resource name. */
   endpointId?: string | undefined;
 }
 
@@ -1732,14 +1700,7 @@ export interface ProjectStatus {
   enablePgNativeLogin?: boolean | undefined;
   /** The full resource path of the default branch of the project */
   defaultBranch?: string | undefined;
-  /**
-   * The short identifier of the project, suitable for showing to the users.
-   * For a project with name `projects/my-project`, the project_id is `my-project`.
-   *
-   * Use this field when building UI components that display projects to users (e.g., a drop-down
-   * selector). Prefer showing `project_id` instead of the full resource name from `Project.name`,
-   * which follows the `projects/{project_id}` format and is not user-friendly.
-   */
+  /** Part of the resource name. */
   projectId?: string | undefined;
 }
 
@@ -1862,16 +1823,7 @@ export interface Role_RoleStatus {
   authMethod?: Role_AuthMethod | undefined;
   /** The name of the Postgres role. */
   postgresRole?: string | undefined;
-  /**
-   * The short identifier of the role, suitable for showing to the users.
-   * For a role with name `projects/my-project/branches/my-branch/roles/my-role`,
-   * the role_id is `my-role`.
-   *
-   * Use this field when building UI components that display roles to users (e.g., a drop-down
-   * selector). Prefer showing `role_id` instead of the full resource name from `Role.name`,
-   * which follows the `projects/{project_id}/branches/{branch_id}/roles/{role_id}` format
-   * and is not user-friendly.
-   */
+  /** Part of the resource name. */
   roleId?: string | undefined;
 }
 
@@ -1986,6 +1938,8 @@ export interface SyncedTable_SyncedTableStatus {
    * Format: "projects/{project_id}".
    */
   project?: string | undefined;
+  /** Part of the resource name. */
+  syncedTableId?: string | undefined;
 }
 
 /** Metadata for SyncedTable long-running operations. */
@@ -2895,6 +2849,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
         .enum(ProvisioningInfo_State)
         .optional(),
       project: z.string().optional(),
+      synced_table_id: z.string().optional(),
     })
     .transform(d => ({
       message: d.message,
@@ -2907,6 +2862,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
       pipelineId: d.pipeline_id,
       unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
       project: d.project,
+      syncedTableId: d.synced_table_id,
     }));
 
 export const unmarshalSyncedTableOperationMetadataSchema: z.ZodType<SyncedTableOperationMetadata> =
@@ -3651,6 +3607,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     pipelineId: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
     project: z.string().optional(),
+    syncedTableId: z.string().optional(),
   })
   .transform(d => ({
     message: d.message,
@@ -3663,6 +3620,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     pipeline_id: d.pipelineId,
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
     project: d.project,
+    synced_table_id: d.syncedTableId,
   }));
 
 export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z

@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {APIError, toCode} from '../../src/apierror/apierror';
+import {ApiError, toCode} from '../../src/apierror/apierror';
 import {Code} from '../../src/apierror/codes';
 import type {ErrorDetails} from '../../src/apierror/details';
 
@@ -10,17 +10,17 @@ function encode(s: string): Uint8Array {
 
 const emptyDetails: ErrorDetails = {unknownDetails: []};
 
-describe('APIError non-HTTP getters', () => {
+describe('ApiError non-HTTP getters', () => {
   const testCases: {
     name: string;
-    apiErr: APIError;
+    apiErr: ApiError;
     wantCode: Code;
     wantMessage: string;
     wantDetails: ErrorDetails;
   }[] = [
     {
       name: 'basic fields',
-      apiErr: new APIError({
+      apiErr: new ApiError({
         code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
@@ -31,7 +31,7 @@ describe('APIError non-HTTP getters', () => {
     },
     {
       name: 'explicit values',
-      apiErr: new APIError({
+      apiErr: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: 'Invalid request',
         details: {
@@ -66,7 +66,7 @@ describe('APIError non-HTTP getters', () => {
   );
 });
 
-describe('APIError HTTP getters', () => {
+describe('ApiError HTTP getters', () => {
   const header = new Headers({'Content-Type': 'application/json'});
   const body = encode(
     '{"error_code": "INVALID_ARGUMENT", "message": "Invalid request"}'
@@ -74,14 +74,14 @@ describe('APIError HTTP getters', () => {
 
   const testCases: {
     name: string;
-    apiErr: APIError;
+    apiErr: ApiError;
     wantStatusCode: number;
     wantHeader: Headers | undefined;
     wantBody: Uint8Array | undefined;
   }[] = [
     {
       name: 'no HTTP error returns defaults',
-      apiErr: new APIError({
+      apiErr: new ApiError({
         code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
@@ -92,7 +92,7 @@ describe('APIError HTTP getters', () => {
     },
     {
       name: 'with HTTP error returns stored values',
-      apiErr: new APIError({
+      apiErr: new ApiError({
         code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
@@ -126,7 +126,7 @@ describe('fromHttpError', () => {
     statusCode: number;
     header?: Headers;
     body?: Uint8Array;
-    want?: APIError;
+    want?: ApiError;
   }[] = [
     {
       desc: '200 returns undefined',
@@ -143,7 +143,7 @@ describe('fromHttpError', () => {
     {
       desc: 'empty body with status',
       statusCode: 400,
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: '',
         details: emptyDetails,
@@ -153,7 +153,7 @@ describe('fromHttpError', () => {
       desc: 'empty body with status and headers',
       statusCode: 404,
       header: new Headers({'Content-Type': 'application/json'}),
-      want: new APIError({
+      want: new ApiError({
         code: Code.NOT_FOUND,
         message: '',
         details: emptyDetails,
@@ -163,7 +163,7 @@ describe('fromHttpError', () => {
       desc: 'HTML body',
       statusCode: 502,
       body: encode('<html><body>Bad Gateway</body></html>'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INTERNAL,
         message: '',
         details: emptyDetails,
@@ -173,7 +173,7 @@ describe('fromHttpError', () => {
       desc: 'malformed JSON',
       statusCode: 400,
       body: encode('{not valid json'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: '',
         details: emptyDetails,
@@ -185,7 +185,7 @@ describe('fromHttpError', () => {
       body: encode(
         '{"error_code": "NOT_FOUND", "message": "Job 123 not found"}'
       ),
-      want: new APIError({
+      want: new ApiError({
         code: Code.NOT_FOUND,
         message: 'Job 123 not found',
         details: emptyDetails,
@@ -207,7 +207,7 @@ describe('fromHttpError', () => {
           ],
         })
       ),
-      want: new APIError({
+      want: new ApiError({
         code: Code.NOT_FOUND,
         message: 'Job 123 not found',
         details: {
@@ -226,7 +226,7 @@ describe('fromHttpError', () => {
       body: encode(
         '{"error_code": "SOME_UNKNOWN_CODE", "message": "Something went wrong"}'
       ),
-      want: new APIError({
+      want: new ApiError({
         code: Code.UNKNOWN,
         message: 'Something went wrong',
         details: emptyDetails,
@@ -236,7 +236,7 @@ describe('fromHttpError', () => {
       desc: 'standard error with missing error_code',
       statusCode: 403,
       body: encode('{"message": "Access denied"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.PERMISSION_DENIED,
         message: 'Access denied',
         details: emptyDetails,
@@ -246,7 +246,7 @@ describe('fromHttpError', () => {
       desc: 'standard error with integer error_code',
       statusCode: 400,
       body: encode('{"error_code": 42, "message": "Invalid request"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: 'Invalid request',
         details: emptyDetails,
@@ -256,7 +256,7 @@ describe('fromHttpError', () => {
       desc: 'legacy API 1.2 error field',
       statusCode: 400,
       body: encode('{"error": "Invalid parameter"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: 'Invalid parameter',
         details: emptyDetails,
@@ -266,7 +266,7 @@ describe('fromHttpError', () => {
       desc: 'message takes precedence over error field',
       statusCode: 400,
       body: encode('{"message": "New message", "error": "Old error"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: 'New message',
         details: emptyDetails,
@@ -276,7 +276,7 @@ describe('fromHttpError', () => {
       desc: 'SCIM error with detail',
       statusCode: 404,
       body: encode('{"detail": "User not found", "scimType": "invalidValue"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.NOT_FOUND,
         message: 'User not found',
         details: emptyDetails,
@@ -286,7 +286,7 @@ describe('fromHttpError', () => {
       desc: 'SCIM error with only scimType',
       statusCode: 400,
       body: encode('{"scimType": "uniqueness"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: 'uniqueness',
         details: emptyDetails,
@@ -296,7 +296,7 @@ describe('fromHttpError', () => {
       desc: 'message takes precedence over SCIM detail',
       statusCode: 400,
       body: encode('{"message": "Standard message", "detail": "SCIM detail"}'),
-      want: new APIError({
+      want: new ApiError({
         code: Code.INVALID_ARGUMENT,
         message: 'Standard message',
         details: emptyDetails,
@@ -305,7 +305,7 @@ describe('fromHttpError', () => {
   ];
 
   it.each(testCases)('$desc', tc => {
-    const got = APIError.fromHttpError(tc.statusCode, tc.header, tc.body);
+    const got = ApiError.fromHttpError(tc.statusCode, tc.header, tc.body);
 
     if (tc.want === undefined) {
       expect(got).toBeUndefined();
@@ -313,7 +313,7 @@ describe('fromHttpError', () => {
     }
 
     if (got === undefined) {
-      expect.fail('expected fromHttpError to return an APIError');
+      expect.fail('expected fromHttpError to return an ApiError');
     }
 
     expect(got.code).toBe(tc.want.code);

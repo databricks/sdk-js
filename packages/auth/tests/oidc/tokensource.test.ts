@@ -3,7 +3,7 @@ import {ZodError} from 'zod';
 
 import {idTokenProviderFn} from '../../src/oidc/oidc';
 import type {OAuthAuthorizationServer} from '../../src/oidc/tokensource';
-import {newDatabricksOIDCTokenProvider} from '../../src/oidc/tokensource';
+import {newDatabricksOidcTokenProvider} from '../../src/oidc/tokensource';
 
 interface CapturedRequest {
   url: string;
@@ -70,7 +70,7 @@ function staticIdTokenProvider(value: string): {
   return {provider, audiences};
 }
 
-describe('newDatabricksOIDCTokenProvider', () => {
+describe('newDatabricksOidcTokenProvider', () => {
   const NOW = 1_700_000_000_000;
 
   afterEach(() => {
@@ -91,7 +91,7 @@ describe('newDatabricksOIDCTokenProvider', () => {
       wantError: 'missing Host',
     },
     {
-      name: 'propagates errors from the IDTokenProvider',
+      name: 'propagates errors from the IdTokenProvider',
       idTokenError: 'error getting id token',
       wantError: 'error getting id token',
     },
@@ -119,7 +119,7 @@ describe('newDatabricksOIDCTokenProvider', () => {
         idTokenError !== undefined
           ? idTokenProviderFn(() => Promise.reject(new Error(idTokenError)))
           : staticIdTokenProvider(ID_TOKEN).provider;
-      const ts = newDatabricksOIDCTokenProvider({
+      const ts = newDatabricksOidcTokenProvider({
         host: host ?? 'http://host.com',
         tokenEndpointProvider: fixedEndpointProvider(),
         idTokenProvider,
@@ -190,7 +190,7 @@ describe('newDatabricksOIDCTokenProvider', () => {
       });
       const {provider, audiences} = staticIdTokenProvider(ID_TOKEN);
 
-      const ts = newDatabricksOIDCTokenProvider({
+      const ts = newDatabricksOidcTokenProvider({
         host: 'http://host.com',
         tokenEndpointProvider: fixedEndpointProvider(),
         idTokenProvider: provider,
@@ -242,7 +242,7 @@ describe('newDatabricksOIDCTokenProvider', () => {
   it('omits expiry when expires_in is not in the response', async () => {
     stubFetchJson(200, {access_token: 'test-auth-token'});
     const {provider} = staticIdTokenProvider(ID_TOKEN);
-    const ts = newDatabricksOIDCTokenProvider({
+    const ts = newDatabricksOidcTokenProvider({
       host: 'http://host.com',
       tokenEndpointProvider: fixedEndpointProvider(),
       idTokenProvider: provider,

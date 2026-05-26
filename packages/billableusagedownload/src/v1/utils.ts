@@ -2,7 +2,7 @@
 
 import type {Call, Options} from '@databricks/sdk-core/api';
 import {execute} from '@databricks/sdk-core/api';
-import {APIError} from '@databricks/sdk-core/apierror';
+import {ApiError} from '@databricks/sdk-core/apierror';
 import type {
   HttpClient,
   HttpRequest,
@@ -85,7 +85,7 @@ export async function executeHttpCall(
     body: new TextDecoder().decode(body),
   });
 
-  const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
+  const apiErr = ApiError.fromHttpError(resp.statusCode, resp.headers, body);
   if (apiErr !== undefined) {
     throw apiErr;
   }
@@ -151,7 +151,7 @@ export function flattenQueryParams(
 
 /**
  * Sends an HTTP request and checks for API errors. On non-2xx responses the
- * body is buffered and parsed into an APIError. On 2xx the raw HttpResponse
+ * body is buffered and parsed into an ApiError. On 2xx the raw HttpResponse
  * is returned with the body stream untouched.
  */
 export async function sendAndCheckError(
@@ -174,7 +174,7 @@ export async function sendAndCheckError(
 
   if (resp.statusCode < 200 || resp.statusCode >= 300) {
     const body = await readAll(resp.body);
-    const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
+    const apiErr = ApiError.fromHttpError(resp.statusCode, resp.headers, body);
     if (apiErr !== undefined) {
       throw apiErr;
     }

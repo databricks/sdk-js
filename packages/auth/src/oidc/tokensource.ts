@@ -8,7 +8,7 @@ import {z} from 'zod';
 import type {Token, TokenProvider} from '../auth';
 import {tokenProviderFn} from '../auth';
 
-import type {IDTokenProvider} from './oidc';
+import type {IdTokenProvider} from './oidc';
 
 /**
  * OAuthAuthorizationServer describes the OAuth endpoints used to mint
@@ -19,12 +19,12 @@ export interface OAuthAuthorizationServer {
 }
 
 /**
- * DatabricksOIDCTokenProviderConfig is the configuration for a Databricks OIDC
+ * DatabricksOidcTokenProviderConfig is the configuration for a Databricks OIDC
  * TokenProvider.
  */
-export interface DatabricksOIDCTokenProviderConfig {
+export interface DatabricksOidcTokenProviderConfig {
   /**
-   * ClientID of the Databricks OIDC application. It corresponds to the
+   * Client ID of the Databricks OIDC application. It corresponds to the
    * Application ID of the Databricks Service Principal.
    *
    * This field is only required for Workload Identity Federation and should
@@ -33,8 +33,8 @@ export interface DatabricksOIDCTokenProviderConfig {
   clientId?: string;
 
   /**
-   * AccountID is the account ID of the Databricks Account. This field is
-   * only required for Account-wide token federation.
+   * Account ID of the Databricks Account. This field is only required for
+   * Account-wide token federation.
    */
   accountId?: string;
 
@@ -56,23 +56,23 @@ export interface DatabricksOIDCTokenProviderConfig {
   audience?: string;
 
   /**
-   * IDTokenProvider returns the IDToken to be used for the token exchange.
+   * IdTokenProvider returns the ID token to be used for the token exchange.
    */
-  idTokenProvider: IDTokenProvider;
+  idTokenProvider: IdTokenProvider;
 }
 
 /**
  * Returns a new Databricks OIDC TokenProvider that exchanges an OIDC ID token
  * for a Databricks access token using the OAuth 2.0 token-exchange grant.
  */
-export function newDatabricksOIDCTokenProvider(
-  config: DatabricksOIDCTokenProviderConfig
+export function newDatabricksOidcTokenProvider(
+  config: DatabricksOidcTokenProviderConfig
 ): TokenProvider {
   return tokenProviderFn(() => exchangeIdToken(config));
 }
 
 async function exchangeIdToken(
-  config: DatabricksOIDCTokenProviderConfig
+  config: DatabricksOidcTokenProviderConfig
 ): Promise<Token> {
   if (config.host === '') {
     throw new Error('missing Host');
@@ -114,7 +114,7 @@ async function exchangeIdToken(
 }
 
 function determineAudience(
-  config: DatabricksOIDCTokenProviderConfig,
+  config: DatabricksOidcTokenProviderConfig,
   endpoints: OAuthAuthorizationServer
 ): string {
   if (config.audience !== undefined && config.audience !== '') {

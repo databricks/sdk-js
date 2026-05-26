@@ -1,8 +1,8 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-import {newEnvIDTokenProvider} from '../../src/oidc/env';
+import {newEnvIdTokenProvider} from '../../src/oidc/env';
 
-describe('newEnvIDTokenProvider', () => {
+describe('newEnvIdTokenProvider', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
@@ -29,14 +29,14 @@ describe('newEnvIDTokenProvider', () => {
 
   it.each(successCases)('$name', async ({envName, envValue, want}) => {
     vi.stubEnv(envName, envValue);
-    const provider = newEnvIDTokenProvider(envName);
+    const provider = newEnvIdTokenProvider(envName);
     const token = await provider.idToken('any-audience');
     expect(token.value).toBe(want);
   });
 
   it('does not cache and re-reads the environment variable each call', async () => {
     const envName = 'OIDC_TEST_TOKEN_REREAD';
-    const provider = newEnvIDTokenProvider(envName);
+    const provider = newEnvIdTokenProvider(envName);
 
     vi.stubEnv(envName, 'first');
     expect((await provider.idToken('')).value).toBe('first');
@@ -48,7 +48,7 @@ describe('newEnvIDTokenProvider', () => {
   it('ignores the audience argument', async () => {
     const envName = 'OIDC_TEST_TOKEN_AUDIENCE';
     vi.stubEnv(envName, 'tok');
-    const provider = newEnvIDTokenProvider(envName);
+    const provider = newEnvIdTokenProvider(envName);
     expect((await provider.idToken('audience-a')).value).toBe('tok');
     expect((await provider.idToken('audience-b')).value).toBe('tok');
   });
@@ -73,7 +73,7 @@ describe('newEnvIDTokenProvider', () => {
     if (envValue !== undefined) {
       vi.stubEnv(envName, envValue);
     }
-    const provider = newEnvIDTokenProvider(envName);
+    const provider = newEnvIdTokenProvider(envName);
     await expect(provider.idToken('')).rejects.toThrow(
       `missing env var "${envName}"`
     );

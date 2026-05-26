@@ -323,6 +323,24 @@ export interface PublishedDashboard {
   revisionCreateTime?: Temporal.Instant | undefined;
 }
 
+/** Request to revert a dashboard draft to its last published state. */
+export interface RevertDashboardRequest {
+  /** UUID identifying the dashboard. */
+  dashboardId?: string | undefined;
+  /**
+   * The etag for the dashboard. Optionally, it can be provided to verify that the dashboard
+   * has not been modified from its last retrieval.
+   * TODO(TSE-3937): update to new non-CMK-encrypted label when available
+   */
+  etag?: string | undefined;
+}
+
+/** Response to revert a dashboard draft to its last published state. */
+export interface RevertDashboardResponse {
+  /** The reverted dashboard. */
+  dashboard?: Dashboard | undefined;
+}
+
 export interface Schedule {
   /** UUID identifying the schedule. */
   scheduleId?: string | undefined;
@@ -574,6 +592,15 @@ export const unmarshalPublishedDashboardSchema: z.ZodType<PublishedDashboard> =
       revisionCreateTime: d.revision_create_time,
     }));
 
+export const unmarshalRevertDashboardResponseSchema: z.ZodType<RevertDashboardResponse> =
+  z
+    .object({
+      dashboard: z.lazy(() => unmarshalDashboardSchema).optional(),
+    })
+    .transform(d => ({
+      dashboard: d.dashboard,
+    }));
+
 export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
   .object({
     schedule_id: z.string().optional(),
@@ -742,6 +769,16 @@ export const marshalPublishDashboardRequestSchema: z.ZodType = z
     dashboard_id: d.dashboardId,
     embed_credentials: d.embedCredentials,
     warehouse_id: d.warehouseId,
+  }));
+
+export const marshalRevertDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    etag: d.etag,
   }));
 
 export const marshalScheduleSchema: z.ZodType = z

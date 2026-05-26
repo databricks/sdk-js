@@ -29,6 +29,8 @@ export type {
   MigrateDashboardRequest,
   PublishDashboardRequest,
   PublishedDashboard,
+  RevertDashboardRequest,
+  RevertDashboardResponse,
   Schedule,
   Subscription,
   Subscription_Subscriber,
