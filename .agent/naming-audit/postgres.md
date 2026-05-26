@@ -3,15 +3,15 @@
 **Path:** `packages/postgres/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Lakebase Autoscaling Postgres — manages Lakebase `Project`s, `Branch`es (Postgres-style branching for PITR / dev forks), `Endpoint`s (autoscaling read-write or read-only compute endpoints), `Database`s (logical Postgres databases inside a branch), `Role`s (Postgres roles bound to Databricks identities or plain Postgres roles), `SyncedTable`s (UC-managed Delta→Postgres sync pipelines), `Catalog`s (Unity Catalog mirrors of logical PG databases), short-lived `DatabaseCredential`s, and long-running `Operation`s with per-resource `*Operation` waiter-style classes.
-**Total weird names flagged:** 33
+**Total weird names flagged:** 29
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 9 |
-| Medium | 16 |
-| Low | 6 |
-| Observation | 2 |
+| Medium | 15 |
+| Low | 4 |
+| Observation | 1 |
 
 ## High severity
 
@@ -91,88 +91,82 @@
 - **Suggested name:** Use a union `expiration?: {expireTime: Instant} | {ttl: Duration} | 'never'`, or hoist the three to top-level mutually-exclusive optional fields.
 - **Rationale:** Boolean fields whose `false` value is invalid encourage type-level lies.
 
-### 12. `CreateBranchRequest.branch` vs `CreateBranchRequest.branchId` — duplicate identifier semantics — `src/v1/model.ts:907, 909`
-- **Why weird:** `CreateBranchRequest` has `parent`, `branchId`, `branch`, `replaceExisting`. `branchId` is the path-component id; `branch.name` (inside `Branch`) is the full resource path; `branch` is the body. Three fields all involved in identifying the branch.
-- **Category:** 17 (inconsistency — same operation, three id-like fields), 19 (underspecified id semantics).
-- **Suggested name:** Document the relationship clearly in JSDoc; or accept just `branch: Branch` and derive the id from `branch.name`.
-- **Rationale:** Same shape repeats on `CreateCatalogRequest`, `CreateDatabaseRequest`, `CreateEndpointRequest`, `CreateProjectRequest`, `CreateRoleRequest`, `CreateSyncedTableRequest`. Caller must read multiple field docs to know which ID to set.
-
-### 13. `Database` (SDK resource) vs `postgresDatabase` field (Postgres-side identifier) — same thing, two names — `src/v1/model.ts:1013, 1054`
+### 12. `Database` (SDK resource) vs `postgresDatabase` field (Postgres-side identifier) — same thing, two names — `src/v1/model.ts:1013, 1054`
 - **Why weird:** Class `Database` represents the SDK resource; field `postgresDatabase` is the underlying PG name. So `Database` is an SDK noun and `postgresDatabase` is the actual PG-server-side identifier. The field name is what the Postgres-savvy reader expects; the type name is the SDK abstraction. Reading `db.spec.postgresDatabase` requires you to track two abstraction layers.
 - **Category:** 1 (vague — `Database` could be either layer), 6 (misleading — both names describe the same physical thing).
 - **Suggested name:** Rename either the type (to `DatabaseResource` or `LakebaseDatabase`) or the field (to `pgName`).
 - **Rationale:** Disambiguate the SDK resource from the Postgres server-side concept.
 
-### 14. `Database` and `databaseId` query parameter for `createDatabase` — `src/v1/client.ts:245-289`, `model.ts:939`
+### 13. `Database` and `databaseId` query parameter for `createDatabase` — `src/v1/client.ts:245-289`, `model.ts:939`
 - **Why weird:** Operation is "Create a Database" — but `CreateDatabaseRequest` has `parent`, `databaseId`, and `database`. The body is `database`; the query param is `databaseId`. The path is `/postgres/${req.parent}/databases`. Three places carry the name. JSDoc on `databaseId` says "If database_id is not specified in the request, it is generated automatically." But the JSDoc on `database` (the body) says nothing about how it relates to `databaseId`.
 - **Category:** 17 (inconsistency — three identifier slots), 6 (misleading — caller doesn't know which to use).
 - **Suggested name:** Move identifier into `database.name`; flatten the request to `{database, parent, replaceExisting}`.
 - **Rationale:** Three identifier slots is too many.
 
-### 15. `EndpointSpec.autoscalingLimitMinCu` / `autoscalingLimitMaxCu` — `Cu` suffix is opaque — `src/v1/model.ts:1274, 1279`
+### 14. `EndpointSpec.autoscalingLimitMinCu` / `autoscalingLimitMaxCu` — `Cu` suffix is opaque — `src/v1/model.ts:1274, 1279`
 - **Why weird:** `Cu` stands for "Compute Unit" (referenced in JSDoc on `EndpointSpec`). Field name doesn't expand the acronym. `MinCu` / `MaxCu` reads as `min cu` / `max cu` — `cu` could be currency unit, control unit, or anything.
 - **Category:** 5 (cryptic abbreviation), 1 (vague suffix).
 - **Suggested name:** `minComputeUnits` / `maxComputeUnits`, or `autoscalingMinComputeUnits` / `autoscalingMaxComputeUnits`.
 - **Rationale:** "CU" is Lakebase-internal slang.
 
-### 16. `EndpointSpec.suspension` discriminated union — `noSuspension: boolean` accepts an invalid `false` — `src/v1/model.ts:1293-1312`
+### 15. `EndpointSpec.suspension` discriminated union — `noSuspension: boolean` accepts an invalid `false` — `src/v1/model.ts:1293-1312`
 - **Why weird:** Same pattern as #11 — one variant carries a duration, the other a boolean documented as accepting only `true`. The type permits `false`, the spec rejects it.
 - **Category:** 16 (type allows `false` but spec rejects), 27 (echo of #11).
 - **Suggested name:** Inline: `suspension?: Temporal.Duration | 'never'`.
 - **Rationale:** Same as #11.
 
-### 17. `GenerateDatabaseCredentialRequest.expiration` discriminated union — _removed in regeneration_; only the simpler `claims` + `endpoint` shape remains — see #25
+### 16. `GenerateDatabaseCredentialRequest.expiration` discriminated union — _removed in regeneration_; only the simpler `claims` + `endpoint` shape remains — see #24
 _Reserved._
 
-### 18. `Operation.metadata: Record<string, unknown>` — opaque metadata field — `src/v1/model.ts:1575`
+### 17. `Operation.metadata: Record<string, unknown>` — opaque metadata field — `src/v1/model.ts:1575`
 - **Why weird:** Plain `Record<string, unknown>`. The 21 `*Operation` classes each parse this metadata into a specific `*OperationMetadata` type at runtime (`client.ts:1524-1533` etc.). But the public `Operation` type doesn't carry the metadata type as a generic parameter, so a consumer reading `op.metadata` directly has no help.
 - **Category:** 15 (generic), 16 (loose typing).
 - **Suggested name:** `Operation<T>` with `metadata?: T` (generic); each `*Operation` class returns `Operation<BranchOperationMetadata>` etc.
 - **Rationale:** Same root cause as #7 — opaque records on the public surface.
 
-### 19. `Operation.result` discriminated union with `error` / `response` — `src/v1/model.ts:1588-1599`
+### 18. `Operation.result` discriminated union with `error` / `response` — `src/v1/model.ts:1588-1599`
 - **Why weird:** Variant `response` carries `Record<string, unknown>` (line 1597). Variant `error` carries the typed `DatabricksServiceExceptionWithDetailsProto`. Asymmetric: error is typed, response isn't. (The `*Operation.wait()` methods cast via Zod, but the public type stays opaque.)
 - **Category:** 16 (asymmetric typing), 15 (generic on success arm).
-- **Suggested name:** Same as #18 — generic `Operation<TResult, TMetadata>` with both arms typed.
-- **Rationale:** Same as #7, #18.
+- **Suggested name:** Same as #17 — generic `Operation<TResult, TMetadata>` with both arms typed.
+- **Rationale:** Same as #7, #17.
 
-### 20. `Project.initialEndpointSpec` — write-only field exposed on read shape — `src/v1/model.ts:1624`
+### 19. `Project.initialEndpointSpec` — write-only field exposed on read shape — `src/v1/model.ts:1624`
 - **Why weird:** `Project` carries an `initialEndpointSpec` field that is a create-time-only input but exposed on the response type too — a read-flow consumer sees a field that is typically empty after project creation.
 - **Category:** 7 (overly verbose surface), 16 (write-only fields exposed on read shape).
 - **Suggested name:** Hoist the `initialEndpointSpec` onto `CreateProjectRequest` only (where it belongs); leave `Project` to spec/status.
 - **Rationale:** Same as `database` audit #12 — input/output shape confusion.
 
-### 21. `ProjectCustomTag` vs the `database` package's `CustomTag` — `src/v1/model.ts:1637`, `database:206`
+### 20. `ProjectCustomTag` vs the `database` package's `CustomTag` — `src/v1/model.ts:1637`, `database:206`
 - **Why weird:** `ProjectCustomTag` and `CustomTag` (in `database`) are textually identical (`{key, value}`). The `Project` prefix is package-scope tautology. Catalogs SDK and others use `CustomTag` too.
 - **Category:** 12 (duplicate concept across packages), 20 (type-prefix tautology — `ProjectCustomTag` on `ProjectSpec.customTags`).
 - **Suggested name:** `CustomTag` (drop the `Project` prefix). Or share a single `CustomTag` across SDK packages.
 - **Rationale:** 13 duplicated `{key, value}` shapes in the workspace would be a useful audit.
 
-### 22. `ProjectSpec.pgVersion: number` vs `ProjectStatus.pgVersion: number` — Postgres version as integer — `src/v1/model.ts:1687, 1716`
+### 21. `ProjectSpec.pgVersion: number` vs `ProjectStatus.pgVersion: number` — Postgres version as integer — `src/v1/model.ts:1687, 1716`
 - **Why weird:** Doc says "The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values." Type is `number` (integer). Better to be an enum (`Pg16 | Pg17`) or `'16' | '17'` to encode "supported values". Also note `pgVersion: string` on `database/v1.DatabaseInstance` (the V1 package uses string) — inconsistent across the two packages.
 - **Category:** 16 (type contradicts domain — open `number`), 17 (inconsistent with `database.DatabaseInstance.pgVersion` which is `string`).
 - **Suggested name:** `pgMajorVersion: 16 | 17` or an enum.
 - **Rationale:** Aligns documented constraints with the type system.
 
-### 23. `ProjectSpec.historyRetentionDuration` vs `ProjectStatus.historyRetentionDuration` — copy of input on output — `src/v1/model.ts:1689, 1718`
+### 22. `ProjectSpec.historyRetentionDuration` vs `ProjectStatus.historyRetentionDuration` — copy of input on output — `src/v1/model.ts:1689, 1718`
 - **Why weird:** Same field appears on `ProjectSpec` (input) and `ProjectStatus` (output, doc'd as "effective"). The output doesn't add an "effective" prefix as `database/v1` does, but the JSDoc on `ProjectStatus` does say "The effective number of seconds…". Inconsistency: `database` uses `effective_` prefix on output, `postgres` (this package) drops it. Could be progress, could be a regression — flag for clarity.
 - **Category:** 17 (inconsistent with sister package).
 - **Suggested name:** Pick one convention across the two packages.
 - **Rationale:** Mixed conventions encourage bugs when bridging between SDKs.
 
-### 24. `timeseriesKey` field casing on the synced-table spec — `src/v1/model.ts:1936`
+### 23. `timeseriesKey` field casing on the synced-table spec — `src/v1/model.ts:1936`
 - **Why weird:** Same as `database` audit #36: `timeseries` is one run-together word but English has `timeSeries` (two words). Wire is `timeseries_key`.
 - **Category:** 3 (acronym/casing inconsistency), 17 (inconsistent with neighbours).
 - **Suggested name:** `timeSeriesKey`.
 - **Rationale:** Same as `database` audit #36.
 
-### 25. Synced-table spec fields `createDatabaseObjectsIfMissing` — same fields, same issues as `database` package — `src/v1/model.ts:1951`
+### 24. Synced-table spec fields `createDatabaseObjectsIfMissing` — same fields, same issues as `database` package — `src/v1/model.ts:1951`
 - **Why weird:** Identical to `database` audit findings on synced-table-spec naming. Won't re-state at length; flag that the duplication exists across both packages with identical naming. Other related fields (`acceleratedSync`, `extraIndexDefinitions`, `extraColumnDefinitions`, `typeOverrides`) were removed during regeneration; only the `createDatabaseObjectsIfMissing` "If Missing" pattern remains here, matching `database` package's similar wording.
 - **Category:** 12 (duplicate concept), 17 (inherited inconsistencies).
 - **Suggested name:** Same suggestions as `database` audit.
 - **Rationale:** Two SDKs, same problems.
 
-### 26. `UpdateBranchRequest.updateMask: FieldMask<Branch>` — Google API protocol leak — `src/v1/model.ts:2057`
+### 25. `UpdateBranchRequest.updateMask: FieldMask<Branch>` — Google API protocol leak — `src/v1/model.ts:2057`
 - **Why weird:** Generic `FieldMask<T>` is a Google-API-protocol-buffers thing for partial updates. The naming is correct for an AIP-conformant API; less correct for an idiomatic TS SDK. Same on `UpdateDatabaseRequest`, `UpdateEndpointRequest`, `UpdateProjectRequest`, `UpdateRoleRequest`.
 - **Category:** 14 (Google AIP/proto leak), 1 (vague — `updateMask` is jargon).
 - **Suggested name:** `fields?: (keyof Branch)[]` or `patch?: Partial<Branch>` (and derive the field-mask). The `FieldMask` import already comes from `@databricks/sdk-core/wkt` (well-known types) — the SDK already lifts the type.
@@ -180,52 +174,34 @@ _Reserved._
 
 ## Low severity
 
-### 27. `BranchSpec.expireTime` (inside union variant) vs `BranchStatus.expireTime` (top-level) — `src/v1/model.ts:743, 788`
-- **Why weird:** Field name `expireTime` appears twice: once as a discriminated-union variant on `BranchSpec` (input), once as a top-level field on `BranchStatus` (output). Reader has to track that the input shape collapses `expireTime`/`ttl`/`noExpiry` to a single output value `expireTime`.
-- **Category:** 17 (input/output shape mismatch).
-- **Suggested name:** Document the asymmetry in JSDoc; or expose the same union shape on output.
-- **Rationale:** Generator-driven asymmetry.
-
-### 28. `CreateBranchRequest.replaceExisting` (Create) — no symmetrical `allowMissing` on Delete (Delete uses `purge`) — `src/v1/model.ts:911, 1104, 1142`
+### 26. `CreateBranchRequest.replaceExisting` (Create) — no symmetrical `allowMissing` on Delete (Delete uses `purge`) — `src/v1/model.ts:911, 1104, 1142`
 - **Why weird:** Create uses `replaceExisting: boolean` (proactive). Delete now uses `purge: boolean` only (`allowMissing` field removed in regeneration). Mismatched conventions for "if it does/doesn't exist" remain.
 - **Category:** 17 (inconsistent action verbs across CRUD).
 - **Suggested name:** Pick one: `ifExists: 'update' | 'error'` and `ifMissing: 'ignore' | 'error'`, or just both `upsert` and `ignoreIfMissing`.
 - **Rationale:** Inconsistent options across CRUD operations is a small papercut.
 
-### 29. `DeleteBranchRequest.purge` — boolean for hard delete — `src/v1/model.ts:1104`
+### 27. `DeleteBranchRequest.purge` — boolean for hard delete — `src/v1/model.ts:1104`
 - **Why weird:** `purge: boolean` distinguishes hard vs soft delete. Doc: "If true, permanently delete the branch; if false, soft delete." Same `purge` field on `DeleteProjectRequest` (line 1142).
 - **Category:** 16 (boolean modeling a future 3-state field), 6 (misleading — purge implies cleanup, not the *only* delete mode).
 - **Suggested name:** `deleteMode: 'hard' | 'soft'` or `permanent: boolean`.
 - **Rationale:** Boolean toggle for a future-3-state field.
 
-### 30. `GenerateDatabaseCredentialRequest.claims: RequestedClaims[]` — plural of a plural type — `src/v1/model.ts:1363`
+### 28. `GenerateDatabaseCredentialRequest.claims: RequestedClaims[]` — plural of a plural type — `src/v1/model.ts:1363`
 - **Why weird:** Same as `database` audit #54 — `RequestedClaims` is already plural; `claims: RequestedClaims[]` is "an array of plural claims objects".
 - **Category:** 9 (singular/plural mismatch).
 - **Suggested name:** Same as `database` audit #54 — singular type `RequestedClaim` + plural field `claims: RequestedClaim[]`.
 - **Rationale:** Same as `database` audit #54.
 
-### 31. `Operation.done: boolean | undefined` — tri-state boolean — `src/v1/model.ts:1581`
+### 29. `Operation.done: boolean | undefined` — tri-state boolean — `src/v1/model.ts:1581`
 - **Why weird:** Boolean that can be `undefined` is a tri-state value. JSDoc says "If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed…" — but doesn't say what `undefined` means. The `*Operation.wait()` methods check `op.done === undefined && throw` (e.g. `client.ts:1552`).
 - **Category:** 16 (type allows three values but spec only documents two).
 - **Suggested name:** Make non-optional `done: boolean`. If absent on the wire, treat as `false` in unmarshal.
 - **Rationale:** Tri-state booleans always confuse callers.
 
-### 32. `Branch.spec.expiration` JSDoc mentions `update_mask` (snake_case) — `src/v1/model.ts:734, 741, 749, 758, 1291, 1299, 1308, 1656, 1665`
-- **Why weird:** JSDoc references update mask in snake_case (e.g. "When updating this field, use `spec.expiration` in the update_mask"). Update mask field on the request is `updateMask: FieldMask<...>` (camelCase) but docs reference the wire-format name. Consumer reading the JSDoc and writing TS code has to translate.
-- **Category:** 17 (inconsistent — JSDoc snake_case, TS camelCase).
-- **Suggested name:** Use TS field name in JSDoc.
-- **Rationale:** Doc/code drift.
-
 ## Observation
 
-### 33. Method JSDoc inconsistency — `src/v1/client.ts` throughout
-- **Why weird:** Some methods have rich JSDoc ("Creates a new database branch in the project.", "Register a Postgres database in the Unity Catalog."). Others are terse ("Create a Database.", "Get a Database.", "List Databases."). Inconsistency in doc depth across CRUD methods of the same resource.
-- **Category:** Observation (doc quality, not naming).
-- **Suggested name:** Standardise to the richer template.
-- **Rationale:** Naming-adjacent.
-
-### 34. `Operation` is a separate type, not a generic — `src/v1/model.ts:1563`
+### 30. `Operation` is a separate type, not a generic — `src/v1/model.ts:1563`
 - **Why weird:** All 21 mutation methods return `Promise<Operation>`. The `Operation` type is monomorphic — no generic parameter for result/metadata. Consumer either uses the per-resource `*Operation` waiter classes (#8) or reads `Operation.result.response` (untyped `Record`).
 - **Category:** Observation (architecture, not naming per se).
 - **Suggested name:** `Operation<TResult, TMetadata>` generic.
-- **Rationale:** Connects #7, #8, #18, #19.
+- **Rationale:** Connects #7, #8, #17, #18.

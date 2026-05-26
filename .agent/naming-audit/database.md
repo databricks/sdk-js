@@ -3,15 +3,15 @@
 **Path:** `packages/database/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Lakebase OLTP layer — manage Postgres `DatabaseInstance`s, `DatabaseCatalog`s (Unity Catalog mirrors of logical Postgres databases), `DatabaseTable`s (UC-registered PG tables), `SyncedDatabaseTable`s (UC-managed Delta-to-PG continuous/triggered/snapshot sync pipelines), instance roles, and short-lived credentials.
-**Total weird names flagged:** 29
+**Total weird names flagged:** 24
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 7 |
-| Medium | 12 |
-| Low | 7 |
-| Observation | 3 |
+| Medium | 11 |
+| Low | 4 |
+| Observation | 2 |
 
 ## High severity
 
@@ -107,25 +107,19 @@
 - **Suggested name:** Discriminated union of `{instanceNames: string[]}` vs `{claims: ClaimRequest[]}`.
 - **Rationale:** Generator artefact; flag for upstream tightening.
 
-### 16. `DeleteDatabaseInstanceRequest.purge` field is documented as deprecated — `src/v1/model.ts:411-415`
-- **Why weird:** "Deprecated. Omitting the field or setting it to true will result in the field being hard deleted. Setting a value of false will throw a bad request." Field is exposed in the public TS type but has no `@deprecated` JSDoc tag.
-- **Category:** 6 (misleading: deprecated field undocumented as deprecated).
-- **Suggested name:** Add `@deprecated` tag; consider removing in next major.
-- **Rationale:** TS tooling honours `@deprecated`; the current setup just has prose.
-
-### 17. `NewPipelineSpec` type and `newPipelineSpec` field — `src/v1/model.ts:551,753`
-- **Why weird:** Proto-architectural leak on two axes. (1) `New` is a mid-position relativistic adjective (`Old`/`New`/`Legacy`/`Modern`) — type names should describe what a value *is*, not its temporal status relative to a peer (here, paired with `existingPipelineId`). The "newness" is only meaningful at the moment of creation; the same struct shape would describe an old pipeline equally well. (2) `Spec` is a generic suffix that appears twice in the package (also `SyncedTableSpec`) — see also finding #18 on repeated `Spec`/`Info` suffixes. The `New` prefix mirrors a proto oneof discriminator (existing-vs-new), not a TS-native concept.
+### 16. `NewPipelineSpec` type and `newPipelineSpec` field — `src/v1/model.ts:551,753`
+- **Why weird:** Proto-architectural leak on two axes. (1) `New` is a mid-position relativistic adjective (`Old`/`New`/`Legacy`/`Modern`) — type names should describe what a value *is*, not its temporal status relative to a peer (here, paired with `existingPipelineId`). The "newness" is only meaningful at the moment of creation; the same struct shape would describe an old pipeline equally well. (2) `Spec` is a generic suffix that appears twice in the package (also `SyncedTableSpec`) — see also finding #17 on repeated `Spec`/`Info` suffixes. The `New` prefix mirrors a proto oneof discriminator (existing-vs-new), not a TS-native concept.
 - **Category:** proto-architectural leak (forbidden mid adjective `New`), 15 (generic suffix `Spec`).
 - **Suggested name:** Type `PipelineCreationOptions` / `InlinePipelineConfig`; field `inlinePipeline` (paired with `existingPipelineId`). Drop the `New` adjective and the `Spec` suffix.
 - **Rationale:** The presence of `New` in a type name implies a corresponding `Old`/`Existing` type — which doesn't exist as a struct, only as a sibling string field. The asymmetry betrays the proto oneof.
 
-### 18. Repeated generic suffixes `*Spec` and `*Info` across the package — `src/v1/model.ts:436,551,575,723`
-- **Why weird:** Two `*Spec` types (`NewPipelineSpec`, `SyncedTableSpec`) and two `*Info` types (`DeltaTableSyncInfo`, `ProvisioningInfo`) coexist with no shared interface or contract. `Spec` and `Info` are generic stand-in nouns that proto / gRPC schemas overuse; they convey "this is a bag of fields" rather than the domain concept. `ProvisioningInfo` is empty (see #19); `DeltaTableSyncInfo` is a sync checkpoint (see #13); `SyncedTableSpec` is a sync pipeline configuration; `NewPipelineSpec` is creation-time pipeline options (see #17). Each of the four would read more clearly with a domain-specific suffix.
+### 17. Repeated generic suffixes `*Spec` and `*Info` across the package — `src/v1/model.ts:436,551,575,723`
+- **Why weird:** Two `*Spec` types (`NewPipelineSpec`, `SyncedTableSpec`) and two `*Info` types (`DeltaTableSyncInfo`, `ProvisioningInfo`) coexist with no shared interface or contract. `Spec` and `Info` are generic stand-in nouns that proto / gRPC schemas overuse; they convey "this is a bag of fields" rather than the domain concept. `ProvisioningInfo` is empty (see #18); `DeltaTableSyncInfo` is a sync checkpoint (see #13); `SyncedTableSpec` is a sync pipeline configuration; `NewPipelineSpec` is creation-time pipeline options (see #16). Each of the four would read more clearly with a domain-specific suffix.
 - **Category:** proto-architectural leak (repeated `Spec`/`Info` suffixes), 15 (generic nouns), 1 (vague).
-- **Suggested name:** `SyncedTableSpec` → `SyncedTableConfig` (still generic) or better `SyncPipelineDefinition`; `NewPipelineSpec` → `InlinePipelineConfig` (see #17); `DeltaTableSyncInfo` → `DeltaSyncCheckpoint` (per #13); `ProvisioningInfo` → drop (per #19). Goal: no two types in the package share a generic suffix.
+- **Suggested name:** `SyncedTableSpec` → `SyncedTableConfig` (still generic) or better `SyncPipelineDefinition`; `NewPipelineSpec` → `InlinePipelineConfig` (see #16); `DeltaTableSyncInfo` → `DeltaSyncCheckpoint` (per #13); `ProvisioningInfo` → drop (per #18). Goal: no two types in the package share a generic suffix.
 - **Rationale:** When `Spec` and `Info` appear repeatedly, the reader has to look up each one to know what it actually holds. Suffix-disambiguation is a proto smell that the TS surface inherits.
 
-### 19. `ProvisioningInfo` empty interface copied verbatim from another proto file — `src/v1/model.ts:570-575`
+### 18. `ProvisioningInfo` empty interface copied verbatim from another proto file — `src/v1/model.ts:570-575`
 - **Why weird:** Type declaration is literally `export interface ProvisioningInfo {}` with a comment "Copied over from managed-catalog/api/messages/common.proto to decouple SDK packages. xref go/unified-api-packages-dd". An empty interface — the type itself carries zero domain meaning. Only its nested `ProvisioningInfo_State` enum is used (referenced by `SyncedDatabaseTable.unityCatalogProvisioningState`); the empty parent is a vestigial proto namespace. The exported type name and its nested enum bleed Managed Catalog internals into the Lakebase SDK.
 - **Category:** proto-architectural leak (proto message preserved as empty TS interface for namespacing), 6 (misleading — exists but has no fields), 12 (cross-package proto leak).
 - **Suggested name:** Drop the empty `ProvisioningInfo` interface; rename `ProvisioningInfo_State` to `ProvisioningState` (or `UnityCatalogProvisioningState`, matching its sole use site). The empty interface is a generator artefact that should not surface.
@@ -133,43 +127,25 @@
 
 ## Low severity
 
-### 20. `ListDatabaseInstanceRolesRequest.pageToken` doc copy-pasta — `src/v1/model.ts:505`
-- **Why weird:** Doc says "Pagination token to go to the next page of Database Instances" — but this is roles, not instances. Doc-copy bug.
-- **Category:** 6 (misleading doc).
-- **Suggested name:** Fix the doc to say "roles".
-- **Rationale:** Naming-adjacent bug worth flagging.
-
-### 21. `ListDatabaseCatalogsRequest.pageToken` doc says "synced database tables" — `src/v1/model.ts:491`
-- **Why weird:** Same bug: catalogs request says "synced database tables" in doc.
-- **Category:** 6 (misleading doc).
-- **Suggested name:** Fix to "catalogs".
-- **Rationale:** Same as #20.
-
-### 22. `ListDatabaseInstanceRolesResponse.nextPageToken` doc says "next page of instances" — `src/v1/model.ts:514`
-- **Why weird:** Doc says "next page of instances" for the roles response.
-- **Category:** 6 (misleading doc).
-- **Suggested name:** Fix to "roles".
-- **Rationale:** Same as #20.
-
-### 23. `CreateDatabaseInstanceRoleRequest.databaseInstanceName` (field) vs `instanceName` (also field) on same request — `src/v1/model.ts:158-160`
+### 19. `CreateDatabaseInstanceRoleRequest.databaseInstanceName` (field) vs `instanceName` (also field) on same request — `src/v1/model.ts:158-160`
 - **Why weird:** Same struct exposes `instanceName` and `databaseInstanceName` — both strings, both presumably name an instance. Doc-less. Wire format makes `instanceName` the path parameter and `databaseInstanceName` a query parameter (visible in client.ts:181-184).
 - **Category:** 12 (duplicate concept), 17 (inconsistent naming for the same thing), 19 (underspecified ids).
 - **Suggested name:** One field. If protocol genuinely needs both, name them `instanceNamePath` / `instanceNameQuery` and add docs.
 - **Rationale:** Caller has to know the wire-encoding accident to decide which to set.
 
-### 24. `DeleteDatabaseInstanceRoleRequest.allowMissing` doc — `src/v1/model.ts:422-423`
+### 20. `DeleteDatabaseInstanceRoleRequest.allowMissing` doc — `src/v1/model.ts:422-423`
 - **Why weird:** Doc says "This is the AIP standard name for the equivalent of Postgres' `IF EXISTS` option". Two abstractions documented in the comment; the field name reads neither.
 - **Category:** 14 (Google-AIP naming convention leak).
 - **Suggested name:** `ignoreIfMissing` (mild). The current name comes from `google.aip.dev/135`, which is fine to keep — but acknowledge the convention.
 - **Rationale:** Internal-jargon leak; flag for awareness.
 
-### 25. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:78`
+### 21. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:78`
 - **Why weird:** Same as abacpolicies finding #32. `Segment` is generic; comment makes the meaning clear but the name doesn't.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Cross-package consistency.
 
-### 26. `StillRunningError` private error class — `src/v1/client.ts:83`
+### 22. `StillRunningError` private error class — `src/v1/client.ts:83`
 - **Why weird:** Class extends `Error` and is used only as a sentinel for retry detection (`err instanceof StillRunningError`). The name suggests it represents an operation state, not an error. Sentinel-as-error is OK in Go (`errors.Is`) but in JS the convention is a state enum or a custom Result.
 - **Category:** 14 (Go-style sentinel error), 6 (misleading — it's a control-flow signal, not an error).
 - **Suggested name:** `PollAgainSignal` / `OperationStillRunning` (still a class, but reads as state).
@@ -177,17 +153,12 @@
 
 ## Observations
 
-### 27. `client.ts` has a 5-line block-comment at line 633-638 explaining that the role APIs will never reach Public Preview
-The comment ("START OF PG ROLE APIs Section ... These APIs are marked a PUBLIC with stage < PUBLIC_PREVIEW. With more recent Lakebase V2 plans, we don't plan to ever advance these to PUBLIC_PREVIEW.") leaks internal lifecycle. It belongs in JSDoc on each role method as `@experimental` / `@internal`, not as a block-comment in the middle of the client.
-- **Category:** 6 (misleading: client exposes APIs that won't stabilise).
-- **Action:** Mark `createDatabaseInstanceRole`, `deleteDatabaseInstanceRole`, `getDatabaseInstanceRole`, `listDatabaseInstanceRoles`, `updateDatabaseInstanceRole` as `@experimental`.
-
-### 28. `findDatabaseInstanceByUid` is the only `findBy*` method
+### 23. `findDatabaseInstanceByUid` is the only `findBy*` method
 Every other lookup is `getX(req)`. This method exists because the API has a distinct route (`/instances:findByUid`) for UID-lookup vs `/instances/{name}`. The TS surface reflects the URL shape rather than the user's mental model.
 - **Category:** 17 (inconsistency with peer methods).
 
-### 29. Action-verb conventions in `Client` are consistent
-`create*` / `delete*` / `get*` / `list*` / `update*` / `findBy*` — verb prefixes are consistent. Lookup is `get` (good). No `fetch`/`retrieve`/`read` mixing.
+### 24. Action-verb conventions in `Client` are consistent
+`create*` / `delete*` / `get*` / `list*` / `findBy*` — verb prefixes are consistent. Lookup is `get` (good). No `fetch`/`retrieve`/`read` mixing.
 
 ## Domain glossary
 - `Lakebase` — Databricks' managed Postgres-as-a-service product (mentioned only in the buried client.ts:634 comment).

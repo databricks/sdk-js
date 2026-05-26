@@ -3,14 +3,14 @@
 **Path:** `packages/marketplaces/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Marketplace — provider-side and exchange-side operations for managing **listings** (the marketplace storefront entry for a dataset, model, notebook, app, MCP, partner integration, or git repo), **providers** (the publisher account), **exchanges** (curated, scoped collections of listings, including exchange filters that scope visibility by metastore), **personalization requests** (consumer-side requests for tailored access), **files** attached to listings/providers (icons, embedded notebooks, embedded markdown, commit drawdown attachments), and a separate **provider analytics dashboard** sub-resource (a Lakeview-backed dashboard for provider-side analytics).
-**Total weird names flagged:** 38 (38 still present, 0 newly fixed, 0 superseded).
+**Total weird names flagged:** 36 (36 still present, 0 newly fixed, 0 superseded).
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
 | Medium | 18 |
-| Low | 7 |
+| Low | 5 |
 | Observation | 5 |
 
 The marketplaces package remains one of the more naming-distressed surfaces in the SDK, though the dominant pre-existing problem — **inconsistent request-type naming** across the package — has been resolved by uniformly applying the `*Request`/`*Response` suffix to every operation type. Notable issues remaining include the overloaded vocabulary triad **Listing / Exchange / Provider** without disambiguation (an exchange filter is a metastore-id allowlist, an exchange listing is a join row between an exchange and a listing, a listing detail is the body of a listing, and a personalization request is a consumer-side action targeting a listing), the cryptic plural irregularities around the noun `Listings` (the `GetListingsRequest` and its proto-nested `_Response` payload field both use `listings`, while `CreateListingRequest` and `DeleteListingRequest` use the singular and `ListListingsForExchange` re-introduces the plural with a different field name `exchangeListings`), and the field `isFromLighthouse` referencing the internal-codename "Lighthouse" service in a public type.
@@ -593,64 +593,26 @@ Two adjective values. Fine. Flagged because the package also has `Personalizatio
 - **Suggested name:** No rename.
 - **Rationale:** Internal consistency check.
 
-### 32. `ProviderInfo.iconFilePath` vs `iconFileId` — id and path co-located
-
-**Location:** `src/v1/model.ts:776, 784`
-
-```ts
-iconFilePath?: string | undefined;
-...
-iconFileId?: string | undefined;
-```
-
-Same icon represented two ways — `iconFilePath` (a URL or storage path) and `iconFileId` (a Marketplace file id). The pairing repeats with `darkModeIconFileId` and `darkModeIconFilePath` (lines 787-788). No doc explains when to use which or whether one is derived from the other.
-- **Category:** 12 (duplicate concept), 17 (inconsistent — the relationship is implicit).
-- **Suggested name:** No rename; flag for doc clarification.
-- **Rationale:** Observation.
-
-### 33. Method docstring inconsistency — `client.ts`
-
-**Location:** `src/v1/client.ts:235, 266, 297, 326, 380, 437, 491, 542, 600, 628, 656, 735, 763, 789, 849, 927, 952, 986, 1015, 1041, 1070, 1096, 1125, 1154, 1186, 1211, 1239, 1264, 1292, 1320, 1345, 1370, 1400, 1425, 1479, 1539, 1567, 1624, 1675, 1732, 1790, 1847, 1875, 1929, 1957, 1983, 2012, 2041, 2073, 2102`
-
-```ts
-/** Associate an exchange with a listing */
-/** Create an exchange */
-/** Add an exchange filter. */
-/** Create a file. Currently, only provider icons and attached notebooks are supported. */
-/** Create a new listing */
-/** This removes a listing from marketplace. */
-/** Get provider analytics dashboard. */
-```
-
-Inconsistent docstring style:
-- Mix of trailing period ("Add an exchange filter.", "Create a file. ...") and no period ("Create an exchange", "Create a new listing").
-- Mix of imperative verbs ("Create", "Get", "Delete") and full sentences ("This removes a listing from marketplace.").
-- "Get provider analytics dashboard" appears on `listProviderAnalyticsDashboard` (line 1847) — verb mismatch (it's a list method but the doc says "Get").
-- "This removes a listing from marketplace" appears on `deleteExchange` (line 1186) — text describes the wrong concept (says "listing", method is `deleteExchange`).
-- **Category:** 17 (inconsistent action verbs / doc style), 6 (misleading: docstring text contradicts method name).
-- **Suggested name:** No rename; flag for doc consistency.
-- **Rationale:** Observation.
-
 ---
 
 ## Observations
 
-### 34. v1-only audit
+### 32. v1-only audit
 The marketplaces package has only v1 today (`packages/marketplaces/src/v1/`), so no v1↔v2 comparison to make.
 
-### 35. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:205`
+### 33. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:205`
 Same generic-name issue flagged in other audits — every package emits a `PACKAGE_SEGMENT` constant for User-Agent assembly. Cross-package consistency observation only.
 - **Category:** 1 (vague), 15 (generic name).
 
-### 36. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 34. `flattenQueryParams` — `src/v1/utils.ts:123`
 The helper is used by `client.ts` to flatten the `file_parent` nested query object in `listFiles`. Most other packages emit this helper unused; here it's actually used. Cross-package consistency observation.
 - **Category:** Observation.
 
-### 37. `readAll` — `src/v1/utils.ts:40`
+### 35. `readAll` — `src/v1/utils.ts:40`
 Internal helper, same as in other packages. Generic name (`io.ReadAll` Go idiom). Could be `readStreamToEnd` or `bufferStream`.
 - **Category:** 1 (vague), 14 (Go-style name).
 
-### 38. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 36. `HttpCallOptions` — `src/v1/utils.ts:15`
 Yet another `Options` suffix; `Options` (from `@databricks/sdk-core/api`) and `CallOptions` are also in scope. Could be `HttpCallContext`. Cross-package consistency observation.
 - **Category:** 1 (vague suffix), 17 (inconsistent).
 

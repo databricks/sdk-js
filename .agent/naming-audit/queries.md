@@ -3,7 +3,7 @@
 **Path:** `packages/queries/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace SQL queries — a stored, named SQL statement bound to a SQL warehouse, with parameterisable values, a "Run as" identity, visualizations attached to it, and a soft-delete (trash) lifecycle.
-**Total weird names flagged:** 21 (last rescanned 2026-05-26)
+**Total weird names flagged:** 20 (last rescanned 2026-05-26)
 
 ## Summary table
 
@@ -29,7 +29,6 @@
 | 18 | Medium | `model.ts` interface | `MultiValuesOptions` | Singular/plural mismatch — `MultiValueOptions` or `MultiSelectOptions` reads naturally |
 | 19 | Medium | `model.ts` field | `DateRangeValue.startDayOfWeek` | Underspecified type (int 0–6? string? Mon-first or Sun-first?) |
 | 20 | Low | `model.ts` fields | `pageToken`, `pageSize`, `nextPageToken` | Conventional; flagged for completeness only |
-| 21 | Low | `model.ts` JSDoc | snake_case identifiers in JSDoc (e.g. "`dynamic_date_value` or `date_value`") | Wire-format leakage into TS docstrings |
 
 ## High severity
 
@@ -308,19 +307,6 @@ startDayOfWeek?: number | undefined;
 
 Standard Google AIP-158 names. Flagged for completeness; no action recommended.
 
-### 21. snake_case in JSDoc — `dynamic_date_value`, `date_value`, etc.
-
-**Location:** `src/v1/model.ts:292`, `297`
-
-```ts
-/** Date query parameter value. Can only specify one of `dynamic_date_value` or `date_value`. */
-dateValue: DateValue;
-/** Date-range query parameter value. Can only specify one of `dynamic_date_range_value` or `date_range_value`. */
-dateRangeValue: DateRangeValue;
-```
-
-The JSDoc references wire-format field names (snake_case) but the user is writing TS code that uses camelCase (`dynamicDateValue`, `dateValue`). Wire-format leakage; doc should reference the TS oneof discriminator names.
-
 ## Cross-package overlap
 
 The four query-flavoured packages share concept space without sharing types:
@@ -342,13 +328,11 @@ Observations:
 
 1. **`Query` overload.** `Query` is one of the broadest words in any SQL SDK. This package's `Query` is a *saved* configuration; `queryexecution`'s implicit "query" is a *running statement*; `queryhistory`'s `QueryInfo` is a *historical record*. None reference each other. A future cleanup might rename this package's `Query` → `SavedQuery` or `WorkspaceQuery`.
 
-2. **Wire-format leakage in JSDoc.** snake_case identifiers appear in JSDoc (e.g. `dynamic_date_value`, `date_value`) — the docs reference protobuf field names while the user is writing camelCase TS.
+2. **Soft-delete verb is `trash`, not `delete`.** `trashQuery` and `LifecycleState.TRASHED` are the only places in the SDK using "trash." This will diverge from the rest of the resource lifecycle vocabulary as the SDK grows.
 
-3. **Soft-delete verb is `trash`, not `delete`.** `trashQuery` and `LifecycleState.TRASHED` are the only places in the SDK using "trash." This will diverge from the rest of the resource lifecycle vocabulary as the SDK grows.
+3. **Top-level type pollution.** `TextValue`, `NumericValue`, `EnumValue`, `DateValue`, `DateRange`, `DateRangeValue`, `MultiValuesOptions`, `Visualization` are all unprefixed and exported. A user importing `import { TextValue } from '@databricks/sdk-queries'` gets a generically-named type that competes with their own code.
 
-4. **Top-level type pollution.** `TextValue`, `NumericValue`, `EnumValue`, `DateValue`, `DateRange`, `DateRangeValue`, `MultiValuesOptions`, `Visualization` are all unprefixed and exported. A user importing `import { TextValue } from '@databricks/sdk-queries'` gets a generically-named type that competes with their own code.
-
-5. **`utils.ts` is well-named and unchanged.** Exports (`executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`) are domain-neutral and not flagged. `flattenQueryParams` is exported but unused in `client.ts` (orphaned export) — not a naming issue, but worth noting.
+4. **`utils.ts` is well-named and unchanged.** Exports (`executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`) are domain-neutral and not flagged. `flattenQueryParams` is exported but unused in `client.ts` (orphaned export) — not a naming issue, but worth noting.
 
 ## Domain glossary
 

@@ -22,17 +22,17 @@ covers three resources in one client:
 All three share the `TokenAccessPolicy` type for access/refresh-token
 TTL and session-rotation configuration. The package is the Databricks
 account-side complement to RFC 6749 client registration.
-**Total weird names flagged:** 5
+**Total weird names flagged:** 3
 
 ## Summary table
 
 | Severity | Count |
 | --- | --- |
-| High | 2 |
+| High | 1 |
 | Medium | 0 |
-| Low | 3 |
-| Observation | 2 |
-| **Total** | **5 (+ 2 observations)** |
+| Low | 2 |
+| Observation | 1 |
+| **Total** | **3 (+ 1 observation)** |
 
 The audit excludes the `OAuth*` brand-name spelling (RFC 6749 platform-name
 exception), `*_UNSPECIFIED` proto sentinels, `*_Response` proto-nested
@@ -49,28 +49,7 @@ template tokens, dead helper exports).
 
 ## High severity (must fix)
 
-### 1. Stale JSDoc cross-references to non-existent services — `client.ts:101, 137, 172, 203, 458, 493`
-- **Why:** Six method docs say "You can retrieve the … OAuth app
-  integration via `:method:CustomAppIntegration/get`" or
-  "`:method:PublishedAppIntegration/get`". Neither `CustomAppIntegration`
-  nor `PublishedAppIntegration` is exported by this package — the
-  consolidated `Client` exposes `getCustomOAuthAppIntegration` and
-  `getPublishedOAuthAppIntegration`. The `:method:Foo/bar` directive
-  is proto-doc cross-reference syntax that should have been rewritten
-  during generation. Anyone clicking through hits a broken reference,
-  and the doc text reads as if there is a separate sub-service that
-  doesn't exist.
-- **Category:** 6 (misleading documentation)
-- **Suggested:** Rewrite during generation to TS-link form, e.g.
-  `Client.getCustomOAuthAppIntegration` / `Client.getPublishedOAuthAppIntegration`,
-  rendered as a JSDoc `{@link}` tag. At minimum, drop the
-  proto-cross-reference syntax and inline the method name as plain
-  prose.
-- **Rationale:** Documentation that names APIs that do not exist is
-  worse than no documentation. The leak is a generator template
-  failing to rewrite proto-cross-reference syntax for TS output.
-
-### 2. `confidential` vs `isConfidentialClient` — same flag spelled two ways in one file — `model.ts:12, 55, 164`
+### 1. `confidential` vs `isConfidentialClient` — same flag spelled two ways in one file — `model.ts:12, 55, 164`
 - **Why:** The RFC 6749 §2.1 "confidential client" boolean flag appears
   three times in `model.ts`. On
   `CreateCustomOAuthAppIntegrationRequest.confidential` (line 12) and
@@ -124,28 +103,7 @@ _None._
   `Lifetime` is gratuitous — the JSDoc itself uses both
   interchangeably for one concept.
 
-### 2. `includeCreatorUsername` is a server-side join flag, cryptic without context — `model.ts:114`
-- **Why:** `ListCustomOAuthAppIntegrationsRequest.includeCreatorUsername`
-  is a boolean opt-in that does not appear on the sibling
-  `ListPublishedOAuthAppIntegrationsRequest` (line 124). The JSDoc
-  is empty. A caller writing both list calls in sequence cannot tell
-  why one has the option and the other does not. The flag's
-  semantics — "perform a server-side join to resolve the creator user
-  ID to their username" — are not visible from the name.
-- **Category:** 5 (cryptic — the flag's semantics are non-obvious
-  without external context)
-- **Suggested:** Keep the name (matches Go SDK convention) but
-  document the flag inline: "When `true`, the server resolves
-  `createdBy` to `creatorUsername` in each response row (extra
-  server-side lookup)." Decide whether the same option belongs on
-  the published-integration list endpoint, and add it for parity
-  if so.
-- **Rationale:** The default behaviour (omit username) is a
-  performance optimisation; callers should know enabling this is a
-  server-side join, and the asymmetry with the published-integration
-  list should be deliberate or removed.
-
-### 3. `Client` is a single generic export on a multi-resource package — `client.ts:69`
+### 2. `Client` is a single generic export on a multi-resource package — `client.ts:69`
 - **Why:** The package exports a single `Client` class whose
   responsibilities now span three resources (custom integrations,
   published integrations, published apps) and ten methods. A
@@ -166,16 +124,7 @@ _None._
 
 ## Observations (not flags)
 
-### O1. `<Databricks>` and `<Account>` template tokens leak into JSDoc — `model.ts:73, 76, 195`, `client.ts:285, 345, 402`
-- Six call sites in this package leave literal `<Databricks>` /
-  `<Account>` angle-bracket tokens in their JSDoc — they were meant
-  to be substituted with "Databricks" / "account" by the generator's
-  template engine. They render as broken-HTML angle-bracket sequences
-  in TypeScript hover popups and IDE doc views. Not a per-package
-  naming issue, but the leak is visible at every IDE hover. Tracked
-  at the project level.
-
-### O2. `flattenQueryParams` exported but unused — `utils.ts:123`
+### O1. `flattenQueryParams` exported but unused — `utils.ts:123`
 - The helper is exported from `utils.ts` but the three list endpoints
   in this package (`listCustomOAuthAppIntegrations`,
   `listPublishedOAuthAppIntegrations`, `listPublishedOAuthApps`) all
@@ -201,7 +150,7 @@ _None._
 - `confidential` / `isConfidentialClient` — RFC 6749 §2.1 client
   type. `true` means the client has a secret and authenticates
   itself; `false` means it is a public client and relies on PKCE.
-  Currently spelled two ways in this file (finding H2).
+  Currently spelled two ways in this file (finding H1).
 - `Custom` integration — Caller-defined OAuth client (caller-owned
   redirect URLs, scopes, secret).
 - `createdBy` — Numeric Databricks user ID of the registration
@@ -236,7 +185,7 @@ _None._
   `oauthcustomappintegration` and `oauthpublishedapp` packages into
   this single `@databricks/sdk-oauth` package. Former
   cross-package inconsistencies are now intra-package issues:
-  `confidential` vs `isConfidentialClient` (H2) and the shape of the
+  `confidential` vs `isConfidentialClient` (H1) and the shape of the
   `scopes` documented value space across the published and custom
   surfaces. The consolidation is reflected in the import list at
   `index.ts:7-31`, which now re-exports 25 types from one model file.

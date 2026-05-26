@@ -127,13 +127,13 @@
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Add the missing domain word.
 
-### 22. `Call` type + `call` variable — `src/v1/client.ts:96, 135, 169, 207, 226, 261, 297, 331, 393, 453, 491`
+### 19. `Call` type + `call` variable — `src/v1/client.ts:96, 135, 169, 207, 226, 261, 297, 331, 393, 453, 491`
 - **Why weird:** Same as `dataclassification` finding #24; variable named `call` of type `Call` repeated 11 times across the client.
 - **Category:** 1, 12.
 - **Suggested name:** `request` (variable) — reserve `Call` for the type.
 - **Rationale:** Type/variable collision is common in Go idioms; TS prefers distinct names.
 
-### 23. `req.objectId ?? ''` / `req.objectType ?? ''` URL composition — `src/v1/client.ts:93, 166, 206, 225, 259, 295, 382, 444, 482`
+### 20. `req.objectId ?? ''` / `req.objectType ?? ''` URL composition — `src/v1/client.ts:93, 166, 206, 225, 259, 295, 382, 444, 482`
 - **Why weird:** Same as `dataclassification` finding #25 — `objectType`/`objectId` typed optional but required in practice. Silently substitutes empty string producing malformed URLs like `/api/data-quality/v1/monitors//`.
 - **Category:** 6.
 - **Suggested name:** Make `objectType` and `objectId` non-optional on every request type that constructs a URL from them.
@@ -141,20 +141,20 @@
 
 ## Observations
 
-### 24. Heavy boilerplate dominates the file
+### 21. Heavy boilerplate dominates the file
 `model.ts` is 1030 lines for ~16 user-facing types; ~520 lines (~50%) are `marshal*` / `unmarshal*` / `*FieldMaskSchema` scaffolding. Same shape as every audited package.
 
-### 25. Action verbs in `Client`
+### 22. Action verbs in `Client`
 The client uses `Create`/`Get`/`Update`/`Delete`/`List`/`Cancel` for monitor and refresh operations. Verbs are consistent within the package. (Listed per rule 17 to note the absence of inconsistency.)
 
-### 26. Acronym casing
+### 23. Acronym casing
 Mixed conventions, all generator-emitted: `Id` (PascalCase-capital-then-lower in `objectId`, `refreshId`), `Ms` (capital-then-lower in `startTimeMs`), `Http` (capital-then-lower in `HttpClient`, `HttpRequest`), `URL`-style ALLCAPS only via the imported web standard `URLSearchParams`. No within-package collisions.
 - **Category:** 3 (acronym casing).
 
-### 27. Tense / nominalisation drift in enum naming
+### 24. Tense / nominalisation drift in enum naming
 `AnomalyDetection` (gerund), `DataProfiling` (gerund), `DataClassification` (noun) — at the package boundary the gerund/noun choice tracks the API team's preference. Within `dataquality` the choice is consistent (both gerunds), good.
 
-### 28. `dataquality` lowercase package name vs `data-quality` wire path vs `DataQuality` types
+### 25. `dataquality` lowercase package name vs `data-quality` wire path vs `DataQuality` types
 Same shape as the `dataclassification` casing observation (#32 in that package): directory is one collapsed word, types are PascalCase compounded, wire path is kebab. SDK-wide convention question, not local.
 - **Category:** 3 (casing inconsistency).
 

@@ -3,15 +3,15 @@
 **Path:** `packages/clusters/src/v2/`
 **Versions audited:** v2
 **Inferred domain:** Databricks Spark cluster lifecycle (create/edit/start/restart/resize/delete/permanent-delete/pin/unpin/update/get/list), node-type catalogue, Spark-version catalogue, availability zones, and cluster-policy compliance.
-**Total weird names flagged:** 48
+**Total weird names flagged:** 38
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 9 |
-| Medium | 21 |
-| Low | 10 |
-| Observation | 8 |
+| High | 8 |
+| Medium | 17 |
+| Low | 6 |
+| Observation | 7 |
 
 ## High severity
 
@@ -51,19 +51,13 @@
 - **Suggested name:** Rename to `NO_PUBLIC_IP_TUNNEL_*` or document `NPIP` in the enum docstring.
 - **Rationale:** Same as #5; SDK users should not need to know Databricks' internal acronyms.
 
-### 7. `TerminationCode.K8S_DBR_CLUSTER_LAUNCH_TIMEOUT` / `DBR_IMAGE_RESOLUTION_FAILURE` — `src/v2/model.ts:391,726`
-- **Why weird:** `DBR` ("Databricks Runtime") and `K8S` ("Kubernetes") used together with no expansion. JSDoc on line 390 says "DBR Cluster launched on K8s (i.e. CMv2)" — three acronyms in one sentence.
-- **Category:** 5 (cryptic abbreviation), 8 (jargon).
-- **Suggested name:** Expand acronyms in JSDoc minimum; consider renaming to `DATABRICKS_RUNTIME_CLUSTER_LAUNCH_TIMEOUT_KUBERNETES`.
-- **Rationale:** Internal SDK people read `DBR` daily; external consumers don't.
-
-### 8. `TerminationCode.AWS_INSUFFICIENT_FREE_ADDRESSES_IN_SUBNET_FAILURE` vs `GCP_IP_SPACE_EXHAUSTED` cross-cloud asymmetry — `src/v2/model.ts:379,590`
+### 7. `TerminationCode.AWS_INSUFFICIENT_FREE_ADDRESSES_IN_SUBNET_FAILURE` vs `GCP_IP_SPACE_EXHAUSTED` cross-cloud asymmetry — `src/v2/model.ts:379,590`
 - **Why weird:** AWS enum value is 52 characters; GCP equivalent is 22 chars — same concept, very different length. JSDoc at line 421 explicitly TODOs consolidating these.
 - **Category:** 17 (inconsistent across clouds).
 - **Suggested name:** `AWS_SUBNET_IP_EXHAUSTED` (mirror the GCP form).
 - **Rationale:** Per-cloud variants should follow the same shape; the AWS/GCP/Azure versions of the same condition should not differ in length by 30 characters.
 
-### 9. `TerminationCode.ALLOCATION_TIMEOUT_*` family — eight near-identical codes — `src/v2/model.ts:661-686`
+### 8. `TerminationCode.ALLOCATION_TIMEOUT_*` family — eight near-identical codes — `src/v2/model.ts:661-686`
 - **Why weird:** Eight `ALLOCATION_TIMEOUT_*` siblings all encode subtle internal scheduler states (e.g., `ALLOCATION_TIMEOUT_NO_HEALTHY_AND_WARMED_UP_CLUSTERS` at line 686).
 - **Category:** 12 (duplicate concept across eight near-identical codes).
 - **Suggested name:** Collapse the family into `ALLOCATION_TIMEOUT` with a structured sub-field (`reason: string`) on `TerminationReason.parameters`.
@@ -71,127 +65,103 @@
 
 ## Medium severity
 
-### 10. `Adlsgen2Info` casing — `src/v2/model.ts:917`
+### 9. `Adlsgen2Info` casing — `src/v2/model.ts:917`
 - **Why weird:** Type name is `Adlsgen2Info` — should be `AdlsGen2Info` to match acronym-casing rules. ADLS (Azure Data Lake Storage) Gen2 should retain the boundary between `Adls` and `Gen2`.
 - **Category:** 3 (acronym casing inconsistency), 1 (vague `Info` suffix).
 - **Suggested name:** `AdlsGen2Storage` (or just `AbfssStorage`, since the wire name is `abfss`).
 - **Rationale:** Compare to sibling types `DbfsStorageInfo`, `GcsStorageInfo`, `S3StorageInfo` — all use `Info` suffix and capitalize the storage product. `Adlsgen2Info` is the odd one out.
 
-### 11. `*StorageInfo` family naming inconsistency — `src/v2/model.ts:917,2101,2509,2875,3044,3391,3414`
+### 10. `*StorageInfo` family naming inconsistency — `src/v2/model.ts:917,2101,2509,2875,3044,3391,3414`
 - **Why weird:** `Adlsgen2Info` (no `Storage`), `DbfsStorageInfo`, `GcsStorageInfo`, `LocalFileInfo` (no `Storage`), `S3StorageInfo`, `VolumesStorageInfo`, `WorkspaceStorageInfo`. Seven sibling types; five say `StorageInfo`, two say `Info`.
 - **Category:** 17 (inconsistent suffix across siblings).
 - **Suggested name:** Standardise on `XStorage` (drop the redundant `Info`) — `AdlsGen2Storage`, `DbfsStorage`, `GcsStorage`, `LocalFileStorage`, `S3Storage`, `VolumesStorage`, `WorkspaceStorage`.
 - **Rationale:** All seven describe the same kind of thing (a storage destination). Either all of them get `StorageInfo` or none do.
 
-### 12. `ClusterCompliance` vs `*PolicyCompliance*` naming — `src/v2/model.ts:1253,2350,2361,2595,2812`
+### 11. `ClusterCompliance` vs `*PolicyCompliance*` naming — `src/v2/model.ts:1253,2350,2361,2595,2812`
 - **Why weird:** The package has `ClusterCompliance` (a result type), `GetPolicyComplianceForClusterRequest` (a request), `GetPolicyComplianceForClusterRequest_Response`, `EnforcePolicyComplianceForClusterRequest` (request), `ListClusterComplianceForPolicyRequest` (request — opposite direction). Each combines `Policy`/`Cluster`/`Compliance` in a different order. Reading them, it's not obvious which is "policies compliant with cluster" vs "clusters compliant with policy". The verb `For` is the disambiguator — fragile.
 - **Category:** 1 (vague — `For` is the only disambiguator), 6 (misleading — easy to mis-parse).
 - **Suggested name:** `GetClusterPolicyComplianceRequest`, `EnforceClusterPolicyComplianceRequest`, `ListPolicyCompliantClustersRequest`, `ClusterPolicyCompliance`.
 - **Rationale:** Put the noun before the preposition; the `For` framing reads like SQL and is order-sensitive.
 
-### 13. `hasChanges` field — `src/v2/model.ts:2366`
+### 12. `hasChanges` field — `src/v2/model.ts:2366`
 - **Why weird:** Boolean on `EnforcePolicyComplianceForClusterRequest_Response` named `has*` next to `changes: ClusterSettingsChange[]`. `hasChanges` is true iff `changes.length > 0` — redundant signal.
 - **Category:** 12 (duplicate signal), 1 (vague).
 - **Suggested name:** Drop the field, infer from `changes.length`.
 - **Rationale:** Two ways to express the same predicate is one too many. Worth flagging upstream.
 
-### 14. `useMlRuntime` field — `src/v2/model.ts:1210`
+### 13. `useMlRuntime` field — `src/v2/model.ts:1210`
 - **Why weird:** Boolean prefixed `use*`. Doc says "This field can only be used when kind = CLASSIC_PREVIEW". Mixed with the broader `runtimeEngine` enum field; two fields combine to determine the runtime. `useMlRuntime: boolean` next to `runtimeEngine: RuntimeEngine` — incongruent shape.
 - **Category:** 1 (vague — `use` prefix); 6 (misleading — looks like a generic feature toggle but is conditional on `kind`); 17 (boolean + enum for the same concept).
 - **Suggested name:** Either fold into `runtimeEngine` (add `ML` value) or rename `useMlRuntime` to `mlRuntimeEnabled` for consistency.
 - **Rationale:** A boolean and an enum jointly describing one runtime selection is a boolean-shaped-enum smell.
 
-### 15. `isSingleNode` field — `src/v2/model.ts:1216`
-- **Why weird:** Boolean field that, when true, automatically sets `custom_tags`, `spark_conf`, and `num_workers`. Doc admits the surprise: "When set to true, Databricks will automatically set single node related custom_tags, spark_conf, and num_workers." A field that secretly mutates three others is a footgun.
-- **Category:** 6 (misleading — hidden side effects).
-- **Suggested name:** Name is fine, but document the side effects in the type-level JSDoc, not just the field doc.
-- **Rationale:** Flag for upstream — the boolean is doing more than the name suggests.
-
-### 16. `WorkloadType` vs `runtimeEngine` vs `kind` vs `dataSecurityMode` — overlap of "cluster mode"-ish fields
+### 14. `WorkloadType` vs `runtimeEngine` vs `kind` vs `dataSecurityMode` — overlap of "cluster mode"-ish fields
 - **Why weird:** Four fields all describe some aspect of "what kind of cluster this is": `workloadType` (notebooks/jobs), `runtimeEngine` (STANDARD/PHOTON), `kind` (CLASSIC_PREVIEW or unset), `dataSecurityMode` (NONE/SINGLE_USER/USER_ISOLATION/…). Each is a separate optional enum/object. The names don't cluster well.
 - **Category:** 12 (duplicate concept across fields), 1 (vague — `kind` and `workloadType` both could mean either thing).
 - **Suggested name:** Consider grouping under a `clusterMode` substructure, or at least documenting the relationships.
 - **Rationale:** Domain-level — flag to upstream that four overlapping enum/struct fields make the API hard to learn.
 
-### 17. `NodeInstanceType.localDiskSizeGb` / `localNvmeDiskSizeGb` ordering — `src/v2/model.ts:2910,2912`
+### 15. `NodeInstanceType.localDiskSizeGb` / `localNvmeDiskSizeGb` ordering — `src/v2/model.ts:2910,2912`
 - **Why weird:** `localDisks`, then `localDiskSizeGb`, then `localNvmeDiskSizeGb`, then `localNvmeDisks` — the size of the nvme disks comes before the count of nvme disks, and the size of the regular disks comes between regular and nvme. Pairings are scrambled.
 - **Category:** 17 (inconsistent grouping).
 - **Suggested name:** Reorder fields, or rename to make the pairs clear: `localDiskCount`/`localDiskSizeGb`, then `localNvmeDiskCount`/`localNvmeDiskSizeGb`.
 - **Rationale:** Within the same type, related fields should sit together.
 
-### 18. `ListAvailableZonesRequest_Response.defaultZone` — `src/v2/model.ts:2809`
-- **Why weird:** JSDoc says "The availability zone if no `zone_id` is provided in the cluster creation request." The doc references `zone_id` (the wire name) instead of the TS `zoneId`. Other docstrings in the package also reference `zone_id`, `cluster_id`, `cluster_log_conf`, `init_scripts`, etc.
-- **Category:** Observation — generated docs reference wire names rather than TS names.
-- **Suggested name:** Update doc-comment generation to use TS names.
-- **Rationale:** Inconsistent doc/identifier pairing makes IntelliSense suggestions look out-of-date.
-
-### 19. `LogAnalyticsInfo` no JSDoc — `src/v2/model.ts:2880`
-- **Why weird:** `LogAnalyticsInfo` has two fields (`logAnalyticsWorkspaceId`, `logAnalyticsPrimaryKey`), both un-documented. The type itself has no JSDoc. Used only by `AzureAttributes.logAnalyticsInfo`.
-- **Category:** Observation (no naming issue per se, but missing context).
-- **Suggested name:** Keep `LogAnalyticsInfo` (Azure Monitor terminology) but add a JSDoc; consider `AzureLogAnalyticsConfig`.
-- **Rationale:** Both fields are Azure-specific; naming should signal that.
-
-### 20. `clusterLogStatus` field — `src/v2/model.ts:1330`
+### 16. `clusterLogStatus` field — `src/v2/model.ts:1330`
 - **Why weird:** Type is `LogSyncStatus` but field is `clusterLogStatus`. Type and field have different mental models (`LogSync` vs `ClusterLog`).
 - **Category:** 6 (misleading — type and field name don't match the same concept).
 - **Suggested name:** Either rename the type to `ClusterLogStatus` or the field to `logSyncStatus`.
 - **Rationale:** Same concept, two different names in 5 lines.
 
-### 21. `jdbcPort` field — `src/v2/model.ts:1358`
+### 17. `jdbcPort` field — `src/v2/model.ts:1358`
 - **Why weird:** All-lowercase acronym fragment. The package consistently uses Pascal-form for acronyms in identifiers elsewhere (`awsAttributes`, `gcpAttributes`, `ebsVolumeType`, `kmsKey`). `JdbcPort` would match.
 - **Category:** 3 (acronym casing inconsistency).
 - **Suggested name:** `JdbcPort` (TS: `jdbcPort` is conventional in camelCase; flagged because the doc-text says "Spark JDBC server" — capitalisation in JSDoc says JDBC, identifier says jdbc).
-- **Rationale:** Per the package conventions (`Aws`, `Gcp`, `Ebs`, `Kms`), `Jdbc` is actually consistent — but `Dns`, `Ip`, `Url`, `Iam`, `Vm` are inconsistent across the model (see #22).
+- **Rationale:** Per the package conventions (`Aws`, `Gcp`, `Ebs`, `Kms`), `Jdbc` is actually consistent — but `Dns`, `Ip`, `Url`, `Iam`, `Vm` are inconsistent across the model (see #18).
 
-### 22. Pervasive acronym-casing inconsistency (`Aws`, `Gcp`, `Ebs`, `Kms` vs `IP`, `DNS`, `URL`, `IAM`, `VM`) — across `model.ts`
+### 18. Pervasive acronym-casing inconsistency (`Aws`, `Gcp`, `Ebs`, `Kms` vs `IP`, `DNS`, `URL`, `IAM`, `VM`) — across `model.ts`
 - **Why weird:** The TS code uses PascalCase initial-capital for some acronyms (`Aws`, `Azure`, `Gcp`, `Ebs`, `Kms`, `Adls`, `Gcs`, `Dbfs`, `Acl`, `Arn`) but JSDoc and string constants use all-caps (`AWS`, `Azure`, `GCP`, `EBS`, `KMS`). Within enum values, all-caps wins (`AWS_AUTHORIZATION_FAILURE`). Type names mix: `AwsAttributes` but `S3StorageInfo` (S3 is all-caps). Field names mix: `privateIp` (lowercase ip), `publicDns` (lowercase dns), `kmsKey` (lowercase kms).
 - **Category:** 3 (acronym casing inconsistency).
 - **Suggested name:** Pick one rule. Google TS style guide allows either `httpRequest` or `HTTPRequest` but requires consistency.
 - **Rationale:** This is the single highest-friction naming issue across the package — every reader stumbles on it.
 
-### 23. `S3StorageInfo.cannedAcl: string` — `src/v2/model.ts:3079`
+### 19. `S3StorageInfo.cannedAcl: string` — `src/v2/model.ts:3079`
 - **Why weird:** `Acl` is AWS terminology; field is typed `string` rather than a `CannedAcl` enum despite AWS having a fixed canned-ACL list. JSDoc says "Set canned access control list for the logs, e.g. `bucket-owner-full-control`". Also note `cannedCal` typo in the doc body — likely meant `cannedAcl`.
 - **Category:** 5 (cryptic abbreviation — `acl`), 16 (typed as string but values are enum-like), 3 (acronym casing — should it be `cannedACL`?).
 - **Suggested name:** Type as an enum (`CannedS3Acl`); field `cannedAcl` is fine.
 - **Rationale:** Typing as string surfaces every user's typo as a runtime failure when an enum would catch at compile time.
 
-### 24. `S3StorageInfo.enableEncryption` + `encryptionType` + `kmsKey` — `src/v2/model.ts:3062,3067,3069`
+### 20. `S3StorageInfo.enableEncryption` + `encryptionType` + `kmsKey` — `src/v2/model.ts:3062,3067,3069`
 - **Why weird:** Three independent fields encoding what could be one discriminated union: `enableEncryption=false` → no encryption; `enableEncryption=true, encryptionType='sse-s3'` → SSE-S3; `enableEncryption=true, encryptionType='sse-kms', kmsKey='...'` → SSE-KMS. Cross-field invariants encoded by convention.
 - **Category:** 12 (duplicate concepts), 17 (could be a tagged union).
 - **Suggested name:** Either nest these as a `S3Encryption` discriminated union, or rename to make the dependency explicit (`encryption: 'none' | 'sse-s3' | 'sse-kms'`).
 - **Rationale:** Three booleans/strings tangled — easier API would be one discriminated field.
 
-### 25. `S3StorageInfo.region` / `endpoint` mutually-exclusive pair — `src/v2/model.ts:3055,3060`
+### 21. `S3StorageInfo.region` / `endpoint` mutually-exclusive pair — `src/v2/model.ts:3055,3060`
 - **Why weird:** JSDoc explicitly says "Either region or endpoint needs to be set. If both are set, endpoint will be used." Mutually-exclusive fields not encoded in the type.
 - **Category:** 16 (field-pair constraint not in the type).
 - **Suggested name:** Could be a discriminated union `{kind: 'region', value: string} | {kind: 'endpoint', value: string}`.
 - **Rationale:** Type-system-encodable constraint; flagged for upstream.
 
-### 26. `SparkInfo` empty interface as proto namespace anchor — `src/v2/model.ts:3087`
+### 22. `SparkInfo` empty interface as proto namespace anchor — `src/v2/model.ts:3087`
 - **Why weird:** `SparkInfo` is declared as an empty interface (`export interface SparkInfo {}`) whose JSDoc literally says "This is used in both the [[ClusterInfo]] for Cluster APIs and persisted cluster proto." Its only purpose is to namespace `SparkInfo_SparkNode` and `SparkInfo_SparkNode_SparkNodeAwsAttributes`. Empty wrapper types tied to "persisted cluster proto" are pure proto-architectural leak — the TS surface carries a do-nothing type just to mirror proto message nesting.
 - **Category:** 14 (proto-style namespace anchor), 8 (JSDoc references the proto wire layer).
 - **Suggested name:** Delete `SparkInfo`; expose `SparkNode` (and `SparkNodeAwsAttributes`) as top-level types.
 - **Rationale:** TS doesn't need proto-style nesting; the empty parent interface is a generator artefact and a user-facing footgun (auto-completion shows a useless symbol).
 
-### 27. `ClusterEventType` empty interface as proto namespace anchor — `src/v2/model.ts:1286`
-- **Why weird:** `export interface ClusterEventType {}` is declared empty solely so the generator can nest the enum `ClusterEventType_ClusterEventType` under it. The doubly-nested `ClusterEventType_ClusterEventType` name (see #29) is the smoking gun — the parent exists only to host the child.
+### 23. `ClusterEventType` empty interface as proto namespace anchor — `src/v2/model.ts:1286`
+- **Why weird:** `export interface ClusterEventType {}` is declared empty solely so the generator can nest the enum `ClusterEventType_ClusterEventType` under it. The doubly-nested `ClusterEventType_ClusterEventType` name (see #24) is the smoking gun — the parent exists only to host the child.
 - **Category:** 14 (proto-style namespace anchor).
 - **Suggested name:** Delete `ClusterEventType` (the parent) and flatten the enum to a top-level `ClusterEventType` enum. The empty wrapper adds no value.
-- **Rationale:** Same as #26 — TS does not have proto's "message that contains an enum" pattern; the wrapper is a generator artefact.
+- **Rationale:** Same as #22 — TS does not have proto's "message that contains an enum" pattern; the wrapper is a generator artefact.
 
-### 28. JSDoc text `"Proto defined to model a mapping from string to string."` — `src/v2/model.ts:1266,2615`
-- **Why weird:** Two JSDoc strings literally start with "Proto defined to model...". The word "Proto" leaks the wire encoding into the TS user surface; the rest of the sentence (a `Record<string, string>`) is generic boilerplate that ships as the only documentation for these `*Entry` types.
-- **Category:** 14 (proto vocabulary in public-facing docs).
-- **Suggested name:** Rewrite the JSDoc to describe the field semantics in TS terms (e.g., "Key-value pairs of policy violations, keyed by field path.").
-- **Rationale:** A TS SDK doc should not say "Proto defined to" — that exposes the implementation strategy. Users see "Proto" in IntelliSense and wonder if they need a proto library.
-
-### 29. `ClusterEventType_ClusterEventType` doubly-nested enum name — `src/v2/model.ts:749`
-- **Why weird:** Enum named `ClusterEventType_ClusterEventType` — the same identifier repeated on both sides of the proto-nesting separator. This is a generator artefact when a proto message named `ClusterEventType` contains a nested enum also named `ClusterEventType`. In TS, the parent message (#27) is empty, so the doubly-stuttered name carries no information.
+### 24. `ClusterEventType_ClusterEventType` doubly-nested enum name — `src/v2/model.ts:749`
+- **Why weird:** Enum named `ClusterEventType_ClusterEventType` — the same identifier repeated on both sides of the proto-nesting separator. This is a generator artefact when a proto message named `ClusterEventType` contains a nested enum also named `ClusterEventType`. In TS, the parent message (#23) is empty, so the doubly-stuttered name carries no information.
 - **Category:** 14 (proto nesting stutter), 4 (redundant repetition).
 - **Suggested name:** `ClusterEventType` (single, top-level).
-- **Rationale:** After deleting the empty parent (#27), the child can drop the `ClusterEventType_` prefix entirely.
+- **Rationale:** After deleting the empty parent (#23), the child can drop the `ClusterEventType_` prefix entirely.
 
-### 30. `DataPlaneEventDetails` / `DataPlaneClusterEventType` — control-plane vs data-plane infrastructure naming — `src/v2/model.ts:73,2093`
+### 25. `DataPlaneEventDetails` / `DataPlaneClusterEventType` — control-plane vs data-plane infrastructure naming — `src/v2/model.ts:73,2093`
 - **Why weird:** "Data plane" is an internal Databricks infrastructure concept (vs "control plane") — not a customer-facing domain term. Two public types prefix their names with the deployment-plane they originate from. A user creating a cluster does not need to know which plane emitted which event class; the distinction is a Databricks-internal architecture detail.
 - **Category:** 8 (internal architecture leak in public surface).
 - **Suggested name:** Either merge into a single `ClusterEventType` enum / `EventDetails` shape, or rename to a non-infrastructure word (e.g., `RuntimeEventDetails`).
@@ -199,61 +169,37 @@
 
 ## Low severity
 
-### 31. `dockerImage` field comment `"Custom docker image BYOC"` — `src/v2/model.ts:1177,1468,1663,2012,2271,3314`
-- **Why weird:** JSDoc abbreviation `BYOC` (Bring Your Own Container) used without expansion. Appears six times in the model.
-- **Category:** 5 (cryptic abbreviation in JSDoc).
-- **Suggested name:** N/A — fix the comment, not the identifier.
-- **Rationale:** Quick doc fix.
-
-### 32. `ClusterInfo.sparkContextId: number` — `src/v2/model.ts:1353`
+### 26. `ClusterInfo.sparkContextId: number` — `src/v2/model.ts:1353`
 - **Why weird:** Field is named `sparkContextId` but typed as `number`. Other IDs in the model are strings (`clusterId`, `policyId`, `nodeTypeId`). Internal Spark context IDs are 64-bit ints — the type clash hints at potential JS number-precision issues for large IDs.
 - **Category:** 19 (underspecified ID — different type from sibling IDs).
 - **Suggested name:** Keep but consider `bigint` typing or document the precision risk.
 - **Rationale:** JS number safe-integer range is 2^53; if Spark uses 64-bit IDs, this is a latent bug.
 
-### 33. `DockerImage.credsOneof` field name — `src/v2/model.ts:2124`
+### 27. `DockerImage.credsOneof` field name — `src/v2/model.ts:2124`
 - **Why weird:** `credsOneof` is a discriminated-union container with a single `$case: 'basicAuth'` variant. The `Oneof` suffix leaks proto terminology; `Creds` is an abbreviation of `Credentials`.
 - **Category:** 5 (cryptic abbreviation), 14 (proto-style `Oneof`).
 - **Suggested name:** `credentials` (singular).
 - **Rationale:** TS doesn't need to keep the `Oneof` suffix from proto.
 
-### 34. `DockerBasicAuth.username` / `password` — `src/v2/model.ts:2116,2118`
-- **Why weird:** Doc strings are "Name of the user" and "Password of the user" — generic and add no information beyond the field names.
-- **Category:** Observation (low-quality docstrings).
-- **Suggested name:** No rename; flag doc-quality.
-- **Rationale:** Minor.
-
-### 35. `AwsAttributes.spotBidPricePercent: number` — `src/v2/model.ts:981`
+### 28. `AwsAttributes.spotBidPricePercent: number` — `src/v2/model.ts:981`
 - **Why weird:** Field is a percentage but typed as `number` (no unit hint). Compare `AzureAttributes.spotBidMaxPrice: number` (`model.ts:1041`) — Azure version uses a raw price, AWS uses a percentage. Different semantics, same `number` type.
 - **Category:** 17 (sibling AWS/Azure shapes differ), 1 (`number` without unit suffix).
 - **Suggested name:** `spotBidPricePercent` is fine; flag for upstream — the AWS/Azure semantics should be more discoverable from the model.
 - **Rationale:** Cross-cloud asymmetry is a domain concern.
 
-### 36. `AzureAttributes.spotBidMaxPrice` JSDoc reference to `>0 or -1` magic numbers — `src/v2/model.ts:1041`
+### 29. `AzureAttributes.spotBidMaxPrice` JSDoc reference to `>0 or -1` magic numbers — `src/v2/model.ts:1041`
 - **Why weird:** Magic value `-1` overloaded as "do not evict on price basis". Encoded in JSDoc, not in the type.
 - **Category:** 16 (sentinel value in scalar field), Observation.
 - **Suggested name:** N/A; flag for upstream to consider a sentinel enum or `null`.
 - **Rationale:** Sentinels in scalar fields are old-school API design.
 
-### 37. `GcpAttributes.usePreemptibleExecutors` deprecated field — `src/v2/model.ts:2458`
-- **Why weird:** JSDoc says "Note: Soon to be deprecated, use the 'availability' field instead." But the field is not actually marked `@deprecated`.
-- **Category:** Observation — missing `@deprecated`.
-- **Suggested name:** Add `@deprecated` JSDoc tag.
-- **Rationale:** Tooling can pick up `@deprecated`; "Note: Soon to be deprecated" is invisible to IDEs.
-
-### 38. `ChangeClusterOwnerRequest.ownerUsername` field docstring — `src/v2/model.ts:1047`
-- **Why weird:** Doc says "New owner of the cluster_id after this RPC." `RPC` jargon leaks. `cluster_id` is the wire name; should be `clusterId`.
-- **Category:** Observation (doc quality), 5 (RPC jargon).
-- **Suggested name:** Update doc text.
-- **Rationale:** Minor doc fix.
-
-### 39. `EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange.previousValue` / `newValue` — `src/v2/model.ts:2390,2397`
+### 30. `EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange.previousValue` / `newValue` — `src/v2/model.ts:2390,2397`
 - **Why weird:** Both fields typed as `string`. JSDoc says values are "either a number, a boolean, or a string converted to a string." Pre-stringified union encoded as plain string — caller must re-parse.
 - **Category:** 16 (type contradicts domain — it's actually `number | boolean | string` flattened to string).
 - **Suggested name:** Type as `string | number | boolean`, or `previousValueRaw`.
 - **Rationale:** Documents the stringification rather than hiding it.
 
-### 40. `AutoScale` type name — `src/v2/model.ts:922`
+### 31. `AutoScale` type name — `src/v2/model.ts:922`
 - **Why weird:** PascalCase `AutoScale` is two words. Compare to `autoscale` field (lowercase, one word) and `autoterminationMinutes` (lowercase, one word). The type name is the outlier.
 - **Category:** 3 (casing inconsistency), 17 (within-package inconsistency).
 - **Suggested name:** `Autoscale` (one word, matching the field).
@@ -261,38 +207,34 @@
 
 ## Observations
 
-### 41. Seven Waiter classes with identical shape — `client.ts:967-1523`
+### 32. Seven Waiter classes with identical shape — `client.ts:967-1523`
 The file declares `CreateClusterWaiter`, `DeleteClusterWaiter`, `EditClusterWaiter`, `ResizeClusterWaiter`, `RestartClusterWaiter`, `StartClusterWaiter`, `UpdateClusterWaiter` — 557 lines. The only variation between them is the set of terminal `ClusterState` values they accept (e.g., `CreateClusterWaiter` treats `RUNNING` as success and `TERMINATED` as failure; `DeleteClusterWaiter` does the opposite). The rest is copy-pasted.
 - **Category:** 12 (duplicate concept across seven classes), Observation.
 - **Suggested:** A generic `ClusterStateWaiter` parameterised by the success/failure state sets would shrink this to ~80 lines.
 
-### 42. `_req` parameter for empty request types — `client.ts:404,486,514`
+### 33. `_req` parameter for empty request types — `client.ts:404,486,514`
 Several methods take a `_req: ListAvailableZonesRequest` / `_req: ListNodeTypesRequest` / `_req: GetSparkVersionsRequest` parameter even though the request types are empty (`{}`). The underscore prefix avoids the unused-arg lint warning. Indicates the generator does not collapse empty requests.
 - **Category:** Observation (generator artefact).
 
-### 43. `ResizeClusterRequest` / `RestartClusterRequest` requests are partial overlaps
+### 34. `ResizeClusterRequest` / `RestartClusterRequest` requests are partial overlaps
 `ResizeClusterRequest` carries `clusterId` and `size`; `RestartClusterRequest` carries `clusterId` and `restartUser`; `StartClusterRequest` carries only `clusterId`. Three near-identical types; could be one.
 - **Category:** 12 (duplicate concept), Observation.
 
-### 44. `_req` unused vs `req` used — inconsistency in method-signature lint
+### 35. `_req` unused vs `req` used — inconsistency in method-signature lint
 Three client methods use `_req` (where the request type is empty), the rest use `req` (where it's not). Pure mechanical.
 - **Category:** Observation.
 
-### 45. `clusterId?: string | undefined` shape
+### 36. `clusterId?: string | undefined` shape
 Every request type that targets a cluster has `clusterId?: string | undefined`. `?` (optional) plus `undefined` is the explicit-undefined style used throughout. But `clusterId` is semantically required for many operations (delete, edit, restart, etc.). Marking it optional means the runtime check `if (req.clusterId === undefined) throw new Error(...)` appears in every waiter constructor (`client.ts:258,304,357,641,683,733,817`).
 - **Category:** 6 (misleading optional — should be required), Observation.
 
-### 46. `executeCall` / `executeHttpCall` (`utils.ts:26,65`)
+### 37. `executeCall` / `executeHttpCall` (`utils.ts:26,65`)
 Two functions whose names differ only by `Http`. Same pair-naming concern flagged in `abacpolicies.md` audit (item #36 there).
 - **Category:** 1 (vague), 17 (inconsistent), Observation.
 
-### 47. `flattenQueryParams` exported but unused (`utils.ts:123`)
+### 38. `flattenQueryParams` exported but unused (`utils.ts:123`)
 The function is exported but `client.ts` never calls it. (Cluster v2 endpoints with query params do it inline.) Same observation as in `abacpolicies.md`.
 - **Category:** Observation (dead public surface).
-
-### 48. JSDoc placeholder `<Databricks>` — pervasive
-Throughout the model, JSDocs say `<Databricks>` (e.g., `model.ts:1128` — "Databricks will tag all cluster resources..."). Looks like an un-substituted templated brand placeholder. Reader sees `<Databricks>` in IntelliSense.
-- **Category:** Observation (doc-quality artefact in generator).
 
 ## Domain glossary
 

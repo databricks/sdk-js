@@ -22,10 +22,10 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | Severity     | Count |
 | ------------ | ----- |
 | High         | 8     |
-| Medium       | 2     |
-| Low          | 12    |
-| Observation  | 7     |
-| **Total**    | **29**|
+| Medium       | 1     |
+| Low          | 8     |
+| Observation  | 5     |
+| **Total**    | **22**|
 
 ### Top themes
 
@@ -128,12 +128,10 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | C-01  | `DockerImage.credsOneof`            | High (also V-01) | `creds` and `Oneof` are both opaque outside Go/proto context. |
-| C-02  | `BYOC` in JSDoc `"Custom Docker Image BYOC"` (`model.ts:141, 323, 445, 574`) | Medium | "Bring Your Own Container" not expanded. External readers will not know. |
-| C-03  | `EbsVolumeType` (acronym in name)   | Low      | EBS = Elastic Block Store. Well-known among AWS users; OK. |
-| C-04  | `LRS` in `AzureDiskVolumeType.PREMIUM_LRS` / `STANDARD_LRS` | Low | "Locally Redundant Storage" — standard Azure term. JSDoc explains; OK. |
-| C-05  | `req`, `resp`, `httpReq`, `respBody` locals in `client.ts` | Low | Method-local; OK. |
-| C-06  | `opts` (`utils.ts:66`)              | Low      | Inside function scope; OK. |
-| C-07  | `Mb/s` in JSDoc `"configurable throughput (in Mb/s)"` (`model.ts:161, 343, 465, 594`) | Low | Likely intended `MB/s` (megabytes per second) given the cloud-disk-throughput context; `Mb/s` (megabits) is unusual for disk throughput. Possible casing typo upstream. |
+| C-02  | `EbsVolumeType` (acronym in name)   | Low      | EBS = Elastic Block Store. Well-known among AWS users; OK. |
+| C-03  | `LRS` in `AzureDiskVolumeType.PREMIUM_LRS` / `STANDARD_LRS` | Low | "Locally Redundant Storage" — standard Azure term. JSDoc explains; OK. |
+| C-04  | `req`, `resp`, `httpReq`, `respBody` locals in `client.ts` | Low | Method-local; OK. |
+| C-05  | `opts` (`utils.ts:66`)              | Low      | Inside function scope; OK. |
 
 ### 2.4 Misleading names — High
 
@@ -142,10 +140,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | M-01  | `editInstancePool()` / `EditInstancePoolRequest` | Medium | Conventional REST/CRUD verb in TS is **update**. `clusterpolicies` (audit #M-01) and `clusters` make the same choice for the wire path `/edit`. Across-package inconsistency: most newer Databricks APIs use `update*`. Flag for upstream alignment. |
 | M-02  | `InstancePoolStatus`                | High     | The type carries *only* `pendingInstanceErrors`. The name promises a general "status" but the shape exposes only errors. `InstancePoolPendingErrors` or `InstancePoolFailures` would be more truthful. (`InstancePoolState` is the actual lifecycle state, on the entity itself.) |
 | M-03  | `InstancePoolAndStats`              | High     | The "AndStats" suffix implies it carries the pool *plus* statistics, but the type also carries `status`, `state`, `defaultTags`, and all 28 configuration fields. The "And" naming pattern is a Go-style listing-result idiom — TS readers expect just a single entity name. Consider `InstancePoolSummary` or `InstancePoolListEntry`. |
-| M-04  | `DiskSpec.diskIops` (no JSDoc) and `diskSpec.diskThroughput` (no JSDoc) — `model.ts:239-240` | Low | Two fields with no JSDoc. Hard to know the unit without context. (Compare neighbouring `diskSize` which documents "GiB".) |
-| M-05  | `preloadedDockerImages` is plural but JSDoc says "Custom Docker Image BYOC" (singular) — `model.ts:141, 323, 445, 574` | Low | Field is `DockerImage[]`. Plural correctly matches type, but the JSDoc is misleading. |
-| M-06  | `preloadedSparkVersions: string[]` with JSDoc "A list containing at most one preloaded Spark image version" | High | Type is `string[]` but the JSDoc enforces a max length of 1. If only one value is allowed, the field should be `preloadedSparkVersion?: string` (singular). The array shape misleads callers into thinking they can pass several. |
-| M-07  | `InstancePoolStats.usedCount` / `idleCount` / `pendingUsedCount` / `pendingIdleCount` | Low | Adequate, but `usedCount` is ambiguous about what "used" means. JSDoc clarifies ("part of a cluster") — without it, readers might think "used = ever used". |
+| M-04  | `preloadedSparkVersions: string[]` with JSDoc "A list containing at most one preloaded Spark image version" | High | Type is `string[]` but the JSDoc enforces a max length of 1. If only one value is allowed, the field should be `preloadedSparkVersion?: string` (singular). The array shape misleads callers into thinking they can pass several. |
 
 ### 2.5 Overly verbose / Redundant suffixes — Low
 
@@ -157,7 +152,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| P-01  | `preloadedSparkVersions: string[]`  | High (also M-06) | Plural array type but the JSDoc constrains it to at most one element. |
+| P-01  | `preloadedSparkVersions: string[]`  | High (also M-04) | Plural array type but the JSDoc constrains it to at most one element. |
 | P-02  | `preloadedDockerImages: DockerImage[]` | Low | Plural array; JSDoc says "Custom Docker Image BYOC" but the field accepts multiple. OK. |
 | P-03  | `ListInstancePoolsRequest` (request) vs `listInstancePools()` (method) | Low | Consistent plural. |
 | P-04  | `ListInstancePoolsRequest_Response.instancePools: InstancePoolAndStats[]` | Low | Plural array — correct. |
@@ -250,11 +245,9 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| X-01  | JSDoc placeholder `<Databricks>` appears many times in this file (e.g., `"<Databricks> will tag all pool resources"` `model.ts:117`) | Observation | Un-substituted template placeholder leaking into the generated TS docstrings. Reader sees `<Databricks>` in IntelliSense. Same finding as `clusters.md` #92. |
-| X-02  | `enableElasticDisk` JSDoc: "Autoscaling Local Storage: when enabled, **this instances** in this pool ..." (`model.ts:133, 315, 437, 566`) | Observation | Grammar typo in JSDoc ("this instances" → "the instances"). Same string repeated four times. |
-| X-03  | `client.ts:167-170` builds query manually inside `getInstancePool`. `utils.ts:123` exports `flattenQueryParams` but it is unused. | Observation | Dead exported helper. Same observation as in `abacpolicies.md` and other audits. |
-| X-04  | `client.ts:197` `_req: ListInstancePoolsRequest` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
-| X-05  | `executeCall` / `executeHttpCall` pair (`utils.ts:26, 65`) | Observation | Same name-pair concern as in other audits (`abacpolicies.md` #36, `clusters.md` #90). One function name differs from the other only by `Http`. |
+| X-01  | `client.ts:167-170` builds query manually inside `getInstancePool`. `utils.ts:123` exports `flattenQueryParams` but it is unused. | Observation | Dead exported helper. Same observation as in `abacpolicies.md` and other audits. |
+| X-02  | `client.ts:197` `_req: ListInstancePoolsRequest` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
+| X-03  | `executeCall` / `executeHttpCall` pair (`utils.ts:26, 65`) | Observation | Same name-pair concern as in other audits (`abacpolicies.md` #36, `clusters.md` #90). One function name differs from the other only by `Http`. |
 
 ### 2.18 Proto-architectural leaks
 
@@ -399,10 +392,10 @@ artefact and the leading underscore at the same time.
 | Severity     | Count |
 | ------------ | ----- |
 | High         | 8     |
-| Medium       | 2     |
-| Low          | 12    |
-| Observation  | 7     |
-| **Total**    | **29**|
+| Medium       | 1     |
+| Low          | 8     |
+| Observation  | 5     |
+| **Total**    | **22**|
 
 ## 4. Cross-package consistency notes
 

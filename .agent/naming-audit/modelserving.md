@@ -3,14 +3,14 @@
 **Path:** `packages/modelserving/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Model Serving control plane — CRUD over "serving endpoints" (a.k.a. "inference endpoints"), plus a parallel provisioned-throughput (PT) variant, plus side-channel updates for AI Gateway, rate limits, tags, notifications, OpenAPI schema fetch, served-model logs (service + build), endpoint metrics export, and an out-of-band UC-connection-backed HTTP proxy (`httpRequest` / `ExternalFunction*`). Created by the 2026-05-22 regeneration which consolidated the prior `modelservingdebug` and `modelservingmanagement` packages into one. Sibling package: `modelservingquery` (data-plane inference). The wire URL prefix is `/api/2.0/serving-endpoints`; the docs say "serving endpoint"; the TS types say `InferenceEndpoint`.
-**Total weird names flagged:** 38
+**Total weird names flagged:** 33
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 11 |
-| Medium | 13 |
-| Low | 10 |
+| High | 8 |
+| Medium | 12 |
+| Low | 9 |
 | Observation | 4 |
 
 ## High severity
@@ -27,63 +27,45 @@
 - **Suggested name:** Rename `ServedModel` → `ServedEntity`. Keep the field name `servedEntities`. The wire stays whatever it is.
 - **Rationale:** A type whose name contradicts its values is the highest-impact naming bug; doc text already concedes the rename is correct.
 
-### 3. `EndpointCoreConfig*.servedEntities` + `servedModels` duplicate field — `src/v1/model.ts:376-390, 392-408, 410-415, 856-874, 950-966`
-- **Why weird:** Five different request/response types each carry *both* `servedEntities?: ServedModel[]` and `servedModels?: ServedModel[]`. The JSDoc admits the duplication: "(Deprecated, use served_entities instead) The list of served models under the serving endpoint config." For a TS SDK user typing into IntelliSense both fields appear and both look valid. Idiomatic TS uses `@deprecated` on the field, which the JSDoc does not.
-- **Category:** 12 (duplicate concept), 6 (misleading — deprecated not marked).
-- **Suggested name:** Mark `servedModels` with `@deprecated` JSDoc tag (so IDEs strike through it). Better: drop `servedModels` from the TS surface entirely.
-- **Rationale:** Five types times two fields equals ten redundant deprecation lookalikes; every one of them is a footgun.
-
-### 4. `ServedModel.modelName` / `ServedModel.modelVersion` deprecated cousins of `entityName` / `entityVersion` — `src/v1/model.ts:1032, 1033, 1057-1067`
-- **Why weird:** `ServedModel` has both `entityName`/`entityVersion` and `modelName`/`modelVersion`. The JSDoc on `ServedModelLite.modelName` (line 1059) says "Only one of model_name and entity_name should be populated"; same for `modelVersion`/`entityVersion`. So `ServedModel.modelName`/`modelVersion` are legacy fields that mirror `entityName`/`entityVersion`. They are completely undocumented inside `ServedModel` (lines 1032-1033 are bare fields with no comment), so a TS user has no way to know they are deprecated. Same bug class as #3 at the field level.
-- **Category:** 12 (duplicate concept), 6 (misleading), 19 (underspecified — bare fields with no docs).
-- **Suggested name:** Mark `modelName` / `modelVersion` as `@deprecated`. The JSDoc on `ServedModelLite` should be promoted to a real type-level note. Wire keys remain.
-- **Rationale:** Public surface area duplicating itself is *the* common source of integration bugs.
-
-### 5. `ServingEndpointDetailedPermissionLevel` enum — only one identifier in the package using `ServingEndpoint*` — `src/v1/model.ts:22-26`
+### 3. `ServingEndpointDetailedPermissionLevel` enum — only one identifier in the package using `ServingEndpoint*` — `src/v1/model.ts:22-26`
 - **Why weird:** This is the *only* type named `ServingEndpoint*`. Every other type in the file uses `InferenceEndpoint*`. Either this enum should be `InferenceEndpointPermissionLevel` (to match the rest of the package), or the rest of the package should be `ServingEndpoint*` (to match the product and wire). The `Detailed` infix is also suspect — the enum lives on `InferenceEndpointDetailed.permissionLevel`, so the type-name says "this enum belongs to InferenceEndpointDetailed", but a `permissionLevel` of `CAN_VIEW` is *not* detailed any differently from a non-detailed view; the enum applies to the resource, not to the response shape. So `Detailed` is leaking the response-DTO name into the enum name.
 - **Category:** 17 (inconsistent terminology), 7 (overly verbose).
 - **Suggested name:** `ServingEndpointPermissionLevel` (and rename the rest of the package — see #1). Drop `Detailed`.
 - **Rationale:** Enum names that include the response-DTO shape (`Detailed`) tangle the message identity into the type identity. In TS, the enum represents a concept, not the message it appears in.
 
-### 6. Method `httpRequest` for "make external services call using UC Connection" — `src/v1/client.ts:587`
+### 4. Method `httpRequest` for "make external services call using UC Connection" — `src/v1/client.ts:587`
 - **Why weird:** `httpRequest` on a model-serving `Client` is wildly mis-located. The doc reads: "Make external services call using the credentials stored in UC Connection." This is a Unity-Catalog-Connection HTTP proxy endpoint that happens to live at `/api/2.0/external-function`. It has nothing to do with serving endpoints. The method name `httpRequest` is the most generic name in HTTP (the global `Request` constructor builds an HTTP request); collides with `HttpRequest` from `@databricks/sdk-core/http`. The request type is `ExternalFunctionRequest`, response is `ExternalFunctionResponse`, URL says `external-function`, doc says "UC Connection" — none of those words is in the method name.
 - **Category:** 1 (vague), 6 (misleading), 14 (collides with global `Request`/`HttpRequest`).
 - **Suggested name:** Rename `httpRequest` → `invokeExternalFunction` or `callConnection`. Better: move the method to a different package (`uc-connections` or similar). The current placement is a layering bug.
 - **Rationale:** A method called `httpRequest` on a model-serving `Client` will be the first thing every new SDK user tries when they want to query an endpoint — and will fail with confusing errors. Naming + placement is a footgun.
 
-### 7. Acronym casing storm: `Ai` / `OpenAi` / `PaLm` / `Ai21Labs` / `Pii` / `Pt` / `Llm` across the file
+### 5. Acronym casing storm: `Ai` / `OpenAi` / `PaLm` / `Ai21Labs` / `Pii` / `Pt` / `Llm` across the file
 - **Why weird:** Mixed acronym-casing schemes on user-visible names:
   - `AiGateway`, `AiGatewayConfig`, `AiGatewayRateLimit`, `AiGuardrails`, `AiGuardrailParameters` — title-cased `Ai`.
   - `OpenAiConfig`, `googleCloudVertexAiConfig` — title-cased `Ai` mid-word.
   - `PaLmConfig`, `palmConfig` — `PaLm` (mixed-internal-caps). The product is "PaLM" (stylized "Pathways Language Model"); the SDK chose `PaLm`, the worst rendering option.
   - `Ai21Labs`, `Ai21LabsConfig` — the product is "AI21 Labs"; rendered as `Ai21Labs` (lower-case `21`, lower-case `i` mid-word).
   - `PiiSettings` — `Pii` (PII = personally identifiable information); rendered title-case.
-  - `Pt`, `PtEndpoint`, `PtServedModel`, `PtEndpointCoreConfig`, `CreatePtEndpointRequest`, `PutPtEndpointConfigRequest` — `Pt` is "PT" (provisioned throughput). Two-letter acronym title-cased while the method names spell it out (#8).
+  - `Pt`, `PtEndpoint`, `PtServedModel`, `PtEndpointCoreConfig`, `CreatePtEndpointRequest`, `PutPtEndpointConfigRequest` — `Pt` is "PT" (provisioned throughput). Two-letter acronym title-cased while the method names spell it out (#6).
 
   Excludes JS-built-in acronyms (`Http`, `Json`) and wire-format strings.
 - **Category:** 3 (acronym casing inconsistencies).
 - **Suggested name:** Decide a project-wide rule in `typescript.mdc`. Either follow Microsoft's .NET capitalization (title-case two-letter acronyms, PascalCase three-plus) or the Google TypeScript Style Guide (treat acronyms as whole words). Either is defensible; *none* should be mixed in one file.
 - **Rationale:** Twenty-plus exported identifiers from one file vary in convention. This is the single biggest *category* of weirdness in the package surface.
 
-### 8. `Pt` abbreviation in types vs `ProvisionedThroughput` in methods/waiters — `src/v1/client.ts:148, 173, 515, 540, 695, 855`, `src/v1/model.ts:294, 881, 887, 981`
+### 6. `Pt` abbreviation in types vs `ProvisionedThroughput` in methods/waiters — `src/v1/client.ts:148, 173, 515, 540, 695, 855`, `src/v1/model.ts:294, 881, 887, 981`
 - **Why weird:** `Pt` is short for "provisioned throughput". The full term *is* used in two method names (`createProvisionedThroughputInferenceEndpoint`, `putProvisionedThroughputInferenceEndpointConfig`) and two waiter class names (`CreateProvisionedThroughputInferenceEndpointWaiter`, `PutProvisionedThroughputInferenceEndpointConfigWaiter`), but the request/response *types* use the abbreviation (`CreatePtEndpointRequest`, `PutPtEndpointConfigRequest`, `PtEndpointCoreConfig`, `PtServedModel`). The URL says `/api/2.0/serving-endpoints/pt`. Three different names for one concept in one call.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistent abbreviation across method/type/URL).
 - **Suggested name:** Either expand all (`CreateProvisionedThroughputEndpointRequest`, `PutProvisionedThroughputEndpointConfigRequest`) or contract all (`createPtEndpoint`, `putPtEndpointConfig`). Pick one. The current half-and-half is the worst option.
 - **Rationale:** A user searching the codebase for `provisionedThroughput` will find the methods but not the types; searching for `pt` will find the types but produce massive false positives (`Pattern`, `Path`, `Patch`, etc.).
 
-### 9. `Behavior` enum is unqualified — `src/v1/model.ts:5-10`
+### 7. `Behavior` enum is unqualified — `src/v1/model.ts:5-10`
 - **Why weird:** Top-level export named `Behavior` — the most generic noun possible for an enum. It is used as `PiiSettings.behavior: Behavior` (line 878). A consumer importing `Behavior` from `@databricks/sdk-modelserving/v1` has no idea this is about PII guardrails. Other packages will have their own `Behavior` and import aliases become mandatory. Values: `NONE | BLOCK | MASK` — so this is *PII action behavior*.
 - **Category:** 1 (vague/generic), 15 (generic name losing meaning).
 - **Suggested name:** `PiiBehavior` or `PiiGuardrailAction`.
 - **Rationale:** Domain-specific enum names make import lists self-documenting; `Behavior` alone forces every reader to chase the type.
 
-### 10. `Route` carries both `servedModelName` and `servedEntityName` — `src/v1/model.ts:996-1002`
-- **Why weird:** `Route` has three fields: `servedModelName?: string`, `trafficPercentage?: number`, `servedEntityName?: string`. There is no JSDoc on `servedEntityName` — it is silently the modern name; `servedModelName` is the legacy. Two fields point at the same logical thing (the entity to route traffic to), one without docs, one with docs that only mention "served model" (line 997). Same bug class as #3 and #4.
-- **Category:** 12 (duplicate concept), 6 (misleading), 19 (undocumented field).
-- **Suggested name:** Mark `servedModelName` `@deprecated`; doc `servedEntityName` properly.
-- **Rationale:** Triple bug: undocumented field, duplicate concept, no deprecation marker.
-
-### 11. `GetExportEndpointMetricsRequest` / `getExportEndpointMetrics` — five-noun garble — `src/v1/model.ts:540`, `src/v1/client.ts:216`
+### 8. `GetExportEndpointMetricsRequest` / `getExportEndpointMetrics` — five-noun garble — `src/v1/model.ts:540`, `src/v1/client.ts:216`
 - **Why weird:** The grammar is broken. The expected reading is *"export endpoint metrics" → returns metrics in export format*, but `Get + Export + Endpoint + Metrics + Request` parses as five nouns in a row. The doc string (`client.ts:215`) confirms the intent: "Retrieves the metrics associated with the provided serving endpoint in either Prometheus or OpenMetrics exposition format". The natural English phrase is "export the endpoint's metrics" → method `exportEndpointMetrics`. Compare with sibling methods on the same client: `getInferenceEndpoint`, `getInferenceEndpointSchema`, `patchInferenceEndpointTags` — none prefix the noun with an output format.
 - **Category:** 6 (misleading), 7 (overly verbose), 17 (inconsistent verb — every other method is `getX`, this one is `getExportX`).
 - **Suggested name:** `exportEndpointMetrics(req: ExportEndpointMetricsRequest)` returning `EndpointMetrics`. Or `getEndpointMetrics(req: GetEndpointMetricsRequest)` returning `EndpointMetrics`. The "export" framing is a wire-protocol detail (Prometheus format) that does not belong in the method name.
@@ -91,13 +73,13 @@
 
 ## Medium severity
 
-### 12. `ServedModelDeploymentState` enum name collides with parent `ServedModelState` type — `src/v1/model.ts:12, 1069-1072`
+### 9. `ServedModelDeploymentState` enum name collides with parent `ServedModelState` type — `src/v1/model.ts:12, 1069-1072`
 - **Why weird:** The enum type is `ServedModelDeploymentState`, and it lives on the field `ServedModelState.deployment: ServedModelDeploymentState`. Two different types both end in `State`, one wraps the other, and the wrapper field (`deployment`) shares its name with the inner enum's category. The result reads as `served.state.deployment` returning a `ServedModelDeploymentState` — the wrapper and the enum sound like the same thing.
 - **Category:** 20 (type-suffix tautology on `deployment: ServedModelDeploymentState`).
 - **Suggested name:** Rename the type `ServedModelState` → `ServedModelDeployment`, and the enum `ServedModelDeploymentState` → `DeploymentState`. Call site becomes `served.state.deployment === DeploymentState.READY`. The container and the discriminant no longer share a noun.
 - **Rationale:** Two `*State` siblings nested inside each other tangle the wrapper identity with the discriminant identity.
 
-### 13. `EndpointCoreConfig` vs `EndpointCoreConfigOutput` vs `EndpointCoreConfigSummary` — three near-duplicates — `src/v1/model.ts:376, 392, 410`
+### 10. `EndpointCoreConfig` vs `EndpointCoreConfigOutput` vs `EndpointCoreConfigSummary` — three near-duplicates — `src/v1/model.ts:376, 392, 410`
 - **Why weird:** Three types describe "the config of a serving endpoint":
   - `EndpointCoreConfig`: input shape (`servedEntities`, `servedModels`, `trafficConfig`, `autoCaptureConfig`).
   - `EndpointCoreConfigOutput`: input shape + `configVersion: number`.
@@ -108,7 +90,7 @@
 - **Suggested name:** Either collapse into one type with optional fields, or give the types names that reflect their purpose: `EndpointConfigInput` (write), `EndpointConfig` (read with version), `EndpointConfigPreview` (lite/list-view).
 - **Rationale:** "Output" and "Summary" and "Detailed" are three different ways to say "the shape on the wire". The trio invites bugs where the wrong type is passed.
 
-### 14. `InferenceEndpoint` vs `InferenceEndpointDetailed` near-duplicate — `src/v1/model.ts:624, 653`
+### 11. `InferenceEndpoint` vs `InferenceEndpointDetailed` near-duplicate — `src/v1/model.ts:624, 653`
 - **Why weird:** Two near-duplicate types:
   - `InferenceEndpoint` (lines 624-651): 14 fields, used in `ListInferenceEndpointsRequest_Response.endpoints`.
   - `InferenceEndpointDetailed` (lines 653-690): 18 fields, returned by `getInferenceEndpoint`, `createInferenceEndpoint`, `putInferenceEndpointConfig`.
@@ -118,13 +100,13 @@
 - **Suggested name:** `InferenceEndpointSummary` (list projection) and `InferenceEndpoint` (single-resource projection). Drop the `Detailed` suffix — the unqualified name should be the canonical resource.
 - **Rationale:** A consumer writing `function show(endpoint: InferenceEndpoint)` will get the list-projection type and miss fields like `endpointUrl`. The name lies about which is canonical.
 
-### 15. `ServedModelLite` lite-variant — `src/v1/model.ts:1057-1067`
-- **Why weird:** Same pattern as #14 at the entity level. `ServedModel` (line 1004) has 23 fields. `ServedModelLite` (lines 1057-1067) has 7 fields. The "Lite" suffix says nothing about *which* fields it kept; only by reading both types side-by-side can you see what is dropped. Compare to the JSDoc convention used in `EndpointCoreConfigSummary` (uses "Summary" in the name).
+### 12. `ServedModelLite` lite-variant — `src/v1/model.ts:1057-1067`
+- **Why weird:** Same pattern as #11 at the entity level. `ServedModel` (line 1004) has 23 fields. `ServedModelLite` (lines 1057-1067) has 7 fields. The "Lite" suffix says nothing about *which* fields it kept; only by reading both types side-by-side can you see what is dropped. Compare to the JSDoc convention used in `EndpointCoreConfigSummary` (uses "Summary" in the name).
 - **Category:** 12 (duplicate concept), 1 (vague suffix — `Lite` is non-standard), 17 (inconsistent: `Summary` for the parent, `Lite` for the child).
 - **Suggested name:** `ServedEntitySummary` (paired with #2 rename).
 - **Rationale:** Inconsistent suffix convention across the file.
 
-### 16. `CreatePtEndpointRequest` method-type asymmetry with `CreateInferenceEndpointRequest` — `src/v1/model.ts:271, 294`
+### 13. `CreatePtEndpointRequest` method-type asymmetry with `CreateInferenceEndpointRequest` — `src/v1/model.ts:271, 294`
 - **Why weird:** Sister request types:
   - `CreateInferenceEndpointRequest` (full name).
   - `CreatePtEndpointRequest` (abbreviated).
@@ -134,7 +116,7 @@
 - **Suggested name:** `CreateServingEndpointRequest` and `CreateProvisionedThroughputServingEndpointRequest` (paired with #1).
 - **Rationale:** Sibling request types should differ only in the qualifier that actually differs.
 
-### 17. `PutInferenceEndpointConfigRequest` vs `PutPtEndpointConfigRequest` — request shape divergence — `src/v1/model.ts:950, 981`
+### 14. `PutInferenceEndpointConfigRequest` vs `PutPtEndpointConfigRequest` — request shape divergence — `src/v1/model.ts:950, 981`
 - **Why weird:** Two "put endpoint config" requests:
   - `PutInferenceEndpointConfigRequest`: flat — `name`, `servedEntities`, `servedModels`, `trafficConfig`, `autoCaptureConfig` (5 fields).
   - `PutPtEndpointConfigRequest`: nested — `name`, `config: PtEndpointCoreConfig` (2 fields, with the config under a sub-object).
@@ -144,25 +126,25 @@
 - **Suggested name:** Pick one shape. Either flatten both (drop the inner `PtEndpointCoreConfig`) or nest both.
 - **Rationale:** API surface asymmetry hidden by consistent naming is the most surprising kind.
 
-### 18. `name ?? ''` empty-string fallback when the field is "required" — `src/v1/client.ts:192, 220, 247, 272, 299, 327, 383, 415, 447, 487, 519, 559`
+### 15. `name ?? ''` empty-string fallback when the field is "required" — `src/v1/client.ts:192, 220, 247, 272, 299, 327, 383, 415, 447, 487, 519, 559`
 - **Why weird:** The JSDoc on each request says "This field is required" yet the type marks `name?: string | undefined` *optional* and the URL is built with `${req.name ?? ''}` — if the caller forgets to set it, the SDK silently emits a URL like `/api/2.0/serving-endpoints//metrics` (double slash) which will 404 server-side. The contradiction between "required per JSDoc" and "optional per TS type" is a typing inconsistency that bites consumers.
 - **Category:** 6 (misleading — JSDoc contradicts type), 16 (field contradicting type domain).
 - **Suggested name:** Mark `name` as required (`endpointName: string`). Remove the `?? ''` fallback so a missing value throws earlier. Same applies to `servedModelName`.
 - **Rationale:** Optional + "required" JSDoc + empty-string fallback is a triple-violation. Cf. AIP-122 (https://google.aip.dev/122) which mandates path parameters be required.
 
-### 19. Waiter classes have asymmetric naming — `src/v1/client.ts:615, 695, 775, 855`
+### 16. Waiter classes have asymmetric naming — `src/v1/client.ts:615, 695, 775, 855`
 - **Why weird:** Four waiter classes:
   - `CreateInferenceEndpointWaiter`
   - `CreateProvisionedThroughputInferenceEndpointWaiter` (53 characters)
   - `PutInferenceEndpointConfigWaiter`
   - `PutProvisionedThroughputInferenceEndpointConfigWaiter` (54 characters)
 
-  Two issues: the verb tense varies (`Create*Waiter` describes the resource lifecycle; `Put*ConfigWaiter` describes the *config* operation, not the *endpoint* lifecycle); the two PT waiters spell out `ProvisionedThroughput` while the request/response types use `Pt` (#8).
+  Two issues: the verb tense varies (`Create*Waiter` describes the resource lifecycle; `Put*ConfigWaiter` describes the *config* operation, not the *endpoint* lifecycle); the two PT waiters spell out `ProvisionedThroughput` while the request/response types use `Pt` (#6).
 - **Category:** 17 (inconsistent abbreviation: `Pt` in types, `ProvisionedThroughput` in waiter classes), 13 (verb-tense inconsistency: `Create*` vs `Put*Config*`).
 - **Suggested name:** Either drop the waiter classes entirely and expose `Client.createInferenceEndpoint(...).wait(options)` directly, or shorten with a consistent rule: `CreateEndpointWaiter`, `CreatePtEndpointWaiter`, `PutEndpointConfigWaiter`, `PutPtEndpointConfigWaiter`.
 - **Rationale:** Four exported waiter classes, each 30+ characters long, with five+ identical prefixes that grep the same way as the methods themselves.
 
-### 20. `done()` on waiter classes returns `true` for both success AND failure — `src/v1/client.ts:671-692, 751-772, 831-852, 911-932`
+### 17. `done()` on waiter classes returns `true` for both success AND failure — `src/v1/client.ts:671-692, 751-772, 831-852, 911-932`
 - **Why weird:** Waiter `done()` returns `true` for:
   - `NOT_UPDATING` (success)
   - `UPDATE_FAILED` (failure)
@@ -173,25 +155,19 @@
 - **Suggested name:** Rename `done()` → `isTerminal()` or split into `isSuccess()` / `isTerminal()`. Or have `done()` throw on failure for parity with `wait()`.
 - **Rationale:** Method-name semantics divergence is a runtime bug, not a stylistic one.
 
-### 21. `RateLimit` vs `AiGatewayRateLimit` — two near-duplicate types — `src/v1/model.ts:987-994, 93-107`
-- **Why weird:** `RateLimit` (3 fields: calls, key, renewalPeriod) and `AiGatewayRateLimit` (5 fields: calls, key, renewalPeriod, principal, tokens). The `AiGateway` variant is a strict superset. Why two types? `RateLimit` is used by the deprecated `putInferenceEndpointRateLimits` (client.ts:483 "Deprecated: Please use AI Gateway to manage rate limits instead."). Same pattern as #13: legacy + new lives side-by-side, with no `@deprecated` tag on the legacy type.
-- **Category:** 12 (duplicate concept), 6 (misleading — deprecation not in tag).
-- **Suggested name:** Mark `RateLimit` and `PutInferenceEndpointRateLimitsRequest*` types `@deprecated` in JSDoc.
-- **Rationale:** Same pattern repeated; same fix.
-
-### 22. `ModelDataPlaneInfo` wraps `DataPlaneInfo` — `Info`-around-`Info` placeholder — `src/v1/model.ts:737-740`
+### 18. `ModelDataPlaneInfo` wraps `DataPlaneInfo` — `Info`-around-`Info` placeholder — `src/v1/model.ts:737-740`
 - **Why weird:** `ModelDataPlaneInfo` is a one-field wrapper: `{queryInfo?: DataPlaneInfo}`. So the public surface is `endpoint.dataPlaneInfo: ModelDataPlaneInfo` → `.queryInfo: DataPlaneInfo` → `.endpointUrl, .authorizationDetails`. Two layers of `*Info` suffix wrapping each other, where the outer layer carries no information beyond "this is the model-specific subset of data-plane info" — but it has only one field, so the wrapping is a pure architectural placeholder reserved for future operations. The JSDoc on `ModelDataPlaneInfo` ("A representation of all DataPlaneInfo for operations that can be done on a model through Data Plane APIs.") tautologically repeats the type name.
 - **Category:** 7 (overly verbose suffix chain), 20 (type-suffix tautology on `dataPlaneInfo: ModelDataPlaneInfo`).
 - **Suggested name:** Collapse — drop `ModelDataPlaneInfo` and inline `DataPlaneInfo` as `InferenceEndpointDetailed.queryDataPlane?: DataPlaneInfo`. If a future operation needs a second data-plane URL, add a field then.
 - **Rationale:** `Info`-wrapping-`Info` is an architectural placeholder that doesn't survive into idiomatic TS where optional fields obviate the wrapper.
 
-### 23. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `src/v1/client.ts:295, 323`
+### 19. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `src/v1/client.ts:295, 323`
 - **Why weird:** Two methods, both retrieve logs, distinguished only by what *kind* of logs (runtime "service" logs vs container "build" logs). The build/service axis is a sub-attribute of "logs", not a separate concept. The naming makes the unqualified one (`getServedModelLogs`) sound canonical, but it is actually the service-logs special case.
 - **Category:** 12 (duplicate concept), 6 (misleading — `getServedModelLogs` alone doesn't tell you it returns *service* (not build) logs).
 - **Suggested name:** Rename the existing `getServedModelLogs` to `getServedModelServiceLogs` (parallel with `getServedModelBuildLogs`). Or collapse into one method with a `kind: 'build' | 'service'` parameter.
 - **Rationale:** When two siblings differ by a hidden attribute, name *both* with that attribute. Today the default and the special case look asymmetric.
 
-### 24. `GetServedModelLogsRequest_Response.logs: string` is a single blob, name is plural — `src/v1/model.ts:570, 583`
+### 20. `GetServedModelLogsRequest_Response.logs: string` is a single blob, name is plural — `src/v1/model.ts:570, 583`
 - **Why weird:** Both `GetServedModelBuildLogsRequest_Response` and `GetServedModelLogsRequest_Response` have `logs?: string`. The field name is plural but the type is a single string — many log *lines* concatenated. A user doing `for (const line of response.logs)` will iterate characters, not lines.
 - **Category:** 9 (singular/plural mismatch).
 - **Suggested name:** Either `logsText: string` (singular field with type-disambiguating suffix) or `logs: string[]` (split lines server-side).
@@ -199,69 +175,63 @@
 
 ## Low severity
 
-### 25. `*ApiKeyPlaintext` / `*Plaintext` paired-field pattern — many fields across provider configs
+### 21. `*ApiKeyPlaintext` / `*Plaintext` paired-field pattern — many fields across provider configs
 - **Why weird:** Every provider config has a `*ApiKey` (secret reference) and `*ApiKeyPlaintext` (literal value). Six configs, twelve pairs. The "plaintext" suffix is necessary on the wire, but in TS could be modelled as a discriminated union (`{kind: 'secret'; secretRef: string} | {kind: 'plaintext'; value: string}`). Today the user must read JSDoc to understand "exactly one of these two" semantics.
 - **Category:** 6 (misleading — two optional fields modelled instead of a union), 12 (duplicate concept).
 - **Suggested name:** Model as discriminated union; or at minimum mark the JSDoc with `@oneOf`.
 - **Rationale:** The "must specify exactly one" constraint is invisible to the type system.
 
-### 26. `ExternalModel.provider` is a freeform string — `src/v1/model.ts:467`
+### 22. `ExternalModel.provider` is a freeform string — `src/v1/model.ts:467`
 - **Why weird:** "The name of the provider for the external model. Currently, the supported providers are 'ai21labs', 'anthropic', 'amazon-bedrock', 'cohere', 'databricks-model-serving', 'google-cloud-vertex-ai', 'openai', 'palm', and 'custom'." This is a `string` that is *actually* an enum (9 known values). The discriminator union below (`config.$case`) repeats the same set with different casing. So the `provider` field and the `$case` field both encode the same fact, in two different formats.
 - **Category:** 6 (misleading — string-typed enum), 12 (duplicate of `$case`).
 - **Suggested name:** Type as a string-literal union: `provider?: 'ai21labs' | 'anthropic' | ... | 'custom' | undefined`. Or remove entirely and derive from `config.$case`.
 - **Rationale:** A `string` field with a finite set of legal values should be a union; this is one of TS's strongest features and the codebase is bypassing it.
 
-### 27. `ServedModel.workloadSize` is a freeform `string` — `src/v1/model.ts:1021`
-- **Why weird:** "Valid workload sizes are 'Small' (4 - 4 provisioned concurrency), 'Medium' (8 - 16 provisioned concurrency), and 'Large' (16 - 64 provisioned concurrency). Additional custom workload sizes can also be used when available in the workspace." Same pattern as #34: a string field with a documented but unenforced enum.
+### 23. `ServedModel.workloadSize` is a freeform `string` — `src/v1/model.ts:1021`
+- **Why weird:** "Valid workload sizes are 'Small' (4 - 4 provisioned concurrency), 'Medium' (8 - 16 provisioned concurrency), and 'Large' (16 - 64 provisioned concurrency). Additional custom workload sizes can also be used when available in the workspace." Same pattern as #22: a string field with a documented but unenforced enum.
 - **Category:** 6 (misleading), 1 (vague — `workloadSize` could mean memory, cpu, instance type, etc.).
 - **Suggested name:** Keep `workloadSize`; type as `'Small' | 'Medium' | 'Large' | (string & {})` (the `& {}` trick keeps custom values acceptable while suggesting the canonical three in IDEs).
 - **Rationale:** Type-narrowing fix; minor.
 
-### 28. `ExternalModel.task` freeform string — `src/v1/model.ts:471`
+### 24. `ExternalModel.task` freeform string — `src/v1/model.ts:471`
 - **Why weird:** "The task type of the external model." Bare `string` with no JSDoc enumeration of accepted values. `task` is also used on `InferenceEndpoint.task` (line 642) and `InferenceEndpointDetailed.task` (line 675) with the same minimalist doc ("The task type of the serving endpoint."). Three uses of `task: string`, none telling the user what strings are legal (e.g., `chat`, `completion`, `embeddings`).
 - **Category:** 1 (vague), 19 (underspecified domain).
 - **Suggested name:** Type as a string-literal union or, at minimum, document the accepted values in JSDoc.
-- **Rationale:** Same class as #34/#35.
+- **Rationale:** Same class as #22/#23.
 
-### 29. `StillRunningError extends Error` private throw-away — `src/v1/client.ts:80`
+### 25. `StillRunningError extends Error` private throw-away — `src/v1/client.ts:80`
 - **Why weird:** Internal marker error class. Name is fine (`StillRunningError` reads as "operation still running, not done yet"), but the class is never exported, never caught outside the four waiters, and is used purely as a retry signal. Compare to other packages where this is named `RetryableError` or `PollAgainError`. The name "StillRunning" implies a polling lifecycle rather than a retry signal.
 - **Category:** 1 (vague), 17 (inconsistent with sibling SDK packages).
 - **Suggested name:** `RetrySignal` (it is an internal control-flow signal, not a real error).
 - **Rationale:** Minor; internal.
 
-### 30. `ExportMetricsResponse` is generic "metrics" not "endpoint metrics" — `src/v1/model.ts:425-436`, `src/v1/client.ts:216-219`
+### 26. `ExportMetricsResponse` is generic "metrics" not "endpoint metrics" — `src/v1/model.ts:425-436`, `src/v1/client.ts:216-219`
 - **Why weird:** The method `getExportEndpointMetrics` returns `ExportMetricsResponse` — the type name dropped the `Endpoint` qualifier present in the method name. A reader greping for `EndpointMetrics` won't find the response type. Same shape (`contents?: ReadableStream`) as `ExternalFunctionResponse` and `GetOpenApiResponse`; the *content* is the only thing that says "metrics".
 - **Category:** 17 (inconsistent — method qualifier dropped from response type), 1 (vague — `ExportMetricsResponse` could be metrics for anything).
-- **Suggested name:** Pair the method rename in #11 with a response rename: `getEndpointMetrics()` → `EndpointMetrics`. Or `exportEndpointMetrics()` → `ExportEndpointMetricsResponse`.
+- **Suggested name:** Pair the method rename in #8 with a response rename: `getEndpointMetrics()` → `EndpointMetrics`. Or `exportEndpointMetrics()` → `ExportEndpointMetricsResponse`.
 - **Rationale:** Symmetry between method and return type aids IDE autocomplete and grep-ability.
 
-### 31. `servedModelName` doc echoes the field name three times — `src/v1/model.ts:563-564, 576-577`
-- **Why weird:** JSDoc on `GetServedModelBuildLogsRequest.servedModelName` reads "The name of the served model that build logs will be retrieved for. This field is required." The field name already contains "servedModel" + "Name" + the type signature already conveys "this is a name". Pure echo. The doc also doesn't tell the user *what format* the served model name takes (alphanumeric? UUID? UC three-part?).
-- **Category:** 7 (overly verbose), 20 (type-suffix tautology — `name: string` reading as "name of a name").
-- **Suggested name:** No name rename; rewrite JSDoc to give the *format* (e.g., "Slug-style identifier of the served model, e.g. `myllm-v2`").
-- **Rationale:** The doc carries no information beyond what the name already says.
-
-### 32. `Get*` prefix on every read method — `src/v1/client.ts:216, 243, 268, 295, 323`
+### 27. `Get*` prefix on every read method — `src/v1/client.ts:216, 243, 268, 295, 323`
 - **Why weird:** Every read method here is prefixed `get*`. The `Get*` verb prefix on TS methods is a Go/Java/.NET pattern; in TS, a noun method `endpointMetrics()` or `metrics()` is more idiomatic for read operations (cf. `URL.searchParams`, `Response.json()`). Where TS does use `get*`, it's typically on synchronous accessors.
 - **Category:** 14 (Go/Java-style names).
 - **Suggested name:** Verb-first for actions: `exportMetrics(req)`, `fetchServedModelLogs(req)`, `fetchServedModelBuildLogs(req)`. Or property-style if the request is trivial.
 - **Rationale:** Google TS Style Guide § Names of functions (https://google.github.io/styleguide/tsguide.html#methods) prefers imperative verbs, but does not mandate `get*` for retrievals. SDK-wide call, flag for project review.
 
-### 33. `Call` type aliased to `Promise<void>` in `utils.ts` import — `src/v1/utils.ts:3`
+### 28. `Call` type aliased to `Promise<void>` in `utils.ts` import — `src/v1/utils.ts:3`
 - **Why weird:** `Call` is one of the most generic names imaginable. Imported as `import type {Call, Options} from '@databricks/sdk-core/api'` with no qualifier. Inside the client `const call: Call = async ...` reads like "a phone call" or "function call". The actual semantic is "a retriable RPC closure".
 - **Category:** 1 (vague).
 - **Suggested name:** `RetriableRpc` or `RpcClosure`. Cross-package decision because `Call` is defined in `@databricks/sdk-core/api`.
 - **Rationale:** Type names exported from a "core" package set the vocabulary for every consumer; bare `Call` is the kind of name that survives review only because nobody wants to argue with the framework.
 
-### 34. `Options` type aliased to internal options shape — `src/v1/utils.ts:3, 30`
-- **Why weird:** Same as #41 but for `Options`. `Options` is generic to the point of meaninglessness. The translation step in `executeCall` exists *because* the public `CallOptions` and the internal `Options` are two different "options" types that happen to have similar fields.
+### 29. `Options` type aliased to internal options shape — `src/v1/utils.ts:3, 30`
+- **Why weird:** Same as #28 but for `Options`. `Options` is generic to the point of meaninglessness. The translation step in `executeCall` exists *because* the public `CallOptions` and the internal `Options` are two different "options" types that happen to have similar fields.
 - **Category:** 1 (vague), 12 (duplicate concept — `Options` vs `CallOptions`).
 - **Suggested name:** `ExecuteCallInternalOptions` (verbose but honest) or `RetrierOptions`. Cross-package decision.
 - **Rationale:** Two adjacent "Options" types in 35 lines of code is the classic accidental-collision pattern.
 
 ## Observation
 
-### 35. Mixed naming convention for the same product across sibling packages
+### 30. Mixed naming convention for the same product across sibling packages
 The Databricks "Serving Endpoints" product spans two packages in this SDK after the 2026-05-22 consolidation:
 - `modelserving`: types use `InferenceEndpoint*` (control plane).
 - `modelservingquery`: types use `Endpoint` (data plane — e.g., `QueryEndpointInput`, `QueryEndpointResponse`).
@@ -269,15 +239,15 @@ The Databricks "Serving Endpoints" product spans two packages in this SDK after 
 The wire uniformly uses `serving-endpoints`. SDK consumers chaining both packages will see different names for one concept.
 - **Category:** 17 (cross-package inconsistency).
 
-### 36. `ExternalModel.config` discriminated union with nine variants — `src/v1/model.ts:460-506`
+### 31. `ExternalModel.config` discriminated union with nine variants — `src/v1/model.ts:460-506`
 Nine `$case` variants, no exhaustiveness check at the type level. If a tenth provider is added, the discriminated union types it correctly, but the cascade (lines 1346-1387) is hand-rolled and will silently miss the new case. The names of the discriminator keys also vary in casing relative to the type names. This is a maintenance smell, not strictly a naming bug — but the *uniformity* of the names (`<provider>Config`) gives a false sense of "this is a clean enum" when it is actually a tower of `if-else`.
 - **Category:** 12 (duplicate concept).
 
-### 37. `userAgent` is built once in the constructor and never refreshed — `src/v1/client.ts:89, 103`
+### 32. `userAgent` is built once in the constructor and never refreshed — `src/v1/client.ts:89, 103`
 Not a name bug per se, but the field name `userAgent` suggests a dynamic property, while the construction reads `this.userAgent = info.toString();` once at construction time. If the credentials are mutated post-construction (rare but possible), the UA goes stale. Cross-package observation.
 - **Category:** 6 (mildly misleading).
 
-### 38. `info` local var in the constructor — `src/v1/client.ts:97, 99, 103`
+### 33. `info` local var in the constructor — `src/v1/client.ts:97, 99, 103`
 `let info = createDefault().with(PACKAGE_SEGMENT);` then more `info = info.with(...)` chains. The name `info` is category-5 (cryptic abbreviation of "information") and category-1 (vague). A reader who hasn't looked at `createDefault()` does not know `info` is a `ClientInfo`. Cross-package observation.
 - **Category:** 1, 5.
 

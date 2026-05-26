@@ -13,10 +13,10 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 2     |
-| Medium      | 3     |
+| Medium      | 1     |
 | Low         | 5     |
 | Observation | 4     |
-| **Total**   | **14** |
+| **Total**   | **12** |
 
 
 Headline themes:
@@ -55,22 +55,6 @@ Headline themes:
 - **Current:** `interface QuotaInfo`.
 - **Suggestion:** `Quota`.
 - **Rationale:** "Info" adds no semantic content — the type *is* the quota record returned by the API. The codebase has no type named bare `Quota`; the natural noun is free. This mirrors the `CatalogInfo`/`ConnectionInfo` discussion in `catalogs.md` §8.1 — repo-wide pattern, flagged here for completeness. See also Observation O2.
-
-### M2. `quotaCount` and `quotaLimit` carry no unit / type signal — counts of *what*?
-
-- **File / line:** `src/v1/model.ts:68, 70`.
-- **Category:** #1 vague/generic; #19 underspecified.
-- **Current:** `quotaCount?: number`, `quotaLimit?: number`.
-- **Suggestion:** Inline-doc the unit and reference what is being counted (number of *child securables*).
-- **Rationale:** From the field names alone, a reader doesn't know whether these are counts of children, megabytes, requests, etc. The package-level JSDoc on `client.ts:62` clarifies that quotas count child entities (e.g. tables under a schema), but the field-level doc says only "current usage of the resource quota" and "current limit of the resource quota." Names like `currentUsage` / `currentLimit` or doc-strings citing "number of child securables" would close the gap.
-
-### M3. `nextPageToken` doc references `__page_token__` with double underscores
-
-- **File / line:** `src/v1/model.ts:55` (JSDoc on `ListQuotasRequest_Response.nextPageToken`).
-- **Category:** #5 cryptic abbreviation; documentation defect more than naming defect, but mentions identifier syntax that doesn't exist.
-- **Current:** `"__page_token__ should be set to this value for the next request."`
-- **Suggestion:** Reference the actual TS field name `pageToken` (camelCase) in prose.
-- **Rationale:** The double-underscore markdown bolding for `page_token` (the wire form) leaks the snake_case wire field into the public TS docs. Callers don't see `page_token`; they see `pageToken`. The doc misleads.
 
 ---
 
@@ -175,18 +159,18 @@ Type & symbol checklist:
 - [x] `GetQuotaRequest.quotaName` → no defect.
 - [x] `GetQuotaRequest_Response` interface (1 field) → Wrapper preserved for forward compatibility.
 - [x] `GetQuotaRequest_Response.quotaInfo` → no defect beyond M1 (`Info` suffix).
-- [x] `ListQuotasRequest` interface (2 fields) → no per-field defects beyond M3.
+- [x] `ListQuotasRequest` interface (2 fields) → no defect.
 - [x] `ListQuotasRequest.maxResults` → no defect.
 - [x] `ListQuotasRequest.pageToken` → no defect.
-- [x] `ListQuotasRequest_Response` interface (2 fields) → M3.
+- [x] `ListQuotasRequest_Response` interface (2 fields) → no defect.
 - [x] `ListQuotasRequest_Response.quotas` → no defect; correctly plural.
-- [x] `ListQuotasRequest_Response.nextPageToken` → M3.
+- [x] `ListQuotasRequest_Response.nextPageToken` → no defect.
 - [x] `QuotaInfo` interface (6 fields) → M1 (`Info` suffix), O1; per-field below.
 - [x] `QuotaInfo.parentSecurableType` (`SecurableType`) → H2.
 - [x] `QuotaInfo.parentFullName` → no defect.
 - [x] `QuotaInfo.quotaName` → no defect.
-- [x] `QuotaInfo.quotaCount` → M2.
-- [x] `QuotaInfo.quotaLimit` → M2.
+- [x] `QuotaInfo.quotaCount` → no defect.
+- [x] `QuotaInfo.quotaLimit` → no defect.
 - [x] `QuotaInfo.lastRefreshedAt` → no defect.
 - [x] `Client` class → L2.
 - [x] `Client.host` / `httpClient` / `logger` / `userAgent` fields → no defect.
@@ -213,13 +197,12 @@ Type & symbol checklist:
 | `ListQuotasRequest`                                      | model.ts:42       | —                        |
 | `ListQuotasRequest.maxResults`                           | model.ts:44       | —                        |
 | `ListQuotasRequest.pageToken`                            | model.ts:46       | —                        |
-| `ListQuotasRequest_Response.nextPageToken` (doc)         | model.ts:55-57    | M3                       |
 | `QuotaInfo`                                              | model.ts:60       | M1, O1                   |
 | `QuotaInfo.parentSecurableType` (`SecurableType`)        | model.ts:62       | H2                       |
 | `QuotaInfo.parentFullName`                               | model.ts:64       | —                        |
 | `QuotaInfo.quotaName`                                    | model.ts:66       | —                        |
-| `QuotaInfo.quotaCount`                                   | model.ts:68       | M2                       |
-| `QuotaInfo.quotaLimit`                                   | model.ts:70       | M2                       |
+| `QuotaInfo.quotaCount`                                   | model.ts:68       | —                        |
+| `QuotaInfo.quotaLimit`                                   | model.ts:70       | —                        |
 | `QuotaInfo.lastRefreshedAt`                              | model.ts:72       | —                        |
 | `Client` (bare name)                                     | client.ts:37      | L2                       |
 | `PACKAGE_SEGMENT`                                        | client.ts:32      | O3                       |

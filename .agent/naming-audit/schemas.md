@@ -34,12 +34,7 @@ _None._
 
 ### 2. Acronym casing inconsistencies
 
-#### 2.1 "UC" / "Unity Catalog" inconsistency in URLs and doc text
-The endpoint path is `/api/2.1/unity-catalog/schemas` (client.ts:77,
-106, etc.) and the package docs spell out "Unity Catalog" / "the
-Metastore" (client.ts:71). No identifier in the package uses `UC` —
-only doc comments. Minor inconsistency, but flagged for cross-package
-review.
+_None._
 
 ---
 
@@ -262,16 +257,12 @@ No `fetch…` / `retrieve…` / `read…` outliers. No issues found.
 
 ### 13. Underspecified IDs
 
-#### 13.1 `metastoreId` (model.ts:29, 138, 196)
-Documented as "unique identifier of parent metastore". Format opaque
-(UUID? slug?). Acceptable but unspecified.
-
-#### 13.2 `schemaId` (model.ts:48, 157, 215)
+#### 13.1 `schemaId` (model.ts:48, 157, 215)
 "The unique identifier of the schema." No format hint (UUID?). The
 field exists alongside `fullName` (which is also a unique identifier
 in a different sense). Two simultaneous IDs without disambiguation.
 
-#### 13.3 `inheritedFromType` / `inheritedFromName` on `EffectivePredictiveOptimizationFlag` (model.ts:83, 85)
+#### 13.2 `inheritedFromType` / `inheritedFromName` on `EffectivePredictiveOptimizationFlag` (model.ts:83, 85)
 Both `string`. `inheritedFromType` could be one of the UC securable
 types, but the field is not enum-typed. `inheritedFromName` is opaque
 text.

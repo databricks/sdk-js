@@ -5,15 +5,15 @@
 **Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
 **Inferred domain:** Workspace-level Python "base environment" management for serverless notebooks and jobs. A `WorkspaceBaseEnvironment` points at a YAML dependency manifest (on WSFS or UC Volumes) for either CPU or GPU compute; the workspace also has a singleton `DefaultWorkspaceBaseEnvironment` that names one CPU default and one GPU default. The package exposes CRUD plus a `refresh` action and three long-running-operation helper classes.
 
-**Total weird names flagged:** 19
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 8 |
-| Medium | 4 |
-| Low | 5 |
-| Observation | 2 |
+| High | 7 |
+| Medium | 3 |
+| Low | 2 |
+| Observation | 1 |
 
 ---
 
@@ -67,35 +67,23 @@
 - **Suggested name:** `ServiceErrorDetails`, `DatabricksError`, or `RpcError`. Drop the `WithDetails`, `Proto`, and `Exception` suffix all at once.
 - **Rationale:** The name has the worst of every world: Java verb + Proto codegen tag + length. No piece of the name helps a TS consumer.
 
-### 8. `refreshWorkspaceBaseEnvironment` doc comment refers to "Refresh*Workspace*BaseEnvironment**s**" plural and the request type docstring says "to delete" — `model.ts:680, 683`
-- **Why weird:** The request type is `RefreshWorkspaceBaseEnvironmentRequest` (singular), but its JSDoc says: "Request message for RefreshWorkspaceBaseEnviro**ments**" (plural). The same type's `name` field doc says: "Required. The resource name of the workspace base environment **to delete**" — i.e. copy-pasted from the delete request and never edited.
-- **Category:** 9 (singular/plural mismatch — type vs doc), 6 (misleading doc — says delete).
-- **Suggested name:** Fix the docstrings — say "Refresh a workspace base environment. The resource name of the environment to refresh." Either keep the type singular (matches the client method `refreshWorkspaceBaseEnvironment`) or move to plural everywhere.
-- **Rationale:** Wrong action verb in a doc that an IDE will display when the user hovers a parameter. The package was generated from a proto where the message-name was singular but the doc-string copied from elsewhere — the SDK is propagating the bug.
-
 ---
 
 ## Medium severity
 
-### 9. `ErrorCode` enum exports ~100 values and is mostly deprecated — `model.ts:16-514, index.ts:12`
+### 8. `ErrorCode` enum exports ~100 values and is mostly deprecated — `model.ts:16-514, index.ts:12`
 - **Why weird:** The `ErrorCode` enum has roughly 100 members. The doc comments mark a large fraction as deprecated ("kept to maintain backwards compatibility"). Many members are domain-specific (e.g. `IPYNB_FILE_IN_REPO`, `GIT_URL_NOT_ON_ALLOW_LIST`, `MAX_NOTEBOOK_SIZE_EXCEEDED`, `DAC_ALREADY_EXISTS`) and have nothing to do with environments. The enum is a kitchen-sink import of every Databricks-platform error code, exported from a *workspace-base-environment* package.
 - **Category:** 1 (overly broad — exposed in the wrong scope), 7 (overly verbose surface), 12 (duplicate concept — `ErrorCode` likely lives in many packages).
 - **Suggested name:** Move to a shared `@databricks/sdk-databricks/apierror` (where `apierr/codes/` already lives, per AGENTS.md) and import it. The environments package should export at most the subset of codes it actually returns.
 - **Rationale:** Each package re-declaring all 100 error codes makes them non-comparable across imports and bloats the bundle. The package's `client.ts` imports `ApiError` from `@databricks/sdk-core/apierror` (utils.ts:5) — there is already a canonical location.
 
-### 10. `ErrorCode` values are SCREAMING_SNAKE strings, e.g. `'PROVIDER_SHARE_NOT_ACCESSIBLE'` — `model.ts:513`
+### 9. `ErrorCode` values are SCREAMING_SNAKE strings, e.g. `'PROVIDER_SHARE_NOT_ACCESSIBLE'` — `model.ts:513`
 - **Why weird:** Enum values are SCREAMING_SNAKE wire strings (e.g. `MAX_CHILD_NODE_SIZE_EXCEEDED`, `STORAGE_CREDENTIAL_ALREADY_EXISTS`). 100+ values × ~30 chars each = a large surface that consumers must spell exactly. TS pattern is `PascalCase` enum members.
 - **Category:** 14 (Java/Go-style names), 18 (long enum values).
 - **Suggested name:** `MaxChildNodeSizeExceeded`, `StorageCredentialAlreadyExists`, etc.
 - **Rationale:** TS conventions favour `PascalCase`. Wire format can keep SCREAMING_SNAKE via marshal/unmarshal.
 
-### 11. `UpdateWorkspaceBaseEnvironmentRequest.name` is undocumented — `model.ts:706`
-- **Why weird:** Most `*Request` types document their `name` field as "The resource name of the workspace base environment to ..." but `UpdateWorkspaceBaseEnvironmentRequest.name` (model.ts:706) is the only one with no JSDoc. The very next field (`workspaceBaseEnvironment`, line 711) is documented and even references `name`: "The name field is used to identify the environment to update."
-- **Category:** 19 (underspecified ID), 6 (misleading by omission).
-- **Suggested name:** Add JSDoc. The field is the resource name to update; say so. Or drop the field entirely if it duplicates `workspaceBaseEnvironment.name`.
-- **Rationale:** Inconsistent doc coverage in a generated file is a tell that the source proto field has no comment — should be fixed upstream.
-
-### 12. `DatabricksServiceExceptionWithDetailsProto` — `Service` mid-position is an architectural-layer leak, not domain — `model.ts:552, index.ts:18`
+### 10. `DatabricksServiceExceptionWithDetailsProto` — `Service` mid-position is an architectural-layer leak, not domain — `model.ts:552, index.ts:18`
 - **Why weird:** The mid-position word `Service` in `DatabricksServiceExceptionWithDetailsProto` describes a server-side architectural layer ("a service threw this exception"), not anything about the data the type carries. The type is a plain error payload with `errorCode`/`message`/`stackTrace`/`details`; no field references a "service". `Service` here mirrors the Java `*ServiceException` superclass pattern and the proto message name `DatabricksServiceExceptionWithDetails` — both server-internal concepts that have no meaning for a TS SDK consumer. Combined with the trailing `Proto` (codegen origin) the name is a stack of three architectural tags: `Service` (layer) + `Exception` (Java throwable) + `Proto` (wire format).
 - **Category:** proto-architectural-leak (mid-position `Service` is not the domain), 14 (Java-style naming), 20 (`Proto` suffix tautology).
 - **Suggested name:** `DatabricksErrorDetails`, `ServiceErrorPayload` is still leaky; prefer `ApiErrorDetails` or `RpcErrorDetails` if the gRPC framing is part of the public contract, otherwise just `ErrorDetails`/`DatabricksError`. Drop `Service`, `Exception`, and `Proto` together.
@@ -105,50 +93,26 @@
 
 ## Low severity
 
-### 13. `WorkspaceBaseEnvironment.isDefault` — boolean field on the resource, but `DefaultWorkspaceBaseEnvironment` is a separate type — `model.ts:741`
+### 11. `WorkspaceBaseEnvironment.isDefault` — boolean field on the resource, but `DefaultWorkspaceBaseEnvironment` is a separate type — `model.ts:741`
 - **Why weird:** A `WorkspaceBaseEnvironment` has an `isDefault` boolean (model.ts:741). The same package also has a separate `DefaultWorkspaceBaseEnvironment` type (model.ts:564) that represents the workspace's default. Two encodings of the same fact: a boolean on each environment, and a separate "default" type listing CPU/GPU defaults. A consumer can't tell from the type whether `isDefault` is computed from `DefaultWorkspaceBaseEnvironment` or vice versa.
 - **Category:** 12 (duplicate concept), 6 (misleading — which one is the source of truth?).
 - **Suggested name:** Document the relationship explicitly; or drop one. If `isDefault` is server-computed, it could be a `default: 'cpu' | 'gpu' | null` enum so a reader can tell which kind of default at a glance.
 - **Rationale:** Two representations of "is this the default" invite drift.
 
-### 14. `ListWorkspaceBaseEnvironmentsRequest.pageSize` doc says "Default is 1000" with no min/max — `model.ts:619`
-- **Why weird:** Page-size doc says only "Default is 1000". No documented min/max, no behavior on `0`, no behavior on values exceeding server cap.
-- **Category:** 19 (underspecified).
-- **Suggested name:** Add doc bounds.
-- **Rationale:** Doc-only nit; not a name issue per se but worth flagging in a naming audit because `pageSize` is a known naming convention with known semantics that this doc partially undermines.
-
-### 15. `requestId` doc says "A random UUID is recommended" but field is `string`, not UUID — `model.ts:545`
+### 12. `requestId` doc says "A random UUID is recommended" but field is `string`, not UUID — `model.ts:545`
 - **Why weird:** Doc strongly suggests UUID, but the type is `string`. If UUID is required for idempotency to work, that's a constraint the type doesn't capture.
 - **Category:** 19 (underspecified), 6 (slightly misleading).
 - **Suggested name:** Keep `requestId: string` but document constraints, or use a branded type `RequestId = string & {__brand: 'RequestId'}`.
 - **Rationale:** Doc-implied invariants that aren't in the type.
 
-### 16. `WorkspaceBaseEnvironment.displayName` — generic, lacks "human-readable" or constraints — `model.ts:725`
-- **Why weird:** Doc says "Human-readable display name". No documented uniqueness, max length, allowed characters. Compare `workspaceBaseEnvironmentId` (model.ts:543) which is constrained: "4-63 characters, valid characters /[a-z][0-9]-/". `displayName` deserves similar treatment in the doc.
-- **Category:** 19 (underspecified), 1 (slightly generic).
-- **Suggested name:** Keep but document constraints.
-- **Rationale:** Minor.
-
-### 17. `WorkspaceBaseEnvironment.filepath` — points at a YAML file but type is `string` — `model.ts:727`
-- **Why weird:** Doc says "The WSFS or UC Volumes path to the environment YAML file." But the field is `string`. WSFS paths and UC Volume paths have different syntaxes (`/Workspace/...` vs `/Volumes/...`). The type permits any string. A union of the two path types would be more precise but probably not worth the porting effort.
-- **Category:** 19 (underspecified — the doc lists two valid path types but the type doesn't distinguish).
-- **Suggested name:** Keep `filepath`, but document the allowed prefixes.
-- **Rationale:** Minor.
-
 ---
 
 ## Observation
 
-### 18. Package version is hard-coded `v1` while sibling `clusterlibraries` is `v2` for the same concept — `packages/environments/src/v1/`, `packages/clusterlibraries/src/v2/`
+### 13. Package version is hard-coded `v1` while sibling `clusterlibraries` is `v2` for the same concept — `packages/environments/src/v1/`, `packages/clusterlibraries/src/v2/`
 - **Why noteworthy:** The two packages model the same `BaseEnvironment` concept at different version numbers. `clusterlibraries/v2` has `DefaultBaseEnvironment`; `environments/v1` has `DefaultWorkspaceBaseEnvironment`. Likely `environments` is the newer, narrower carve-out (workspace-scoped), but the version numbers misleadingly suggest `clusterlibraries` is newer.
 - **Category:** 12 (duplicate concept), 6 (misleading lineage signal).
 - **Suggested action:** Document the relationship in `index.ts` of each package (e.g. "This supersedes / is superseded by / is independent of `clusterlibraries/v2`"). Or align versions.
 - **Rationale:** Generator-level; not actionable in TS alone, but worth recording.
-
-### 19. JSDoc comment "If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto" leaks internal-only path — `model.ts:8`
-- **Why noteworthy:** The comment on `BaseEnvironmentType` references an internal proto path that public SDK consumers cannot see, cannot navigate to, and have no use for. It's a generator-cycle reminder to Databricks engineers that shouldn't have made it through the porting/codegen scrub.
-- **Category:** 6 (misleading — refers to a non-public artefact in a doc comment public users see).
-- **Suggested action:** Strip internal references from generated comments at codegen time.
-- **Rationale:** SDK hygiene; not a name issue but worth flagging in the audit since the comment is on a *public* type.
 
 ---

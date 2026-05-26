@@ -3,7 +3,7 @@
 **Path:** `packages/lakeview/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks AI/BI Dashboards (formerly named "Lakeview"). CRUD of draft dashboards, publish/unpublish, schedule periodic refresh, and email subscriptions tied to schedules. Also includes a one-way migration entry point from the older "classic SQL" dashboards.
-**Total weird names flagged:** 19
+**Total weird names flagged:** 16
 
 ## Summary
 
@@ -11,8 +11,8 @@
 | ----------- | ----- |
 | High        | 6     |
 | Medium      | 5     |
-| Low         | 4     |
-| Observation | 4     |
+| Low         | 2     |
+| Observation | 3     |
 
 ## Summary table
 
@@ -30,13 +30,10 @@
 | 10 | Medium      | `client.ts` method                    | `trashDashboard` vs everywhere else `delete...`                                                 | 17         |
 | 11 | Medium      | `model.ts` interface                  | `PublishDashboardRequest` & `PublishedDashboard`                                                | 6, 12      |
 | 12 | Low         | `model.ts` field                      | `Subscription.createdByUserId` typed `number`                                                   | 19, 16     |
-| 13 | Low         | `model.ts` field                      | `Dashboard.warehouseId`                                                                         | 19         |
-| 14 | Low         | `model.ts` field                      | `Dashboard.etag` / `Schedule.etag` / `Subscription.etag`                                        | 3          |
-| 15 | Low         | `model.ts` field                      | `Dashboard.path` and `Dashboard.parentPath`                                                     | 15, 6      |
-| 16 | Observation | `model.ts` field                      | `CreateDashboardRequest.datasetCatalog`/`datasetSchema`                                         | 15         |
-| 17 | Observation | `model.ts` field                      | `ListSchedulesRequest.dashboardId` doc typo                                                     | 9          |
-| 18 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
-| 19 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
+| 13 | Low         | `model.ts` field                      | `Dashboard.etag` / `Schedule.etag` / `Subscription.etag`                                        | 3          |
+| 14 | Observation | `model.ts` field                      | `Dashboard.path` and `Dashboard.parentPath`                                                     | 15, 6      |
+| 15 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
+| 16 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
 
 ---
 
@@ -258,17 +255,7 @@ Also, the doc string is past-tense verb plus present-tense ("adds") — inconsis
 
 **Rationale:** Silent overflow is the worst kind of bug.
 
-### 13. `Dashboard.warehouseId` — underspecified ID
-
-**Location:** `src/v1/model.ts:112`
-
-`warehouseId` is a SQL Warehouse ID. The field doc says "warehouse ID used to run the dashboard". Format isn't specified — it's an alphanumeric like `1abc2d3456e789f`. Common across the SDK.
-
-**Category:** 19.
-
-**Suggested name:** Keep `warehouseId`, but JSDoc should specify "SQL Warehouse ID (alphanumeric, found at `/sql/warehouses/{id}` in the UI)".
-
-### 14. `Dashboard.etag`, `Schedule.etag`, `Subscription.etag` — `etag` lowercase casing
+### 13. `Dashboard.etag`, `Schedule.etag`, `Subscription.etag` — `etag` lowercase casing
 
 **Location:** `src/v1/model.ts:118`, `src/v1/model.ts:341`, `src/v1/model.ts:365`
 
@@ -278,7 +265,11 @@ Consistent within the package, but the HTTP spec spells it `ETag`. Most TS SDKs 
 
 **Suggested name:** Keep `etag`. Note the project convention.
 
-### 15. `Dashboard.path` vs `Dashboard.parentPath` — overlap
+---
+
+## Observations
+
+### 14. `Dashboard.path` vs `Dashboard.parentPath` — overlap
 
 **Location:** `src/v1/model.ts:103`, `src/v1/model.ts:135`
 
@@ -293,37 +284,7 @@ parentPath?: string | undefined;    // workspace path of the folder containing t
 
 **Suggested name:** Keep both. Either rename `path → fullPath` for symmetry, or document the relationship in JSDoc on both fields.
 
----
-
-## Observations
-
-### 16. `CreateDashboardRequest.datasetCatalog`/`datasetSchema` — generic prefix
-
-**Location:** `src/v1/model.ts:61,67`
-
-```ts
-datasetCatalog?: string | undefined;
-datasetSchema?: string | undefined;
-```
-
-`Catalog` and `Schema` are Unity Catalog concepts. The prefix `dataset` is what scopes them (apply only to datasets in this dashboard). Without the prefix the fields would be ambiguous with workspace-level catalog/schema. The current names are accurate but a developer reading the field for the first time might think `datasetSchema` is a structural/JSON schema for the dataset — *Schema* is overloaded.
-
-**Suggested name:** Keep. Add JSDoc clarifying "this is the Unity Catalog *catalog* / *schema* applied to dataset queries". Done already in the JSDoc, but worth flagging.
-
-### 17. `ListSchedulesRequest.dashboardId` doc typo
-
-**Location:** `src/v1/model.ts:242`
-
-```ts
-/** UUID identifying the dashboard to which the schedules belongs. */
-dashboardId?: string | undefined;
-```
-
-"schedules belongs" — verb agreement error. Same on `ListSubscriptionsRequest.dashboardId` line 263 ("subscriptions belongs") and 265 ("subscriptions belongs"). Generated-code artifact; fix at template level.
-
-**Category:** 9 (plural verb agreement).
-
-### 18. `index.ts` — mixed `export {...}` and `export type {...}`
+### 15. `index.ts` — mixed `export {...}` and `export type {...}`
 
 **Location:** `src/v1/index.ts:5,7-43`
 
@@ -334,7 +295,7 @@ export type {AuthorizationDetails, ...} from './model';
 
 Enums are exported as values (correct — they have runtime representation); interfaces are exported as types (correct — type-only). The pattern is right; flagging only because a reader scanning the index file might miss the distinction. Consistent with other SDK packages.
 
-### 19. URL paths still use `lakeview`
+### 16. URL paths still use `lakeview`
 
 **Location:** Every method's URL constant in `client.ts`, e.g. line 105: `/api/2.0/lakeview/dashboards`
 

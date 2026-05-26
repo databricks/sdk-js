@@ -8,11 +8,11 @@ the SDK and exposes ~140 interfaces, 47 enums, and 19 client methods.
 
 | Severity     | Count | Notes                                                                          |
 | ------------ | ----- | ------------------------------------------------------------------------------ |
-| High         | 26    | Reserved-word risks, broken/misleading names, identifier collisions, contradictions, proto-architectural leaks. |
-| Medium       | 50    | Redundant prefixes/suffixes, vague names, acronym casing, pluralization.       |
-| Low          | 25    | Mild verbosity, plural mismatches, stylistic inconsistencies.                  |
-| Observations | 14    | Patterns spanning the entire file (oneof wrappers, ID typing, etc.).           |
-| **Total**    | **115** | |
+| High         | 24    | Reserved-word risks, broken/misleading names, identifier collisions, contradictions, proto-architectural leaks. |
+| Medium       | 41    | Redundant prefixes/suffixes, vague names, acronym casing, pluralization.       |
+| Low          | 21    | Mild verbosity, plural mismatches, stylistic inconsistencies.                  |
+| Observations | 11    | Patterns spanning the entire file (oneof wrappers, ID typing, etc.).           |
+| **Total**    | **97** | |
 
 Issues are catalogued below by severity, then by file/line.
 
@@ -86,97 +86,84 @@ Issues are catalogued below by severity, then by file/line.
 - **Suggestion:** Same as H10 — remove or rename to `runIdAlias`.
 - **Rationale:** Same dead duplication on the response.
 
-### H12. `Format` enum value `SINGLE_TASK` is semantically dead
-- **Location:** `model.ts:151-154`.
-- **Category:** Misleading names (#6).
-- **Suggestion:** Mark `SINGLE_TASK` with `@deprecated` (the JSDoc on `CreateJobRequest.format` says it's always `MULTI_TASK`).
-- **Rationale:** Exposing a value the server will never return is a footgun.
-
-### H13. `TaskDependencyType.NONE_FAILED` reads as a negation, not a condition
+### H12. `TaskDependencyType.NONE_FAILED` reads as a negation, not a condition
 - **Location:** `model.ts:282`.
 - **Category:** Misleading names (#6).
 - **Suggestion:** Document inline, or rename to `NO_FAILURES_AT_LEAST_ONE_RAN`. Alternatively, `AT_LEAST_ONE_SUCCESS_NONE_FAILED`.
 - **Rationale:** The enum-level JSDoc clarifies "none failed AND at least one was executed" — this is non-obvious from the name.
 
-### H14. `JobsHealthMetric` / `JobsHealthOperator` / `JobsHealthRule` / `JobsHealthRules` — pluralization confusion
+### H13. `JobsHealthMetric` / `JobsHealthOperator` / `JobsHealthRule` / `JobsHealthRules` — pluralization confusion
 - **Location:** `model.ts:198`, `model.ts:207`, `model.ts:2556`, `model.ts:2564`.
 - **Category:** Singular/plural mismatch (#9), redundant suffixes (#8).
 - **Suggestion:** `JobsHealthRule` and `JobsHealthRules` differ only by `s` and the inner wraps a `rules?: JobsHealthRule[]`. Flatten — make the array the public shape (call it `HealthRules` or just `HealthRule[]`).
 - **Rationale:** Hairsplitting wrappers around arrays force consumers to write `{rules: [...]}` instead of `[...]`. Plural type names alongside singular ones are the most error-prone pattern in this file.
 
-### H15. `JobsHealth*` prefix is inconsistent — `Jobs` is plural
+### H14. `JobsHealth*` prefix is inconsistent — `Jobs` is plural
 - **Location:** `model.ts:198`, `model.ts:207`, `model.ts:2556`, `model.ts:2564`.
 - **Category:** Singular/plural mismatch (#9), Go/Java-style names (#14).
 - **Suggestion:** Use the singular product noun: `JobHealthMetric`, `JobHealthRule`. Or just `HealthMetric` if global.
 - **Rationale:** `Job.health: JobsHealthRules` reads as "this job's healths" — the `s` is a porting artifact (proto file is `jobs.proto`).
 
-### H16. `RunNowRequest_Response.runId` field is the "newly triggered run" — confusingly typed `number`
+### H15. `RunNowRequest_Response.runId` field is the "newly triggered run" — confusingly typed `number`
 - **Location:** `model.ts:3742`.
 - **Category:** Underspecified IDs (#19).
 - **Suggestion:** Add a branded type alias `RunId = number & {readonly __brand: 'RunId'}` or use `string` to match `bigint`-safe APIs.
 - **Rationale:** Run IDs exceed Number.MAX_SAFE_INTEGER (~9e15) for long-lived workspaces. The current `number` typing silently lossy-truncates; consumers cannot distinguish `runId`, `jobId`, `taskRunId`, `repairId`, `originalAttemptRunId`, `dbtCloudJobRunId`, `dbtPlatformJobRunId` (string!).
 
-### H17. `DbtCloudTaskOutput.dbtCloudJobRunId: number` but `DbtPlatformTaskOutput.dbtPlatformJobRunId: string`
+### H16. `DbtCloudTaskOutput.dbtCloudJobRunId: number` but `DbtPlatformTaskOutput.dbtPlatformJobRunId: string`
 - **Location:** `model.ts:1605`, `model.ts:1637`.
 - **Category:** Field contradicting type domain (#16), misleading names (#6).
 - **Suggestion:** Standardize on `string` for upstream IDs; note in JSDoc.
 - **Rationale:** Same semantic field encoded as two different TS types in adjacent interfaces is a bug magnet.
 
-### H18. `RunJobTask` reads as "run-job task" or "run a job task" — ambiguous
+### H17. `RunJobTask` reads as "run-job task" or "run a job task" — ambiguous
 - **Location:** `model.ts:3500`.
 - **Category:** Misleading names (#6).
 - **Suggestion:** Rename to `RunChildJobTask` or `TriggerJobTask` (this is the "trigger another job" task type per JSDoc on line 3976).
 - **Rationale:** Reading `task: RunJobTask` is ambiguous: is it "the run of a job task" or "task that runs a job"?
 
-### H19. `BaseJob` and `GetJobRequest_Response` and `Run` duplicate ~10 identical fields
+### H18. `BaseJob` and `GetJobRequest_Response` and `Run` duplicate ~10 identical fields
 - **Location:** `model.ts:874`, `model.ts:1973`, `model.ts:3399`, `model.ts:908`.
 - **Category:** Duplicate concepts (#12).
 - **Suggestion:** Extract a shared `JobIdentity` / `JobCoreFields` interface or use TS `Pick`/`Omit` on a base shape.
 - **Rationale:** Fields like `jobId`, `creatorUserName`, `runAsUserName`, `settings`, `createdTime`, `triggerState`, `hasMore`, `effectiveBudgetPolicyId`, `effectiveUsagePolicyId` are repeated verbatim in `BaseJob` and `GetJobRequest_Response`. Diverges silently.
 
-### H20. `RunStatus.state` (V2) vs `RunState.lifeCycleState` (V1) — same concept, different field names + different enums
+### H19. `RunStatus.state` (V2) vs `RunState.lifeCycleState` (V1) — same concept, different field names + different enums
 - **Location:** `model.ts:3852`, `model.ts:3866`.
 - **Category:** Duplicate concepts (#12), versioned API leakage (#11).
 - **Suggestion:** Pick `RunStatus` as the canonical shape, deprecate `RunState`, and document the deprecation in the rule.
 - **Rationale:** The JSDoc on `Run.state` already says "Deprecated. Please use the `status` field instead." but the type is still exported and still shows up in the union.
 
-### H21. `MAXIMUM_CONCURRENT_RUNS_REACHED` (CleanRoom) vs `MAX_CONCURRENT_RUNS_REACHED` (queue) vs `MAX_CONCURRENT_RUNS_EXCEEDED` (termination)
+### H20. `MAXIMUM_CONCURRENT_RUNS_REACHED` (CleanRoom) vs `MAX_CONCURRENT_RUNS_REACHED` (queue) vs `MAX_CONCURRENT_RUNS_EXCEEDED` (termination)
 - **Location:** `model.ts:390`, `model.ts:478`, `model.ts:542`, `model.ts:662`.
 - **Category:** Inconsistent naming (#17).
 - **Suggestion:** Normalize to one form. The `MAX_` form is more common; reach-vs-exceed should pick one verb.
 - **Rationale:** Three enums describe the same overflow scenario with three different names. Consumers cannot write a generic handler.
 
-### H22. `client.exportRun` returns `ExportRunRequest_Response` which contains a `views` array of `ViewItem`
+### H21. `client.exportRun` returns `ExportRunRequest_Response` which contains a `views` array of `ViewItem`
 - **Location:** `client.ts:449`, `model.ts:1830`, `model.ts:4920`.
 - **Category:** Vague/generic (#1).
 - **Suggestion:** Rename `ViewItem` to `ExportedView` or `RunView`.
 - **Rationale:** "Item" is the canonical empty noun. The type has `content`, `name`, `type: ViewType` — call it what it is.
 
-### H23. `ViewType` enum vs `ViewsToExport` enum — overlapping but disjoint
+### H22. `ViewType` enum vs `ViewsToExport` enum — overlapping but disjoint
 - **Location:** `model.ts:327`, `model.ts:337`.
 - **Category:** Duplicate concepts (#12).
 - **Suggestion:** Merge or namespace: `View.Type` (NOTEBOOK | DASHBOARD) and `View.ExportSelector` (CODE | DASHBOARDS | ALL).
 - **Rationale:** Two enums about "views" with different value sets and intent. Users will pick the wrong one.
 
-### H24. `cancelRunWaiter` polls on the V1 lifecycle-state enum while the modern field is `RunStatus.state`
+### H23. `cancelRunWaiter` polls on the V1 lifecycle-state enum while the modern field is `RunStatus.state`
 - **Location:** `client.ts:971-1048`.
 - **Category:** Versioned API leakage.
 - **Suggestion:** Either poll on the new `RunStatus` or document why V1 is still authoritative.
 - **Rationale:** Future deprecation of V1 will silently break all four waiters.
 
-### H25. `RunLifecycleStateV2` + `RunLifecycleStateV2_State` — `V2` infix leaks API/proto versioning into public identifiers
+### H24. `RunLifecycleStateV2` + `RunLifecycleStateV2_State` — `V2` infix leaks API/proto versioning into public identifiers
 - **Location:** `model.ts:509` (`RunLifecycleStateV2_State` enum), `model.ts:3615` (`RunLifecycleStateV2` wrapper interface), `model.ts:3867` (`RunStatus.state: RunLifecycleStateV2_State`).
 - **Why:** `V2` mid-token in a type name records that the upstream schema versioned this enum, not anything a JS consumer needs. The V1 type already lives at `RunLifeCycleState` / `RunLifeCycleState_RunLifeCycleState`; the V2 variant should adopt a domain-meaningful name rather than a version-stamped one.
 - **Category:** Proto-architectural-leak (`V2` mid-position).
 - **Suggested:** Rename the wrapper to `RunLifecycleState` (singular, modern) and the enum to `RunLifecycleState_State` — then mark the legacy `RunLifeCycleState` family `@deprecated`. If the V1 type must keep its current name for back-compat, rename the V2 family to `RunPhase` or `RunLifecycleStatus` (anything that says "this is the new shape" without encoding the version number).
 - **Rationale:** `V2` as part of a type name is the textbook proto-architectural leak this audit category targets; it bakes upstream-version churn into every consumer's import list. The casing difference (`LifeCycle` vs `Lifecycle`) between V1 and V2 names also makes the pair harder to grep.
-
-### H26. `ProjectCheckoutInternalRepo` RPC name leaked into public JSDoc on `TerminationCode_Code`
-- **Location:** `model.ts:619` (comment on `REPOSITORY_CHECKOUT_FAILED`).
-- **Why:** The JSDoc reads "Returned if [[ProjectCheckoutInternalRepo]] RPC fails" — `ProjectCheckoutInternalRepo` is an internal service RPC, and the `Internal` token plus `RPC` mention exposes a backend implementation detail to public API consumers.
-- **Category:** Proto-architectural-leak (`Internal` infix, `RPC` reference in public doc).
-- **Suggested:** Rewrite the JSDoc to describe the user-visible failure ("Returned if checking out the project's source repository failed") without naming the internal RPC.
-- **Rationale:** Internal service/RPC names should not surface in JSDoc; they leak the server topology and become stale references when the backend reorganizes.
 
 ---
 
@@ -260,154 +247,110 @@ Issues are catalogued below by severity, then by file/line.
 - **Category:** Long enum values (#18).
 - **Suggestion:** Acceptable; consider grouping into a nested enum if the four become five.
 
-### M15. `WaitAfterLastChangeSeconds` — appears identically in three triggers
-- **Location:** `model.ts:1846`, `model.ts:2833`, `model.ts:4658`.
-- **Category:** Verbose, repetitive (#7).
-- **Suggestion:** OK, document once.
-
-### M16. `CleanRoomsNotebookTask` (plural "Rooms") vs `CleanRoomTaskRunState` (singular)
+### M15. `CleanRoomsNotebookTask` (plural "Rooms") vs `CleanRoomTaskRunState` (singular)
 - **Location:** `model.ts:1041`, `model.ts:1026`.
 - **Category:** Singular/plural mismatch (#9).
 - **Suggestion:** Pick one. `CleanRoom*` (singular) is consistent with the standalone product "Clean Rooms" being treated as a singular feature.
 
-### M17. `clean_room_name` (snake_case in wire) → `cleanRoomName` (good); but JSDoc switches to `cleanrooms` in URL
+### M16. `clean_room_name` (snake_case in wire) → `cleanRoomName` (good); but JSDoc switches to `cleanrooms` in URL
 - **Location:** `model.ts:1043`.
 - **Category:** Acronym casing (#3).
 - **Suggestion:** Acceptable; brand inconsistency is upstream's responsibility.
 
-### M18. `DbtCloudJobRunStep` (deprecated) and `DbtPlatformJobRunStep` (new)
-- **Location:** `model.ts:1583`, `model.ts:1613`.
-- **Category:** Versioned API leakage.
-- **Suggestion:** OK while transition is documented; reconsider after dbt Cloud is dropped.
-
-### M19. `SparkJarTask.jarUri` (deprecated) — already deprecated
-- **Location:** `model.ts:4311`.
-- **Category:** OK as docstring; ensure `@deprecated` JSDoc tag added.
-
-### M20. `SparkJarTask.runAsRepl` — deprecated; values restricted
-- **Location:** `model.ts:4325`.
-- **Category:** Vague/misleading (#6).
-- **Suggestion:** `@deprecated`. Comment says "A value of `false` is no longer supported."
-
-### M21. `Repair.type` (RepairType) is a reserved-ish word
+### M17. `Repair.type` (RepairType) is a reserved-ish word
 - **Location:** `model.ts:3084`, `model.ts:4926`.
 - **Category:** Reserved-word collision (#10).
 - **Suggestion:** Acceptable on objects (TS allows `type` as a property), but flag against naming-convention rule.
 
-### M22. `RunNowRequest.idempotencyToken`, `SubmitRunRequest.idempotencyToken` — OK
+### M18. `RunNowRequest.idempotencyToken`, `SubmitRunRequest.idempotencyToken` — OK
 - **Location:** `model.ts:3634`, `model.ts:4570`.
 - **Category:** Verbose but precise.
 
-### M23. `RepairRunRequest.rerunTasks` (verb prefix `re-`) + `rerunAllFailedTasks` + `rerunDependentTasks` — OK pattern
+### M19. `RepairRunRequest.rerunTasks` (verb prefix `re-`) + `rerunAllFailedTasks` + `rerunDependentTasks` — OK pattern
 - **Location:** `model.ts:3111-3117`.
 - **Category:** Consistent prefix; OK.
 
-### M24. `RepairRunRequest.latestRepairId` vs `RepairRunRequest_Response.repairId` (no `latest`)
-- **Location:** `model.ts:3109`, `model.ts:3221`.
-- **Category:** Inconsistent naming (#17).
-- **Suggestion:** Document the semantic: request takes "the previous latest", response returns "the new latest".
-
-### M25. `DockerImage.credsOneof` — exposes proto oneof name to TS
+### M20. `DockerImage.credsOneof` — exposes proto oneof name to TS
 - **Location:** `model.ts:1715`.
 - **Category:** Go/Java-style names (#14).
 - **Suggestion:** Rename to `credentials` or `auth`.
 
-### M26. `JobRunAs.identity` — OK
+### M21. `JobRunAs.identity` — OK
 - **Location:** `model.ts:2398`.
 
-### M27. `JobCluster.jobClusterKey` — `jobCluster` namespace already, `Key` is the only meaningful suffix
+### M22. `JobCluster.jobClusterKey` — `jobCluster` namespace already, `Key` is the only meaningful suffix
 - **Location:** `model.ts:2340`.
 - **Category:** Acceptable; key is the lookup pattern.
 
-### M28. `JobEnvironment.environmentKey` — same pattern, OK.
+### M23. `JobEnvironment.environmentKey` — same pattern, OK.
 - **Location:** `model.ts:2381`.
 
-### M29. `TaskSettings.taskKey` — OK, but its repetition across `RunTask`, `RunTaskSettings`, `TaskSettings`, `TaskDependency` is heavy
+### M24. `TaskSettings.taskKey` — OK, but its repetition across `RunTask`, `RunTaskSettings`, `TaskSettings`, `TaskDependency` is heavy
 - **Location:** `model.ts:4682`, `model.ts:3902`, `model.ts:4091`, `model.ts:4671`.
 - **Category:** Verbose but precise.
 
-### M30. `ResolvedValues` interface has 11 single-purpose sub-types
+### M25. `ResolvedValues` interface has 11 single-purpose sub-types
 - **Location:** `model.ts:3247-3397`.
 - **Category:** Verbose; many shapes for one purpose.
 - **Suggestion:** Collapse into a single `ResolvedValues` shape with optional fields per task type, or document the union shape pattern.
 
-### M31. `BaseRun.numberInJob` — meaningless field (see H10)
+### M26. `BaseRun.numberInJob` — meaningless field (see H10)
 - **Location:** `model.ts:916`.
 
-### M32. `BaseRun.originalAttemptRunId` — verbose, but precise.
+### M27. `BaseRun.originalAttemptRunId` — verbose, but precise.
 
-### M33. `Run.runId` (inside `Run`) — tautological
+### M28. `Run.runId` (inside `Run`) — tautological
 - **Location:** `model.ts:3403`, `model.ts:912`, `model.ts:2140`, `model.ts:3877`.
 - **Category:** Type-suffix tautology (#20).
 - **Suggestion:** Keep for ID disambiguation against `jobId`; this is intentional disambiguation rather than tautology.
 
-### M34. `Run.tasks: RunTask[]` — same `tasks` field also exists on `BaseRun`, `Run`, `GetRunRequest_Response` — could be deduped
+### M29. `Run.tasks: RunTask[]` — same `tasks` field also exists on `BaseRun`, `Run`, `GetRunRequest_Response` — could be deduped
 - **Location:** `model.ts:942`, `model.ts:3433`, `model.ts:2170`.
 
-### M35. `RunNowRequest_Response.numberInJob` (see H11).
+### M30. `RunNowRequest_Response.numberInJob` (see H11).
 
-### M36. `ListJobsRequest.limit` vs `ListRunsRequest.limit` documentation discrepancy
-- **Location:** `model.ts:2692`, `model.ts:2751`.
-- **Category:** Inconsistent docs (not naming, but worth flagging).
-- **Suggestion:** Document max values explicitly; `ListJobsRequest` says ≤100, `ListRunsRequest` says <25.
-
-### M37. `ListJobsRequest.offset` deprecated by `pageToken` — but both still typed
-- **Location:** `model.ts:2690`.
-- **Category:** Deprecation hygiene.
-- **Suggestion:** Add `@deprecated` JSDoc to `offset`.
-
-### M38. `Adlsgen2Info` field `destination` — vague (could be `path`, `url`)
-- **Location:** `model.ts:708`, similar in `DbfsStorageInfo`, `S3StorageInfo`, `GcsStorageInfo`, `LocalFileInfo`, `VolumesStorageInfo`, `WorkspaceStorageInfo`.
-- **Category:** Generic field names (#15).
-- **Suggestion:** Each storage type has different URI semantics; `destination` is fine since it's polymorphic, but document the form.
-
-### M39. `Source` enum — only `WORKSPACE`/`GIT` — could be a literal type
+### M31. `Source` enum — only `WORKSPACE`/`GIT` — could be a literal type
 - **Location:** `model.ts:257`.
 - **Category:** Type design.
 - **Suggestion:** Could be `type CodeSource = 'WORKSPACE' | 'GIT'`. Same for `Format`, `ViewType`, etc.
 
-### M40. `Format` enum has only two values (`SINGLE_TASK`, `MULTI_TASK`) and one is dead
+### M32. `Format` enum has only two values (`SINGLE_TASK`, `MULTI_TASK`) and one is dead
 - **Location:** `model.ts:151-154`.
 - **Category:** Dead enum value.
 
-### M41. `AlertEvaluationState_AlertEvaluationState.UNKNOWN`
+### M33. `AlertEvaluationState_AlertEvaluationState.UNKNOWN`
 - **Location:** `model.ts:355`.
 - **Category:** Generic enum value (#1).
 - **Suggestion:** `UNKNOWN` is universally vague; consider `NOT_EVALUATED`.
 
-### M42. `SqlTask_SqlTaskQueryStatus.CANCELLED` (double-L) vs `RunResultState_RunResultState.CANCELED` (single-L) vs `DbtPlatformRunStatus.CANCELLED` (double-L)
+### M34. `SqlTask_SqlTaskQueryStatus.CANCELLED` (double-L) vs `RunResultState_RunResultState.CANCELED` (single-L) vs `DbtPlatformRunStatus.CANCELLED` (double-L)
 - **Location:** `model.ts:570`, `model.ts:541`, `model.ts:137`.
 - **Category:** Inconsistent naming (#17).
 - **Suggestion:** Pick one spelling; "canceled" (single-L) is the American spelling, "cancelled" is the British. Cross-checking with go SDK keeps wire compat.
 
-### M43. `TerminationCode_Code.USER_CANCELED` vs `TerminationCode_Code.CANCELED` (no `USER_`)
-- **Location:** `model.ts:670`, `model.ts:611`.
-- **Category:** Overlapping enum values (#12).
-- **Suggestion:** Document distinction (one is user-initiated, the other is platform-initiated).
-
-### M44. `WorkloadType.clients: WorkloadType_ClientsTypes` — `ClientsTypes` is mis-pluralized
+### M35. `WorkloadType.clients: WorkloadType_ClientsTypes` — `ClientsTypes` is mis-pluralized
 - **Location:** `model.ts:4967`, `model.ts:4971`.
 - **Category:** Singular/plural mismatch (#9).
 - **Suggestion:** Rename to `ClientTypes`.
 
-### M45. `RCranLibrary` capitalization — should be `CranLibrary` (R is a language; doesn't need to lead)
+### M36. `RCranLibrary` capitalization — should be `CranLibrary` (R is a language; doesn't need to lead)
 - **Location:** `model.ts:3075`.
 - **Category:** Acronym casing (#3).
 - **Suggestion:** Cran is an acronym (CRAN = Comprehensive R Archive Network). `RLibrary` works too. The `R` prefix is from the Go SDK.
 
-### M46. `PythonPyPiLibrary` — duplicate "Py" prefix
+### M37. `PythonPyPiLibrary` — duplicate "Py" prefix
 - **Location:** `model.ts:3026`.
 - **Category:** Redundant prefixes (#2).
 - **Suggestion:** Rename to `PyPiLibrary` (PyPI already means "Python Package Index").
 
-### M47. `MavenLibrary.coordinates` — common, accept.
+### M38. `MavenLibrary.coordinates` — common, accept.
 - **Location:** `model.ts:2797`.
 
-### M48. `PythonWheelTask.namedParameters` vs `parameters` — fine when distinct.
+### M39. `PythonWheelTask.namedParameters` vs `parameters` — fine when distinct.
 
-### M49. `ListJobsRequest.expandTasks`, `ListRunsRequest.expandTasks` — `boolean` flag is fine.
+### M40. `ListJobsRequest.expandTasks`, `ListRunsRequest.expandTasks` — `boolean` flag is fine.
 
-### M50. `ListRunsRequest.runType` shouldn't be optional when the API permits a default
+### M41. `ListRunsRequest.runType` shouldn't be optional when the API permits a default
 - **Location:** `model.ts:2753`.
 - **Category:** Default semantics.
 
@@ -416,7 +359,7 @@ Issues are catalogued below by severity, then by file/line.
 ## Low
 
 ### L1. `Adlsgen2Info` — see M1.
-### L2. `WorkloadType_ClientsTypes` — see M44.
+### L2. `WorkloadType_ClientsTypes` — see M35.
 
 ### L3. `PowerBiTable.name` vs `PowerBiTable.catalog`, `schema` — OK (catalog/schema/name is the Databricks 3-part).
 
@@ -429,51 +372,40 @@ Issues are catalogued below by severity, then by file/line.
 
 ### L7. `JobEmailNotifications.onStart` / `onSuccess` / `onFailure` etc. — OK.
 
-### L8. `JobEmailNotifications.noAlertForSkippedRuns` (deprecated) — `@deprecated` recommended.
+### L8. `WebhookNotifications.onStreamingBacklogExceeded` — accept.
 
-### L9. `WebhookNotifications.onStreamingBacklogExceeded` — accept.
+### L9. `ContinuousSettings.taskRetryMode` (enum) — OK.
 
-### L10. `ContinuousSettings.taskRetryMode` (enum) — OK.
+### L10. `ContinuousSettings.pauseStatus: SchedulePauseStatus` — naming OK.
 
-### L11. `ContinuousSettings.pauseStatus: SchedulePauseStatus` — naming OK.
+### L11. `CronSchedule.timezoneId` (lowercase `z`) — OK per ISO usage.
 
-### L12. `CronSchedule.timezoneId` (lowercase `z`) — OK per ISO usage.
+### L12. `CronSchedule.quartzCronExpression` — long but precise.
 
-### L13. `CronSchedule.quartzCronExpression` — long but precise.
+### L13. `JobSource.jobConfigPath` — `jobConfig` prefix inside `JobSource` is mild tautology.
 
-### L14. `JobSource.jobConfigPath` — `jobConfig` prefix inside `JobSource` is mild tautology.
-
-### L15. `JobDeployment.metadataFilePath`
+### L14. `JobDeployment.metadataFilePath`
 - **Location:** `model.ts:2354`.
 - **Category:** Verbose.
 
-### L16. `Run.setupDuration` / `executionDuration` — JSDoc states they are 0 for multitask job runs; should be on `RunTask` only.
+### L15. `Run.setupDuration` / `executionDuration` — JSDoc states they are 0 for multitask job runs; should be on `RunTask` only.
 - **Location:** `model.ts:3477-3479`.
 - **Category:** Field contradicting type domain (#16).
 - **Suggestion:** Move to `RunTask` only, mark deprecated on `Run`.
 
-### L17. `RepairRunRequest.dbtCommands` — present on `RunNowRequest`, `RunJobTask`, `RepairRunRequest`, `RunParameters`.
+### L16. `RepairRunRequest.dbtCommands` — present on `RunNowRequest`, `RunJobTask`, `RepairRunRequest`, `RunParameters`.
 - **Location:** `model.ts:3190`, `model.ts:3570`, `model.ts:3711`, `model.ts:3821`.
 - **Category:** Repeated identical fields — argues for shared `RunOverrideParameters` base.
 
-### L18. `SparkPythonTask.parameters` (string[]) — OK.
+### L17. `SparkPythonTask.parameters` (string[]) — OK.
 
-### L19. `SparkJarTask.runAsRepl` (deprecated) — see M20.
+### L18. `Library.cran: RCranLibrary` — see M36.
 
-### L20. `Library.egg` (deprecated) — see top JSDoc.
-- **Location:** `model.ts:2582`.
+### L19. `Library.requirements: string` (a requirements.txt URI) — OK.
 
-### L21. `Library.cran: RCranLibrary` — see M45.
+### L20. `AwsAttributes.spotBidPricePercent` — long but precise.
 
-### L22. `Library.requirements: string` (a requirements.txt URI) — OK.
-
-### L23. `AwsAttributes.spotBidPricePercent` — long but precise.
-
-### L24. `GcpAttributes.usePreemptibleExecutors` — deprecated per JSDoc (use `availability`).
-- **Location:** `model.ts:1876`.
-- **Category:** Deprecation hygiene.
-
-### L25. `ClusterSpec_NewCluster.useMlRuntime` — `Ml` casing (vs `ML`); follows style.
+### L21. `ClusterSpec_NewCluster.useMlRuntime` — `Ml` casing (vs `ML`); follows style.
 
 ---
 
@@ -488,46 +420,35 @@ Issues are catalogued below by severity, then by file/line.
 - The base "what's a task here" question requires reading `RunTask.task` oneof to discover.
 
 ### O3. ID fields are stringly typed throughout
-- All run/job/repair IDs are `number`; `dbtPlatformJobRunId` is `string` (see H17). Standardizing as branded types would prevent silent ID swaps.
+- All run/job/repair IDs are `number`; `dbtPlatformJobRunId` is `string` (see H16). Standardizing as branded types would prevent silent ID swaps.
 
 ### O4. ID disambiguation is heavy
 - `runId`, `jobId`, `taskRunIds`, `originalAttemptRunId`, `jobRunId`, `repairId`, `latestRepairId`, `clusterId`, `sparkContextId`, `cleanRoomName`, `notebookName`, `policyId`, `instancePoolId`, `warehouseId`, `widgetId`, `agentId`, `subscriberId`, `destinationId`, `pipelineId`, `dashboardId`, `dbtCloudJobId`, `dbtPlatformJobId`, `dbtCloudJobRunId`, `dbtPlatformJobRunId`, `idempotencyToken`, `endpointId`, `gpuNodePoolId`.
 - All over the place; many would benefit from branded types.
 
-### O5. `WorkflowRun` is mentioned in `RunType` but no `Workflow*` type exists
-- `RunType.WORKFLOW_RUN` is "from `dbutils.notebook.run`". The lack of a corresponding `WorkflowTask` is intentional but worth a doc note.
-
-### O6. JSDoc references `<Databricks>` template-token in many places
+### O5. JSDoc references `<Databricks>` template-token in many places
 - The literal `<Databricks>` string appears in JSDoc throughout (e.g., `model.ts:1880`, `model.ts:824`). This is the placeholder for env-specific brand. Acceptable.
 
-### O7. Deprecated fields are not consistently marked
-- Many fields are described as "Deprecated. Please use the X field instead." in prose but lack `@deprecated` JSDoc tag.
-- TS LSP will not flag uses; consumers must read prose. Add `@deprecated`.
-
-### O8. Method-vs-type verb-tense pairing
+### O6. Method-vs-type verb-tense pairing
 - `client.cancelRun(CancelRunRequest) → CancelRunRequest_Response`: verb-noun matches.
 - `client.runNow(RunNowRequest)`: verb-now matches.
 - `client.repair(RepairRunRequest) → RepairRunRequest_Response`: verb-noun matches now that the request type has the explicit `Request` suffix; the method/type pairing is consistent.
 - `client.submitRun(SubmitRunRequest)`: verb-noun matches.
 
-### O9. The waiters duplicate ~80 lines of code each
+### O7. The waiters duplicate ~80 lines of code each
 - `CancelRunWaiter`, `RepairWaiter`, `RunNowWaiter`, `SubmitRunWaiter` (~80 lines each, mostly identical). Naming: `RepairWaiter` is unique in dropping the `Run` suffix.
 - Suggestion: `RepairRunWaiter` for consistency.
 
-### O10. `client.ts:781` declares `repair()` method (not `repairRun()`)
+### O8. `client.ts:781` declares `repair()` method (not `repairRun()`)
 - The method name remains `repair` even though the request type is `RepairRunRequest`. Consider `repairRun` for consistency with `submitRun`, `cancelRun`, `runNow`, etc.
 
-### O11. `index.ts` re-exports both the value classes and types in two blocks
+### O9. `index.ts` re-exports both the value classes and types in two blocks
 - Enums and waiter classes go through `export { ... }`; interfaces go through `export type { ... }`. Both blocks together have 200+ identifiers.
 
-### O12. `Format` and `Source` are top-level public enums named with single English words
+### O10. `Format` and `Source` are top-level public enums named with single English words
 - These specific names collide with global and tooling identifiers — see H3, H4.
 
-### O13. Acronym-casing rule should be documented
-- `Sql`, `Dbt`, `Jvm`, `Adls`, `Aws`, `Azure`, `Gcp`, `Gcs`, `Powerbi` (mixed), `Ml`, `Mlflow`, `Gpu`, `Lakeview`, `Dbfs`, `Ebs`, `Vm`.
-- The pattern is mostly "first letter of acronym capitalized only", with a few exceptions. Codify.
-
-### O14. Inconsistent abbreviations: `Params` vs `Parameters`
+### O11. Inconsistent abbreviations: `Params` vs `Parameters`
 - Within the same parent type (e.g., `RunNowRequest`): `jobParameters`, `notebookParams`, `pythonParams`, `pipelineParams`, `pythonNamedParams`, `sqlParams`, `sparkSubmitParams`, `jarParams`, `dbtCommands`.
 - Standardize on `Parameters`.
 

@@ -124,7 +124,7 @@ _None._
 
 #### F3.3 — `USD` in enum value `LIST_PRICE_DOLLARS_USD` (LOW)
 - Wire value, leave as-is. But note that `DOLLARS_USD` is doubly
-  redundant — USD already is dollars. See F7.1.
+  redundant — USD already is dollars. See F17.2.
 
 ---
 
@@ -453,11 +453,8 @@ _None._
 
 ### 14. Generic field names losing meaning
 
-#### F14.1 — `operator` on Clauses (LOW)
-- See F1.2.
-
-#### F14.2 — `req` parameter on every client method (HIGH)
-- See F1.4.
+#### F14.1 — `req` parameter on every client method (HIGH)
+- See F1.3.
 
 ---
 
@@ -494,8 +491,8 @@ _None._
 
 #### F17.2 — `LIST_PRICE_DOLLARS_USD` (MEDIUM)
 - **Where:** `model.ts:10`.
-- **Why flagged:** 22 characters; `DOLLARS_USD` is doubly redundant
-  (F7.4). Could be `LIST_PRICE_USD` or `USD`.
+- **Why flagged:** 22 characters; `DOLLARS_USD` is doubly redundant.
+  Could be `LIST_PRICE_USD` or `USD`.
 - **Suggestion:** Wire value; report upstream.
 
 #### F17.3 — `EMAIL_NOTIFICATION` (LOW)
@@ -566,20 +563,20 @@ This SDK exposes two separate packages whose names both start with
 
 | # | Category                                | Findings |
 | - | --------------------------------------- | -------- |
-| 1 | Vague / generic                         | 4        |
+| 1 | Vague / generic                         | 3        |
 | 2 | Redundant enum prefixes                 | 0 |
-| 3 | Acronym casing                          | 4 (4 acceptable) |
+| 3 | Acronym casing                          | 3 (3 acceptable) |
 | 4 | Underscores in TS identifiers           | 0 |
 | 5 | Cryptic abbreviations                   | 7 |
-| 6 | Misleading names                        | 5 |
-| 7 | Overly verbose                          | 4 |
+| 6 | Misleading names                        | 2 |
+| 7 | Overly verbose                          | 3 |
 | 8 | Singular / plural mismatch              | 4 (3 acceptable) |
 | 9 | Reserved-word collisions                | 3 (3 acceptable) |
 | 10 | Empty / trivial wrappers               | 0 |
 | 11 | Duplicate concepts                     | 5 |
-| 12 | Verb-tense inconsistency               | 2 (1 acceptable) |
+| 12 | Verb-tense inconsistency               | 2 (2 acceptable) |
 | 13 | Go / Java-style names                  | 2 (1 acceptable) |
-| 14 | Generic field names                    | 2 |
+| 14 | Generic field names                    | 1 |
 | 15 | Field contradicting type domain        | 2 |
 | 16 | Inconsistent action verbs              | 1 (1 acceptable) |
 | 17 | Long enum values                       | 3 |

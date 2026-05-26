@@ -3,7 +3,7 @@
 **Path:** `packages/notificationdestinations/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-level CRUD over "notification destinations" — named, persisted records that pair a `displayName` with one config out of five wire-format channels (Slack, Email, GenericWebhook, PagerDuty, MicrosoftTeams). The REST surface is `/api/2.0/notification-destinations`, with the usual `create` / `get` / `list` / `update` / `delete` plus a paged async iterator. Every channel-config carries the same `*Set: boolean` companion shape: secret fields are write-only on input and the server echoes only a "is it set?" mirror on output. There are zero typed timestamps, zero enum sub-types beyond `DestinationType`, and the only oneof is the discriminated `Config` union.
-**Total weird names flagged:** 13
+**Total weird names flagged:** 12
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | High | 4 |
 | Medium | 1 |
 | Low | 5 |
-| Observation | 3 |
+| Observation | 2 |
 
 ## Summary table
 
@@ -30,7 +30,6 @@
 | 10 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
 | 11 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
 | 12 | Obs | — | `NEXT_CHANGELOG.md` and pre-existing build/lint workflows | — |
-| 13 | Obs | `model.ts:47`, `:51` | `[Input-Only][Optional]` doc marker inconsistency | — |
 
 ## High severity
 
@@ -171,9 +170,6 @@ JSDoc bracket prefixes mark every secret-bearing field as either input-only or o
 
 ### 12. `NEXT_CHANGELOG.md` and pre-existing build/lint workflows
 Out of scope for naming but worth noting: the package has both a `CHANGELOG.md` and `NEXT_CHANGELOG.md` — the duplicate-file convention is a project-wide pattern, not a naming bug.
-
-### 13. JSDoc inconsistency in `[Input-Only][Optional]` markers
-The `GenericWebhookConfig.username` (line 47) and `.password` (line 51) use the marker `[Input-Only][Optional]` — concatenating two brackets — while every other field uses single-bracket markers. The `[Optional]` is also redundant because the TS type already shows `?: undefined`. Minor doc inconsistency.
 
 ## Domain glossary
 - `notification destination` — the persistent record being managed. Always paired with a `displayName` and one `Config`.

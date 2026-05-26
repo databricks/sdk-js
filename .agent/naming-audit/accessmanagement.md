@@ -404,7 +404,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Cross-package consistency.
 
-### 25. `updateObjectPermissions` uses HTTP PATCH; method name implies replace — `src/v1/client.ts:500,513`
+### 24. `updateObjectPermissions` uses HTTP PATCH; method name implies replace — `src/v1/client.ts:500,513`
 - **Why weird:** Method `updateObjectPermissions` issues HTTP `PATCH`
   (line 513). The request type `UpdateObjectPermissionsRequest` is
   symmetric in name to `SetObjectPermissionsRequest` (PUT) — but the
@@ -416,7 +416,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Method verbs should hint at HTTP semantics; `set` vs
   `update` is ambiguous when both exist on the same resource.
 
-### 26. `permissionassignments` URL fragment is one word — `src/v1/client.ts:103,131,159,187`
+### 25. `permissionassignments` URL fragment is one word — `src/v1/client.ts:103,131,159,187`
 - **Why weird:** REST path uses `/permissionassignments/` (no
   separator), while every other Databricks REST resource in this SDK
   uses hyphenated paths (`/clean-rooms`, `/external-locations`, etc.).
@@ -427,7 +427,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   in this package.
 - **Rationale:** Cross-API consistency.
 
-### 27. `getWorkspacePermissionAssignments` returns a list — `src/v1/client.ts:127`
+### 26. `getWorkspacePermissionAssignments` returns a list — `src/v1/client.ts:127`
 - **Why weird:** Method is named with `get*` but returns
   `permissionAssignments` array (model.ts:213). REST convention is
   `list*` for array-returning operations; `get*` for singular.
@@ -438,7 +438,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Aligns naming with REST list semantics used elsewhere
   in the SDK.
 
-### 28. `listWorkspacePermissions` returns a static catalog — `src/v1/client.ts:155`
+### 27. `listWorkspacePermissions` returns a static catalog — `src/v1/client.ts:155`
 - **Why weird:** Method `listWorkspacePermissions` returns the
   catalog of `PermissionOutput` values supported (USER/ADMIN), not
   user data. Sits side-by-side with `getWorkspacePermissionAssignments`

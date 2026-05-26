@@ -4,14 +4,14 @@
 **Versions audited:** v2
 **Inferred domain:** File operations on Databricks storage. v2 is the generated 1:1 port of the upstream API surface and is the union of TWO distinct underlying services: (a) the legacy DBFS API (`/api/2.0/dbfs/...`) — `addBlock`, `close`, `create`, `delete`, `getStatus`, `list`, `mkdirs`, `move`, `put`, `read`; and (b) the modern Files API (`/api/2.0/fs/...`) — `createDirectory`, `deleteDirectory`, `deleteFile`, `downloadFile`, `getDirectoryMetadata`, `getFileMetadata`, `listDirectoryContents`, `uploadFile`. Both surfaces are presented through a single `Client` class with no naming distinction between the two services.
 
-**Total weird names flagged:** 16
+**Total weird names flagged:** 15
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 6 |
 | Medium | 4 |
-| Low | 4 |
+| Low | 3 |
 | Observation | 2 |
 
 ## High severity
@@ -180,21 +180,11 @@ overwrite?: boolean | undefined;
 
 Appears in `CreateRequest`, `PutRequest`, `UploadFileRequest` with subtly different defaults. `UploadFileRequest`'s docstring says "If true or unspecified, an existing file will be overwritten" (default-true), while `CreateRequest` says "specifies whether to overwrite existing file/files" (default not specified, but in fact false on the wire). Same field name, opposite defaults — a footgun.
 
-### 12. `nextPageToken` is camelCase but `next_page_token` appears in JSDoc — `src/v2/model.ts:208,210,183,194,200`
-
-```ts
-contents?: DirectoryEntry[] | undefined;
-nextPageToken?: string | undefined;  // OK
-// JSDoc: "the `next_page_token` in the response..." (line 194)
-```
-
-JSDoc strings reference the wire name (`next_page_token`), but the TS field is `nextPageToken`. The doc accurately reflects the wire — flagged because cross-referencing a wire name in user-facing JSDoc is confusing. Should reference the TS field name (`nextPageToken`).
-
-### 13. `flattenQueryParams` — unused in this file — `src/v2/utils.ts:123`
+### 12. `flattenQueryParams` — unused in this file — `src/v2/utils.ts:123`
 
 Exported helper. Search shows it's never called by `client.ts` here. Name is generic and could collide with workspace-flattening utilities. Either dead code or genuine helper waiting for use.
 
-### 14. `PACKAGE_SEGMENT` — SCREAMING_SNAKE constant — `src/v2/client.ts:89`
+### 13. `PACKAGE_SEGMENT` — SCREAMING_SNAKE constant — `src/v2/client.ts:89`
 
 ```ts
 const PACKAGE_SEGMENT = {
@@ -207,10 +197,10 @@ SCREAMING_SNAKE is only conventional for true compile-time primitives in TS. Thi
 
 ## Observations
 
-### 15. `pageSize: number` — should mention coercion — `src/v2/model.ts:192`
+### 14. `pageSize: number` — should mention coercion — `src/v2/model.ts:192`
 
 JSDoc says "The maximum value is 1000. Values above 1000 will be coerced to 1000." Type does not encode the constraint. (TS branded types could; not a naming issue.)
 
-### 16. `pageToken` — opaque token, marked `string | undefined` — `src/v2/model.ts:203`
+### 15. `pageToken` — opaque token, marked `string | undefined` — `src/v2/model.ts:203`
 
 Best practice is to brand the type (`PageToken = string & {readonly __brand: unique symbol}`) to prevent passing an arbitrary string. Not a naming issue per se.

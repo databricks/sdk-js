@@ -13,7 +13,7 @@ creation and returns it everywhere else. Five operations:
 `create/get/list/update/delete`. No enums, no discriminated unions, no
 pagination, no list filtering beyond an optional `principalId` query
 parameter, no version negotiation.
-**Total weird names flagged:** 15 (0 fixed, 15 still open)
+**Total weird names flagged:** 12 (0 fixed, 12 still open)
 **Last rescan:** 2026-05-26 (post regen #156)
 
 ---
@@ -31,12 +31,9 @@ parameter, no version negotiation.
 | 7 | `ListCredentialsRequest_Response.credentials` field | model.ts:149 | field | Low | (none) | Generic but correct — the response is the array, the field naming it `credentials` (plural) matches what is inside. (Listing for completeness.) |
 | 8 | `gitProvider` field typed as `string` (should be enum) | model.ts:13, 47, 77, 120, 168 | field | High | 6 Misleading names, 15 Generic field names | The JSDoc enumerates eight discrete provider values: `gitHub`, `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`, `gitLabEnterpriseEdition`, `awsCodeCommit`. There is no enum in the model — the field is `string`. Callers cannot get autocomplete and cannot type-check against the closed set. The JSDoc also says "case-insensitive" — but TS string comparison is case-sensitive. Should be a string-literal union or enum. |
 | 9 | `gitHub`, `bitbucketCloud`, `gitLab`, `gitHubEnterprise`, `gitLabEnterpriseEdition` (wire values inside JSDoc) | model.ts:8-11, 73-75, 163-165 | enum-like wire values | High | 3 Acronym casing inconsistencies, 5 Cryptic abbreviations | Casing is inconsistent across the same enumeration:<br>- "GitHub" → `gitHub` (small-G at boundary)<br>- "GitLab" → `gitLab`<br>- "Bitbucket Cloud" → `bitbucketCloud`<br>- "Bitbucket Server" → `bitbucketServer`<br>- "Azure DevOps" → `azureDevOpsServices`<br>- "AWS CodeCommit" → `awsCodeCommit`<br>The "Hub"/"Lab"/"Cloud"/"Commit" portions are capitalized; the leading provider name uses lowercase initial. This breaks both the "Title Case" convention these brands actually use ("GitHub", "GitLab", "Bitbucket") and the "lower camel" convention TS field names use. The values are dictated by the API server, but they will confuse readers ("is it `GitHub` or `gitHub`?"). |
-| 10 | `gitLabEnterpriseEdition` wire value | model.ts:10, 75, 165 | enum-like wire value | Medium | 7 Overly verbose, 6 Misleading names | 25-char value. JSDoc clarifies that `gitLabEnterpriseEdition` is "GitLab Self-Managed". The product name was renamed from "GitLab Enterprise Edition" to "GitLab Self-Managed" — the wire value preserves the legacy name. The TS-side will outlive the rename. |
-| 11 | `bitbucketServer` wire value | model.ts:10, 75, 165 | enum-like wire value | Medium | 6 Misleading names | JSDoc clarifies "Bitbucket Data Center". Atlassian renamed "Bitbucket Server" to "Bitbucket Data Center" in 2024. Same problem as #10 — wire value is the legacy name. |
-| 12 | `awsCodeCommit` wire value | model.ts:10-11, 75-76, 165-166 | enum-like wire value | Low | 6 Misleading names | JSDoc says "deprecated by AWS, not accepting new customers" — but the value is still exported and accepted by the API. No `@deprecated` JSDoc tag on the values or the model. Caller has no programmatic way to detect deprecation. |
-| 13 | `Client` (unqualified class name) | client.ts:48 | class | Medium | 1 Vague/generic | `export class Client` — once imported it shadows every other package's `Client` (every package in this SDK exports its own `Client`). Should be `GitCredentialsClient` (matching the package name). |
-| 14 | `Client.createCredentials` / `getCredentials` / `listCredentials` / `updateCredentials` / `deleteCredentials` (plural method names) | client.ts:78, 141, 175, 209, 107 | method set | High | 9 Singular/plural mismatches | Five methods all named with the plural "Credentials" even though four of them act on a single credential at a time:<br>- `createCredentials(req)` creates **one** credential.<br>- `getCredentials(req)` gets **one** (selected by `id`).<br>- `updateCredentials(req)` updates **one**.<br>- `deleteCredentials(req)` deletes **one**.<br>- `listCredentials(req)` is the only legitimately plural one.<br>TS idiom for CRUD methods is singular for one-record operations (`createX`/`getX`/`updateX`/`deleteX`) and plural for collection ones (`listXs`/`searchXs`). The five-method API mixes the two and reads as "createCredentials" — i.e., a bulk create. |
-| 15 | `*Request_Response` underscore-nested response types (5 of them) | model.ts:43, 106, 116, 147, 192 | interface set | High | Proto-architectural-leak | All five response types use the proto-style `ParentRequest_Response` underscore-nested form: `CreateCredentialsRequest_Response`, `DeleteCredentialsRequest_Response`, `GetCredentialsRequest_Response`, `ListCredentialsRequest_Response`, `UpdateCredentialsRequest_Response`. The underscore is a protobuf-nested-message encoding bleeding into the public TS API — the generator even acknowledges it with `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` above every one. The matching zod schema constants (`unmarshalCreateCredentialsRequest_ResponseSchema`, etc.) inherit the same underscore. |
+| 10 | `Client` (unqualified class name) | client.ts:48 | class | Medium | 1 Vague/generic | `export class Client` — once imported it shadows every other package's `Client` (every package in this SDK exports its own `Client`). Should be `GitCredentialsClient` (matching the package name). |
+| 11 | `Client.createCredentials` / `getCredentials` / `listCredentials` / `updateCredentials` / `deleteCredentials` (plural method names) | client.ts:78, 141, 175, 209, 107 | method set | High | 9 Singular/plural mismatches | Five methods all named with the plural "Credentials" even though four of them act on a single credential at a time:<br>- `createCredentials(req)` creates **one** credential.<br>- `getCredentials(req)` gets **one** (selected by `id`).<br>- `updateCredentials(req)` updates **one**.<br>- `deleteCredentials(req)` deletes **one**.<br>- `listCredentials(req)` is the only legitimately plural one.<br>TS idiom for CRUD methods is singular for one-record operations (`createX`/`getX`/`updateX`/`deleteX`) and plural for collection ones (`listXs`/`searchXs`). The five-method API mixes the two and reads as "createCredentials" — i.e., a bulk create. |
+| 12 | `*Request_Response` underscore-nested response types (5 of them) | model.ts:43, 106, 116, 147, 192 | interface set | High | Proto-architectural-leak | All five response types use the proto-style `ParentRequest_Response` underscore-nested form: `CreateCredentialsRequest_Response`, `DeleteCredentialsRequest_Response`, `GetCredentialsRequest_Response`, `ListCredentialsRequest_Response`, `UpdateCredentialsRequest_Response`. The underscore is a protobuf-nested-message encoding bleeding into the public TS API — the generator even acknowledges it with `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` above every one. The matching zod schema constants (`unmarshalCreateCredentialsRequest_ResponseSchema`, etc.) inherit the same underscore. |
 
 ---
 
@@ -86,7 +83,7 @@ await client.createCredential({gitProvider: 'gitHub', ...});
 
 Recommendation: keep `listCredentials` (plural — list returns many) but
 rename the four single-resource methods and their request types to
-singular. See #5, #6, #14.
+singular. See #5, #6, #11.
 
 ### H3. Three field-for-field-identical "Credential" shapes
 
@@ -205,13 +202,7 @@ URL `/credentials`), singular for resource ops (`getCredential`,
 
 ## Low severity (style polish)
 
-### L1. `awsCodeCommit` is documented as deprecated but not tagged
-
-The JSDoc on `gitProvider` says "`awsCodeCommit` (deprecated by AWS, not
-accepting new customers)". But the model has no `@deprecated` tag on
-either the field's documentation or on a typed enum value (which doesn't
-exist — see H4). Callers cannot programmatically detect deprecated values.
-See #12.
+_None._
 
 ---
 
@@ -237,8 +228,8 @@ them for awareness — fixing requires an API-server change.
 
 | Issue | This package | `credentials` audit | `oauthcustomappintegration` (typical) |
 |---|---|---|---|
-| Bare `Client` class | Yes (#13) | Yes (#10) | Yes |
-| Plural request envelopes on single-resource ops | Yes (#5, #6, #14) | No (uses `nameArg`/singular shapes) | Mixed |
+| Bare `Client` class | Yes (#10) | Yes (#10) | Yes |
+| Plural request envelopes on single-resource ops | Yes (#5, #6, #11) | No (uses `nameArg`/singular shapes) | Mixed |
 | `string`-typed enum-domain field | Yes (#8) | No (uses real enums) | Rare |
 
 The `string`-typed `gitProvider` despite a documented closed set (#8, H4)

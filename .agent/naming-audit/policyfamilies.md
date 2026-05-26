@@ -118,11 +118,7 @@ _None._
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
-| M-01  | `getPolicyFamily()` JSDoc (`client.ts:61`): "an policy family" | Low | Typo in the JSDoc ("an" should be "a"). Not a naming issue but a generator artifact worth fixing upstream. |
-| M-02  | `listPolicyFamilies()` JSDoc (`client.ts:92`): "list of policy definition types" | Medium | The method returns *policy families*, but the JSDoc paraphrases them as "policy definition types". Mismatched terminology between the method name (`PolicyFamily`) and its docstring will confuse readers. Method/type/route all say "family"; doc should too. |
-| M-03  | `GetPolicyFamilyRequest` JSDoc (`model.ts:5`): "Returns the details of a policy family at a specific version" | Low | The JSDoc describes the *operation*, not the request body. The type is a request shape, not a response. Convention across the SDK, OK but slightly misleading on first read. |
-| M-04  | `ListPolicyFamiliesRequest` JSDoc (`model.ts:13`): "Returns the list of policy families…" | Low | Same as M-03 — the JSDoc describes the operation rather than the request shape. |
-| M-05  | `Client` (`client.ts:36`)                            | Medium   | Bare `Client` (with no domain qualifier) is ambiguous when imported into application code that uses multiple SDK packages — e.g. `import {Client as PolicyFamiliesClient} from '@databricks/sdk-policyfamilies/v2'` requires an alias to disambiguate from `Client` exported from `clusterpolicies`, `clusters`, etc. `PolicyFamiliesClient` would self-disambiguate. (Repo-wide pattern; flagged for consistency review at the codegen layer.) |
+| M-01  | `Client` (`client.ts:36`)                            | Medium   | Bare `Client` (with no domain qualifier) is ambiguous when imported into application code that uses multiple SDK packages — e.g. `import {Client as PolicyFamiliesClient} from '@databricks/sdk-policyfamilies/v2'` requires an alias to disambiguate from `Client` exported from `clusterpolicies`, `clusters`, etc. `PolicyFamiliesClient` would self-disambiguate. (Repo-wide pattern; flagged for consistency review at the codegen layer.) |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
@@ -158,7 +154,6 @@ _None._
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | D-01  | `PolicyFamily.policyFamilyId` (here) and `Policy.policyFamilyId` (in `clusterpolicies`) | Low | The field name is consistent across packages — good. No duplication concern. |
-| D-02  | `PolicyFamily` vs `Policy` (cross-package)           | Low      | Distinct concepts: a `PolicyFamily` is a template, a `Policy` is an instance. Cross-package linking (JSDoc `{@link}`) would help readers understand the relationship. Out of scope for naming. |
 
 ### 2.12 Verb-tense inconsistency — Low
 
@@ -239,7 +234,7 @@ _None._
 | X-09  | `pageReq` (local in `client.ts:133`)                 | Low      | Mutated per iteration. Naming reasonable; an alternative `nextRequest` reads slightly clearer. |
 | X-10  | `index.ts:5` has `export {} from './model';` (empty re-export) | Low | The empty `export {}` is dead code emitted by codegen. Naming-neutral. Should be removed by codegen, not a per-package fix. |
 | X-11  | The package directory `policyfamilies/` is squashed lowercase | Low | Cross-codebase pattern; cf. P-05. The package name choice influences method placement (a future `databricks.policyFamilies.get(...)` aggregator should keep the same casing). |
-| X-12  | The class is exported simply as `Client` from `client.ts` and re-exported from `index.ts` | Medium | See M-05. Consumers must import `{Client as PolicyFamiliesClient}` to disambiguate. Codegen could emit `export class PolicyFamiliesClient` to relieve the alias burden. |
+| X-12  | The class is exported simply as `Client` from `client.ts` and re-exported from `index.ts` | Medium | See M-01. Consumers must import `{Client as PolicyFamiliesClient}` to disambiguate. Codegen could emit `export class PolicyFamiliesClient` to relieve the alias burden. |
 
 ---
 
@@ -250,9 +245,9 @@ _None._
 | Severity | Count |
 | -------- | ----- |
 | High     | 2     |
-| Medium   | 6     |
-| Low      | 28    |
-| **Total**| **36**|
+| Medium   | 5     |
+| Low      | 24    |
+| **Total**| **31**|
 
 ### 3.2 Top themes
 
@@ -273,9 +268,6 @@ _None._
 (non-breaking renames are not possible — this section is advisory for the
 codegen owners)
 
-- Fix the JSDoc on `getPolicyFamily()` ("an policy family" → "a policy
-  family") and on `listPolicyFamilies()` ("policy definition types" →
-  "policy families").
 - Rename `Client` → `PolicyFamiliesClient` for cross-package
   disambiguation. (Repo-wide pattern; flag at codegen layer.)
 - Flatten `ListPolicyFamiliesRequest_Response` → `ListPolicyFamiliesResponse`

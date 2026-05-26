@@ -115,19 +115,19 @@
 - **Suggested name:** `readStreamToEnd` / `drainStream`.
 - **Rationale:** Trivial; flagged for cross-package consistency.
 
-### 19. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 17. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site.
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Names should encode the layer, not just the protocol.
 
-### 20. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 18. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Yet another `Options` suffix; the file also imports `Options` (line 3) and `CallOptions` (line 12), so three `Options` types are in scope at once. The `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
 - **Rationale:** Distinguish internal context bags from user-facing option structs.
 
-### 21. Inconsistent option name: `req.maxResults` vs wire `max_results` — `src/v1/client.ts:167-168`
+### 19. Inconsistent option name: `req.maxResults` vs wire `max_results` — `src/v1/client.ts:167-168`
 - **Why weird:** TS uses camelCase (`maxResults`); wire is snake_case (`max_results`). Conversion is buried in the client method. Fine in isolation but two near-identical strings live three lines apart.
 - **Category:** Observation only.
 - **Suggested name:** None — this is the marshalling boundary by design.
@@ -135,14 +135,14 @@
 
 ## Observations
 
-### 22. Casing inconsistency in vendor name decomposition
+### 20. Casing inconsistency in vendor name decomposition
 Within `ConnectionType`:
 - `BIGQUERY`, `POSTGRESQL`, `SQLSERVER` (joined) vs `POWER_BI`, `WORKDAY_RAAS`, `META_MARKETING` (split).
 - `MYSQL` (joined) vs `GA4_RAW_DATA` (split).
 No discoverable rule. Wire-locked, but worth surfacing.
 - **Category:** 3 (acronym/casing inconsistency).
 
-### 23. `Client` constructor throws for missing host
+### 21. `Client` constructor throws for missing host
 `if (options.host === undefined) { throw new Error('Host is required.'); }` — error message is fine, naming is fine, but `Host is required.` doesn't tell the user which constructor failed. Flagged for cross-SDK consistency review.
 - **Category:** Observation.
 

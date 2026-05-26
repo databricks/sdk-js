@@ -11,9 +11,9 @@
 
 **Inferred domain:** Model-serving *inference path*. The single client method `query()` POSTs an inference request body to `/api/serving-endpoints/{name}/invocations`. Supports four payload shapes simultaneously: chat (LLM), completions (LLM), embeddings (LLM), and traditional MLflow models (dataframes / tensors). The package is a *sibling* of `servingendpoints` (which owns CRUD on the endpoint resource itself) — this package only owns the **query/invoke** verb. The package name and its types share vocabulary with the unrelated SQL packages `queries`, `queryexecution`, `queryhistory` — none of which have anything to do with model serving.
 
-**Total weird names flagged:** 18 (0 fixed, 18 still, 0 superseded)
+**Total weird names flagged:** 17 (0 fixed, 17 still, 0 superseded)
 
-Rescanned on 2026-05-26 after regeneration #156. All 18 findings remain
+Rescanned on 2026-05-26 after regeneration #156. All 17 findings remain
 unchanged in the regenerated output; no items have moved to `## Fixed`.
 
 ---
@@ -37,9 +37,8 @@ unchanged in the regenerated output; no items have moved to `## Fixed`.
 | 13 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.logprobs`                           | Cryptic abbreviation; typed as `number` (the OpenAI spec returns an object) |
 | 14 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.finishReason`                       | Underspecified — typed `string`, but in practice an enum (`stop`, `length`, …) |
 | 15 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.extraParams`                      | Vague — what counts as "extra"? Also typed `Record<string,string>` though OpenAI passes arbitrary JSON |
-| 16 | Low      | `client.ts` JSDoc                 | `/** Query a serving endpoint */`                            | Verb-tense / missing period (project rule) |
-| 17 | Low      | `model.ts` enum value             | `ChatMessageRole.ASSISTANT`                                  | OK, but missing common values (`tool`, `function`) — incomplete enum |
-| 18 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
+| 16 | Low      | `model.ts` enum value             | `ChatMessageRole.ASSISTANT`                                  | OK, but missing common values (`tool`, `function`) — incomplete enum |
+| 17 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
 
 ---
 
@@ -304,20 +303,7 @@ extraParams?: Record<string, string> | undefined;
 
 ## Low severity
 
-### 16. JSDoc `/** Query a serving endpoint */` — verb tense / no period
-
-**Location:** `src/v1/client.ts:57`
-
-**Categories:** 13 (verb-tense inconsistency), project rule (sentences end with period)
-
-```ts
-/** Query a serving endpoint */
-async query(...) { ... }
-```
-
-Imperative verb, no terminal punctuation. Project rule (`CLAUDE.md`) requires comments to be sentences ending with a period. `/** Queries a serving endpoint. */` would match the v2-style JSDoc in other packages (`alerts/src/v2/client.ts` uses third-person singular present).
-
-### 17. `ChatMessageRole.ASSISTANT` — incomplete enum
+### 16. `ChatMessageRole.ASSISTANT` — incomplete enum
 
 **Location:** `src/v1/model.ts:17-23`
 
@@ -334,7 +320,7 @@ export enum ChatMessageRole {
 
 Four values (counting the proto-style `UNSPECIFIED` sentinel), but the OpenAI spec also includes `tool` and `function` (and recent versions add `developer`). The enum is *closed* in TS (an exhaustive switch matches only 4 cases), so the wire format can outgrow the enum. Either the enum should be open (string union) or it should include the OpenAI-mandated values. Naming-adjacent; flagged because the SDK is meant to broker LLM traffic.
 
-### 18. `flattenQueryParams` — orphaned export with conflicting "Query"
+### 17. `flattenQueryParams` — orphaned export with conflicting "Query"
 
 **Location:** `src/v1/utils.ts:123-150`
 

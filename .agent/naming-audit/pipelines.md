@@ -14,11 +14,11 @@
 
 | Severity     | Count | Notes                                                                                       |
 | ------------ | ----- | ------------------------------------------------------------------------------------------- |
-| High         | 14    | Verb/noun overloading (`Update`), DLT-era rebrand leakage, identifier collisions.           |
-| Medium       | 16    | Vague names, acronym casing, generic IDs, misleading enum values.                           |
-| Low          | 15    | Mild verbosity, plural mismatches, stylistic inconsistencies.                               |
-| Observations | 7     | Patterns spanning the whole file (branding history, proto-architectural leakage).           |
-| **Total**    | **52** | |
+| High         | 12    | Verb/noun overloading (`Update`), DLT-era rebrand leakage, identifier collisions.           |
+| Medium       | 13    | Vague names, acronym casing, generic IDs, misleading enum values.                           |
+| Low          | 8     | Mild verbosity, plural mismatches, stylistic inconsistencies.                               |
+| Observations | 3     | Patterns spanning the whole file (branding history, proto-architectural leakage).           |
+| **Total**    | **36** | |
 
 Issues are catalogued below by severity, then by file/line. Throughout this document I use **"Update" (proper noun)** to refer to the DLT/Lakeflow concept of a pipeline run, since that overload is the most pervasive and most confusing naming choice in the package.
 
@@ -80,31 +80,19 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Suggestion:** Rename to `SlowlyChangingDimensionType` since "SCD" is jargon for "Slowly Changing Dimension" — the values themselves are `SCD_TYPE_1` / `SCD_TYPE_2` (Kimball-style dimensional modeling).
 - **Rationale:** SCD is a dimensional-modelling acronym (slowly-changing dimensions, from Kimball's data-warehousing canon). A casual reader does not know that. The enum values then re-spell `SCD_TYPE_*` redundantly (`SCD_TYPE_1`, `SCD_TYPE_2`, `APPEND_ONLY`).
 
-### H10. `PipelineState_PipelineState.IDLE` is the terminal state — but the JSDoc says "Pipeline is stopped and is not processing data. Can be resumed by calling `run`"
-- **Location:** `model.ts:262`.
-- **Category:** 6 (misleading — references method `run` that does not exist; the method is `start`).
-- **Suggestion:** Fix JSDoc to reference `start()`. After H3, both will line up at `run()`.
-- **Rationale:** Currently the user reads "call `run`" and finds no `run()` method on `Client`.
-
-### H11. `client.delete()` collides with JS `delete` keyword
+### H10. `client.delete()` collides with JS `delete` keyword
 - **Location:** `client.ts:220`.
 - **Category:** 10 (reserved-word collision).
 - **Suggestion:** Rename to `deletePipeline()`. Alternatively, `remove()`.
 - **Rationale:** `delete` is a JS reserved keyword. While methods can be named `delete` since ES5, every IDE highlights it and parsers in some contexts choke.
 
-### H12. `EventLevel.METRICS` — value on a "severity level" enum that is not a severity
+### H11. `EventLevel.METRICS` — value on a "severity level" enum that is not a severity
 - **Location:** `model.ts:56`.
 - **Category:** 6 (misleading), 16 (field contradicts type domain).
 - **Suggestion:** Either move `METRICS` to a separate `EventCategory` enum or rename the enum to `EventKind`. The JSDoc says "The severity level of the event" — but `METRICS` is a category, not a severity.
 - **Rationale:** Filtering `where level='ERROR'` makes sense; `where level='METRICS'` is "where this event is a metric measurement, regardless of severity." Mixing the two leads to user mistakes.
 
-### H13. `UpdateState.QUEUED` description references the wrong noun ("update") instead of "run"
-- **Location:** `model.ts:187` ("Update is waiting for previous update to finish.").
-- **Category:** 6 (misleading).
-- **Suggestion:** Doc rewrite (English) after H1: "Run is waiting for previous run to finish."
-- **Rationale:** Same as H1 — once `Update` is renamed to `Run`, every JSDoc that mentions "update" in this enum needs to follow.
-
-### H14. `Notifications` (plural type, singular plural-prefixed) — a single-notification spec named in plural
+### H12. `Notifications` (plural type, singular plural-prefixed) — a single-notification spec named in plural
 - **Locations:** `model.ts:1464`, plus all `notifications?: Notifications[]` field declarations.
 - **Category:** 9 (singular/plural mismatch).
 - **Suggestion:** Rename to `NotificationRule` (singular). The field becomes `notificationRules?: NotificationRule[]`.
@@ -154,49 +142,34 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Suggestion:** Move to `NetsuiteOptions` connector-specific type.
 - **Rationale:** A generic ingestion-definition type carrying a `netsuiteJarPath` field implies every other connector is incomplete. JSDoc literally says "Netsuite only configuration." Belongs in a per-connector options struct.
 
-### M8. `IngestionSourceType.WORKDAY_RAAS` — undefined acronym
-- **Location:** `model.ts:67`.
-- **Category:** 5 (cryptic abbreviation).
-- **Suggestion:** Document inline that RaaS = "Reports as a Service" (Workday terminology). The acronym is non-obvious.
-
-### M9. `IngestionSourceType.GA4_RAW_DATA` — vendor-numbered identifier
-- **Location:** `model.ts:68`.
-- **Category:** 5.
-- **Suggestion:** Document inline that GA4 = "Google Analytics 4."
-
-### M10. `IngestionSourceType.FOREIGN_CATALOG` — too generic, no source indicator
+### M8. `IngestionSourceType.FOREIGN_CATALOG` — too generic, no source indicator
 - **Location:** `model.ts:80`.
 - **Category:** 1 (vague).
 - **Suggestion:** `UC_FOREIGN_CATALOG` or document inline.
 - **Rationale:** "Foreign Catalog" is a Unity Catalog concept; without context this looks like a country-of-origin enum value.
 
-### M11. `Origin.ucResourceId` mixes acronym casing
+### M9. `Origin.ucResourceId` mixes acronym casing
 - **Location:** `model.ts:1528`.
 - **Category:** 3 (acronym casing inconsistency).
 - **Suggestion:** Either `ucResourceId` (current) or `UCResourceId` — the Google TS style guide says treat acronyms as words, so `ucResourceId` is correct. But sibling fields use the same lowercase pattern (`workspaceId`, `pipelineId`), so this one is internally consistent. Flagged because it could be `unityCatalogResourceId` for clarity.
 
-### M12. `eventType?: string` on `PipelineEvent` — string-typed enum
+### M10. `eventType?: string` on `PipelineEvent` — string-typed enum
 - **Location:** `model.ts:1765`.
 - **Category:** 16 (field contradicts type domain).
 - **Suggestion:** Define an `EventType` enum (or union of string literals) and type the field with it. Right now consumers have no IDE help.
 - **Rationale:** JSDoc says "The event type. Should always correspond to the details." The Go SDK has the same field as string (porting fidelity), but TS could improve.
 
-### M13. `PipelineEvent.timestamp: string` — typed string but holds an ISO date
-- **Location:** `model.ts:1757`.
-- **Category:** 16.
-- **Suggestion:** Document the format in JSDoc, or use a `Date | string` union.
-
-### M14. `Sequencing` — singular noun for a 2-field record describing one event's position
+### M11. `Sequencing` — singular noun for a 2-field record describing one event's position
 - **Location:** `model.ts:2323`.
 - **Category:** 1 (vague).
 - **Suggestion:** `EventSequence` or `EventPosition`. "Sequencing" is the action of putting in order, not the position itself.
 
-### M15. `EditPipelineRequest.expectedLastModified: number` — wire is millis since epoch, but no JSDoc
+### M12. `EditPipelineRequest.expectedLastModified: number` — wire is millis since epoch, but no JSDoc
 - **Location:** `model.ts:643`.
 - **Category:** 16 (field contradicts type domain), 19 (underspecified ID).
 - **Suggestion:** Either type as `Date | number` or document "milliseconds since Unix epoch" in JSDoc.
 
-### M16. `DataPlaneId` reads like a string but is actually `{instance, seqNo}`
+### M13. `DataPlaneId` reads like a string but is actually `{instance, seqNo}`
 - **Location:** `model.ts:593`.
 - **Category:** 6 (misleading: name implies a scalar ID, but the type is a compound).
 - **Suggestion:** Rename to `DataPlaneSequence` or `DataPlaneCoordinate`. The actual ID is `{instance, seqNo}` — a coordinate, not an identifier.
@@ -206,74 +179,42 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 
 ## Low
 
-### L1. `client.start()` JSDoc mentions "If there is already an active update" — should say "active run"
-- **Location:** `client.ts:519`.
-- **Category:** 6.
-
-### L2. `client.stop()` JSDoc mentions "Stops the pipeline by canceling the active update" — same
-- **Location:** `client.ts:551`.
-
-### L3. `client.list()` JSDoc says "Lists pipelines defined in the Spark Declarative Pipelines system"
-- **Location:** `client.ts:413`.
-- **Category:** 6 (misleading), branding inconsistency.
-- **Rationale:** The product is "Lakeflow Declarative Pipelines" per the IngestionPipelineDefinition JSDoc (`model.ts:965`). Internal naming: "Spark Declarative Pipelines" (SDP). Public marketing name: "Lakeflow Declarative Pipelines." The SDK uses both, sometimes in adjacent JSDoc.
-
-### L4. JSDoc references to "SDP" appear in four fields, undefined
-- **Locations:** `model.ts:379` (`ClonePipelineRequest.channel` — "SDP Release Channel"), `model.ts:521` (`CreatePipelineRequest.channel`), `model.ts:682` (`EditPipelineRequest.channel`), `model.ts:1849` (`PipelineSpec.channel`), `model.ts:2085` (`PipelinesEnvironment` — "SDP's environment").
-- **Category:** 5 (cryptic abbreviation), 6 (misleading).
-- **Suggestion:** Expand SDP → "Spark Declarative Pipelines" on first mention, with parenthetical "(internal name for Lakeflow Declarative Pipelines)".
-
-### L5. `PipelinesS3StorageInfo.cannedAcl` — undocumented S3 jargon
-- **Location:** `model.ts:2248`.
-- **Category:** 5.
-- **Suggestion:** Document inline: "canned ACL = a predefined S3 access-control list, e.g., `bucket-owner-full-control`." Currently the field name is fine since it matches the S3 API; only the casing (`cannedAcl` not `cannedAcl` — should be `cannedACL` per Google TS style? actually `cannedAcl` is correct).
-
-### L6. `PipelinesS3StorageInfo.kmsKey` — uppercase acronym treatment is inconsistent
+### L1. `PipelinesS3StorageInfo.kmsKey` — uppercase acronym treatment is inconsistent
 - **Location:** `model.ts:2238`.
 - **Category:** 3.
 - **Suggestion:** `kmsKey` is the correct casing per Google TS style. Just flagging for cross-check with other AWS fields in the file.
 
-### L7. `PipelinesS3StorageInfo.enableEncryption` boolean alongside `encryptionType` string — coupled fields not enforced by type system
+### L2. `PipelinesS3StorageInfo.enableEncryption` boolean alongside `encryptionType` string — coupled fields not enforced by type system
 - **Locations:** `model.ts:2231`, `model.ts:2236`.
 - **Category:** 16.
 - **Suggestion:** Use a discriminated union: `encryption?: {kind: 'none'} | {kind: 'sse-s3'} | {kind: 'sse-kms'; key: string}`.
 
-### L8. `PipelineCluster.label` — string typed, expected values "default" / "maintenance"
+### L3. `PipelineCluster.label` — string typed, expected values "default" / "maintenance"
 - **Location:** `model.ts:1608`.
 - **Category:** 16.
 - **Suggestion:** Make this an enum `ClusterLabel.{Default, Maintenance}`.
 
-### L9. `PipelineCluster.applyPolicyDefaultValues` JSDoc says "won't be persisted" — should be marked deprecated or transient
-- **Location:** `model.ts:1610`.
-- **Category:** 6.
-- **Suggestion:** Add `@deprecated` JSDoc tag.
-
-### L10. `AutoFullRefreshPolicy.minIntervalHours` JSDoc says "(Optional, Mutable)" — proto-style modifier tag in user-visible JSDoc
+### L4. `AutoFullRefreshPolicy.minIntervalHours` JSDoc says "(Optional, Mutable)" — proto-style modifier tag in user-visible JSDoc
 - **Location:** `model.ts:333`.
 - **Category:** Generator artifact leakage.
 - **Suggestion:** Express via TS optionality (`?:`) instead of repeating "Optional" in JSDoc.
 
-### L11. `(Required, Immutable)` / `(Optional, Mutable)` proto tags appear in many JSDoc blocks
-- **Locations:** searches: `(Required`, `(Optional` throughout `model.ts` (currently ~53 occurrences).
-- **Category:** Generator artifact leakage.
-- **Suggestion:** Remove or move to a structured `@required` / `@mutable` tag.
-
-### L12. `RewindDatasetSpec.resetCheckpoints: boolean` and `cascade: boolean` — coupled flags with no type-level link
+### L5. `RewindDatasetSpec.resetCheckpoints: boolean` and `cascade: boolean` — coupled flags with no type-level link
 - **Locations:** `model.ts:2299` (`cascade`), `model.ts:2301` (`resetCheckpoints`).
 - **Category:** 16.
 - **Suggestion:** Group into an `options` substruct or document interactions in JSDoc.
 
-### L13. `KafkaOptions.startingOffset: string` — typed string but documented as enum
+### L6. `KafkaOptions.startingOffset: string` — typed string but documented as enum
 - **Location:** `model.ts:1294`.
 - **Category:** 16.
 - **Suggestion:** Define `KafkaStartingOffset.{Latest, Earliest}` enum.
 
-### L14. `MetaMarketingOptions.level: string` — typed string but documented as enum
+### L7. `MetaMarketingOptions.level: string` — typed string but documented as enum
 - **Location:** `model.ts:1436`.
 - **Category:** 16.
 - **Suggestion:** Define `MetaAggregationLevel.{Account, Ad, AdSet, Campaign}` enum.
 
-### L15. `MetaMarketingOptions.actionReportTime: string` — string enum
+### L8. `MetaMarketingOptions.actionReportTime: string` — string enum
 - **Location:** `model.ts:1442`.
 - **Category:** 16.
 - **Suggestion:** Define enum.
@@ -282,37 +223,19 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 
 ## Observations
 
-### O1. Branding history (DLT → Lakeflow Declarative Pipelines → Spark Declarative Pipelines) leaks into several abbreviations across the public API
-- **Search:** `DLT`, `SDP`, `LDP`, `Lakeflow`, `Spark Declarative Pipelines`, `Delta Live Tables`, `DAB`.
-- **Locations:** `model.ts:47` (`DAB` in DeploymentKind comment), `model.ts:379` (`SDP` in `channel` JSDoc), `model.ts:956` (`Spark Declarative Pipelines` in JSDoc), `model.ts:965` (`Lakeflow Connect`), `model.ts:2085` (`SDP's environment`), `client.ts:413` (`Spark Declarative Pipelines`).
-- **Suggestion:** Settle on one product name in JSDoc. The TS types should be backwards-compatible (no rename) but the docstrings should agree.
-
-### O2. There are FIVE separate `connectorOptions` / `sourceOptions` discriminators in the ingestion pipeline definition — connector wiring is too nested
-- **Locations:** `IngestionPipelineDefinition.connectorType`, `IngestionPipelineDefinition.sourceConfigurations[].catalog.options`, `IngestionPipelineDefinition_SchemaSpec.connectorOptions`, `IngestionPipelineDefinition_TableSpec.connectorOptions`.
-- **Suggestion:** Document the resolution order between schema-level and table-level options. JSDoc currently fragments the rules across multiple types.
-
-### O3. JSDoc uses `<Databricks>` placeholder — leak from the Go SDK's template substitution
-- **Search:** `<Databricks>` appears 18 times in `model.ts`.
-- **Suggestion:** Replace with literal "Databricks" before TS compilation.
-
-### O4. `Notifications.alerts: string[]` is a hand-rolled enum of `on-update-success`, `on-update-failure`, `on-update-fatal-failure`, `on-flow-failure`
+### O1. `Notifications.alerts: string[]` is a hand-rolled enum of `on-update-success`, `on-update-failure`, `on-update-fatal-failure`, `on-flow-failure`
 - **Location:** `model.ts:1476`.
 - **Category:** 16.
 - **Suggestion:** Define `AlertCondition` enum. Currently typed `string[]` with values listed only in JSDoc.
 
-### O5. `OutlookOptions` carries three `*Filter` fields marked deprecated (`folderFilter`, `senderFilter`, `subjectFilter`) plus the new `include*` versions side-by-side
-- **Locations:** `model.ts:1546-1599`.
-- **Category:** Generator artifact / Go-SDK fidelity issue.
-- **Suggestion:** Mark deprecated fields with `@deprecated` JSDoc tag (currently only mentioned in plain text).
-
-### O6. `ConnectorOptions` JSDoc opens with "Wrapper message for source-specific options" — proto-architectural terminology leak
+### O2. `ConnectorOptions` JSDoc opens with "Wrapper message for source-specific options" — proto-architectural terminology leak
 - **Location:** `model.ts:456`.
 - **Why:** "Wrapper message" is a protobuf concept (the proto2/proto3 well-known wrapper types: `BoolValue`, `StringValue`, etc., plus the generic "wrapper message" pattern used to box discriminated unions). It is visible in user-facing JSDoc on a public interface.
 - **Category:** Generator artifact leakage / proto-architectural leak.
 - **Suggested:** Rewrite JSDoc as "Source-specific options for ingestion connectors. Exactly one option must be specified for the connector type." Drop "Wrapper message".
 - **Rationale:** TypeScript developers do not know what a "wrapper message" is — the term reveals the proto IDL underneath. The shape is just a discriminated union over connector option types; describe it in TS terms.
 
-### O7. `Internal` proto-field tag leaks into JSDoc on two public fields
+### O3. `Internal` proto-field tag leaks into JSDoc on two public fields
 - **Locations:** `model.ts:959` (`IngestionGatewayPipelineDefinition.connectionParameters` — "Optional, Internal. Parameters required to establish an initial connection with the source."), `model.ts:1295` (`KafkaOptions.maxOffsetsPerTrigger` — "Internal option to control the maximum number of offsets to process per trigger.").
 - **Why:** `Internal` is a proto-level annotation (`google.api.field_visibility = INTERNAL` or similar) indicating the field is not part of the public API surface. If these fields are truly internal, they should be stripped from the public SDK at generation time; if they are public, the "Internal" label should not appear in user-visible documentation.
 - **Category:** Generator artifact leakage / proto-architectural leak.

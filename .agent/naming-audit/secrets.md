@@ -21,9 +21,9 @@ Notation: file paths are relative to the package root. Findings reference
 | ----------- | ----- |
 | High        | 3     |
 | Medium      | 5     |
-| Low         | 8     |
-| Observation | 5     |
-| **Total**   | **21** |
+| Low         | 4     |
+| Observation | 4     |
+| **Total**   | **16** |
 
 Headline themes:
 
@@ -225,57 +225,7 @@ Headline themes:
   enum (`'READ' | 'WRITE' | 'MANAGE'`). If the server adds a new permission
   level, zod will throw at decode. Not a name issue, just notable.
 
-### L2. `PutSecretRequest.value` `stringValue` JSDoc references "UTF-8 (MB4)"
-
-- **File / line:** `src/v1/model.ts:166`.
-- **Category:** #5 cryptic abbreviations.
-- **Current JSDoc:** "If specified, note that the value will be stored in
-  UTF-8 (MB4) form."
-- **Issue:** "MB4" likely means "MySQL utf8mb4" (4-byte UTF-8); an opaque
-  abbreviation outside the MySQL ecosystem. A TS API consumer has no
-  reason to know MySQL trivia.
-- **Suggestion:** clarify or drop. "UTF-8 with full BMP support" or just
-  "UTF-8". This is a doc issue, not a name issue per se, but a naming
-  audit notices it.
-
-### L3. `principal` is a single field used for both users and groups
-
-- **Files / lines:** `model.ts:38, 69, 97, 150`.
-- **Category:** #1 vague/generic.
-- **Current:** `principal?: string | undefined` — JSDoc says "The principal
-  in which the permission is applied." `client.ts:562-594` clarifies:
-  "user or group name".
-- **Suggestion:** acceptable as-is, as "principal" is the Databricks
-  platform-wide term for user-or-group; consistent with other packages.
-  Flagging only because a casual reader sees `principal` and may not
-  realize they should pass either a username or group name. JSDoc on the
-  request types could explicitly say "(user or group name)".
-
-### L4. `req.scope` is documented inconsistently across types
-
-- **Files / lines:** `model.ts:52, 67, 77, 85, 95, 102, 117, 137, 148, 160`.
-- **Category:** observation; documentation only.
-- **Current:** various JSDoc:
-  - `CreateScopeRequest.scope`: "Scope name requested by the user. Scope
-    names are unique."
-  - `DeleteAclRequest.scope`: "The name of the scope to remove permissions
-    from."
-  - `DeleteScopeRequest.scope`: "Name of the scope to delete." (no "the")
-  - `DeleteSecretRequest.scope`: "The name of the scope that contains the
-    secret to delete."
-- **Suggestion:** the JSDocs are written by hand per-operation, with minor
-  grammar variation. Not a naming defect; flagging because it makes
-  cross-reference annoying.
-
-### L5. `ScopeBackendType` values include only two cases despite the JSDoc
-
-- **File / line:** `src/v1/model.ts:16-30`.
-- **Category:** observation.
-- **JSDoc:** "Azure KeyVault backed secret scopes will be supported in a
-  later release." The release shipped; the doc string is stale. Not a
-  naming issue but indicates the file is not maintained tightly.
-
-### L6. `flattenQueryParams` is dead code in this package
+### L2. `flattenQueryParams` is dead code in this package
 
 - **File / line:** `src/v1/utils.ts:123`.
 - **Category:** #21 dead code.
@@ -285,7 +235,7 @@ Headline themes:
   generator-wide.
 - **Suggestion:** drop dead code, or move it to a shared utils package.
 
-### L7. `executeCall` vs `executeHttpCall` name collision
+### L3. `executeCall` vs `executeHttpCall` name collision
 
 - **Files / lines:** `src/v1/utils.ts:26, 65`.
 - **Category:** #17 inconsistent action verbs.
@@ -293,7 +243,7 @@ Headline themes:
   `executeCall` (sets options + dispatches retries) and `executeHttpCall`
   (one HTTP roundtrip). Same defect cataloged in other audits.
 
-### L8. `PACKAGE_SEGMENT` constant is vague
+### L4. `PACKAGE_SEGMENT` constant is vague
 
 - **File / line:** `src/v1/client.ts:65`.
 - **Category:** #1 vague/generic.

@@ -11,10 +11,10 @@ resolve-by-external-id flows that bridge the customer IdP to Databricks.
 | Severity | Count |
 | -------- | ----- |
 | High     |     6 |
-| Medium   |    10 |
-| Low      |    10 |
+| Medium   |     5 |
+| Low      |     3 |
 | Observation | 3 |
-| **Total** | **29** |
+| **Total** | **17** |
 
 Three dominant themes remain. **First, the package still ships methods,
 requests, and a handful of variants in parallel `*` and `*Proxy` forms** that
@@ -185,60 +185,7 @@ beyond Java-RPC habit.
 - **Rationale:** Two suffixes for the same routing-variant idea is the
   worst possible outcome.
 
-### M3. `applicationId` on `ServicePrincipal` — third ID on the same type
-- **File:** `model.ts:251-252`
-- **Category:** 19 (underspecified ID)
-- **Issue:** `ServicePrincipal` already has `accountId`, `internalId`,
-  `externalId`, and now `applicationId`. The doc says "Application ID of the
-  service principal." but does not say where this comes from (AAD app
-  registration? Databricks-issued?). It is a string and the doc gives no
-  format.
-- **Suggestion:** Document the source: "Azure AD application ID (UUID)
-  identifying the service principal at the identity provider." Plus add a
-  format hint if not arbitrary string.
-- **Rationale:** Four IDs on one struct is a lot; each one needs to be
-  obviously distinct in purpose.
-
-### M4. `Group.accountId` doc — "The parent account ID for group in <Databricks>" (missing article)
-- **File:** `model.ts:131-132`
-- **Category:** 6 (misleading via grammar)
-- **Issue:** Doc reads "The parent account ID for group in <Databricks>" —
-  missing "the" before "group". Same pattern on `User.accountId` ("The
-  accountId parent of the user in <Databricks>.") and `ServicePrincipal.accountId`
-  ("The parent account ID for the service principal in <Databricks>."). Three
-  siblings with three different phrasings of the same thing, two with grammar
-  issues.
-- **Suggestion:** Standardize to "Databricks account ID of the parent
-  account." or just "Parent Databricks account ID."
-- **Rationale:** Consistency + grammar; the `<Databricks>` template marker
-  also needs to go (see M5).
-
-### M5. `<Databricks>` proto template markup throughout JSDoc blocks
-- **File:** `model.ts` everywhere, e.g. `25, 29, 31, 63, 73, 79, 89, 131, 133`; `client.ts:286, 287, 323`
-- **Category:** 14 (Go/proto-style markup leak)
-- **Issue:** The literal string `<Databricks>` appears 25+ times across the
-  JSDoc comments. It is upstream template syntax meant to be replaced by
-  the brand at doc-generation time; in TS it renders as stray angle brackets
-  in IDE hover popups and TypeDoc. Examples:
-  - "Required. Workspace assignment detail to be created in <Databricks>"
-  - "Internal service principal ID of the service principal in <Databricks>."
-  - "Required. ID of the principal in <Databricks>."
-- **Suggestion:** Strip the template markup in the generator, leaving just
-  "Databricks".
-- **Rationale:** Public docs leaking template syntax is the most visible
-  proto-leak across the SDK.
-
-### M6. `UpdateWorkspaceAssignmentDetailRequest` doc body says `TBD since the only updatable field is permissions`
-- **File:** `model.ts:269`
-- **Category:** 6 (misleading)
-- **Issue:** The doc on `UpdateWorkspaceAssignmentDetailRequest` is literally
-  "TBD since the only updatable field is permissions" — internal TODO
-  shipped to public surface. Also factually wrong (entitlements, not
-  permissions, per the type).
-- **Suggestion:** Replace with the real description.
-- **Rationale:** Placeholder docs degrade developer trust.
-
-### M7. `resolveByExternalId` URL segment uses camelCase
+### M3. `resolveByExternalId` URL segment uses camelCase
 - **File:** `client.ts:105, 134, 163, 198, 233, 262`
 - **Category:** 14, 3 (Go-style; casing)
 - **Issue:** The URL paths use `/resolveByExternalId` in camelCase. The URLs
@@ -248,7 +195,7 @@ beyond Java-RPC habit.
 - **Suggestion:** Server-side fix (out of scope), but flag to the API team.
 - **Rationale:** Not the SDK's bug, but reflects an upstream inconsistency.
 
-### M8. `permissions: WorkspacePermission[]` vs `entitlements: Entitlement[]` — conceptually overlapping fields
+### M4. `permissions: WorkspacePermission[]` vs `entitlements: Entitlement[]` — conceptually overlapping fields
 - **File:** `model.ts:317, 329`
 - **Category:** 12, 6 (duplicate concepts; misleading)
 - **Issue:** `WorkspaceAccessDetail.permissions` (USER_PERMISSION /
@@ -262,7 +209,7 @@ beyond Java-RPC habit.
   both JSDoc blocks. If they are the same, merge.
 - **Rationale:** This is the kind of overlap that produces support tickets.
 
-### M9. `resolveByExternalId` method naming
+### M5. `resolveByExternalId` method naming
 - **File:** `client.ts:101, 159, 229`
 - **Category:** 17 (verb inconsistency)
 - **Issue:** `resolveGroup`, `resolveUser`, `resolveServicePrincipal`. These
@@ -275,42 +222,11 @@ beyond Java-RPC habit.
   semantic prominently.
 - **Rationale:** Method names should not hide write side-effects.
 
-### M10. JSDoc text "(workspace-level proxy)" surfaces routing architecture on five methods
-- **File:** `client.ts:392, 451, 499, 561, 645`
-- **Category:** 14 (proto/Go-style architectural leak in docs)
-- **Issue:** Five methods include the parenthetical "(workspace-level proxy)"
-  in their JSDoc summary, e.g. `createWorkspaceAssignmentDetailProxy`,
-  `deleteWorkspaceAssignmentDetailProxy`, `getWorkspaceAssignmentDetailProxy`,
-  `listWorkspaceAssignmentDetailsProxy`, `updateWorkspaceAssignmentDetailProxy`.
-  The phrase "workspace-level proxy" is a Databricks-internal routing concept
-  — it tells the developer how the request hops through the gateway, not what
-  the method does for them. In IDE hover popups and TypeDoc this is the
-  first thing a consumer reads.
-- **Suggestion:** Replace with consumer-facing semantics, e.g. "Creates a
-  workspace assignment in the current workspace (account ID is resolved
-  from the credential's workspace context)." If H1 collapses the variants,
-  this finding disappears with them.
-- **Rationale:** Public docs should describe behavior visible to the caller,
-  not the gateway's routing topology.
-
 ---
 
 ## Low-severity findings
 
-### L1. `accountId` field documented inconsistently across types
-- **File:** `model.ts:69, 85, 103, 121, 131, 151, 182, 207, 232, 245, 271, 285`
-- **Category:** Observation, 6 (misleading)
-- **Issue:** Multiple different phrasings of the same `accountId` field's JSDoc:
-  - "Required. The account ID for which the workspace assignment detail is being created."
-  - "Required. The parent account ID for which the workspace access details are being requested."
-  - "The parent account ID for group in <Databricks>."
-  - "The accountId parent of the user in <Databricks>."
-- **Suggestion:** One canonical phrasing for the request-level field
-  ("Databricks account ID. Falls back to ClientOptions.accountId if omitted.")
-  and one for the resource-level field ("Parent Databricks account ID.").
-- **Rationale:** Same field, many different doc strings.
-
-### L2. `principalId` is `number` (Databricks internal) but `accountId` is `string` (UUID) — type-inconsistency for IDs
+### L1. `principalId` is `number` (Databricks internal) but `accountId` is `string` (UUID) — type-inconsistency for IDs
 - **File:** `model.ts:70, 80, 90, 96, 104, 108, 122, 126, 132, 134, 152, 246, 248, 286, 288, 307, 311, 323, 327`
 - **Category:** 19 (underspecified ID)
 - **Issue:** Databricks-internal IDs are `number`, account IDs are `string`
@@ -321,7 +237,7 @@ beyond Java-RPC habit.
 - **Rationale:** Type-system disambiguation; out-of-scope for a 1:1 port but
   worth noting for any future hardening.
 
-### L3. `ResolveGroupRequest` vs `ResolveGroupProxyRequest` symmetry
+### L2. `ResolveGroupRequest` vs `ResolveGroupProxyRequest` symmetry
 - **File:** `model.ts:172-186`
 - **Category:** Observation
 - **Issue:** `ResolveGroupRequest` carries `accountId` + `externalId`, but
@@ -331,36 +247,7 @@ beyond Java-RPC habit.
 - **Suggestion:** Collapse per H1.
 - **Rationale:** Pattern, not a new finding.
 
-### L4. `Group.externalId` field name vs `Group.accountId` field name — neither match wire snake_case nor the legacy SCIM camelCase
-- **File:** `model.ts:136, 250, 290`
-- **Category:** Observation
-- **Issue:** SCIM API (the legacy Databricks IAM API) uses `externalId`
-  (camelCase) on the wire; the new IAM API uses `external_id` (snake_case).
-  This SDK uses `externalId` in TS and `external_id` on the wire. The
-  pattern is correct and consistent — flagging only because anyone migrating
-  from SCIM may be confused.
-- **Suggestion:** None; documentation for migrators if not already present.
-- **Rationale:** Migration-friendly note.
-
-### L5. `pageSize` JSDoc could document the default
-- **File:** `model.ts:143, 155`
-- **Category:** 6, Observation (misleading)
-- **Issue:** `pageSize` docstrings do not specify the default ("If not
-  provided, defaults to N"). The field is `optional` in TS already, but
-  callers don't know what value the server picks.
-- **Suggestion:** Document the default if known.
-- **Rationale:** Trivial cleanup.
-
-### L6. `User.username` doc — "Username/email of the user"
-- **File:** `model.ts:291`
-- **Category:** 6 (misleading)
-- **Issue:** Doc says "Username/email" — which is it? Slashes in JSDoc
-  signal ambiguity.
-- **Suggestion:** Be specific: "Email address used as the user's login
-  identifier."
-- **Rationale:** Surface the format.
-
-### L7. `Group.groupName` doc — "Display name of the group"
+### L3. `Group.groupName` doc — "Display name of the group"
 - **File:** `model.ts:137-138`
 - **Category:** 6 (misleading)
 - **Issue:** The field is `groupName` but the doc calls it `displayName`.
@@ -369,37 +256,6 @@ beyond Java-RPC habit.
   doc and the parallel field on `ServicePrincipal`), or update the doc to
   say "Group name displayed in the UI".
 - **Rationale:** Consistency between the doc and the field name.
-
-### L8. `ServicePrincipal` JSDoc — "The details of a ServicePrincipal resource."
-- **File:** `model.ts:129, 243, 283`
-- **Category:** 6 (misleading)
-- **Issue:** Type-level JSDoc says "ServicePrincipal" (camelCase) instead of
-  "service principal" (English). Same on `Group` ("The details of a Group
-  resource.") and `User` ("The details of a User resource."). Three
-  identical placeholder docs.
-- **Suggestion:** Replace with prose.
-- **Rationale:** Type-level docs should be in English.
-
-### L9. `applicationId` doc could disclose source
-- **File:** `model.ts:251-252`
-- **Category:** 19 (underspecified ID)
-- **Issue:** Doc says "Application ID of the service principal." with no
-  format hint (UUID? AAD app ID? Databricks-internal?).
-- **Suggestion:** "Application ID of the service principal at the customer's
-  identity provider (typically the Azure AD app registration UUID)."
-- **Rationale:** Surface the format.
-
-### L10. `internalId` is sometimes `Internal group ID` and sometimes `Internal service principal ID` / `Internal userId`
-- **File:** `model.ts:133, 247, 287`
-- **Category:** 6, Observation (misleading; documentation rot)
-- **Issue:** `internalId` is documented three different ways across types:
-  "Internal group ID of the group in <Databricks>.", "Internal service
-  principal ID of the service principal in <Databricks>.", "Internal userId
-  of the user in <Databricks>." (typo on the last — `userId` should be two
-  words). The self-referential ("group ID of the group") phrasing is also
-  awkward.
-- **Suggestion:** Standardize to "Databricks-internal numeric ID of the X."
-- **Rationale:** Documentation consistency.
 
 ---
 
@@ -432,14 +288,12 @@ beyond Java-RPC habit.
 
 ## Cross-cutting recommendations (priority order)
 
-1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L3, O2, O3).** This
+1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L2, O2, O3).** This
    is the largest single improvement and ~halves the public type surface.
-2. **Replace `<Databricks>` template markup (M5).** Generator-side fix.
-3. **Standardize ID field doc strings (L1, L10) and the `State` enum name (H3).**
+2. **Standardize the `State` enum name (H3).**
    One name per concept.
-4. **Remove type-suffix tautology on the `PrincipalType` enum (H6).** Drop
+3. **Remove type-suffix tautology on the `PrincipalType` enum (H6).** Drop
    the type suffix from the enum name.
-5. **Drop the `Detail` suffix from the Workspace* types (H4).**
-6. **Rewrite the placeholder JSDocs (M6).** Generator + spec fix.
+4. **Drop the `Detail` suffix from the Workspace* types (H4).**
 
 ---

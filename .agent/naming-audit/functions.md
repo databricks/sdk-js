@@ -3,7 +3,7 @@
 **Package path:** `/home/parth.bansal/sdk-js/packages/functions/`
 **Audited files:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
 **Domain:** Unity Catalog Functions (SQL / Python UDFs and UDTFs).
-**Total weird names flagged:** 49 (0 fixed, 49 still present after rescan on 2026-05-26 post regen #156).
+**Total weird names flagged:** 43 (0 fixed, 43 still present after rescan on 2026-05-26 post regen #156).
 
 ---
 
@@ -94,12 +94,7 @@ TS rules.
 Field name `typeJson`. JSON is treated as `Json` per Google TS rules.
 Consistent.
 
-#### 4.4 `typeText` field (model.ts:252)
-Field name `typeText`. Doc says "Full data type spec, SQL/catalogString
-text." OK as a name but ambiguous: is it SQL-formatted, JSON-formatted,
-or arbitrary?
-
-#### 4.5 "UDF" / "UDTF" never appear in identifiers
+#### 4.4 "UDF" / "UDTF" never appear in identifiers
 The package is *Unity Catalog Functions* — it covers both UDFs and
 UDTFs (table-valued functions). Neither acronym appears in any
 identifier or doc comment. The distinction is encoded in the
@@ -111,20 +106,7 @@ flagging.
 
 ### 5. Misleading names
 
-#### 5.1 `routineDependencies` doc comment lowercases "function" (model.ts:119, 228, 367)
-JSDoc reads "function dependencies." (lowercase, mid-sentence). The
-field name is `routineDependencies` and the doc says "function". The
-package toggles between "routine" and "function" terminology
-indiscriminately — a Go-port artifact of the SQL standard's vocabulary
-(`CREATE PROCEDURE … LANGUAGE SQL ROUTINE_BODY …`). Doc inconsistency
-worth flagging.
-
-#### 5.2 `DeleteFunctionRequest.force` doc has typo "notempty" (model.ts:153)
-"Force deletion even if the function is notempty." Should be "not
-empty". Doc bug, not a naming bug, but signals the field hasn't been
-read recently.
-
-#### 5.3 `specificName` reserved-for-future-use (model.ts:104, 213, 352)
+#### 5.1 `specificName` reserved-for-future-use (model.ts:104, 213, 352)
 Doc: "Specific name of the function; Reserved for future use." A
 field whose name promises specificity and whose docs admit it's
 unused is a future trap. Better to omit until it does something.
@@ -266,16 +248,7 @@ outliers. No issues found.
 
 ### 13. Underspecified IDs
 
-#### 13.1 `metastoreId` (model.ts:122, 231, 370)
-Documented as "Unique identifier of parent metastore." Format
-opaque (UUID? slug?). Acceptable but unspecified.
-
-#### 13.2 `functionId` (model.ts:134, 243, 382)
-Doc: "Id of Function, relative to parent schema." Format unspecified
-— is this a UUID, an autoincrement integer, an opaque token? Type is
-`string` so opaque, but the docs should say so.
-
-#### 13.3 `metastoreId` & `functionId` — distinct domains, same shape
+#### 13.1 `metastoreId` & `functionId` — distinct domains, same shape
 Both `string`, both undocumented for format, both server-assigned.
 A consumer cannot tell them apart from the types.
 
@@ -321,12 +294,7 @@ shadows nothing, but the combination of the package name and the
 `Dependency.value.$case === 'function'` pattern creates a vocabulary
 where "function" is overloaded.
 
-### F. `FunctionInfo.routineDependencies` is described as "function dependencies."
-(model.ts:119, 228, 367) Comment text starts with lowercase and uses
-"function" instead of "routine"; field name uses "routine". See
-§5.1.
-
-### G. `parameterStyle: FunctionInfo_ParameterStyle` with one variant `S`
+### F. `parameterStyle: FunctionInfo_ParameterStyle` with one variant `S`
 The most extreme case of a single-purpose API surface: a long enum
 type holding a one-letter variant, only ever set to `S`, marshaled
 as the JSON string `"S"`. Three layers of indirection for a constant.
@@ -433,19 +401,18 @@ envelope visibly reflect proto oneof semantics. Already noted in
 | `FunctionInfo_SecurityType.DEFINER`                      | model.ts:59-61        | 2.2 |
 | `FunctionInfo_SqlDataAccess`                             | model.ts:64           | 4.1 |
 | `CreateFunction`                                         | model.ts:76           | 7.1, 11.2 |
-| `CreateFunction.specificName`                            | model.ts:104          | 5.3 |
+| `CreateFunction.specificName`                            | model.ts:104          | 5.1 |
 | `CreateFunction.fullName`                                | model.ts:124          | 7.2, 11.4 |
-| `CreateFunction.functionId / metastoreId / createdAt / etc.` | model.ts:122-136  | 11.2, 13.1, 13.2 |
+| `CreateFunction.functionId / metastoreId / createdAt / etc.` | model.ts:122-136  | 11.2, 13.1 |
 | `DeleteFunctionRequest.fullNameArg`                      | model.ts:152          | 3.3, 9.2, 11.3 |
-| `DeleteFunctionRequest.force`                            | model.ts:154          | 5.2 |
 | `Dependency.value.$case`                                 | model.ts:165          | 9.3 |
 | `FunctionInfo`                                           | model.ts:185          | 7.1 |
-| `FunctionInfo.specificName`                              | model.ts:213          | 5.3 |
+| `FunctionInfo.specificName`                              | model.ts:213          | 5.1 |
 | `FunctionInfo.properties`                                | model.ts:227          | 10.2 |
 | `FunctionInfo.fullName`                                  | model.ts:233          | 7.2, 11.4 |
-| `FunctionInfo.functionId`                                | model.ts:243          | 13.2, 13.3 |
+| `FunctionInfo.functionId`                                | model.ts:243          | 13.1 |
 | `FunctionParameterInfo.name`                             | model.ts:250          | 10.1 |
-| `FunctionParameterInfo.typeText / typeJson / typeName`   | model.ts:252-256      | 4.3, 4.4 |
+| `FunctionParameterInfo.typeJson`                         | model.ts:254          | 4.3 |
 | `GetFunctionRequest.fullNameArg`                         | model.ts:281          | 3.3, 9.2 |
 | `UpdateFunctionRequest`                                  | model.ts:322          | 7.1, 7.4, 11.1, 11.2 |
 | `UpdateFunctionRequest.fullNameArg / name`               | model.ts:324, 326     | 3.3, 7.4, 11.1 |

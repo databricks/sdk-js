@@ -3,15 +3,15 @@
 **Path:** `packages/genie/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks "Genie" — natural-language data interface. The unit of organisation is a `GenieSpace` (a workspace scoped to a warehouse + a set of dataset/instructions); inside a space, users `startConversation` and exchange `Message`s; messages produce `GenieAttachment`s (text / SQL query / suggested follow-up questions); SQL attachments execute against the warehouse and yield `Result`s (`StatementResponse` shapes copied from the statement-execution API). The package also exposes "Eval" — a benchmarking flow (`EvalRun` → `EvalResult` → `EvalResultDetails` with LLM-judge scoring).
-**Total weird names flagged:** 37
+**Total weird names flagged:** 35
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 14 |
 | Medium | 9 |
-| Low | 10 |
-| Observation | 4 |
+| Low | 9 |
+| Observation | 3 |
 
 ## High severity
 
@@ -205,13 +205,7 @@
 - **Suggested name:** `ArrowStream` (in a Pascal-case enum).
 - **Rationale:** Low priority — enum-value style is widely-debated.
 
-### 32. `GenieMessage.queryResult: Result | undefined` deprecated field — `src/v1/model.ts:1392`
-- **Why weird:** Field is marked deprecated in JSDoc ("Use `query_result_metadata` in `GenieQueryAttachment` instead"). Still exported. Type is `Result` (the bare `Result` type — see #24).
-- **Category:** 12 (duplicate concept — kept-for-compat), 1 (vague — `Result`).
-- **Suggested name:** Mark with `/** @deprecated */` JSDoc (current text just says "Deprecated" — TS tooling won't strike-through).
-- **Rationale:** Tooling support — modern TS understands `@deprecated`.
-
-### 33. `genieGetQueryResultByAttachment` — `By` clause is Java/Spring-style — `src/v1/client.ts:620`
+### 32. `genieGetQueryResultByAttachment` — `By` clause is Java/Spring-style — `src/v1/client.ts:620`
 - **Why weird:** Method named `GetXByY` follows Spring Data convention. Other JS SDKs prefer flat verb-noun. Also the body has the same fields as `genieGetMessageAttachmentQueryResult` — they are duplicates (one path-segment ordering differs).
 - **Category:** 14 (Java/Spring-style naming), 12 (duplicate concept).
 - **Suggested name:** Mark as `@deprecated` (already partially), then remove.
@@ -219,20 +213,17 @@
 
 ## Observations
 
-### 34. `pageSize` / `pageToken` casing — `src/v1/model.ts:1248,1250,1266,1268,...`
+### 33. `pageSize` / `pageToken` casing — `src/v1/model.ts:1248,1250,1266,1268,...`
 - **Observation:** Standard pagination fields; this is fine. Noted to confirm consistency across the package.
 - **Suggested name:** N/A.
 - **Rationale:** Confirms the package's pagination naming is consistent.
 
-### 35. `Value` Well-Known-Type — empty in JS, hand-rolled — `src/v1/model.ts:1747`
+### 34. `Value` Well-Known-Type — empty in JS, hand-rolled — `src/v1/model.ts:1747`
 - **Observation:** `Value` is the proto WKT for arbitrary JSON values. The TS shape is `{ kind: { $case: 'nullValue' | 'numberValue' | 'stringValue' | 'boolValue' | 'structValue' | 'listValue', ... } | undefined }` — 24 lines of TS for what JS represents as `unknown`. Same for `Struct`, `ListValue`, `MapStringValueEntry`.
 - **Suggested name:** Replace `Value | Struct | ListValue` with `unknown` (or `JsonValue`) at marshal boundary.
 - **Rationale:** Genie doesn't actually use these in any public method body; they exist only as transitive types referenced by `Result.* → ResultData.dataArray` (whose elements are `ListValue` of `Value`). The proto-WKT shape is buying nothing.
 
-### 36. Inconsistent `request field X required for polling is missing` error messages — `src/v1/client.ts:195,200,204,999,1008`
-- **Observation:** All six error strings phrased identically, but `response field` vs `request field` distinction is correct. No naming bug; documentation only.
-
-### 37. Stub `MessageStatus` empty interface — `src/v1/model.ts:1562`
+### 35. Stub `MessageStatus` empty interface — `src/v1/model.ts:1562`
 - **Observation:** `export interface MessageStatus {}` is an empty placeholder. The actual status enum is `MessageStatus_MessageStatus`. The empty type adds noise to the surface.
 - **Suggested name:** Remove the empty interface; refer to the enum directly.
 - **Rationale:** Empty interfaces in TS satisfy any object type and become bug magnets.

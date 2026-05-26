@@ -3,13 +3,13 @@
 **Path:** `packages/disasterrecovery/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level Disaster Recovery — manage `FailoverGroup` resources (regions, workspace sets, UC replication config) and `StableUrl` resources (failover-aware endpoints for workspaces), including a `failover` action to swing the primary region.
-**Total weird names flagged:** 14
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 3 |
-| Medium | 4 |
+| Medium | 3 |
 | Low | 5 |
 | Observation | 2 |
 
@@ -25,7 +25,7 @@
 - **Why weird:** Acronym casing for `URL` is inconsistent with the wider JS/TS ecosystem, which treats `URL` as ALLCAPS (Web `URL` global, `URLSearchParams`, `urlencoded`). This package uses `Url` (PascalCase capital-then-lower) for one of the two top-level resources. `client.ts` mirrors the inconsistency: `createStableUrl`, `getStableUrl`, `deleteStableUrl`, `listStableUrls`.
 - **Category:** 3 (acronym casing inconsistency).
 - **Suggested name:** `StableURL` / `CreateStableURLRequest` / `stableURLId` (matches Web `URL` global) **or** keep `Stable` + `Url` consistently across both type and wire (current) but explicitly document the choice.
-- **Rationale:** Within `client.ts` line 8 we import `CallOptions` and the file uses `URLSearchParams` (line 83) right beside `stableUrlId` (line 128), giving us `URLSearchParams` and `stableUrlId` on adjacent lines. The mixed casing is jarring. (Note: this is a package-wide rename; the cheaper compromise is to keep `Url` but document the convention. See observation #13 — same issue applies in `utils.ts` field `url` on `StableUrl`.)
+- **Rationale:** Within `client.ts` line 8 we import `CallOptions` and the file uses `URLSearchParams` (line 83) right beside `stableUrlId` (line 128), giving us `URLSearchParams` and `stableUrlId` on adjacent lines. The mixed casing is jarring. (Note: this is a package-wide rename; the cheaper compromise is to keep `Url` but document the convention. See observation #12 — same issue applies in `utils.ts` field `url` on `StableUrl`.)
 
 ### 3. `effectivePrimaryRegion` vs `initialPrimaryRegion` vs `targetPrimaryRegion` field triplet — `src/v1/model.ts:125,149,101`
 - **Why weird:** Three subtly-different "primary region" fields whose semantics depend entirely on a JSDoc paragraph:
@@ -48,16 +48,10 @@
 ### 5. `UcReplicationConfig` — `src/v1/model.ts:284`
 - **Why weird:** `Uc` is a two-letter abbreviation in a type name. Comments in the same file (line 113) spell it out as "UCDR" with `Unity Catalog` in `unityCatalogAssets` (line 131). Single SDK uses both `unityCatalog` (full) and `Uc` (abbreviated) for the same concept across adjacent fields/types.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency — `unityCatalogAssets: UcReplicationConfig`).
-- **Suggested name:** `UnityCatalogReplicationConfig` (or `UnityCatalogConfig`). Field stays `unityCatalogAssets` -> `unityCatalogConfig` (see #9).
+- **Suggested name:** `UnityCatalogReplicationConfig` (or `UnityCatalogConfig`). Field stays `unityCatalogAssets` -> `unityCatalogConfig` (see #8).
 - **Rationale:** Within a five-line span the same domain is spelled `unityCatalog` and `Uc`. Pick one. The full spelling is unambiguous and the field name already votes for it.
 
-### 6. `etag` field on multiple types — `src/v1/model.ts:78,106,138`
-- **Why weird:** `etag` lowercased. Web/HTTP convention is `ETag` (capital E-Tag, RFC 9110 §8.8.3). The wire format here is `etag` (lowercase, per the Zod schema line 332). Mixed casing across the ecosystem; the lowercase here at least mirrors the wire, but a TS reader might expect `eTag` or `ETag`.
-- **Category:** 3 (acronym casing).
-- **Suggested name:** Keep `etag` for wire fidelity; document the choice in a top-level comment. (Or use `eTag` if the SDK style guide prefers JS-camelCase for acronyms.)
-- **Rationale:** Low-impact but flagged because the audit asks for casing inconsistencies. The Google TS style guide (loaded skill `google-ts-styleguide:ts-style-guide`) generally prefers camelCase for acronyms (so `etag` is actually fine).
-
-### 7. `Client` class name — `src/v1/client.ts:52`
+### 6. `Client` class name — `src/v1/client.ts:52`
 - **Why weird:** Plain `Client` is the maximally-generic name. Once imported, callers see `import { Client } from '@databricks/sdk-disasterrecovery/v1'` — fine if used qualified, but `new Client()` floating in user code is meaningless. Sibling packages all do the same per generator convention; flagging this once at the package level.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `DisasterRecoveryClient`. (Or rely on import aliases.)
@@ -65,31 +59,31 @@
 
 ## Low severity
 
-### 8. `failoverFailoverGroup` method name on `Client` — `src/v1/client.ts:204`
+### 7. `failoverFailoverGroup` method name on `Client` — `src/v1/client.ts:204`
 - **Why weird:** Stutter (same as #1). Methods elsewhere are `createFailoverGroup`, `getFailoverGroup`, `listFailoverGroups`, `updateFailoverGroup`, `deleteFailoverGroup` — all use `<verb><Resource>`. This one collides because `failover` is both the verb and (lower-cased) part of the resource.
 - **Category:** 7 (overly verbose), 17 (inconsistency — verb visually merges with resource).
 - **Suggested name:** `triggerFailover` (verb `trigger`, since `failover` is the object) or just `failover` (single-word, since the package is already "disasterrecovery").
 - **Rationale:** `client.failoverFailoverGroup({...})` reads like a typo. `client.failover({...})` or `client.triggerFailover({...})` are unambiguous.
 
-### 9. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:47`
+### 8. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:47`
 - **Why weird:** Generic CS-term constant; the comment (line 46) explains it as "Package identity segment for this client to be used in the User-Agent header." Without the comment the name doesn't communicate that it's a User-Agent payload.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PKG_UA_SEGMENT`.
 - **Rationale:** Same as other packages in the audit. Flag once per package.
 
-### 10. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 9. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported helper but no caller in `client.ts` (the client builds URLSearchParams inline). Dead-looking surface area.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Either remove the export (generator default) or document why it ships per-package.
 - **Rationale:** Carried by every generated package. Surfaces as `import { flattenQueryParams } from './utils'` no-op.
 
-### 11. `readAll` — `src/v1/utils.ts:40`
+### 10. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Generic name for "read a `ReadableStream<Uint8Array>` to a single Uint8Array". Could collide cognitively with `Array.prototype` ergonomics.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` / `readStreamToBuffer`.
 - **Rationale:** Internal helper. Skip if generated identically across all packages.
 
-### 12. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 11. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions whose names differ only by `Http` infix but operate on very different layers (retry/rate-limit wrapper vs raw HTTP send + ApiError lift).
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runCallWithOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
@@ -97,10 +91,10 @@
 
 ## Observations
 
-### 13. Action-verb consistency on `Client` (mostly good)
-Methods are `create*`/`get*`/`list*`/`update*`/`delete*` plus one bespoke action (`failoverFailoverGroup`). Aside from the stutter (#8), this is consistent. Listed as observation per rule 17 since the audit asks to flag inconsistencies — here only the one method breaks the pattern.
+### 12. Action-verb consistency on `Client` (mostly good)
+Methods are `create*`/`get*`/`list*`/`update*`/`delete*` plus one bespoke action (`failoverFailoverGroup`). Aside from the stutter (#7), this is consistent. Listed as observation per rule 17 since the audit asks to flag inconsistencies — here only the one method breaks the pattern.
 
-### 14. Acronym casing inconsistency: `URL` vs `Uri` vs `Url`
+### 13. Acronym casing inconsistency: `URL` vs `Uri` vs `Url`
 Within this package:
 - `stableUrl`/`StableUrl` (PascalCase capital-then-lower).
 - `uriByRegion`/`LocationMappingEntry.uri` (`Uri` capital-then-lower).

@@ -268,19 +268,6 @@ _None._
   proto's `Foo.Bar`. The flat camel/Pascal form removes the IDL
   artifact and the eslint-disable.
 
-#### F11.2 — "Public RPC" in JSDoc — `client.ts:112`
-- **Why flagged:** The JSDoc `/** Public RPC to get forecasting
-  experiment */` exposes the server-side classification
-  (`Public` vs `Internal` RPC) and the transport term `RPC` to SDK
-  consumers. Users of an HTTP SDK do not need to know the call
-  is dispatched as a "public RPC" inside the backend.
-- **Category:** Proto/RPC architectural leak (`Public` mid-position
-  classifier + `RPC` transport noun in user-facing doc).
-- **Suggested:** Replace with a behavioural description, e.g.
-  `/** Gets a forecasting experiment by ID. */`.
-- **Rationale:** Public-API JSDoc should describe what the method
-  does for the caller, not how the backend routes it.
-
 ---
 
 ## Package overlap: `forecasting` vs `experiments`
@@ -301,13 +288,6 @@ generic experiment but uses the same term and the same ID name.
   disambiguation. Or, namespace this package's types under
   `forecasting.Experiment` if the package adopts nested exports.
 
-### F-OVERLAP.2 — `experimentId` naming collision (LOW)
-- Same field name used in both APIs but the IDs are not
-  interchangeable. Users should not pass an MLflow experiment ID to
-  forecasting or vice versa.
-- **Suggestion:** Document explicitly in JSDoc that the ID is the
-  forecasting/AutoML experiment ID, not an MLflow experiment ID.
-
 ---
 
 ## Summary table
@@ -324,8 +304,8 @@ generic experiment but uses the same term and the same ID name.
 | 8 | Generic field names                     | 1 |
 | 9 | Untyped string for closed enum          | 1 |
 | 10 | `*Path` fields contradicting domain    | 0 |
-| 11 | Proto / architectural leaks            | 2 |
-| OVERLAP | forecasting vs experiments         | 2 |
+| 11 | Proto / architectural leaks            | 1 |
+| OVERLAP | forecasting vs experiments         | 1 |
 
 ---
 
