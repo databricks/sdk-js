@@ -45,12 +45,16 @@ import {
 
 // Package identity segment for this client to be used in the User-Agent header.
 const PACKAGE_SEGMENT = {
-  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
 
 export class Client {
   private readonly host: string;
+  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
+  // When set, workspace-level methods send X-Databricks-Org-Id on every
+  // request.
+  private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -63,11 +67,12 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
       info = info
-        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
         .with({key: 'auth', value: options.credentials.name()});
     }
     this.userAgent = info.toString();
@@ -93,6 +98,9 @@ export class Client {
     let resp: FailoverGroup | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
@@ -134,6 +142,9 @@ export class Client {
     let resp: StableUrl | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
@@ -170,6 +181,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
@@ -189,6 +203,9 @@ export class Client {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
@@ -210,6 +227,9 @@ export class Client {
     let resp: FailoverGroup | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -235,6 +255,9 @@ export class Client {
     let resp: FailoverGroup | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -260,6 +283,9 @@ export class Client {
     let resp: StableUrl | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -294,6 +320,9 @@ export class Client {
     let resp: ListFailoverGroupsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -345,6 +374,9 @@ export class Client {
     let resp: ListStableUrlsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -394,6 +426,9 @@ export class Client {
     let resp: FailoverGroup | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',

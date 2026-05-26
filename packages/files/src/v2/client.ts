@@ -87,12 +87,16 @@ import {
 
 // Package identity segment for this client to be used in the User-Agent header.
 const PACKAGE_SEGMENT = {
-  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
 
 export class Client {
   private readonly host: string;
+  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
+  // When set, workspace-level methods send X-Databricks-Org-Id on every
+  // request.
+  private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -105,11 +109,12 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
       info = info
-        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
         .with({key: 'auth', value: options.credentials.name()});
     }
     this.userAgent = info.toString();
@@ -131,6 +136,9 @@ export class Client {
     let resp: AddBlockRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -160,6 +168,9 @@ export class Client {
     let resp: CloseRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -196,6 +207,9 @@ export class Client {
     let resp: CreateRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -237,6 +251,9 @@ export class Client {
     let resp: DeleteRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -271,6 +288,9 @@ export class Client {
     let resp: GetStatusRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -312,6 +332,9 @@ export class Client {
     let resp: ListStatusRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -342,6 +365,9 @@ export class Client {
     let resp: MkDirsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -373,6 +399,9 @@ export class Client {
     let resp: MoveRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -410,6 +439,9 @@ export class Client {
     let resp: PutRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -454,6 +486,9 @@ export class Client {
     let resp: ReadRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -484,6 +519,9 @@ export class Client {
     let resp: CreateDirectoryResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -514,6 +552,9 @@ export class Client {
     let resp: DeleteDirectoryResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -539,6 +580,9 @@ export class Client {
     let resp: DeleteFileResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -573,6 +617,9 @@ export class Client {
       }
       if (req.ifUnmodifiedSince !== undefined) {
         headers.set('If-Unmodified-Since', req.ifUnmodifiedSince);
+      }
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -617,6 +664,9 @@ export class Client {
     let resp: GetDirectoryMetadataResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('head', url, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -653,6 +703,9 @@ export class Client {
       }
       if (req.ifUnmodifiedSince !== undefined) {
         headers.set('If-Unmodified-Since', req.ifUnmodifiedSince);
+      }
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('head', url, headers, callSignal);
@@ -691,6 +744,9 @@ export class Client {
     let resp: ListDirectoryResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -742,6 +798,9 @@ export class Client {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const headers = new Headers({'Content-Type': 'application/octet-stream'});
+    if (this.workspaceId !== undefined) {
+      headers.set('X-Databricks-Org-Id', this.workspaceId);
+    }
     headers.set('User-Agent', this.userAgent);
     const httpReq = buildHttpRequest(
       'PUT',
