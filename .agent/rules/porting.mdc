@@ -136,6 +136,37 @@ Go returns `(T, error)` tuples. In TypeScript, throw an `Error` for
 failures and return `T` directly for success. When the Go function can return
 `nil` without an error to indicate "no result," return `T | undefined`.
 
+### Zero-Value Checks (`x == ""`, `x == 0`) → `=== undefined`
+
+In Go a struct field's "unset" state is its zero value: an unset `string`
+reads back as `""`, an unset `int` as `0`. The Go SDK uses `if s == ""` to
+mean "this field was not configured." TypeScript fields are typed
+`T | undefined`; the explicit "unset" marker is `undefined`, and `""` / `0`
+are distinct, legal values the caller may have intentionally provided.
+
+Do not port the Go zero-value check verbatim. Check `=== undefined` only.
+
+```go
+// Go
+if cfg.Host == "" { ... }
+```
+
+```typescript
+// Bad — conflates "" with unset, hiding a value the caller chose.
+if (profile.host === undefined || profile.host === '') return undefined;
+
+// Good — TypeScript-idiomatic; "" is a legal string value.
+if (profile.host === undefined) return undefined;
+```
+
+If empty values genuinely need to behave like unset (e.g. a config loader that
+normalises blank env vars), normalise once at the boundary where the value
+enters the system, not at every read site.
+
+References:
+- TypeScript handbook, [Optional Properties](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#optional-properties).
+- Go spec, [The zero value](https://go.dev/ref/spec#The_zero_value).
+
 ## Factory Functions vs Constructors
 
 When a Go function can return `nil` (e.g. `FromHTTPError` returns `nil` for 2xx
