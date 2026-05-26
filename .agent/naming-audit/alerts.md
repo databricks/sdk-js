@@ -3,7 +3,7 @@
 **Path:** `packages/alerts/src/{v1,v2}/`
 **Versions audited:** v1, v2
 **Inferred domain:** SQL/Databricks alerts: a stored configuration that periodically evaluates a query result against a threshold and notifies subscribers when it triggers.
-**Total weird names flagged:** 22 (0 fixed, 22 still present after rescan on 2026-05-26 post regen #156)
+**Total weird names flagged:** 18 (0 fixed, 18 still present after rescan on 2026-05-26 post regen #156)
 
 ## Summary table
 
@@ -20,17 +20,13 @@
 | 9 | Medium | both | `model.ts` field | `Alert.notifyOnOk` | Acronym casing ambiguity (`Ok` vs `OK`) |
 | 10 | Medium | v2 | `model.ts` interface | `CronSchedule` | Generic/global name in domain package |
 | 11 | Medium | v2 | `model.ts` enum | `SchedulePauseStatus` | Boolean-shaped enum |
-| 12 | Medium | v2 | `model.ts` field | `Alert.lifecycleState` documented as "Indicates whether the query is trashed" | Misleading (says query, means alert) |
-| 13 | Medium | v2 | `model.ts` enum value | `AlertLifecycleState.DELETED` vs v1 `TRASHED` | v1→v2 rename break |
-| 14 | Low | both | `model.ts` field | `pageToken` / `pageSize` / `nextPageToken` | Conventional; flagged only for completeness |
-| 15 | Low | both | `model.ts` field | `ListAlertsRequest`/`ListAlertsResponse` plural vs `GetAlertRequest` singular | Consistent with REST norms |
-| 16 | Low | v2 | `model.ts` enum value | `Aggregation.STDDEV` | Cryptic abbreviation |
-| 17 | Low | v2 | `model.ts` enum value | `Aggregation.AVG` | Cryptic abbreviation |
-| 18 | Low | v2 | `model.ts` field | `AlertEvaluation.threshold` typed as `AlertOperand` | Misleading type (threshold can be a column) |
-| 19 | Low | v1 | `model.ts` enum | `LifecycleState` | Missing domain prefix (v2 fixes to `AlertLifecycleState`) |
-| 20 | Low | both | `model.ts` field | `Alert.customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2) | v1→v2 rename — different email/text vocabulary |
-| 21 | Low | v2 | `model.ts` field | `Alert.effectiveRunAs` | "Effective" prefix unexplained at first read |
-| 22 | Low | both | `client.ts` | comment "Create Alert" / "Update alert" docstrings | Verb-tense / casing inconsistency in JSDoc |
+| 12 | Medium | v2 | `model.ts` enum value | `AlertLifecycleState.DELETED` vs v1 `TRASHED` | v1→v2 rename break |
+| 13 | Low | v2 | `model.ts` enum value | `Aggregation.STDDEV` | Cryptic abbreviation |
+| 14 | Low | v2 | `model.ts` enum value | `Aggregation.AVG` | Cryptic abbreviation |
+| 15 | Low | v2 | `model.ts` field | `AlertEvaluation.threshold` typed as `AlertOperand` | Misleading type (threshold can be a column) |
+| 16 | Low | v1 | `model.ts` enum | `LifecycleState` | Missing domain prefix (v2 fixes to `AlertLifecycleState`) |
+| 17 | Low | both | `model.ts` field | `Alert.customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2) | v1→v2 rename — different email/text vocabulary |
+| 18 | Low | v2 | `model.ts` field | `Alert.effectiveRunAs` | "Effective" prefix unexplained at first read |
 
 ## v1 vs v2 comparison
 
@@ -204,18 +200,7 @@ export enum SchedulePauseStatus {
 
 Two values for a boolean concept; `boolean paused` would be simpler.
 
-### 12. `Alert.lifecycleState` — JSDoc contradicts the field (v2)
-
-**Location:** `src/v2/model.ts:80-81`
-
-```ts
-/** Indicates whether the query is trashed. */
-lifecycleState?: AlertLifecycleState | undefined;
-```
-
-JSDoc says "whether the query is trashed," but the field is on `Alert` and the enum is `AlertLifecycleState` with values `ACTIVE`/`DELETED`. The word "query" leaks from the underlying implementation (alerts wrap queries) into an `Alert` field's documentation.
-
-### 13. `AlertLifecycleState.DELETED` vs v1 `LifecycleState.TRASHED` — vocabulary swap
+### 12. `AlertLifecycleState.DELETED` vs v1 `LifecycleState.TRASHED` — vocabulary swap
 
 **Location:** v1 `model.ts:24-27`; v2 `model.ts:34-37`
 
@@ -223,26 +208,7 @@ The method is still `trashAlert` (both versions), but in v1 the resulting state 
 
 ## Low severity
 
-### 14. `pageToken` / `pageSize` / `nextPageToken` (both)
-
-```ts
-export interface ListAlertsRequest {
-  pageToken?: string | undefined;
-  pageSize?: number | undefined;
-}
-export interface ListAlertsResponse {
-  ...
-  nextPageToken?: string | undefined;
-}
-```
-
-Conventional Google AIP-158 pagination names. Flagged only because the rule list asks for completeness; no action recommended.
-
-### 15. `ListAlertsRequest` plural vs `GetAlertRequest` singular (both)
-
-Consistent with REST norms (`GET /alerts/{id}` singular, `GET /alerts` plural). No action recommended.
-
-### 16. `Aggregation.STDDEV` — cryptic abbreviation (v2)
+### 13. `Aggregation.STDDEV` — cryptic abbreviation (v2)
 
 ```ts
 STDDEV = 'STDDEV',
@@ -250,11 +216,11 @@ STDDEV = 'STDDEV',
 
 `STANDARD_DEVIATION` or `STDEV` would be clearer; `STDDEV` is a SQL-server-ism.
 
-### 17. `Aggregation.AVG` — cryptic abbreviation (v2)
+### 14. `Aggregation.AVG` — cryptic abbreviation (v2)
 
 `AVERAGE` would be consistent with `SUM`, `COUNT`, `MEDIAN`, `MIN`, `MAX`. The mix of short and full names inside one enum is the issue.
 
-### 18. `AlertEvaluation.threshold` typed as `AlertOperand` — misleading (v2)
+### 15. `AlertEvaluation.threshold` typed as `AlertOperand` — misleading (v2)
 
 ```ts
 /** Threshold to user for alert evaluation, can be a column or a value. */
@@ -265,15 +231,15 @@ The JSDoc admits the threshold can be a column — i.e., not actually a threshol
 
 Also note the typo "Threshold to user" (should be "to use") — content, not naming, but worth fixing.
 
-### 19. `LifecycleState` — missing domain prefix (v1)
+### 16. `LifecycleState` — missing domain prefix (v1)
 
 v1 exports a global-looking `LifecycleState`. v2 corrects this to `AlertLifecycleState`.
 
-### 20. `customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2)
+### 17. `customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2)
 
 Same data, different vocabulary. v1 = email metaphor, v2 = generic content metaphor. Users porting from v1 to v2 need a translation table.
 
-### 21. `effectiveRunAs` (v2)
+### 18. `effectiveRunAs` (v2)
 
 **Location:** `src/v2/model.ts:94-99`
 
@@ -287,19 +253,6 @@ effectiveRunAs?: AlertRunAs | undefined;
 ```
 
 The "effective" prefix is a Databricks convention for "value after applying inheritance/permissions." First-time readers will not know what `effectiveX` means without docs. Established convention, but flagged. (Previously also cited `effectiveParentPath`; that field was removed in regeneration.)
-
-### 22. JSDoc verb/casing inconsistency (both)
-
-**Location:** v2 `client.ts:68`, `client.ts:198`
-
-```ts
-/** Create Alert */
-async createAlert(...) { ... }
-/** Update alert */
-async updateAlert(...) { ... }
-```
-
-`Create Alert` vs `Update alert` — different capitalization, different sentence shape, neither ends with a period (project rule). v1 uses full sentences (`/** Creates an alert. */`). Naming-adjacent.
 
 ## Observations
 

@@ -16,12 +16,12 @@ the `USER`/`ADMIN` role a principal holds on a workspace
 (d) the `checkPolicy` resource-access policy decision endpoint. Originated
 from `permissions`, `workspaceassignment`, `accountaccesscontrol`, and
 `accountaccesscontrolproxy` during the 2026-05-22 regeneration.
-**Total weird names flagged:** 32
+**Total weird names flagged:** 31
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 8 |
+| High | 7 |
 | Medium | 11 |
 | Low | 9 |
 | Observation | 4 |
@@ -76,20 +76,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   `PermissionLevel.MANAGE` is shorter and just as unambiguous as
   `PermissionLevel.CAN_MANAGE`.
 
-### 2. `CAN_MONITOR` vs `CAN_MONITOR_ONLY` — `src/v1/model.ts:23,25`
-- **Why weird:** Two distinct values that differ in name only by the
-  `_ONLY` suffix. There is no JSDoc on either, so a developer cannot tell
-  from the names alone whether the difference is access-scope, a subset
-  relationship, or a separate role.
-- **Category:** Misleading enum-pair; within-enum inconsistency (`_ONLY`
-  qualifier appears nowhere else in this enum).
-- **Suggested name:** Document inline what the difference is, OR rename to
-  a pair like `MONITOR_FULL` / `MONITOR_READ_ONLY` where the contrast is on
-  the predicate, not on a vague `_ONLY` qualifier.
-- **Rationale:** Whenever an enum exposes `X` and `X_ONLY` with no JSDoc,
-  every caller hits a Stack Overflow question.
-
-### 3. `CAN_MANAGE_STAGING_VERSIONS` / `CAN_MANAGE_PRODUCTION_VERSIONS` / `CAN_CREATE_APP` — `src/v1/model.ts:17,18,26`
+### 2. `CAN_MANAGE_STAGING_VERSIONS` / `CAN_MANAGE_PRODUCTION_VERSIONS` / `CAN_CREATE_APP` — `src/v1/model.ts:17,18,26`
 - **Why weird:** Three values are specific to one object type each
   (`registered-models` in MLflow Model Registry, and Databricks Apps), but
   live in a universal `PermissionLevel` enum applicable to 25+ object
@@ -107,7 +94,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   discoverability hazard; users browsing autocomplete will see these as
   valid choices for clusters, jobs, and dashboards.
 
-### 4. `RequestAuthzIdentity` enum and `REQUEST_AUTHZ_IDENTITY_*` member prefix; `Authz` truncation — `src/v1/model.ts:33-37`
+### 3. `RequestAuthzIdentity` enum and `REQUEST_AUTHZ_IDENTITY_*` member prefix; `Authz` truncation — `src/v1/model.ts:33-37`
 - **Why weird:** The type name starts with `Request` — a wire-format
   message prefix (`RequestAuthzIdentity` reads as "the AuthzIdentity field
   on a request message"). The mid-name truncation `Authz` (instead of
@@ -126,7 +113,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   containing `CheckPolicyRequest`. The `Authz` truncation is fine in code
   comments but jars on a public, exported enum.
 
-### 5. `requestObjectType: string` is a stringly-typed closed enum — `src/v1/model.ts:156,163,340,348`
+### 4. `requestObjectType: string` is a stringly-typed closed enum — `src/v1/model.ts:156,163,340,348`
 - **Why weird:** Every request type carries
   `requestObjectType?: string | undefined`. The JSDoc on each occurrence
   lists 26 valid string values verbatim: `"alerts, alertsv2, authorization,
@@ -148,7 +135,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   package. The Go SDK uses `string` because Go enums are second-class; TS
   has first-class string literal unions that match this exact use case.
 
-### 6. `getAssignableRolesForResourceProxy`, `getRuleSetProxy`, `updateRuleSetProxy` — `src/v1/client.ts:255,329,395`
+### 5. `getAssignableRolesForResourceProxy`, `getRuleSetProxy`, `updateRuleSetProxy` — `src/v1/client.ts:255,329,395`
 - **Why weird:** Three methods carry the `Proxy` suffix and are
   byte-for-byte identical to their non-`Proxy` siblings (lines 218, 292,
   366). They issue the same HTTP request to the same URL with the same
@@ -167,7 +154,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   does, not how the server routes it. Two identical methods with a
   `Proxy` differentiator force every caller to flip a coin.
 
-### 7. `WorkspacePermission.UNKNOWN` zero-value sentinel — `src/v1/model.ts:40`
+### 6. `WorkspacePermission.UNKNOWN` zero-value sentinel — `src/v1/model.ts:40`
 - **Why weird:** `WorkspacePermission` uses `UNKNOWN` as its zero-value
   sentinel, but the sibling enum `RequestAuthzIdentity` in the same file
   uses the `*_UNSPECIFIED` form (`REQUEST_AUTHZ_IDENTITY_UNSPECIFIED`,
@@ -180,7 +167,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Same-file inconsistency is the worst kind. Aligning with
   the rest of the file (and the rest of the SDK) costs nothing.
 
-### 8. `Client` — `src/v1/client.ts:69`
+### 7. `Client` — `src/v1/client.ts:69`
 - **Why weird:** Top-level class named `Client`. Generic across every
   generated package. The merger makes this worse: this class now exposes
   the *combined* surface of four formerly-distinct services
@@ -201,7 +188,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 
 ## Medium severity
 
-### 9. `RuleSet` vs `RuleSetUpdateRequest` (duplicate body shape) — `src/v1/model.ts:306,322`
+### 8. `RuleSet` vs `RuleSetUpdateRequest` (duplicate body shape) — `src/v1/model.ts:306,322`
 - **Why weird:** `RuleSet` and `RuleSetUpdateRequest` are structurally
   identical (`name`, `etag`, `grantRules`). They model the same resource —
   one as a response body, one as the update body — but expose it under two
@@ -218,7 +205,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   divergence. Proto generates separate types because Go does not have
   structural typing; in TypeScript the duplication is wasteful.
 
-### 10. `UpdateRuleSetRequest.ruleSet` vs `UpdateRuleSetRequest.name` overlap — `src/v1/model.ts:354-360`
+### 9. `UpdateRuleSetRequest.ruleSet` vs `UpdateRuleSetRequest.name` overlap — `src/v1/model.ts:354-360`
 - **Why weird:** `UpdateRuleSetRequest` has both a top-level `name` and
   `ruleSet.name` (because `RuleSetUpdateRequest` also carries `name`). Two
   `name` fields on the same request that conceptually identify the same
@@ -232,7 +219,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   rule set."). Developers will set one and not the other and silently
   4xx.
 
-### 11. `GrantRule.role` is a string, not a `Role` — `src/v1/model.ts:227,302`
+### 10. `GrantRule.role` is a string, not a `Role` — `src/v1/model.ts:227,302`
 - **Why weird:** The package exports a `Role` type and then immediately
   ignores it: `GrantRule.role` is `string`. So `Role` is the response
   shape from `getAssignableRolesForResource`, but `GrantRule.role` is the
@@ -244,7 +231,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Developers will write `grantRule.role = role.name`
   constantly because the types don't line up.
 
-### 12. `GetAssignableRolesForResource*` verbosity and verb shape — `src/v1/model.ts:134,150`, `src/v1/client.ts:218`
+### 11. `GetAssignableRolesForResource*` verbosity and verb shape — `src/v1/model.ts:134,150`, `src/v1/client.ts:218`
 - **Why weird:** 41-character type names. The "ForResource" suffix is
   implied — every assignable-roles query is for a resource. The pair
   reads like a Java RPC service name (`Get<Subject>For<Object>Request`).
@@ -258,7 +245,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   `Get...`, but the operation returns an array and is closer to a list
   semantically.
 
-### 13. `GrantRule.principals: string[]` is an untyped principal-format list — `src/v1/model.ts:225`
+### 12. `GrantRule.principals: string[]` is an untyped principal-format list — `src/v1/model.ts:225`
 - **Why weird:** Generic `string[]` for principals, where each entry is
   one of three formats (`users/<USERNAME>`, `groups/<GROUP_NAME>`,
   `servicePrincipals/<SERVICE_PRINCIPAL_APPLICATION_ID>`). The shape is
@@ -270,7 +257,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** TypeScript can encode this; the Go SDK cannot. The 1:1
   port leaves type information on the floor.
 
-### 14. `*Request_Response` underscore-nested proto-message types — `src/v1/model.ts:132,168,211,239`
+### 13. `*Request_Response` underscore-nested proto-message types — `src/v1/model.ts:132,168,211,239`
 - **Why weird:** Four types use the proto-style nested-message underscore
   convention: `DeleteWorkspacePermissionAssignmentRequest_Response`,
   `GetPermissionLevelsRequest_Response`,
@@ -293,7 +280,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** TypeScript has no concept of nested message types; the
   underscore separator is a proto-specific path encoding.
 
-### 15. `PermissionOutput`, `PrincipalOutput`, `WorkspacePermissionAssignmentOutput` `Output` suffix — `src/v1/model.ts:250,268,383`
+### 14. `PermissionOutput`, `PrincipalOutput`, `WorkspacePermissionAssignmentOutput` `Output` suffix — `src/v1/model.ts:250,268,383`
 - **Why weird:** Three types ending with `Output`. In proto / gRPC
   service definitions, message types are commonly named `FooInput`
   (request) and `FooOutput` (response) — the `Output` suffix is the
@@ -309,7 +296,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Compare `principal: PrincipalOutput` to
   `principal: Principal` — the latter reads as plain English.
 
-### 16. `Permission` type collides with the broader vocabulary — `src/v1/model.ts:244`
+### 15. `Permission` type collides with the broader vocabulary — `src/v1/model.ts:244`
 - **Why weird:** Top-level type called `Permission` with three fields:
   `permissionLevel`, `inherited`, `inheritedFromObject`. Every instance
   is really an "effective permission" — a permission level paired with
@@ -326,7 +313,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   common across IAM systems that it's nearly content-free without
   qualification.
 
-### 17. `PermissionsDescription` plural for a single-level descriptor — `src/v1/model.ts:256`
+### 16. `PermissionsDescription` plural for a single-level descriptor — `src/v1/model.ts:256`
 - **Why weird:** Type carries `permissionLevel?: PermissionLevel`
   (singular) and `description?: string`. The plural `Permissions` in the
   type name is wrong: each instance describes ONE level.
@@ -335,7 +322,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   `PermissionLevelInfo`.
 - **Rationale:** One descriptor = one level; the type name should match.
 
-### 18. `PermissionsResponse` is a returned ACL, not a "Response" type — `src/v1/model.ts:261`
+### 17. `PermissionsResponse` is a returned ACL, not a "Response" type — `src/v1/model.ts:261`
 - **Why weird:** Returned from three different operations
   (`getObjectPermissions`, `setObjectPermissions`,
   `updateObjectPermissions`). The type carries `objectId`, `objectType`,
@@ -348,7 +335,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** The type's payload (`objectId`, `objectType`,
   `accessControlList`) is the concept; `Response` is incidental.
 
-### 19. `Actor.kind` discriminated-union with a single variant — `src/v1/model.ts:95-97`
+### 18. `Actor.kind` discriminated-union with a single variant — `src/v1/model.ts:95-97`
 - **Why weird:** `Actor.kind?: { $case: 'actorId'; actorId: number } |
   undefined` — the `kind` field name is a direct port of the proto
   `oneof kind { ... }` block convention. With a single-variant union
@@ -366,7 +353,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 
 ## Low severity
 
-### 20. `etag` casing — `src/v1/model.ts:199,318,334`
+### 19. `etag` casing — `src/v1/model.ts:199,318,334`
 - **Why weird:** Lowercase `etag` (rather than `eTag`/`ETag`). HTTP spec
   uses `ETag`. Per the project-wide acronym policy (Google TS
   `Pascal-then-lower`), the form would be `etag`/`Etag` depending on
@@ -377,7 +364,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   most likely correct per Google TS rules.
 - **Rationale:** Defer to global policy.
 
-### 21. `flattenQueryParams` exported but rarely consumed — `src/v1/utils.ts:123`
+### 20. `flattenQueryParams` exported but rarely consumed — `src/v1/utils.ts:123`
 - **Why weird:** Used only by `checkPolicy` (`client.ts:536,545,555`).
   The helper is identical across packages and should live in a shared
   `@databricks/sdk-core` module rather than be re-emitted per package.
@@ -388,7 +375,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Generator emits the same helper into every package;
   consolidation reduces surface.
 
-### 22. `HttpCallOptions` shadows `CallOptions` — `src/v1/utils.ts:15`
+### 21. `HttpCallOptions` shadows `CallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** The package imports `CallOptions` from
   `@databricks/sdk-options/call` (line 12) and defines its own
   `HttpCallOptions` here. The names suggest the latter is a
@@ -401,7 +388,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Distinguish internal context bags from user-facing
   option structs.
 
-### 23. `readAll` is a Go-port utility name — `src/v1/utils.ts:40`
+### 22. `readAll` is a Go-port utility name — `src/v1/utils.ts:40`
 - **Why weird:** Direct Go-port of `io.ReadAll`; clashes cognitively
   with `Array.prototype` methods and Web Streams APIs. Generator-wide.
 - **Category:** Vague; Go-port style.
@@ -409,7 +396,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   `bufferStream`.
 - **Rationale:** Cross-package consistency.
 
-### 24. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:64`
+### 23. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:64`
 - **Why weird:** `Segment` is a generic word; the constant carries
   User-Agent identity but the name communicates nothing. Same wart
   appears in every generated package.

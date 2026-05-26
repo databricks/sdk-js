@@ -3,13 +3,13 @@
 **Path:** `packages/connections/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog Foreign Connections — create/get/list/update/delete connections to external data sources (MySQL, Snowflake, Salesforce, BigQuery, ServiceNow, GitHub, etc.) for federated query and ingestion.
-**Total weird names flagged:** 23
+**Total weird names flagged:** 21
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 4 |
-| Medium | 11 |
+| High | 5 |
+| Medium | 8 |
 | Low | 6 |
 | Observation | 2 |
 
@@ -53,55 +53,43 @@
 - **Suggested name:** Either drop the field (it's always `CONNECTION`), or rename to `securableKind: SecurableType` and document why a non-`CONNECTION` value would ever appear.
 - **Rationale:** Constant fields on response shapes are usually generator leaks. Worth pushing back upstream.
 
-### 7. `ConnectionInfo.fullName` vs `name` — `src/v1/model.ts:91,101`
-- **Why weird:** Two name-like fields (`name` and `fullName`) with no inline doc explaining the difference. The wire pattern in Unity Catalog is "name within a parent" vs "catalog.schema.connection_name", but the type doesn't say that.
-- **Category:** 1 (vague — what makes a name "full"?), 17 (inconsistency: `name` is short, `fullName` is fully qualified but doc only says "Full name of connection").
-- **Suggested name:** Keep names; improve doc to clarify `fullName` is the dot-qualified path (`catalog.schema.connection_name`).
-- **Rationale:** Naming is fine; documentation is the gap. Flagging because the readability of every field that pairs with `name` depends on knowing that `fullName` is the path-style form.
-
-### 8. `ConnectionInfo.readOnly: boolean` — `src/v1/model.ts:97`
+### 7. `ConnectionInfo.readOnly: boolean` — `src/v1/model.ts:97`
 - **Why weird:** Boolean field name doesn't begin with `is`/`has` as is common for TS booleans. Reads `connection.readOnly` (acceptable adjective form) but sibling enums and types use noun forms. JS naming conventions are split, but inside this SDK most booleans use the adjective form, so this is consistent — flagging at low-medium severity because the rule itself is debatable.
 - **Category:** 1 (vague form — `readOnly` could be a string of mode flags).
 - **Suggested name:** Keep as `readOnly` (matches Go SDK and is widely used in JS). Optionally `isReadOnly`.
 - **Rationale:** No strong convention either way; flagging because audit asked for booleans whose nature isn't obvious from the name.
 
-### 9. `CreateConnectionRequest` / `UpdateConnectionRequest` / `ConnectionInfo` share ~18 identical fields — `src/v1/model.ts:138,230`
+### 8. `CreateConnectionRequest` / `UpdateConnectionRequest` / `ConnectionInfo` share ~18 identical fields — `src/v1/model.ts:138,230`
 - **Why weird:** `CreateConnectionRequest` is `ConnectionInfo` shape. `UpdateConnectionRequest` is `ConnectionInfo + nameArg + newName + name`. Almost all fields are duplicated three times. From the type signature, you cannot tell which fields are user-settable on create vs server-set; everything is optional and present everywhere (e.g. `createdAt`, `createdBy`, `updatedBy` show up on `CreateConnectionRequest` and `UpdateConnectionRequest` even though they're server-only).
 - **Category:** 12 (duplicate concepts), 6 (misleading — user-settable vs server-set is invisible).
 - **Suggested name:** Split server-only metadata into a base type and compose. Better still, type create/update inputs as `Pick<Connection, ...>` or a dedicated `ConnectionInput` interface.
 - **Rationale:** Today a caller could set `connection.createdAt` on a create request and have no idea it's silently ignored. Type system can prevent this.
 
-### 10. `ListConnectionsRequest.maxResults` semantics — `src/v1/model.ts:201-208`
-- **Why weird:** Three different behaviours encoded in the same field: "not set → all results", "0 → server default", ">0 → bound by min(value, server-default)", "<0 → error". Numeric overload that is invisible from the name.
-- **Category:** 6 (misleading — `maxResults` implies upper bound, but `0` actually requests server default).
-- **Suggested name:** Either two separate fields (`pageSize` and `useServerDefault`), or document inline tersely. Keep name; flag as observation.
-- **Rationale:** Name is fine; behaviour overloaded. Easy to call wrong.
-
-### 11. `SecurableType.STAGING_TABLE` and TODO comment — `src/v1/model.ts:75`
+### 9. `SecurableType.STAGING_TABLE` and TODO comment — `src/v1/model.ts:75`
 - **Why weird:** Enum value pinned by inline TODO: "Staging tables aren't full-fleged securables yet." Internal SDK TODOs in user-facing enum values.
 - **Category:** 6 (misleading — value advertised but not actually a securable yet).
 - **Suggested name:** Hide until promotion or mark `@experimental`.
 - **Rationale:** Public SDK enums shouldn't carry "not really a thing yet" entries.
 
-### 12. `CredentialType.SSWS_TOKEN` — `src/v1/model.ts:52`
+### 10. `CredentialType.SSWS_TOKEN` — `src/v1/model.ts:52`
 - **Why weird:** `SSWS` is cryptic. (Stands for "Single Sign-On Web Services" or Okta SSWS — Secure Single Sign-on. Either way, opaque.) Other tokens are named after their family (OAuth, OIDC, Bearer); SSWS is the only one with a literal product-specific acronym.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistent with sibling values).
 - **Suggested name:** `OKTA_SSWS_TOKEN` (if it's strictly Okta), or document in doc-comment.
 - **Rationale:** Future readers cannot guess what SSWS expands to.
 
-### 13. `CredentialType.EDGEGRID_AKAMAI` — `src/v1/model.ts:53`
+### 11. `CredentialType.EDGEGRID_AKAMAI` — `src/v1/model.ts:53`
 - **Why weird:** Vendor name (`AKAMAI`) appears at the end of the enum value while sibling values put the vendor first. Inconsistent word order.
 - **Category:** 17 (inconsistency).
 - **Suggested name:** `AKAMAI_EDGEGRID`.
 - **Rationale:** Consistency with vendor-first patterns elsewhere.
 
-### 14. `ConnectionInfo_OptionsEntry` / `ConnectionInfo_PropertiesEntry` / `CreateConnectionRequest_OptionsEntry` / `UpdateConnectionRequest_PropertiesEntry` — `src/v1/model.ts:127,133,176,182,272,278`
+### 12. `ConnectionInfo_OptionsEntry` / `ConnectionInfo_PropertiesEntry` / `CreateConnectionRequest_OptionsEntry` / `UpdateConnectionRequest_PropertiesEntry` — `src/v1/model.ts:127,133,176,182,272,278`
 - **Why weird:** Proto-architectural-leak naming. Proto-style nested entry types with underscore-joined identifiers leak into the public TS surface. Each `Options` and `Properties` map gets a corresponding `*_OptionsEntry`/`*_PropertiesEntry` interface — six total — that is exported but trivial (`{key?, value?}`). The wire shape is already covered by `Record<string, string>`.
 - **Category:** Proto-architectural leak (`_OptionsEntry` / `_PropertiesEntry` proto map-entry message names), 12 (duplicate concept), 5 (cryptic — underscore-joined identifiers).
 - **Suggested name:** Remove the `*Entry` interfaces from the public API; rely on `Record<string, string>`.
 - **Rationale:** These entry types add visual noise and are not used by the surface (the field is `Record<string, string>`).
 
-### 15. `ProvisioningInfo_State` — `src/v1/model.ts:79`
+### 13. `ProvisioningInfo_State` — `src/v1/model.ts:79`
 - **Why weird:** Proto-architectural-leak naming. Underscore-joined identifier (`ProvisioningInfo_State`) is a proto nested-enum name (`ProvisioningInfo.State`) emitted verbatim into TS. The enum is suppressed via `eslint-disable @typescript-eslint/naming-convention`, confirming it breaks TS conventions. Standalone TS would name this `ProvisioningState` (or merge into `ProvisioningInfo`).
 - **Category:** Proto-architectural leak (`_State` underscore-joined nested enum name).
 - **Suggested name:** `ProvisioningState`.
@@ -109,19 +97,19 @@
 
 ## Low severity
 
-### 16. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:39`
+### 14. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:39`
 - **Why weird:** `Segment` is a generic word; without the comment the constant doesn't communicate User-Agent identity.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Same finding as in `abacpolicies` audit; consistent across generated packages.
 
-### 17. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 15. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported but unused in this package (`client.ts` builds query strings inline with `URLSearchParams.append`). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove from utils if generator default.
 - **Rationale:** Generator emits the same helper into every package even when unused.
 
-### 18. `readAll` — `src/v1/utils.ts:40`
+### 16. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Internal helper name is generic and clashes cognitively with `Array.prototype` / stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `readStreamToEnd` / `drainStream`.

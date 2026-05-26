@@ -64,20 +64,13 @@ _None._
   per the JSDoc — `LibraryStatus` would suffice. `Full` is meaningless.
 - Severity: medium.
 
-### 4.2 `LibraryInstallStatus` value `RESTORED` — `model.ts:35`
-- The docstring says "Library installation is restored and can be used."
-  But `RESTORED` overlaps semantically with `INSTALLED`. Without further
-  context (cache restore vs. fresh install), consumers cannot distinguish.
-  Name is technically accurate but underspecified.
-- Severity: low.
-
-### 4.3 `LibraryInstallStatus` value `UNINSTALL_ON_RESTART` — `model.ts:28`
+### 4.2 `LibraryInstallStatus` value `UNINSTALL_ON_RESTART` — `model.ts:28`
 - This is the only value that is an action+condition (rather than a state
   noun). Surrounding values are `PENDING`, `INSTALLED`, `FAILED`. A noun
   form like `PENDING_UNINSTALL` would line up. See also §10.2.
 - Severity: medium.
 
-### 4.4 `allClusterStatuses()` — `client.ts:74`
+### 4.3 `allClusterStatuses()` — `client.ts:74`
 - Method is the GET for `all-cluster-statuses`. The TS method name reads
   like an adjective ("all-cluster statuses") and is not verb-prefixed.
   Sibling method is `clusterStatus()` (also verb-less). Compare with the
@@ -85,7 +78,7 @@ _None._
   verb-prefixed). The two GET methods alone are exempt. Should be
   `listAllClusterStatuses` or `getAllClusterStatuses`, and `getClusterStatus`
   respectively.
-- Severity: medium. See also §11.
+- Severity: medium. See also §10.
 
 ---
 
@@ -110,13 +103,7 @@ _None._
 
 ## 7. Singular/plural mismatches
 
-### 7.1 `MavenLibrary.exclusions` — `model.ts:156`
-- Plural; field is a list. Doc says "List of dependences to exclude" —
-  consistent. No issue (note: "dependences" is a typo for "dependencies",
-  inherited from the API doc string).
-- Severity (typo): low.
-
-### 7.2 `ListAllClusterLibraryStatusesRequest` (request) — `model.ts:134`
+### 7.1 `ListAllClusterLibraryStatusesRequest` (request) — `model.ts:134`
 - Singular method name `allClusterStatuses` (`client.ts:74`) for what is
   semantically a list operation. The action verb should be `list`. See §11.
 - Severity: medium.
@@ -142,13 +129,13 @@ _None._
 - `installLibraries`, `uninstallLibraries` use verb-prefixed forms.
 - Two stragglers (`allClusterStatuses`, `clusterStatus`) should be aligned:
   `listAllClusterStatuses` (or `getAllClusterStatuses`) and
-  `getClusterStatus`. See §4.4 and §11.
+  `getClusterStatus`. See §4.3 and §11.
 - Severity: high (consistency of the verb-prefix is a Java/TS SDK convention
   that consumers rely on).
 
 ### 10.2 `LibraryInstallStatus` action vs state values — `model.ts:6`
 - Values mostly nouns (`PENDING`, `INSTALLED`, `FAILED`) but one verb
-  imperative `UNINSTALL_ON_RESTART` and one passive `SKIPPED`. See §4.3.
+  imperative `UNINSTALL_ON_RESTART` and one passive `SKIPPED`. See §4.2.
 - Severity: medium.
 
 ---
@@ -213,12 +200,11 @@ _None._
 
 - `LibraryFullStatus` with no "non-full" counterpart (§4.1).
 - `LibraryInstallStatus.UNINSTALL_ON_RESTART` mixes action and state
-  (§4.3, §10.2).
+  (§4.2, §10.2).
 
 ### Low-severity / stylistic
 
-- `LibraryInstallStatus.RESTORED` underspecified vs `INSTALLED` (§4.2).
-- "dependences" typo in `MavenLibrary.exclusions` doc (§7.1).
+_None._
 
 ---
 

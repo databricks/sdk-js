@@ -52,13 +52,6 @@ or an ID — they currently contradict each other. See also §5.2.
 multi-word casing applied elsewhere in the same enum
 (`MANAGED_ONLINE_CATALOG`).
 
-#### 2.4 "UC Native" in doc comments (no longer present in current model.ts)
-Doc comments previously used "UC Native" capitalisation; this phrasing
-has been removed in the current generated source. Retained as a low-
-priority observation in case the phrasing returns: when the codebase
-uses `unity-catalog` in URLs and "Unity Catalog" in prose, the comment
-should not shift to "UC Native" without spelling out the abbreviation.
-
 ---
 
 ### 3. Cryptic abbreviations
@@ -224,24 +217,12 @@ Mirror issue in `UpdateCatalogRequest`.
 
 ### 10. Underspecified IDs
 
-#### 10.1 `metastoreId` (model.ts:82, 147, 294)
-Documented as "unique identifier of parent metastore". Format opaque
-(UUID? slug?). Acceptable but unspecified.
-
-#### 10.2 `azureTenantId` (model.ts:54)
-GUID, implied by Azure context. Doc-less — not specified anywhere.
-
-#### 10.3 `azureCmkAccessConnectorId`, `azureCmkManagedIdentityId` (model.ts:55, 56)
-Doc-less. Format is an Azure resource ID
-(`/subscriptions/…/providers/…`), not signalled by the name or
-documentation.
-
-#### 10.4 `customerManagedKeyId` (model.ts:214)
+#### 10.1 `customerManagedKeyId` (model.ts:214)
 Doc: "the CMK uuid in AWS and GCP, null otherwise." So the field is a
 UUID on AWS/GCP but `azureCmkAccessConnectorId` is an Azure resource ID
 elsewhere — same conceptual ID, two formats, no unifying name.
 
-#### 10.5 `azureKeyVaultKeyId` (model.ts:216)
+#### 10.2 `azureKeyVaultKeyId` (model.ts:216)
 Doc says "the AKV URL in Azure" — so it's actually a URL, not an ID. See
 §4.2.
 
@@ -412,7 +393,7 @@ passing for the broader review.
 | `CatalogType.DELTASHARING_CATALOG`                     | model.ts:13        | 2.3     |
 | `SecurableType`                                         | model.ts:21        | 11.1    |
 | `SecurableType.STAGING_TABLE` (with TODO comment)       | model.ts:39        | —       |
-| `AzureEncryptionSettings`                               | model.ts:53        | 2.1, 10.2 |
+| `AzureEncryptionSettings`                               | model.ts:53        | 2.1     |
 | `CatalogInfo`                                           | model.ts:59        | 6.1     |
 | `CatalogInfo.options` / `.properties`                   | model.ts:109, 107  | 4.4, 7.1, 8.1 |
 | `CatalogInfo.fullName`                                  | model.ts:102       | 4.3, 8.2 |
@@ -422,8 +403,8 @@ passing for the broader review.
 | `EffectivePredictiveOptimizationFlag`                   | model.ts:199       | 5.1, 6.2 |
 | `EffectivePredictiveOptimizationFlag.value`             | model.ts:201       | 4.1     |
 | `EffectivePredictiveOptimizationFlag.inheritedFromType` | model.ts:203       | 1.1     |
-| `EncryptionSettings.customerManagedKeyId`               | model.ts:214       | 2.1, 10.4 |
-| `EncryptionSettings.azureKeyVaultKeyId`                 | model.ts:216       | 2.2, 4.2, 10.5 |
+| `EncryptionSettings.customerManagedKeyId`               | model.ts:214       | 2.1, 10.1 |
+| `EncryptionSettings.azureKeyVaultKeyId`                 | model.ts:216       | 2.2, 4.2, 10.2 |
 | `GetCatalogRequest.nameArg`                             | model.ts:223       | 3.1     |
 | `ListCatalogsRequest.maxResults`                        | model.ts:240       | —       |
 | `ListCatalogsRequest.pageToken`                         | model.ts:242       | —       |
@@ -453,7 +434,7 @@ passing for the broader review.
 2. **Distinguish or merge `options` and `properties`.** (§8.1)
 3. **Disambiguate `azureKeyVaultKeyId` (URL vs ID).** (§2.2, §4.2)
 4. **Strip read-only fields from `CreateCatalogRequest`/`UpdateCatalogRequest`.** (§9.2)
-5. **Decide CMK casing and apply uniformly.** (§2.1, §10.4)
+5. **Decide CMK casing and apply uniformly.** (§2.1, §10.1)
 6. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
 
 ---

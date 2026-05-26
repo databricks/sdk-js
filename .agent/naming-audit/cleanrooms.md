@@ -12,11 +12,10 @@ grouped by category, and each finding cites the file/line where it appears.
 
 ## Summary
 
-- **Total findings:** 12
+- **Total findings:** 10
 - **Highest-impact themes:**
   1. Misleading boolean-shaped `accessRestricted` enum.
-  2. Acronym casing inconsistencies (`Id` vs `ID`, `Dns` vs `DNS`,
-     `aws/azure/gcp`, `FEDRAMP`).
+  2. Acronym casing inconsistencies (`Id` vs `ID`, `Dns` vs `DNS`).
   3. Duplicate `Status` enum types and overlapping collaborator types.
   4. Proto-architectural leaks: stray `Handler` suffix on list methods
      for notebook task runs.
@@ -41,16 +40,6 @@ to `ID` across the SDK. **Note:** repo-wide convention should be confirmed.
 ### 2.2 `azureDnsZone` (model.ts:806)
 "DNS" is an initialism. Per the style guide, `azureDNSZone`. Currently
 `azureDnsZone` treats DNS as a word.
-
-### 2.3 `cloudVendor?: string` containing `aws`, `azure`, `gcp` (model.ts:579)
-Doc comment uses lowercase `aws,azure,gcp`. These are acronyms — should be
-`AWS`, `Azure`, `GCP`. (Doc-only, but inconsistent with the enum members
-`AWS_S3`, `AZURE_STORAGE`, `GOOGLE_CLOUD_STORAGE`.)
-
-### 2.4 `FEDRAMP_MODERATE`, `FEDRAMP_HIGH`, `FEDRAMP_IL5` (model.ts:82, 85, 86)
-"FedRAMP" is the official spelling — `FEDRAMP` flattens the casing.
-Identifier-level constraint of SCREAMING_SNAKE is fine, but documentation
-text should match.
 
 ---
 

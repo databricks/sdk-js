@@ -82,14 +82,7 @@ rename suggestion. Findings are grouped by category.
   weight here (see also F7). If the type *must* keep the "Config"
   word, `BudgetAlertActionConfig` is shorter and clearer.
 
-#### F1.2 — `operator` (LOW)
-- **Where:** `model.ts:82, 94`.
-- **Why flagged:** Generic given there is only one allowed value
-  (`IN`). Acceptable for forward-compat but worth a JSDoc note.
-- **Suggestion:** Keep, but add JSDoc clarifying allowed values and
-  semantics (currently has none).
-
-#### F1.3 — `Client` class name (MEDIUM)
+#### F1.2 — `Client` class name (MEDIUM)
 - **Where:** `client.ts:49`, `index.ts:3`.
 - **Why flagged:** Every package in this SDK exports a `Client`.
   Re-exported in a barrel like
@@ -100,7 +93,7 @@ rename suggestion. Findings are grouped by category.
   package-qualified import convention, or rename to
   `BudgetsClient` consistently across packages. Cross-cutting.
 
-#### F1.4 — `req` parameter name on every client method (LOW)
+#### F1.3 — `req` parameter name on every client method (LOW)
 - **Where:** `client.ts:80, 112, 140, 174, 216, 234`.
 - **Why flagged:** `req` is a Go-ism (see category 14). It is also
   generic — a reader has to look at the type to know what the
@@ -119,30 +112,17 @@ _None._
 
 ### 3. Acronym casing inconsistencies
 
-#### F3.1 — `Id` vs `ID` (acceptable)
-- **Where:** `model.ts:28, 37, 52, 54, 100, 102, 135, 137, 145, 147,
-  158, 177, 179, 197`; `client.ts:53, 66, 83, 115, 143, 177, 237`.
-- **Why flagged:** This SDK uses **lower-camel `Id`** consistently
-  (`accountId`, `budgetId`, `budgetConfigurationId`,
-  `actionConfigurationId`, `alertConfigurationId`, `workspaceId`,
-  `nextPageToken`, `pageToken`). That is internally consistent and
-  fine. The TS/JS community is split — DOM uses `nodeId`/`HTMLElement`,
-  TypeScript itself uses `id`/`uuid` — so `Id` is defensible.
-- **Suggestion:** Keep `Id`. Add a brief project-level note in
-  `typescript.mdc` documenting the convention so reviewers stop
-  re-litigating it.
-
-#### F3.2 — `URL` / `Url` consistency (acceptable)
+#### F3.1 — `URL` / `Url` consistency (acceptable)
 - `client.ts` consistently uses `url` (lowercase) as a local var
   name. No casing inconsistency observed.
 
-#### F3.3 — `HTTP` / `Http` (acceptable for this file)
+#### F3.2 — `HTTP` / `Http` (acceptable for this file)
 - `utils.ts` consistently uses `Http` PascalCase (`HttpClient`,
   `HttpRequest`, `HttpResponse`, `HttpCallOptions`,
   `executeHttpCall`, `buildHttpRequest`). One file is consistent;
   flag is cross-package only.
 
-#### F3.4 — `USD` in enum value `LIST_PRICE_DOLLARS_USD` (LOW)
+#### F3.3 — `USD` in enum value `LIST_PRICE_DOLLARS_USD` (LOW)
 - Wire value, leave as-is. But note that `DOLLARS_USD` is doubly
   redundant — USD already is dollars. See F7.1.
 
@@ -158,7 +138,7 @@ _None._
 
 #### F5.1 — `req` (LOW, Go-ism)
 - **Where:** `client.ts` every method, `utils.ts:103`.
-- Already flagged under F1.4 / F13.1.
+- Already flagged under F1.3 / F13.1.
 
 #### F5.2 — `resp` (LOW, Go-ism)
 - **Where:** `client.ts:88, 116, 150, 193, 242`; `utils.ts:73, 75, 81, 84, 88`.
@@ -222,28 +202,7 @@ _None._
   strictly a naming finding, included because it shows up as a
   field-domain mismatch.
 
-#### F6.2 — `quantityThreshold` typed as `string` (LOW)
-- **Where:** `model.ts:45`, JSDoc: "The threshold for the budget
-  alert to determine if it is in a triggered state."
-- **Why flagged:** A "quantity threshold" sounds numeric, yet it is
-  a string (probably to preserve precision for currency). The name
-  does not signal the string-encoded-decimal contract.
-- **Suggestion:** Either rename to `quantityThresholdString` (ugly)
-  or add JSDoc noting "Decimal string (preserves precision)" — the
-  latter is the standard fix.
-
-#### F6.3 — `BudgetConfiguration.alertConfigurations: AlertConfiguration[]`
-  array, but JSDoc says "Budgets must have exactly one alert
-  configuration." (MEDIUM)
-- **Where:** `model.ts:59-60`, `client.ts:78` JSDoc reuses budget docs.
-- **Why flagged:** The plural type contradicts the singular semantics.
-  Misleading at the type level.
-- **Suggestion:** This is API-shape, not a TS rename concern. Flag for
-  the source spec to fix; in TS, document the invariant in JSDoc and
-  consider a tuple `[AlertConfiguration]` (overkill in practice).
-  See also F8.1.
-
-#### F6.4 — `flattenQueryParams` is exported but unused in this
+#### F6.2 — `flattenQueryParams` is exported but unused in this
   package (LOW)
 - **Where:** `utils.ts:123-150`.
 - **Why flagged:** The name suggests it is a query-param helper for
@@ -253,15 +212,6 @@ _None._
   not landed, or the helper should not be in this package.
 - **Suggestion:** Move shared helpers to `@databricks/sdk-core` or
   delete from this package's `utils.ts`.
-
-#### F6.5 — JSDoc "previous get all budget configurations call"
-  (`pageToken` on `ListBudgetConfigurationsRequest`) (LOW)
-- **Where:** `model.ts:160-162`.
-- **Why flagged:** Documentation, not identifier. The method is
-  `listBudgetConfigurations`, not "get all". JSDoc text is stale
-  vs. the method name.
-- **Suggestion:** Rewrite JSDoc: "A page token received from a
-  previous `listBudgetConfigurations` call."
 
 ---
 
@@ -320,13 +270,6 @@ _None._
   types and have `Create.../Update...` request types embed
   `BudgetConfiguration` (or `Budget`) directly. See also F10 / F11.
 
-#### F7.4 — `LIST_PRICE_DOLLARS_USD` doubly redundant (LOW)
-- **Where:** `model.ts:10`.
-- **Why flagged:** `DOLLARS_USD` is tautological — USD *is* dollars.
-  This is a wire-protocol value, so the SDK cannot change it
-  unilaterally, but worth noting upstream. See also F17.2.
-- **Suggestion:** Wire protocol; leave with a comment.
-
 ---
 
 ### 8. Singular / plural mismatches
@@ -335,8 +278,7 @@ _None._
   semantically singular (HIGH)
 - **Where:** `model.ts:59-60, 107-108, 184-185`.
 - **Why flagged:** JSDoc states "Budgets must have exactly one alert
-  configuration." Field is plural array. Documented earlier (F6.3) as
-  misleading.
+  configuration." Field is plural array.
 - **Suggestion:** API-shape concern; document the invariant or
   switch to singular `alertConfiguration: AlertConfiguration` when
   the API allows.

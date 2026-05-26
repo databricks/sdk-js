@@ -9,11 +9,11 @@ with deployments, custom templates, app spaces, and resource bindings.
 
 | Severity | Count |
 | -------- | ----- |
-| High     |     6 |
+| High     |     5 |
 | Medium   |    14 |
-| Low      |    11 |
+| Low      |     7 |
 | Observation | 9 |
-| **Total** | **40** |
+| **Total** | **35** |
 
 The audit found one dominant theme: the domain has overlapping vocabularies for
 the same concept. `App` vs `Application` (`ApplicationStatus`,
@@ -106,22 +106,6 @@ cross-product values whose relevance to Apps is unclear.
   type names violate the proto-architectural-leak rule. The TS SDK should
   not surface implementation-layer artefacts that a hand-written client
   would never name this way.
-
-### H6. Singular `permission` field holding a single value but documented as plural permissions
-- **File:** `model.ts:838-839, 947-948`
-- **Category:** Singular/plural mismatches (9)
-- **Issue:** `AppManifest_AppResourceJobSpec.permission?: ...JobPermission`
-  has doc text `Permissions to grant on the Job. Supported permissions are:
-  "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW".` Same pattern in
-  `AppResourceJob.permission`. The field name is singular but the doc says
-  "Permissions" (plural) and lists four. The same hybrid singular/plural
-  language appears in seven other resource specs.
-- **Suggestion:** Either (a) make the field plural and convert it to an array
-  if multiple values can be granted, or (b) keep singular and reword the doc to
-  "Permission to grant on the job. One of: ...". Today the singular type
-  enforces (b) — the doc should match.
-- **Rationale:** The doc text contradicts the type signature, so consumers
-  reading either will be misled.
 
 ---
 
@@ -278,25 +262,7 @@ cross-product values whose relevance to Apps is unclear.
 
 ## Low-severity findings
 
-### L1. `AppDeployment.mode` doc: "The mode of which the deployment will manage the source code."
-- **File:** `model.ts:788`
-- **Category:** Grammar / clarity (not in numbered categories but flagged)
-- **Suggestion:** "of which" should be "in which" or "by which". A nit, not a
-  rename, but flagged because it appears in the public API docs.
-
-### L2. `App.creator` doc says "email"; `App.updater` doc agrees — but `creator` field type is just `string`
-- **File:** `model.ts:731-736`
-- **Category:** Field contradicting type domain (16)
-- **Suggestion:** No type change available short of a branded type; document
-  the format in JSDoc.
-
-### L3. `AppManifest_AppResourceSpec` documentation typo: "AppResource related fields are copied from app.proto"
-- **File:** `model.ts:856`
-- **Category:** Doc / clarity
-- **Suggestion:** Drop or rephrase the reference to `app.proto`; in TS the
-  reference is meaningless.
-
-### L4. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
+### L1. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
 - **File:** `model.ts:2939, 3016`
 - **Category:** Vague/generic (1) — qualified by entity, but
 - **Issue:** Inconsistent that only `App` and `Space` get an exported helper —
@@ -305,14 +271,7 @@ cross-product values whose relevance to Apps is unclear.
 - **Suggestion:** Either expose helpers for every entity with a field-mask
   schema, or none.
 
-### L5. `App.thumbnailUrl: string` vs `AppThumbnail.thumbnail: Uint8Array` — different mental models
-- **File:** `model.ts:771, 994`
-- **Category:** Duplicate concepts (12)
-- **Suggestion:** Document that `thumbnailUrl` is the display URL and
-  `AppThumbnail.thumbnail` is the byte content (used in
-  update/delete-thumbnail requests).
-
-### L6. `Space` interface — same name as the Genie product `AppResourceGenieSpace`
+### L2. `Space` interface — same name as the Genie product `AppResourceGenieSpace`
 - **File:** `model.ts:938, 1306`
 - **Category:** Duplicate concepts (12)
 - **Issue:** `Space` (an Apps Space) and `GenieSpace` (the Genie product) share
@@ -324,18 +283,18 @@ cross-product values whose relevance to Apps is unclear.
   is the outlier. This realignment also clarifies the wire URLs
   (`/api/2.0/app-spaces/...`).
 
-### L7. `CreateSpaceRequest`, `DeleteSpaceRequest`, `GetSpaceRequest`,
+### L3. `CreateSpaceRequest`, `DeleteSpaceRequest`, `GetSpaceRequest`,
   `ListSpacesRequest`, etc., do not mention "App"
 - **File:** `model.ts:1057, 1103, 1153, 1250`, also `index.ts:78, 84, 91, 100`
 - **Category:** Vague/generic (1)
-- **Suggestion:** Tied to L6 — rename these to `CreateAppSpaceRequest`, etc.
+- **Suggestion:** Tied to L2 — rename these to `CreateAppSpaceRequest`, etc.
 
-### L8. `ListSpacesResponse.spaces` plural is fine, but consistent with `ListAppsResponse.apps`?
+### L4. `ListSpacesResponse.spaces` plural is fine, but consistent with `ListAppsResponse.apps`?
 - **File:** `model.ts:1232, 1258`
-- **Category:** Observation — both follow the same pattern. Tied to L6 again
+- **Category:** Observation — both follow the same pattern. Tied to L2 again
   for the entity rename.
 
-### L9. `Client` class — exported as bare `Client`
+### L5. `Client` class — exported as bare `Client`
 - **File:** `client.ts:95`, also `index.ts:4`
 - **Category:** Vague/generic (1)
 - **Issue:** `import {Client} from '@databricks/sdk-apps/v1'`. Reads as "the
@@ -343,7 +302,7 @@ cross-product values whose relevance to Apps is unclear.
   `@databricks/sdk-jobs`, they need an alias.
 - **Suggestion:** Rename to `AppsClient`. Common SDK convention.
 
-### L10. `host` (private field on `Client`)
+### L6. `host` (private field on `Client`)
 - **File:** `client.ts:96`
 - **Category:** Vague/generic (1)
 - **Issue:** `private readonly host: string`. The doc on the workspace
@@ -351,7 +310,7 @@ cross-product values whose relevance to Apps is unclear.
 - **Suggestion:** Rename to `workspaceUrl` or `workspaceHost`. Internal-only,
   cosmetic.
 
-### L11. `getSpaceOperation` (method) vs `GetOperationRequest`
+### L7. `getSpaceOperation` (method) vs `GetOperationRequest`
 - **File:** `client.ts:524-546`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** `getSpaceOperation(req: GetOperationRequest)` — the method tells
@@ -425,13 +384,13 @@ detail.
 | `AppDeployment` | A specific deployment (source-code + config snapshot) | Has its own `id`, status, lifecycle. |
 | `AppManifest` | Schema describing required resources for an app | Used by `CustomTemplate`. |
 | `AppResource` | A binding from an App to another Databricks resource | Discriminated union of 10 cases. |
-| `Space` (`AppSpace`) | A workspace-scoped grouping of Apps | Recommended rename: `AppSpace`. See L6. |
-| `GenieSpace` | Databricks Genie product — *unrelated* to App Spaces | Confusion source; see L6. |
+| `Space` (`AppSpace`) | A workspace-scoped grouping of Apps | Recommended rename: `AppSpace`. See L2. |
+| `GenieSpace` | Databricks Genie product — *unrelated* to App Spaces | Confusion source; see L2. |
 | `CustomTemplate` | An installable app template stored in Git | Lives under `/api/2.0/apps-settings/`. |
 | `Operation` | google.longrunning.Operation for Space CRUD | Only used by Space operations. See H3. |
 | `Waiter` | Locally-driven status poller for App/Deployment lifecycle | Distinct from `Operation`. See O2. |
 | `UcSecurable` | A Unity Catalog securable (table/volume/function/connection) | Two duplicate enums. See M3/M4. |
-| `Thumbnail` | An app's display image (bytes) plus its URL | Two fields, two concepts. See L5. |
+| `Thumbnail` | An app's display image (bytes) plus its URL | Two fields, two concepts. |
 | `EnvVar` | Environment variable for the deployed app process | Short for "EnvironmentVariable". See M1. |
 | `GitRepository` | Repository configuration (URL + provider + credentials) | Top-level Git config on App. |
 | `GitSource` | Specific commit/branch/tag + path within a `GitRepository` | Used by deployments. |

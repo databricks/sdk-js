@@ -29,20 +29,18 @@ The domain centres on a `Command` (Python/SQL/Scala/R code), executed inside a
 | 6 | medium | 7. Overly verbose | `model.ts:99,111` | `GetCommandStatusResponse`, `GetContextStatusResponse` | `CommandStatusResponse`, `ContextStatusResponse` (HTTP verb shouldn't leak into type) |
 | 7 | medium | 20. Type-suffix tautology | `model.ts:55,82,93,106` | `CancelCommandRequest`, `ExecuteCommandRequest`, etc. | Acceptable here (request DTOs); flagged for review only |
 | 8 | medium | 13. Verb-tense inconsistency | `model.ts:23-28` | `CANCELLED`, `CANCELLING`, `ERROR`, `FINISHED`, `QUEUED`, `RUNNING` | Mix of past, present, and noun. Normalise to a single form (e.g. `Failed` in place of `Error` so every member is a past/present participle). |
-| 9 | medium | 3. Acronym casing inconsistency | `model.ts:133` | `isJsonSchema` | OK (Json compound); contrast with `JsonValue`, `JsonObject` from wkt — confirm casing rule |
-| 10 | medium | 12. Duplicate concepts | `client.ts:286,289` | `execute()` returns `CreateResponse` | Type repurpose conflates "context created" vs "command queued" |
-| 11 | medium | 14. Go/Java-style names | `model.ts:74` + `client.ts:256` | `DestroyContextRequest` / `destroy()` | "Destroy" is unusual in JS/TS REST clients; `delete` is more idiomatic — but match Go SDK |
-| 12 | medium | 8. Redundant suffix — call-out | `client.ts:333, 417, 498` | `CancelWaiter`, `CreateWaiter`, `ExecuteWaiter` | OK if intentional waiter pattern, but `CreateWaiter` is for *context* creation not command creation; ambiguous |
-| 13 | medium | 6. Misleading name | `client.ts:417` | `CreateWaiter` | Waits for **context** to become RUNNING; not for "create" success. Rename `CreateContextWaiter`. |
-| 14 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
-| 15 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
-| 16 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
-| 17 | low | 1. Vague/generic | `model.ts:142` | `truncated?: boolean` | OK, but document what is truncated |
-| 18 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
-| 19 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
-| 20 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
-| 21 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
-| 22 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
+| 9 | medium | 12. Duplicate concepts | `client.ts:286,289` | `execute()` returns `CreateResponse` | Type repurpose conflates "context created" vs "command queued" |
+| 10 | medium | 14. Go/Java-style names | `model.ts:74` + `client.ts:256` | `DestroyContextRequest` / `destroy()` | "Destroy" is unusual in JS/TS REST clients; `delete` is more idiomatic — but match Go SDK |
+| 11 | medium | 8. Redundant suffix — call-out | `client.ts:333, 417, 498` | `CancelWaiter`, `CreateWaiter`, `ExecuteWaiter` | OK if intentional waiter pattern, but `CreateWaiter` is for *context* creation not command creation; ambiguous |
+| 12 | medium | 6. Misleading name | `client.ts:417` | `CreateWaiter` | Waits for **context** to become RUNNING; not for "create" success. Rename `CreateContextWaiter`. |
+| 13 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
+| 14 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
+| 15 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
+| 16 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
+| 17 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
+| 18 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
+| 19 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
+| 20 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
 
 ---
 
@@ -177,27 +175,14 @@ should be `FAILED` (past participle) to match the pattern.
 
 ---
 
-### Finding 9 — Medium — Cat 3 (Acronym casing)
-**Location:** `src/v2/model.ts:133`
-```ts
-isJsonSchema?: boolean | undefined;
-```
-`Json` is treated as a compound (PascalCase). Cross-package
-`@databricks/sdk-core/wkt` uses `JsonValue`, `JsonObject` — consistent.
-Project convention: treat JSON as `Json`, not `JSON`. Confirm the rule is
-recorded in `.agent/rules/typescript.mdc`.
-**Proposed:** keep as-is; document the rule.
-
----
-
-### Finding 10 — Medium — Cat 12 (Duplicate concepts)
+### Finding 9 — Medium — Cat 12 (Duplicate concepts)
 **Location:** `src/v2/client.ts:286-309`
 **Issue:** `execute()` returns `Promise<CreateResponse>`. The conflation
 of "create a context" and "execute returns an id" is artificial. See #2.
 
 ---
 
-### Finding 11 — Medium — Cat 14 (Go/Java-style names)
+### Finding 10 — Medium — Cat 14 (Go/Java-style names)
 **Location:** `src/v2/model.ts:74` + `client.ts:256`
 **Issue:** `destroy` is unusual for a REST SDK. JS conventions favour
 `delete` (e.g. `clusters.delete`, `jobs.delete`). However the backend
@@ -208,15 +193,15 @@ reserved word in expressions — typically requires bracket access).
 
 ---
 
-### Finding 12 — Medium — Cat 8 (Redundant suffix) — call-out
+### Finding 11 — Medium — Cat 8 (Redundant suffix) — call-out
 **Location:** `src/v2/client.ts:333, 417, 498`
 **Issue:** Three classes named `*Waiter`. Acceptable if waiter is a
 recognised pattern in this SDK (it is, see Go SDK `awaitable.go`). The
-issue is what they wait *for*: see #13-#15.
+issue is what they wait *for*: see #12-#14.
 
 ---
 
-### Finding 13 — Medium — Cat 6 (Misleading name)
+### Finding 12 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:417`
 ```ts
 export class CreateWaiter { ... }
@@ -231,21 +216,21 @@ target endpoint).
 
 ---
 
-### Finding 14 — Medium — Cat 6 (Misleading name)
+### Finding 13 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:333`
 **Issue:** `CancelWaiter` waits for *command* cancellation.
 **Proposed:** `CancelCommandWaiter`.
 
 ---
 
-### Finding 15 — Medium — Cat 6 (Misleading name)
+### Finding 14 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:498`
 **Issue:** `ExecuteWaiter` waits for *command* completion.
 **Proposed:** `ExecuteCommandWaiter`.
 
 ---
 
-### Finding 16 — Medium — Cat 17 (Inconsistent action verbs) — call-out
+### Finding 15 — Medium — Cat 17 (Inconsistent action verbs) — call-out
 **Location:** `src/v2/client.ts:86, 256`
 **Issue:** This package uses three lifecycle verbs:
 - `cancel()` on a command,
@@ -258,18 +243,7 @@ Go-SDK alignment decision.
 
 ---
 
-### Finding 17 — Low — Cat 1 (Underspecified)
-**Location:** `src/v2/model.ts:141-142`
-```ts
-/** true if partial results are returned. */
-truncated?: boolean | undefined;
-```
-Acceptable but ambiguous: truncated *what*? table rows? text length?
-**Proposed:** document the truncation unit.
-
----
-
-### Finding 18 — Low — Cat 1 (Vague/generic) — call-out
+### Finding 16 — Low — Cat 1 (Vague/generic) — call-out
 **Location:** `src/v2/client.ts:54`
 ```ts
 class StillRunningError extends Error {}
@@ -278,7 +252,7 @@ Private, OK. Idiomatic for waiter polling patterns.
 
 ---
 
-### Finding 19 — Low — Cat 3 (Acronym casing) — non-issue
+### Finding 17 — Low — Cat 3 (Acronym casing) — non-issue
 **Location:** `src/v2/client.ts:49-52`
 ```ts
 const PACKAGE_SEGMENT = { key: pkgJson.name.replace(...), value: pkgJson.version };
@@ -289,20 +263,20 @@ correctly cased per the project rules.
 
 ---
 
-### Finding 20 — Low — Cat 14 — non-issue
+### Finding 18 — Low — Cat 14 — non-issue
 **Location:** `src/v2/client.ts:54`
 **Issue:** `StillRunningError` is named in idiomatic TS style
 (`*Error` suffix on classes extending Error).
 
 ---
 
-### Finding 21 — Low — Cat 15 (Generic field) — call-out
+### Finding 19 — Low — Cat 15 (Generic field) — call-out
 **Location:** `src/v2/model.ts:67, 87`
 `language?: Language` is correct.
 
 ---
 
-### Finding 22 — Low — Cat 3 (Acronym casing in enum string values)
+### Finding 20 — Low — Cat 3 (Acronym casing in enum string values)
 **Location:** `src/v2/model.ts:42-43`
 ```ts
 SQL = 'SQL',

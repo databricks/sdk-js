@@ -159,7 +159,6 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | M-01  | `EditPolicyRequest` (`model.ts:63`) / `editPolicy()` (`client.ts:133`) | High | Standard CRUD verbs in TS/REST are **create / read / update / delete**. The Databricks "Cluster Policies 2.0" API uses `/edit` as the wire path, but the SDK could still expose `updatePolicy` (with `UpdatePolicyRequest` request type) which is the conventional REST verb. Compare with the newer `policies` API surface and most other Databricks SDK resources that expose `update*`. As-is, the SDK exposes `editPolicy` while peer packages (e.g. `clusters`) often expose `editCluster` too — there is precedent — but it remains inconsistent with the broader CRUD vocabulary. Tracked here as a discrepancy worth raising upstream. |
-| M-02  | `MavenLibrary.exclusions` JSDoc says "List of dependences to exclude" (`model.ts:196`) | Low | Typo in the JSDoc ("dependences"); not a name issue per se. |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
@@ -286,8 +285,8 @@ architectural-layer words leaking into domain identifiers.
 | -------- | ----- |
 | High     | 2     |
 | Medium   | 11    |
-| Low      | 30    |
-| **Total**| **43**|
+| Low      | 29    |
+| **Total**| **42**|
 
 ### 3.2 Top themes
 
