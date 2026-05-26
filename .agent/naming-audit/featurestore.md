@@ -1,8 +1,7 @@
 # Naming Audit: `featurestore` (v1)
 
 **Path:** `/home/parth.bansal/sdk-js/packages/featurestore/`
-**Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
-`src/v1/index.ts`
+**Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/index.ts`
 **Cross-package references:** `features/v1` (`OnlineStoreConfig`,
 `onlineStoreName`), `materializedfeatures/v1`, `onlinetables/v1`
 (`DeleteOnlineTableRequest`, `OnlineTable`, `OnlineTableState`,
@@ -61,14 +60,6 @@
   - Methods: `createOnlineStore`, `deleteOnlineStore`, `deleteOnlineTable`,
     `getOnlineStore`, `listOnlineStores`, `listOnlineStoresIter`,
     `publishTable`, `updateOnlineStore`.
-  - Private fields: `host`, `httpClient`, `logger`, `userAgent`.
-  - Module constant: `PACKAGE_SEGMENT`.
-
-### Utils (`src/v1/utils.ts`)
-
-- Type: `HttpCallOptions`.
-- Functions: `executeCall`, `readAll`, `executeHttpCall`, `buildHttpRequest`,
-  `parseResponse`, `marshalRequest`, `flattenQueryParams`.
 
 ---
 
@@ -272,47 +263,7 @@ to its import path (e.g. `@databricks/sdk-featurestore/v1`). **Pass.**
 
 ---
 
-### 11. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers) — *Still*
-
-**Symbol:** `PACKAGE_SEGMENT` (client.ts:41).
-
-**Issue:** Google TS Style Guide § 5.1 reserves `UPPER_SNAKE_CASE` for true
-constants (primitive literal values like `MAX_LEN = 10`). `PACKAGE_SEGMENT`
-is a runtime object literal (`{ key, value }`) constructed from a JSON
-import. The value *is* constant per-process, but the identifier shape
-violates the project rule. The same name is used in every package's
-`client.ts` — it is a project-wide convention. **Flag for SDK-wide cleanup,
-do not fix in isolation.**
-
-**Suggested:** `packageSegment` or `clientPackageSegment`.
-
----
-
-### 12. `userAgent` / `httpClient` / `host` / `logger` — *pass* — *Still*
-
-Standard private field names. Acronym handling matches the project rule
-(`HttpClient`, `Url` would be flagged, but `HttpClient` matches the imported
-type `HttpClient`). **Pass.**
-
----
-
-### 13. `readAll` — *pass* — *Still*
-
-Helper does what its name says (reads a `ReadableStream<Uint8Array>` to
-completion). Conventional in the Node `stream/promises` ecosystem. **Pass.**
-
----
-
-### 14. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass* — *Still*
-
-Verb-prefix matches the function's role (constructs an `HttpRequest`
-object). Naming is fine. Note however the *file* mixes `build…`,
-`execute…`, `marshal…`, `parse…`, `readAll`, `flatten…` — six verbs for
-seven functions. Not unique to this package. **Pass.**
-
----
-
-### 15. `ListOnlineStoresRequest`/`Response` — category 7 (Overly verbose) — *pass with note* — *Still*
+### 11. `ListOnlineStoresRequest`/`Response` — category 7 (Overly verbose) — *pass with note* — *Still*
 
 **Symbols:** `ListOnlineStoresRequest` (model.ts:67),
 `ListOnlineStoresResponse` (model.ts:74).
@@ -324,21 +275,21 @@ package qualifies. **Pass on package consistency.**
 
 ---
 
-### 16. Singular `OnlineStore` ⇔ plural `onlineStores` consistency — category 9 (Singular/plural mismatch) — *pass* — *Still*
+### 12. Singular `OnlineStore` ⇔ plural `onlineStores` consistency — category 9 (Singular/plural mismatch) — *pass* — *Still*
 
 `ListOnlineStoresResponse.onlineStores: OnlineStore[]` (model.ts:76) is the
 canonical pattern. **Pass.**
 
 ---
 
-### 17. `creator` vs `pipelineId` casing — category 3 (Acronym/compound-word casing) — *pass* — *Still*
+### 13. `creator` vs `pipelineId` casing — category 3 (Acronym/compound-word casing) — *pass* — *Still*
 
 `pipelineId` correctly camelCases the two-letter "ID"; `creator` is a
 plain word. **Pass.**
 
 ---
 
-### 18. `OnlineStore_State` — model.ts:9 — *Still*
+### 14. `OnlineStore_State` — model.ts:9 — *Still*
 
 **Why:** `Parent_Nested` underscore-joined identifier is a literal
 translation of a proto nested-type path into the TS symbol name. The
@@ -360,9 +311,9 @@ namespace.
 
 ---
 
-### 19. `PublishSpec_PublishMode` — model.ts:27 — *Still*
+### 15. `PublishSpec_PublishMode` — model.ts:27 — *Still*
 
-**Why:** Same `Parent_Nested` proto-namespace leak as finding 18. The
+**Why:** Same `Parent_Nested` proto-namespace leak as finding 14. The
 identifier reads as "PublishSpec's PublishMode" — the enclosing-type
 prefix is a verbatim port of the proto nested-type name, and the file
 acknowledges this with the same eslint-disable comment.

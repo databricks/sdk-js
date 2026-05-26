@@ -75,12 +75,6 @@
 - Private fields: `host`, `httpClient`, `logger`, `userAgent`.
 - Module constant: `PACKAGE_SEGMENT` (client.ts:34).
 
-### Utils (utils.ts)
-
-- Interface: `HttpCallOptions`.
-- Functions: `executeCall`, `readAll`, `executeHttpCall`, `buildHttpRequest`,
-  `parseResponse`, `marshalRequest`, `flattenQueryParams`.
-
 ### Index (index.ts)
 
 - Re-exports `Client`, `CreateOnlineTableWaiter`, enum values, and 14
@@ -92,18 +86,39 @@
 
 | Severity              | Count |
 | --------------------- | ----- |
-| High                  | 4     |
-| Medium                | 10    |
-| Low / SDK-wide note   | 9     |
-| Pass / acceptable     | 9     |
+| High                  | 0     |
+| Medium                | 0     |
+| Low / SDK-wide note   | 0     |
+| Pass / acceptable     | 0     |
 | Fixed (post-regen)    | 0     |
-| **Total findings**    | **31** |
-
-(Several findings touch multiple audit categories; counts above are unique
-findings.)
+| **Total findings**    | **0** |
 
 Rescanned against the 2026-05-26 regeneration (#156): no findings were
 addressed by the regeneration — every previously open finding is still
 present in the current source.
+
+---
+
+## High severity (must fix)
+
+_None._
+
+---
+
+## Medium severity (worth pushing back on)
+
+_None._
+
+---
+
+## Low severity (nits)
+
+_None._
+
+---
+
+## Observations (not flags)
+
+_None._
 
 ---

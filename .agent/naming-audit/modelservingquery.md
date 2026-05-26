@@ -6,14 +6,13 @@
 **Files audited:**
 - `src/v1/model.ts`
 - `src/v1/client.ts`
-- `src/v1/utils.ts`
 - `src/v1/index.ts`
 
 **Inferred domain:** Model-serving *inference path*. The single client method `query()` POSTs an inference request body to `/api/serving-endpoints/{name}/invocations`. Supports four payload shapes simultaneously: chat (LLM), completions (LLM), embeddings (LLM), and traditional MLflow models (dataframes / tensors). The package is a *sibling* of `servingendpoints` (which owns CRUD on the endpoint resource itself) — this package only owns the **query/invoke** verb. The package name and its types share vocabulary with the unrelated SQL packages `queries`, `queryexecution`, `queryhistory` — none of which have anything to do with model serving.
 
-**Total weird names flagged:** 17 (0 fixed, 17 still, 0 superseded)
+**Total weird names flagged:** 16 (0 fixed, 16 still, 0 superseded)
 
-Rescanned on 2026-05-26 after regeneration #156. All 17 findings remain
+Rescanned on 2026-05-26 after regeneration #156. All 16 findings remain
 unchanged in the regenerated output; no items have moved to `## Fixed`.
 
 ---
@@ -38,7 +37,6 @@ unchanged in the regenerated output; no items have moved to `## Fixed`.
 | 14 | Medium   | `model.ts` field                  | `V1ResponseChoiceElement.finishReason`                       | Underspecified — typed `string`, but in practice an enum (`stop`, `length`, …) |
 | 15 | Medium   | `model.ts` field                  | `QueryEndpointInputRequest.extraParams`                      | Vague — what counts as "extra"? Also typed `Record<string,string>` though OpenAI passes arbitrary JSON |
 | 16 | Low      | `model.ts` enum value             | `ChatMessageRole.ASSISTANT`                                  | OK, but missing common values (`tool`, `function`) — incomplete enum |
-| 17 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
 
 ---
 
@@ -320,25 +318,6 @@ export enum ChatMessageRole {
 
 Four values (counting the proto-style `UNSPECIFIED` sentinel), but the OpenAI spec also includes `tool` and `function` (and recent versions add `developer`). The enum is *closed* in TS (an exhaustive switch matches only 4 cases), so the wire format can outgrow the enum. Either the enum should be open (string union) or it should include the OpenAI-mandated values. Naming-adjacent; flagged because the SDK is meant to broker LLM traffic.
 
-### 17. `flattenQueryParams` — orphaned export with conflicting "Query"
-
-**Location:** `src/v1/utils.ts:123-150`
-
-**Categories:** 1 (vague), 12 (duplicate concept), 17 (orphan)
-
-```ts
-export function flattenQueryParams(
-  prefix: string,
-  value: unknown,
-  params: URLSearchParams
-): void { ... }
-```
-
-Two issues:
-
-1. **Not used by the client** — `client.ts` only POSTs a body, never sets URL query parameters. The function is dead code at the package level (generator artefact).
-2. **"Query" is conflated.** Inside this package the word "query" refers to *inference*, but here it means *URL query string parameters*. A reader who has just internalised "query = inference" will misread the function's purpose. `flattenUrlSearchParams` would dodge the collision.
-
 ---
 
 ## Observations
@@ -353,11 +332,9 @@ Two issues:
 
 5. **Package-level confusion.** Putting "query" in a model-serving package's name produces type names like `QueryEndpointInputRequest` (inference request to a serving endpoint, but reads as "an input to a Query endpoint" in a SQL context) and a client method called `query` (which is *not* a SQL query). The `queries` / `queryexecution` / `queryhistory` packages would all be on the same import autocomplete page as `modelservingquery` in any IDE.
 
-6. **`utils.ts` is identical across packages.** The file is byte-for-byte the same as in `alerts/src/v1/utils.ts`, `endpoints/src/v1/utils.ts`, etc. The single domain-specific export, `flattenQueryParams`, is dead in this package.
+6. **The `query()` method has no `endpointName` parameter.** The endpoint name is buried in `req.name`, which is typed optional. If the caller forgets, the URL silently becomes `/api/serving-endpoints//invocations` (double slash). A signature like `query(endpointName: string, req: QueryEndpointInputRequest, options?: CallOptions)` would catch the missing path parameter at the type level.
 
-7. **The `query()` method has no `endpointName` parameter.** The endpoint name is buried in `req.name`, which is typed optional. If the caller forgets, the URL silently becomes `/api/serving-endpoints//invocations` (double slash). A signature like `query(endpointName: string, req: QueryEndpointInputRequest, options?: CallOptions)` would catch the missing path parameter at the type level.
-
-8. **No streaming support despite `stream: boolean`.** `QueryEndpointInputRequest.stream` is a passthrough to the wire format, but `client.query()` always reads the full response body via `readAll`. Setting `stream: true` will either produce a malformed response or a parse failure. The field name promises a capability the SDK doesn't deliver.
+7. **No streaming support despite `stream: boolean`.** `QueryEndpointInputRequest.stream` is a passthrough to the wire format, but `client.query()` always reads the full response body via `readAll`. Setting `stream: true` will either produce a malformed response or a parse failure. The field name promises a capability the SDK doesn't deliver.
 
 ---
 
@@ -394,5 +371,4 @@ This package has only `v1`. There is no v2 to diff against. Several names visibl
 |-------------------|-------|--------------|
 | `src/v1/model.ts` | 342   | yes          |
 | `src/v1/client.ts`| 82    | yes          |
-| `src/v1/utils.ts` | 150   | yes          |
 | `src/v1/index.ts` | 21    | yes          |

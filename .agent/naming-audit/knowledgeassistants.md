@@ -9,14 +9,14 @@ volume `FilesSpec`, or table `FileTableSpec`), and (c) a `sync` action that
 re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 `KnowledgeSource` each carry their own proto-style nested lifecycle enum
 (`CREATING/ACTIVE/FAILED` and `UPDATING/UPDATED/FAILED_UPDATE`).
-**Total weird names flagged:** 18
+**Total weird names flagged:** 11
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 4 |
 | Medium | 2 |
-| Low | 7 |
+| Low | 0 |
 | Observation | 5 |
 
 ## High severity
@@ -63,69 +63,29 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 
 ## Low severity
 
-### 7. `executeCall` / `executeHttpCall` differ in name by `Http` only — `src/v1/utils.ts:26,65`
-- **Why weird:** Two functions with nearly identical names handling different layers — same anti-pattern as `customllms.md` #21.
-- **Category:** 1 (vague), 17 (inconsistency).
-- **Suggested name:** `runWithCallOptions` / `sendHttp` or `wrapCall` / `dispatchHttp`.
-- **Rationale:** Names should differ in more than one infix.
-
-### 8. `HttpCallOptions` reuses `Options` — `src/v1/utils.ts:15`
-- **Why weird:** Same as `customllms.md` #23: `ClientOptions`, `CallOptions`, and `HttpCallOptions` all live in the same file. Three things named `Options`.
-- **Category:** 1 (vague suffix).
-- **Suggested name:** `HttpCallContext` or `HttpCallParams`.
-- **Rationale:** Distinguish internal context bags from user-facing options.
-
-### 9. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
-- **Why weird:** Same as `customllms.md` #28: exported but not used by `client.ts`.
-- **Category:** Observation / 11 (unused export).
-- **Suggested name:** Either remove the export or document why it ships per-package.
-- **Rationale:** Generated artifact; flag for cross-package cleanup.
-
-### 10. `readAll` helper generic name — `src/v1/utils.ts:40`
-- **Why weird:** Same as `customllms.md` #29: helper reads an entire response body stream; name is generic.
-- **Category:** 1 (vague).
-- **Suggested name:** `drainStream` or `readStreamToEnd`.
-- **Rationale:** Internal helper, low cost. Skip if generated.
-
-### 11. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:58`
-- **Why weird:** Same as `customllms.md` #24: `Segment` is a generic CS term.
-- **Category:** 1 (vague).
-- **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
-- **Rationale:** SDK-wide consistency review.
-
-### 12. `resp` local variable in every method — `src/v1/client.ts:95,124,153,235,260,285,319,370,424,496,537,578`
-- **Why weird:** Same as `customllms.md` #33: `resp` is the response. 12 methods repeat the same pattern.
-- **Category:** 12 (duplicate pattern).
-- **Suggested name:** Refactor away the pattern, not the name.
-- **Rationale:** Refactor opportunity surfaced by audit.
-
-### 13. `pageReq` local in iterator methods — `src/v1/client.ts:342,396,450`
-- **Why weird:** Three async generator methods each declare `const pageReq: ... = {...req};`. Reuses the abbreviation `Req` while elsewhere in the file the parameter is named `req`. Minor abbreviation inconsistency: `request` would be clearer in the iterator context, where the variable's purpose ("the request used to fetch each page") differs from the input `req`.
-- **Category:** 5 (abbreviation).
-- **Suggested name:** `pageRequest` or `nextPageReq`.
-- **Rationale:** Local clarity for readability.
+_None._
 
 ## Observations
 
-### 14. No `list` for `Example` siblings outside of `listExamples` — `src/v1/client.ts:305-336`
+### 7. No `list` for `Example` siblings outside of `listExamples` — `src/v1/client.ts:305-336`
 - **Why weird:** The package supports `list` on `KnowledgeAssistant`, `Example`, and `KnowledgeSource`. Naming consistent. Flagging as a *positive* observation — the verbs are uniform.
 - **Category:** 17 (reversed — consistency note).
 
-### 15. `syncKnowledgeSources` — verb is plural but operates on parent — `src/v1/client.ts:464`
+### 8. `syncKnowledgeSources` — verb is plural but operates on parent — `src/v1/client.ts:464`
 - **Why weird:** Method `syncKnowledgeSources` takes a `SyncKnowledgeSourcesRequest` whose `name` field is the **parent assistant** id. The verb is "sync" and the noun is the (plural) child collection, but the addressing is parent-level. Compare with `cancelOptimization` on `customllms` — same pattern.
 - **Category:** 6 (slightly misleading; the resource being addressed is the assistant, not "the sources"). The method does sync *all* sources for one assistant, so the plural is faithful to the *action* if not the *target*.
 - **Suggested name:** Acceptable; consider `syncAssistantSources` for parent-clarity, but the current name reads fine.
 
-### 16. Acronym casing: `URI`, `UUID`, `MLflow`, `UC` — `src/v1/model.ts:92,142,144,146,165,192,261,310`
+### 9. Acronym casing: `URI`, `UUID`, `MLflow`, `UC` — `src/v1/model.ts:92,142,144,146,165,192,261,310`
 - **Why weird:** This package follows the SDK convention of *not* using acronym casing in TS identifiers (none of `UUID`, `URI`, `MLflow`, `UC` appear as identifier components in source — they only appear in JSDoc as documentation). When they do appear in TS identifiers (`docUriCol`), they are title-cased (`Uri`) — matching Microsoft's three-letter-acronym rule but contradicting the SDK's own `ApiError` usage. Cross-cutting observation from `customllms.md` #36.
 - **Category:** 3 (acronym casing — SDK-wide).
 - **Suggested name:** SDK-wide policy decision.
 
-### 17. `KnowledgeAssistant` and `KnowledgeSource` symmetric type design — `src/v1/model.ts:155-196,204-240`
+### 10. `KnowledgeAssistant` and `KnowledgeSource` symmetric type design — `src/v1/model.ts:155-196,204-240`
 - **Why weird:** Both entities carry: `name`, `state`, `id`, `displayName`, `description`, `createTime`. They diverge: `KnowledgeAssistant` adds `instructions`, `creator`, `endpointName`, `experimentId`, `errorInfo`; `KnowledgeSource` adds `sourceType`, `spec`, `knowledgeCutoffTime`. Symmetric design is a good thing — flagged as a *positive* observation.
 - **Category:** Observation.
 
-### 18. `Example` lacks `state` field — `src/v1/model.ts:79-98`
+### 11. `Example` lacks `state` field — `src/v1/model.ts:79-98`
 - **Why weird:** Both sibling entities (`KnowledgeAssistant`, `KnowledgeSource`) have a `state` enum; `Example` does not. This is correct given examples are passive metadata (no lifecycle), but consumers expecting symmetry will notice the asymmetry. Flagged as design observation, not a naming bug.
 - **Category:** Observation.
 

@@ -6,7 +6,7 @@
 notebooks, folders, and files — import, export, delete, list, get-status,
 and mkdirs against absolute paths under `/Workspace`. Wire prefix:
 `/api/2.0/workspace/`.
-**Total weird names flagged:** 14
+**Total weird names flagged:** 10
 
 ## Scope note: `workspaceobjects` vs sibling packages
 
@@ -27,9 +27,9 @@ others differ in scope:
 
 | Severity | Count |
 | --- | --- |
-| High | 3 |
-| Medium | 6 |
-| Low | 5 |
+| High | 4 |
+| Medium | 2 |
+| Low | 4 |
 | Observation | 6 |
 
 ## Summary table
@@ -40,16 +40,12 @@ others differ in scope:
 | 2 | High | `model.ts:18` enum value | `ExportFormat.AUTO` | Ambiguous enum value (different behaviour for import vs. export) |
 | 3 | High | `model.ts:24` enum value | `ExportFormat.RAW` | Vague enum value (no documented format, only a use-case story) |
 | 4 | High | `model.ts:28` enum | `Language` | Vague/generic, no domain prefix |
-| 5 | Medium | `model.ts:48` enum value | `ObjectType.LIBRARY` | Misleading (workspace libraries are an obsolete concept) |
-| 6 | Medium | `model.ts:102` field | `ExportRequest_Response.content` typed `Uint8Array` | Type contradicts JSDoc ("base64-encoded content") |
-| 7 | Medium | `model.ts:138` field | `ImportRequest.content` typed `Uint8Array` | Same type/JSDoc mismatch as 6 in reverse direction |
-| 8 | Medium | `model.ts:162` type | `MkdirsRequest` | Unix-ism (`mkdir -p`); sibling `files` package uses `createDirectory` |
-| 9 | Medium | `client.ts:157` method | `getStatus` | Vague verb; returns full `ObjectInfo` metadata (a `stat`, not a status) |
-| 10 | Low | `model.ts:16` enum value | `ExportFormat.R_MARKDOWN` | Shape mismatch — single underscored value among single-token values |
-| 11 | Low | `model.ts:14` enum value | `ExportFormat.DBC` | Cryptic product-specific abbreviation (Databricks archive) |
-| 12 | Low | `model.ts:174` interface | `ObjectInfo` | `Info` suffix carries no information; central entity is just an "Object" |
-| 13 | Low | `client.ts:266` method | `mkdirs` | Lower-case Unix contraction next to other `verbNoun` methods (`getStatus`, `import`, `export`) |
-| 14 | Low | `model.ts:17-23` JSDoc | "We will inspect…" / "This is introduced to unblock a DR use case" | First-person and ticket-driven prose in public JSDoc |
+| 5 | Medium | `model.ts:162` type | `MkdirsRequest` | Unix-ism (`mkdir -p`); sibling `files` package uses `createDirectory` |
+| 6 | Medium | `client.ts:157` method | `getStatus` | Vague verb; returns full `ObjectInfo` metadata (a `stat`, not a status) |
+| 7 | Low | `model.ts:16` enum value | `ExportFormat.R_MARKDOWN` | Shape mismatch — single underscored value among single-token values |
+| 8 | Low | `model.ts:14` enum value | `ExportFormat.DBC` | Cryptic product-specific abbreviation (Databricks archive) |
+| 9 | Low | `model.ts:174` interface | `ObjectInfo` | `Info` suffix carries no information; central entity is just an "Object" |
+| 10 | Low | `client.ts:266` method | `mkdirs` | Lower-case Unix contraction next to other `verbNoun` methods (`getStatus`, `import`, `export`) |
 
 ## High severity
 
@@ -102,44 +98,7 @@ others differ in scope:
 
 ## Medium severity
 
-### 5. `ObjectType.LIBRARY` — obsolete enum value
-- **Location:** `model.ts:48`
-- **Category:** Misleading enum value (encoded concept is obsolete).
-- **Suggested name:** Keep the name but mark `@deprecated` in JSDoc with a
-  pointer to the cluster-libraries / job-libraries APIs.
-- **Rationale:** Workspace "libraries" as a top-level object type were
-  superseded years ago by cluster-level and job-level library
-  configurations. The value is exported in `ObjectType` without a
-  deprecation marker. Consumers writing `if (obj.objectType ===
-  ObjectType.LIBRARY)` are coding against a branch the server almost never
-  returns; that is a discoverability hazard.
-
-### 6. `ExportRequest_Response.content` — type contradicts "base64-encoded" JSDoc
-- **Location:** `model.ts:98-102`; decoded via `marshalSchema` transform at
-  `model.ts:211-213`.
-- **Category:** Type/JSDoc mismatch.
-- **Suggested name:** Keep the field name, fix the JSDoc to say "Raw bytes
-  decoded from the server's base64 encoding," or rename to `bytes`.
-- **Rationale:** The JSDoc says the content is base64-encoded; the type is
-  `Uint8Array` (raw bytes). The transform schema does `atob(s).charCodeAt`
-  before populating the field, so the field already holds decoded bytes.
-  The JSDoc was lifted from the wire-format documentation and never
-  updated for the post-decode shape. "Uint8Array of base64-encoded data"
-  is technically meaningless.
-
-### 7. `ImportRequest.content` — type contradicts "base64-encoded" JSDoc
-- **Location:** `model.ts:132-138`; encoded via `marshalSchema` transform
-  at `model.ts:276-281`.
-- **Category:** Type/JSDoc mismatch (mirror of 6).
-- **Suggested name:** Keep the name; fix the JSDoc to say "Raw bytes; the
-  client base64-encodes before sending."
-- **Rationale:** The mirror of finding 6 in the reverse direction. The
-  client encodes the bytes to base64 before sending. A defensive caller
-  who reads the JSDoc and base64-encodes their bytes will double-encode
-  and corrupt the upload. The mismatch is silent and the failure mode is
-  data corruption.
-
-### 8. `MkdirsRequest` — Unix-ism
+### 5. `MkdirsRequest` — Unix-ism
 - **Location:** `model.ts:162` (type), `client.ts:266` (method).
 - **Category:** Cryptic Unix abbreviation, cross-package inconsistency.
 - **Suggested name:** `CreateDirectoryRequest`.
@@ -150,7 +109,7 @@ others differ in scope:
   the wire path is `/api/2.0/workspace/mkdirs` (plural verb), but the
   request body holds one path, so even the wire name is misleading.
 
-### 9. `getStatus` — vague verb on the client
+### 6. `getStatus` — vague verb on the client
 - **Location:** `client.ts:157`
 - **Category:** Vague verb; misleading category (returns metadata, not a
   status enum); inconsistent return shape vs. peer methods.
@@ -167,7 +126,7 @@ others differ in scope:
 
 ## Low severity
 
-### 10. `ExportFormat.R_MARKDOWN` — shape mismatch within the enum
+### 7. `ExportFormat.R_MARKDOWN` — shape mismatch within the enum
 - **Location:** `model.ts:15-16`
 - **Category:** Inconsistent shape inside an enum (most values single
   token, one with an underscore).
@@ -178,7 +137,7 @@ others differ in scope:
   `R_MARKDOWN` with an underscore. Inconsistent shape inside the same
   enum.
 
-### 11. `ExportFormat.DBC` — cryptic abbreviation
+### 8. `ExportFormat.DBC` — cryptic abbreviation
 - **Location:** `model.ts:13-14`
 - **Category:** Cryptic product-specific abbreviation.
 - **Suggested name:** `DATABRICKS_ARCHIVE` on the TS identifier; the wire
@@ -188,7 +147,7 @@ others differ in scope:
   expects) means the rename must happen on the enum-key layer, not the
   enum-value layer — TypeScript supports that cleanly.
 
-### 12. `ObjectInfo` — `Info` suffix
+### 9. `ObjectInfo` — `Info` suffix
 - **Location:** `model.ts:174-200`
 - **Category:** Vague suffix; Go/Java convention carried into TS without
   reason.
@@ -201,7 +160,7 @@ others differ in scope:
   a hat-tip to the Go SDK. A name like `WorkspaceObject` would also avoid
   the JS `Object` collision.
 
-### 13. `mkdirs` client method — Unix contraction next to verb-noun siblings
+### 10. `mkdirs` client method — Unix contraction next to verb-noun siblings
 - **Location:** `client.ts:266`
 - **Category:** Verb-tense / shape inconsistency among sibling methods.
 - **Suggested name:** `createDirectory`.
@@ -209,21 +168,6 @@ others differ in scope:
   (`export`, `import`, `list`, `delete`) or verb-noun (`getStatus`).
   `mkdirs` is the only Unix-style contraction. `createDirectory` would
   align with `getStatus` and with the `files` package convention.
-
-### 14. First-person and ticket-driven prose in JSDoc
-- **Location:** `model.ts:17` ("We will inspect the content of the payload
-  to determine the type"); `model.ts:19-23` ("This is introduced to
-  unblock a DR use case importing .zip file as is. … In workspace 3.0
-  folder import will be supported via a different API.").
-- **Category:** JSDoc voice / customer-facing prose.
-- **Suggested name:** Rewrite as third-person product documentation —
-  e.g. "The server inspects the payload header to determine the type." for
-  `AUTO`, and "Use to import a `.zip` file without unwrapping it." for
-  `RAW`.
-- **Rationale:** "We will inspect" and "This is introduced to unblock a
-  DR use case" read as commit-message or design-doc fragments, not
-  customer-facing documentation. JSDoc renders into IDE tooltips that
-  consumers see. Naming-adjacent but flagged.
 
 ## Observations
 

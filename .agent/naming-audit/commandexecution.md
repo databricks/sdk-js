@@ -36,11 +36,8 @@ The domain centres on a `Command` (Python/SQL/Scala/R code), executed inside a
 | 13 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
 | 14 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
 | 15 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
-| 16 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
-| 17 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
-| 18 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
-| 19 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
-| 20 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
+| 16 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
+| 17 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
 
 ---
 
@@ -243,40 +240,13 @@ Go-SDK alignment decision.
 
 ---
 
-### Finding 16 — Low — Cat 1 (Vague/generic) — call-out
-**Location:** `src/v2/client.ts:54`
-```ts
-class StillRunningError extends Error {}
-```
-Private, OK. Idiomatic for waiter polling patterns.
-
----
-
-### Finding 17 — Low — Cat 3 (Acronym casing) — non-issue
-**Location:** `src/v2/client.ts:49-52`
-```ts
-const PACKAGE_SEGMENT = { key: pkgJson.name.replace(...), value: pkgJson.version };
-```
-`PACKAGE_SEGMENT` is a true constant (SCREAMING_SNAKE_CASE is correct).
-Mixed with `userAgent` (camelCase method-scope variable). Both are
-correctly cased per the project rules.
-
----
-
-### Finding 18 — Low — Cat 14 — non-issue
-**Location:** `src/v2/client.ts:54`
-**Issue:** `StillRunningError` is named in idiomatic TS style
-(`*Error` suffix on classes extending Error).
-
----
-
-### Finding 19 — Low — Cat 15 (Generic field) — call-out
+### Finding 16 — Low — Cat 15 (Generic field) — call-out
 **Location:** `src/v2/model.ts:67, 87`
 `language?: Language` is correct.
 
 ---
 
-### Finding 20 — Low — Cat 3 (Acronym casing in enum string values)
+### Finding 17 — Low — Cat 3 (Acronym casing in enum string values)
 **Location:** `src/v2/model.ts:42-43`
 ```ts
 SQL = 'SQL',

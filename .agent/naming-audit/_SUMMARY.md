@@ -1,9 +1,9 @@
 # Cross-Package Naming Audit — Executive Summary
 
-**Packages audited:** 87 active API packages (every package under `packages/<pkg>/src/<vN>/` after the 2026-05-22 generator regen consolidation). An additional 24 audit files exist for packages that were removed or consolidated in the regen; those audits are retired and their finding counts are excluded from the active total. See "Retired audits" at the bottom of §6.
-**Total active findings across all 87 active audits:** **2,891** (down from 2,926 before the 2026-05-22 Theme 2 prune; 3,572 before the 2026-05-22 regen + rescan; previously 3,273 before the 2026-05-20 proto-architectural-leak pass; 5,322 in the original sweep). The 2026-05-22 Theme 2 prune removed ~35 active findings across 20 packages whose `Foo*` package-prefix issues were the sole concern; the remaining 32 candidate audits had no matching findings.
+**Packages audited:** 87 active API packages (every package under `packages/<pkg>/src/<vN>/`). The 24 orphan audit files that previously existed for packages retired in the 2026-05-22 regen were deleted on 2026-05-26 (see Prune note 8); per-package audits are now strictly limited to packages with live source.
+**Total active findings across all 87 active audits:** **1,598** (down from 2,891 before the 2026-05-26 cleanup pass — a 45% reduction. Earlier waypoints: 2,926 before the 2026-05-22 Theme 2 prune; 3,572 before the 2026-05-22 regen + rescan; 3,273 before the 2026-05-20 proto-architectural-leak pass; 5,322 in the original sweep.) The 2026-05-26 cleanup pass removed ~1,500 findings via five Workflow B prune passes (AIP `name`, sibling-state-enum, field-rename, doc-change, SDK-internal + non-TS), the deletion of 23 orphan audit files, and the removal of `## Fixed` sections from every audit (a small note in this summary now captures the historical "fixed" delta).
 **Source files:** `/home/parth.bansal/sdk-js/.agent/naming-audit/<package>.md`
-**Last source state:** Rescan against generator state 2026-05-22, upstream API version `0555d6a59265799ed8ea12f355eee662e739430d`.
+**Last source state:** Rebase onto main + rescan on 2026-05-26 against generator regen #156 + acronym renames (PR #148). Upstream API version `0555d6a59265799ed8ea12f355eee662e739430d`.
 
 > **Prune note 1.** The original audit included a cross-cutting theme
 > "Empty / trivial wrapper interfaces" (empty `*_Response` interfaces,
@@ -98,6 +98,78 @@
 > findings are reflected in the totals, theme 2 description below
 > (marked retired in place), generator recommendations (§8.6
 > removed), Top-50, and by-the-numbers table below.
+
+> **Prune pass 8 (2026-05-26) — corpus cleanup.** Combined rebase +
+> rescan + orphan deletion + five Workflow B prune passes. Combined
+> removals ~1,500 findings (2,891 → 1,598). Components, in
+> chronological order:
+>
+> 1. **Rebase + rescan against regen #156 + acronym renames
+>    (PR #148).** All 87 active audits rescanned. `logdelivery`
+>    moved one finding to `Fixed`; remaining audits had minor line
+>    drift only.
+> 2. **`## Fixed` sections removed from every audit** per user
+>    direction ("remove the entries which are fixed... I think it's
+>    good to just have a small note in the summary.md which we
+>    already have"). Audit files now only carry active findings; the
+>    historical "fixed" delta is summarised in this document.
+> 3. **23 orphan / retired audit files deleted** per user direction
+>    ("Please remove the complete file if there is no issue in
+>    it... do it for every packages like this"). The 23 deleted:
+>    `accountaccesscontrol`, `accountaccesscontrolproxy`,
+>    `accountsettings`, `cleanroomassets`,
+>    `cleanroomautoapprovalrules`, `cleanroomtaskruns`, `endpoints`,
+>    `indexes`, `logdeliveryconfigurations`, `materializedfeatures`,
+>    `modelservingdebug`, `modelservingmanagement`,
+>    `oauthcustomappintegration`, `oauthpublishedapp`,
+>    `permissions`, `qualitymonitor`, `qualitymonitors`,
+>    `queryexecution`, `serviceprincipalsecrets`,
+>    `serviceprincipalsecretsproxy`, `workspace`,
+>    `workspaceassignment`, `workspaceconf`, `workspacesettings`.
+>    (Note: `serviceprincipalsecretsproxy` had already been deleted
+>    earlier; the active count of deleted files in this pass is
+>    23.) The "Retired audits" table at the bottom of §6 is now
+>    historical reference only.
+> 4. **AIP `name` pattern prune** — ~20 findings removed across the
+>    31-package scope per user direction ("the name pattern is well
+>    established in the AIP"). Findings citing the AIP-mandated
+>    `name` field on Get/Update/Delete requests are no longer
+>    flagged.
+> 5. **Sibling-state-enum prune** — ~5 findings removed across the
+>    6-package scope per user direction ("not possible to fix
+>    without changing the api"). Cross-package state-enum
+>    duplicates that would require an API change to fix are no
+>    longer flagged.
+> 6. **Field-rename prune** — ~773 findings removed across all 87
+>    audits per user direction ("if i change the field name it
+>    would make the sdk quite different from the api itself").
+>    Field-level rename findings (the single largest category by
+>    incidence) are no longer in scope. Field-name vocabulary drift
+>    and underspecified-ID findings that boil down to a rename are
+>    out.
+> 7. **Doc-change prune** — ~300 findings removed across all 87
+>    audits per user direction ("those can be anytime"). JSDoc
+>    text, banner-comment, and prose-deprecation findings are no
+>    longer flagged: the doc surface is a follow-up sweep, not part
+>    of the structural naming corpus.
+> 8. **SDK-internal prune** — ~400 findings removed for
+>    identifiers that are never re-exported. Coverage: `utils.ts`
+>    helpers (`executeCall`, `executeHttpCall`, `flattenQueryParams`,
+>    `readAll`, `HttpCallOptions`, `buildHttpRequest`,
+>    `PACKAGE_SEGMENT`, `Call`, `pkgJson`), local variables in
+>    `client.ts` (`req`, `resp`, `opts`), and other internal
+>    plumbing. Per user direction ("they don't get reexported").
+> 9. **Non-TS prune** — ~70 findings removed for `CHANGELOG.md`,
+>    `NEXT_CHANGELOG.md`, `package.json`, build / lint workflows,
+>    and other non-source files. Per user direction ("make sure for
+>    all packages that recommendations are strictly for the ts
+>    code").
+>
+> The combined pass shrunk every category. The dominant remaining
+> findings are now structural type-level issues:
+> reserved-word collisions, brand drift, post-merge friction in
+> the consolidated packages, cross-package duplicate concepts, and
+> proto-architectural leaks that survived the regen.
 
 > **Rescan note (2026-05-20).** The generator was re-run and the
 > per-package audits were rescanned against the new source state. The
@@ -231,31 +303,35 @@ formats; the Databricks JS SDK currently does not.
 Ranked by approximate package incidence. Each theme is a generator-level
 defect — one template change fixes ~87 packages.
 
-### Theme 1. `Info` (and other vague) suffix on the canonical entity — ~70/87 packages
+### Theme 1. `Info` (and other vague) suffix on the canonical entity — ~30/87 packages (shrunk by the 2026-05-26 field-rename prune)
 
 The Go SDK uses `<Domain>Info` to name "details of an X" because Go does not
 have package-qualified imports for types. TS does, and `<Domain>` alone
-suffices. Examples:
+suffices. The 2026-05-26 field-rename prune removed the field-side
+incidence of this theme (e.g. `repo?: RepoInfo` is no longer flagged as a
+field-name issue) but the type-name incidence survives. Examples that
+remain flagged at the type level:
 
-- `RepoInfo` → `Repo` / `GitFolder` (and the field `repo?: RepoInfo` becomes `repo?: Repo`).
+- `RepoInfo` → `Repo` / `GitFolder` (brand drift — see Theme 3).
 - `PolicyInfo` → `Policy`.
-- `EndpointInfo` → `Endpoint` (in `warehouses`, which has a brand mismatch — see Theme 3).
+- `EndpointInfo` → `Endpoint` (in `warehouses`, brand mismatch — see Theme 3).
 - `SchemaInfo` → `Schema`.
 - `CredentialInfo` → `Credential`.
 - `MetastoreInfo` → `Metastore`.
 - `CatalogInfo` → `Catalog`.
-- `RunInfo`, `JobInfo`, `TableInfo`, `FunctionInfo`, `ConnectionInfo`,
-  `VolumeInfo`, `ServicePrincipalInfo`, `UserInfo`, `WorkspaceInfo`,
-  `OnlineTableInfo`, `ExperimentInfo`.
+- `RegisteredModelInfo`, `ModelVersionInfo`, `RegisteredModelAliasInfo`,
+  `TableInfo`, `FunctionInfo`, `ConnectionInfo`, `VolumeInfo`,
+  `OnlineTableInfo`.
 
-Same problem with other vague suffixes:
-- `*Options` on tagged-union arms (`RowFilterOptions`, `ColumnMaskOptions`, `DenyOptions`, `GrantOptions`) — when the `$case` discriminator already says "this is the X options".
-- `*Spec` / `*Details` / `*Config` / `*Status` / `*Data` / `*Metadata` used inconsistently — sometimes for the entity, sometimes for a sub-property, sometimes for both. `apps.ApplicationStatus` and `App.appStatus` mismatch on the same product noun.
+Same problem with other vague suffixes (type-side only after the prune):
+- `*Spec` / `*Details` / `*Config` / `*Status` / `*Data` / `*Metadata` used inconsistently — sometimes for the entity, sometimes for a sub-property, sometimes for both. `apps.ApplicationStatus` and `App.appStatus` (the field is no longer flagged but the type-name divergence remains).
 
 **Generator fix:** Strip the `Info` suffix when the type is the canonical
 domain entity. (Heuristic: if `<Foo>Info` is the only `<Foo>*` type that
 isn't a request/response, drop `Info`.) Same for redundant `Options`/`Spec`
-suffixes on tagged-union arms when the parent has a discriminator.
+suffixes on tagged-union arms when the parent has a discriminator. Field
+renames are out of scope per user direction (would deviate the SDK from
+the underlying API).
 
 ### Theme 2. Inconsistent acronym casing across the SDK — 87/87 packages
 
@@ -342,7 +418,7 @@ constants) were:
 > the platform-name exception. `SCREAMING_SNAKE_CASE` constants
 > unaffected.
 
-### Theme 3. Brand drift / rebrand leakage — ~10/87 packages
+### Theme 3. Brand drift / rebrand leakage — ~6/87 packages (stable across the 2026-05-26 prune)
 
 Several products were rebranded but the TS surface still carries the old
 codename:
@@ -357,53 +433,40 @@ codename:
 **Generator fix:** Per-product spec needs updates; the rename can land via a
 generator alias map (`Endpoint` → `Warehouse` in `warehouses` only, etc.).
 
-### Theme 4. Proto-architectural-leak infixes — ~10/87 packages, ~50 findings (substantially shrunk)
+### Theme 4. Proto-architectural-leak infixes — ~8/87 packages (further shrunk by the 2026-05-26 doc + SDK-internal prunes)
 
 Internal proto / service-tier identifiers leak through the codegen and show
 up as mid-position infix tokens that have no meaning to a TS SDK consumer.
 The 2026-05-22 generator regen retroactively validated generator rule §8.2
-and renamed the dominant `*Public*Request` sub-pattern across every
-account-tier package — ~81 findings moved to per-package `Fixed` sections.
+and renamed the dominant `*Public*Request` sub-pattern. The 2026-05-26 prune
+further removed the JSDoc-banner sub-cases (out of scope per the doc-change
+prune) and SDK-internal `utils.ts` plumbing (out of scope per the
+SDK-internal prune). What remains is the type-name surface only.
 
-**Status after the 2026-05-22 regen:**
+**Status after the 2026-05-26 prune:**
 
-- The `*Public*` mid-position infix sub-pattern is largely fixed. Account-tier
-  packages that previously carried 14-21 such findings each
-  (`networking` 21 → 0, `workspaces` 21 → 0,
-  `metastores` 20 → 0, `credentials` 12 → 0,
-  `storageconfigurations` 14 → 0, `keyconfigurations` 3 → 0) now have zero
-  active `*Public*Request` findings. The residual active findings on these
-  packages are unrelated singular/plural and category-1 issues that the
-  rescan surfaced once the proto-leak noise cleared.
+- The `*Public*Request` sub-pattern is fixed (2026-05-22 regen).
 - **`*CustomerFacing*` qualifier still survives in `networking`** — 40+
   identifiers (`CustomerFacingIngressNetworkPolicy`,
   `CustomerFacingVpcEndpointUseCase`, etc.) in active source. Not yet
-  scanned as findings because the regen left them untouched; they are the
-  same proto-tier qualifier and should be flagged in a follow-up pass.
+  scanned as findings because the regen left them untouched.
 - **`*Proto` suffix** still active in a handful of identifiers:
-  `DatabricksServiceExceptionProto`,
-  `DatabricksServiceExceptionWithDetailsProto`, `TriggerStateProto` (jobs
-  `model.ts`). The companion JSDoc usually says "Proto defined to model …" —
-  that is the right place for the word; in the identifier it leaks the wire
-  format.
+  `TriggerStateProto` (`jobs`), `DatabricksServiceExceptionProto`,
+  `DatabricksServiceExceptionWithDetailsProto` (`apps`).
 - **`*Service*` mid-position infix.** `ServiceErrorCode` / `ServiceError`
-  in `statementexecution`. The `Service` token is a proto/gRPC
-  architectural-layer noun and not a domain concept.
-- **`*V2*` mid-position.** `RunLifecycleStateV2` (jobs),
-  `unmarshalListExternalMetadataResponseV2Schema` (externalmetadata).
-  Version goes in the import path / subpath export, not the identifier.
-- **JSDoc proto-layer banners.** `forecasting` and `pipelines` both ship
-  JSDoc with "Public RPC" / "Wrapper message" / "Public facing RPC requests
-  and responses *****" verbatim — banner comments that exist solely for the
-  proto file structure.
+  in `statementexecution`.
+- **`*Handler` suffix.** `listCleanRoomNotebookTaskRunsHandler` /
+  `listCleanRoomNotebookTaskRunsHandlerIter` in `cleanrooms/client.ts`.
+- **`*V2*` mid-position.** `RunLifecycleStateV2` (jobs).
+- **JSDoc banners pruned.** "Public RPC", "Wrapper message", and "Public
+  facing RPC requests and responses *****" comments no longer flagged
+  (doc-change prune, 2026-05-26).
 
 **Generator fix:** Strip proto-architectural-tier markers from the public
 TS surface emit. The set is small and closed: `Public`, `Internal`,
 `Proto`, `Service` (when mid-position and not the domain word), `Backend`,
 `Manager`, `Handler`, `Impl`, `Rpc`, `Grpc`, `Wrapper`, `CustomerFacing`,
 mid-position `V<N>`. Carried as a single generator-only rule in §8.2 below.
-The `*Public*Request` sub-pattern has now shipped via the 2026-05-22 regen,
-which is a retroactive validation of the rule but does not close it out.
 
 ---
 

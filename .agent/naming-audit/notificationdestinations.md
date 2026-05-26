@@ -3,7 +3,7 @@
 **Path:** `packages/notificationdestinations/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-level CRUD over "notification destinations" — named, persisted records that pair a `displayName` with one config out of five wire-format channels (Slack, Email, GenericWebhook, PagerDuty, MicrosoftTeams). The REST surface is `/api/2.0/notification-destinations`, with the usual `create` / `get` / `list` / `update` / `delete` plus a paged async iterator. Every channel-config carries the same `*Set: boolean` companion shape: secret fields are write-only on input and the server echoes only a "is it set?" mirror on output. There are zero typed timestamps, zero enum sub-types beyond `DestinationType`, and the only oneof is the discriminated `Config` union.
-**Total weird names flagged:** 12
+**Total weird names flagged:** 8
 
 ## Summary
 
@@ -11,8 +11,8 @@
 | --- | --- |
 | High | 4 |
 | Medium | 1 |
-| Low | 5 |
-| Observation | 2 |
+| Low | 2 |
+| Observation | 1 |
 
 ## Summary table
 
@@ -24,12 +24,8 @@
 | 4 | High | `model.ts:42-55` | `GenericWebhookConfig` | 1 (vague — "generic" carries no info) |
 | 5 | Medium | `client.ts:45` | `Client` (unprefixed class) | 1 (vague), 12 (duplicate across SDK) |
 | 6 | Low | `model.ts:8` | `WEBHOOK` enum singular while wire-config implies "generic" | 9 (singular/plural / qualifier mismatch with `GenericWebhookConfig`) |
-| 7 | Low | `client.ts:40-43` | `PACKAGE_SEGMENT` | 1 (vague), 15 (generic) |
-| 8 | Low | `utils.ts:15-19` | `HttpCallOptions` | 1 (vague), 12 (duplicate `Options`) |
-| 9 | Low | `utils.ts:26` / `:65` | `executeCall` / `executeHttpCall` near-duplicate | 1 (vague), 17 (inconsistent layer naming) |
-| 10 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
-| 11 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
-| 12 | Obs | — | `NEXT_CHANGELOG.md` and pre-existing build/lint workflows | — |
+| 7 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
+| 8 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
 
 ## High severity
 
@@ -121,40 +117,7 @@
 - **Category:** 9 (qualifier mismatch).
 - **Suggested name:** `GENERIC_WEBHOOK = 'GENERIC_WEBHOOK'`. See #2 for the rationale.
 
-### 7. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:40-43`
-- **Code:**
-  ```ts
-  // Package identity segment for this client to be used in the User-Agent header.
-  const PACKAGE_SEGMENT = {
-    key: pkgJson.name.replace(/^@[^/]+\//, ''),
-    value: pkgJson.version,
-  };
-  ```
-- **Why weird:** "Segment" is a generic computer-science term. The comment disambiguates ("for this client to be used in the User-Agent header"), but the constant name does not.
-- **Category:** 1 (vague), 15 (generic).
-- **Suggested name:** `USER_AGENT_PACKAGE_INFO` or `PACKAGE_USER_AGENT`.
-- **Rationale:** Cross-package — same finding appears in every audited file.
-
-### 8. `HttpCallOptions` — `src/v1/utils.ts:15-19`
-- **Code:**
-  ```ts
-  export interface HttpCallOptions {
-    readonly request: HttpRequest;
-    readonly httpClient: HttpClient;
-    readonly logger: Logger;
-  }
-  ```
-- **Why weird:** Word `Options` is reused throughout the SDK for unrelated concepts (`ClientOptions`, `CallOptions`, `Options` imported from `@databricks/sdk-core/api`). Within `utils.ts` this local interface name collides with the imported `Options` symbol on line 3.
-- **Category:** 1 (vague suffix), 12 (duplicate `Options` naming).
-- **Suggested name:** `HttpCallContext` (it is an internal context bag, not user-tunable options).
-
-### 9. `executeCall` vs `executeHttpCall` — near-duplicate function names — `src/v1/utils.ts:26`, `:65`
-- **Code:** lines 26-38 and 65-94.
-- **Why weird:** Two functions named almost identically, doing very different things: `executeCall` wraps in retry/rate-limit/timeout semantics, `executeHttpCall` does the raw HTTP send + decode + ApiError check.
-- **Category:** 1 (vague), 17 (inconsistent layer naming).
-- **Suggested name:** `runWithCallOptions` (the wrapper) and `sendHttpRequest` (the executor).
-
-### 10. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 84, 101, 105, 126, 130, 151, 164, 187, 192, 205, 213`
+### 7. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 84, 101, 105, 126, 130, 151, 164, 187, 192, 205, 213`
 - **Code:** parameter and local-variable names throughout the client.
 - **Why weird:** Three-to-five-letter abbreviations everywhere. Project rules (typescript.mdc) discourage cryptic abbreviations.
 - **Category:** 5 (cryptic abbreviation).
@@ -162,14 +125,11 @@
 
 ## Observations
 
-### 11. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-99`, `:117-136`
+### 8. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-99`, `:117-136`
 JSDoc bracket prefixes mark every secret-bearing field as either input-only or output-only. The TS type system makes both fields `... | undefined` simultaneously, so callers can construct an object that sets both a secret and its `*Set` mirror; the latter is silently ignored on the wire. A cleaner design splits the input and output types or uses TS template literal types / branded types to enforce the modality.
 - **Category:** 6 (type-level dishonesty).
 - **Suggested:** Split `SlackConfigInput` / `SlackConfigOutput`, etc. Or accept that secrets cannot round-trip and document at type level (`type Secret<T> = T | { isSet: boolean }`).
 - **Rationale:** Improvement opportunity. Not strictly a naming issue, hence observation.
-
-### 12. `NEXT_CHANGELOG.md` and pre-existing build/lint workflows
-Out of scope for naming but worth noting: the package has both a `CHANGELOG.md` and `NEXT_CHANGELOG.md` — the duplicate-file convention is a project-wide pattern, not a naming bug.
 
 ## Domain glossary
 - `notification destination` — the persistent record being managed. Always paired with a `displayName` and one `Config`.

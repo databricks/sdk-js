@@ -3,14 +3,14 @@
 **Path:** `packages/secretsuc/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog (UC) secrets — three-level namespaced (`catalog.schema.secret`) credential objects that store passwords/tokens/keys. Distinct from the workspace-level `secrets` package (scopes + key/value pairs). REST root is `/api/2.1/unity-catalog/secrets`.
-**Total weird names flagged:** 14
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 4 |
 | Medium | 5 |
-| Low | 1 |
+| Low | 0 |
 | Observation | 4 |
 
 ## High severity
@@ -73,26 +73,22 @@
 
 ## Low severity
 
-### 10. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:36`
-- **Why weird:** Same constant repeated in every generated package. `Segment` is generic; reader needs the comment to learn it's the User-Agent identity segment.
-- **Category:** 1 (vague), 15 (generic field name).
-- **Suggested name:** `USER_AGENT_PACKAGE_ID` or `PACKAGE_USER_AGENT_SEGMENT`.
-- **Rationale:** Same flag as in other generated packages; flagged for consistency.
+_None._
 
 ## Observations
 
-### 11. Action-verb convention in `Client`
+### 10. Action-verb convention in `Client`
 `createSecret` / `deleteSecret` / `getSecret` / `listSecrets` / `updateSecret` — fully consistent CRUDL verbs. No mixed `fetch`/`retrieve`. (Good.)
 
-### 12. Acronym casing for `Http` / `Url`
+### 11. Acronym casing for `Http` / `Url`
 Same as other audited packages: `Http` (PascalCase capital-then-lower) coexists with `URLSearchParams` (ALLCAPS from Web standard). Convention inherited from broader JS ecosystem; not worth changing.
 - **Category:** 3.
 
-### 13. `Uc` abbreviation never expanded in code
+### 12. `Uc` abbreviation never expanded in code
 Tracked thoroughly. The string "Uc" (in any case) does not appear in any identifier, type name, field name, constant, or enum value. "Unity Catalog" appears only in (a) JSDoc on `Secret` (`model.ts:85`), (b) JSDoc on `createSecret` / `listSecrets` / `updateSecret` (`client.ts:67,163,232`), and (c) the URL path string `/api/2.1/unity-catalog/secrets` (`client.ts:79,109,136,176,244`). The package name `secretsuc` is the **only** carrier of the disambiguator at the import level, and it's silent everywhere else. A consumer importing `Client` and `Secret` from this package, then opening their editor's symbol view, will see no hint that this is Unity-Catalog-scoped. See finding #1.
 - **Category:** 5.
 
-### 14. No enums in this package
+### 13. No enums in this package
 No enum types are defined. (`secrets` workspace package has `AclPermission` and `ScopeBackendType`; `secretsuc` exposes none.) This avoids the enum-prefix and enum-value-length problems that other audited packages have. Worth noting because the audit checklist asks about enum issues.
 
 ## Domain glossary

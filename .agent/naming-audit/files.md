@@ -4,14 +4,14 @@
 **Versions audited:** v2
 **Inferred domain:** File operations on Databricks storage. v2 is the generated 1:1 port of the upstream API surface and is the union of TWO distinct underlying services: (a) the legacy DBFS API (`/api/2.0/dbfs/...`) — `addBlock`, `close`, `create`, `delete`, `getStatus`, `list`, `mkdirs`, `move`, `put`, `read`; and (b) the modern Files API (`/api/2.0/fs/...`) — `createDirectory`, `deleteDirectory`, `deleteFile`, `downloadFile`, `getDirectoryMetadata`, `getFileMetadata`, `listDirectoryContents`, `uploadFile`. Both surfaces are presented through a single `Client` class with no naming distinction between the two services.
 
-**Total weird names flagged:** 15
+**Total weird names flagged:** 12
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 6 |
-| Medium | 4 |
-| Low | 3 |
+| Medium | 3 |
+| Low | 1 |
 | Observation | 2 |
 
 ## High severity
@@ -127,21 +127,7 @@ export interface ListDirectoryResponse { ... }   // not ListDirectoryContentsRes
 - **Suggested name:** `ListDirectoryContentsResponse` to mirror the request. Or trim both to `ListDirectoryRequest` / `ListDirectoryResponse`.
 - **Rationale:** Same endpoint, same operation — names should mirror.
 
-### 8. `executeCall` / `executeHttpCall` / `sendAndCheckError` / `buildHttpRequest` — `src/v2/utils.ts:26,65,168,96`
-
-```ts
-export async function executeCall(call: Call, options?: CallOptions): Promise<void>
-export async function executeHttpCall(opts: HttpCallOptions): Promise<Uint8Array>
-export async function sendAndCheckError(opts: HttpCallOptions): Promise<HttpResponse>
-export function buildHttpRequest(method, url, headers, signal?, body?): HttpRequest
-```
-
-- **Why weird:** Four nearly-identical-sounding helpers in one file. `executeCall` wraps a `Call` (whatever a `Call` is — it's an opaque `(signal?) => Promise<void>` function reference). `executeHttpCall` takes the actual HTTP request. `sendAndCheckError` is what `executeHttpCall` is but with a different return type (raw `HttpResponse` vs buffered `Uint8Array`). All four start with a verb but use different verbs (`execute`, `send`, `build`) for what amounts to "send this HTTP request and return something". The lowercase `'head'` HTTP method in two callers (`client.ts:621,658`) is an unrelated bug.
-- **Category:** 17 (inconsistent verb cluster — execute/send/build), 6 (misleading — `executeCall` and `executeHttpCall` are different despite the matching prefix), 12 (duplicate concept — `executeHttpCall` and `sendAndCheckError` do almost the same thing).
-- **Suggested name:** Collapse to one helper (`sendRequest`), let it return the raw `HttpResponse`, and have the caller buffer/stream as needed. Or, if both must exist: `sendAndBuffer` (returns buffered body) and `sendAndStream` (returns raw response).
-- **Rationale:** Three functions doing nearly the same thing with names that differ in verb is a recipe for mis-imports.
-
-### 9. `MoveRequest.sourcePath` / `MoveRequest.destinationPath` use snake_case on the wire — `src/v2/model.ts:484-492`
+### 8. `MoveRequest.sourcePath` / `MoveRequest.destinationPath` use snake_case on the wire — `src/v2/model.ts:484-492`
 
 ```ts
 export const marshalMoveRequestSchema: z.ZodType = z
@@ -160,7 +146,7 @@ export const marshalMoveRequestSchema: z.ZodType = z
 - **Suggested name:** Acceptable as-is (these are clearer than `path1`/`path2`). Flag only the inconsistency with the rest of the DBFS surface.
 - **Rationale:** The inconsistency is upstream; the TS port should match.
 
-### 10. `bytesRead` vs `data` in the read response — singular/plural and naming mismatch — `src/v2/model.ts:267-274`
+### 9. `bytesRead` vs `data` in the read response — singular/plural and naming mismatch — `src/v2/model.ts:267-274`
 
 ```ts
 // ReadRequest_Response:
@@ -172,7 +158,7 @@ export const marshalMoveRequestSchema: z.ZodType = z
 
 ## Low severity
 
-### 11. `overwrite` — same — `src/v2/model.ts:36,248,283`
+### 10. `overwrite` — same — `src/v2/model.ts:36,248,283`
 
 ```ts
 overwrite?: boolean | undefined;
@@ -180,27 +166,12 @@ overwrite?: boolean | undefined;
 
 Appears in `CreateRequest`, `PutRequest`, `UploadFileRequest` with subtly different defaults. `UploadFileRequest`'s docstring says "If true or unspecified, an existing file will be overwritten" (default-true), while `CreateRequest` says "specifies whether to overwrite existing file/files" (default not specified, but in fact false on the wire). Same field name, opposite defaults — a footgun.
 
-### 12. `flattenQueryParams` — unused in this file — `src/v2/utils.ts:123`
-
-Exported helper. Search shows it's never called by `client.ts` here. Name is generic and could collide with workspace-flattening utilities. Either dead code or genuine helper waiting for use.
-
-### 13. `PACKAGE_SEGMENT` — SCREAMING_SNAKE constant — `src/v2/client.ts:89`
-
-```ts
-const PACKAGE_SEGMENT = {
-  key: pkgJson.name.replace(/^@[^/]+\//, ''),
-  value: pkgJson.version,
-};
-```
-
-SCREAMING_SNAKE is only conventional for true compile-time primitives in TS. This is a plain object; `packageSegment` is fine.
-
 ## Observations
 
-### 14. `pageSize: number` — should mention coercion — `src/v2/model.ts:192`
+### 11. `pageSize: number` — should mention coercion — `src/v2/model.ts:192`
 
 JSDoc says "The maximum value is 1000. Values above 1000 will be coerced to 1000." Type does not encode the constraint. (TS branded types could; not a naming issue.)
 
-### 15. `pageToken` — opaque token, marked `string | undefined` — `src/v2/model.ts:203`
+### 12. `pageToken` — opaque token, marked `string | undefined` — `src/v2/model.ts:203`
 
 Best practice is to brand the type (`PageToken = string & {readonly __brand: unique symbol}`) to prevent passing an arbitrary string. Not a naming issue per se.

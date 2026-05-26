@@ -3,15 +3,15 @@
 **Path:** `packages/rfa/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog **R**equest **F**or **A**ccess — manage where access-request notifications are routed (the destinations: email addresses, Slack channels, Microsoft Teams webhooks, generic webhooks, or URLs) when end-users request access to a UC securable (catalog/schema/table/etc.). Also exposes a batched create endpoint that lets a caller fire one or more access requests on behalf of principals against a list of securables, returning the destinations the request will be sent to. URL prefix is `/api/3.0/rfa/...`.
-**Total weird names flagged:** 29
+**Total weird names flagged:** 16
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 5 |
-| Medium | 11 |
-| Low | 8 |
-| Observation | 5 |
+| High | 4 |
+| Medium | 9 |
+| Low | 1 |
+| Observation | 2 |
 
 ## High severity
 
@@ -27,13 +27,7 @@
 - **Suggested name:** Rename `URL` to `URL_NOTIFICATION` or `PLAIN_URL`, or rename `GENERIC_WEBHOOK` to clarify what makes it "generic" relative to `URL`. Document the wire-level difference between the two.
 - **Rationale:** Two enum members for "send to a URL" is a discoverability bug. Future callers will guess one and silently get the wrong webhook semantics.
 
-### 3. `Securable.fullName` doc says "catalog/schema/table" but reality is broader — `model.ts:162-165`
-- **Why weird:** The doc comment for `fullName` reads "The full name of the catalog/schema/table". But the `type` field's enum `SecurableType` supports 17 different securables: CATALOG, SCHEMA, TABLE, STORAGE_CREDENTIAL, EXTERNAL_LOCATION, FUNCTION, SHARE, PROVIDER, RECIPIENT, CLEAN_ROOM, METASTORE, PIPELINE, VOLUME, CONNECTION, CREDENTIAL, EXTERNAL_METADATA, STAGING_TABLE. The doc is misleading by selective enumeration — implies the field is only for three securable types.
-- **Category:** 6 (misleading doc on a name-bearing field).
-- **Suggested name:** Keep field name; fix doc to say "The full name of the securable, e.g. `catalog.schema.table` for a table, `catalog.schema.view` for a view, etc."
-- **Rationale:** Name itself is fine; the documentation undermines the field's apparent applicability.
-
-### 4. `AccessRequestDestinations.securableType` and `fullName` duplicate `securable.type` and `securable.fullName` — `model.ts:54-73`
+### 3. `AccessRequestDestinations.securableType` and `fullName` duplicate `securable.type` and `securable.fullName` — `model.ts:54-73`
 - **Why weird:** `AccessRequestDestinations` has both:
   - `securable?: Securable` (which has `type` and `fullName`), and
   - top-level `securableType?: string` and `fullName?: string`.
@@ -45,7 +39,7 @@
 - **Suggested name:** Drop `securableType` and `fullName` from `AccessRequestDestinations` for non-Terraform callers; expose them under a `terraformShim` namespace if needed, or model with `Pick`/conditional types. Wire stays unchanged.
 - **Rationale:** Two-field duplication invites bugs (a caller might set one and not the other). The "necessary for Terraform integration" rationale is exactly the kind of generator artefact that should not surface here.
 
-### 5. `GetAccessRequestDestinationsRequest.securableType` typed as `string` — `model.ts:121-126`
+### 4. `GetAccessRequestDestinationsRequest.securableType` typed as `string` — `model.ts:121-126`
 - **Why weird:** The request type for `getAccessRequestDestinations` has `securableType?: string`, but the response type `AccessRequestDestinations` has `securable?: { type?: SecurableType }` — a typed enum. So the request is untyped string, while the response is enum. A caller writing `req.securableType = 'catalogue'` (typo or wrong case) gets no compile-time error.
 - **Category:** 16 (field type contradicts domain — should be `SecurableType`), 6 (misleading — looks like free text but server demands an enum value).
 - **Suggested name:** Keep name, change type to `SecurableType`.
@@ -53,67 +47,55 @@
 
 ## Medium severity
 
-### 6. Type name `AccessRequestDestinations` is plural — but represents ONE securable's destinations — `model.ts:54-73`
+### 5. Type name `AccessRequestDestinations` is plural — but represents ONE securable's destinations — `model.ts:54-73`
 - **Why weird:** The type is plural (`Destinations`) but each instance describes the destinations *for one securable* (`securable?: Securable`, singular). The plural belongs only to the inner `destinations?: NotificationDestination[]` array. Compare: `AccessRequestDestination` (singular) would describe one route; `AccessRequestDestinations` (plural) implies multiple route configs. The current name is the latter but holds the former.
 - **Category:** 9 (singular/plural mismatch).
 - **Suggested name:** `AccessRequestRouting` or `AccessRequestDestinationConfig` (singular) — captures "the routing configuration for one securable".
 - **Rationale:** The pluralization is for the inner array, not the outer concept. Today the type-name reader gets the wrong mental model.
 
-### 7. `BatchCreateAccessRequestsRequest` / `BatchCreateAccessRequestsResponse` — `model.ts:75,85`
+### 6. `BatchCreateAccessRequestsRequest` / `BatchCreateAccessRequestsResponse` — `model.ts:75,85`
 - **Why weird:** Verbose type names (32 / 33 chars). `Batch` + `Create` + `AccessRequests` + `Request`/`Response`. Also: `Batch` prefix is the *only* signal that the endpoint accepts an array — but the client method is just `batchCreateAccessRequests`, and the field inside is `requests?: CreateAccessRequest[]`. Three levels of "batchness".
 - **Category:** 7 (overly verbose), 8 (redundant suffix `Request`).
 - **Suggested name:** `CreateAccessRequestsRequest` (drop `Batch`; the plural already implies batching). Or even better: `CreateAccessRequestsInput` / `CreateAccessRequestsOutput`. Pair with method `createAccessRequests`.
 - **Rationale:** `Batch` doubles as marketing copy ("look, batched!") rather than naming. TS plural-`s` already says "multiple".
 
-### 8. `CreateAccessRequest.securablePermissions` is array but bare `securable` siblings are singular — `model.ts:111`
+### 7. `CreateAccessRequest.securablePermissions` is array but bare `securable` siblings are singular — `model.ts:111`
 - **Why weird:** `CreateAccessRequest` has `securablePermissions?: SecurablePermissions[]` (plural array, type `SecurablePermissions` itself plural). `SecurablePermissions` holds `securable: Securable` (singular) and `permissions: string[]` (plural). So `request.securablePermissions[0].securable` reads as "the singular securable inside the plural securable-permissions". The type name `SecurablePermissions` doesn't say "pairs of securable + permissions list".
 - **Category:** 9 (singular/plural mismatch), 1 (vague — what does `SecurablePermissions` model?).
 - **Suggested name:** `SecurablePermissionRequest` (singular type, describes one securable plus the permissions being requested on it). Field becomes `securablePermissionRequests?: SecurablePermissionRequest[]` — long but readable.
 - **Rationale:** The type-name pluralization is hiding what the type actually models (one securable + a permissions list).
 
-### 9. `NotificationDestination.specialDestination` overloads with `destinationType` — `model.ts:136-142`
+### 8. `NotificationDestination.specialDestination` overloads with `destinationType` — `model.ts:136-142`
 - **Why weird:** A single `NotificationDestination` has both `destinationType?: DestinationType` and `specialDestination?: SpecialDestination`. The doc says `specialDestination`'s `destination_type` is "always EMAIL". So we have two enums that *cannot both be expressive at once* — if `specialDestination` is set, `destinationType` is constrained to `EMAIL`. The type system doesn't enforce this.
 - **Category:** 12 (duplicate concept — two enums encode overlapping info), 6 (misleading — looks like independent fields).
 - **Suggested name:** Either (a) collapse: extend `DestinationType` with new members and drop `SpecialDestination`; or (b) model as a discriminated union: `{ kind: 'normal'; destinationType, destinationId } | { kind: 'special'; specialDestination }`.
 - **Rationale:** Two parallel enums for a constrained relationship is exactly the kind of latent-bug field name pair that a strict type system can prevent.
 
-### 10. `Principal.id` is bare `id` — but holds either user, group, or service principal ID — `model.ts:145-149`
+### 9. `Principal.id` is bare `id` — but holds either user, group, or service principal ID — `model.ts:145-149`
 - **Why weird:** Field `id` is documented as "<Databricks> user, group or service principal ID". Which of the three it is depends on the sibling `principalType` enum. Without `principalType`, the `id` is meaningless. Combined: `{ id: '123', principalType: 'USER_PRINCIPAL' }`. The shape is fine, but the bare `id` doesn't communicate "the meaning depends on `principalType`".
 - **Category:** 19 (underspecified ID), 1 (vague).
 - **Suggested name:** Keep `id` paired with `principalType`, OR (more aggressive) make the type a discriminated union: `{ kind: 'user'; userId: string } | { kind: 'group'; groupId: string } | { kind: 'service'; servicePrincipalId: string }`.
 - **Rationale:** Tagged unions express the constraint at the type level. The current shape is a Go-port idiom.
 
-### 11. `SecurableType.STAGING_TABLE` and inline TODO — `model.ts:41-42`
+### 10. `SecurableType.STAGING_TABLE` and inline TODO — `model.ts:41-42`
 - **Why weird:** Enum value pinned by inline TODO: `/** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */`. The TODO leaks an internal JIRA ticket (`UC-2980`) and the typo "full-fleged" into the public SDK surface. The presence of the value tells callers it works; the comment tells them it doesn't.
 - **Category:** 18 (questionable enum value).
 - **Suggested name:** Either hide until promotion (`@experimental`), or remove the inline TODO and document the constraint in the doc-comment proper.
 - **Rationale:** Public SDK enums shouldn't carry internal JIRA references. Same pattern as `connections#29` and `dataclassification`.
 
-### 12. `SecurableType.EXTERNAL_METADATA` lacks doc — `model.ts:40`
-- **Why weird:** `EXTERNAL_METADATA` is undocumented. Neighbouring `STAGING_TABLE` carries a TODO/comment, but `EXTERNAL_METADATA` doesn't even say what it is. Unity Catalog has `externalmetadata` as its own package (`packages/externalmetadata/`), but this RFA enum member exists in isolation.
-- **Category:** 1 (vague; no doc disambiguating).
-- **Suggested name:** Keep name; add doc comment.
-- **Rationale:** Naming OK, but undocumented enum members in a 17-element enum mean readers must cross-reference to other packages.
-
-### 13. `Principal` is exported but `principalType` field has no doc — `model.ts:148`
-- **Why weird:** `principalType?: PrincipalType | undefined` has no JSDoc. Sibling `id` has a doc. The PrincipalType enum has only an `_UNSPECIFIED` sentinel + three values, none of which clarify when each applies. Caller has to guess by inspecting the IAM service.
-- **Category:** 1 (vague).
-- **Suggested name:** Keep name; add doc.
-- **Rationale:** Mechanical.
-
-### 14. `SecurablePermissions.permissions: string[]` — `model.ts:173-178`
+### 11. `SecurablePermissions.permissions: string[]` — `model.ts:173-178`
 - **Why weird:** `permissions` is `string[]` rather than an enum. Doc says "List of requested Unity Catalog permissions" — UC permissions are a known closed set (`SELECT`, `MODIFY`, `USAGE`, `READ_VOLUME`, etc.), so this should be a typed enum or branded string. Bare `string[]` loses any compile-time guard against typos.
 - **Category:** 16 (field type contradicts domain — should be enum or branded string).
 - **Suggested name:** Keep name; type as `UnityCatalogPermission[]` (new enum). Or document the closed set inline.
-- **Rationale:** Same problem as #5. The wire is string, but TS could narrow it.
+- **Rationale:** Same problem as #4. The wire is string, but TS could narrow it.
 
-### 15. Method `batchCreateAccessRequests` on `Client` — `client.ts:74`
+### 12. Method `batchCreateAccessRequests` on `Client` — `client.ts:74`
 - **Why weird:** Method name redundantly carries `batch` even though it's the only create method. There's no non-batched alternative. The `batch` prefix is descriptive of the request body shape (an array), not a distinct API mode.
 - **Category:** 7 (overly verbose), 17 (action verb inconsistency — sibling methods are `getAccessRequestDestinations`/`updateAccessRequestDestinations` with no analogous prefix).
 - **Suggested name:** `createAccessRequests` (the plural already conveys batch semantics).
 - **Rationale:** The "batch" prefix is API-design vocabulary leaking into the SDK surface. If the only way to create is batched, the prefix carries zero information.
 
-### 16. Three Client methods, three different domain entity names — `client.ts:74,113,147`
+### 13. Three Client methods, three different domain entity names — `client.ts:74,113,147`
 - **Why weird:** `Client.batchCreateAccessRequests` works on `requests`. `Client.getAccessRequestDestinations` works on `destinations`. `Client.updateAccessRequestDestinations` works on `destinations`. The first method creates *requests*; the other two manage *destinations*. The class has two distinct subdomains (request creation, destination routing) fused into one client surface with no separation.
 - **Category:** 17 (action verb inconsistency across cohesion boundary), 12 (duplicate concepts — two separate resources blended).
 - **Suggested name:** Split into two clients: `AccessRequestClient` (create) and `AccessRequestDestinationsClient` (get/update). Or rename `batchCreateAccessRequests` → `createRequests` (singular noun "request" in the URL `/api/3.0/rfa/requests`).
@@ -121,74 +103,20 @@
 
 ## Low severity
 
-### 17. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
-- **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site.
-- **Category:** 1 (vague), 17.
-- **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
-- **Rationale:** Same as `connections#40`.
-
-### 18. `HttpCallOptions` — `utils.ts:15`
-- **Why weird:** Yet another `Options` suffix; the file imports `Options` from `@databricks/sdk-core/api` and `CallOptions` from `@databricks/sdk-options/call`. Three `Options` types in scope. `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
-- **Category:** 1 (vague suffix).
-- **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
-- **Rationale:** Same as `connections#41`.
-
-### 19. `readAll` — `utils.ts:40`
-- **Why weird:** Internal helper name is generic; clashes cognitively with `Array.prototype` / stream utilities.
-- **Category:** 1 (vague).
-- **Suggested name:** `readStreamToEnd` / `drainStream`.
-- **Rationale:** Same as `connections#38`.
-
-### 20. `flattenQueryParams` — `utils.ts:123`
-- **Why weird:** Exported but unused in this package (`client.ts` builds query strings inline with `URLSearchParams.append`). Dead-looking export.
-- **Category:** Observation / 11 (unused public helper).
-- **Suggested name:** Remove from utils if it's a generator default.
-- **Rationale:** Generator emits the same helper into every package even when unused. Same as `connections#37`.
-
-### 21. `PACKAGE_SEGMENT` constant — `client.ts:35`
-- **Why weird:** `Segment` is a generic word; without the comment the constant doesn't communicate User-Agent identity.
-- **Category:** 1 (vague), 15 (generic name).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
-- **Rationale:** Same as `connections#36`.
-
-### 22. `Client` class — `client.ts:40`
+### 14. `Client` class — `client.ts:40`
 - **Why weird:** Top-level class literally named `Client`. Re-exported through `index.ts` as just `Client`. Two RFA packages co-existing in user code would clash on import (`import {Client} from '@databricks/sdk-rfa/v1'` vs `import {Client} from '@databricks/sdk-accounts/v1'`).
 - **Category:** 1 (vague).
 - **Suggested name:** `RfaClient` or `AccessRequestClient` (better — see #1).
 - **Rationale:** Same finding as `dataclassification`. Recurs across all generated packages.
 
-### 23. `buildHttpRequest` parameter list — `utils.ts:96-102`
-- **Why weird:** Five positional parameters (`method`, `url`, `headers`, `signal`, `body`) with the optional ones at the end. The function name `buildHttpRequest` doesn't communicate the parameter order; callers in `client.ts:87,122,166` pass them positionally. Easy to confuse `signal` and `body` (both optional, both at the end).
-- **Category:** 1 (vague — five-positional builder).
-- **Suggested name:** Keep name; accept a single options object `{ method, url, headers, signal?, body? }`.
-- **Rationale:** Five-positional builders without object syntax are an anti-pattern in modern TS.
-
-### 24. Loose typing for `executeCall(call, options)` `Options` field copying — `utils.ts:30-37`
-- **Why weird:** The `Options` shape is built with a series of `...(options?.foo !== undefined && {foo: options.foo})` spreads. The pattern is a TS-idiom for conditional spread of optional fields. Naming-wise: the local `opts` variable is intentionally one letter shorter than `options` to disambiguate — but the shadowing convention isn't documented.
-- **Category:** Observation.
-- **Suggested name:** Rename inner `opts` → `internalOptions` (or the outer parameter to `callOptions`).
-- **Rationale:** Mechanical.
-
 ## Observations
 
-### 25. `index.ts` is exhaustive but doesn't re-export schemas — `index.ts:1-24`
-The index file exports the `Client`, all four enums, and all nine model interfaces (`AccessRequestDestinations`, `BatchCreateAccessRequestsRequest`, `BatchCreateAccessRequestsResponse`, `CreateAccessRequest`, `CreateAccessRequestResponse`, `GetAccessRequestDestinationsRequest`, `NotificationDestination`, `Principal`, `Securable`, `SecurablePermissions`, `UpdateAccessRequestDestinationsRequest`). It does *not* export the `marshal*`/`unmarshal*` schemas or the `accessRequestDestinationsFieldMask` helper. Consistent with the other packages but means the field-mask helper isn't available to consumers.
-- **Category:** Observation.
-
-### 26. Comment-tag inconsistency — `client.ts:78,117,151` vs URL
+### 15. Comment-tag inconsistency — `client.ts:78,117,151` vs URL
 The URL constant `/api/3.0/rfa/...` (lower-case "rfa") is the only place the package name appears outside of imports — the entire SDK surface otherwise uses spelled-out names. Suggests the API itself owns the `rfa` shortname and the SDK is mechanically reflecting it. Worth confirming with the API team whether the URL prefix is intended to stay `/rfa/` or migrate to `/access-requests/`.
 - **Category:** Observation.
 
-### 27. No tests in the package
-`package.json` line 24-25: `"test": "echo 'no tests'"`, `"test:browser": "echo 'no tests'"`. The package ships untested. Not a naming issue, but cross-package noise — same as several other newly generated packages.
-- **Category:** Observation.
-
-### 28. Action-verb conventions on `Client`
-`batchCreateAccessRequests`, `getAccessRequestDestinations`, `updateAccessRequestDestinations` — three different verbs across two resources. Verbs themselves match REST convention (`create`/`get`/`update`); the naming inconsistency is that the verb's target switches mid-class (see #16).
-- **Category:** Observation.
-
-### 29. `package.json` description is empty string — `package.json:4`
-`"description": ""`. The npm package has no public description string. Combined with the cryptic `rfa` name (see #1), this leaves users with no metadata to identify the package's purpose when browsing npm.
+### 16. Action-verb conventions on `Client`
+`batchCreateAccessRequests`, `getAccessRequestDestinations`, `updateAccessRequestDestinations` — three different verbs across two resources. Verbs themselves match REST convention (`create`/`get`/`update`); the naming inconsistency is that the verb's target switches mid-class (see #13).
 - **Category:** Observation.
 
 ## Domain glossary
@@ -202,7 +130,7 @@ The URL constant `/api/3.0/rfa/...` (lower-case "rfa") is the only place the pac
 - **`Principal`** — Unity Catalog/IAM term for "an entity that can hold permissions": a user, a group, or a service principal. The `PrincipalType` enum disambiguates which kind. Used here as the "on behalf of" actor in `CreateAccessRequest`.
 - **`SpecialDestination`** — five enum members denoting "the owner of the metastore/catalog/external-location/connection/credential" as an implicit email destination. These cannot be assigned; they're a default fallback.
 - **`FieldMask`** — Google protobuf convention (re-used in Databricks API) for sparse-field updates in PATCH semantics. `accessRequestDestinationsFieldMask(...)` builds the wire-format paths.
-- Inferred but not in source: **`Terraform integration`** — appears in `AccessRequestDestinations.securableType` doc, suggests the redundant string fields exist because the Terraform provider can't read nested struct field types (see finding #4).
+- Inferred but not in source: **`Terraform integration`** — appears in `AccessRequestDestinations.securableType` doc, suggests the redundant string fields exist because the Terraform provider can't read nested struct field types (see finding #3).
 
 ## File coverage
 - `src/v1/model.ts` (385 lines): read fully.

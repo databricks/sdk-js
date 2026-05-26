@@ -3,15 +3,15 @@
 **Path:** `packages/modelserving/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Model Serving control plane — CRUD over "serving endpoints" (a.k.a. "inference endpoints"), plus a parallel provisioned-throughput (PT) variant, plus side-channel updates for AI Gateway, rate limits, tags, notifications, OpenAPI schema fetch, served-model logs (service + build), endpoint metrics export, and an out-of-band UC-connection-backed HTTP proxy (`httpRequest` / `ExternalFunction*`). Created by the 2026-05-22 regeneration which consolidated the prior `modelservingdebug` and `modelservingmanagement` packages into one. Sibling package: `modelservingquery` (data-plane inference). The wire URL prefix is `/api/2.0/serving-endpoints`; the docs say "serving endpoint"; the TS types say `InferenceEndpoint`.
-**Total weird names flagged:** 33
+**Total weird names flagged:** 28
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
 | Medium | 12 |
-| Low | 9 |
-| Observation | 4 |
+| Low | 6 |
+| Observation | 2 |
 
 ## High severity
 
@@ -199,39 +199,21 @@
 - **Suggested name:** Type as a string-literal union or, at minimum, document the accepted values in JSDoc.
 - **Rationale:** Same class as #22/#23.
 
-### 25. `StillRunningError extends Error` private throw-away — `src/v1/client.ts:80`
-- **Why weird:** Internal marker error class. Name is fine (`StillRunningError` reads as "operation still running, not done yet"), but the class is never exported, never caught outside the four waiters, and is used purely as a retry signal. Compare to other packages where this is named `RetryableError` or `PollAgainError`. The name "StillRunning" implies a polling lifecycle rather than a retry signal.
-- **Category:** 1 (vague), 17 (inconsistent with sibling SDK packages).
-- **Suggested name:** `RetrySignal` (it is an internal control-flow signal, not a real error).
-- **Rationale:** Minor; internal.
-
-### 26. `ExportMetricsResponse` is generic "metrics" not "endpoint metrics" — `src/v1/model.ts:425-436`, `src/v1/client.ts:216-219`
+### 25. `ExportMetricsResponse` is generic "metrics" not "endpoint metrics" — `src/v1/model.ts:425-436`, `src/v1/client.ts:216-219`
 - **Why weird:** The method `getExportEndpointMetrics` returns `ExportMetricsResponse` — the type name dropped the `Endpoint` qualifier present in the method name. A reader greping for `EndpointMetrics` won't find the response type. Same shape (`contents?: ReadableStream`) as `ExternalFunctionResponse` and `GetOpenApiResponse`; the *content* is the only thing that says "metrics".
 - **Category:** 17 (inconsistent — method qualifier dropped from response type), 1 (vague — `ExportMetricsResponse` could be metrics for anything).
 - **Suggested name:** Pair the method rename in #8 with a response rename: `getEndpointMetrics()` → `EndpointMetrics`. Or `exportEndpointMetrics()` → `ExportEndpointMetricsResponse`.
 - **Rationale:** Symmetry between method and return type aids IDE autocomplete and grep-ability.
 
-### 27. `Get*` prefix on every read method — `src/v1/client.ts:216, 243, 268, 295, 323`
+### 26. `Get*` prefix on every read method — `src/v1/client.ts:216, 243, 268, 295, 323`
 - **Why weird:** Every read method here is prefixed `get*`. The `Get*` verb prefix on TS methods is a Go/Java/.NET pattern; in TS, a noun method `endpointMetrics()` or `metrics()` is more idiomatic for read operations (cf. `URL.searchParams`, `Response.json()`). Where TS does use `get*`, it's typically on synchronous accessors.
 - **Category:** 14 (Go/Java-style names).
 - **Suggested name:** Verb-first for actions: `exportMetrics(req)`, `fetchServedModelLogs(req)`, `fetchServedModelBuildLogs(req)`. Or property-style if the request is trivial.
 - **Rationale:** Google TS Style Guide § Names of functions (https://google.github.io/styleguide/tsguide.html#methods) prefers imperative verbs, but does not mandate `get*` for retrievals. SDK-wide call, flag for project review.
 
-### 28. `Call` type aliased to `Promise<void>` in `utils.ts` import — `src/v1/utils.ts:3`
-- **Why weird:** `Call` is one of the most generic names imaginable. Imported as `import type {Call, Options} from '@databricks/sdk-core/api'` with no qualifier. Inside the client `const call: Call = async ...` reads like "a phone call" or "function call". The actual semantic is "a retriable RPC closure".
-- **Category:** 1 (vague).
-- **Suggested name:** `RetriableRpc` or `RpcClosure`. Cross-package decision because `Call` is defined in `@databricks/sdk-core/api`.
-- **Rationale:** Type names exported from a "core" package set the vocabulary for every consumer; bare `Call` is the kind of name that survives review only because nobody wants to argue with the framework.
-
-### 29. `Options` type aliased to internal options shape — `src/v1/utils.ts:3, 30`
-- **Why weird:** Same as #28 but for `Options`. `Options` is generic to the point of meaninglessness. The translation step in `executeCall` exists *because* the public `CallOptions` and the internal `Options` are two different "options" types that happen to have similar fields.
-- **Category:** 1 (vague), 12 (duplicate concept — `Options` vs `CallOptions`).
-- **Suggested name:** `ExecuteCallInternalOptions` (verbose but honest) or `RetrierOptions`. Cross-package decision.
-- **Rationale:** Two adjacent "Options" types in 35 lines of code is the classic accidental-collision pattern.
-
 ## Observation
 
-### 30. Mixed naming convention for the same product across sibling packages
+### 27. Mixed naming convention for the same product across sibling packages
 The Databricks "Serving Endpoints" product spans two packages in this SDK after the 2026-05-22 consolidation:
 - `modelserving`: types use `InferenceEndpoint*` (control plane).
 - `modelservingquery`: types use `Endpoint` (data plane — e.g., `QueryEndpointInput`, `QueryEndpointResponse`).
@@ -239,17 +221,9 @@ The Databricks "Serving Endpoints" product spans two packages in this SDK after 
 The wire uniformly uses `serving-endpoints`. SDK consumers chaining both packages will see different names for one concept.
 - **Category:** 17 (cross-package inconsistency).
 
-### 31. `ExternalModel.config` discriminated union with nine variants — `src/v1/model.ts:460-506`
+### 28. `ExternalModel.config` discriminated union with nine variants — `src/v1/model.ts:460-506`
 Nine `$case` variants, no exhaustiveness check at the type level. If a tenth provider is added, the discriminated union types it correctly, but the cascade (lines 1346-1387) is hand-rolled and will silently miss the new case. The names of the discriminator keys also vary in casing relative to the type names. This is a maintenance smell, not strictly a naming bug — but the *uniformity* of the names (`<provider>Config`) gives a false sense of "this is a clean enum" when it is actually a tower of `if-else`.
 - **Category:** 12 (duplicate concept).
-
-### 32. `userAgent` is built once in the constructor and never refreshed — `src/v1/client.ts:89, 103`
-Not a name bug per se, but the field name `userAgent` suggests a dynamic property, while the construction reads `this.userAgent = info.toString();` once at construction time. If the credentials are mutated post-construction (rare but possible), the UA goes stale. Cross-package observation.
-- **Category:** 6 (mildly misleading).
-
-### 33. `info` local var in the constructor — `src/v1/client.ts:97, 99, 103`
-`let info = createDefault().with(PACKAGE_SEGMENT);` then more `info = info.with(...)` chains. The name `info` is category-5 (cryptic abbreviation of "information") and category-1 (vague). A reader who hasn't looked at `createDefault()` does not know `info` is a `ClientInfo`. Cross-package observation.
-- **Category:** 1, 5.
 
 ## Domain glossary
 - `pt` — Provisioned Throughput (a billing/serving model where capacity is pre-allocated). Mixed: spelled out in method names and waiter class names, abbreviated in type names.

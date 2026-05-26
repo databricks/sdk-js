@@ -332,8 +332,6 @@ Observations:
 
 3. **Top-level type pollution.** `TextValue`, `NumericValue`, `EnumValue`, `DateValue`, `DateRange`, `DateRangeValue`, `MultiValuesOptions`, `Visualization` are all unprefixed and exported. A user importing `import { TextValue } from '@databricks/sdk-queries'` gets a generically-named type that competes with their own code.
 
-4. **`utils.ts` is well-named and unchanged.** Exports (`executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`) are domain-neutral and not flagged. `flattenQueryParams` is exported but unused in `client.ts` (orphaned export) — not a naming issue, but worth noting.
-
 ## Domain glossary
 
 | Term | Meaning in this package |

@@ -3,15 +3,15 @@
 **Path:** `packages/usagedashboards/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level CRUD for the Databricks "Billing Usage" dashboard — a workspace-scoped or globally-scoped DBSQL dashboard pre-built by Databricks that visualises account billing/usage data. Two endpoints only: `POST /api/2.0/accounts/{account_id}/dashboard` (create) and `GET /api/2.0/accounts/{account_id}/dashboard` (read). Both return a `dashboardId` (and the read variant also returns a `dashboardUrl`). No update, no delete, no list operation. Two enums (`UsageDashboardMajorVersion`, `UsageDashboardType`).
-**Total weird names flagged:** 19
+**Total weird names flagged:** 11
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 4 |
-| Medium | 6 |
-| Low | 5 |
-| Observation | 4 |
+| Medium | 5 |
+| Low | 0 |
+| Observation | 2 |
 
 ## High severity
 
@@ -71,49 +71,13 @@
 - **Suggested name:** Keep the field name; consider a branded type (`type Url = string & {readonly _urlBrand: unique symbol}`) or `URL` (the WHATWG class). At minimum, make it non-optional on a 2xx response.
 - **Rationale:** SDK-wide concern (every URL field in every package is `string`); flag once per audit. Branded URLs are a TS idiom precisely for this case.
 
-### 10. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:33`
-- **Why weird:** `Segment` is a generic CS term. The comment ("Package identity segment for this client to be used in the User-Agent header") is the disambiguator; without it the constant name does not communicate what it is.
-- **Category:** 1 (vague), 15 (generic field name losing meaning).
-- **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
-- **Rationale:** Cross-package consistency — same finding appears in every audited package. Worth normalising at the generator level.
-
 ## Low severity
 
-### 11. JSDoc on `dashboardType` is duplicated verbatim — `src/v1/model.ts:22, 39`
-- **Why weird:** The exact same multi-sentence JSDoc ("Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account.") appears on `CreateBillingUsageDashboardRequest.dashboardType` (line 22) and `GetBillingUsageDashboardRequest.dashboardType` (line 39). The duplication suggests the underlying enum (`UsageDashboardType`) should carry the doc, not each field.
-- **Category:** Observation — not strictly a name issue but flagged because it implies fragmentation. JSDoc duplication is a generator artefact.
-- **Suggested name:** Move the doc to the `UsageDashboardType` enum (or its members).
-
-### 12. `req` / `resp` / `httpReq` abbreviations — `src/v1/client.ts:69, 74, 77, 81, 101, 114, 118`
-- **Why weird:** Local variables use three-letter abbreviations (`req`, `resp`, `opts`, `httpReq`). The codebase guideline (typescript.mdc § 5) discourages cryptic short abbreviations. Compare with `httpClient` (full word) in the same file.
-- **Category:** 5 (cryptic abbreviation).
-- **Suggested name:** `request`, `response`, `options`, `httpRequest`.
-- **Rationale:** Inexpensive readability win.
-
-### 13. `params` shadowed across files — `src/v1/client.ts:105`
-- **Why weird:** Local `params: URLSearchParams` — fine in isolation, but `flattenQueryParams(prefix, value, params)` in `utils.ts:126` exposes the same `params` name in public API. The repeated use of `params` for both `URLSearchParams` and "named function parameters" is mildly confusing in audit traces.
-- **Category:** 1 (vague).
-- **Suggested name:** `queryParams` / `urlSearchParams`.
-
-### 14. `query` local in `getBillingUsageDashboard` — `src/v1/client.ts:112`
-- **Why weird:** `const query = params.toString();` — the variable is the serialized query *string*, but `query` reads as a query expression/object. Compare with `fullUrl` on the next line (which is clear about what it is).
-- **Category:** 1 (vague), 6 (misleading — name implies a query, value is a string).
-- **Suggested name:** `queryString`.
-
-### 15. `httpClient: HttpClient` field — `src/v1/client.ts:43`
-- **Why weird:** Type-suffix tautology (`httpClient` field of type `HttpClient`). Minor — convention widespread in this SDK.
-- **Category:** 20 (type-suffix tautology).
-- **Suggested name:** `client: HttpClient` — though arguably the longer name disambiguates from the outer `Client` class in the same file.
+_None._
 
 ## Observations
 
-### 16. `flattenQueryParams` exported but unused in this package — `src/v1/utils.ts:123`
-The exported `flattenQueryParams` helper is never called from `client.ts` — the GET method does its own `params.append()` (lines 106-111) inline because there are only two query params. The helper is dead surface area in this package; same finding as `billableusagedownload` audit #11. Worth pruning at the generator level when the consuming methods don't need it.
-
-### 17. `executeHttpCall` and `executeCall` near-duplicate exported names — `src/v1/utils.ts:26, 65`
-Two functions named almost identically, doing very different things: `executeCall` wraps the call in retry/rate-limit semantics, `executeHttpCall` does the raw HTTP send + decode + ApiError check. Both are used in `client.ts:82, 92, 119, 129`. The verb-pair is fine, but the cognitive distance between "wrap with retry options" and "send an HTTP request and check for API errors" is large enough that one name should be different (e.g., `runWithCallOptions` / `sendHttp`). Same finding appears in every audited package's `utils.ts`.
-
-### 18. `BillingUsage` vs `UsageDashboard` noun ordering inconsistency
+### 10. `BillingUsage` vs `UsageDashboard` noun ordering inconsistency
 - The enum names are `UsageDashboardMajorVersion`, `UsageDashboardType` — `Usage` first, no "Billing".
 - The request types are `CreateBillingUsageDashboardRequest` — `Billing` first, with `Usage`.
 - The package is `usagedashboards` — `usage` only, no "billing".
@@ -121,7 +85,7 @@ Two functions named almost identically, doing very different things: `executeCal
 
 Three different name compositions for one domain. A user trying to autocomplete `Billing` will find the request types but not the enums; trying `Usage` finds the enums but the type names appear under `Create...` / `Get...`. The SDK should pick one noun order (e.g., `BillingUsageDashboard*` everywhere, or `UsageDashboard*` everywhere) and stick to it. See also #5.
 
-### 19. The package has no list/page operations
+### 11. The package has no list/page operations
 There is no `ListBillingUsageDashboards`, no `Iterator`, no `nextPageToken`. The package is one-create-one-get only — a very thin API. Audit-rule categories 9 (singular/plural is settled — should be singular, see #1) and 13 (verb tense — no verb tense issues since there is no "Started"/"Starting" parallel) mostly don't apply. The Go SDK source likely has the same shape.
 
 ## Domain glossary

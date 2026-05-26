@@ -16,15 +16,15 @@ the `USER`/`ADMIN` role a principal holds on a workspace
 (d) the `checkPolicy` resource-access policy decision endpoint. Originated
 from `permissions`, `workspaceassignment`, `accountaccesscontrol`, and
 `accountaccesscontrolproxy` during the 2026-05-22 regeneration.
-**Total weird names flagged:** 31
+**Total weird names flagged:** 25
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 7 |
 | Medium | 11 |
-| Low | 9 |
-| Observation | 4 |
+| Low | 4 |
+| Observation | 3 |
 
 The consolidation has eliminated several prior warts (top-level verb-shaped
 request types from `permissions` now carry `Request` suffixes; the
@@ -364,47 +364,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
   most likely correct per Google TS rules.
 - **Rationale:** Defer to global policy.
 
-### 20. `flattenQueryParams` exported but rarely consumed — `src/v1/utils.ts:123`
-- **Why weird:** Used only by `checkPolicy` (`client.ts:536,545,555`).
-  The helper is identical across packages and should live in a shared
-  `@databricks/sdk-core` module rather than be re-emitted per package.
-  Generator-wide concern.
-- **Category:** Effectively internal/redundant export.
-- **Suggested name:** Move to shared core utility module; keep current
-  name.
-- **Rationale:** Generator emits the same helper into every package;
-  consolidation reduces surface.
-
-### 21. `HttpCallOptions` shadows `CallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** The package imports `CallOptions` from
-  `@databricks/sdk-options/call` (line 12) and defines its own
-  `HttpCallOptions` here. The names suggest the latter is a
-  subtype/extension of the former, but they describe different concerns
-  — `CallOptions` is retry/signal/timeout policy; `HttpCallOptions` is
-  request + client + logger bundle.
-- **Category:** Vague suffix; naming-overlap with the public type.
-- **Suggested name:** `HttpCallContext` (it's a context bag, not
-  user-tunable options).
-- **Rationale:** Distinguish internal context bags from user-facing
-  option structs.
-
-### 22. `readAll` is a Go-port utility name — `src/v1/utils.ts:40`
-- **Why weird:** Direct Go-port of `io.ReadAll`; clashes cognitively
-  with `Array.prototype` methods and Web Streams APIs. Generator-wide.
-- **Category:** Vague; Go-port style.
-- **Suggested name:** `readStreamToEnd`, `drainStream`, or
-  `bufferStream`.
-- **Rationale:** Cross-package consistency.
-
-### 23. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:64`
-- **Why weird:** `Segment` is a generic word; the constant carries
-  User-Agent identity but the name communicates nothing. Same wart
-  appears in every generated package.
-- **Category:** Vague; generic name.
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
-- **Rationale:** Cross-package consistency.
-
-### 24. `updateObjectPermissions` uses HTTP PATCH; method name implies replace — `src/v1/client.ts:500,513`
+### 20. `updateObjectPermissions` uses HTTP PATCH; method name implies replace — `src/v1/client.ts:500,513`
 - **Why weird:** Method `updateObjectPermissions` issues HTTP `PATCH`
   (line 513). The request type `UpdateObjectPermissionsRequest` is
   symmetric in name to `SetObjectPermissionsRequest` (PUT) — but the
@@ -416,18 +376,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Method verbs should hint at HTTP semantics; `set` vs
   `update` is ambiguous when both exist on the same resource.
 
-### 25. `permissionassignments` URL fragment is one word — `src/v1/client.ts:103,131,159,187`
-- **Why weird:** REST path uses `/permissionassignments/` (no
-  separator), while every other Databricks REST resource in this SDK
-  uses hyphenated paths (`/clean-rooms`, `/external-locations`, etc.).
-  Wire-format problem, not TS naming, but spills into the visual feel
-  of the client URLs.
-- **Category:** Casing/separator inconsistency (wire side).
-- **Suggested name:** Upstream: `permission-assignments`. Not actionable
-  in this package.
-- **Rationale:** Cross-API consistency.
-
-### 26. `getWorkspacePermissionAssignments` returns a list — `src/v1/client.ts:127`
+### 21. `getWorkspacePermissionAssignments` returns a list — `src/v1/client.ts:127`
 - **Why weird:** Method is named with `get*` but returns
   `permissionAssignments` array (model.ts:213). REST convention is
   `list*` for array-returning operations; `get*` for singular.
@@ -438,7 +387,7 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 - **Rationale:** Aligns naming with REST list semantics used elsewhere
   in the SDK.
 
-### 27. `listWorkspacePermissions` returns a static catalog — `src/v1/client.ts:155`
+### 22. `listWorkspacePermissions` returns a static catalog — `src/v1/client.ts:155`
 - **Why weird:** Method `listWorkspacePermissions` returns the
   catalog of `PermissionOutput` values supported (USER/ADMIN), not
   user data. Sits side-by-side with `getWorkspacePermissionAssignments`
@@ -453,28 +402,21 @@ enum (per-object permissions) sits alongside the `WorkspacePermission` enum
 
 ## Observations
 
-### O1. URL path interpolation is unencoded — `src/v1/client.ts:103,131,159,187,222,259,296,333,370,399,425,450,478,504`
-- All URL path placeholders interpolate `${req.accountId ?? ''}`,
-  `${String(req.workspaceId ?? '')}`, etc. directly into URLs without
-  `encodeURIComponent`. A malicious or weird `accountId` allows path
-  injection. Sibling packages use the same pattern, so it's
-  project-wide. Not a naming finding strictly, caught in passing.
-
-### O2. `workspaceId` and `principalId` typed as `number` — `src/v1/model.ts:126,128,207,235,287,366,368`
+### O1. `workspaceId` and `principalId` typed as `number` — `src/v1/model.ts:126,128,207,235,287,366,368`
 - Workspace IDs and principal IDs are 64-bit integers in
   Databricks; JS `number` loses precision above 2^53. The client also
   unconditionally `String()`s these into URL paths, so string semantics
   are sufficient throughout. Worth flagging cross-package: bigint or
   string would be safer.
 
-### O3. `error?: string` on `WorkspacePermissionAssignmentOutput` — `src/v1/model.ts:389`
+### O2. `error?: string` on `WorkspacePermissionAssignmentOutput` — `src/v1/model.ts:389`
 - Embedding an opaque error string inside the success response body is
   unusual; typical SDK design surfaces errors as exceptions or as a
   typed error union. The field is named `error` (clashing with the
   global `Error` class and the `catch(error)` parameter name).
   `errorMessage` or `partialFailureReason` would be clearer.
 
-### O4. Single class composes four formerly-distinct services — `src/v1/client.ts:69`
+### O3. Single class composes four formerly-distinct services — `src/v1/client.ts:69`
 - The `Client` class composes 12 methods that previously lived across
   four packages. Three operational clusters
   (workspace-object-permissions, account-level rule sets,

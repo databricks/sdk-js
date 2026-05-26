@@ -3,14 +3,14 @@
 **Path:** `packages/externallineage/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** External Lineage relationships on Unity Catalog — create / update / delete / list typed relationships between Databricks objects (tables, paths, model versions) and external metadata objects (e.g., Tableau dashboards, Looker views), plus optional per-column relationships.
-**Total weird names flagged:** 17
+**Total weird names flagged:** 9
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 4 |
-| Medium | 5 |
-| Low | 7 |
+| Medium | 1 |
+| Low | 3 |
 | Observation | 1 |
 
 ## High severity
@@ -47,77 +47,29 @@
 - **Suggested name:** `ExternalLineageClient` (matches the package name and avoids collisions).
 - **Rationale:** A user doing `import {Client} from '@databricks/sdk-externallineage'` and `import {Client} from '@databricks/sdk-externalmetadata'` cannot, and must rename. Sister packages share the problem; treat as generator-wide.
 
-### 6. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26, 65`
-- **Why weird:** Two functions named "execute" — one runs the retry/rate-limit shell, the other does the actual HTTP request. The names do not communicate the layering. Inside each client method, `executeHttpCall` is wrapped in `call`, then `executeCall(call, options)` runs it. The reader has to read the bodies to figure out who calls whom.
-- **Category:** 1 (vague), 12 (duplicate concept — both are "execute"), 17 (inconsistent layering name).
-- **Suggested name:** `runWithRetry(call, options)` (outer) and `sendHttpRequest(opts)` (inner). Or `executeWithPolicies` + `executeHttpRequest`.
-- **Rationale:** The current names hide the fact that one wraps the other. Layer names should make the call graph obvious.
-
-### 7. `buildHttpRequest` returns `HttpRequest` — `src/v1/utils.ts:96`
-- **Why weird:** A pure object-literal-with-optional-fields helper named "build" suggests something more elaborate (e.g., builder pattern). The function just spreads optional fields into a struct.
-- **Category:** 1 (vague), 6 (misleading — implies builder pattern, is just an object literal).
-- **Suggested name:** `makeHttpRequest` or inline at the call sites.
-- **Rationale:** "Build" carries connotations from Java/JS Builder patterns; this is a one-liner.
-
-### 8. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** Type called `Options` but it is an internal context bag (request + http client + logger), not user-tunable options. The user-facing options type is `CallOptions` (different file). Mixing "options" for two different concepts is confusing.
-- **Category:** 1 (vague suffix `Options`), 8 (redundant suffix — internal context bags should not be called `Options`).
-- **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
-- **Rationale:** Reserve `Options` for things callers tune; use `Context`/`Args` for the internal bag.
-
-### 9. `flattenQueryParams` — `src/v1/utils.ts:123`
-- **Why weird:** Function recurses into objects and arrays to flatten them into URL-search-parameter dot-notation form. The "arrays of objects are not yet supported" comment shows the implementation is partial. The name says "flatten" but the function in fact *recurses* and *appends* to a `URLSearchParams` instance — it does not return a flat structure.
-- **Category:** 1 (vague — "flatten" doesn't say "append to URLSearchParams"), 6 (misleading — looks pure, mutates a parameter), 17 (verb inconsistency — name says "flatten" but action is "append").
-- **Suggested name:** `appendDotPathParams` or `serializeQueryDotPath`.
-- **Rationale:** A function that mutates its third argument should not be named after the value it returns (`flatten` reads as a pure transform). Generator-wide concern (every package duplicates this helper).
-
 ## Low severity
 
-### 10. `LineageModelVersionInfo.modelName` vs `version` — `src/v1/model.ts:191, 193`
+### 6. `LineageModelVersionInfo.modelName` vs `version` — `src/v1/model.ts:191, 193`
 - **Why weird:** Type carries `modelName` (string) and `version` (number). The `version` is described as "Version number of the model" — but the related type `ExternalLineageRelationshipModelVersion` uses `version: string`. Same concept, two types: `number` in the response, `string` on the relationship side.
 - **Category:** 16 (field contradicting type domain — `version` is `number` here, `string` elsewhere), 17 (inconsistent type for the same concept).
 - **Suggested name:** Pick one type and stick to it. (Likely `string` because UC model versions can be e.g. `"1"`, `"prod"`, `"latest"`.)
 - **Rationale:** Type drift on the same field across types implies one of them is wrong on the wire.
 
-### 11. `LineageFileInfo.securableName`, `securableType`, `storageLocation` — `src/v1/model.ts:179-183`
+### 7. `LineageFileInfo.securableName`, `securableType`, `storageLocation` — `src/v1/model.ts:179-183`
 - **Why weird:** Type is `LineageFileInfo` but three of its four data-bearing fields are about a *securable* (which the JSDoc says lives "on the path"). The type is mostly about the securable, not the file. The fourth field is `path: string` ("URL of the path"); reread: URL of the path. Three fields named with `securable*` on a type called `*FileInfo` looks like the type name was chosen too early.
 - **Category:** 6 (misleading type name — `FileInfo` advertises "info about a file" but it's "info about a securable on a file"), 15 (generic `path` field doing structured work).
 - **Suggested name:** `LineageFileSecurableInfo`, or rename the fields to drop `securable` if the file aspect is meant to dominate. Also expand the `path` JSDoc — "URL of the path" is circular.
 - **Rationale:** Type name should reflect the dominant content; current name is misleading.
 
-### 12. `eventTime` repeated on four sibling types — `src/v1/model.ts:171, 185, 195, 207`
+### 8. `eventTime` repeated on four sibling types — `src/v1/model.ts:171, 185, 195, 207`
 - **Why weird:** Every `Lineage*Info` type carries `eventTime?: Temporal.Instant` with identical JSDoc "Timestamp of the lineage event." This is fine for parallelism, but the field is *also* not present on `ExternalLineageRelationship` (the actual edge metadata) — only on the node-side `Info` types. A reader expects the edge to carry the event time.
 - **Category:** 12 (duplicate concept — four identical fields), 6 (misleading — the edge type *lacks* the event time, an asymmetry the names hide).
 - **Suggested name:** Lift `eventTime` into a shared `LineageNode` base interface if duplication bothers; or document why the edge lacks one.
 - **Rationale:** Four-fold repetition is a generator artefact. The asymmetry against the edge is the hidden bit.
 
-### 13. `req` parameter and `respBody` / `resp` locals — `src/v1/client.ts:72, 80-92, 104, 134-178, 202-235`
-- **Why weird:** Two stages produce `respBody: Uint8Array` then `resp: ExternalLineageRelationship`. The names differ only by `Body`; the reader has to track that one is bytes, one is parsed.
-- **Category:** 5 (cryptic abbreviation), 17 (`respBody` keeps `Body`, `resp` drops the implied `Parsed`).
-- **Suggested name:** `rawBody` + `result` (or `parsedResponse`).
-- **Rationale:** Distinguish stages by meaningful nouns, not by suffix differences on the same root.
-
-### 14. `httpReq` local variable — `src/v1/client.ts:84, 123, 162, 220`
-- **Why weird:** Inside a method that already has `req: …Request`, a second variable `httpReq: HttpRequest` shares the same `req` root with a different prefix. Easy to grab the wrong one.
-- **Category:** 5 (cryptic abbreviation), 12 (duplicate concept — two `req`s in the same scope).
-- **Suggested name:** `httpRequest` (no abbreviation) or `wireRequest`.
-- **Rationale:** Avoid forking the same identifier across two layers in the same scope.
-
-### 15. `Call` type and `call` variable — `src/v1/client.ts:81, 120, 159, 217`
-- **Why weird:** Variable named `call` of type `Call` — same word for the variable, type, and the API method semantics. Inside `executeCall(call, options)` the verb-noun collision is jarring.
-- **Category:** 1 (vague), 12 (duplicate concept).
-- **Suggested name:** `runRequest` / `sendRequest` for the variable; reserve `Call` for the type.
-- **Rationale:** Type-name collisions read fine in IDE but obscure prose-style reads.
-
-### 16. `PACKAGE_SEGMENT` — `src/v1/client.ts:40`
-- **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. The comment above does the documentation work the name should.
-- **Category:** 1 (vague — `Segment` of what?).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
-- **Rationale:** Single word "segment" gives no domain. Pair with the comment.
-
 ## Observations
 
-### 17. `ListExternalLineageRelationshipsResponse.externalLineageRelationships` field name
+### 9. `ListExternalLineageRelationshipsResponse.externalLineageRelationships` field name
 The response wraps an array under the field `externalLineageRelationships` (35 characters). The type of that array is `ExternalLineageInfo[]` — *not* `ExternalLineageRelationship[]`. So a field named `externalLineageRelationships` is actually a list of `ExternalLineageInfo`. This is the same Info/Relationship muddle from #3.
 - **Category:** 6 (misleading — field name promises one type, returns another), 12 (duplicate concept).
 
@@ -125,7 +77,7 @@ The response wraps an array under the field `externalLineageRelationships` (35 c
 - `External Lineage` — relationships connecting Databricks (UC) data assets to non-Databricks systems (Tableau dashboards, Looker views, Power BI reports, BigQuery tables, etc.). The "edge" is `ExternalLineageRelationship`.
 - `UC` / Unity Catalog — the governance layer that owns the source/target objects on the Databricks side (tables, paths, model versions).
 - `Securable` — UC concept for any governed object; see `LineageFileInfo.securableType`/`securableName`. Not surfaced as its own type in this package.
-- `Model Version` — MLflow registered-model version, identified by `(modelName, version)` pair. Note the type-drift between `number` (in `LineageModelVersionInfo`) and `string` (in `ExternalLineageRelationshipModelVersion`) — see #10.
+- `Model Version` — MLflow registered-model version, identified by `(modelName, version)` pair. Note the type-drift between `number` (in `LineageModelVersionInfo`) and `string` (in `ExternalLineageRelationshipModelVersion`) — see #6.
 - `External Metadata` — sister package `externalmetadata`. The edge type here references it by name only (`ExternalLineageRelationshipExternalMetadata.name`).
 - `wkt` — Well-Known Types (import `@databricks/sdk-core/wkt`, used for `FieldMask`).
 - `wire` — JSON-on-the-wire representation; `marshal`/`unmarshal` schemas translate between TS camelCase and wire snake_case.

@@ -3,7 +3,7 @@
 **Path:** `packages/marketplaces/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Marketplace — provider-side and exchange-side operations for managing **listings** (the marketplace storefront entry for a dataset, model, notebook, app, MCP, partner integration, or git repo), **providers** (the publisher account), **exchanges** (curated, scoped collections of listings, including exchange filters that scope visibility by metastore), **personalization requests** (consumer-side requests for tailored access), **files** attached to listings/providers (icons, embedded notebooks, embedded markdown, commit drawdown attachments), and a separate **provider analytics dashboard** sub-resource (a Lakeview-backed dashboard for provider-side analytics).
-**Total weird names flagged:** 36 (36 still present, 0 newly fixed, 0 superseded).
+**Total weird names flagged:** 32 (32 still present, 0 newly fixed, 0 superseded).
 
 ## Summary
 | Severity | Count |
@@ -11,7 +11,7 @@
 | High | 8 |
 | Medium | 18 |
 | Low | 5 |
-| Observation | 5 |
+| Observation | 1 |
 
 The marketplaces package remains one of the more naming-distressed surfaces in the SDK, though the dominant pre-existing problem — **inconsistent request-type naming** across the package — has been resolved by uniformly applying the `*Request`/`*Response` suffix to every operation type. Notable issues remaining include the overloaded vocabulary triad **Listing / Exchange / Provider** without disambiguation (an exchange filter is a metastore-id allowlist, an exchange listing is a join row between an exchange and a listing, a listing detail is the body of a listing, and a personalization request is a consumer-side action targeting a listing), the cryptic plural irregularities around the noun `Listings` (the `GetListingsRequest` and its proto-nested `_Response` payload field both use `listings`, while `CreateListingRequest` and `DeleteListingRequest` use the singular and `ListListingsForExchange` re-introduces the plural with a different field name `exchangeListings`), and the field `isFromLighthouse` referencing the internal-codename "Lighthouse" service in a public type.
 
@@ -599,21 +599,5 @@ Two adjective values. Fine. Flagged because the package also has `Personalizatio
 
 ### 32. v1-only audit
 The marketplaces package has only v1 today (`packages/marketplaces/src/v1/`), so no v1↔v2 comparison to make.
-
-### 33. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:205`
-Same generic-name issue flagged in other audits — every package emits a `PACKAGE_SEGMENT` constant for User-Agent assembly. Cross-package consistency observation only.
-- **Category:** 1 (vague), 15 (generic name).
-
-### 34. `flattenQueryParams` — `src/v1/utils.ts:123`
-The helper is used by `client.ts` to flatten the `file_parent` nested query object in `listFiles`. Most other packages emit this helper unused; here it's actually used. Cross-package consistency observation.
-- **Category:** Observation.
-
-### 35. `readAll` — `src/v1/utils.ts:40`
-Internal helper, same as in other packages. Generic name (`io.ReadAll` Go idiom). Could be `readStreamToEnd` or `bufferStream`.
-- **Category:** 1 (vague), 14 (Go-style name).
-
-### 36. `HttpCallOptions` — `src/v1/utils.ts:15`
-Yet another `Options` suffix; `Options` (from `@databricks/sdk-core/api`) and `CallOptions` are also in scope. Could be `HttpCallContext`. Cross-package consistency observation.
-- **Category:** 1 (vague suffix), 17 (inconsistent).
 
 ---

@@ -6,7 +6,6 @@
 **Files audited:**
 - `src/v1/model.ts`
 - `src/v1/client.ts`
-- `src/v1/utils.ts`
 - `src/v1/index.ts`
 
 This audit applies the 20 numbered concern categories from the audit
@@ -29,10 +28,10 @@ This is the dominant theme of the audit (see F0).
 | Severity | Count |
 | ----------- | ----- |
 | High        |    21 |
-| Medium      |    10 |
-| Low         |    40 |
-| Observation |    17 |
-| **Total**   | **88** |
+| Medium      |     9 |
+| Low         |    29 |
+| Observation |    16 |
+| **Total**   | **75** |
 
 ---
 
@@ -83,33 +82,6 @@ This is the dominant theme of the audit (see F0).
 `StartRequest`, `StartRequest_Response`, `StopRequest`,
 `StopRequest_Response`.
 
-### Schemas (`model.ts`)
-
-`unmarshalChannelSchema`, `unmarshalCreateWarehouseRequest_ResponseSchema`,
-`unmarshalDefaultWarehouseOverrideSchema`,
-`unmarshalEditWarehouseRequest_ResponseSchema`,
-`unmarshalEndpointConfPairSchema`, `unmarshalEndpointHealthSchema`,
-`unmarshalEndpointInfoSchema`, `unmarshalEndpointTagPairSchema`,
-`unmarshalEndpointTagsSchema`, `unmarshalGetWarehouseRequest_ResponseSchema`,
-`unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema`,
-`unmarshalListDefaultWarehouseOverridesResponseSchema`,
-`unmarshalOdbcParamsSchema`, `unmarshalRepeatedEndpointConfPairsSchema`,
-`unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema`,
-`unmarshalTerminationReasonSchema`, `unmarshalWarehouseTypePairSchema`,
-`unmarshalDeleteWarehouseRequest_ResponseSchema`,
-`unmarshalListWarehousesRequest_ResponseSchema`,
-`unmarshalStartRequest_ResponseSchema`,
-`unmarshalStopRequest_ResponseSchema`, `marshalChannelSchema`,
-`marshalCreateWarehouseRequestSchema`, `marshalDefaultWarehouseOverrideSchema`,
-`marshalEditWarehouseRequestSchema`, `marshalEndpointConfPairSchema`,
-`marshalEndpointTagPairSchema`, `marshalEndpointTagsSchema`,
-`marshalRepeatedEndpointConfPairsSchema`,
-`marshalSetWorkspaceWarehouseConfigRequestSchema`,
-`marshalWarehouseTypePairSchema`, `marshalStartRequestSchema`,
-`marshalStopRequestSchema`. Also exports
-`defaultWarehouseOverrideFieldMask` helper and
-`defaultWarehouseOverrideFieldMaskSchema` (private).
-
 ### Client methods (`client.ts`)
 
 `createDefaultWarehouseOverride`, `createWarehouse`,
@@ -125,18 +97,7 @@ This is the dominant theme of the audit (see F0).
 ### Client classes (`client.ts`)
 
 `Client`, `CreateWarehouseWaiter`, `EditWarehouseWaiter`,
-`StartWarehouseWaiter`, `StopWarehouseWaiter`,
-`StillRunningError` (private).
-
-### Utility functions (`utils.ts`)
-
-`executeCall`, `readAll` (private), `executeHttpCall`,
-`buildHttpRequest`, `parseResponse`, `marshalRequest`,
-`flattenQueryParams`.
-
-### Utility types/interfaces (`utils.ts`)
-
-`HttpCallOptions`.
+`StartWarehouseWaiter`, `StopWarehouseWaiter`.
 
 ---
 
@@ -320,11 +281,6 @@ compatibility while updating the customer-visible type names.
   Already typed against the `TerminationCode` enum, so renaming
   introduces redundancy. Leave.
 
-#### F1.12 — `Call`, `Options` (imported, cross-package) (acceptable)
-- **Where:** `utils.ts:3`, `client.ts:4`.
-- These come from `@databricks/sdk-core/api`. Generic but
-  intentional. Out of scope for this package's audit.
-
 ---
 
 ### 2. Redundant enum prefixes
@@ -477,22 +433,7 @@ _None._
   accurate.
 - **Suggestion:** Rename to `ChannelType` or `WarehouseChannel`.
 
-#### F6.7 — `Channel.dbsqlVersion` as the override mechanism (LOW)
-- **Where:** `model.ts:703`.
-- **Why flagged:** Field is required only when `name` is
-  `CHANNEL_NAME_CUSTOM`. JSDoc on the parent says so. Name
-  itself does not convey the conditional contract.
-- **Suggestion:** Add JSDoc; field name is fine.
-
-#### F6.8 — `instanceProfileArn` JSDoc says "Deprecated" but field remains (LOW)
-- **Where:** `model.ts:786, 930, 1048, 1183`.
-- **Why flagged:** Identifier carries no `_DEPRECATED` marker;
-  only JSDoc. Customer code completion shows it as a normal
-  field.
-- **Suggestion:** Add `@deprecated` JSDoc tag (separate from
-  prose) so IDEs strike it through.
-
-#### F6.9 — `creatorName` is documented as "warehouse creator name" but lives on Create + Edit + Get (LOW)
+#### F6.7 — `creatorName` is documented as "warehouse creator name" but lives on Create + Edit + Get (LOW)
 - **Where:** `model.ts:784, 928, 1046, 1181`.
 - **Why flagged:** The field is settable on
   `CreateWarehouseRequest`/`EditWarehouseRequest`, but its meaning
@@ -501,11 +442,7 @@ _None._
 - **Suggestion:** Spec-level. Mark read-only on response types
   only.
 
-#### F6.10 — `EndpointHealth.message` is "Deprecated" prose but no marker (LOW)
-- **Where:** `model.ts:970`.
-- Same pattern as F6.8.
-
-#### F6.11 — Waiter `done` returns true on terminal failure states (MEDIUM)
+#### F6.8 — Waiter `done` returns true on terminal failure states (MEDIUM)
 - **Where:** `client.ts:690, 770, 850, 925` (the `done()` of
   each Waiter).
 - **Why flagged:** `done()` returns `true` for `RUNNING`,
@@ -533,11 +470,6 @@ _None._
   `listDefaultWarehouseOverridesIter`) inherit the same length.
 - **Suggestion:** Acceptable; AIP-compliant. Aliasing at the
   call site is the typical workaround.
-
-#### F7.2 — `defaultWarehouseOverrideFieldMask` (LOW)
-- **Where:** `model.ts:1995`.
-- **Why flagged:** Long, but consistent with the AIP-style
-  resource name. Acceptable.
 
 ---
 
@@ -684,38 +616,6 @@ _None. Wrappers are retained for forward compatibility._
   category 12: the entire `Endpoint*` family is historical
   baggage from the rename of "SQL Endpoints" to "SQL Warehouses".
 
-#### F12.5 — `numActiveSessions` deprecated field still on response types (LOW)
-- **Where:** `model.ts:1077, 1212`.
-- **Why flagged:** JSDoc says "Deprecated. current number of
-  active sessions for the warehouse". Carries no `@deprecated`
-  tag.
-- **Suggestion:** Add `@deprecated`. Schedule for removal.
-
-#### F12.6 — `EndpointHealth.message` deprecated (LOW)
-- **Where:** `model.ts:970`. Same pattern.
-
-#### F12.7 — `instanceProfileArn` deprecated (LOW)
-- **Where:** `model.ts:786, 930, 1048, 1183`. Same.
-
-#### F12.8 — `globalParam`, `configParam` deprecated in favor of
-`sqlConfigurationParameters` (LOW)
-- **Where:** `model.ts:1250, 1252, 1339, 1341`. Same.
-
-#### F12.9 — `ListWarehousesRequest.runAsUserId` deprecated and ignored (LOW)
-- **Where:** `model.ts:1438`. JSDoc says "Deprecated: this field
-  is ignored by the server."
-- **Suggestion:** Add `@deprecated` and consider removal.
-
-#### F12.10 — Workspace config endpoint duplicates per-warehouse fields (MEDIUM)
-- **Where:** `instanceProfileArn`, `channel`,
-  `enableServerlessCompute` all appear in both per-warehouse
-  (`CreateWarehouseRequest`) and workspace
-  (`SetWorkspaceWarehouseConfigRequest`) types.
-- **Why flagged:** The same field name maps to two different
-  conceptual levels (per-warehouse override vs. workspace
-  default). A reader can't tell from the field name alone.
-- **Suggestion:** Document the dual presence in JSDoc.
-
 ---
 
 ### 13. Verb-tense inconsistency
@@ -738,7 +638,7 @@ _None. Wrappers are retained for forward compatibility._
 ### 14. Go/Java-style names
 
 #### F14.1 — `req`, `resp`, `opts` Go abbreviations (LOW)
-- **Where:** `client.ts` throughout; `utils.ts:30, 47, 60, 66`.
+- **Where:** `client.ts` throughout.
 - **Why flagged:** Go convention is `req`, `resp`, `opts`; TS
   convention is `request`, `response`, `options`. SDK already
   uses `options` (full word) so the abbreviation is inconsistent
@@ -746,7 +646,7 @@ _None. Wrappers are retained for forward compatibility._
 - **Suggestion:** Generator-level.
 
 #### F14.2 — `for (;;)` C-style infinite loop (LOW, generator-driven)
-- **Where:** `client.ts:411, 468`, `utils.ts:48`.
+- **Where:** `client.ts:411, 468`.
 - **Why flagged:** `for (;;)` is C/Go idiom; TS prefers
   `while (true)` for readability. Minor.
 - **Suggestion:** Generator-level.
@@ -830,14 +730,6 @@ _None. Wrappers are retained for forward compatibility._
   resource is being created either.
 - **Suggestion:** Acceptable.
 
-#### F16.3 — `EndpointSpotInstancePolicy.RELIABILITY_OPTIMIZED` is misnamed (LOW)
-- **Where:** `model.ts:80`.
-- **Why flagged:** Per JSDoc, on Azure it makes no difference
-  (both On Demand) — only AWS distinguishes. The name implies
-  reliability is universally improved, but on Azure it is a
-  no-op.
-- **Suggestion:** Document; rename optional.
-
 ---
 
 ### 17. Inconsistent action verbs
@@ -863,16 +755,7 @@ _None. Wrappers are retained for forward compatibility._
   machines. Good.
 - **Suggestion:** No change.
 
-#### F17.3 — `Set` (`setWorkspaceWarehouseConfig`) vs. `Update` (LOW)
-- **Where:** `client.ts:481`.
-- **Why flagged:** `set` semantically means "replace entire
-  resource"; `update` means "patch fields". Both apply here.
-  `setWorkspaceWarehouseConfig` uses PUT (full replace) —
-  `set` is correct.
-- **Suggestion:** No change. But document the PUT semantics in
-  JSDoc.
-
-#### F17.4 — `Create` and `Delete` (acceptable)
+#### F17.3 — `Create` and `Delete` (acceptable)
 - Standard CRUD. No issue.
 
 ---

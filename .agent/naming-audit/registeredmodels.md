@@ -59,17 +59,6 @@ standalone), but for `runWorkspaceId` it lowercases `Id` correctly. The
 issue is that `metastoreId`, `id`, and `runId` are all lowercase, while
 `URI` appears nowhere as a field name.
 
-#### 3.2 `MLflow` in doc comments (model.ts:222-223, 335-336)
-Doc comments spell it `MLflow` (correct trademark casing). No identifier
-exists for MLflow here, but if one were added, follow the trademark
-casing (`Mlflow*` would be wrong).
-
-#### 3.3 `<Databricks>` placeholder leakage (model.ts:227, 340)
-JSDoc contains the literal token `<Databricks>` — clearly an
-unresolved template marker from the upstream generator. It will render
-poorly in IDE tooltips. Not a naming issue per se, but visible in the
-audit surface; documentation hygiene.
-
 ---
 
 ### 4. Cryptic abbreviations
@@ -173,11 +162,7 @@ collision worse.
 
 ### 11. Verb tense / parallel inconsistency
 
-#### 11.1 `nextPageToken` versus `pageToken` (model.ts:152, 164, 197, 207)
-Request types use `pageToken`; response types use `nextPageToken`. This
-asymmetry is conventional for cursored pagination, but the convention
-should be documented somewhere (it isn't, here). Not a defect, but
-flagged because it is a common reader stumbling block.
+_None._
 
 ---
 
@@ -198,12 +183,7 @@ SDK pattern leaking into TS.
 
 ### 13. Underspecified IDs
 
-#### 13.1 `RegisteredModelInfo.metastoreId` (model.ts:287) and `ModelVersionInfo.metastoreId` (model.ts:245)
-"The unique identifier of the metastore". Acceptable name but worth
-flagging that the format (UUID? slug?) is not specified anywhere in
-the doc.
-
-#### 13.2 `ModelVersionInfo.runWorkspaceId` (model.ts:230)
+#### 13.1 `ModelVersionInfo.runWorkspaceId` (model.ts:230)
 `number` typed. The doc says "ID of the Databricks workspace". Workspace
 IDs in Databricks are 64-bit integers — TS `number` is only safe up to
 2^53. This is a *type* concern, but the name `runWorkspaceId` does not
@@ -313,14 +293,7 @@ parallel `modelregistry` package which uses bare `RegisteredModel` /
 
 ## Cross-cutting observations
 
-### A. Doc-comment typos
-
-Two instances of `recieve` (sic) in `client.ts:356` and `client.ts:429`,
-both in `listModelVersions` and `listRegisteredModels` JSDoc. Not a
-naming issue but visible in IDE tooltips alongside every flagged
-identifier.
-
-### B. Parallel package collision risk
+### A. Parallel package collision risk
 
 A consumer that imports both `modelregistry` and `registeredmodels` will
 encounter colliding identifiers for: `ModelVersionStatus`,
@@ -330,7 +303,7 @@ encounter colliding identifiers for: `ModelVersionStatus`,
 Importing both *requires* aliasing on every single one of those names.
 This is the biggest practical naming defect of the package.
 
-### C. Request shapes leak response/server fields
+### B. Request shapes leak response/server fields
 
 `CreateRegisteredModelRequest`, `UpdateRegisteredModelRequest`, and
 especially `UpdateModelVersionRequest` carry the entire response shape
@@ -345,13 +318,12 @@ meaningless). See §15.
 1. **Remove `Info` suffix** from `RegisteredModelInfo`, `ModelVersionInfo`,
    `RegisteredModelAliasInfo`. (§7.1, §16.1)
 2. **Disambiguate parallel-package collisions** with `modelregistry` —
-   either re-namespace or rename types. (§10, §B)
+   either re-namespace or rename types. (§10, §A)
 3. **Strip server-populated fields** from `CreateRegisteredModelRequest`,
    `UpdateRegisteredModelRequest`, `UpdateModelVersionRequest` request
-   shapes. (§15, §C)
+   shapes. (§15, §B)
 4. **Rename `MODEL_VERSION_STATUS_UNKNOWN`** to
    `MODEL_VERSION_STATUS_UNSPECIFIED` for consistency with the rest of
    the SDK's zero-value enum members. (§2.1)
-5. **Fix `recieve` typos** in client.ts JSDoc. (§A)
 
 ---

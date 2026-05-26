@@ -3,14 +3,14 @@
 **Path:** `packages/tokenmanagement/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-admin API for managing personal access tokens (PATs) belonging to any user in the workspace — list/get/create-on-behalf-of/delete arbitrary user tokens. Distinct from the per-user `tokens` API which only manages the calling user's own tokens.
-**Total weird names flagged:** 11
+**Total weird names flagged:** 8
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 4 |
-| Medium | 4 |
-| Low | 3 |
+| Medium | 2 |
+| Low | 2 |
 | Observation | 0 |
 
 ## High severity
@@ -47,19 +47,7 @@
 - **Suggested name:** Either expose a single `filter` string or document mutual exclusivity. At minimum, JSDoc the AND/OR semantics.
 - **Rationale:** Consumer-facing API ambiguity.
 
-### 6. `ownerId` vs `createdById` — both are user IDs, on the same struct, no docs distinguishing semantics beyond JSDoc
-- **Why weird:** `AdminTokenInfo` has `createdById` ("User ID of the user that created the token", `model.ts:15`) and `ownerId` ("User ID of the user that owns the token", `model.ts:19`). What's the difference? In the sibling `tokens` package, the type has no `ownerId`. This appears to be admin-only metadata where ownership can transfer (e.g., on-behalf-of tokens). A reader has no way to know without external docs whether the two are usually equal.
-- **Category:** 1 (vague — relationship unstated), 19 (underspecified IDs in same struct).
-- **Suggested name:** Keep names but add JSDoc clarifying when they diverge (e.g., on-behalf-of tokens: creator is the principal who called the API, owner is the service principal).
-- **Rationale:** Discoverability.
-
-### 7. `workspaceId` on `AdminTokenInfo` — only meaningful for account-level scope
-- **Why weird:** `workspaceId?: number | undefined` (`model.ts:21`) is documented "If applicable, the ID of the workspace that the token was created in." So it's optional and only meaningful at the account level. But the package and the URL path `/api/2.0/token-management/...` is a workspace endpoint. The field thus carries no useful signal at this endpoint, yet it's exposed.
-- **Category:** 6 (misleading — looks pertinent, often vestigial).
-- **Suggested name:** Keep; document under what circumstances it is populated (e.g., when the same model is reused at the account API).
-- **Rationale:** Generator artefact from sharing models across workspace/account scopes. Flag for upstream cleanup.
-
-### 8. `CreateOnBehalfOfTokenRequest` — preposition phrase inside type name
+### 6. `CreateOnBehalfOfTokenRequest` — preposition phrase inside type name
 - **Why weird:** The type name contains "OnBehalfOf" — a preposition phrase. Reads as "create on behalf of token request" when the intent is "request to create [on-behalf-of token]" (parse: a kind of token). `model.ts:27`. Industry shorthand is "OBO" but the SDK avoids the acronym.
 - **Category:** 7 (overly verbose), 14 (Go/Java-style camelCase verb phrase).
 - **Suggested name:** `CreateOboTokenRequest` (with JSDoc spelling out OBO), or `MintTokenForServicePrincipalRequest` if explicitness wins over brevity.
@@ -67,19 +55,13 @@
 
 ## Low severity
 
-### 9. `Client` class is named `Client` (no namespacing)
+### 7. `Client` class is named `Client` (no namespacing)
 - **Why weird:** `export class Client` (`client.ts:44`). With both `tokens` and `tokenmanagement` packages exporting a `Client`, and many other packages too, code that imports several SDK clients has to alias each one. The class name itself is the most generic possible.
 - **Category:** 1 (vague), 12 (duplicate concept across all SDK packages — every package has its own `Client`).
 - **Suggested name:** `TokenManagementClient` (or `TokenAdminClient`).
 - **Rationale:** This is a cross-package convention concern; mass-renaming would be a breaking change, but flag because users will hit it.
 
-### 10. `PACKAGE_SEGMENT` constant — vague label
-- **Why weird:** `const PACKAGE_SEGMENT = {...}` (`client.ts:39`). "Segment" is CS jargon; the comment one line up explains it's "the User-Agent identity segment". Without the comment, the constant name doesn't communicate that.
-- **Category:** 1 (vague), 15 (generic name).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `USER_AGENT_PKG`.
-- **Rationale:** Minor; identical issue in every generated package.
-
-### 11. Package name `tokenmanagement` — `Management` suffix is an architectural label, not a domain noun — package directory
+### 8. Package name `tokenmanagement` — `Management` suffix is an architectural label, not a domain noun — package directory
 - **Why:** The package's directory and npm name `tokenmanagement` ends in `management`, which sits in the `Manager`/`Handler`/`Controller`/`Processor` family of architectural-tier suffixes. The package does not contain a "management" concept; it contains operations on tokens (list, get, create-on-behalf-of, delete). The `-management` suffix is service-side scaffolding language (cf. proto `TokenManagementService`) that leaks out via the URL path `/api/2.0/token-management/...` and into the SDK package name. Compare to peers in the SDK where the action package is named after the domain noun (`tokens`, `clusters`, `secrets`), not the service tier.
 - **Category:** Proto-architectural-leak — `Manager`/`Handler`/`Controller`/`Processor`/`-management` family (architectural label not in the domain).
 - **Suggested:** `tokenadmin` — keeps the audience-disambiguation from sibling `tokens` but uses an audience noun rather than an architectural verb. See finding #1 which proposes the same package rename for the collision-avoidance reason.

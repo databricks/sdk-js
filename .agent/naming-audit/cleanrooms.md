@@ -1,7 +1,7 @@
 # Naming Audit: `cleanrooms` (v1)
 
 **Path:** `/home/parth.bansal/sdk-js/packages/cleanrooms/`
-**Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
+**Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/index.ts`
 **Auditor:** Naming audit pass — TypeScript port of Databricks Go SDK.
 
 This audit catalogs every type, field, enum value, and method name in the
@@ -12,7 +12,7 @@ grouped by category, and each finding cites the file/line where it appears.
 
 ## Summary
 
-- **Total findings:** 10
+- **Total findings:** 9
 - **Highest-impact themes:**
   1. Misleading boolean-shaped `accessRestricted` enum.
   2. Acronym casing inconsistencies (`Id` vs `ID`, `Dns` vs `DNS`).
@@ -52,12 +52,6 @@ miscommunication: "Whether clean room access is restricted…" — implying a
 yes/no. The shape itself is boolean-like (two values, one of which is the
 absence sentinel) — a `boolean` field would model the domain more
 honestly.
-
-### 3.2 `CreateCleanRoomWaiter` class (client.ts:881)
-The waiter polls `getCleanRoom` and resolves when status reaches `ACTIVE`.
-Naming it `CreateCleanRoomWaiter` ties it to `createCleanRoom`, but the
-waiter is operationally generic (any clean room name can be polled). A
-better name is `CleanRoomActivationWaiter` or `CleanRoomStatusWaiter`.
 
 ---
 
@@ -150,9 +144,5 @@ _None._
   use correct plurality.
 - JSDoc is generally comprehensive — references to UC naming rules and
   external compliance documents are well-linked.
-- The `StillRunningError` class (client.ts:83) is concise and
-  self-documenting.
-- The package-level segment naming (`PACKAGE_SEGMENT` in client.ts:78)
-  is appropriately namespaced.
 
 ---

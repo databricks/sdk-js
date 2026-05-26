@@ -74,14 +74,6 @@ are graded:
 | `listInstanceProfiles`  | GET  | `/api/2.0/instance-profiles/list`   | `ListInstanceProfilesRequest_Response`      |
 | `removeInstanceProfile` | POST | `/api/2.0/instance-profiles/remove` | `RemoveInstanceProfileRequest_Response`     |
 
-### 1.5 Other identifiers
-
-- `client.ts`: `PACKAGE_SEGMENT` constant; `Client` class with private fields
-  `host`, `httpClient`, `logger`, `userAgent`.
-- `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
-  `readAll`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-  `marshalRequest`, `flattenQueryParams`.
-
 ---
 
 ## 2. Findings by Category
@@ -91,8 +83,6 @@ are graded:
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `InstanceProfile` (interface, `model.ts:64`) | High     | The unqualified name reads as a general "instance profile" concept, but the type is **AWS-specific** (an AWS IAM Instance Profile, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html). The Databricks SDK supports multiple clouds (AWS, Azure, GCP) — peers in this SDK (e.g. `AzureServicePrincipal`, `GcpAttributes`) lead with the cloud prefix. `AwsInstanceProfile` would prevent collision with future Azure/GCP "instance" abstractions and align with the cloud-prefixed naming in `compute`, `clusters`, etc. Inherited from the API; flagged for visibility. |
-| V-02  | `flattenQueryParams` (`utils.ts:123`) | Low      | Reasonable. |
-| V-03  | `readAll` (`utils.ts:40`, private)  | Low      | Standard name for "read all bytes from a stream". OK. |
 
 ### 2.2 Redundant enum prefixes — N/A
 
@@ -121,9 +111,6 @@ are graded:
 | ----- | ----------------------------------- | -------- | ----- |
 | C-01  | `arn` (within `instanceProfileArn`, `iamRoleArn`) | Low | "ARN" is a well-known AWS acronym; not cryptic in the AWS context. Acceptable. |
 | C-02  | `iam` (within `iamRoleArn`)         | Low      | "IAM" = AWS Identity & Access Management. Well-known AWS acronym. Acceptable. |
-| C-03  | `req`, `resp`, `httpReq`, `respBody` (`client.ts` locals) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
-| C-04  | `opts` (`utils.ts` parameter, `executeHttpCall`) | Low | Inside fn scope; minor. |
-| C-05  | `pkgJson` (`client.ts:19`)          | Low      | Standard short name for `package.json` import. OK. |
 
 ### 2.6 Misleading names — High
 
@@ -136,9 +123,7 @@ are graded:
 
 ### 2.7 Overly verbose / Redundant suffixes — Low
 
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| O-01  | `PACKAGE_SEGMENT` (`client.ts:41`)  | Low      | OK in context. |
+_None._
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -189,7 +174,6 @@ revisions can add fields without breaking the type signature. Not flagged.
 | ----- | ----------------------------------- | -------- | ----- |
 | F-01  | `instanceProfileArn`, `iamRoleArn`  | Low      | Well-qualified; meaning preserved out of context. Good. |
 | F-02  | `instanceProfiles` (in `ListInstanceProfilesRequest_Response`) | Low | Self-describing. Good. |
-| F-03  | `httpReq`, `respBody`, `body` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.15 Field contradicting type domain — Medium
 
@@ -234,12 +218,7 @@ _None._
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| X-01  | `HttpCallOptions` (`utils.ts:15`)   | Low      | Local interface; precise. |
-| X-02  | `executeHttpCall`, `executeCall`    | Low      | Both exist, one wraps the other. The naming difference (`HttpCall` vs `Call`) communicates layering: HTTP-aware vs. transport-agnostic. OK. |
-| X-03  | `flattenQueryParams` (`utils.ts:123`, exported but unused in this package) | Low | The package has no GET endpoints with query params (the list endpoint takes none). Either remove or use it. Not strictly a naming issue. |
-| X-04  | `Client` (the class name itself, `client.ts:46`) | Medium   | The class is just `Client`. The package exports it as the top-level symbol, but a reader importing it as `import {Client} from '@databricks/sdk-instanceprofiles/v2'` may collide with other packages' `Client`. Most consumers will alias it (`InstanceProfilesClient`); flagging that the bare name doesn't carry scope. This is a repo-wide pattern (every package exports `Client`); not a per-package fix. |
-| X-05  | `pkgJson` (import alias)            | Low      | Standard short alias for `package.json`. OK. |
-| X-06  | `PACKAGE_SEGMENT.key` derives from `pkgJson.name.replace(/^@[^/]+\//, '')` (string transform on a constant) | Low | Identifier semantics OK; observation only. |
+| X-01  | `Client` (the class name itself, `client.ts:46`) | Medium   | The class is just `Client`. The package exports it as the top-level symbol, but a reader importing it as `import {Client} from '@databricks/sdk-instanceprofiles/v2'` may collide with other packages' `Client`. Most consumers will alias it (`InstanceProfilesClient`); flagging that the bare name doesn't carry scope. This is a repo-wide pattern (every package exports `Client`); not a per-package fix. |
 
 ---
 
@@ -251,8 +230,8 @@ _None._
 | -------- | ----- |
 | High     | 9     |
 | Medium   | 5     |
-| Low      | 35    |
-| **Total**| **49**|
+| Low      | 23    |
+| **Total**| **37**|
 
 ### 3.2 Top themes
 

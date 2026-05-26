@@ -70,10 +70,6 @@ symmetry). Today, `UpdateCatalogRequest` has *both* `nameArg` (path) and
 
 #### 3.3 `Akv` (in `azureKeyVaultKeyId` doc comment, model.ts:216) — see §2.2.
 
-#### 3.4 `pkgJson` (client.ts:19)
-Variable name `pkgJson` for `package.json`. Mostly internal — minor — but
-worth noting for consistency.
-
 ---
 
 ### 4. Misleading names
@@ -342,45 +338,11 @@ for consistency with the broader review.
 - **Suggested:** Remove from the public surface.
 - **Rationale:** See 13.4.
 
-#### 13.10 `unmarshalDeleteCatalogRequest_ResponseSchema` — model.ts:409
-- **Why:** Schema identifier inherits the underscore-paired proto name
-  from 13.6, propagating the leak into the marshal/unmarshal surface.
-- **Category:** Proto suffix/infix.
-- **Suggested:** Rename in lockstep with 13.6 to
-  `unmarshalDeleteCatalogResponseSchema`.
-- **Rationale:** The schema's identity is derived from the type it
-  decodes; fixing 13.6 dictates this rename.
-
-#### 13.11 `unmarshalListCatalogsRequest_ResponseSchema` — model.ts:441
-- **Why:** Same as 13.10 — schema name inherits the proto-paired
-  underscore.
-- **Category:** Proto suffix/infix.
-- **Suggested:** Rename in lockstep with 13.7 to
-  `unmarshalListCatalogsResponseSchema`.
-- **Rationale:** See 13.10.
-
 ---
 
 ## Additional / cross-cutting observations
 
-### A. `flattenQueryParams` is defined but unused (utils.ts:123)
-Each `listCatalogs` / `getCatalog` / `deleteCatalog` handler builds query
-strings inline with `URLSearchParams.append` (client.ts:101-105,
-138-141, 179-191). The exported helper `flattenQueryParams` is never
-referenced by `client.ts`. Either it's intentionally exported for
-consumer use (then it should be documented and reside in `utils` proper)
-or it's dead code.
-
-### B. `nameArg` URL substitution silently allows empty string (client.ts:100, 137, 241)
-`${req.nameArg ?? ''}` — if `nameArg` is undefined, the URL silently
-becomes `/api/2.1/unity-catalog/catalogs/` and the request will fail on
-the server. The naming (`nameArg`) and the substitution behaviour
-together hide what should be a required parameter. Worth surfacing via
-a non-optional type or a typed assertion.
-
-### C. `Client` constructor throws bare `Error` for missing `host` (client.ts:55)
-"Host is required." — bare `Error`. Not a naming issue, flagged in
-passing for the broader review.
+_None._
 
 ---
 
@@ -420,11 +382,7 @@ passing for the broader review.
 | `ListCatalogsRequest_Response`                          | model.ts:251       | 13.7    |
 | `UpdateCatalogRequest_OptionsEntry`                     | model.ts:325       | 13.8    |
 | `UpdateCatalogRequest_PropertiesEntry`                  | model.ts:331       | 13.9    |
-| `unmarshalDeleteCatalogRequest_ResponseSchema`          | model.ts:409       | 13.10   |
-| `unmarshalListCatalogsRequest_ResponseSchema`           | model.ts:441       | 13.11   |
 | `Client` (bare name)                                    | client.ts:44       | 12      |
-| `${req.nameArg ?? ''}` URL substitution                 | client.ts:100,137,241 | B    |
-| `flattenQueryParams` (unused export)                    | utils.ts:123       | A       |
 
 ---
 
@@ -435,6 +393,5 @@ passing for the broader review.
 3. **Disambiguate `azureKeyVaultKeyId` (URL vs ID).** (§2.2, §4.2)
 4. **Strip read-only fields from `CreateCatalogRequest`/`UpdateCatalogRequest`.** (§9.2)
 5. **Decide CMK casing and apply uniformly.** (§2.1, §10.1)
-6. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
 
 ---

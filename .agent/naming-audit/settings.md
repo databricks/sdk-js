@@ -3,7 +3,7 @@
 **Path:** `/home/parth.bansal/sdk-js/packages/settings/`
 **Versions audited:** v2
 **Inferred domain:** A "unified" generic settings/user-preference key/value API (referred to as `settingsv2` in the wire/JSDoc) that exposes a single `Setting` polymorphic value type with seven typed payload variants. Operates at three scopes — account-level settings, account-level user preferences, and workspace-level settings — replacing the per-feature `get*`/`update*`/`delete*` endpoints that live in `accountsettings` (v1) and `workspacesettings` (v1).
-**Total weird names flagged:** 46
+**Total weird names flagged:** 34
 
 ---
 
@@ -36,44 +36,32 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 | 6 | High | Vague/generic type | `UserPreference` | `model.ts:452` |
 | 7 | High | Suffix tautology + Go-style | `*Message` suffix (`BooleanMessage`, `IntegerMessage`, `StringMessage`, `ClusterAutoRestartMessage`, `PersonalComputeMessage`, `RestrictWorkspaceAdminsMessage`) | `model.ts:102, 106, 175, 292, 296, 442` |
 | 8 | High | Cryptic abbreviation (undefined) | `Aibi` (AI/BI) in `AibiDashboardEmbedding*` | `model.ts:30, 88, 94` |
-| 9 | High | Underspecified ID | `accountId` (no format documented on most uses) | `model.ts:157, 162, 181, 209, 272, 279` |
-| 10 | High | Underspecified ID | `userId` | `model.ts:165, 211, 281, 456` |
-| 11 | High | Misleading | `effectiveValue` vs `value` distinction undocumented at top-level | `model.ts:311, 313, 369, 370` |
-| 12 | High | Verb-tense (action-name as type) | `RestrictWorkspaceAdminsMessage` (verb-noun as state type) | `model.ts:296` |
-| 13 | High | Verb-tense | `ClusterAutoRestartMessage` (verb-phrase as state type) | `model.ts:106` |
-| 14 | High | Proto-architectural leak (nested-type underscore syntax) | `AibiDashboardEmbeddingAccessPolicy_AccessPolicyType`, `ClusterAutoRestartMessage_MaintenanceWindow`, `ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule`, `ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime`, `ClusterAutoRestartMessage_EnablementDetails`, `PersonalComputeMessage_PersonalComputeMessageEnum`, `RestrictWorkspaceAdminsMessage_Status` | `model.ts:30, 38, 50, 66, 73, 123, 133, 140, 151` |
-| 15 | High | Proto-architectural leak (`Api` mid-position) | `AllowedAppsUserApiScopesMessage` (`Api` is the wire/proto term — TS surface should drop it) | `model.ts:98, 497, 928` |
-| 16 | Medium | Plural type singular field | `AibiDashboardEmbeddingApprovedDomains` (plural type, singular `approvedDomains` field) | `model.ts:94-96` |
-| 17 | Medium | Redundant `Public` qualifier | `GetPublicAccountSettingRequest`, `PatchPublicAccountSettingRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicWorkspaceSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `PatchPublicAccountUserPreferenceRequest`, and corresponding methods | `model.ts:156, 161, 170, 270, 277, 286`; `client.ts:83, 112, 137, 346, 378, 409` |
-| 18 | Medium | Redundant `Public` qualifier | method names `getPublicAccountSetting`, `patchPublicAccountSetting`, `getPublicWorkspaceSetting`, `patchPublicWorkspaceSetting`, `getPublicAccountUserPreference`, `patchPublicAccountUserPreference` | `client.ts:83, 112, 137, 346, 378, 409` |
-| 19 | Medium | Inconsistent action verbs | `patch` for mutation (vs `update` in `accountsettings`/`workspacesettings` for the same operation) | `client.ts:346, 378, 409` |
-| 20 | Medium | Inconsistent action verbs | `patchPublicAccountUserPreference` for setting a preference (vs noun "set" or "put") | `client.ts:378` |
-| 21 | Medium | Long type name | `ListAccountUserPreferencesMetadataResponse` (42 chars) | `model.ts:229` |
-| 22 | Medium | Long type name | `ListAccountUserPreferencesMetadataRequest` (41 chars) | `model.ts:208` |
-| 23 | Medium | Long type name | `PatchPublicAccountUserPreferenceRequest` (39 chars) | `model.ts:277` |
-| 24 | Medium | Verb-tense inconsistency | `PreviewPhase` vs `GA_SOON` (mixed adverb/timeline forms) | `model.ts:11-27` |
-| 25 | Medium | Acronym casing | `Aibi` should be `AIBI` or `AiBi` per TS rules | `model.ts:30` |
-| 26 | Medium | Acronym casing | `Gov` (short for "Government") undocumented short | `model.ts:302` |
-| 27 | Medium | Generic field name | `hours?: number`, `minutes?: number` on `WindowStartTime` (no timezone documented) | `model.ts:152-153` |
-| 28 | Medium | Proto-architectural leak (request type `Public` infix maps 1:1 to a proto `PublicSettingsService`) | `GetPublicAccountSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicAccountSettingRequest`, `PatchPublicAccountUserPreferenceRequest`, `PatchPublicWorkspaceSettingRequest` (reiterates #17 as a proto-leak category) | `model.ts:156, 161, 170, 270, 277, 286` |
-| 29 | Low | Long enum value | `RESTRICT_TOKENS_AND_JOB_RUN_AS` | `model.ts:85` |
-| 30 | Low | Long enum value | `FIRST_AND_THIRD_OF_MONTH` | `model.ts:56` |
-| 31 | Low | Long enum value | `SECOND_AND_FOURTH_OF_MONTH` | `model.ts:57` |
-| 32 | Low | Cryptic abbreviation | `OBO` (in `RESTRICT_TOKENS_AND_JOB_RUN_AS` doc) | `model.ts:78` |
-| 33 | Low | Cryptic abbreviation | `WS` (in same doc) | `model.ts:78` |
-| 34 | Low | Cryptic abbreviation | `SP`/`SPs` ("service principal") in same doc | `model.ts:78, 83` |
-| 35 | Low | Cryptic abbreviation | `OBO` undocumented | `model.ts:78` |
-| 36 | Low | Acronym casing | `Id` vs `ID` (TS chooses `Id`, package consistent) | `model.ts:157, 165, ...` |
-| 37 | Low | Acronym casing | `Ws` (in JSDoc, not identifier) | `model.ts:78, 83` |
-| 38 | Low | Misleading | "Setting" doc on `UserPreference.setting` field (it's actually a UserPreference, not a Setting) | `model.ts:283` |
-| 39 | Low | Wire-vs-TS abbreviation | `disable_gov_tag_creation` wire key | `model.ts:670, 1059` |
-| 40 | Low | Wire-vs-TS abbreviation | `restrict_tokens_and_job_run_as` enum value | `model.ts:85` |
-| 41 | Low | Misleading singular | `IntegerMessage.value` is `number` (TS has no integer/float distinction; "Integer" misleads) | `model.ts:176` |
-| 42 | Low | Inconsistent verb | "patch" (HTTP idiom) vs "update" (SDK idiom in sibling packages) | `client.ts:346, 378, 409` |
-| 43 | Low | Misleading | doc on `userId` on `GetPublicAccountUserPreferenceRequest` says "user whose setting is being retrieved" (says "setting" not "preference") | `model.ts:164-165` |
-| 44 | Low | Acronym casing | `Dbfs` doc — appears in workspacesettings as `Dbfs` (cross-package) | `workspacesettings/model.ts`; `settings` doesn't have it but consumers will collide |
-| 45 | Low | Generic name | `host` (on `Client` private field) | `client.ts:54` |
-| 46 | Low | Misleading | `PreviewPhase` enum lists `BETA` as separate from `PUBLIC_PREVIEW` even though common usage merges them | `model.ts:21-25` |
+| 9 | High | Verb-tense (action-name as type) | `RestrictWorkspaceAdminsMessage` (verb-noun as state type) | `model.ts:296` |
+| 10 | High | Verb-tense | `ClusterAutoRestartMessage` (verb-phrase as state type) | `model.ts:106` |
+| 11 | High | Proto-architectural leak (nested-type underscore syntax) | `AibiDashboardEmbeddingAccessPolicy_AccessPolicyType`, `ClusterAutoRestartMessage_MaintenanceWindow`, `ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule`, `ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime`, `ClusterAutoRestartMessage_EnablementDetails`, `PersonalComputeMessage_PersonalComputeMessageEnum`, `RestrictWorkspaceAdminsMessage_Status` | `model.ts:30, 38, 50, 66, 73, 123, 133, 140, 151` |
+| 12 | High | Proto-architectural leak (`Api` mid-position) | `AllowedAppsUserApiScopesMessage` (`Api` is the wire/proto term — TS surface should drop it) | `model.ts:98, 497, 928` |
+| 13 | Medium | Plural type singular field | `AibiDashboardEmbeddingApprovedDomains` (plural type, singular `approvedDomains` field) | `model.ts:94-96` |
+| 14 | Medium | Redundant `Public` qualifier | `GetPublicAccountSettingRequest`, `PatchPublicAccountSettingRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicWorkspaceSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `PatchPublicAccountUserPreferenceRequest`, and corresponding methods | `model.ts:156, 161, 170, 270, 277, 286`; `client.ts:83, 112, 137, 346, 378, 409` |
+| 15 | Medium | Redundant `Public` qualifier | method names `getPublicAccountSetting`, `patchPublicAccountSetting`, `getPublicWorkspaceSetting`, `patchPublicWorkspaceSetting`, `getPublicAccountUserPreference`, `patchPublicAccountUserPreference` | `client.ts:83, 112, 137, 346, 378, 409` |
+| 16 | Medium | Inconsistent action verbs | `patch` for mutation (vs `update` in `accountsettings`/`workspacesettings` for the same operation) | `client.ts:346, 378, 409` |
+| 17 | Medium | Inconsistent action verbs | `patchPublicAccountUserPreference` for setting a preference (vs noun "set" or "put") | `client.ts:378` |
+| 18 | Medium | Long type name | `ListAccountUserPreferencesMetadataResponse` (42 chars) | `model.ts:229` |
+| 19 | Medium | Long type name | `ListAccountUserPreferencesMetadataRequest` (41 chars) | `model.ts:208` |
+| 20 | Medium | Long type name | `PatchPublicAccountUserPreferenceRequest` (39 chars) | `model.ts:277` |
+| 21 | Medium | Verb-tense inconsistency | `PreviewPhase` vs `GA_SOON` (mixed adverb/timeline forms) | `model.ts:11-27` |
+| 22 | Medium | Acronym casing | `Aibi` should be `AIBI` or `AiBi` per TS rules | `model.ts:30` |
+| 23 | Medium | Acronym casing | `Gov` (short for "Government") undocumented short | `model.ts:302` |
+| 24 | Medium | Proto-architectural leak (request type `Public` infix maps 1:1 to a proto `PublicSettingsService`) | `GetPublicAccountSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicAccountSettingRequest`, `PatchPublicAccountUserPreferenceRequest`, `PatchPublicWorkspaceSettingRequest` (reiterates #14 as a proto-leak category) | `model.ts:156, 161, 170, 270, 277, 286` |
+| 25 | Low | Long enum value | `RESTRICT_TOKENS_AND_JOB_RUN_AS` | `model.ts:85` |
+| 26 | Low | Long enum value | `FIRST_AND_THIRD_OF_MONTH` | `model.ts:56` |
+| 27 | Low | Long enum value | `SECOND_AND_FOURTH_OF_MONTH` | `model.ts:57` |
+| 28 | Low | Acronym casing | `Id` vs `ID` (TS chooses `Id`, package consistent) | `model.ts:157, 165, ...` |
+| 29 | Low | Acronym casing | `Ws` (in JSDoc, not identifier) | `model.ts:78, 83` |
+| 30 | Low | Wire-vs-TS abbreviation | `restrict_tokens_and_job_run_as` enum value | `model.ts:85` |
+| 31 | Low | Misleading singular | `IntegerMessage.value` is `number` (TS has no integer/float distinction; "Integer" misleads) | `model.ts:176` |
+| 32 | Low | Inconsistent verb | "patch" (HTTP idiom) vs "update" (SDK idiom in sibling packages) | `client.ts:346, 378, 409` |
+| 33 | Low | Acronym casing | `Dbfs` doc — appears in workspacesettings as `Dbfs` (cross-package) | `workspacesettings/model.ts`; `settings` doesn't have it but consumers will collide |
+| 34 | Low | Misleading | `PreviewPhase` enum lists `BETA` as separate from `PUBLIC_PREVIEW` even though common usage merges them | `model.ts:21-25` |
 
 ---
 
@@ -141,28 +129,14 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** `AIBI` (acronym casing) or spell out `AiBi` for the AI/BI Genie embedding feature. Add a top-of-file `@module` doc explaining: "AI/BI = Databricks's AI- and BI-powered dashboards product."
 - **Rationale:** "Aibi" is not a recognised English word and is not defined anywhere in this file. A reader has to know the Databricks product naming.
 
-### 9–10. `accountId`, `userId` — underspecified IDs
-
-- **File:line:** `model.ts:157, 162, 165, 181, 209, 211, 272, 279, 281, 456`
-- **Category:** Underspecified ID
-- **Suggestion:** Document the ID format (UUID, opaque-string, numeric, ...) in JSDoc consistently. Currently only some occurrences have a doc ("<Databricks> account ID of the account being managed"), and the format isn't specified anywhere.
-- **Rationale:** Users have no way to know whether the SDK accepts `"acct-12345"`, `"abc...uuid"`, or an integer-as-string. The Go SDK's pattern of relying on type-level documentation isn't carried over.
-
-### 11. `effectiveValue` vs `value` — undocumented distinction
-
-- **File:line:** `model.ts:311-363 (value) vs 369-421 (effectiveValue)`
-- **Category:** Misleading
-- **Suggestion:** Add a JSDoc explaining the relationship at the `Setting` type level. Currently the distinction is only documented as "The user-set value that goes into storage" (311) vs "The final effective value from server as per the policy evaluation" (369) — a reader has to read both blocks to understand they're a get/set asymmetry.
-- **Rationale:** This is a non-obvious feature where the user sets `value` but the server might return a different `effectiveValue` after applying policy. Worth a top-level doc, not just per-block.
-
-### 12–13. Verb-tense action-as-noun naming
+### 9–10. Verb-tense action-as-noun naming
 
 - **File:line:** `model.ts:296 (RestrictWorkspaceAdminsMessage), 106 (ClusterAutoRestartMessage)`
 - **Category:** Verb-tense inconsistency
 - **Suggestion:** Types describing *state* should be nouns: `WorkspaceAdminRestriction`, `ClusterAutoRestart` (or `ClusterAutoRestartConfig`).
 - **Rationale:** Standard naming: imperative verbs for actions/methods; nouns for state types.
 
-### 14. Proto-nested underscore type naming — proto-architectural leak
+### 11. Proto-nested underscore type naming — proto-architectural leak
 
 - **File:line:** `model.ts:30, 38, 50, 66, 73, 123, 133, 140, 151` (and the corresponding marshal/unmarshal schema declarations)
 - **Category:** Proto-architectural leak (nested-message naming)
@@ -179,7 +153,7 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** Promote nested message/enum types to top-level TS interfaces with descriptive names: `AccessPolicyType`, `MaintenanceWindow`, `DayOfWeek`, `WeekDayFrequency`, `MaintenanceSchedule`, `WindowStartTime`, `EnablementDetails`, `PersonalComputeMode`, `WorkspaceAdminRestrictionStatus`. Where two top-level names would collide across packages, prefix with the owning concept (e.g., `MaintenanceWindowDayOfWeek`) but never use `_`.
 - **Rationale:** Underscore-separated multi-word TS identifiers are non-idiomatic (Google TS style mandates `PascalCase` for types; Microsoft TS handbook agrees). The `*Foo_Bar_Baz` chain is purely a transliteration of proto's nested-message scoping — TS has module namespaces (`Foo.Bar.Baz`) and lexical scoping for that, neither of which is used here. The eslint-disable comments are the smoking gun.
 
-### 15. `AllowedAppsUserApiScopesMessage` — `Api` mid-position proto leak
+### 12. `AllowedAppsUserApiScopesMessage` — `Api` mid-position proto leak
 
 - **File:line:** `model.ts:98, 497 (unmarshal), 928 (marshal)`
 - **Category:** Proto-architectural leak (`Api` mid-position) + `*Message` suffix (covered in #7)
@@ -191,40 +165,40 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 
 ## Medium severity
 
-### 16. `AibiDashboardEmbeddingApprovedDomains` — plural type, singular use
+### 13. `AibiDashboardEmbeddingApprovedDomains` — plural type, singular use
 
 - **File:line:** `model.ts:94-96`
 - **Category:** Singular/plural mismatch
 - **Suggestion:** Either keep plural type with plural field (current state — `approvedDomains: string[]`) or move to singular type representing one approved domain and let consumers hold `ApprovedDomain[]`. Current naming is internally consistent but the *type* is plural which is unusual.
 
-### 17. `*Public*` qualifier — redundant
+### 14. `*Public*` qualifier — redundant
 
 - **File:line:** `model.ts:156, 161, 170, 270, 277, 286`
 - **Category:** Redundant qualifier
-- **Suggestion:** Drop `Public` from request type names (and method names — #18). `GetAccountSettingRequest`/`getAccountSetting` is shorter and equally specific.
+- **Suggestion:** Drop `Public` from request type names (and method names — #15). `GetAccountSettingRequest`/`getAccountSetting` is shorter and equally specific.
 - **Rationale:** If everything is "public" (vs internal), the qualifier carries no information. The Go SDK upstream uses the same word probably because the proto service is named `PublicSettingsService` to disambiguate from internal admin services — but the JS SDK only ships the public surface, so the qualifier is redundant.
 
-### 18. Method names: `getPublic*`, `patchPublic*` — redundant `Public`
+### 15. Method names: `getPublic*`, `patchPublic*` — redundant `Public`
 
 - **File:line:** `client.ts:83, 112, 137, 346, 378, 409`
 - **Category:** Redundant qualifier + verbose
 - **Suggestion:** `getAccountSetting`, `patchAccountSetting`, etc.
 
-### 19. `patch*` vs `update*` — inconsistent action verb across SDK
+### 16. `patch*` vs `update*` — inconsistent action verb across SDK
 
 - **File:line:** `client.ts:346, 378, 409` (use `patch`)
 - **Category:** Inconsistent action verbs
 - **Suggestion:** Pick one verb. `update` is the verb in `accountsettings/v1/client.ts` and `workspacesettings/v1/client.ts` for the equivalent operation; `patch` is used here. Cross-package consistency matters.
 - **Rationale:** Same operation (PATCH HTTP verb against a settings endpoint) named `update*` in the v1 packages and `patch*` in this v2 package. Users will look for `update*` first based on muscle memory.
 
-### 20. `patchPublicAccountUserPreference` (single user-pref item) — overly verbose action
+### 17. `patchPublicAccountUserPreference` (single user-pref item) — overly verbose action
 
 - **File:line:** `client.ts:378`
 - **Category:** Inconsistent + verbose
 - **Suggestion:** `setAccountUserPreference` or `putAccountUserPreference`.
 - **Rationale:** For setting a single preference, `set*` is the conventional SDK verb. `patch*` implies partial-update; this endpoint replaces the whole preference.
 
-### 21–23. Long type names
+### 18–20. Long type names
 
 - **File:line:** `model.ts:229, 208, 277`
 - **Category:** Overly verbose
@@ -234,7 +208,7 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
   - `PatchPublicAccountUserPreferenceRequest` (39 chars)
 - **Suggestion:** After applying the suggested simplifications (drop `Public`, drop `Message`), names shorten naturally: `ListUserPreferencesMetadataResponse`, etc.
 
-### 24. `PreviewPhase` enum — mixed temporal/qualitative members
+### 21. `PreviewPhase` enum — mixed temporal/qualitative members
 
 - **File:line:** `model.ts:11-27`
 - **Category:** Verb-tense / categorisation inconsistency
@@ -242,102 +216,63 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** Standardise. The current set has `*_PREVIEW` (qualifier-style) alongside `BETA` (single word), `GA_SOON` (temporal hedge), and `GA` (acronym). `PUBLIC_PREVIEW` vs `BETA` are essentially the same launch phase in many product lifecycles — picking one would tighten the model.
 - **Rationale:** Tension visible even in the JSDoc: "The feature is in public preview, available to all customers. Also used for gated public preview (available to customers who request access) since the distinction is internal." So `PUBLIC_PREVIEW` already covers two cases. Adding `BETA` on top is a third overlapping concept.
 
-### 25–26. Acronym casing: `Aibi` vs `AIBI`; `Gov` vs `Governance`
+### 22–23. Acronym casing: `Aibi` vs `AIBI`; `Gov` vs `Governance`
 
 - **File:line:** `model.ts:30, 88, 94, 302`
 - **Category:** Acronym casing
 - **Suggestion:** Google TS style says 2-3 letter acronyms can be TitleCase (`Aibi` ok) but longer acronyms or non-acronyms (like `Gov` for `Governance`) should be spelt out.
 
-### 27. `hours`, `minutes` with no timezone
-
-- **File:line:** `model.ts:152-153`
-- **Category:** Generic field name, missing constraint
-- **Suggestion:** Add doc specifying the time-zone interpretation, or add a `timezone?: string` field.
-- **Rationale:** A "maintenance window start time" without timezone is ambiguous (workspace TZ? customer TZ? UTC?).
-
-### 28. `*Public*` qualifier as proto-architectural leak (reframe of #17)
+### 24. `*Public*` qualifier as proto-architectural leak (reframe of #14)
 
 - **File:line:** `model.ts:156, 161, 170, 270, 277, 286`; `client.ts:83, 112, 137, 346, 378, 409`
 - **Category:** Proto-architectural leak (`Public` mid-position)
 - **Why:** `Public` in `GetPublic*Request`, `PatchPublic*Request`, and method names `getPublic*`/`patchPublic*` is a direct echo of the proto service-name `PublicSettingsService` — i.e., the *server-side* internal-vs-public service split. The TS SDK only ships the public surface, so the qualifier signals nothing the user can act on.
 - **Suggestion:** Drop `Public` from every request type and every method name. `GetAccountSettingRequest`/`getAccountSetting`, `PatchAccountSettingRequest`/`patchAccountSetting`, etc.
-- **Rationale:** This duplicates #17 and #18 but reframes them as a *proto-architectural leak* per the scan brief. `Public`/`Internal` are explicitly on the flag list. The two earlier findings catalogued the names; this one names the cause.
+- **Rationale:** This duplicates #14 and #15 but reframes them as a *proto-architectural leak* per the scan brief. `Public`/`Internal` are explicitly on the flag list. The two earlier findings catalogued the names; this one names the cause.
 
 ---
 
 ## Low severity
 
-### 29–31. Long enum values
+### 25–27. Long enum values
 
 - **File:line:** `model.ts:85, 56, 57`
 - **Category:** Long enum value
 - **Identifiers:** `RESTRICT_TOKENS_AND_JOB_RUN_AS` (28c), `FIRST_AND_THIRD_OF_MONTH` (24c), `SECOND_AND_FOURTH_OF_MONTH` (26c)
 - **Suggestion:** For `RESTRICT_TOKENS_AND_JOB_RUN_AS`, the wire string is fixed (`'RESTRICT_TOKENS_AND_JOB_RUN_AS'`), so the TS-side rename would only affect the enum-key access.
 
-### 32–35. Undocumented abbreviations in JSDoc
-
-- **File:line:** `model.ts:78, 83`
-- **Category:** Cryptic abbreviation
-- **Tokens:** "WS" (workspace), "OBO" (on-behalf-of token), "SPs" (service principals)
-- **Suggestion:** Spell out in the JSDoc.
-- **Rationale:** Users reading the IDE tooltip will see "WS admins to create OBO tokens for all SPs" without expansions.
-
-### 36–37. Acronym casing notes
+### 28–29. Acronym casing notes
 
 - **File:line:** `model.ts:157, 78`
 - **Category:** Acronym casing
 - **Notes:** `Id` (consistent), `Ws` (only in JSDoc, not identifiers — safe).
 
-### 38. `setting?: UserPreference` doc mismatch
-
-- **File:line:** `model.ts:283`
-- **Category:** Misleading
-- **Suggestion:** Update the JSDoc to refer to "user preference" rather than "setting" so the doc matches the type.
-
-### 39. `disable_gov_tag_creation` wire key
-
-- **File:line:** `model.ts:670, 1059`
-- **Category:** Cryptic abbreviation (server-controlled)
-- **Suggestion:** N/A — wire format is fixed. Note for documentation.
-
-### 40. `restrict_tokens_and_job_run_as` enum string value
+### 30. `restrict_tokens_and_job_run_as` enum string value
 
 - **File:line:** `model.ts:85`
 - **Category:** Wire value
 - **Suggestion:** N/A — wire-fixed.
 
-### 41. `IntegerMessage` misleading in JS
+### 31. `IntegerMessage` misleading in JS
 
 - **File:line:** `model.ts:175-177`
 - **Category:** Misleading
 - **Suggestion:** The "Integer" half of the name is misleading — JS has no distinct integer type, and the `value` field is typed `number` (i.e. IEEE-754 double). A neutral name like `NumberMessage` would be honest about the runtime type.
 - **Rationale:** A reader seeing `IntegerMessage` may assume validation, bigint, or some integer-preserving codec. None is present.
 
-### 42. `patch*` vs `update*`
+### 32. `patch*` vs `update*`
 
-- See #19.
+- See #16.
 
-### 43. JSDoc on `userId` says "user whose setting is being retrieved" instead of "preference"
-
-- **File:line:** `model.ts:164-165`
-- **Category:** Misleading
-- **Suggestion:** Use the same vocabulary as the type — "preference" for user-preference endpoints.
-
-### 44. Cross-package `Dbfs` casing
+### 33. Cross-package `Dbfs` casing
 
 - **File:line:** `workspacesettings/v1/model.ts` (consumer-collision risk noted; not present in this package directly)
 - **Category:** Cross-package acronym casing
 - **Suggestion:** Note for the cross-package audit, not actionable here.
 
-### 45. `host` — generic class field
+### 34. `BETA` member adjacent to `PUBLIC_PREVIEW`
 
-- **File:line:** `client.ts:54`
-- **Category:** Generic
-- **Suggestion:** `baseUrl` (consistent with `fetch` API conventions). "Host" can mean DNS host, host machine, etc.
-
-### 46. `BETA` member adjacent to `PUBLIC_PREVIEW`
-
-- See #24.
+- See #21.
 
 ---
 
@@ -387,7 +322,6 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 |------|-----------|----------|
 | `src/v2/index.ts` | 44 (full) | 100% — exports inventory only, no naming surprises beyond the type names already audited from `model.ts`. |
 | `src/v2/model.ts` | 1300 (full) | 100% — 6 enums, 23 interfaces (incl. all nested message types), 15 unmarshal-zod schemas, 15 marshal-zod schemas audited. |
-| `src/v2/client.ts` | 433 (full) | 100% — `Client` constructor and 9 client methods audited (paginated page-returning and iterator-returning variants both reviewed). Private fields (`host`, `accountId`, `httpClient`, `logger`, `userAgent`) audited. |
-| `src/v2/utils.ts` | 150 (full) | 100% — `HttpCallOptions`, `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll` audited. Shared utility code; no naming issues unique to this package (the same scaffolding appears in every package). |
+| `src/v2/client.ts` | 433 (full) | 100% — `Client` constructor and 9 client methods audited (paginated page-returning and iterator-returning variants both reviewed). |
 
 ---

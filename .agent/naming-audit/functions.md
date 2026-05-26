@@ -3,7 +3,7 @@
 **Package path:** `/home/parth.bansal/sdk-js/packages/functions/`
 **Audited files:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
 **Domain:** Unity Catalog Functions (SQL / Python UDFs and UDTFs).
-**Total weird names flagged:** 43 (0 fixed, 43 still present after rescan on 2026-05-26 post regen #156).
+**Total weird names flagged:** 38 (0 fixed, 38 still present after rescan on 2026-05-26 post regen #156).
 
 ---
 
@@ -67,12 +67,6 @@ is jargon from the Go generator distinguishing path arguments from
 request-body fields with the same key. TypeScript callers have no
 need for this distinction — the field is the function's
 fully-qualified name. See also §8.1 and §7.3.
-
-#### 3.4 `pkgJson` (client.ts:19)
-Internal variable name for `package.json`. Mild — flagged for
-consistency with other audits.
-
-#### 3.5 `respBody` (client.ts:97, 137, 181, 237, 293) — internal-only; mild.
 
 ---
 
@@ -160,8 +154,6 @@ desired name of the function, used in the body). See §9.1.
 ### 8. Verb-tense inconsistency
 
 #### 8.1 Client methods are well-aligned: `createFunction`, `deleteFunction`, `getFunction`, `listFunctions`, `updateFunction`. No tense issues.
-
-#### 8.2 `executeCall`, `executeHttpCall` (utils.ts:26, 65), `buildHttpRequest`, `flattenQueryParams` (utils.ts:96, 123) — all imperative present, consistent.
 
 No verb-tense inconsistencies found across the package.
 
@@ -256,16 +248,7 @@ A consumer cannot tell them apart from the types.
 
 ## Additional / cross-cutting observations
 
-### A. `flattenQueryParams` is defined but unused (utils.ts:123)
-Each `listFunctions` / `getFunction` / `deleteFunction` handler
-builds query strings inline with `URLSearchParams.append`
-(client.ts:115-118, 156-159, 197-212). The exported helper
-`flattenQueryParams` is never referenced by `client.ts`. Either it's
-intentionally exported for consumer use (then it should be
-documented) or it's dead code. Same finding as catalogs audit
-(cross-cutting A).
-
-### B. `fullNameArg` URL substitution silently allows empty string
+### A. `fullNameArg` URL substitution silently allows empty string
 (client.ts:122, 166, 283) — `${req.fullNameArg ?? ''}` — if
 `fullNameArg` is undefined, the URL silently becomes
 `/api/2.1/unity-catalog/functions/` and the request will fail on the
@@ -273,17 +256,13 @@ server. The naming (`fullNameArg`) and the substitution behaviour
 together hide what should be a required parameter. Worth surfacing
 via a non-optional type or a typed assertion.
 
-### C. `marshalUpdateFunctionRequestSchema` serialises `fullNameArg` into the body
+### B. `marshalUpdateFunctionRequestSchema` serialises `fullNameArg` into the body
 (model.ts:799) `fullNameArg` is a path parameter — but the marshal
 schema produces a JSON field `full_name_arg`. Either the server
 tolerates the extra field or this is a bug. The `Arg` suffix lets
 the bug hide.
 
-### D. `Client` constructor throws bare `Error` for missing `host` (client.ts:59)
-"Host is required." — bare `Error`. Not a naming issue, flagged for
-consistency with the catalogs audit.
-
-### E. Package-name collision with JavaScript reserved word
+### C. Package-name collision with JavaScript reserved word
 The package is named `@databricks/sdk-functions` and the npm
 workspace path is `packages/functions/`. `function` is a JS reserved
 word; `functions` is not, but the proximity is jarring. Importers
@@ -294,7 +273,7 @@ shadows nothing, but the combination of the package name and the
 `Dependency.value.$case === 'function'` pattern creates a vocabulary
 where "function" is overloaded.
 
-### F. `parameterStyle: FunctionInfo_ParameterStyle` with one variant `S`
+### D. `parameterStyle: FunctionInfo_ParameterStyle` with one variant `S`
 The most extreme case of a single-purpose API surface: a long enum
 type holding a one-letter variant, only ever set to `S`, marshaled
 as the JSON string `"S"`. Three layers of indirection for a constant.
@@ -418,8 +397,7 @@ envelope visibly reflect proto oneof semantics. Already noted in
 | `UpdateFunctionRequest.fullNameArg / name`               | model.ts:324, 326     | 3.3, 7.4, 11.1 |
 | `UpdateFunctionRequest.fullName`                         | model.ts:372          | 7.2, 11.4 |
 | `Client` (bare name)                                     | client.ts:44          | 9.1 |
-| `${req.fullNameArg ?? ''}` URL substitution              | client.ts:122, 166, 283 | B |
-| `flattenQueryParams` (unused export)                     | utils.ts:123          | A |
+| `${req.fullNameArg ?? ''}` URL substitution              | client.ts:122, 166, 283 | A |
 
 ---
 
@@ -428,6 +406,5 @@ envelope visibly reflect proto oneof semantics. Already noted in
 1. **Fix `fullNameArg` / `name` confusion on `UpdateFunctionRequest`** — there is no `newName` field, so `name`'s role (current vs new) is undocumented. (§11.1, §3.3)
 2. **Expose `SQL` / spell-out variants for cryptic single-letter enums** (`FunctionInfo_ParameterStyle.S`, `FunctionParameterMode.IN`, `FunctionInfo_SecurityType.DEFINER`). (§2.1, §2.2, §3.1, §3.2)
 3. **Strip read-only fields from `CreateFunction` / `UpdateFunctionRequest`.** (§11.2)
-4. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
 
 ---

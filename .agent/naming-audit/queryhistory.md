@@ -3,15 +3,15 @@
 **Path:** `packages/queryhistory/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Read-only query history API for Databricks SQL warehouses and serverless compute. Surfaces a single endpoint that lists historical queries with filter/pagination and returns per-query status, timing, identity, source, and execution metrics.
-**Total weird names flagged:** 25
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 2 |
-| Medium | 12 |
-| Low | 11 |
-| Observation | 3 |
+| Medium | 8 |
+| Low | 5 |
+| Observation | 1 |
 
 ## High severity
 
@@ -59,42 +59,18 @@
 - **Suggested name:** Pick one convention across the package and apply it uniformly.
 - **Rationale:** Cross-enum consistency. The proto3 zero-value member must exist on every enum, but the spelling of that member (`UNKNOWN` vs `UNSPECIFIED`) should be consistent across the package.
 
-### 8. `QueryStatementType.OTHER` — vague catch-all — `src/v1/model.ts:30`
-- **Why weird:** `OTHER` is a vague catch-all value within an otherwise specific enum of SQL statement keywords (`SELECT`, `INSERT`, ...). A caller seeing `statementType === 'OTHER'` has no way to recover what the statement actually was.
-- **Category:** 1 (vague)
-- **Suggested name:** Keep `OTHER` (no good alternative) but document the value to explain when the runtime emits it.
-- **Rationale:** Without documentation the value is opaque; documenting it removes most of the surprise.
-
-### 9. `QueryStatus.CANCELED` — spelling and verb-tense — `src/v1/model.ts:82`
-- **Why weird:** `CANCELED` (single-l, US) where most JavaScript ecosystems use `cancelled` (double-l) and at minimum should be consistent with the rest of the codebase. More importantly: every other `QueryStatus` value is a past participle (`QUEUED`, `STARTED`, `COMPILED`, `FAILED`, `FINISHED`) or `-ING` (`COMPILING`, `RUNNING`). `CANCELED` fits the past-participle pattern — flag only for spelling.
-- **Category:** 13 (verb-tense — minor) plus orthographic
-- **Suggested name:** Keep `CANCELED` if that matches the wire (and project-wide policy); flag for cross-package consistency.
-- **Rationale:** The W3C HTML spec uses `cancelled`; Node.js, the DOM, and most npm packages use `canceled`. The wire form here is `"CANCELED"`, so the TS surface should match. Just record the choice.
-
-### 10. `QueryStatus.STARTED` and `COMPILED` — deprecated but exported — `src/v1/model.ts:65,75`
-- **Why weird:** Both enum values are documented as `DEPRECATED: to be removed once runtime side change is picked up.` Yet they're exported in `index.ts` (since `QueryStatus` is) and have no JSDoc `@deprecated` tag. IDE autocomplete will offer them indistinguishably from current values.
-- **Category:** 11 (effectively dead) plus tooling concern
-- **Suggested name:** No rename. Add `@deprecated` JSDoc on each so IDEs show the strikethrough and the doc surfaces in tooltips.
-- **Rationale:** TypeScript honors `@deprecated` in completions; the current comment is informational only.
-
-### 11. `QueryInfo.executionEndTimeMs` vs `queryEndTimeMs` — domain confusion — `src/v1/model.ts:195,197`
-- **Why weird:** Two `*End*Ms` fields next to each other. The doc comments are: `The time execution of the query ended.` (executionEndTimeMs) and `The time the query ended.` (queryEndTimeMs). Are these different? When? The metrics type later splits time into `compilationTimeMs`, `executionTimeMs`, `resultFetchTimeMs` — so plausibly "execution end" is after spark execution but before fetch, while "query end" is after fetch. The TS types do not encode this. A reader has to guess.
-- **Category:** 1, 6, 19 (vague; misleading; underspecified time field)
-- **Suggested name:** Keep both names but rewrite the docs to spell out the relationship and the relative ordering (`queryStartTimeMs ≤ executionEndTimeMs ≤ queryEndTimeMs`). Optionally rename to `executionEndTimeMs` / `resultsDeliveredTimeMs`.
-- **Rationale:** This is the kind of field that turns into a billing/SLA bug if confused. The audit is naming-only, but the names *here* are the source of the confusion.
-
-### 12. `QueryInfo.warehouseId` and `endpointId` co-existing — `src/v1/model.ts:205,232`
+### 8. `QueryInfo.warehouseId` and `endpointId` co-existing — `src/v1/model.ts:205,232`
 - **Why weird:** Cross-reference of #2: these two fields both exist on `QueryInfo`. The audit calls out the *duplication*; the names *individually* are also weak — `warehouseId` is fine; `endpointId` is misleading (the wire form keeps it for back-compat with the old SQL Endpoint API).
 - **Category:** 19, 16 (underspecified ID; field contradicting type domain)
 - **Suggested name:** See #2.
 
-### 13. `QueryInfo.sessionId` — overloaded identifier — `src/v1/model.ts:222`
+### 9. `QueryInfo.sessionId` — overloaded identifier — `src/v1/model.ts:222`
 - **Why weird:** Doc reads `The spark session UUID that query ran on. This is either the Spark Connect, DBSQL, or SDP session ID.` Three distinct session-ID namespaces collapsed into one field with no discriminator. Caller cannot tell, from the field alone, which session type the ID refers to.
 - **Category:** 15, 19 (generic field; underspecified ID)
 - **Suggested name:** Keep `sessionId` but add a sibling `sessionType?: 'SPARK_CONNECT' | 'DBSQL' | 'SDP'` or split into three optional fields.
 - **Rationale:** A naked UUID with three possible namespaces is a debugging hazard.
 
-### 14. `QueryInfo.metrics: QueryMetrics` vs `QueryInfo.duration: number` — `src/v1/model.ts:213,237`
+### 10. `QueryInfo.metrics: QueryMetrics` vs `QueryInfo.duration: number` — `src/v1/model.ts:213,237`
 - **Why weird:** A `metrics` sub-object exists, and *also* a top-level `duration` field on `QueryInfo`. Inside `QueryMetrics` there is `totalTimeMs` (`Total execution time of the query from the client's point of view, in milliseconds.`). What's the difference between `QueryInfo.duration` and `QueryInfo.metrics.totalTimeMs`? The doc on `duration` says `Total time of the statement execution. This value does not include the time taken to retrieve the results...` — so `duration` excludes result fetch, while `totalTimeMs` doesn't. Two near-synonym fields, in two places.
 - **Category:** 12, 1 (duplicate concepts; vague)
 - **Suggested name:** Move `duration` into `QueryMetrics` as `executionTimeExcludingFetchMs` (or use the existing `executionTimeMs`), and remove the top-level `duration`.
@@ -102,82 +78,40 @@
 
 ## Low severity
 
-### 15. `ExternalQuerySource.dashboardId` vs `legacyDashboardId` — `src/v1/model.ts:99,101`
-- **Why weird:** Two dashboard-related ID fields on the same type. `legacyDashboardId` implies pre-Lakeview dashboards (the JSDoc on `dashboardId` is "this Lakeview dashboard"). Both can be set simultaneously? The semantics are not encoded — should be a discriminated union (`{ kind: 'lakeview', id } | { kind: 'legacy', id }`).
-- **Category:** 12, 19 (duplicate concept; underspecified)
-- **Suggested name:** Keep the names; consider a `kind` discriminator. At minimum, document the mutual exclusivity.
-- **Rationale:** Documentation fix more than naming.
-
-### 16. `ExternalQuerySource.alertId` and `sqlQueryId` and `genieSpaceId` — — `src/v1/model.ts:103,107,110`
+### 11. `ExternalQuerySource.alertId` and `sqlQueryId` and `genieSpaceId` — — `src/v1/model.ts:103,107,110`
 - **Why weird:** Several optional IDs co-exist on `ExternalQuerySource` with no rule about which is set when. Discriminated-union opportunity not taken. Field names are individually fine; together they encode "exactly one of N" weakly.
 - **Category:** 19 (underspecified)
 - **Suggested name:** As above — convert to discriminated union.
 - **Rationale:** TS can encode this; Go cannot. Lost in 1:1 port.
 
-### 17. `ExternalQuerySource_JobInfo.jobTaskRunId` — — `src/v1/model.ts:120`
-- **Why weird:** Three IDs on one type: `jobId`, `jobRunId`, `jobTaskRunId`. The naming is consistent and self-documenting. `jobTaskRunId` (one identifier for "task run within a job run") could be ambiguous: is it the run-ID of a *task* (with `jobRunId` being the run-ID of the whole job), or vice versa? The doc says `The canonical identifier of the task run.` — confirms the former.
-- **Category:** 19 (underspecified)
-- **Suggested name:** Acceptable; if confusion arises, rename to `taskRunIdWithinJobRun`.
-- **Rationale:** Documentation is sufficient.
-
-### 18. `QueryMetrics.totalTimeMs` vs `executionTimeMs` vs `taskTotalTimeMs` vs `photonTotalTimeMs` — — `src/v1/model.ts:261,269,279,285`
-- **Why weird:** Four time fields; the relationship is `totalTime ≥ compilationTime + executionTime + resultFetchTime` (roughly), and `executionTime` aggregates `taskTotalTime` and `photonTotalTime`. The names don't encode the hierarchy; a developer must read all four docs to understand. Individually each name is OK.
-- **Category:** 1 (vague — collectively)
-- **Suggested name:** Keep, but add a JSDoc on `QueryMetrics` summarizing the hierarchy.
-- **Rationale:** Documentation > rename.
-
-### 19. `QueryMetrics.workToBeDone` — phrase as field name — `src/v1/model.ts:319`
-- **Why weird:** Phrase rather than a noun. Doc says "remaining work to be done... deprecated: using projected_remaining_task_total_time_ms instead". So this is a deprecated field with a name that reads like English prose ("work to be done") rather than a TS identifier. Reads awkwardly: `metrics.workToBeDone`.
-- **Category:** 7, 14 (verbose; Go/Java-style phrase)
-- **Suggested name:** Already deprecated. If kept for back-compat, that's fine. New consumers should use `projectedRemainingTaskTotalTimeMs`.
-- **Rationale:** Will be removed; flag for awareness only.
-
-### 20. `QueryMetrics.runnableTasks` — — `src/v1/model.ts:324`
-- **Why weird:** Doc says `number of remaining tasks to complete, calculated by autoscaler StatementAnalysis.scala. deprecated: use remaining_task_count instead`. So `runnableTasks` actually means "remaining tasks" — name and meaning don't align. Also deprecated.
-- **Category:** 6, 1 (misleading; vague)
-- **Suggested name:** Deprecated. Use `remainingTaskCount`. Flag for awareness.
-- **Rationale:** Same as #19.
-
-### 21. `QueryMetrics.rowsProducedCount` vs `QueryInfo.rowsProduced` — — `src/v1/model.ts:265,207`
+### 12. `QueryMetrics.rowsProducedCount` vs `QueryInfo.rowsProduced` — — `src/v1/model.ts:265,207`
 - **Why weird:** `QueryInfo.rowsProduced` (no `Count` suffix) and `QueryMetrics.rowsProducedCount` (with `Count` suffix). Same concept, two field names. The `QueryInfo` doc says "The number of results returned by the query"; the `QueryMetrics` doc says "Total number of rows returned by the query." Are these always equal? Probably. Different names = different fields.
 - **Category:** 12, 9 (duplicate concepts; plural/singular mismatch)
 - **Suggested name:** Drop one. Keep `QueryMetrics.rowsProducedCount` if metrics is the right home; or rename one to match the other.
 - **Rationale:** Same value reachable through two paths is a maintenance hazard.
 
-### 22. `TaskTimeOverRange.entries` / `TaskTimeOverRangeEntry` — — `src/v1/model.ts:349,358`
+### 13. `TaskTimeOverRange.entries` / `TaskTimeOverRangeEntry` — — `src/v1/model.ts:349,358`
 - **Why weird:** `TaskTimeOverRange` and `TaskTimeOverRangeEntry` are paired (collection + element). Element type appends `Entry` — that's a known convention from `WindowsAzure`-style SDKs (`*Item`, `*Entry`). Could be `TaskTimeBucket` (parent) and `TaskTimeBucketPoint` (child) — domain-specific names. Acceptable as-is.
 - **Category:** 1 (vague — `Entry`)
 - **Suggested name:** Optional rename to domain names.
 - **Rationale:** Marginal.
 
-### 23. `QueryFilter.statuses` doc — recommends against using it — `src/v1/model.ts:170`
-- **Why weird:** Doc says `Filtering for multiple statuses is not recommended. Instead, opt to filter by a single status multiple times and then combine the results.` This is a behaviour quirk; field name is fine. Flag for documentation polish.
-- **Category:** observation
-- **Suggested name:** Keep `statuses`; document why multi-filter is discouraged on the type, not just on the field.
-- **Rationale:** Surfaces the constraint.
-
-### 24. `QueryTag.key` / `QueryTag.value` — both optional — `src/v1/model.ts:344,345`
+### 14. `QueryTag.key` / `QueryTag.value` — both optional — `src/v1/model.ts:344,345`
 - **Why weird:** Both fields are `?: string | undefined`. A tag with no key is meaningless, yet the schema allows it. The TS interface should make `key` required if business logic requires it. This is a generated-code limitation (proto3 marks scalars as optional), but the names are also weak — `key` and `value` are the *most* generic names possible.
 - **Category:** 1 (vague)
 - **Suggested name:** Acceptable as proto-mirror; ideal would be `name: string; value?: string`.
 - **Rationale:** Minor.
 
-### 25. `ExternalQuerySource.legacyDashboardId` — `Legacy` mid-position architectural-leak modifier — `src/v1/model.ts:101`
+### 15. `ExternalQuerySource.legacyDashboardId` — `Legacy` mid-position architectural-leak modifier — `src/v1/model.ts:101`
 - **Why weird:** `Legacy` is a temporal/architectural modifier mid-name — it tags the identifier as belonging to the *old* product (pre-Lakeview dashboards). The "legacy" label only has meaning inside Databricks' product roadmap; SDK consumers who don't know that Databricks shipped a new dashboard product see "legacy" as architectural noise. Names like `Legacy`/`Modern`/`Old`/`New` mid-position bake a release-timeline distinction into the public type surface; once a third dashboard product ships, the name becomes a lie.
 - **Category:** proto-architectural-leak (`Legacy` mid-position temporal modifier)
-- **Suggested name:** `redashDashboardId` (or whatever the underlying product is actually called), or fold into a discriminated union as suggested in #15.
+- **Suggested name:** `redashDashboardId` (or whatever the underlying product is actually called), or fold into a discriminated union as suggested in #11.
 - **Rationale:** Replace the temporal modifier with the actual product name. The Go SDK keeps `legacy_dashboard_id` because of wire-format back-compat; the TS surface can rename without breaking the wire transform.
 
 ## Observations
 
 ### O1. `Client` is the only exported class — `src/v1/client.ts:32`
 - The class is just `Client`. Consistent across the SDK (so a project-level concern), but worth noting that `import { Client } from '@databricks/sdk-queryhistory/v1'` produces a bare name that collides with every other package's `Client`. Consumers must rename on import.
-
-### O2. `flattenQueryParams` exported but only used internally — `src/v1/utils.ts:123`
-- `flattenQueryParams` is `export`ed from `utils.ts`, used in `client.ts`, and not re-exported from `index.ts`. Module-private would suffice, but the helper has to be cross-file. This is a generated-code pattern; flag at the generator level. (Identical to #15 in the `accountaccesscontrol` audit, suggesting this is package-wide.)
-
-### O3. `executeCall` and `executeHttpCall` — overlapping verb pair — `src/v1/utils.ts:26,65`
-- Two functions, similar names, different purposes. `executeCall` is the public-`CallOptions` adapter; `executeHttpCall` is the wire-level executor. Names don't signal that one wraps the other. Could be `applyCallOptions` + `sendHttpRequest`. Generated-code concern. (See also the `accountaccesscontrol` audit O2.)
 
 ## Cross-cutting themes
 

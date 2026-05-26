@@ -3,14 +3,14 @@
 **Path:** `packages/scim/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** SCIM (System for Cross-domain Identity Management, RFC 7644) — workspace and account user, service principal, and group provisioning, plus password permissions. `SCIM` itself is an industry-standard protocol acronym and is treated as a domain word.
-**Total weird names flagged:** 13
+**Total weird names flagged:** 10
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 5 |
-| Medium | 4 |
-| Low | 2 |
+| High | 4 |
+| Medium | 3 |
+| Low | 1 |
 | Observation | 2 |
 
 ## High severity
@@ -39,33 +39,21 @@
 - **Suggested name:** Drop the per-type `Schema` enums; type the field as a const string union (`type GroupSchema = "urn:ietf:params:scim:schemas:core:2.0:Group"`) or hide it entirely behind the marshaller (the client knows which URNs to send). The `_UNSPECIFIED` zero values should disappear.
 - **Rationale:** The enum wraps a single literal URN per type — a `const` is simpler and matches what the spec actually says. The `_UNSPECIFIED` zero is a proto3 default-value artifact with no SCIM meaning.
 
-### 5. `Resources` PascalCase wire field surfaces in unmarshaller — `src/v1/model.ts:1096,1111,1128,1143,1160,1178`
-- **Why weird:** Every list-response unmarshaller declares the wire field as `Resources` (capital R), e.g. `Resources: z.array(...)`, then transforms to `resources` (camelCase) in the output. The capital-`R` form is the proto-generated JSON name for a field whose proto name was `resources` and whose `json_name` annotation was set to `Resources`. It then leaks into the Zod schema as the literal wire key. While not a public-facing type name, it documents a proto-convention divergence (proto `lower_snake` → JSON `Resources`) baked into the generator that has no SCIM-spec justification.
-- **Category:** Proto-architecture leak
-- **Suggested name:** The wire field name is fixed by SCIM (which uses `Resources` with capital R, per RFC 7644 §3.4.2); this one is technically correct. Flag for verification rather than rename: ensure the JSDoc on `*Response.resources` says "SCIM lists this as `Resources` on the wire (RFC 7644 §3.4.2)" so the casing is not assumed to be a bug.
-- **Rationale:** Distinguishes spec-mandated quirk from proto artifact; the visual similarity to a generator leak warrants a comment.
-
 ## Medium severity
 
-### 6. `Operations` PascalCase wire key in marshal output — `src/v1/model.ts:1576,1591,1604,1617,1629,1641`
-- **Why weird:** Every patch-request marshaller transforms `operations` (camelCase TS) to `Operations` (PascalCase wire). Same shape as finding 5, but on the outbound side. Per RFC 7644 §3.5.2, the SCIM patch wire field is `Operations` (capital O), so this is spec-mandated. Flag for the same reason: it looks like a proto-RPC leak but is actually SCIM.
-- **Category:** Proto-architecture leak
-- **Suggested name:** No rename. Add a comment in the marshallers explaining the capital `Operations` is from RFC 7644 §3.5.2.
-- **Rationale:** Audit-trail clarity. Without the comment, a reader cleaning up "obvious" proto leftovers might lowercase this and break the wire.
-
-### 7. `ListServicePrincipalResponse` singular type for a list — `src/v1/model.ts:583`
+### 5. `ListServicePrincipalResponse` singular type for a list — `src/v1/model.ts:583`
 - **Why weird:** The list-response type is `ListServicePrincipalResponse` (singular `ServicePrincipal`) while the request type is `ListServicePrincipalsRequest` (plural). Compare to `ListAccountServicePrincipalsResponse` (plural) on line 510. The singular form on a list response reads as a proto message-name copy where the inner message is `ServicePrincipal` and the outer wraps it — i.e., proto's habit of letting the inner singular name dominate.
 - **Category:** Proto-architecture leak
 - **Suggested name:** `ListServicePrincipalsResponse`.
 - **Rationale:** Symmetry with sibling types and with the request name; the current singular is a generator artifact.
 
-### 8. `PatchOp` enum and `Patch.op` field tautology — `src/v1/model.ts:34,143,715`
+### 6. `PatchOp` enum and `Patch.op` field tautology — `src/v1/model.ts:34,143,715`
 - **Why weird:** `PatchOp` is the enum of patch operation kinds (`ADD`/`REMOVE`/`REPLACE`); `Patch.op` is the field that holds one. The TS field is `op` of type `PatchOp` (or `AccountPatchOp_PatchOp` for the account variant), so the enum has `Op` baked into its own name *and* the field is `op` — `Patch.op: PatchOp` is a type-suffix tautology and `AccountPatchOp_PatchOp` is the worst-case version of finding 1.
 - **Category:** Proto-architecture leak
 - **Suggested name:** Rename the enum to `PatchOperation` (or just inline as a string literal union `"ADD" | "REMOVE" | "REPLACE"`); keep the field `op`.
 - **Rationale:** `Op` is a proto shorthand for "operation"; the TS type name should spell it out, and the `_PatchOp` re-suffix should vanish.
 
-### 9. Sentinel `*_UNSPECIFIED` enum values — `src/v1/model.ts:18,24,29,35,42,47,52,59,66,74,82,88,96`
+### 7. Sentinel `*_UNSPECIFIED` enum values — `src/v1/model.ts:18,24,29,35,42,47,52,59,66,74,82,88,96`
 - **Why weird:** Every enum carries an `_UNSPECIFIED` zero value: `GET_SORT_ORDER_UNSPECIFIED`, `GROUP_SCHEMA_UNSPECIFIED`, `LIST_RESPONSE_SCHEMA_UNSPECIFIED`, `PATCH_OP_UNSPECIFIED`, `PATCH_SCHEMA_UNSPECIFIED`, `SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED`, `USER_SCHEMA_UNSPECIFIED`, `ORDER_UNSPECIFIED`, `LEVEL_UNSPECIFIED`, and copies under each `Account*` variant. The `*_UNSPECIFIED` zero is a proto3 default-value convention with no semantic meaning in TS, where an enum field can simply be optional.
 - **Category:** Proto-architecture leak
 - **Suggested name:** Drop the `_UNSPECIFIED` variants. Express absence as `undefined` (the fields are already optional).
@@ -73,22 +61,16 @@
 
 ## Low severity
 
-### 10. `MeRequest` mid-position colloquial pronoun — `src/v1/model.ts:652`
+### 8. `MeRequest` mid-position colloquial pronoun — `src/v1/model.ts:652`
 - **Why weird:** Not a proto leak per se, but the `Me` segment in `MeRequest` is a proto-style shorthand: SCIM defines `GET /Users/me` as the "current user" endpoint, and the proto generator turned `Me` into a type prefix instead of using a verb. `MeRequest` reads as "a Me-shaped request" — the request *to* the `me` endpoint would be `GetCurrentUserRequest` or `GetMeRequest`.
 - **Category:** Proto-architecture leak
 - **Suggested name:** `GetCurrentUserRequest` (and rename `client.me()` to `getCurrentUser()`); or `GetMeRequest` if the URL slug is preserved.
 - **Rationale:** Pronouns are not normally type prefixes in TS; this is the proto RPC name leaking through.
 
-### 11. `unmarshal*Schema` / `marshal*Schema` exported helpers — `src/v1/model.ts:934-1791`
-- **Why weird:** Each (un)marshaller is exported as `unmarshal<Type>Schema` / `marshal<Type>Schema`. The `Schema` suffix here refers to the *Zod schema* used to parse, but in a SCIM package the word `Schema` already means a SCIM resource schema URN (see findings 4 and the `GroupSchema`/`UserSchema` enums). Two unrelated meanings of `Schema` in the same module are easy to confuse on read.
-- **Category:** Proto-architecture leak
-- **Suggested name:** Either drop the `Schema` suffix (e.g. `unmarshalUser`/`marshalUser`) or rename to `unmarshalUserCodec`/`marshalUserCodec`. The conflict is a generator-template choice that ignored the domain vocabulary.
-- **Rationale:** Disambiguate the two `Schema` namespaces in one file.
-
 ## Observations
 
 ### O1. `eslint-disable` density as a signal — `src/v1/model.ts:57,64,72,80,86,94,108,131,150,153,403,411,618`
-- The file carries 13 inline `eslint-disable-next-line` comments, all for `@typescript-eslint/naming-convention` (proto-nested enum names) or `@typescript-eslint/no-empty-object-type` (empty proto messages). Every disable corresponds to a proto-architecture artifact — taken together, they form a precise list of the proto-shaped pieces the linter wanted to flag and the generator decided to suppress. Removing the underlying patterns (findings 1, 2, 8) would also remove every disable in this file.
+- The file carries 13 inline `eslint-disable-next-line` comments, all for `@typescript-eslint/naming-convention` (proto-nested enum names) or `@typescript-eslint/no-empty-object-type` (empty proto messages). Every disable corresponds to a proto-architecture artifact — taken together, they form a precise list of the proto-shaped pieces the linter wanted to flag and the generator decided to suppress. Removing the underlying patterns (findings 1, 2, 6) would also remove every disable in this file.
 
 ### O2. Workspace and account API split at type level, not namespace — package vs siblings
 - Sibling packages `accountusers`, `accountgroups`, etc. exist for account-scope IAM at higher levels of the SDK; this package interleaves both scopes (`createUser` vs `createAccountUser`, `listGroups` vs `listAccountGroups`) on a single `Client`. The naming convention is mid-position `Account` (finding 3), which is a proto-package-name leak. A consumer who only wants workspace SCIM still sees every account method in IDE autocomplete.

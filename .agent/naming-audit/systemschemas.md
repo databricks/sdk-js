@@ -3,14 +3,14 @@
 **Path:** `packages/systemschemas/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog *system schemas* (curated, server-managed schemas such as `access`, `billing`, `lineage`, `query`) — enable/disable a system schema in a metastore and list the system schemas under a metastore.
-**Total weird names flagged:** 10
+**Total weird names flagged:** 8
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 3 |
-| Medium | 3 |
-| Low | 2 |
+| Medium | 2 |
+| Low | 1 |
 | Observation | 2 |
 
 ## High severity
@@ -41,13 +41,7 @@
 - **Suggested name:** Keep names; change type to non-optional. (Out of scope for a *naming* audit, but the optionality leaks into how the names should be interpreted.)
 - **Rationale:** Path-required fields must be required. Treating them as optional weakens the contract; the name `metastoreId` reads as "the metastore id" but the type says "you can omit this".
 
-### 5. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:37`
-- **Why weird:** `Segment` is a generic CS term. Comment explains it's the User-Agent identity segment; without the comment the constant name doesn't communicate intent.
-- **Category:** 1 (vague), 15 (generic field name).
-- **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
-- **Rationale:** Minor; flagged for cross-SDK consistency since the same constant appears in every generated client.
-
-### 6. `Client` — `src/v1/client.ts:42`
+### 5. `Client` — `src/v1/client.ts:42`
 - **Why weird:** Class is just `Client` (no domain qualifier). Once a consumer imports `import {Client} from '@databricks/sdk-systemschemas/v1'`, the bare name carries no clue about which API surface it talks to. The other generated packages have the same problem, so they all clash on import.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `SystemSchemasClient`.
@@ -55,24 +49,18 @@
 
 ## Low severity
 
-### 7. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:50`, `client.ts:185`
+### 6. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:50`, `client.ts:185`
 - **Why weird:** `listSystemSchemasIter` (client.ts:185) checks `resp.nextPageToken === undefined || resp.nextPageToken === ''` to know it's done — i.e., the wire uses an empty string as a sentinel. The TS type `nextPageToken: string | undefined` doesn't capture this contract; readers must inspect the iterator code to learn that `''` is a terminator.
 - **Category:** 6 (misleading — type allows `''` but doc says "Absent if there are no more pages"), 16 (field-vs-doc mismatch).
 - **Suggested name:** Keep the name; tighten the contract by replacing `''` with `undefined` in the zod transform (model.ts:78-83) so callers see a consistent sentinel.
 - **Rationale:** A naming review surfaces the contract drift even though the renaming target is the marshaller, not the field.
 
-### 8. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
-- **Why weird:** Two functions whose names differ by a single `Http` infix, handling very different layers (retry/rate-limit wrapper vs raw HTTP send + logging).
-- **Category:** 1 (vague), 17 (inconsistent).
-- **Suggested name:** `runWithCallOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
-- **Rationale:** Same pattern across the SDK; collected for the cross-package sweep.
-
 ## Observations
 
-### 9. Action-verb consistency in `Client`
+### 7. Action-verb consistency in `Client`
 Methods are `disable`, `enable`, `list` — no mixed `delete`/`remove` or `fetch`/`get`. The pair `enable` / `disable` is also a clean antonym, which is good. Flagged per rule 17 because the audit asked for inconsistency *and* notable consistency.
 
-### 10. Domain noun overlap: `Schema`, `SystemSchema`, `schemas:` field, `Schema` zod
+### 8. Domain noun overlap: `Schema`, `SystemSchema`, `schemas:` field, `Schema` zod
 The word "schema" appears in this single package as a wire field, a domain noun (`SystemSchema`), the package name (`systemschemas`), and a library term (zod's `Schema`). Multiple overlapping uses of the same word in a 106-line model file. Worth raising as a package-design issue rather than a per-name fix.
 - **Category:** 12 (duplicate concept), 17 (inconsistent meaning of same word within one module).
 

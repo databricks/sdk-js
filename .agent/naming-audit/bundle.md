@@ -1,7 +1,7 @@
 # Naming Audit — `@databricks/sdk-bundle` (v1)
 
 **Package path:** `/home/parth.bansal/sdk-js/packages/bundle/`
-**Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`, `src/v1/index.ts`
+**Files audited:** `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/index.ts`
 **Domain:** Databricks Asset Bundles (DAB) — control-plane registry for `databricks bundle deploy`/`destroy` runs.
 
 ---
@@ -12,9 +12,9 @@
 | ------------ | ----- |
 | High         | 3     |
 | Medium       | 6     |
-| Low          | 6     |
-| Observation  | 5     |
-| **Total**    | **20** |
+| Low         | 5     |
+| Observation  | 4     |
+| **Total**    | **18** |
 
 Dominant themes:
 1. **`VersionComplete` is a misleading type name.** It is a noun that reads like a boolean predicate, but it actually carries a completion *reason* enum; the type, the field that holds it (`completionReason`), and the values disagree on terminology.
@@ -171,33 +171,21 @@ This is correct re-use — both reference the same bundle config path. No issue.
 
 ---
 
-### L6. `deployments` request method names vs URL path consistency
-
-**Location:** `Client.listDeployments` → `/api/2.0/bundle/deployments` (`client.ts:428`).
-
-The URL is `/api/2.0/bundle/deployments` (`/api/2.0/{service}/{resource}`). The method `listDeployments` matches. No issue, just noting the package's external resource is named "deployment" and the package is named "bundle", reinforcing the H2 observation that "Bundle" is in the URL but absent from type names.
-
----
-
 ## Observations (Non-Defects)
 
 ### O1. JSDoc on the `state` fields is good
 
 `Resource.state` and `Operation.state` both clearly say "Serialized local config state". Doc-level disambiguation is solid.
 
-### O2. Pagination wire shape is uniform and correct
-
-`pageSize`, `pageToken`, `nextPageToken` — all four `List*Request`/`List*Response` pairs are mechanically identical on the wire.
-
-### O3. `Resource.state` is `JsonValue` from `@databricks/sdk-core/wkt` — correct typing
+### O2. `Resource.state` is `JsonValue` from `@databricks/sdk-core/wkt` — correct typing
 
 The `jsonValueSchema` (recursive Zod) is a clean port pattern. The field type is correct.
 
-### O4. Method `getResource` returns `Resource`, no naming collision
+### O3. Method `getResource` returns `Resource`, no naming collision
 
 `client.ts:341` returns `Resource` (the per-deployment tracked resource). No confusion with `DeploymentResourceType` here at the *method* level.
 
-### O5. Comment on the `name`-vs-`destroy` divergence is appreciated
+### O4. Comment on the `name`-vs-`destroy` divergence is appreciated
 
 `Deployment.destroyTime` has an in-code justification (`model.ts:256-257`) explaining why it's not `deleteTime`. This kind of inline rationale is exactly what's missing on other overloaded fields.
 
@@ -226,11 +214,10 @@ The `jsonValueSchema` (recursive Zod) is a clean port pattern. The field type is
 
 | File              | Lines | Findings                                                                          |
 | ----------------- | ----- | --------------------------------------------------------------------------------- |
-| `src/v1/model.ts` | 842   | H1, H2, H3, M1-M4, M6, L1, L2, L4, L5, O1, O3, O5                                  |
-| `src/v1/client.ts`| 629   | H3 (method name), M5, L6, O4                                                       |
-| `src/v1/utils.ts` | 150   | (no findings — internal helpers, all well-named: `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`, `HttpCallOptions`) |
+| `src/v1/model.ts` | 842   | H1, H2, H3, M1-M4, M6, L1, L2, L4, L5, O1, O2, O4                                  |
+| `src/v1/client.ts`| 629   | H3 (method name), M5, O3                                                           |
 | `src/v1/index.ts` | 39    | Re-exports — inherits findings from `model.ts` and `client.ts`.                   |
 
-Every exported identifier in `model.ts` and `client.ts` was inspected. `utils.ts` and `index.ts` produced no incremental findings beyond what the model/client files surface.
+Every exported identifier in `model.ts` and `client.ts` was inspected. `index.ts` produced no incremental findings beyond what the model/client files surface.
 
 ---

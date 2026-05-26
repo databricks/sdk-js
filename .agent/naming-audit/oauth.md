@@ -31,8 +31,8 @@ account-side complement to RFC 6749 client registration.
 | High | 1 |
 | Medium | 0 |
 | Low | 2 |
-| Observation | 1 |
-| **Total** | **3 (+ 1 observation)** |
+| Observation | 0 |
+| **Total** | **3** |
 
 The audit excludes the `OAuth*` brand-name spelling (RFC 6749 platform-name
 exception), `*_UNSPECIFIED` proto sentinels, `*_Response` proto-nested
@@ -124,15 +124,7 @@ _None._
 
 ## Observations (not flags)
 
-### O1. `flattenQueryParams` exported but unused — `utils.ts:123`
-- The helper is exported from `utils.ts` but the three list endpoints
-  in this package (`listCustomOAuthAppIntegrations`,
-  `listPublishedOAuthAppIntegrations`, `listPublishedOAuthApps`) all
-  use flat scalar query parameters (`pageToken`, `pageSize`,
-  `includeCreatorUsername`), so the helper is dead code in this
-  build. Same pattern in many sibling packages — either drop the
-  `export` here or lift the helper into `@databricks/sdk-core` so it
-  is not duplicated 93 times.
+_None._
 
 ---
 

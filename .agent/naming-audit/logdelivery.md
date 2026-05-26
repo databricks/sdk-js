@@ -9,15 +9,15 @@ delivery configuration ties a `credentialsId` (AWS IAM role) and a
 `AUDIT_LOGS`), optionally scoped by a workspace-IDs filter. There is no
 delete endpoint by design — the API only supports disabling via the
 update (`PATCH`) method.
-**Total weird names flagged:** 19
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 4 |
-| Medium | 7 |
-| Low | 6 |
-| Observation | 2 |
+| Medium | 5 |
+| Low | 3 |
+| Observation | 1 |
 
 ## High severity
 
@@ -86,62 +86,27 @@ update (`PATCH`) method.
 - **Suggested name:** `workspaceIds: bigint[]` (matches int64 wire). Alternative: brand the IDs as `WorkspaceId` via `type WorkspaceId = bigint & {__brand: 'WorkspaceId'}`.
 - **Rationale:** Cross-package finding — every `*Id: number` typed against an int64 wire has the same hazard. Generator-level fix: emit `bigint` for `int64` fields.
 
-### 10. `host: string` field on `Client` is under-described — `src/v1/client.ts:47,62`
-- **Why weird:** `private readonly host: string` — without context, `host` could be just a hostname (`example.com`). The setter at line 62 trims a trailing slash, hinting that the field actually carries a full URL with scheme. A user wiring up `ClientOptions.host` cannot tell from the type whether to pass `databricks.com` or `https://databricks.com/`.
-- **Category:** 1 (vague), 15 (generic field name).
-- **Suggested name:** `baseUrl: string` (or `databricksHost`). Matches the actual content (a URL including scheme).
-- **Rationale:** Generator-level concern — every package's `Client` has this field. Same finding as `disasterrecovery` and others.
-
-### 11. `executeCall` / `executeHttpCall` — two layers named "execute" — `src/v1/utils.ts:26,65`
-- **Why weird:** Two functions both prefixed `execute` doing very different jobs. `executeCall` wraps a call in retry/rate-limit (`utils.ts:26-38`); `executeHttpCall` does the raw HTTP send plus error lift (`utils.ts:65-94`). Inside each client method, `executeHttpCall` is wrapped in a `Call` (the function alias), and `executeCall(call, options)` runs it — the reader has to trace both bodies to learn who calls whom.
-- **Category:** 1 (vague), 12 (duplicate prefix), 17 (inconsistent layering nomenclature).
-- **Suggested name:** `runWithRetry(call, options)` (outer) + `sendHttp(opts)` or `dispatchHttp(opts)` (inner). The verb pair "run" vs "send" makes the layering obvious.
-- **Rationale:** Layer names should make the call graph readable. Same finding cross-package; generator-level concern.
-
 ## Low severity
 
-### 12. `LogDeliveryType` values `BILLABLE_USAGE` vs `AUDIT_LOGS` — singular/plural mismatch — `src/v1/model.ts:58-60`
+### 10. `LogDeliveryType` values `BILLABLE_USAGE` vs `AUDIT_LOGS` — singular/plural mismatch — `src/v1/model.ts:58-60`
 - **Why weird:** `BILLABLE_USAGE` is singular; `AUDIT_LOGS` is plural. Both are types of logs delivered by this configuration. Pair-wise consistency would be either `BILLABLE_USAGE_LOGS` + `AUDIT_LOGS` (both plural with `_LOGS`) or `BILLABLE_USAGE` + `AUDIT` (both singular without).
 - **Category:** 9 (singular/plural mismatch), 18 (long enum values).
 - **Suggested name:** `BILLABLE_USAGE` + `AUDIT` (drop `_LOGS` — the enum is `LogDeliveryType` so "logs" is implicit).
 - **Rationale:** Pair-wise consistency. The implicit-noun pattern (rely on the enclosing type) is shorter.
 
-### 13. `LogDeliveryStatusEnum.NOT_FOUND` collides with HTTP 404 semantics — `src/v1/model.ts:48-49`
+### 11. `LogDeliveryStatusEnum.NOT_FOUND` collides with HTTP 404 semantics — `src/v1/model.ts:48-49`
 - **Why weird:** `NOT_FOUND` reads as "this resource does not exist" — a 404-style state — but the JSDoc on line 37 says it means "the log delivery status as the configuration has been disabled since the release of this feature or there are no workspaces in the account". That is "no data to report", not "resource missing".
 - **Category:** 6 (misleading — value name suggests an HTTP error state, semantics are operational).
 - **Suggested name:** `NO_DATA`, `NOT_APPLICABLE`, or `DISABLED_AT_RELEASE` — anything that does not read as 404.
 - **Rationale:** A monitoring dashboard surfacing `status === 'NOT_FOUND'` would mislead an operator into thinking the configuration was deleted.
 
-### 14. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41-44`
-- **Why weird:** `Segment` is a generic CS term. The leading comment ("Package identity segment for this client to be used in the User-Agent header.", line 40) does the documentation work the name should do.
-- **Category:** 1 (vague), 15 (generic).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PKG_UA_SEGMENT`.
-- **Rationale:** Generator-wide concern. Same finding in every audited package.
-
-### 15. `httpClient: HttpClient` field — type-suffix tautology — `src/v1/client.ts:51,72`
-- **Why weird:** Field name and type both end in `Client`. The shorter form would be `client: HttpClient`, but that would collide with the enclosing `Client` class. So the disambiguation is mechanical, not informative.
-- **Category:** 20 (type-suffix tautology).
-- **Suggested name:** `transport: HttpClient` (matches the imported `./transport` module) — avoids the `Client/Client` echo and reads as "the transport layer".
-- **Rationale:** Generator-wide concern. Tolerable as-is but flagged per rule 20.
-
-### 16. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:90,99,103,127,153,170,193,196,215,223`
+### 12. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:90,99,103,127,153,170,193,196,215,223`
 - **Why weird:** Three-letter abbreviations on parameter and local names across every method. The repo style guide (`.agent/rules/typescript.mdc`) discourages cryptic short abbreviations.
 - **Category:** 5 (cryptic abbreviation).
 - **Suggested name:** `request`, `response`, `options`, `httpRequest`, `httpResponse`.
 - **Rationale:** Spelling them out costs nothing and removes the need to learn package-local shorthand. Same finding cross-package.
 
-### 17. `pageReq` local in `listLogDeliveryConfigurationIter` — `src/v1/client.ts:196`
-- **Why weird:** Holds the request shape mutated with `pageToken` between pages. The name reads as "the page's request" rather than "the request iterated across pages".
-- **Category:** 5 (cryptic), 1 (vague).
-- **Suggested name:** `currentRequest`, `paginatedRequest`, or just `request` (the per-iteration redefinition is clear from context).
-- **Rationale:** Loop-local; low impact.
-
 ## Observations
 
-### 18. `flattenQueryParams` is exported but unused — `src/v1/utils.ts:123`
-`client.ts` constructs query params inline (lines 155-167) with `new URLSearchParams()` and `params.append(...)`. The exported `flattenQueryParams` helper is never called from this package. Every generated package ships this helper unconditionally — it is generator scaffolding.
-- **Category:** 11 (unused public helper).
-- **Suggested fix:** Generator-level — only emit `flattenQueryParams` when the client actually needs it.
-
-### 19. `outputFormat` is always derivable from `logType` — `src/v1/model.ts:79-83,181-185`
+### 13. `outputFormat` is always derivable from `logType` — `src/v1/model.ts:79-83,181-185`
 The JSDoc on `outputFormat` explicitly says: `If log_type is BILLABLE_USAGE, this value must be CSV. … If log_type is AUDIT_LOGS, this value must be JSON.` The field is therefore redundant on the request DTO — the caller cannot pick freely. Carrying it on the response DTO (for clarity) is defensible. Not a name problem; flagged because the API surface is wider than the API contract.

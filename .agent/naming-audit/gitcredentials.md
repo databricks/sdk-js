@@ -14,7 +14,7 @@ creation and returns it everywhere else. Five operations:
 pagination, no list filtering beyond an optional `principalId` query
 parameter, no version negotiation.
 **Total weird names flagged:** 12 (0 fixed, 12 still open)
-**Last rescan:** 2026-05-26 (post regen #156)
+**Last rescan:** 2026-05-26 (post regen #156, post Workflow B prune)
 
 ---
 

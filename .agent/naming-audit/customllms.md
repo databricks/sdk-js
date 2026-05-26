@@ -3,20 +3,20 @@
 **Path:** `packages/customllms/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** "Custom LLM" CRUD plus an optimization run lifecycle — create/get/update/delete a `CustomLlm` resource (instructions, guidelines, datasets, optional UC artifact path), then start/cancel an optimization run that flips `optimizationState` through `CREATED → PENDING → RUNNING → COMPLETED|FAILED|CANCELLED`.
-**Total weird names flagged:** 19 (0 fixed, 19 still present after rescan on 2026-05-26 post regen #156)
+**Total weird names flagged:** 10 (0 fixed, 10 still present after rescan on 2026-05-26 post regen #156)
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 3 |
-| Medium | 6 |
-| Low | 7 |
-| Observation | 3 |
+| Medium | 3 |
+| Low | 2 |
+| Observation | 2 |
 
 ## High severity
 
 ### 1. `Llm` casing throughout — every file
-- **Why weird:** Every public type, field, method, and schema collapses the acronym `LLM` to title-case `Llm` (`CustomLlm`, `customLlm`, `createCustomLlm`, `customLlmFieldMask`, etc.). `LLM` is a well-known three-letter initialism, not a word. The Google TypeScript Style Guide (https://google.github.io/styleguide/tsguide.html#identifiers) explicitly says "treat abbreviations like acronyms in names as whole words" — that produces `LLM` if you choose the all-caps convention, or `Llm` if you choose the title-case convention. The package is internally consistent on `Llm` (and so are the sibling packages `accountsettings.LlmProxyPartnerPoweredAccount` and `workspacesettings.LlmProxyPartnerPoweredWorkspace`), so this is a *category* finding for the SDK rather than a local fix: `Llm` is harder to read than `LLM` because the human eye expects `Ll` to be a digraph rather than the start of an initialism. Microsoft's .NET guidelines (https://learn.microsoft.com/dotnet/standard/design-guidelines/capitalization-conventions) flip the other direction: capitalize all letters of two-letter acronyms (`IO`) and pascal-case three-or-more-letter acronyms (`Xml`, `Html`) — by that rule `Llm` *is* the consistent choice. There is no globally correct answer, but the SDK should pick *one* convention and apply it across all packages (`http` vs `Http`, `url` vs `Url`, `id` vs `Id` are already mixed — see Observation #19).
+- **Why weird:** Every public type, field, method, and schema collapses the acronym `LLM` to title-case `Llm` (`CustomLlm`, `customLlm`, `createCustomLlm`, `customLlmFieldMask`, etc.). `LLM` is a well-known three-letter initialism, not a word. The Google TypeScript Style Guide (https://google.github.io/styleguide/tsguide.html#identifiers) explicitly says "treat abbreviations like acronyms in names as whole words" — that produces `LLM` if you choose the all-caps convention, or `Llm` if you choose the title-case convention. The package is internally consistent on `Llm` (and so are the sibling packages `accountsettings.LlmProxyPartnerPoweredAccount` and `workspacesettings.LlmProxyPartnerPoweredWorkspace`), so this is a *category* finding for the SDK rather than a local fix: `Llm` is harder to read than `LLM` because the human eye expects `Ll` to be a digraph rather than the start of an initialism. Microsoft's .NET guidelines (https://learn.microsoft.com/dotnet/standard/design-guidelines/capitalization-conventions) flip the other direction: capitalize all letters of two-letter acronyms (`IO`) and pascal-case three-or-more-letter acronyms (`Xml`, `Html`) — by that rule `Llm` *is* the consistent choice. There is no globally correct answer, but the SDK should pick *one* convention and apply it across all packages (`http` vs `Http`, `url` vs `Url`, `id` vs `Id` are already mixed — see Observation #10).
 - **Category:** 3 (acronym casing — the audit prompt singles this out).
 - **Suggested name:** Pick a project-wide policy in `typescript.mdc` and apply globally. If the SDK keeps `Llm`, document the choice; if it switches to `LLM`, every type and field in this package and the two sibling packages needs the rename.
 - **Rationale:** This is the highest-impact naming question in the package because it touches every single exported identifier. Currently the only consumer-facing precedent in the codebase is `Llm`, so flipping to `LLM` is a breaking change across at least three packages.
@@ -47,85 +47,33 @@
 - **Suggested name:** `startOptimization` / `cancelOptimization` (the singular "run" is implicit).
 - **Rationale:** Method names should reflect the resource the verb operates on. The URL operates on the LLM, not on a specific run.
 
-### 6. `executeCall` / `executeHttpCall` in `utils.ts:26,65` — naming pair
-- **Why weird:** Two functions with nearly identical names handling different layers (retry/rate-limit wrapper vs raw HTTP send + logging). Easy to confuse at the call site.
-- **Category:** 1 (vague), 17 (inconsistent).
-- **Suggested name:** `runWithCallOptions` / `sendHttp` or `wrapCall` / `dispatchHttp`.
-- **Rationale:** Names should differ in more than the `Http` infix.
-
-### 7. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** Same word `Options` is reused for many unrelated concepts (`ClientOptions`, `CallOptions`, this one). The file also imports `Options` from `@databricks/sdk-core/api` (line 3) — three things named `Options` in the same file.
-- **Category:** 1 (vague suffix).
-- **Suggested name:** `HttpCallContext` or `HttpCallParams` (it is not user-facing options; it is an internal arg bag).
-- **Rationale:** Distinguish internal context bags from user-tunable option structs.
-
-### 8. `STATE_UNSPECIFIED` enum sentinel — `src/v1/model.ts:10`
+### 6. `STATE_UNSPECIFIED` enum sentinel — `src/v1/model.ts:10`
 - **Why weird:** The `State` enum's first member `STATE_UNSPECIFIED` is a proto-architectural leak. Proto3 requires every enum to declare a zero-value sentinel (typically `FOO_UNSPECIFIED`); that requirement does not exist in TypeScript. Exposing it on the public TS surface forces every consumer to handle a member that semantically means "the server forgot to set this field" — a proto wire-format concern, not a domain concern. The screaming-snake-case casing (`STATE_UNSPECIFIED`) also leaks proto's enum-value convention into a TS type system that conventionally uses PascalCase for enum members (https://google.github.io/styleguide/tsguide.html#enums).
 - **Category:** Proto-architectural leak (enum sentinel + screaming-snake casing).
 - **Suggested name:** Drop the `STATE_UNSPECIFIED` member entirely; if a "not yet set" value is needed, use `undefined` (the field is already `State | undefined`). If kept, rename to PascalCase `Unspecified` and document that it is a wire-format sentinel.
 - **Rationale:** Optional TS fields express "unset" via `undefined`; a redundant enum sentinel doubles the representation of "no value" and forces consumers to write `state !== undefined && state !== State.STATE_UNSPECIFIED`. The all-caps casing further signals that the value is a proto artifact rather than a designed TS API member.
 
-### 9. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:38`
-- **Why weird:** `Segment` is a generic CS term. Comment explains it is the User-Agent identity segment; without the comment the constant name does not communicate that.
-- **Category:** 1 (vague), 15 (generic field name).
-- **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
-- **Rationale:** Minor; only one place in the file but flagged for SDK-wide consistency review.
-
 ## Low severity
 
-### 10. `Dataset[]` plural-singular consistency — `src/v1/model.ts:32,52`
+### 7. `Dataset[]` plural-singular consistency — `src/v1/model.ts:32,52`
 - **Why weird:** Field `datasets: Dataset[]` — type is singular `Dataset`, field is plural `datasets`. This is correct! Flagging as an *observation* of best practice (rule 9 reversed). Counter-examples appear in other packages where a `Datasets` type holds `dataset: Dataset[]`. This package gets it right.
 - **Category:** Observation / 9 (reversed — correctly singular).
 - **Suggested name:** No change.
 - **Rationale:** Note for consistency reviews.
 
-### 11. `customLlmFieldMask` function name — `src/v1/model.ts:259`
+### 8. `customLlmFieldMask` function name — `src/v1/model.ts:259`
 - **Why weird:** Function that builds a `FieldMask<CustomLlm>`. The name `customLlmFieldMask` reads as a field-mask *value* rather than a builder; sibling files in other packages name this `*FieldMaskBuilder` or expose it as a static method `FieldMask.forCustomLlm`.
 - **Category:** 17 (inconsistent verb convention in the SDK).
 - **Suggested name:** `buildCustomLlmFieldMask` or `customLlmFieldMaskFor` (with a static-method-like signature).
 - **Rationale:** Minor; the function is clearly a builder by its signature `(...paths: string[]): FieldMask<CustomLlm>`.
 
-### 12. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
-- **Why weird:** Function is exported but not used in this package (no caller in `client.ts`). Dead-looking surface area.
-- **Category:** Observation / 11 (unused public helper).
-- **Suggested name:** Either remove the export (if it is an unused generator default), or document why it ships per-package.
-- **Rationale:** Not a name-quality issue per se, but flagged because each generated package will carry this and grep for unused exports across all packages will turn it up.
-
-### 13. `readAll` helper — `src/v1/utils.ts:40`
-- **Why weird:** Function reads an entire response body stream into a buffer. Name is fine but generic; collides cognitively with `Array.prototype` or stream utilities.
-- **Category:** 1 (vague).
-- **Suggested name:** `drainStream` / `readStreamToEnd`.
-- **Rationale:** Internal helper, low cost. Skip if generated.
-
-### 14. `Call` import alias — `src/v1/client.ts:4`
-- **Why weird:** `import type {Call}` — `Call` is a one-word generic noun. Used for the inner async function. Could be `RetryableCall`, `HttpCallback`, etc. Not local to this package (it is from `@databricks/sdk-core/api`), but worth flagging.
-- **Category:** 1 (vague type name).
-- **Suggested name:** Imported type; rename upstream if appropriate.
-- **Rationale:** Generic noun in core API surface.
-
-### 15. `info` / `host` / `body` short locals — `src/v1/client.ts:58,73,74`
-- **Why weird:** Three-letter local names. `info` for the client-info builder, `host` for the URL host, `body` for the request body. Conventional and short, but `info` is especially vague.
-- **Category:** 1 (vague).
-- **Suggested name:** Keep `host` and `body` (universal); rename `info` to `clientInfo`.
-- **Rationale:** Localized; cosmetic.
-
-### 16. `resp` local variable in every method — `src/v1/client.ts:98,142,171,197`
-- **Why weird:** `resp` is the response. Four methods declare `let resp: CustomLlm | undefined;` then assign in a closure and `throw` if undefined. The pattern is repetitive *and* uses the same short name. Consider extracting a helper that returns `T | never`.
-- **Category:** 12 (duplicate pattern).
-- **Suggested name:** Refactor away the pattern, not the name.
-- **Rationale:** Refactor opportunity surfaced by naming-audit.
-
 ## Observations
 
-### 17. Action verbs in `Client` are consistent
+### 9. Action verbs in `Client` are consistent
 The client uses `cancel`/`create`/`delete`/`get`/`start`/`update` — no `fetch`/`retrieve`/`read`. This is good.
 - **Category:** 17 (reversed — explicit *consistency* note).
 
-### 18. No `list` operation
-The package exposes singleton CRUD plus optimization start/cancel, but no `listCustomLlms`. Unusual for a Databricks resource SDK. Not a naming issue, but worth flagging because the typical resource SDK has `list` and users will look for it.
-- **Category:** Observation.
-
-### 19. Mixed acronym casing in core types
+### 10. Mixed acronym casing in core types
 The codebase imports `HttpClient`, `HttpRequest`, `HttpResponse`, `ApiError`, `URLSearchParams`, `userAgent`. The acronyms are cased every which way: `Http` (title), `Api` (title), `URL` (all-caps), `userAgent` (camel). This is consistent with the broader JS ecosystem (`fetch` returns a `Response`, `XMLHttpRequest` is its own caps, `URL` is all-caps in `URLSearchParams`), but it explains why `Llm` vs `LLM` feels arbitrary — the SDK has no single policy.
 - **Category:** 3 (acronym casing).
 

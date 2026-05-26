@@ -21,9 +21,9 @@ Notation: file paths are relative to the package root. Findings reference
 | ----------- | ----- |
 | High        | 3     |
 | Medium      | 5     |
-| Low         | 4     |
-| Observation | 4     |
-| **Total**   | **16** |
+| Low         | 0     |
+| Observation | 3     |
+| **Total**   | **11** |
 
 Headline themes:
 
@@ -217,41 +217,7 @@ Headline themes:
 
 ## Low Severity
 
-### L1. `unmarshalAclItemSchema` parses `permission: z.enum(AclPermission)` without strictness
-
-- **File / line:** `src/v1/model.ts:208`.
-- **Category:** observation; not a naming defect strictly, but worth noting.
-- **Issue:** `z.enum(AclPermission)` accepts the *string values* of the
-  enum (`'READ' | 'WRITE' | 'MANAGE'`). If the server adds a new permission
-  level, zod will throw at decode. Not a name issue, just notable.
-
-### L2. `flattenQueryParams` is dead code in this package
-
-- **File / line:** `src/v1/utils.ts:123`.
-- **Category:** #21 dead code.
-- **Issue:** function defined but not imported in `client.ts`. The client
-  builds query strings inline (`client.ts:316-323, :379-386, :434-438,
-  :534-538`). Same defect noted in `credentials.md` #57 — appears
-  generator-wide.
-- **Suggestion:** drop dead code, or move it to a shared utils package.
-
-### L3. `executeCall` vs `executeHttpCall` name collision
-
-- **Files / lines:** `src/v1/utils.ts:26, 65`.
-- **Category:** #17 inconsistent action verbs.
-- **Current:** two `execute*` functions with overlapping vocabulary:
-  `executeCall` (sets options + dispatches retries) and `executeHttpCall`
-  (one HTTP roundtrip). Same defect cataloged in other audits.
-
-### L4. `PACKAGE_SEGMENT` constant is vague
-
-- **File / line:** `src/v1/client.ts:65`.
-- **Category:** #1 vague/generic.
-- **Current:** `const PACKAGE_SEGMENT = {key, value}` — used to compose
-  the User-Agent header.
-- **Suggestion:** `USER_AGENT_PACKAGE_SEGMENT`. The JSDoc on the line
-  above already says "Package identity segment for this client to be used
-  in the User-Agent header" — fold the comment into the name.
+_None._
 
 ---
 
@@ -264,19 +230,7 @@ Headline themes:
   requires `scope` for ten of eleven operations. Not a naming defect but
   worth noting: the type is wider than the API allows.
 
-### O2. `CreateScopeRequest` fields are out of order vs. domain intuition
-
-- **File / line:** `src/v1/model.ts:51-60`.
-- The order is `scope`, `initialManagePrincipal`, `scopeBackendType`,
-  `backendAzureKeyvault`. The example in `client.ts:104-115` orders them
-  differently (`scope`, `initial_manage_principal`, `scope_backend_type`,
-  `backend_azure_keyvault` — same order, but the JSON example also has
-  `tenant_id` which the type doesn't have).
-- The JSDoc example references `tenant_id` (`client.ts:112`) but the
-  type `AzureKeyVaultSecretScopeMetadata` has no `tenantId` field. The
-  example is out of sync with the type.
-
-### O3. `AclPermission.MANAGE` is owner-equivalent but not named that way
+### O2. `AclPermission.MANAGE` is owner-equivalent but not named that way
 
 - **File / line:** `src/v1/model.ts:11-12`.
 - The JSDoc says "Allowed to read/write ACLs, and read/write secrets to
@@ -284,15 +238,7 @@ Headline themes:
   Databricks platform, this level is often called OWNER. Naming
   inconsistency with the wider platform; the wire format is fixed.
 
-### O4. `marshalPutSecretRequestSchema` does a `btoa` on the bytes value
-
-- **File / line:** `src/v1/model.ts:393-397`.
-- The `bytesValue` field is encoded via `btoa(Array.from(d, b =>
-  String.fromCharCode(b)).join(''))`. This is the legacy Web base64 path
-  (not name-related). Modern code would use `Buffer.from(d).toString(
-  'base64')` (Node) or a polyfill. Not a naming defect.
-
-### O5. The `Secret` noun is absent from this package's exports
+### O3. The `Secret` noun is absent from this package's exports
 
 - **Files / lines:** `src/v1/index.ts`, `model.ts`.
 - The package is called `secrets` but exports `SecretScope`,

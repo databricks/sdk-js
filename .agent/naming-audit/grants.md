@@ -3,15 +3,15 @@
 **Path:** `packages/grants/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog Grants — get, list, and update privileges (e.g. `SELECT`, `MODIFY`, `USE_CATALOG`) on UC securables (catalogs, schemas, tables, etc.) for principals (users, groups, service principals). Also exposes "effective" variants that traverse parent-securable inheritance.
-**Total weird names flagged:** 12
+**Total weird names flagged:** 9
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 5 |
 | Medium | 3 |
-| Low | 3 |
-| Observation | 1 |
+| Low | 1 |
+| Observation | 0 |
 
 The grants package contains 9 generated types and 3 client methods covering one of the most overlapping surfaces in the SDK: UC privilege management. The most pervasive remaining issues are (1) the conceptual overlap with the separate `permissions` package which uses entirely different vocabulary (`PermissionLevel`, `AccessControlRequest`, `PermissionsResponse`) for a similar operation, and (2) the lack of enum types for the closed sets of `securableType` and `privilege` strings.
 
@@ -84,24 +84,10 @@ The grants package contains 9 generated types and 3 client methods covering one 
 - **Suggested name:** `GrantsClient` (or whatever the package-specific name is).
 - **Rationale:** Convention in `@aws-sdk/*`, `@google-cloud/*`, `@azure/*` is service-prefixed client class names for exactly this reason.
 
-### 10. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:36`
-- **Why weird:** `Segment` is a generic word; without the doc-comment the constant doesn't communicate User-Agent identity. Same issue exists in every generated package.
-- **Category:** 1 (vague), 15 (generic name).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
-- **Rationale:** Cross-package consistency.
-
-### 11. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** Yet another `Options` suffix; the file also imports `Options` (line 3) and `CallOptions` (line 12), so three `Options` types are in scope at once. The `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
-- **Category:** 1 (vague suffix), 17 (inconsistent).
-- **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
-- **Rationale:** Distinguish internal context bags from user-facing option structs.
-
 ---
 
 ## Observations
 
-### 12. `Client` constructor: `Host is required.` — `src/v1/client.ts:52`
-Error message thrown but no client name in the message. Across many similar packages every Client throws the same string, so a stack trace at the outer layer is ambiguous about which Client failed.
-- **Category:** Observation.
+_None._
 
 ---

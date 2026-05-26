@@ -11,10 +11,10 @@ resolve-by-external-id flows that bridge the customer IdP to Databricks.
 | Severity | Count |
 | -------- | ----- |
 | High     |     6 |
-| Medium   |     5 |
+| Medium   |     4 |
 | Low      |     3 |
-| Observation | 3 |
-| **Total** | **17** |
+| Observation | 1 |
+| **Total** | **14** |
 
 Three dominant themes remain. **First, the package still ships methods,
 requests, and a handful of variants in parallel `*` and `*Proxy` forms** that
@@ -185,17 +185,7 @@ beyond Java-RPC habit.
 - **Rationale:** Two suffixes for the same routing-variant idea is the
   worst possible outcome.
 
-### M3. `resolveByExternalId` URL segment uses camelCase
-- **File:** `client.ts:105, 134, 163, 198, 233, 262`
-- **Category:** 14, 3 (Go-style; casing)
-- **Issue:** The URL paths use `/resolveByExternalId` in camelCase. The URLs
-  are server-defined, so this is not a naming issue the SDK can fix, but it
-  is worth noting because the inconsistency is visible in the SDK's debug
-  logs.
-- **Suggestion:** Server-side fix (out of scope), but flag to the API team.
-- **Rationale:** Not the SDK's bug, but reflects an upstream inconsistency.
-
-### M4. `permissions: WorkspacePermission[]` vs `entitlements: Entitlement[]` — conceptually overlapping fields
+### M3. `permissions: WorkspacePermission[]` vs `entitlements: Entitlement[]` — conceptually overlapping fields
 - **File:** `model.ts:317, 329`
 - **Category:** 12, 6 (duplicate concepts; misleading)
 - **Issue:** `WorkspaceAccessDetail.permissions` (USER_PERMISSION /
@@ -209,7 +199,7 @@ beyond Java-RPC habit.
   both JSDoc blocks. If they are the same, merge.
 - **Rationale:** This is the kind of overlap that produces support tickets.
 
-### M5. `resolveByExternalId` method naming
+### M4. `resolveByExternalId` method naming
 - **File:** `client.ts:101, 159, 229`
 - **Category:** 17 (verb inconsistency)
 - **Issue:** `resolveGroup`, `resolveUser`, `resolveServicePrincipal`. These
@@ -261,34 +251,17 @@ beyond Java-RPC habit.
 
 ## Observations (not findings, but worth noting)
 
-### O1. The `Detail` suffix is wired through the URL path
-- **File:** `client.ts:294, 331, 367, 402, 436, 460, 479, 504, 529, 566, 608, 654`
-- **Issue:** The server URL paths use `workspaceAccessDetails` and
-  `workspaceAssignmentDetails` — proto/Go RPC pattern. The SDK reflects the
-  server names. Renaming the TS types per H4 does not change the wire; the
-  SDK can have nicer TS names while still hitting `workspaceAccessDetails`
-  URLs.
-
-### O2. `Local` only applies to `WorkspaceAccessDetail` (not `WorkspaceAssignmentDetail`)
+### O1. `Local` only applies to `WorkspaceAccessDetail` (not `WorkspaceAssignmentDetail`)
 - **File:** `model.ts:94`, `client.ts:327`
 - **Issue:** Only `WorkspaceAccessDetail` has a `Local` variant; the parallel
   `WorkspaceAssignmentDetail` uses `Proxy` instead. Inconsistent presence of
   the Local/Proxy variants across sibling Detail types.
 
-### O3. The `accountId` fallback comment in `client.ts:70-72` only applies to non-proxy methods
-- **File:** `client.ts:70-72`
-- **Issue:** "Fallback for endpoints whose path contains {account_id}. If
-  the request already carries an accountId, that value wins." This is true
-  for the non-proxy methods only — `*Proxy` methods don't have `accountId`
-  in the URL. Worth noting because if H1 collapses the variants, the
-  fallback semantic becomes "use the workspace context if accountId is
-  absent".
-
 ---
 
 ## Cross-cutting recommendations (priority order)
 
-1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L2, O2, O3).** This
+1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L2, O1).** This
    is the largest single improvement and ~halves the public type surface.
 2. **Standardize the `State` enum name (H3).**
    One name per concept.

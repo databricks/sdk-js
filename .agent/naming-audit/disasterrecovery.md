@@ -3,14 +3,14 @@
 **Path:** `packages/disasterrecovery/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level Disaster Recovery — manage `FailoverGroup` resources (regions, workspace sets, UC replication config) and `StableUrl` resources (failover-aware endpoints for workspaces), including a `failover` action to swing the primary region.
-**Total weird names flagged:** 13
+**Total weird names flagged:** 9
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 3 |
 | Medium | 3 |
-| Low | 5 |
+| Low | 1 |
 | Observation | 2 |
 
 ## High severity
@@ -25,7 +25,7 @@
 - **Why weird:** Acronym casing for `URL` is inconsistent with the wider JS/TS ecosystem, which treats `URL` as ALLCAPS (Web `URL` global, `URLSearchParams`, `urlencoded`). This package uses `Url` (PascalCase capital-then-lower) for one of the two top-level resources. `client.ts` mirrors the inconsistency: `createStableUrl`, `getStableUrl`, `deleteStableUrl`, `listStableUrls`.
 - **Category:** 3 (acronym casing inconsistency).
 - **Suggested name:** `StableURL` / `CreateStableURLRequest` / `stableURLId` (matches Web `URL` global) **or** keep `Stable` + `Url` consistently across both type and wire (current) but explicitly document the choice.
-- **Rationale:** Within `client.ts` line 8 we import `CallOptions` and the file uses `URLSearchParams` (line 83) right beside `stableUrlId` (line 128), giving us `URLSearchParams` and `stableUrlId` on adjacent lines. The mixed casing is jarring. (Note: this is a package-wide rename; the cheaper compromise is to keep `Url` but document the convention. See observation #12 — same issue applies in `utils.ts` field `url` on `StableUrl`.)
+- **Rationale:** The mixed casing is jarring against the surrounding Web platform conventions (e.g., `URLSearchParams`). This is a package-wide rename; the cheaper compromise is to keep `Url` but document the convention.
 
 ### 3. `effectivePrimaryRegion` vs `initialPrimaryRegion` vs `targetPrimaryRegion` field triplet — `src/v1/model.ts:125,149,101`
 - **Why weird:** Three subtly-different "primary region" fields whose semantics depend entirely on a JSDoc paragraph:
@@ -48,7 +48,7 @@
 ### 5. `UcReplicationConfig` — `src/v1/model.ts:284`
 - **Why weird:** `Uc` is a two-letter abbreviation in a type name. Comments in the same file (line 113) spell it out as "UCDR" with `Unity Catalog` in `unityCatalogAssets` (line 131). Single SDK uses both `unityCatalog` (full) and `Uc` (abbreviated) for the same concept across adjacent fields/types.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency — `unityCatalogAssets: UcReplicationConfig`).
-- **Suggested name:** `UnityCatalogReplicationConfig` (or `UnityCatalogConfig`). Field stays `unityCatalogAssets` -> `unityCatalogConfig` (see #8).
+- **Suggested name:** `UnityCatalogReplicationConfig` (or `UnityCatalogConfig`). Field stays `unityCatalogAssets` -> `unityCatalogConfig` (see #4).
 - **Rationale:** Within a five-line span the same domain is spelled `unityCatalog` and `Uc`. Pick one. The full spelling is unambiguous and the field name already votes for it.
 
 ### 6. `Client` class name — `src/v1/client.ts:52`
@@ -65,41 +65,16 @@
 - **Suggested name:** `triggerFailover` (verb `trigger`, since `failover` is the object) or just `failover` (single-word, since the package is already "disasterrecovery").
 - **Rationale:** `client.failoverFailoverGroup({...})` reads like a typo. `client.failover({...})` or `client.triggerFailover({...})` are unambiguous.
 
-### 8. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:47`
-- **Why weird:** Generic CS-term constant; the comment (line 46) explains it as "Package identity segment for this client to be used in the User-Agent header." Without the comment the name doesn't communicate that it's a User-Agent payload.
-- **Category:** 1 (vague), 15 (generic).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PKG_UA_SEGMENT`.
-- **Rationale:** Same as other packages in the audit. Flag once per package.
-
-### 9. `flattenQueryParams` — `src/v1/utils.ts:123`
-- **Why weird:** Exported helper but no caller in `client.ts` (the client builds URLSearchParams inline). Dead-looking surface area.
-- **Category:** Observation / 11 (unused public helper).
-- **Suggested name:** Either remove the export (generator default) or document why it ships per-package.
-- **Rationale:** Carried by every generated package. Surfaces as `import { flattenQueryParams } from './utils'` no-op.
-
-### 10. `readAll` — `src/v1/utils.ts:40`
-- **Why weird:** Generic name for "read a `ReadableStream<Uint8Array>` to a single Uint8Array". Could collide cognitively with `Array.prototype` ergonomics.
-- **Category:** 1 (vague).
-- **Suggested name:** `drainStream` / `readStreamToBuffer`.
-- **Rationale:** Internal helper. Skip if generated identically across all packages.
-
-### 11. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
-- **Why weird:** Two functions whose names differ only by `Http` infix but operate on very different layers (retry/rate-limit wrapper vs raw HTTP send + ApiError lift).
-- **Category:** 1 (vague), 17 (inconsistent).
-- **Suggested name:** `runCallWithOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
-- **Rationale:** At the call site (`client.ts:104,111`), the two are visually similar; the more descriptive name disambiguates.
-
 ## Observations
 
-### 12. Action-verb consistency on `Client` (mostly good)
+### 8. Action-verb consistency on `Client` (mostly good)
 Methods are `create*`/`get*`/`list*`/`update*`/`delete*` plus one bespoke action (`failoverFailoverGroup`). Aside from the stutter (#7), this is consistent. Listed as observation per rule 17 since the audit asks to flag inconsistencies — here only the one method breaks the pattern.
 
-### 13. Acronym casing inconsistency: `URL` vs `Uri` vs `Url`
+### 9. Acronym casing inconsistency: `URL` vs `Uri` vs `Url`
 Within this package:
 - `stableUrl`/`StableUrl` (PascalCase capital-then-lower).
 - `uriByRegion`/`LocationMappingEntry.uri` (`Uri` capital-then-lower).
-- `URLSearchParams` (Web global, ALLCAPS in code, `client.ts:83`).
-Three different casings for two acronyms (URL/URI). The Web platform uses `URL` (ALLCAPS) globally; the TS code uses `Url`/`Uri` to follow Go-style camelCase. Pick one. (Listed at observation since this is a package-wide policy question, not a single-line fix.)
+Two different casings for two related acronyms (URL/URI), and both differ from the Web platform's ALLCAPS `URL`/`URLSearchParams`. The TS code uses `Url`/`Uri` to follow Go-style camelCase. Pick one. (Listed at observation since this is a package-wide policy question, not a single-line fix.)
 - **Category:** 3 (acronym casing).
 
 ## Domain glossary
@@ -119,5 +94,4 @@ Three different casings for two acronyms (URL/URI). The Web platform uses `URL` 
 ## File coverage
 - `src/v1/model.ts` (620 lines): read fully.
 - `src/v1/client.ts` (418 lines): read fully.
-- `src/v1/utils.ts` (150 lines): read fully.
 - `src/v1/index.ts` (30 lines): read fully.

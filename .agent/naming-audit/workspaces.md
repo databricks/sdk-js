@@ -95,8 +95,6 @@ _None._
 | --------------------- | ----- | ------------------------------------------------------------------------ |
 | `src/v1/model.ts`     | 829   | All 5 enums, all 13 interfaces, every field, all 11 marshal/unmarshal schemas, field-mask schemas. |
 | `src/v1/client.ts`    | 423   | `Client` class, constructor, 5 RPC methods + 2 waiter factories, 2 waiter classes, import list. |
-| `src/v1/utils.ts`     | 151   | All exported / private helpers. No proto-leak hits.                      |
-| `src/v1/transport.ts` | 75    | `newHttpClient` factory + auth wrapper. No proto-leak hits.              |
 | `src/v1/index.ts`     | 35    | All re-exports — names mirror `model.ts` and `client.ts` (covered above).|
 
 Type & symbol checklist:
@@ -172,15 +170,4 @@ Type & symbol checklist:
   `updateWorkspacePublicWaiter` — flagged (#2).
 - [x] `CreateWorkspacePublicWaiter`, `UpdateWorkspacePublicWaiter`
   classes — flagged (#3).
-- [x] `StillRunningError` private sentinel class — clean (cross-package
-  pattern; not a domain identifier).
 - [x] `client.ts` import list / `index.ts` re-exports — flagged (#4).
-- [x] `utils.ts` (`executeCall`, `executeHttpCall`, `buildHttpRequest`,
-  `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`,
-  `HttpCallOptions`) — no proto-architectural-leak names. (The
-  `executeCall` / `executeHttpCall` verb overlap is a common
-  cross-package pattern; out of scope here.)
-- [x] `transport.ts` (`newHttpClient`, auth-wrapping class) — no
-  `Public`/`Internal`/`Proto`/`Service`/`Manager` leak in domain
-  identifiers. (The auth wrapper class itself is a cross-package
-  pattern, not flagged here.)

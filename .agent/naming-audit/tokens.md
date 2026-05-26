@@ -3,15 +3,15 @@
 **Path:** `packages/tokens/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks workspace Personal Access Token (PAT) management — the *end-user-facing* surface for a workspace user to create/list/revoke/update their own tokens. Endpoints live under `/api/2.0/token/...`. Pairs with the *admin-facing* `tokenmanagement` package at `/api/2.0/token-management/...` which lets workspace administrators inspect and revoke tokens owned by *other* users (including on-behalf-of service principal tokens). The two packages share a near-identical "token info" record, but the auth/audience boundary makes them distinct services.
-**Total weird names flagged:** 20
+**Total weird names flagged:** 10
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 5 |
-| Medium | 5 |
-| Low | 6 |
-| Observation | 4 |
+| Medium | 2 |
+| Low | 1 |
+| Observation | 2 |
 
 ## High severity
 
@@ -54,23 +54,13 @@
 
 ## Medium severity
 
-### 6. `UpdateTokenRequest.tokenId` doc says "SHA-256 hash" but other types say "ID" — `model.ts:57`
-- **Why weird:** Doc on `UpdateTokenRequest.tokenId`: "The SHA-256 hash of the token to be updated." But every other `tokenId` doc in the package (and in `tokenmanagement`) says variants of "The ID of the token". So readers comparing the types see:
-  - `CreateTokenRequest_Response.tokenInfo.tokenId` (line 25 → `PublicTokenInfo.tokenId` line 39) — "The ID of this token."
-  - `PublicTokenInfo.tokenId` (line 39) — "The ID of this token."
-  - `RevokeTokenRequest.tokenId` (line 50) — "The ID of the token to be revoked."
-  - `UpdateTokenRequest.tokenId` (line 57) — "The SHA-256 hash of the token to be updated."
-- **Category:** 6 (misleading doc — same field, different meaning), 13 (inconsistency), 19 (underspecified ID — what is it actually?).
-- **Suggested name:** Either (a) reconcile the docs — if `tokenId` is the SHA-256 hash everywhere, say so consistently; or (b) if `UpdateTokenRequest.tokenId` actually expects a different format than the others, rename or document the divergence loudly.
-- **Rationale:** The doc disagreement implies either a stale comment or a real wire-protocol quirk. Either way, a caller can't tell which.
-
-### 7. `UpdateTokenRequest` has BOTH `tokenId` and `token.tokenId` — duplicate IDs — `model.ts:56-62`
+### 6. `UpdateTokenRequest` has BOTH `tokenId` and `token.tokenId` — duplicate IDs — `model.ts:56-62`
 - **Why weird:** The request carries `tokenId?: string` (top-level) *and* `token?: PublicTokenInfo` which itself has `tokenId?: string`. Two fields for the same logical ID, easy to set inconsistently. The Client method uses `req.tokenId ?? ''` (`client.ts:171`) — so the top-level wins. But the `PublicTokenInfo.tokenId` inside `token` is still serialised on the wire (per `marshalUpdateTokenRequestSchema` on `model.ts:146-159`).
 - **Category:** 12 (duplicate concept), 6 (misleading — which one is authoritative?), 11 (the inner one is dead-ish data).
 - **Suggested name:** Drop one. Either: (a) make `token` exclude `tokenId` (`Omit<PublicTokenInfo, 'tokenId'>`) and keep the top-level; or (b) drop the top-level and use `req.token.tokenId` in the client.
 - **Rationale:** Two fields for the same identifier invite subtle bugs (server may pick the inner one if the top-level is empty).
 
-### 8. `Client` class name — colliding namespace — `client.ts:46`
+### 7. `Client` class name — colliding namespace — `client.ts:46`
 - **Why weird:** Top-level class literally named `Client`. Re-exported in `index.ts` as just `Client`. A consumer importing from both `@databricks/sdk-tokens/v1` and `@databricks/sdk-tokenmanagement/v1` faces an identical name clash:
   ```
   import {Client} from '@databricks/sdk-tokens/v1';
@@ -81,68 +71,20 @@
 - **Suggested name:** `TokensClient`, `UserTokensClient`, or `MyTokensClient`. Mirror with `TokenManagementClient`/`AdminTokensClient`.
 - **Rationale:** Same finding as `rfa#37`, recurs across all packages — but particularly painful here given the `tokens`/`tokenmanagement` overlap.
 
-### 9. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
-- **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site (`client.ts:87,115` use them within four lines of each other).
-- **Category:** 1 (vague), 17 (inconsistent action verbs).
-- **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
-- **Rationale:** Cross-package: same as `rfa#32`, recurs everywhere.
-
-### 10. `HttpCallOptions` shadows package's other `Options` types — `utils.ts:15`
-- **Why weird:** The file imports `Options` from `@databricks/sdk-core/api` (line 3) and `CallOptions` from `@databricks/sdk-options/call` (line 12). Three `Options`-suffixed types in scope. `HttpCallOptions` is internal — purely a context bag passed to `executeHttpCall`.
-- **Category:** 1 (vague suffix).
-- **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
-- **Rationale:** Same as `rfa#33`.
-
 ## Low severity
 
-### 11. `publicTokenInfoFieldMask` exported helper — public-API field-mask builder — `model.ts:168`
+### 8. `publicTokenInfoFieldMask` exported helper — public-API field-mask builder — `model.ts:168`
 - **Why weird:** The package exports `publicTokenInfoFieldMask(...)` as a top-level helper alongside the `Client`. Field-mask builders are an SDK-shape choice: making one a public export per type bakes the proto-FieldMask convention into the public API surface. Consumers writing `UpdateTokenRequest` payloads must learn this helper.
-- **Category:** 8 (helper-as-public-API), 13 (intra-package inconsistency — see #17 re-export gap).
+- **Category:** 8 (helper-as-public-API), 13 (intra-package inconsistency — see #9 re-export gap).
 - **Suggested name:** Either hoist into a single `Client.updateToken` overload that accepts a partial payload and derives the mask, or document the helper prominently in `index.ts`.
 - **Rationale:** Exporting per-type mask builders is a Go-port artefact; native TS would lean on `Partial<T>` + key inference.
 
-### 12. `readAll` — generic helper name — `utils.ts:40`
-- **Why weird:** Internal helper name is generic; clashes cognitively with `Array.prototype` / stream utilities.
-- **Category:** 1 (vague).
-- **Suggested name:** `readStreamToEnd` / `drainStream`.
-- **Rationale:** Same as `rfa#34`.
-
-### 13. `flattenQueryParams` — `utils.ts:123`
-- **Why weird:** Exported but unused in this package (`client.ts` only ever builds JSON bodies). Dead-looking export.
-- **Category:** Observation / 11 (unused public helper).
-- **Suggested name:** Remove from utils if it's a generator default; or keep, but stop emitting it for body-only services.
-- **Rationale:** Same as `rfa#35`.
-
-### 14. `PACKAGE_SEGMENT` constant — `client.ts:41`
-- **Why weird:** `Segment` is a generic word; without the inline comment the constant doesn't communicate User-Agent identity.
-- **Category:** 1 (vague), 15 (generic name).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
-- **Rationale:** Same as `rfa#36`.
-
-### 15. `buildHttpRequest` parameter list — five positional args — `utils.ts:96-102`
-- **Why weird:** Five positional parameters (`method`, `url`, `headers`, `signal`, `body`) with the optional ones at the end. Callers in `client.ts:86,114,144,177` pass them positionally; the order is non-obvious from the name. Easy to confuse `signal` and `body` (both optional, both at the end).
-- **Category:** 1 (vague — five-positional builder).
-- **Suggested name:** Keep name; accept a single options object `{ method, url, headers, signal?, body? }`.
-- **Rationale:** Same as `rfa#38`.
-
-### 16. `executeCall` `opts` local shadows `options` parameter — `utils.ts:30-37`
-- **Why weird:** Local `opts` variable is one letter shorter than the parameter `options` to disambiguate. The shadowing convention isn't documented.
-- **Category:** Observation.
-- **Suggested name:** Rename inner `opts` → `internalOptions`.
-- **Rationale:** Same as `rfa#41`.
-
 ## Observations
 
-### 17. `index.ts` re-exports interfaces but not the `publicTokenInfoFieldMask` helper
+### 9. `index.ts` re-exports interfaces but not the `publicTokenInfoFieldMask` helper
 The index file exports the `Client` and eight model interfaces (`CreateTokenRequest`, `CreateTokenRequest_Response`, `ListTokensRequest`, `ListTokensRequest_Response`, `PublicTokenInfo`, `RevokeTokenRequest`, `RevokeTokenRequest_Response`, `UpdateTokenRequest`, `UpdateTokenResponse`). It does *not* export the `publicTokenInfoFieldMask` helper. Consistent with sibling packages but means a downstream consumer cannot build field masks without reaching into `./model` directly. Same finding as `rfa#43`.
 
-### 18. `package.json` description is empty string — `package.json:4`
-`"description": ""`. The npm package has no public description string. Combined with the ambiguous `tokens` name (see #1) and the parallel `tokenmanagement` package, this leaves users without any registry-level metadata to disambiguate the two packages.
-
-### 19. No tests in the package
-`package.json` line 25-26: `"test": "echo 'no tests'"`, `"test:browser": "echo 'no tests'"`. Same as `tokenmanagement` and most newly-generated packages. Not a naming issue, but the wire-format guarantees deserve a contract test.
-
-### 20. Method `updateToken` uses URL path interpolation on a potentially empty string — `client.ts:171`
+### 10. Method `updateToken` uses URL path interpolation on a potentially empty string — `client.ts:171`
 `const url = \`${this.host}/api/2.0/token/${req.tokenId ?? ''}\`;` — when `req.tokenId` is unset, the URL becomes `${host}/api/2.0/token/` with a trailing slash, which the server may treat differently than a missing ID. Naming-adjacent: the type makes `tokenId` optional (`model.ts:58`), but the endpoint requires it. The TS surface doesn't enforce the required-ness. Not a naming issue per se — but a type-name fix (`tokenId: string` — required) would prevent the silent empty path.
 
 ## Domain glossary
@@ -158,4 +100,4 @@ The index file exports the `Client` and eight model interfaces (`CreateTokenRequ
 - `src/v1/client.ts` (192 lines): read fully.
 - `src/v1/utils.ts` (151 lines): read fully.
 - `src/v1/index.ts` (18 lines): read fully.
-- Cross-referenced `packages/tokenmanagement/src/v1/` for overlap analysis (see findings #1, #3, #4, #7).
+- Cross-referenced `packages/tokenmanagement/src/v1/` for overlap analysis (see findings #1, #3, #4, #6).

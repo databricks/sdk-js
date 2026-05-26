@@ -6,7 +6,6 @@
 **Files audited:**
 - `src/v1/model.ts`
 - `src/v1/client.ts`
-- `src/v1/utils.ts`
 - `src/v1/index.ts`
 
 This audit applies the 20 numbered concern categories from the audit
@@ -51,15 +50,6 @@ rename suggestion. Findings are grouped by category.
 `createBudgetConfiguration`, `deleteBudgetConfiguration`,
 `getBudgetConfiguration`, `listBudgetConfigurations`,
 `listBudgetConfigurationsIter`, `updateBudgetConfiguration`.
-
-### Utility functions (`utils.ts`)
-
-`executeCall`, `readAll`, `executeHttpCall`, `buildHttpRequest`,
-`parseResponse`, `marshalRequest`, `flattenQueryParams`.
-
-### Utility types/interfaces (`utils.ts`)
-
-`HttpCallOptions`.
 
 ---
 
@@ -112,19 +102,7 @@ _None._
 
 ### 3. Acronym casing inconsistencies
 
-#### F3.1 — `URL` / `Url` consistency (acceptable)
-- `client.ts` consistently uses `url` (lowercase) as a local var
-  name. No casing inconsistency observed.
-
-#### F3.2 — `HTTP` / `Http` (acceptable for this file)
-- `utils.ts` consistently uses `Http` PascalCase (`HttpClient`,
-  `HttpRequest`, `HttpResponse`, `HttpCallOptions`,
-  `executeHttpCall`, `buildHttpRequest`). One file is consistent;
-  flag is cross-package only.
-
-#### F3.3 — `USD` in enum value `LIST_PRICE_DOLLARS_USD` (LOW)
-- Wire value, leave as-is. But note that `DOLLARS_USD` is doubly
-  redundant — USD already is dollars. See F17.2.
+_None._
 
 ---
 
@@ -137,81 +115,14 @@ _None._
 ### 5. Cryptic abbreviations
 
 #### F5.1 — `req` (LOW, Go-ism)
-- **Where:** `client.ts` every method, `utils.ts:103`.
-- Already flagged under F1.3 / F13.1.
-
-#### F5.2 — `resp` (LOW, Go-ism)
-- **Where:** `client.ts:88, 116, 150, 193, 242`; `utils.ts:73, 75, 81, 84, 88`.
-- See F13.1.
-
-#### F5.3 — `respBody` (LOW)
-- **Where:** `client.ts:93, 121, 155, 198, 247`.
-- **Why flagged:** "resp" abbreviation. Spell out `responseBody`
-  for clarity in TS where verbosity is cheap.
-- **Suggestion:** `responseBody`.
-
-#### F5.4 — `httpReq` (LOW)
-- **Where:** `client.ts:92, 120, 154, 197, 246`.
-- **Why flagged:** `httpRequest` is clearer and matches the type
-  `HttpRequest` exactly.
-- **Suggestion:** `httpRequest`.
-
-#### F5.5 — `apiErr` (LOW)
-- **Where:** `utils.ts:88`.
-- **Why flagged:** `apiError` reads better; "err" is a Go-ism.
-- **Suggestion:** `apiError`.
-
-#### F5.6 — `pkgJson` (LOW)
-- **Where:** `client.ts:19`.
-- **Why flagged:** "pkg" abbreviation. `packageJson` is two extra
-  characters and unambiguous.
-- **Suggestion:** `packageJson`.
-
-#### F5.7 — `acc`, `val`, `opts`, `e` (LOW)
-- **Where:** `utils.ts:55, 137, 30, 66-92, 76`.
-- **Why flagged:**
-  - `acc` (utils.ts:55) — reduce accumulator, conventional. OK.
-  - `val` (utils.ts:137) — local destructure, OK.
-  - `opts` (utils.ts:30, 37, 66, 68, 69, 70, 75, 77, 83) — Go-ism;
-    `options` is preferred but `opts` is also widely used in JS
-    libraries. **Inconsistent with itself:** the public parameter
-    is `options` (utils.ts:28) but the internal one is `opts`. Pick
-    one.
-  - `e` for the caught exception (utils.ts:76) — TS guidance is
-    `err`/`error`/`e` are all acceptable. Match the file's other
-    usages (`apiErr`).
-- **Suggestion:** rename `opts → options` inside `executeHttpCall`
-  for consistency; leave `acc`, `val`, `e` alone.
+- **Where:** `client.ts` every method.
+- Already flagged under F1.3.
 
 ---
 
 ### 6. Misleading names
 
-#### F6.1 — `BudgetConfigurationFilter_WorkspaceIdClause.values:
-  number[]` (MEDIUM)
-- **Where:** `model.ts:95`.
-- **Why flagged:** Workspace IDs are 64-bit integers on Databricks.
-  TypeScript `number` cannot safely represent values > 2^53. Other
-  packages in this SDK use `string` for IDs that overflow. This is a
-  *type* issue, not a *naming* issue — but the field name `values:
-  number[]` does not signal that it is the wrong width. Worth a
-  cross-reference (the v1 spec presumably uses int64).
-- **Suggestion:** Confirm with the Go reference; if it is `int64`,
-  the TS port should be `string[]` or `bigint[]`. If `number` is
-  intentional (sometimes IDs fit in 53 bits), document it. Not
-  strictly a naming finding, included because it shows up as a
-  field-domain mismatch.
-
-#### F6.2 — `flattenQueryParams` is exported but unused in this
-  package (LOW)
-- **Where:** `utils.ts:123-150`.
-- **Why flagged:** The name suggests it is a query-param helper for
-  this client; the client does not call it (lines 144-148, 178-190
-  use `URLSearchParams.append` directly). The function is dead code
-  inside this package. Either there is an intended caller that has
-  not landed, or the helper should not be in this package.
-- **Suggestion:** Move shared helpers to `@databricks/sdk-core` or
-  delete from this package's `utils.ts`.
+_None._
 
 ---
 
@@ -283,37 +194,11 @@ _None._
   switch to singular `alertConfiguration: AlertConfiguration` when
   the API allows.
 
-#### F8.2 — `actionConfigurations: ActionConfiguration[]` (acceptable)
-- **Where:** `model.ts:47`.
-- **Why flagged:** No mismatch — multiple actions per alert are
-  allowed. Plural is correct.
-
-#### F8.3 — `tags: BudgetConfigurationFilter_TagClause[]` (acceptable)
-- Plural-array, no mismatch.
-
-#### F8.4 — `budgets` field in `ListBudgetConfigurationsRequest_Response`
-  (acceptable)
-- Plural, correct.
-
 ---
 
 ### 9. Reserved-word / built-in collisions
 
-#### F9.1 — `filter` field (LOW)
-- **Where:** `model.ts:65, 113, 190`.
-- **Why flagged:** `filter` is `Array.prototype.filter` — not a
-  reserved word, but shadowing a built-in causes mental hiccups
-  during code review. Acceptable here because the field is on
-  `BudgetConfiguration`, not on an array.
-- **Suggestion:** Keep; not worth churn.
-
-#### F9.2 — `Headers` constructor use vs DOM `Headers` (acceptable)
-- **Where:** `client.ts:90, 118, 152, 195, 244`.
-- The code intentionally uses the global `Headers`. No new identifier
-  shadows it. Fine.
-
-#### F9.3 — `URLSearchParams`, `TextDecoder` (acceptable)
-- Used as global classes, no shadowing.
+_None._
 
 ---
 
@@ -348,19 +233,7 @@ _None._
   collapse to a generic clause type — but only if the generator
   supports it.
 
-#### F11.3 — Per-method header construction duplicated (LOW, code style)
-- **Where:** `client.ts:90, 118, 152, 195, 244`.
-- **Why flagged:** Every method runs:
-  ```ts
-  const headers = new Headers(...);
-  headers.set('User-Agent', this.userAgent);
-  ```
-  Could be a private helper `this.buildHeaders(...)`. Not a naming
-  issue, but a code-duplication smell.
-- **Suggestion:** Out of scope for naming audit. Mentioned for
-  completeness.
-
-#### F11.4 — `accountId` declared on both the request envelope and
+#### F11.3 — `accountId` declared on both the request envelope and
   the inner `Budget` (LOW)
 - **Where:**
   - `CreateBudgetConfigurationBudget.accountId` (model.ts:102)
@@ -381,7 +254,7 @@ _None._
   request envelope for *all* methods. The Go/proto layer can keep
   nesting; the TS client should flatten.
 
-#### F11.5 — `budgetId` on
+#### F11.4 — `budgetId` on
   `Delete/Get/UpdateBudgetConfigurationRequest` vs
   `budgetConfigurationId` on `BudgetConfiguration` and
   `Create/UpdateBudgetConfigurationBudget` (HIGH)
@@ -408,46 +281,13 @@ _None._
 
 ### 12. Verb-tense inconsistency
 
-#### F12.1 — Method verbs (acceptable)
-- `create*`, `delete*`, `get*`, `list*`, `update*` — uniform
-  imperative present. Good.
-
-#### F12.2 — `createTime`, `updateTime` vs `created_at`/`updated_at`
-  conventions (LOW)
-- **Where:** `model.ts:56-58, 104-106, 181-183`.
-- **Why flagged:** Past-tense `createdTime` / `updatedTime` (or
-  `createdAt`/`updatedAt`) is more idiomatic; current form reads
-  as imperative ("create the time"). This is a noun form ("the
-  time of creation"), which is fine but ambiguous on first read.
-  This matches Google API conventions, so it is defensible.
-- **Suggestion:** Keep for parity with Go/proto and Google API
-  convention. Just note that `createdTime`/`updatedTime` would read
-  more naturally in TS.
+_None._
 
 ---
 
 ### 13. Go / Java-style names
 
-#### F13.1 — `req`, `resp`, `err`, `httpReq`, `apiErr`,
-  `pkgJson`, `opts` (HIGH, but cross-cutting)
-- **Where:**
-  - `req` everywhere in `client.ts`
-  - `resp` everywhere in `client.ts` and `utils.ts:73, 75, 81, 84, 88`
-  - `e` in `utils.ts:76` (with rethrow)
-  - `httpReq` in client.ts
-  - `apiErr` in utils.ts:88
-  - `pkgJson` in client.ts:19
-  - `opts` in utils.ts:30, 66
-- **Why flagged:** These are all classic Go idioms ported verbatim.
-  TS convention favors spelled-out names (`request`, `response`,
-  `error`, `httpRequest`, `apiError`, `packageJson`, `options`).
-- **Suggestion:** Spell them out. Trivial diff, large readability
-  gain. This is a porting-convention decision and should be made
-  globally at the generator level.
-
-#### F13.2 — Comment style (acceptable)
-- Comments are sentences. Good — but the file-top comment is the
-  generator banner.
+_None._
 
 ---
 
@@ -460,43 +300,19 @@ _None._
 
 ### 15. Field contradicting type domain
 
-#### F15.1 — `BudgetConfigurationFilter_WorkspaceIdClause` typed
-  as `number[]` (MEDIUM)
-- **Where:** `model.ts:95`. See F6.1.
-
-#### F15.2 — `LIST_PRICE_DOLLARS_USD` member on
-  `AlertConfigurationQuantityType` (LOW)
-- **Where:** `model.ts:10`.
-- **Why flagged:** Name implies *currency*, type is "quantity type".
-  The "quantity" in the API is a dollar amount. Minor domain
-  mismatch — could be `Currency`, `Cost`, or `Price` enum.
-- **Suggestion:** Out of scope for TS rename; wire value.
+_None._
 
 ---
 
 ### 16. Inconsistent action verbs
 
-#### F16.1 — `Get` vs `List` for read endpoints (acceptable)
-- `get` for single, `list` for collection. Standard REST verbs.
+_None._
 
 ---
 
 ### 17. Long enum values
 
-#### F17.1 — `CUMULATIVE_SPENDING_EXCEEDED` (MEDIUM)
-- **Where:** `model.ts:18`.
-- **Why flagged:** 28 characters. Long but informative.
-- **Suggestion:** Wire value; cannot rename in TS without losing
-  parity. Acceptable.
-
-#### F17.2 — `LIST_PRICE_DOLLARS_USD` (MEDIUM)
-- **Where:** `model.ts:10`.
-- **Why flagged:** 22 characters; `DOLLARS_USD` is doubly redundant.
-  Could be `LIST_PRICE_USD` or `USD`.
-- **Suggestion:** Wire value; report upstream.
-
-#### F17.3 — `EMAIL_NOTIFICATION` (LOW)
-- **Where:** `model.ts:6`. 18 characters; reasonable.
+_None._
 
 ---
 
@@ -504,13 +320,10 @@ _None._
 
 #### F18.1 — `budgetId` vs `budgetConfigurationId` for the same thing
   (HIGH)
-- See F11.5. The `budgetId` form is *less* underspecified than
+- See F11.4. The `budgetId` form is *less* underspecified than
   `budgetConfigurationId` if the package name carries "budgets"
   context — both are unambiguous in this package; the issue is
   inconsistency.
-
-#### F18.2 — `accountId` (acceptable)
-- Specific enough; matches platform-wide convention.
 
 ---
 
@@ -550,13 +363,6 @@ This SDK exposes two separate packages whose names both start with
   inconsistency.
 - **Suggestion:** When (if) renaming, align the two field shapes.
 
-### F-OVERLAP.3 — Package directory name `budgets` (plural) vs
-  `budgetpolicy` (singular) (LOW)
-- Cross-package naming pluralization inconsistency. Other examples
-  in the repo: `clusters` vs `clusterpolicies` vs `budgetpolicy`.
-  Mixed.
-- **Suggestion:** Cross-cutting style decision. Pick one.
-
 ---
 
 ## Summary table
@@ -565,29 +371,29 @@ This SDK exposes two separate packages whose names both start with
 | - | --------------------------------------- | -------- |
 | 1 | Vague / generic                         | 3        |
 | 2 | Redundant enum prefixes                 | 0 |
-| 3 | Acronym casing                          | 3 (3 acceptable) |
+| 3 | Acronym casing                          | 0 |
 | 4 | Underscores in TS identifiers           | 0 |
-| 5 | Cryptic abbreviations                   | 7 |
-| 6 | Misleading names                        | 2 |
+| 5 | Cryptic abbreviations                   | 1 |
+| 6 | Misleading names                        | 0 |
 | 7 | Overly verbose                          | 3 |
-| 8 | Singular / plural mismatch              | 4 (3 acceptable) |
-| 9 | Reserved-word collisions                | 3 (3 acceptable) |
+| 8 | Singular / plural mismatch              | 1 |
+| 9 | Reserved-word collisions                | 0 |
 | 10 | Empty / trivial wrappers               | 0 |
-| 11 | Duplicate concepts                     | 5 |
-| 12 | Verb-tense inconsistency               | 2 (2 acceptable) |
-| 13 | Go / Java-style names                  | 2 (1 acceptable) |
+| 11 | Duplicate concepts                     | 4 |
+| 12 | Verb-tense inconsistency               | 0 |
+| 13 | Go / Java-style names                  | 0 |
 | 14 | Generic field names                    | 1 |
-| 15 | Field contradicting type domain        | 2 |
-| 16 | Inconsistent action verbs              | 1 (1 acceptable) |
-| 17 | Long enum values                       | 3 |
-| 18 | Underspecified IDs                     | 2 (1 acceptable) |
-| OVERLAP | budgets vs budgetpolicy             | 3 |
+| 15 | Field contradicting type domain        | 0 |
+| 16 | Inconsistent action verbs              | 0 |
+| 17 | Long enum values                       | 0 |
+| 18 | Underspecified IDs                     | 1 |
+| OVERLAP | budgets vs budgetpolicy             | 2 |
 
 ---
 
 ## Top highest-impact renames (recommended order)
 
-1. **F11.5:** `budgetConfigurationId` → `budgetId` (or pick one
+1. **F11.4:** `budgetConfigurationId` → `budgetId` (or pick one
    universally). Same concept under two names is the worst smell here.
 2. **F7.1 / F7.3 / F11.1:** Collapse `BudgetConfiguration`,
    `CreateBudgetConfigurationBudget`,
@@ -595,10 +401,8 @@ This SDK exposes two separate packages whose names both start with
 3. **F1.1:** Rename `ActionConfiguration` to `BudgetAlertAction`.
 4. **F7.2:** Drop "Configuration" from request type names
    (`CreateBudgetRequest`).
-5. **F11.4:** Lift `accountId` to top-level on all request types
+5. **F11.3:** Lift `accountId` to top-level on all request types
    (currently nested under `budget` for create/update only).
-6. **F13.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
-   `pkgJson` etc. across all generated code.
 
 ---
 

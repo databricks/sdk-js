@@ -79,11 +79,7 @@ None. This package defines no enums.
 
 ### 1.5 Other identifiers
 
-- `client.ts`: `PACKAGE_SEGMENT` constant; `Client` class with private fields
-  `host`, `httpClient`, `logger`, `userAgent`.
-- `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
-  `readAll`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-  `marshalRequest`, `flattenQueryParams`.
+- `client.ts`: `Client` class.
 
 ---
 
@@ -103,9 +99,8 @@ No enums are declared in this package; this rubric category does not apply.
 
 | ID    | Symbol                | Severity | Issue |
 | ----- | --------------------- | -------- | ----- |
-| A-01  | `HttpClient`, `httpClient` (imported from core) | Low | Google TS style uses `Http` (initial-only capitalisation for acronyms > 2 chars — https://google.github.io/styleguide/tsguide.html#identifiers). Consistent. |
-| A-02  | `Uint8Array` | Low | Standard Web/TC39 typed-array name; OK. |
-| A-03  | "Base64" in JSDoc | Low | The JSDoc on `CreateGlobalInitScriptRequest.script` writes "Base64" with mixed case — this is correct (the format name is `Base64`, not `BASE64`). Acceptable. |
+| A-01  | `Uint8Array` | Low | Standard Web/TC39 typed-array name; OK. |
+| A-02  | "Base64" in JSDoc | Low | The JSDoc on `CreateGlobalInitScriptRequest.script` writes "Base64" with mixed case — this is correct (the format name is `Base64`, not `BASE64`). Acceptable. |
 
 ### 2.4 Underscores in TS identifiers — Low
 
@@ -113,13 +108,9 @@ No enums are declared in this package; this rubric category does not apply.
 | ----- | ------------------------------------------ | -------- | ----- |
 | U-01  | Wire-format keys (`script_id`, `created_by`, `created_at`, `updated_by`, `updated_at`) inside Zod schemas | Low | These are string literals inside `z.object({...})` — they are JSON keys on the wire, not TS identifiers. Not a naming-convention violation; correctly mapped to camelCase via `.transform`. |
 
-### 2.5 Cryptic abbreviations — Low
+### 2.5 Cryptic abbreviations — None
 
-| ID    | Symbol                  | Severity | Issue |
-| ----- | ----------------------- | -------- | ----- |
-| C-01  | `req`, `resp`, `httpReq`, `respBody` (`client.ts`) | Low | Short-lived local identifiers; OK for short scope but `request` / `response` would be clearer at no cost. |
-| C-02  | `opts` (`utils.ts` parameter) | Low | Inside fn scope; minor. |
-| C-03  | `pkgJson` (`client.ts:19`) | Low | Abbreviation of "packageJson". Local import alias; OK. |
+_None._
 
 ### 2.6 Misleading names — High
 
@@ -173,14 +164,12 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | G-01  | `GlobalInitScriptDetails` (Java-style "Details" suffix, `model.ts:41`) | Medium | Suffix `Details` is reminiscent of Java DTO conventions (`UserDetails`, `OrderDetails`). TS/JS naming tends to use the bare entity noun. See O-02. |
-| G-02  | `req: CreateGlobalInitScriptRequest` (parameter named `req`, `client.ts:75`) | Low | Go-style parameter abbreviation. JS/TS convention is `request` for a parameter; `req` is also common in Express but uncommon as an SDK method parameter. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | F-01  | `GlobalInitScriptDetails.name` (`model.ts:45`) | Low | Standard entity field; meaning preserved in context. |
-| F-02  | `httpReq`, `respBody`, `body`, `headers`, `text`, `parsed`, `info` (locals in `client.ts` / `utils.ts`) | Low | Local-scope identifiers only. |
 
 ### 2.15 Field contradicting type domain — Low
 
@@ -208,8 +197,6 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | TS-01 | `GlobalInitScriptDetails` (`model.ts:41`) | Medium   | The entity name encodes both the resource (`GlobalInitScript`) and a descriptive suffix (`Details`). With no peer `GlobalInitScript` type to distinguish from, the suffix is purely redundant. See O-02 / G-01. |
-| TS-02 | `HttpCallOptions` (utils) | Low | "Options" is conventional for option-bag types; not tautological. |
-| TS-03 | `CallOptions` (imported) | Low | Same. |
 
 ### 2.20 Proto-architectural leaks — High
 
@@ -229,11 +216,7 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | X-01  | `GlobalInitScriptDetails.createdAt` / `updatedAt` (`number`, epoch ms) | Low | Acceptable for ms timestamps; the SDK exposes these as plain numbers. JS `Date` safe-integer range covers epoch-ms beyond year 285,000. Flagged for parity with other audits. |
-| X-02  | `PACKAGE_SEGMENT` constant (`client.ts:43`) | Low | `SCREAMING_SNAKE_CASE` for a module-level constant — Google TS style permits this for "module-level constants … that are deeply immutable and used like enum constants" (https://google.github.io/styleguide/tsguide.html#constants). OK. |
-| X-03  | `Client` (class name, `client.ts:48`) | Low | The class is named `Client` (not `GlobalInitScriptsClient`) within the per-package namespace. Consistent with peer packages. The import alias at call sites disambiguates (`import {Client as GlobalInitScriptsClient}` or similar). OK. |
-| X-04  | `VERSION as AUTH_VERSION` (imported alias, `client.ts:3`) | Low | Aliasing on import is fine; communicates which version is being referenced. OK. |
-| X-05  | `HttpClient`, `HttpRequest`, `HttpResponse` (imported) | Low | Consistent Google-style acronym casing. OK. |
-| X-06  | `NoOpLogger` (imported) | Low | `NoOp` casing is correct for "no-op" (the term `no-op` is itself a contracted form). OK. |
+| X-02  | `Client` (class name, `client.ts:48`) | Low | The class is named `Client` (not `GlobalInitScriptsClient`) within the per-package namespace. Consistent with peer packages. The import alias at call sites disambiguates (`import {Client as GlobalInitScriptsClient}` or similar). OK. |
 
 ---
 
@@ -245,8 +228,8 @@ _None._
 | -------- | ----- |
 | High     | 10    |
 | Medium   | 5     |
-| Low      | 28    |
-| **Total**| **43**|
+| Low      | 16    |
+| **Total**| **31**|
 
 ### 3.2 Top themes
 

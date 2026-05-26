@@ -3,7 +3,7 @@
 **Path:** `packages/lakeview/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks AI/BI Dashboards (formerly named "Lakeview"). CRUD of draft dashboards, publish/unpublish, schedule periodic refresh, and email subscriptions tied to schedules. Also includes a one-way migration entry point from the older "classic SQL" dashboards.
-**Total weird names flagged:** 16
+**Total weird names flagged:** 14
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | High        | 6     |
 | Medium      | 5     |
 | Low         | 2     |
-| Observation | 3     |
+| Observation | 1     |
 
 ## Summary table
 
@@ -32,8 +32,6 @@
 | 12 | Low         | `model.ts` field                      | `Subscription.createdByUserId` typed `number`                                                   | 19, 16     |
 | 13 | Low         | `model.ts` field                      | `Dashboard.etag` / `Schedule.etag` / `Subscription.etag`                                        | 3          |
 | 14 | Observation | `model.ts` field                      | `Dashboard.path` and `Dashboard.parentPath`                                                     | 15, 6      |
-| 15 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
-| 16 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
 
 ---
 
@@ -283,25 +281,6 @@ parentPath?: string | undefined;    // workspace path of the folder containing t
 **Category:** 15 (generic), 6 (silently redundant).
 
 **Suggested name:** Keep both. Either rename `path → fullPath` for symmetry, or document the relationship in JSDoc on both fields.
-
-### 15. `index.ts` — mixed `export {...}` and `export type {...}`
-
-**Location:** `src/v1/index.ts:5,7-43`
-
-```ts
-export {DashboardView, LifecycleState, SchedulePauseStatus} from './model';
-export type {AuthorizationDetails, ...} from './model';
-```
-
-Enums are exported as values (correct — they have runtime representation); interfaces are exported as types (correct — type-only). The pattern is right; flagging only because a reader scanning the index file might miss the distinction. Consistent with other SDK packages.
-
-### 16. URL paths still use `lakeview`
-
-**Location:** Every method's URL constant in `client.ts`, e.g. line 105: `/api/2.0/lakeview/dashboards`
-
-Wire-format. The SDK cannot rename the URL without server cooperation. Flagged so that the rebrand mismatch noted in #1 is understood as partial (TS name is the lever; URLs are not).
-
-**Category:** 6.
 
 ---
 

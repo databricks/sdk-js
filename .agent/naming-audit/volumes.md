@@ -12,9 +12,9 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | ----------- | ----- |
 | High        | 2     |
 | Medium      | 4     |
-| Low         | 6     |
-| Observation | 4     |
-| **Total**   | **16** |
+| Low         | 0     |
+| Observation | 2     |
+| **Total**   | **8** |
 
 Headline themes:
 
@@ -154,90 +154,7 @@ Headline themes:
 
 ## Low Severity
 
-### L1. `executeCall` vs. `executeHttpCall` — overlapping verbs
-
-- **File / line:** `src/v1/utils.ts:26, 65`.
-- **Category:** #6 misleading name; #12 duplicate concepts.
-- **Current:** Two functions in the same file with very similar names.
-  `executeCall` is the public-options translator delegating to `execute`
-  from `@databricks/sdk-core/api`. `executeHttpCall` is the low-level
-  HTTP send + parse helper.
-- **Suggestion:** Rename `executeCall` to `runCallWithOptions` /
-  `dispatchCall` (or to match the JSDoc, `translateAndExecute`). The
-  JSDoc on line 22 already calls this a *translator* — the name should
-  match.
-- **Rationale:** Two functions named `execute*Call` in 100 lines of
-  code, with different return shapes (`Promise<void>` vs.
-  `Promise<Uint8Array>`), is a readability hazard.
-
-### L2. `Call` (imported, not local) and `call` local variable share names
-
-- **File / line:** `src/v1/client.ts:96, 127, 168, 226, 280`.
-- **Category:** #1 vague/generic.
-- **Current:** `const call: Call = async (callSignal?: AbortSignal) => …`.
-- **Suggestion:** `httpCall` or `doRequest`.
-- **Rationale:** `call` is a built-in word in JS (`.call()` on
-  functions), so a variable named `call` inside a method that is itself
-  a call is ambiguous. Caveat: this is a 1:1 port of Go SDK convention.
-
-### L3. `body` shadowed across `executeHttpCall` / `buildHttpRequest` /
-`parseResponse`
-
-- **File / line:** `src/v1/utils.ts:81` (`body`, response bytes), `101`
-  (`body`, request body parameter), `113` (`body`, response bytes
-  again).
-- **Category:** #1 vague generic name.
-- **Current:** Single name `body` used for both request body and
-  response body, with different types
-  (`Uint8Array`, `string | ReadableStream<Uint8Array>`).
-- **Suggestion:** `responseBody` / `requestBody`.
-- **Rationale:** The same identifier `body` flows through helpers as a
-  request payload in one place and a response payload in another.
-  Differentiating helps readers track direction.
-
-### L4. `flattenQueryParams` is dead code in this package
-
-- **File / line:** `src/v1/utils.ts:123`.
-- **Category:** dead code.
-- **Current:** Exported but not used by `client.ts` (the list / get
-  methods build params inline via `URLSearchParams.append` calls at
-  `client.ts:161–222`).
-- **Suggestion:** Drop the export or move to a shared util package.
-- **Rationale:** Unused exports become accidental public API. Out of
-  scope for pure naming but flagged because the name promises a feature
-  that no method exercises.
-
-### L5. `fullName` (on `VolumeInfo`) vs. `fullNameArg` (on path-param
-requests)
-
-- **File / line:** `model.ts:36, 148, 186` (`fullName` on
-  `CreateVolumeRequest`, `UpdateVolumeRequest.fullName` in payload,
-  `VolumeInfo.fullName`), `model.ts:56, 75, 126` (`fullNameArg` as path
-  param).
-- **Category:** #6 misleading name; #19 underspecified IDs.
-- **Current:** Two different fields naming the same logical concept
-  (the three-level volume identifier) differently depending on
-  request/response position.
-- **Suggestion:** Resolve in concert with H1 — use `fullName` everywhere.
-  If proto generation requires the `_Arg` discriminator, then bury it
-  internally and surface only `fullName` to callers.
-- **Rationale:** A user reading the API sees `fullName` on
-  `VolumeInfo` and `fullNameArg` on `DeleteVolumeRequest` and has to
-  ask: why are they different? The answer ("one is a request path
-  parameter") is generator-internal and should not bleed onto the
-  public surface.
-
-### L6. `pageReq` and `pageReq.pageToken` mutation in `listVolumesIter`
-
-- **File / line:** `src/v1/client.ts:251–260`.
-- **Category:** #1 vague/generic.
-- **Current:** `const pageReq: ListVolumesRequest = {...req};` then
-  mutates `pageReq.pageToken = resp.nextPageToken;` on each loop
-  iteration.
-- **Suggestion:** `currentPageRequest` or `nextPageRequest`.
-- **Rationale:** `pageReq` is fine as a Go-ism, but the variable is
-  reassigned across iterations — `pageRequest` makes the mutation site
-  more legible. Minor.
+_None._
 
 ---
 
@@ -257,22 +174,6 @@ fields like `nameArg`, `idArg`, `fullNameArg` across packages that take a
 URL path parameter. Search:
 `grep -rE "fullNameArg|nameArg|idArg" packages/*/src/`. Documented here
 because the fix has cross-package implications.
-
-### O3. URL path string repeated across methods without a named constant
-
-The base path `/api/2.1/unity-catalog/volumes` (and the suffixed
-variant with `${req.fullNameArg ?? ''}`) appears five times in
-`client.ts:93, 125, 160, 206, 277`. Not a naming defect, but typical
-naming-audit findings include "unnamed magic strings." Worth a note.
-
-### O4. `PACKAGE_SEGMENT.key` / `.value` carry no descriptive name
-
-`client.ts:39–42`: `{key: pkgJson.name.replace(/^@[^/]+\//, ''), value:
-pkgJson.version}`. The variable name `PACKAGE_SEGMENT` reads fine but
-the `key`/`value` shape is generic — readers may not know `key` is
-"package name" and `value` is "package version" without inspecting
-`createDefault().with(...)`. No action required; cosmetic. Pattern is
-identical across every generated client in the workspace.
 
 ---
 
@@ -309,27 +210,20 @@ Type & symbol checklist:
 - [x] `SseEncryptionAlgorithm` enum (3 members) → no defect.
 - [x] `VolumeType` enum (2 members) → no defect.
 - [x] `CreateVolumeRequest` interface (17 fields) → H2, M2.
-- [x] `DeleteVolumeRequest` interface (1 field) → H1, L5.
+- [x] `DeleteVolumeRequest` interface (1 field) → H1.
 - [x] `EncryptionDetails` interface → M4.
-- [x] `GetVolumeRequest` interface (2 fields) → H1, L5.
+- [x] `GetVolumeRequest` interface (2 fields) → H1.
 - [x] `ListVolumesRequest` interface (5 fields) → no additional defect.
 - [x] `SseEncryptionDetails` interface (2 fields) → M4.
-- [x] `UpdateVolumeRequest` interface (18 fields) → H1, H2, M2, L5.
-- [x] `VolumeInfo` interface (16 fields) → M1, M2, L5, O1.
+- [x] `UpdateVolumeRequest` interface (18 fields) → H1, H2, M2.
+- [x] `VolumeInfo` interface (16 fields) → M1, M2, O1.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
-- [x] `PACKAGE_SEGMENT` constant → O4.
-- [x] `createVolume(req, options)` method → H2, M3, L2.
-- [x] `deleteVolume(req, options)` method → H1, M3, L2.
-- [x] `getVolume(req, options)` method → H1, M3, L2.
-- [x] `listVolumes(req, options)` method → M3, L2.
-- [x] `listVolumesIter(req, options)` async generator → M3, L6.
-- [x] `updateVolume(req, options)` method → H1, H2, M3, L2.
-- [x] `HttpCallOptions` interface → no defect.
-- [x] `executeCall` function → L1.
-- [x] `readAll` private function → no defect (name fits idiom).
-- [x] `executeHttpCall` function → L1, L3.
-- [x] `buildHttpRequest` function → L3.
-- [x] `flattenQueryParams` function → L4 (unused).
+- [x] `createVolume(req, options)` method → H2, M3.
+- [x] `deleteVolume(req, options)` method → H1, M3.
+- [x] `getVolume(req, options)` method → H1, M3.
+- [x] `listVolumes(req, options)` method → M3.
+- [x] `listVolumesIter(req, options)` async generator → M3.
+- [x] `updateVolume(req, options)` method → H1, H2, M3.
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).
 
 ---

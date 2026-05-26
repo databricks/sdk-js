@@ -7,7 +7,6 @@
 
 - `src/v2/model.ts`
 - `src/v2/client.ts`
-- `src/v2/utils.ts`
 - `src/v2/index.ts`
 
 This audit catalogues every identifier (type, field, enum value, method,
@@ -100,21 +99,7 @@ rubric. Issues are graded:
 
 ### 1.5 Other identifiers
 
-- `client.ts`: `PACKAGE_SEGMENT` constant; `Client` class with private fields
-  `host`, `httpClient`, `logger`, `userAgent`.
-- `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
-  `readAll`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-  `marshalRequest`, `flattenQueryParams`.
-- Marshal / unmarshal schemas: `unmarshalCreatePolicyRequest_ResponseSchema`,
-  `unmarshalDeletePolicyRequest_ResponseSchema`,
-  `unmarshalEditPolicyRequest_ResponseSchema`, `unmarshalLibrarySchema`,
-  `unmarshalListPoliciesRequest_ResponseSchema`,
-  `unmarshalMavenLibrarySchema`, `unmarshalPolicySchema`,
-  `unmarshalPythonPyPiLibrarySchema`, `unmarshalRCranLibrarySchema`,
-  `marshalCreatePolicyRequestSchema`, `marshalDeletePolicyRequestSchema`,
-  `marshalEditPolicyRequestSchema`, `marshalLibrarySchema`,
-  `marshalMavenLibrarySchema`, `marshalPythonPyPiLibrarySchema`,
-  `marshalRCranLibrarySchema`.
+- `client.ts`: `Client` class (public, top-level export).
 
 ---
 
@@ -125,7 +110,6 @@ rubric. Issues are graded:
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `Policy.description` (`model.ts:228`), `CreatePolicyRequest.description` (`model.ts:26`), `EditPolicyRequest.description` (`model.ts:74`) | Low | Generic but standard across the SDK; acceptable. |
-| V-02  | `flattenQueryParams` (`utils.ts:123`) | Low    | Reasonable. |
 
 ### 2.2 Redundant enum prefixes
 
@@ -137,8 +121,6 @@ _None._
 | ----- | --------------------- | -------- | ----- |
 | A-01  | `PythonPyPiLibrary` (`model.ts:251`) | High | "PyPI" is a proper acronym (Python Package Index). The chosen casing `PyPi` is non-standard — official sources write **PyPI** (see https://pypi.org/ and PEP 541). Should be `PythonPyPILibrary`. |
 | A-02  | `RCranLibrary` (`model.ts:264`) | Medium | "CRAN" is an acronym ("Comprehensive R Archive Network"). The type uses `Cran` (PascalCase) which is acceptable under Google TS style (acronyms ≥3 chars → only first letter capitalised). However, the JSDoc and surrounding usage refers to "CRAN library". Consistent with the rule but worth noting — peer types like `PolicySortColumn` keep full uppercase in member names. Leave as-is for Google style compliance. |
-| A-03  | `RCranLibrary` — prefix `R` (`model.ts:264`) | Low | The leading lone `R` (the language) is awkward; the Go SDK uses the same name so this is a porting constraint. |
-| A-04  | `pypi` discriminator case (`Library.lib.$case === 'pypi'`, `model.ts:124`) | Low | Lowercased, matching API wire format; consistent with `jar`, `egg`, `cran`, `maven`. Acceptable. |
 
 ### 2.4 Underscores in TS identifiers
 
@@ -148,25 +130,17 @@ _None._
 
 | ID    | Symbol                  | Severity | Issue |
 | ----- | ----------------------- | -------- | ----- |
-| C-01  | `Library.lib.$case === 'whl'` (`model.ts:145`) | Medium | `whl` (wheel) is a Python packaging file extension; readers unfamiliar with Python will not know it. Documented in JSDoc but the discriminator value itself is opaque. |
-| C-02  | `Library.lib.$case === 'egg'` (`model.ts:119`) | Medium | Same as C-01 for Python "egg" files. The JSDoc even notes it is "Deprecated". |
-| C-03  | `MavenLibrary.exclusions` (`model.ts:201`) | Low | Maven term, OK in context. |
-| C-04  | `req`, `resp`, `httpReq`, `respBody` (`client.ts`, throughout) | Low | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. |
-| C-05  | `opts` (`utils.ts:66`, `executeHttpCall` parameter) | Low | Inside fn scope; minor. |
+| C-01  | `MavenLibrary.exclusions` (`model.ts:201`) | Low | Maven term, OK in context. |
 
 ### 2.6 Misleading names — High
 
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| M-01  | `EditPolicyRequest` (`model.ts:63`) / `editPolicy()` (`client.ts:133`) | High | Standard CRUD verbs in TS/REST are **create / read / update / delete**. The Databricks "Cluster Policies 2.0" API uses `/edit` as the wire path, but the SDK could still expose `updatePolicy` (with `UpdatePolicyRequest` request type) which is the conventional REST verb. Compare with the newer `policies` API surface and most other Databricks SDK resources that expose `update*`. As-is, the SDK exposes `editPolicy` while peer packages (e.g. `clusters`) often expose `editCluster` too — there is precedent — but it remains inconsistent with the broader CRUD vocabulary. Tracked here as a discrepancy worth raising upstream. |
+_None._
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| O-01  | `policyFamilyDefinitionOverrides` (`model.ts:42`, `model.ts:90`, `model.ts:244`) | Medium | Five-word camel-case identifier. Inherited from the API; very long but no shorter form is unambiguous. Accept as upstream constraint. |
-| O-02  | `PACKAGE_SEGMENT` (`client.ts:44`) | Low | OK in context. |
-| O-03  | `Policy.maxClustersPerUser` (`model.ts:246`) | Low | Long but precise. |
+| O-01  | `Policy.maxClustersPerUser` (`model.ts:246`) | Low | Long but precise. |
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -207,7 +181,6 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | G-01  | `MavenLibrary` (`model.ts:187`), `PythonPyPiLibrary` (`model.ts:251`), `RCranLibrary` (`model.ts:264`) (suffix `Library` repeated) | Low | Java-style "TypeNameTypeSuffix" pattern. See § 2.19 for the type-suffix tautology angle. |
-| G-02  | `httpClient` / `HttpClient` (vs `HTTPClient`) (`client.ts:51`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -215,7 +188,6 @@ _None._
 | ----- | ----------------------------------- | -------- | ----- |
 | F-01  | `Policy.name` (`model.ts:224`), `Policy.description` (`model.ts:228`) | Low | Standard entity fields; meaning preserved in context. |
 | F-02  | `MavenLibrary.coordinates` (`model.ts:189`) | Low | Maven-specific; precise. |
-| F-03  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.15 Field contradicting type domain — Low
 
@@ -227,8 +199,7 @@ _None._
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| AV-01 | `editPolicy()` (`client.ts:133`) vs ecosystem-standard `update` | Medium | Most modern Databricks APIs (and broader REST APIs) use **update**. This package uses **edit** to match the API path `/api/2.0/policies/clusters/edit`. The verb mismatch within the Databricks SDK as a whole (e.g. `Clusters.editCluster` exists, but newer surfaces use `update*`) is upstream. Flagged for awareness. |
-| AV-02 | `getPolicy()` (`client.ts:159`, singular) vs `listPolicies()` (`client.ts:190`, plural) | Low | Correct convention (singular get, plural list). Consistent. |
+| AV-01 | `getPolicy()` (`client.ts:159`, singular) vs `listPolicies()` (`client.ts:190`, plural) | Low | Correct convention (singular get, plural list). Consistent. |
 
 ### 2.17 Long enum values
 
@@ -256,15 +227,10 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | X-01  | `Policy.createdAtTimestamp` (`model.ts:214`, epoch ms, `number`) | Medium | JS `Date` has a 53-bit safe-integer range that covers epoch-ms until year 285,000+, but a TS SDK conventionally exposes either `Date`, `string` (ISO-8601), or `bigint`. `number` is acceptable for ms timestamps; flagged. |
-| X-02  | `Library.lib.$case` literal `'requirements'` (`model.ts:156`) | Low | The discriminator value `'requirements'` is the longest in the union (12 chars) and contrasts with three-letter peers (`jar`, `egg`, `whl`). Consistent with wire format, OK. |
-| X-03  | `HttpCallOptions` (`utils.ts:15`) | Low | Local interface; precise. |
-| X-04  | `executeHttpCall` (`utils.ts:65`), `executeCall` (`utils.ts:26`) | Low | Both exist, one wraps the other. The naming difference (`HttpCall` vs `Call`) communicates layering: HTTP-aware vs. transport-agnostic. OK. |
-| X-05  | `readAll` (`utils.ts:40`, private) | Low | Reads a `ReadableStream` to a `Uint8Array`. Standard name. |
-| X-06  | `flattenQueryParams` (`utils.ts:123`, exported but unused in this package?) | Low | Exported but `client.ts` builds query strings manually with `URLSearchParams.append`. Either remove or use it. Not strictly a naming issue. |
 
 ### 2.21 Proto / architectural-leak naming
 
-_None._ Scanned all identifiers in `model.ts`, `client.ts`, `utils.ts`, and
+_None._ Scanned all identifiers in `model.ts`, `client.ts`, and
 `index.ts` for mid-position `Public`/`Internal`/`External` (non-domain),
 `Proto` suffix/infix, `Service`/`Server`/`Backend`/`Frontend`, `Rpc`/`Grpc`,
 `Manager`/`Handler`/`Controller`/`Processor`/`Daemon`/`Worker` (non-domain),
@@ -283,21 +249,17 @@ architectural-layer words leaking into domain identifiers.
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 2     |
-| Medium   | 11    |
-| Low      | 29    |
-| **Total**| **42**|
+| High     | 1     |
+| Medium   | 7     |
+| Low      | 16    |
+| **Total**| **24**|
 
 ### 3.2 Top themes
 
 1. **`PyPi` casing should be `PyPI`** (acronym); the type name
    `PythonPyPiLibrary` should be `PythonPyPILibrary`.
 
-2. **`editPolicy` vs ecosystem-standard `update`** — the SDK exposes
-   `editPolicy` to match the wire path `/edit`, but most modern Databricks
-   surfaces use `update*`. Flag for upstream alignment.
-
-3. **Type-suffix tautology in the `Library` union**: `MavenLibrary`,
+2. **Type-suffix tautology in the `Library` union**: `MavenLibrary`,
    `PythonPyPiLibrary`, `RCranLibrary` all repeat the `Library` suffix even
    though their *position* in the discriminated union already identifies
    them as library variants.
@@ -309,5 +271,4 @@ section is advisory for the codegen owners)
 
 ### 3.4 Cross-package consistency notes
 
-- `editPolicy` (vs `updatePolicy`) is a per-API decision driven by the
-  upstream REST verb; flag for upstream alignment but no per-package fix.
+_None._

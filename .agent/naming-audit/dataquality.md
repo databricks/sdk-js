@@ -3,15 +3,15 @@
 **Path:** `packages/dataquality/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Data Quality monitoring on Unity Catalog schemas and tables. The package models two flavours of "Monitor" (Anomaly Detection for schemas, Data Profiling for tables), Refresh runs of the underlying monitoring pipeline, cron-style scheduling, baseline-vs-monitored drift metrics, custom metric definitions, and notification routing on failure.
-**Total weird names flagged:** 25
+**Total weird names flagged:** 15
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
 | Medium | 4 |
-| Low | 8 |
-| Observation | 5 |
+| Low | 1 |
+| Observation | 2 |
 
 ## High severity
 
@@ -91,49 +91,7 @@
 
 ## Low severity
 
-### 13. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
-- **Why weird:** Exported helper that is never called from `client.ts`. The package's two list endpoints handle pagination params (`pageToken`, `pageSize`) inline rather than via `flattenQueryParams`. Dead exported surface.
-- **Category:** 6 (misleading — looks like it's used; isn't).
-- **Suggested name:** N/A — should be unexported (or moved to a shared utils package — generator-wide concern).
-- **Rationale:** Same as `dataclassification` finding #19.
-
-### 14. `executeCall` vs `executeHttpCall` — `src/v1/utils.ts:26,65`
-- **Why weird:** Layering not visible from names; identical to `dataclassification` finding #15.
-- **Category:** 1, 12, 17.
-- **Suggested name:** `runWithRetry` (outer) + `sendHttpRequest` (inner).
-- **Rationale:** Layering should be readable from the names without opening the source.
-
-### 15. `buildHttpRequest` — `src/v1/utils.ts:96`
-- **Why weird:** Same as `dataclassification` finding #16; "build" suggests builder pattern, the function spreads literals.
-- **Category:** 1, 6.
-- **Suggested name:** `makeHttpRequest`.
-- **Rationale:** "Make" matches the simpler reality.
-
-### 16. `readAll` — `src/v1/utils.ts:40`
-- **Why weird:** Identical to `dataclassification` finding #20; "readAll" does not say "drain a stream".
-- **Category:** 1, 5.
-- **Suggested name:** `drainStream`.
-- **Rationale:** Self-describing name for stream draining.
-
-### 17. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** Same as `dataclassification` finding #21; internal context bag called `Options`.
-- **Category:** 1, 8.
-- **Suggested name:** `HttpCallContext`.
-- **Rationale:** Reserve `Options` for user-tunable knobs.
-
-### 18. `PACKAGE_SEGMENT` — `src/v1/client.ts:50`
-- **Why weird:** Same as `dataclassification` finding #22; unspecific noun for a User-Agent identity object.
-- **Category:** 1.
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
-- **Rationale:** Add the missing domain word.
-
-### 19. `Call` type + `call` variable — `src/v1/client.ts:96, 135, 169, 207, 226, 261, 297, 331, 393, 453, 491`
-- **Why weird:** Same as `dataclassification` finding #24; variable named `call` of type `Call` repeated 11 times across the client.
-- **Category:** 1, 12.
-- **Suggested name:** `request` (variable) — reserve `Call` for the type.
-- **Rationale:** Type/variable collision is common in Go idioms; TS prefers distinct names.
-
-### 20. `req.objectId ?? ''` / `req.objectType ?? ''` URL composition — `src/v1/client.ts:93, 166, 206, 225, 259, 295, 382, 444, 482`
+### 13. `req.objectId ?? ''` / `req.objectType ?? ''` URL composition — `src/v1/client.ts:93, 166, 206, 225, 259, 295, 382, 444, 482`
 - **Why weird:** Same as `dataclassification` finding #25 — `objectType`/`objectId` typed optional but required in practice. Silently substitutes empty string producing malformed URLs like `/api/data-quality/v1/monitors//`.
 - **Category:** 6.
 - **Suggested name:** Make `objectType` and `objectId` non-optional on every request type that constructs a URL from them.
@@ -141,22 +99,12 @@
 
 ## Observations
 
-### 21. Heavy boilerplate dominates the file
-`model.ts` is 1030 lines for ~16 user-facing types; ~520 lines (~50%) are `marshal*` / `unmarshal*` / `*FieldMaskSchema` scaffolding. Same shape as every audited package.
-
-### 22. Action verbs in `Client`
+### 14. Action verbs in `Client`
 The client uses `Create`/`Get`/`Update`/`Delete`/`List`/`Cancel` for monitor and refresh operations. Verbs are consistent within the package. (Listed per rule 17 to note the absence of inconsistency.)
 
-### 23. Acronym casing
+### 15. Acronym casing
 Mixed conventions, all generator-emitted: `Id` (PascalCase-capital-then-lower in `objectId`, `refreshId`), `Ms` (capital-then-lower in `startTimeMs`), `Http` (capital-then-lower in `HttpClient`, `HttpRequest`), `URL`-style ALLCAPS only via the imported web standard `URLSearchParams`. No within-package collisions.
 - **Category:** 3 (acronym casing).
-
-### 24. Tense / nominalisation drift in enum naming
-`AnomalyDetection` (gerund), `DataProfiling` (gerund), `DataClassification` (noun) — at the package boundary the gerund/noun choice tracks the API team's preference. Within `dataquality` the choice is consistent (both gerunds), good.
-
-### 25. `dataquality` lowercase package name vs `data-quality` wire path vs `DataQuality` types
-Same shape as the `dataclassification` casing observation (#32 in that package): directory is one collapsed word, types are PascalCase compounded, wire path is kebab. SDK-wide convention question, not local.
-- **Category:** 3 (casing inconsistency).
 
 ## Domain glossary
 - `uc` / Unity Catalog — implicit across the package (the monitored resource is a UC schema or UC table).

@@ -11,10 +11,10 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 1     |
-| Medium      | 4     |
-| Low         | 5     |
-| Observation | 3     |
-| **Total**   | **13** |
+| Medium      | 3     |
+| Low         | 0     |
+| Observation | 2     |
+| **Total**   | **6** |
 
 Headline themes:
 
@@ -81,21 +81,7 @@ verbs vs. UC sibling APIs
   `update…`. If the API spec dictates `Set`, this is correct; the audit
   flags it because the verb is unique within UC.
 
-### M3. `req` parameter name on `Client.getArtifactAllowlist` /
-`setArtifactAllowlist`
-
-- **File / line:** `src/v1/client.ts:67, 97`.
-- **Category:** #5 cryptic abbreviation; #14 Go-style name.
-- **Current:** `req: GetArtifactAllowlistRequest`.
-- **Suggestion:** `request` (matches Go-port readability without saving
-  characters that matter in TypeScript).
-- **Rationale:** Throughout the JS/TS ecosystem, function parameters tend
-  to be spelled out (`request`, `response`) rather than abbreviated. The Go
-  `req`/`resp` idiom is fine in Go where short names are encouraged; in TS
-  it reads as Go-translated code. (Note: `resp` shows up locally in the
-  same file at lines 71, 84, 102, 115 — a separate, lower-priority issue.)
-
-### M4. `ArtifactMatcher_MatchType` — proto-style nested enum with underscore leak
+### M3. `ArtifactMatcher_MatchType` — proto-style nested enum with underscore leak
 
 - **File / line:** `src/v1/model.ts:15`.
 - **Category:** proto-architectural-leak — `Proto` infix / nested-enum
@@ -116,80 +102,7 @@ verbs vs. UC sibling APIs
 
 ## Low Severity
 
-### L1. `executeCall` vs. `executeHttpCall` — overlapping verbs
-
-- **File / line:** `src/v1/utils.ts:26, 65`.
-- **Category:** #6 misleading name; #12 duplicate concepts.
-- **Current:** Both functions live in the same file with very similar
-  names. `executeCall` is the public-options translator that delegates to
-  `execute` from `@databricks/sdk-core/api`. `executeHttpCall` is the low-
-  level HTTP send + parse helper.
-- **Suggestion:** Rename `executeCall` to `runCallWithOptions` /
-  `dispatchCall` (or fold into `executeHttpCall` if the indirection is
-  trivial). At minimum, the JSDoc already calls this out as a *translator*
-  — the name should match.
-- **Rationale:** Two functions named `execute*Call` in 70 lines of code,
-  with different return shapes (`Promise<void>` vs.
-  `Promise<Uint8Array>`), is a readability hazard. The JSDoc on line 21–25
-  explicitly says "Translates public CallOptions to the internal Options
-  shape," which is a better name.
-
-### L2. `Call` (imported, not local) and `call` local variable share names
-
-- **File / line:** `src/v1/client.ts:72` (`const call: Call = …`).
-- **Category:** #1 vague/generic.
-- **Current:** `const call: Call = async (callSignal?: AbortSignal) => …`.
-- **Suggestion:** `httpCall` or `doRequest`.
-- **Rationale:** `call` is a built-in word in JS (`.call()` on functions),
-  so a variable named `call` inside a method that is itself a call is
-  ambiguous. Caveat: this is a 1:1 port of Go SDK convention.
-
-### L3. `body` shadowed across helpers in `executeHttpCall`
-
-- **File / line:** `src/v1/utils.ts:81`, `buildHttpRequest` (line 96),
-  `parseResponse` (line 113).
-- **Category:** #1 vague generic name.
-- **Current:** `body: Uint8Array` (response body) vs. `body: string |
-  ReadableStream<Uint8Array>` (request body, in `buildHttpRequest`).
-- **Suggestion:** `responseBody` / `requestBody`.
-- **Rationale:** Within `client.ts` line 101 a request body flows into a
-  function that internally also reasons about response bodies.
-  Differentiating with `requestBody` / `responseBody` would help readers.
-
-### L4. `AuthHttpClient` — architectural-layer wrapper class name
-
-- **File / line:** `src/v1/transport.ts:43`.
-- **Category:** proto-architectural-leak — `Wrapper`/`Adapter` pattern
-  exposed; architectural mid-token `Http`.
-- **Current:** `class AuthHttpClient implements HttpClient` — the JSDoc
-  on line 42 reads "Wraps an HttpClient and adds authentication headers
-  to requests," explicitly admitting wrapper semantics.
-- **Suggestion:** Internalize the wrapper (e.g., a `withAuth(client,
-  credentials)` factory that returns an `HttpClient`), or name the class
-  after what it produces (`AuthenticatedTransport`) rather than the
-  architectural layering. If kept, drop `Http` and align with the
-  domain — `AuthenticatingClient` reads as the role.
-- **Rationale:** `AuthHttpClient` reads as `Auth` + `Http` + `Client`,
-  three architectural tokens stacked. The `Http` infix in particular adds
-  no information beyond what `HttpClient` (the implemented interface)
-  already conveys. Wrapper class names that stack adjective + transport
-  layer + role are a known leak of internal layering into identifiers.
-
-### L5. `TimeoutHttpClient` — second instance of the same wrapper-naming pattern
-
-- **File / line:** `src/v1/transport.ts:61`.
-- **Category:** proto-architectural-leak — `Wrapper`/`Adapter` pattern;
-  architectural mid-token `Http`.
-- **Current:** `class TimeoutHttpClient implements HttpClient` (JSDoc:
-  "Wraps an HttpClient and applies a default timeout to requests").
-- **Suggestion:** Same treatment as L4 — a `withTimeout(client, ms)`
-  factory, or rename to `TimeoutTransport` / `TimeoutClient` to drop the
-  architectural `Http` infix.
-- **Rationale:** Same naming anti-pattern as L4 repeated. Together,
-  `AuthHttpClient` + `TimeoutHttpClient` form a small decorator chain
-  whose class names advertise the chain layout rather than the behaviour
-  delivered. The cluster suggests a generator template rather than a
-  package-local choice.
+_None._
 
 ---
 
@@ -208,13 +121,6 @@ every position in this package: type names, methods, schemas, comments,
 URL paths (`/artifact-allowlists/`), and the package name
 `@databricks/sdk-artifactallowlists`. No `AllowList`, `Allow_list`, or
 `Whitelist` anywhere. **Passes** the audit on this criterion.
-
-### O3. URL path constant is inlined
-
-The string `/api/2.1/unity-catalog/artifact-allowlists/${artifactType}`
-appears twice (`client.ts:70` and `client.ts:100`) without a named
-constant. Not a naming defect, but typical naming-audit findings include
-"unnamed magic strings." Worth a note.
 
 ---
 
@@ -245,24 +151,14 @@ constant. Not a naming defect, but typical naming-audit findings include
 Type & symbol checklist:
 
 - [x] `ArtifactType` enum (4 members) → no defect.
-- [x] `ArtifactMatcher_MatchType` enum (2 members) → M4.
+- [x] `ArtifactMatcher_MatchType` enum (2 members) → M3.
 - [x] `ArtifactAllowlistInfo` interface (4 fields) → M1, O1.
 - [x] `ArtifactMatcher` interface (2 fields) → no defect.
 - [x] `GetArtifactAllowlistRequest` interface (1 field) → no defect.
 - [x] `SetArtifactAllowlistRequest` interface (5 fields) → H1.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
-- [x] `PACKAGE_SEGMENT` constant → no defect.
-- [x] `getArtifactAllowlist(req, options)` method → M2, M3.
-- [x] `setArtifactAllowlist(req, options)` method → M2, M3.
-- [x] `HttpCallOptions` interface → no defect.
-- [x] `executeCall` function → L1.
-- [x] `readAll` private function → no defect (name fits idiom).
-- [x] `executeHttpCall` function → L1, L3.
-- [x] `buildHttpRequest` function → L3.
-- [x] `flattenQueryParams` function → no defect.
-- [x] `newHttpClient` factory (`transport.ts`) → no defect.
-- [x] `AuthHttpClient` class (`transport.ts`) → L4.
-- [x] `TimeoutHttpClient` class (`transport.ts`) → L5.
+- [x] `getArtifactAllowlist(req, options)` method → M2.
+- [x] `setArtifactAllowlist(req, options)` method → M2.
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).
 
 ---

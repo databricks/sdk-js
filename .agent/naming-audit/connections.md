@@ -3,15 +3,15 @@
 **Path:** `packages/connections/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog Foreign Connections — create/get/list/update/delete connections to external data sources (MySQL, Snowflake, Salesforce, BigQuery, ServiceNow, GitHub, etc.) for federated query and ingestion.
-**Total weird names flagged:** 21
+**Total weird names flagged:** 14
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 5 |
 | Medium | 8 |
-| Low | 6 |
-| Observation | 2 |
+| Low | 0 |
+| Observation | 1 |
 
 ## High severity
 
@@ -97,54 +97,16 @@
 
 ## Low severity
 
-### 14. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:39`
-- **Why weird:** `Segment` is a generic word; without the comment the constant doesn't communicate User-Agent identity.
-- **Category:** 1 (vague), 15 (generic name).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
-- **Rationale:** Same finding as in `abacpolicies` audit; consistent across generated packages.
-
-### 15. `flattenQueryParams` — `src/v1/utils.ts:123`
-- **Why weird:** Exported but unused in this package (`client.ts` builds query strings inline with `URLSearchParams.append`). Dead-looking export.
-- **Category:** Observation / 11 (unused public helper).
-- **Suggested name:** Remove from utils if generator default.
-- **Rationale:** Generator emits the same helper into every package even when unused.
-
-### 16. `readAll` — `src/v1/utils.ts:40`
-- **Why weird:** Internal helper name is generic and clashes cognitively with `Array.prototype` / stream utilities.
-- **Category:** 1 (vague).
-- **Suggested name:** `readStreamToEnd` / `drainStream`.
-- **Rationale:** Trivial; flagged for cross-package consistency.
-
-### 17. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
-- **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site.
-- **Category:** 1 (vague), 17 (inconsistent).
-- **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
-- **Rationale:** Names should encode the layer, not just the protocol.
-
-### 18. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** Yet another `Options` suffix; the file also imports `Options` (line 3) and `CallOptions` (line 12), so three `Options` types are in scope at once. The `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
-- **Category:** 1 (vague suffix).
-- **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
-- **Rationale:** Distinguish internal context bags from user-facing option structs.
-
-### 19. Inconsistent option name: `req.maxResults` vs wire `max_results` — `src/v1/client.ts:167-168`
-- **Why weird:** TS uses camelCase (`maxResults`); wire is snake_case (`max_results`). Conversion is buried in the client method. Fine in isolation but two near-identical strings live three lines apart.
-- **Category:** Observation only.
-- **Suggested name:** None — this is the marshalling boundary by design.
-- **Rationale:** Just noting it for reviewer awareness.
+_None._
 
 ## Observations
 
-### 20. Casing inconsistency in vendor name decomposition
+### 14. Casing inconsistency in vendor name decomposition
 Within `ConnectionType`:
 - `BIGQUERY`, `POSTGRESQL`, `SQLSERVER` (joined) vs `POWER_BI`, `WORKDAY_RAAS`, `META_MARKETING` (split).
 - `MYSQL` (joined) vs `GA4_RAW_DATA` (split).
 No discoverable rule. Wire-locked, but worth surfacing.
 - **Category:** 3 (acronym/casing inconsistency).
-
-### 21. `Client` constructor throws for missing host
-`if (options.host === undefined) { throw new Error('Host is required.'); }` — error message is fine, naming is fine, but `Host is required.` doesn't tell the user which constructor failed. Flagged for cross-SDK consistency review.
-- **Category:** Observation.
 
 ## Domain glossary
 - `uc` — Unity Catalog (referenced in `model.ts` doc comments).

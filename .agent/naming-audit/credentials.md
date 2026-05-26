@@ -13,7 +13,7 @@ cloud-provider configurations (AWS IAM role, Azure Service Principal, Azure
 Managed Identity, GCP Service Account Key, Databricks-managed GCP Service
 Account, Cloudflare API token) and yields one of six temporary-credential
 shapes (AWS, Azure SAS, GCP OAuth, Azure AAD, R2, UC encrypted token).
-**Total weird names flagged:** 24 (24 still applicable, 0 newly fixed in regeneration on 2026-05-26)
+**Total weird names flagged:** 22 (22 still applicable, 0 newly fixed in regeneration on 2026-05-26)
 
 ---
 
@@ -41,10 +41,8 @@ shapes (AWS, Azure SAS, GCP OAuth, Azure AAD, R2, UC encrypted token).
 | 18 | `R2Credentials` type | model.ts:861 | interface | Medium | 1 Vague/generic, 5 Cryptic abbreviations | "R2" is Cloudflare's object-storage service name. A reader who doesn't know Cloudflare's product line will be lost. Consider `CloudflareR2Credentials`. |
 | 19 | `GenerateTemporaryPathCredentialRequest` / `GenerateTemporaryTableCredentialRequest` / `GenerateTemporaryVolumeCredentialRequest` / `GenerateTemporaryServiceCredentialRequest` | model.ts:619, 690, 723, 654 | interface set | Medium | 7 Overly verbose, 12 Duplicate concepts | Four request types whose names are 38-41 characters long. They differ in the *operand* (path/table/volume/service). A `TemporaryPathRequest` / etc. shape, parameterized by operand, would shorten. |
 | 20 | `TemporaryCredentials` | model.ts:961 | interface | Medium | 12 Duplicate concepts | The three `Generate*` response shapes carry the same field set (`credentials` union + `expirationTime` + `url`) as `TemporaryCredentials`. Only one canonical shape is needed; the others should re-export it. |
-| 21 | `purpose` field (referenced in JSDoc but absent from interface) | model.ts:264-266 (etc.) | (missing) | High | 6 Misleading names | The JSDoc text on `readOnly` and `usedForManagedStorage` (and elsewhere) says "Only applicable when purpose is **STORAGE**" / "**SERVICE**". But there is no `purpose` field on `CreateCredentialRequest`/`CredentialInfo`/`UpdateCredentialRequest`. Either the field is missing from the generated TS, or the doc is stale. Either way the contract is broken. |
-| 22 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Cf. accountaccesscontrolproxy audit M5. |
-| 23 | `ListCredentialsPublicRequest` | model.ts:776 | interface | High | 20 Proto-architectural leak | `Public` mid-position is an internal Databricks service-layout artifact (proto/RPC public-vs-internal route distinction). No TS caller cares; the package itself is the public surface. Sibling consolidated UC endpoints have no such infix — confirms `Public` is a wire/service-layer disambiguator that should not leak into the TS surface. |
-| 24 | `Client.createCredentialsPublic` / `Client.deleteCredentialsPublic` / `Client.getCredentialsPublic` / `Client.listCredentialsPublic` | client.ts:927, 953, 978, 1003 | method set | High | 20 Proto-architectural leak | Four public methods on the SDK `Client` whose names carry the `Public` suffix. Reads as "the method on the public class that calls the public endpoint" — the suffix is meaningless to a TS caller and only exists because the underlying proto/spec uses `Public` to distinguish account-API routes. |
+| 21 | `ListCredentialsPublicRequest` | model.ts:776 | interface | High | 20 Proto-architectural leak | `Public` mid-position is an internal Databricks service-layout artifact (proto/RPC public-vs-internal route distinction). No TS caller cares; the package itself is the public surface. Sibling consolidated UC endpoints have no such infix — confirms `Public` is a wire/service-layer disambiguator that should not leak into the TS surface. |
+| 22 | `Client.createCredentialsPublic` / `Client.deleteCredentialsPublic` / `Client.getCredentialsPublic` / `Client.listCredentialsPublic` | client.ts:927, 953, 978, 1003 | method set | High | 20 Proto-architectural leak | Four public methods on the SDK `Client` whose names carry the `Public` suffix. Reads as "the method on the public class that calls the public endpoint" — the suffix is meaningless to a TS caller and only exists because the underlying proto/spec uses `Public` to distinguish account-API routes. |
 
 ---
 
@@ -123,26 +121,9 @@ Three name-related fields on one envelope, no clear precedence. Recommend:
 drop the body-level `name` so only `nameArg` (path, identifying the existing
 credential) and `newName` (rename) remain.
 
-### H5. `purpose` field is referenced in JSDoc but does not exist on the type
+### H5. `Public` infix proto-architectural leak (1 type + 4 methods)
 
-The JSDoc on `readOnly` (model.ts:264-266, etc.) and `usedForManagedStorage`
-(model.ts:282-285) and `force` (model.ts:567-571) says "Only applicable when
-purpose is **STORAGE**" or "**SERVICE**". But there is no `purpose` field
-anywhere on `CreateCredentialRequest`/`UpdateCredentialRequest`/
-`CredentialInfo`/`StorageCredentialInfo`. Either:
-
-- The generator dropped the field, or
-- The doc is stale (the API uses a different mechanism to decide purpose, e.g.
-  inferring from which discriminator case is set, or routing by endpoint), or
-- The field is intentionally on the `Credential` side only and missing from
-  the model.
-
-In all cases the contract documented in JSDoc cannot be honored by a TS
-caller. See #21.
-
-### H6. `Public` infix proto-architectural leak (1 type + 4 methods)
-
-Findings #23-#24. The package exposes **1 generated type** and **4 `Client`
+Findings #21-#22. The package exposes **1 generated type** and **4 `Client`
 methods** whose identifiers carry `Public` as a mid-position or trailing
 word. The infix originates from the internal proto/service definition where
 `Public` distinguishes externally-routable account-API endpoints from
@@ -236,27 +217,13 @@ for the type. Acronym handling within one chain should match.
 
 RFC 6749 (OAuth 2.0) titles the term as "OAuth". The code uses "Oauth". Minor.
 
-### L3. `PACKAGE_SEGMENT` is undescriptive
-
-Used only for the User-Agent header. `USER_AGENT_PACKAGE_SEGMENT` is
-self-documenting.
-
-### L4. `HttpCallOptions`
-
-Generic name, internal-only. Same pattern as in sibling packages. Fine inside
-the file; would warrant a better name if it leaked out.
-
-### L5. `req` parameter naming in client methods
-
-Standard across the SDK. Go-idiomatic, but consistent.
-
-### L6. `Generate*CredentialRequest` method names are 30+ chars
+### L3. `Generate*CredentialRequest` method names are 30+ chars
 
 `generateTemporaryServiceCredential` is 35 chars. Combined with `await
 client.generateTemporaryServiceCredential(req)` the call site is 60+ chars
 before the args. Cannot shorten without breaking the resource hierarchy.
 
-### L7. Acronym casing review
+### L4. Acronym casing review
 
 - `Aws` (PascalCase first letter) — `AwsCredentials`, `AwsIamRole`,
   `awsIamRole`. Internally consistent.
@@ -347,7 +314,7 @@ Class re-exported with `export {Client}`; types and enums re-exported with
 |------|-------------------------|
 | **Credential** (new) | The consolidated UC credential record covering both Storage and Service purposes. Reached via `/api/2.1/unity-catalog/credentials`. |
 | **Storage Credential** (legacy) | The older Storage-only credential record. Reached via `/api/2.1/unity-catalog/storage-credentials`. Per in-tree TODO, being deprecated. |
-| **Service Credential** | A `Credential` whose purpose is **SERVICE** — used by Databricks to access cloud APIs on behalf of the user (e.g., for foundation models, external functions). Note: there is no `purpose` field on the TS model — see H5. |
+| **Service Credential** | A `Credential` whose purpose is **SERVICE** — used by Databricks to access cloud APIs on behalf of the user (e.g., for foundation models, external functions). |
 | **Purpose** | One of `SERVICE` / `STORAGE`. Distinguishes the two flavors of a `Credential`. Referenced in JSDoc but absent from the TS type. |
 | **Long-lived credential** | The customer-supplied cloud-provider auth material (IAM role, service principal, etc.) stored in the metastore. Six discriminated cases. |
 | **Temporary credential** | Short-lived tokens vended by Databricks for direct cloud access. Six discriminated cases. |
@@ -368,7 +335,6 @@ Class re-exported with `export {Client}`; types and enums re-exported with
 |------|-------|-----------------|---------|
 | `src/v1/model.ts` | 2877 | 7 enums, 39 interfaces | yes |
 | `src/v1/client.ts` | 1031 | 1 class, 22 public methods (20 RPC + 2 async generators) | yes |
-| `src/v1/utils.ts` | 150 | 1 interface, 5 functions | yes |
 | `src/v1/index.ts` | 80 | 1 class re-export, 7 enum re-exports, 51 type re-exports | yes |
 
 Every type, field, enum value, and method enumerated above is accounted for.

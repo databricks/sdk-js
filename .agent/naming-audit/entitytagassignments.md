@@ -3,15 +3,15 @@
 **Path:** `packages/entitytagassignments/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog entity tag assignments — create/get/list/update/delete key/value tags on UC entities (tables, schemas, columns, volumes, etc.), with provenance (`sourceType`) metadata. Sister of `tagassignments` (non-UC entities: apps, dashboards, geniespaces, notebooks) and `tagpolicies` (governed tag definitions).
-**Total weird names flagged:** 20
+**Total weird names flagged:** 10
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 5 |
-| Medium | 9 |
-| Low | 2 |
-| Observation | 4 |
+| Medium | 2 |
+| Low | 0 |
+| Observation | 3 |
 
 ## High severity
 
@@ -53,91 +53,26 @@
 - **Suggested name:** Keep as is (this is the cross-SDK convention). Listed for completeness.
 - **Rationale:** Listed only to confirm: List endpoints use plural, item type is singular. No fix needed; flagged because rule 9 demands the audit.
 
-### 7. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
-- **Why weird:** Two functions named "execute" — `executeCall` runs the retry/rate-limit shell, `executeHttpCall` does the actual HTTP send. They appear together in every client method:
-  ```ts
-  const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-    ...
-    const respBody = await executeHttpCall({...});
-    ...
-  };
-  await executeCall(call, options);
-  ```
-  Reading just the names, a developer cannot tell which wraps which.
-- **Category:** 1 (vague), 12 (duplicate concept — both "execute"), 17 (inconsistent layering name).
-- **Suggested name:** `runWithPolicies(call, options)` for outer, `sendHttpRequest(opts)` for inner.
-- **Rationale:** Names should reveal the layering, not require code-diving. Generator-wide concern.
-
-### 8. `Call` type and `call` variable — `src/v1/client.ts:86,119,139,178,242` and `src/v1/utils.ts:27`
-- **Why weird:** Variable `call` of type `Call`, called inside `executeCall(call, options)`. The same word is the variable, the type, and the verb. Inside one method scope we have `req`, `call`, `httpReq` — three layered names where one of them collides with its type.
-- **Category:** 1 (vague), 12 (duplicate concept).
-- **Suggested name:** `runRequest` / `sendRequest` for the variable; reserve `Call` for the type.
-- **Rationale:** Type-name collisions are tolerable but obscure prose-style code.
-
-### 9. `req.entityType ?? ''` / `req.entityName ?? ''` / `req.tagKey ?? ''` URL composition — `src/v1/client.ts:118,137,167,230`
+### 7. `req.entityType ?? ''` / `req.entityName ?? ''` / `req.tagKey ?? ''` URL composition — `src/v1/client.ts:118,137,167,230`
 - **Why weird:** Four endpoints silently substitute empty string for missing path components. `req.entityType` and `req.entityName` and `req.tagKey` are typed `string | undefined` but functionally required (URL is broken without them). When `entityType` is undefined the URL becomes `.../entity-tag-assignments//entity-name/tags/key`. Same problem flagged in `dataclassification` audit.
 - **Category:** 6 (misleading — optional in type but required in practice).
 - **Suggested name:** Make path-component fields required (non-optional) on the request types.
 - **Rationale:** Field name promises less than the API requires; the SDK silently produces malformed URLs.
 
-### 10. `respBody` (raw bytes) vs. `resp` (parsed object) — `src/v1/client.ts:90-95, 143-148, 182-187, 252-257`
-- **Why weird:** Two stages produce `respBody: Uint8Array` then `resp: EntityTagAssignment`. The names differ only by `Body`. Both are short for "response". The reader has to track which is bytes, which is parsed. Compare `req` (parameter, request) — also abbreviated, but no `reqBody` sibling.
-- **Category:** 5 (cryptic abbreviation), 17 (inconsistency — `respBody` keeps `Body`, `resp` drops the implied `Parsed`).
-- **Suggested name:** `rawBody` + `result`, or `responseBytes` + `response`.
-- **Rationale:** Distinguish stages by meaningful nouns, not by suffix differences on the same root.
-
-### 11. `httpReq` local variable — `src/v1/client.ts:89,122,142,181,245`
-- **Why weird:** Inside a method that already has `req: CreateEntityTagAssignmentRequest`, a second variable `httpReq: HttpRequest` shares the `req` root. Two `req`s in the same scope.
-- **Category:** 5 (cryptic abbreviation), 12 (duplicate concept — two `req`s).
-- **Suggested name:** `httpRequest` (no abbreviation), or `wireRequest`.
-- **Rationale:** Avoid forking the same identifier across two layers in one scope.
-
-### 12. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** Type called `Options` but it is an internal context bag (request + http client + logger), not a user-tunable options struct. The user-facing options type is `CallOptions` (different file). Two different `Options` types for two different concepts.
-- **Category:** 1 (vague suffix `Options`), 8 (redundant suffix — internal context bags should not be called `Options`).
-- **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
-- **Rationale:** Reserve `Options` for caller-tunable knobs; use `Context`/`Args` for internal bags.
-
-### 13. `buildHttpRequest` returns `HttpRequest` — `src/v1/utils.ts:96`
-- **Why weird:** Pure object-literal-with-optional-fields helper named "build". "Build" suggests builder-pattern construction; the function just spreads fields into a struct.
-- **Category:** 1 (vague — "build" suggests heavyweight construction), 6 (misleading — implies builder pattern, is just an object literal).
-- **Suggested name:** `makeHttpRequest` or inline at call sites.
-- **Rationale:** "Build" carries connotations from Java/JS Builder patterns; this is just shorthand.
-
-### 14. `flattenQueryParams` — `src/v1/utils.ts:123`
-- **Why weird:** The function is exported but unused in `client.ts` (this package's list endpoint uses individual `params.append(...)` calls instead). Dead-code-shaped helper in shared scaffolding.
-- **Category:** 6 (misleading — implies the package uses it), 18 (carry-over from a different template).
-- **Suggested name:** N/A — should not live here at all. Belongs in a shared utils package.
-- **Rationale:** Generator-wide concern: every package duplicates this helper.
-
 ## Low severity
 
-### 15. `readAll(body)` — `src/v1/utils.ts:40`
-- **Why weird:** `readAll` is generic enough to read anything; here it specifically drains a `ReadableStream<Uint8Array>` into a single buffer. The name does not say "drain a stream into a buffer".
-- **Category:** 1 (vague), 5 (cryptic — `readAll` is JS-conventional but not self-describing).
-- **Suggested name:** `drainStream` or `readStreamToUint8Array`.
-- **Rationale:** A name like `readAll` reads as if it took a file path or array.
-
-### 16. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
-- **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. Constant is `UPPER_SNAKE_CASE` in a TS file otherwise dominated by camelCase. Casing is appropriate for a module constant; the noun is weak.
-- **Category:** 1 (vague — `Segment` of what?).
-- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
-- **Rationale:** Single word "segment" gives no domain; the comment above it does the work the name should.
+_None._
 
 ## Observations
 
-### 17. Action verb consistency
+### 8. Action verb consistency
 The client uses `create`/`get`/`update`/`delete`/`list` — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
 
-### 18. Acronym casing
+### 9. Acronym casing
 The file uses `HttpRequest`, `HttpResponse`, `HttpCallOptions` (Pascal `Http`), `URLSearchParams` (web standard `URL`), `userAgent` (camelCase). The `Http` vs. `URL` split is the JS-ecosystem norm. No `Id`/`Uri`/`UC` casing clashes encountered.
 - **Category:** 3 (acronym casing — consistent within the file, ecosystem-divergent overall).
 
-### 19. `entitytagassignments` lowercase package name
-The package directory is `entitytagassignments` (single token, no separator), but every type uses `EntityTagAssignment` and the HTTP path uses `entity-tag-assignments`. Same problem as `dataclassification`. SDK-wide convention issue.
-- **Category:** 3 (casing inconsistency between directory token, kebab wire path, and Pascal types).
-
-### 20. Domain leakage from sister packages
+### 10. Domain leakage from sister packages
 Three packages — `entitytagassignments`, `tagassignments`, `tagpolicies` — all collide on the noun "tag". Each ships its own `Client`, its own `*TagAssignment` (or `TagPolicy`) type, and its own `tagKey`/`tagValue`. Co-import requires extensive aliasing. The split aligns to wire-side API groupings, not to a user mental model of "tag tools". Worth flagging upstream as a structure-level concern, not just naming.
 - **Category:** 12 (duplicate concept across siblings).
 

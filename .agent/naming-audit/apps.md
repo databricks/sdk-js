@@ -10,10 +10,10 @@ with deployments, custom templates, app spaces, and resource bindings.
 | Severity | Count |
 | -------- | ----- |
 | High     |     5 |
-| Medium   |    14 |
-| Low      |     7 |
+| Medium   |    10 |
+| Low      |     6 |
 | Observation | 9 |
-| **Total** | **35** |
+| **Total** | **30** |
 
 The audit found one dominant theme: the domain has overlapping vocabularies for
 the same concept. `App` vs `Application` (`ApplicationStatus`,
@@ -190,43 +190,7 @@ cross-product values whose relevance to Apps is unclear.
   `SpaceCreateOperation`, `SpaceDeleteOperation`, etc. Today the field name
   promises nothing.
 
-### M8. `flattenQueryParams` — what does it flatten?
-- **File:** `utils.ts:123`
-- **Category:** Vague/generic (1)
-- **Issue:** `flattenQueryParams(prefix, value, params)` — the function
-  flattens *nested object structures* into dotted query keys
-  (`a.b.c=value`). The verb "flatten" doesn't communicate the target format.
-- **Suggestion:** Rename to `encodeNestedQueryParams` or
-  `appendObjectAsQueryParams`.
-
-### M9. `readAll` — local helper exported as `readAll`
-- **File:** `utils.ts:40`
-- **Category:** Vague/generic (1)
-- **Issue:** `readAll(body: ReadableStream<Uint8Array> | null)` — reads-all of
-  what? The function reads a stream to completion.
-- **Suggestion:** Rename to `readStreamToBytes` or `consumeStream`. (It's not
-  exported, so impact is local.)
-
-### M10. `executeCall` vs `executeHttpCall` — pair drifts in meaning
-- **File:** `utils.ts:26, 65`
-- **Category:** Inconsistent action verbs (17)
-- **Issue:** `executeCall` is the *outer* retry/rate-limit wrapper;
-  `executeHttpCall` is the *inner* one-shot HTTP send. The function names
-  suggest the former is just a generic "execute" and the latter adds HTTP, but
-  in practice every concrete call goes through both. Disambiguating names
-  would help.
-- **Suggestion:** Rename to `runWithRetries`/`sendHttp`, or `runCall`/`sendOne`.
-
-### M11. `StillRunningError` — internal sentinel class, named ambiguously
-- **File:** `client.ts:93`
-- **Category:** Misleading names (6)
-- **Issue:** `class StillRunningError extends Error {}` — used as a sentinel
-  to drive retries. Reads like a real domain error but has no message and is
-  caught locally. Could be confused with a public error type.
-- **Suggestion:** Rename to `pollAgainSentinel` (as a typed Error subclass) or
-  `RetryablePollError`, and add a comment that it never escapes the file.
-
-### M12. Method name verb inconsistency: `asyncUpdateApp` is verb-prefixed but `updateSpace` returns an `Operation` too
+### M8. Method name verb inconsistency: `asyncUpdateApp` is verb-prefixed but `updateSpace` returns an `Operation` too
 - **File:** `client.ts:121, 902`
 - **Category:** Inconsistent action verbs (17), Verb-tense inconsistency (13)
 - **Issue:** Both `asyncUpdateApp` and `updateSpace` are asynchronous,
@@ -237,7 +201,7 @@ cross-product values whose relevance to Apps is unclear.
 - **Suggestion:** Drop the `async` prefix from `asyncUpdateApp` to match
   `updateSpace`, or add `asyncUpdateSpace` for symmetry.
 
-### M13. `createSpaceOperation`, `deleteSpaceOperation`, `updateSpaceOperation` — `*Operation` suffix is confusing alongside the `Operation` type
+### M9. `createSpaceOperation`, `deleteSpaceOperation`, `updateSpaceOperation` — `*Operation` suffix is confusing alongside the `Operation` type
 - **File:** `client.ts:297, 396, 939`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** Methods named `createSpaceOperation()` return a
@@ -248,7 +212,7 @@ cross-product values whose relevance to Apps is unclear.
   `createSpaceAndWait()` or `createSpaceLongRunning()`. The `*Operation` class
   could be `*LongRunning` (mirroring the `Operation` type's role).
 
-### M14. `gitProvider?: string` — should be enum/union
+### M10. `gitProvider?: string` — should be enum/union
 - **File:** `model.ts:1075-1076, 1163-1166`
 - **Category:** Vague/generic (1)
 - **Issue:** `CustomTemplate.gitProvider` and `GitRepository.provider` are
@@ -302,15 +266,7 @@ cross-product values whose relevance to Apps is unclear.
   `@databricks/sdk-jobs`, they need an alias.
 - **Suggestion:** Rename to `AppsClient`. Common SDK convention.
 
-### L6. `host` (private field on `Client`)
-- **File:** `client.ts:96`
-- **Category:** Vague/generic (1)
-- **Issue:** `private readonly host: string`. The doc on the workspace
-  parameter usually calls this the "workspace host" or "workspace URL".
-- **Suggestion:** Rename to `workspaceUrl` or `workspaceHost`. Internal-only,
-  cosmetic.
-
-### L7. `getSpaceOperation` (method) vs `GetOperationRequest`
+### L6. `getSpaceOperation` (method) vs `GetOperationRequest`
 - **File:** `client.ts:524-546`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** `getSpaceOperation(req: GetOperationRequest)` — the method tells

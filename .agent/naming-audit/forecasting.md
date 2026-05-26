@@ -6,7 +6,6 @@
 **Files audited:**
 - `src/v1/model.ts`
 - `src/v1/client.ts`
-- `src/v1/utils.ts`
 - `src/v1/index.ts`
 
 This audit applies the audit checklist categories. Each finding lists
@@ -41,15 +40,6 @@ Findings are grouped by category.
   - Method `wait`
   - Method `done`
 - Local helper class `StillRunningError`
-
-### Utility functions (`utils.ts`)
-
-`executeCall`, `readAll`, `executeHttpCall`, `buildHttpRequest`,
-`parseResponse`, `marshalRequest`, `flattenQueryParams`.
-
-### Utility types/interfaces (`utils.ts`)
-
-`HttpCallOptions`.
 
 ---
 

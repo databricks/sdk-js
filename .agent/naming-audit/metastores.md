@@ -243,16 +243,7 @@ Same pattern as 15.1 — entity name in field.
 
 ## Additional / cross-cutting observations
 
-### A. `flattenQueryParams` is defined but unused (utils.ts:123)
-Each `deleteMetastore` / `deleteMetastoreAssignment` / `listMetastores`
-handler builds query strings inline with `URLSearchParams.append`
-(client.ts:504-507, 538-541, 661-667). The exported helper
-`flattenQueryParams` is never referenced by `client.ts`. Either it's
-intentionally exported for consumer use (then it should be documented
-and reside in `utils` proper) or it's dead code. Same as catalogs
-cross-cutting A.
-
-### B. `req.workspaceId` is interpolated into the URL via `String(req.workspaceId ?? '')` (client.ts:471, 537, 748)
+### A. `req.workspaceId` is interpolated into the URL via `String(req.workspaceId ?? '')` (client.ts:471, 537, 748)
 If `workspaceId` is undefined, the URL silently becomes
 `/api/2.1/unity-catalog/workspaces//metastore` (note the double slash)
 and the request will fail on the server. The optional typing of
@@ -260,12 +251,12 @@ and the request will fail on the server. The optional typing of
 `DeleteMetastoreAssignmentRequest`, and `UpdateMetastoreAssignmentRequest`
 (each field is `number | undefined`) lets the bug hide.
 
-### C. `req.id` is similarly optional but interpolated into URLs (client.ts:503, 596, 718)
+### B. `req.id` is similarly optional but interpolated into URLs (client.ts:503, 596, 718)
 `${req.id ?? ''}` — same pattern: undefined id silently produces a
 malformed URL. Combined with the generic `id` name the type
 contract is too loose for a required path parameter.
 
-### D. `DeleteMetastoreAssignmentRequest.metastoreId` is sent in the query string, not the path (client.ts:538-543)
+### C. `DeleteMetastoreAssignmentRequest.metastoreId` is sent in the query string, not the path (client.ts:538-543)
 On `DELETE /api/2.1/unity-catalog/workspaces/{workspaceId}/metastore`,
 the request appends `?metastore_id=…`. That contradicts the doc on
 `DeleteMetastoreAssignmentRequest.metastoreId` ("Query for the ID of
@@ -273,11 +264,11 @@ the metastore to delete.") only via the leading word "Query" — the
 field name itself does not signal that the value is a query parameter,
 not a path one.
 
-### E. `Client` constructor throws bare `Error` for missing `host` (client.ts:109)
+### D. `Client` constructor throws bare `Error` for missing `host` (client.ts:109)
 "Host is required." — bare `Error`. Not a naming issue, flagged in
 passing for the broader review.
 
-### F. `MetastoreAssignment.workspaceId` is `number` while everything else `workspaceId` is also `number` — but the rest of the SDK varies
+### E. `MetastoreAssignment.workspaceId` is `number` while everything else `workspaceId` is also `number` — but the rest of the SDK varies
 This package's `workspaceId` is `number`. Some peer packages model
 workspace IDs as strings (e.g. when forwarded through URL params).
 The type inconsistency is across packages, not within this one;
@@ -301,11 +292,11 @@ flagged in passing.
 | `CreateMetastoreRequest.storageRootCredentialName`      | model.ts:250       | 11.3    |
 | `CreateMetastoreRequest.globalMetastoreId` (read-only)  | model.ts:254       | 11.3    |
 | `CreateMetastoreAssignmentRequest`                      | model.ts:202       | 10.3    |
-| `CreateMetastoreAssignmentRequest.workspaceId`          | model.ts:203       | F       |
+| `CreateMetastoreAssignmentRequest.workspaceId`          | model.ts:203       | E       |
 | `CreateMetastoreAssignmentRequest.defaultCatalogName`   | model.ts:212       | —       |
 | `DeleteMetastoreRequest`                                | model.ts:269       | —       |
 | `DeleteMetastoreAssignmentRequest`                      | model.ts:259       | 10.3    |
-| `DeleteMetastoreAssignmentRequest.metastoreId`          | model.ts:263       | D       |
+| `DeleteMetastoreAssignmentRequest.metastoreId`          | model.ts:263       | C       |
 | `GetCurrentMetastoreAssignmentRequest`                  | model.ts:283       | —       |
 | `GetMetastoreRequest`                                   | model.ts:285       | —       |
 | `GetMetastoreSummaryRequest`                            | model.ts:291       | —       |
@@ -316,7 +307,7 @@ flagged in passing.
 | `ListMetastoresRequest_Response.metastores`             | model.ts:353       | 8.1 (positive) |
 | `ListMetastoresRequest_Response.nextPageToken`          | model.ts:358       | —       |
 | `MetastoreAssignment`                                   | model.ts:361       | 1.1, 7.2, 10.3 |
-| `MetastoreAssignment.workspaceId`                       | model.ts:363       | 1.1, F  |
+| `MetastoreAssignment.workspaceId`                       | model.ts:363       | 1.1, E  |
 | `MetastoreAssignment.metastoreId`                       | model.ts:365       | 15.2    |
 | `MetastoreAssignment.defaultCatalogName`                | model.ts:370       | —       |
 | `MetastoreInfo`                                         | model.ts:373       | 5.1, 7.1, 10.2 |
@@ -329,18 +320,17 @@ flagged in passing.
 | `UpdateMetastoreAssignmentRequest`                      | model.ts:455       | 10.3    |
 | `Client.createMetastore`                                | client.ts:437      | —       |
 | `Client.createMetastoreAssignment`                      | client.ts:467      | —       |
-| `Client.deleteMetastore`                                | client.ts:499      | C       |
-| `Client.deleteMetastoreAssignment`                      | client.ts:533      | B, D    |
+| `Client.deleteMetastore`                                | client.ts:499      | B       |
+| `Client.deleteMetastoreAssignment`                      | client.ts:533      | A, C    |
 | `Client.getCurrentMetastoreAssignment`                  | client.ts:567      | 12.1    |
-| `Client.getMetastore`                                   | client.ts:592      | 12.1, C |
+| `Client.getMetastore`                                   | client.ts:592      | 12.1, B |
 | `Client.getMetastoreSummary`                            | client.ts:620      | 5.4, 12.1 |
 | `Client.listMetastores`                                 | client.ts:656      | —       |
-| `Client.updateMetastore`                                | client.ts:714      | C       |
-| `Client.updateMetastoreAssignment`                      | client.ts:744      | B       |
-| `${req.id ?? ''}` URL substitution                      | client.ts:503, 596, 718 | C |
-| `${req.workspaceId ?? ''}` URL substitution             | client.ts:471, 537, 748 | B |
-| `Host is required.` bare Error                          | client.ts:109      | E       |
-| `flattenQueryParams` (unused export)                    | utils.ts:123       | A       |
+| `Client.updateMetastore`                                | client.ts:714      | B       |
+| `Client.updateMetastoreAssignment`                      | client.ts:744      | A       |
+| `${req.id ?? ''}` URL substitution                      | client.ts:503, 596, 718 | B |
+| `${req.workspaceId ?? ''}` URL substitution             | client.ts:471, 537, 748 | A |
+| `Host is required.` bare Error                          | client.ts:109      | D       |
 
 ---
 
@@ -350,7 +340,6 @@ flagged in passing.
 2. **Strip read-only fields from `CreateMetastoreRequest` / `UpdateMetastoreRequest`.** (§11.3, §10.2)
 3. **Decide whether the `GetMetastoreSummaryRequest_Response` should alias `MetastoreInfo` or expose a genuine subset.** (§5.3, §10.1)
 4. **Rename `getMetastoreSummary` to `getCurrentMetastore`** to match `getCurrentMetastoreAssignment` and accurately describe the call. (§5.4, §12.1)
-5. **Tighten optional-typing on URL-bound parameters** (`id`, `workspaceId`) so undefined values are caught at compile time, not by malformed URLs. (Cross-cutting B, C)
-6. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
+5. **Tighten optional-typing on URL-bound parameters** (`id`, `workspaceId`) so undefined values are caught at compile time, not by malformed URLs. (Cross-cutting A, B)
 
 ---

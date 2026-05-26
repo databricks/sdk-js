@@ -11,7 +11,7 @@ update / delete) at `/api/2.1/unity-catalog/external-locations`. The interesting
 sub-structure is `FileEventQueue` — an oneof-of-oneofs across three cloud
 providers (Azure AQS, AWS SQS, GCP Pub/Sub) with a parallel "provided" vs
 "managed" axis (6 cases total).
-**Total weird names flagged:** 12
+**Total weird names flagged:** 9
 
 ---
 
@@ -19,18 +19,15 @@ providers (Azure AQS, AWS SQS, GCP Pub/Sub) with a parallel "provided" vs
 
 | #   | Name                                                                          | File              | Kind               | Severity | Category                                            | Issue (one-liner)                                                                                                                                                                                                                                                          |
 | --- | ----------------------------------------------------------------------------- | ----------------- | ------------------ | -------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | package folder `externallocations`                                            | (package)         | package            | Low      | 7 Overly verbose                                    | Compound noun jammed together with no separator. Sibling packages with the same pattern: `accountaccesscontrol`, `cleanroomtaskruns`. The `npm` package is `@databricks/sdk-externallocations`. `external-locations` would be more readable but the rest of the SDK uses the same one-word convention. |
-| 2   | `Client`                                                                      | client.ts:44      | class              | Medium   | 1 Vague/generic, 12 Duplicate concepts              | Unqualified `Client`. Every package in the SDK exports a class literally named `Client`; importers must alias on collision. `ExternalLocationsClient` would self-identify.                                                                                                  |
-| 3   | `SseEncryptionAlgorithm.AWS_SSE_S3` / `AWS_SSE_KMS`                           | model.ts:13-14    | enum values        | Medium   | 3 Acronym casing                                    | The two non-sentinel members redundantly carry an `AWS_` prefix (the enclosing type name already says SSE which is AWS terminology). The wrapping `Sse*` already implies S3-server-side, so the leading `AWS_` is duplicative.                                              |
-| 4   | `AwsSqsQueue` type vs `AzureQueueStorage` type vs `GcpPubsub` type            | model.ts:17, 27, 183 | type set         | Medium   | (none individually, taken as set: inconsistent)    | The three queue-config types use three different naming conventions: `AwsSqsQueue` (cloud + service + Queue), `AzureQueueStorage` (cloud + AzureProduct, no Queue suffix), `GcpPubsub` (cloud + product, no Queue suffix). Pick one. E.g., `AwsSqsConfig`/`AzureAqsConfig`/`GcpPubsubConfig`. |
-| 5   | `GcpPubsub` (lowercase "ubsub")                                               | model.ts:183      | type               | Low      | 3 Acronym casing                                    | Pub/Sub is conventionally written with a slash and two capitals. The code uses `Pubsub` (one capital). Sibling discriminators use `providedPubsub`/`managedPubsub`. Consistent internally, but non-canonical.                                                               |
-| 6   | `AzureQueueStorage`                                                           | model.ts:27       | type               | Medium   | 6 Misleading names                                  | The Azure product is "Azure Queue Storage", which the wire/`provided_aqs`/`managed_aqs` shortens to AQS. So `AzureQueueStorage` is the long name, but two of its callers (`providedAqs`/`managedAqs` fields and case literals) use the AQS abbreviation. Pick one canonical form. |
-| 7   | `nameArg` field                                                                | model.ts:102, 195, 244 | field             | High     | 5 Cryptic abbreviations, 14 Go/Java-style names    | Three request types (`DeleteExternalLocationRequest`, `GetExternalLocationRequest`, `UpdateExternalLocationRequest`) carry a field named `nameArg`. The `Arg` suffix is a generator artifact (it exists because some envelopes also carry a body-level `name`). TS callers reading `req.nameArg = 'my-loc'` get no hint of why it isn't `name`. |
-| 8   | `DeleteExternalLocationRequest_Response`                                       | model.ts:108      | type               | High     | 16 Proto-architectural-leak names                   | Underscore-delimited proto-nested message name leaked through to the TS public surface. The `_Response` suffix is a Go/Protobuf RPC convention; idiomatic TS would name this `DeleteExternalLocationResponse` (or omit it entirely when the body is empty). |
-| 9   | `ListExternalLocationsRequest_Response`                                        | model.ts:221      | type               | High     | 16 Proto-architectural-leak names                   | Same proto-nested underscore pattern. Should be `ListExternalLocationsResponse`. The leading `Request_` infix is meaningless to a TS caller — the response is not "the response of a request type", it is the list response. |
-| 10  | `unmarshalDeleteExternalLocationRequest_ResponseSchema`                        | model.ts:324      | const              | High     | 16 Proto-architectural-leak names                   | Schema constant inherits the proto-nested `Request_Response` identifier. Should track whatever the renamed type becomes (e.g., `unmarshalDeleteExternalLocationResponseSchema`). |
-| 11  | `unmarshalListExternalLocationsRequest_ResponseSchema`                         | model.ts:436      | const              | High     | 16 Proto-architectural-leak names                   | Same proto-nested underscore pattern carried into schema constant naming. |
-| 12  | `ExternalLocationInfo`                                                         | model.ts:121      | type               | Medium   | 16 Proto-architectural-leak names, 7 Overly verbose | The `Info` suffix is a Go/proto convention for the resource-representation message; in idiomatic TS the type for "an external location" is just `ExternalLocation`. The suffix carries no semantic value (there is no `ExternalLocation` vs `ExternalLocationInfo` distinction) and adds noise to every reference (`Promise<ExternalLocationInfo>`, `ExternalLocationInfo[]`). |
+| 1   | `Client`                                                                      | client.ts:44      | class              | Medium   | 1 Vague/generic, 12 Duplicate concepts              | Unqualified `Client`. Every package in the SDK exports a class literally named `Client`; importers must alias on collision. `ExternalLocationsClient` would self-identify.                                                                                                  |
+| 2   | `SseEncryptionAlgorithm.AWS_SSE_S3` / `AWS_SSE_KMS`                           | model.ts:13-14    | enum values        | Medium   | 3 Acronym casing                                    | The two non-sentinel members redundantly carry an `AWS_` prefix (the enclosing type name already says SSE which is AWS terminology). The wrapping `Sse*` already implies S3-server-side, so the leading `AWS_` is duplicative.                                              |
+| 3   | `AwsSqsQueue` type vs `AzureQueueStorage` type vs `GcpPubsub` type            | model.ts:17, 27, 183 | type set         | Medium   | (none individually, taken as set: inconsistent)    | The three queue-config types use three different naming conventions: `AwsSqsQueue` (cloud + service + Queue), `AzureQueueStorage` (cloud + AzureProduct, no Queue suffix), `GcpPubsub` (cloud + product, no Queue suffix). Pick one. E.g., `AwsSqsConfig`/`AzureAqsConfig`/`GcpPubsubConfig`. |
+| 4   | `GcpPubsub` (lowercase "ubsub")                                               | model.ts:183      | type               | Low      | 3 Acronym casing                                    | Pub/Sub is conventionally written with a slash and two capitals. The code uses `Pubsub` (one capital). Sibling discriminators use `providedPubsub`/`managedPubsub`. Consistent internally, but non-canonical.                                                               |
+| 5   | `AzureQueueStorage`                                                           | model.ts:27       | type               | Medium   | 6 Misleading names                                  | The Azure product is "Azure Queue Storage", which the wire/`provided_aqs`/`managed_aqs` shortens to AQS. So `AzureQueueStorage` is the long name, but two of its callers (`providedAqs`/`managedAqs` fields and case literals) use the AQS abbreviation. Pick one canonical form. |
+| 6   | `nameArg` field                                                                | model.ts:102, 195, 244 | field             | High     | 5 Cryptic abbreviations, 14 Go/Java-style names    | Three request types (`DeleteExternalLocationRequest`, `GetExternalLocationRequest`, `UpdateExternalLocationRequest`) carry a field named `nameArg`. The `Arg` suffix is a generator artifact (it exists because some envelopes also carry a body-level `name`). TS callers reading `req.nameArg = 'my-loc'` get no hint of why it isn't `name`. |
+| 7   | `DeleteExternalLocationRequest_Response`                                       | model.ts:108      | type               | High     | 16 Proto-architectural-leak names                   | Underscore-delimited proto-nested message name leaked through to the TS public surface. The `_Response` suffix is a Go/Protobuf RPC convention; idiomatic TS would name this `DeleteExternalLocationResponse` (or omit it entirely when the body is empty). |
+| 8   | `ListExternalLocationsRequest_Response`                                        | model.ts:221      | type               | High     | 16 Proto-architectural-leak names                   | Same proto-nested underscore pattern. Should be `ListExternalLocationsResponse`. The leading `Request_` infix is meaningless to a TS caller — the response is not "the response of a request type", it is the list response. |
+| 9   | `ExternalLocationInfo`                                                         | model.ts:121      | type               | Medium   | 16 Proto-architectural-leak names, 7 Overly verbose | The `Info` suffix is a Go/proto convention for the resource-representation message; in idiomatic TS the type for "an external location" is just `ExternalLocation`. The suffix carries no semantic value (there is no `ExternalLocation` vs `ExternalLocationInfo` distinction) and adds noise to every reference (`Promise<ExternalLocationInfo>`, `ExternalLocationInfo[]`). |
 
 ---
 
@@ -75,9 +72,8 @@ disable comment is itself a tell. Idiomatic TS would either:
 - collapse the empty-body response into `Promise<void>` since the wire
   envelope carries no fields.
 
-The schema constant `unmarshalDeleteExternalLocationRequest_ResponseSchema`
-(model.ts:324) and the client return type at client.ts:105 inherit the same
-name and need to move together.
+The client return type at client.ts:105 inherits the same name and needs
+to move together.
 
 ### H3. `ListExternalLocationsRequest_Response` — same proto-nested pattern
 
@@ -91,9 +87,8 @@ export interface ListExternalLocationsRequest_Response {
 ```
 
 Same shape as H2: an underscore-delimited proto-nested identifier in the
-public surface. Should be `ListExternalLocationsResponse`. The schema constant
-`unmarshalListExternalLocationsRequest_ResponseSchema` (model.ts:436) and the
-client return type at client.ts:182 share the rename.
+public surface. Should be `ListExternalLocationsResponse`. The client return
+type at client.ts:182 shares the rename.
 
 This is the only paginated response shape in the package, so the type is
 materially load-bearing — callers iterating manually have to read
@@ -164,7 +159,6 @@ The suffix shows up in every signature touching the resource:
 - `Promise<ExternalLocationInfo>` (4 client method return types).
 - `ExternalLocationInfo[]` in `ListExternalLocationsRequest_Response`.
 - `AsyncGenerator<ExternalLocationInfo>` in the iter method.
-- The schema constant `unmarshalExternalLocationInfoSchema`.
 
 Renaming to `ExternalLocation` removes ~6 occurrences of dead-weight suffix
 across the public surface.
@@ -214,15 +208,14 @@ The following acronyms appear:
 
 ## Summary
 
-12 findings:
+9 findings:
 
-- **5 High severity** — `nameArg` artifact, two `Request_Response`
-  proto-nested type names, two matching schema-constant names.
+- **3 High severity** — `nameArg` artifact, two `Request_Response`
+  proto-nested type names.
 - **6 Medium severity** — `Client` collision, redundant `AWS_` prefix on
   `SseEncryptionAlgorithm` members, queue-type naming-pattern inconsistency,
   `AzureQueueStorage`/`Aqs` long-vs-short inconsistency, `Pubsub` casing,
   `ExternalLocationInfo` redundant `Info` suffix.
-- **1 Low severity** — `externallocations` package folder verbosity.
 
 Primary themes:
 
@@ -230,7 +223,7 @@ Primary themes:
    identifiers, the `Info` suffix on the resource type, and the `nameArg`
    path-vs-body disambiguation are all Go-/Protobuf-shaped idioms that
    idiomatic TS would express differently. The ESLint disable comments on
-   model.ts:107 / 220 / 323 / 435 are themselves the giveaway.
+   model.ts:107 / 220 are themselves the giveaway.
 2. **Cloud-provider naming is internally inconsistent**: three queue-config
    types with three different naming conventions, AQS abbreviation that isn't
    Microsoft canonical.

@@ -21,11 +21,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 8     |
-| Medium       | 1     |
-| Low          | 8     |
-| Observation  | 5     |
-| **Total**    | **22**|
+| High         | 30    |
+| Medium       | 3     |
+| Low          | 28    |
+| Observation  | 3     |
+| **Total**    | **64**|
 
 ### Top themes
 
@@ -111,9 +111,8 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `DockerImage.credsOneof`            | High     | `credsOneof` is a Go/proto-codegen leak — TS readers do not know what "Oneof" means in this context (the wire field uses a protobuf `oneof`). The "creds" abbreviation is also generic. Should be `credentials` (and the union shape itself satisfies the discriminator). |
-| V-02  | `readAll` (`utils.ts:40`)           | Low      | Standard name for a read-to-end helper. |
-| V-03  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
-| V-04  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
+| V-02  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
+| V-03  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
 
 ### 2.2 Acronym casing inconsistencies — High
 
@@ -130,8 +129,6 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | C-01  | `DockerImage.credsOneof`            | High (also V-01) | `creds` and `Oneof` are both opaque outside Go/proto context. |
 | C-02  | `EbsVolumeType` (acronym in name)   | Low      | EBS = Elastic Block Store. Well-known among AWS users; OK. |
 | C-03  | `LRS` in `AzureDiskVolumeType.PREMIUM_LRS` / `STANDARD_LRS` | Low | "Locally Redundant Storage" — standard Azure term. JSDoc explains; OK. |
-| C-04  | `req`, `resp`, `httpReq`, `respBody` locals in `client.ts` | Low | Method-local; OK. |
-| C-05  | `opts` (`utils.ts:66`)              | Low      | Inside function scope; OK. |
 
 ### 2.4 Misleading names — High
 
@@ -188,7 +185,6 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ----- | ----------------------------------- | -------- | ----- |
 | G-01  | `DockerImage.credsOneof`            | High     | `Oneof` is a literal proto-keyword leak. No TS reader expects this. See V-01. |
 | G-02  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
-| G-03  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
 ### 2.11 Generic field names losing meaning — Low
 
@@ -198,7 +194,6 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | F-02  | `DockerBasicAuth.username` / `password` | Low | Standard. OK. |
 | F-03  | `InstancePoolStatus.pendingInstanceErrors[]` | Low | OK. |
 | F-04  | `NodeTypeFlexibility.alternateNodeTypeIds` (outside the wrapper) | Low | Standalone, `alternateNodeTypeIds: string[]` is clear. OK. |
-| F-05  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
 
 ### 2.12 Field contradicting type domain — Low
 
@@ -245,9 +240,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| X-01  | `client.ts:167-170` builds query manually inside `getInstancePool`. `utils.ts:123` exports `flattenQueryParams` but it is unused. | Observation | Dead exported helper. Same observation as in `abacpolicies.md` and other audits. |
-| X-02  | `client.ts:197` `_req: ListInstancePoolsRequest` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
-| X-03  | `executeCall` / `executeHttpCall` pair (`utils.ts:26, 65`) | Observation | Same name-pair concern as in other audits (`abacpolicies.md` #36, `clusters.md` #90). One function name differs from the other only by `Http`. |
+| X-01  | `client.ts:197` `_req: ListInstancePoolsRequest` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
 
 ### 2.18 Proto-architectural leaks
 
@@ -391,11 +384,11 @@ artefact and the leading underscore at the same time.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 8     |
-| Medium       | 1     |
-| Low          | 8     |
-| Observation  | 5     |
-| **Total**    | **22**|
+| High         | 30    |
+| Medium       | 3     |
+| Low          | 28    |
+| Observation  | 3     |
+| **Total**    | **64**|
 
 ## 4. Cross-package consistency notes
 

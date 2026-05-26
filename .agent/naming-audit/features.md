@@ -15,7 +15,7 @@ computes a feature on a schedule and writes results to an offline or online
 store). Feature transformations are a discriminated union over 13 aggregation
 functions and 3 data sources (Delta, Kafka, request-time), composed under
 three flavors of time window (continuous, tumbling, sliding).
-**Total weird names flagged:** 38 (0 fixed, 38 still present after rescan on 2026-05-26 post regen #156)
+**Total weird names flagged:** 36 (0 fixed, 36 still present after rescan on 2026-05-26 post regen #156)
 
 ---
 
@@ -50,17 +50,15 @@ three flavors of time window (continuous, tumbling, sliding).
 | 25 | `LineageContext.notebookId` (number) vs `JobContext.jobId` (number) — both "id"s typed as `number` | model.ts:475, 412 | field pair | Medium | 19 Underspecified IDs, 16 Field contradicting type domain | Databricks resource IDs are 64-bit integers that exceed JS `Number.MAX_SAFE_INTEGER` (~2^53). Typing them as `number` is unsafe; the rest of the SDK uses `bigint` or `string` for IDs. Compare to e.g. `MaterializedFeature.materializedFeatureId: string`. |
 | 26 | `LineageContext` interface name | model.ts:473 | interface | Low | 1 Vague/generic | "LineageContext" is reasonable in a lineage-tracking context. Fine. |
 | 27 | `JobContext.jobRunId` | model.ts:414 | field | Low | (none) | Fine. |
-| 28 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Same pattern as sibling-package audits. |
-| 29 | `PACKAGE_SEGMENT` | client.ts:60 | const | Low | 1 Vague/generic | Could be `USER_AGENT_PACKAGE_SEGMENT`. Sibling-package pattern. |
-| 30 | `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask` | model.ts:2432, 2482, 2525 | function set | Low | (none) | Three helper builders. Standard generator pattern. Consistent across resources. Listing for completeness. |
-| 31 | `ContinuousWindow` / `SlidingWindow` / `TumblingWindow` (Spark windowing) | model.ts:171, 708, 789 | interface set | Low | (none) | Standard Spark Structured Streaming idioms. Fine. |
-| 32 | `Function` interface shadows JS built-in `Function` | model.ts:358 | interface | High | 1 Vague/generic, 6 Misleading names | `export interface Function` shadows the TypeScript global `Function` type (the constructor signature). Inside any module that imports `Function` from this package, the global is unreachable except via `globalThis.Function`. Rename to `AggregationFnDefinition` or `FeatureFunction` to clear the shadow. |
-| 33 | `Function_FunctionType` enum | model.ts:29 | enum | High | Proto architectural leak | Underscore-separated proto-nested enum name (`Outer_Inner`) leaks `.proto` IDL nesting into the public TS API. Requires an eslint-disable for `@typescript-eslint/naming-convention`. Flatten to `FunctionType` (or, since deprecated, retire entirely). |
-| 34 | `MaterializedFeature_PipelineScheduleState` enum | model.ts:47 | enum | High | Proto architectural leak | Same proto-nested-enum leak as #33. The TS-facing name encodes the proto outer message (`MaterializedFeature`) as a prefix segment. Flatten to `PipelineScheduleState` (the values are already `PIPELINE_SCHEDULE_STATE_*` so the outer prefix is redundant). |
-| 35 | `Function_ExtraParameter` interface | model.ts:388 | interface | High | Proto architectural leak | Proto-nested message name with underscore separator; carries an explicit eslint-disable. The pattern `Outer_Inner` is a `.proto` nested-message convention and is not how TS interfaces are named. Flatten to `ExtraFunctionParameter` or move to a discriminated union member. |
-| 36 | `KafkaConfig_ExtraOptionsEntry` interface | model.ts:444 | interface | High | Proto architectural leak | Synthetic proto map-entry type. `protoc` auto-generates `<Map>Entry` messages for `map<K,V>` fields and the TS generator copies the name verbatim. The corresponding TS field is already `extraOptions: Record<string, string>` (model.ts:434), so this auxiliary interface has no consumer in idiomatic TS code yet leaks into the public surface via `index.ts:44`. Drop it. |
-| 37 | `unmarshalFunction_ExtraParameterSchema` / `marshalFunction_ExtraParameterSchema` | model.ts:1163, 1935 | const set | Medium | Proto architectural leak | Zod schema constants inherit the proto-nested `Outer_Inner` underscore from the interface. Both carry an explicit eslint-disable. Rename together with #35. |
-| 38 | Public re-exports of `Function_FunctionType`, `Function_ExtraParameter`, `MaterializedFeature_PipelineScheduleState`, `KafkaConfig_ExtraOptionsEntry` | index.ts:7-8, 38, 44 | re-export set | High | Proto architectural leak | The package's public API barrel re-exports four `Outer_Inner` proto-nested identifiers. A TS consumer importing from `@databricks/sdk-features/v1` cannot avoid the proto-shaped names. Removing the proto leak at the model layer (#33-37) clears this automatically. |
+| 28 | `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask` | model.ts:2432, 2482, 2525 | function set | Low | (none) | Three helper builders. Standard generator pattern. Consistent across resources. Listing for completeness. |
+| 29 | `ContinuousWindow` / `SlidingWindow` / `TumblingWindow` (Spark windowing) | model.ts:171, 708, 789 | interface set | Low | (none) | Standard Spark Structured Streaming idioms. Fine. |
+| 30 | `Function` interface shadows JS built-in `Function` | model.ts:358 | interface | High | 1 Vague/generic, 6 Misleading names | `export interface Function` shadows the TypeScript global `Function` type (the constructor signature). Inside any module that imports `Function` from this package, the global is unreachable except via `globalThis.Function`. Rename to `AggregationFnDefinition` or `FeatureFunction` to clear the shadow. |
+| 31 | `Function_FunctionType` enum | model.ts:29 | enum | High | Proto architectural leak | Underscore-separated proto-nested enum name (`Outer_Inner`) leaks `.proto` IDL nesting into the public TS API. Requires an eslint-disable for `@typescript-eslint/naming-convention`. Flatten to `FunctionType` (or, since deprecated, retire entirely). |
+| 32 | `MaterializedFeature_PipelineScheduleState` enum | model.ts:47 | enum | High | Proto architectural leak | Same proto-nested-enum leak as #31. The TS-facing name encodes the proto outer message (`MaterializedFeature`) as a prefix segment. Flatten to `PipelineScheduleState` (the values are already `PIPELINE_SCHEDULE_STATE_*` so the outer prefix is redundant). |
+| 33 | `Function_ExtraParameter` interface | model.ts:388 | interface | High | Proto architectural leak | Proto-nested message name with underscore separator; carries an explicit eslint-disable. The pattern `Outer_Inner` is a `.proto` nested-message convention and is not how TS interfaces are named. Flatten to `ExtraFunctionParameter` or move to a discriminated union member. |
+| 34 | `KafkaConfig_ExtraOptionsEntry` interface | model.ts:444 | interface | High | Proto architectural leak | Synthetic proto map-entry type. `protoc` auto-generates `<Map>Entry` messages for `map<K,V>` fields and the TS generator copies the name verbatim. The corresponding TS field is already `extraOptions: Record<string, string>` (model.ts:434), so this auxiliary interface has no consumer in idiomatic TS code yet leaks into the public surface via `index.ts:44`. Drop it. |
+| 35 | `unmarshalFunction_ExtraParameterSchema` / `marshalFunction_ExtraParameterSchema` | model.ts:1163, 1935 | const set | Medium | Proto architectural leak | Zod schema constants inherit the proto-nested `Outer_Inner` underscore from the interface. Both carry an explicit eslint-disable. Rename together with #33. |
+| 36 | Public re-exports of `Function_FunctionType`, `Function_ExtraParameter`, `MaterializedFeature_PipelineScheduleState`, `KafkaConfig_ExtraOptionsEntry` | index.ts:7-8, 38, 44 | re-export set | High | Proto architectural leak | The package's public API barrel re-exports four `Outer_Inner` proto-nested identifiers. A TS consumer importing from `@databricks/sdk-features/v1` cannot avoid the proto-shaped names. Removing the proto leak at the model layer (#31-35) clears this automatically. |
 
 ---
 
@@ -195,7 +193,7 @@ via `globalThis.Function`. Most ESLint configs (including this repo's, see
 
 Rename `AggregationFnDefinition` or `FeatureFunction` to clear the shadow.
 
-### H10. Proto-architectural leak: `Outer_Inner` nested names
+### H10. Proto-architectural leak: `Outer_Inner` nested names (#31-36)
 
 Four public identifiers carry the proto-nested `<Outer>_<Inner>` underscore
 convention straight from the `.proto` IDL into the TS public API:
@@ -304,63 +302,51 @@ entity over a lifetime ContinuousWindow". The name gives no domain hint.
 `LatestColumnValue` would name the behavior. (Same critique as `Credential` in
 the credentials audit.)
 
-### M6. `executeCall` vs `executeHttpCall`
-
-Same as sibling packages. Two `execute*` verbs.
-
 ---
 
 ## Low severity (nits)
 
-### L1. `PACKAGE_SEGMENT` undescriptive
-
-Sibling-package pattern.
-
-### L2. `MtlsConfig.disableHostnameVerification` reasonable
+### L1. `MtlsConfig.disableHostnameVerification` reasonable
 
 Boolean named in negative ("disable") to match the underlying Kafka option
 (`kafka.ssl.endpoint.identification.algorithm`). JSDoc warns about security
 implications. Fine.
 
-### L3. `bootstrapServers` is conventional Kafka
+### L2. `bootstrapServers` is conventional Kafka
 
 Fine.
 
-### L4. `cronSchedule` field on `MaterializedFeature`
+### L3. `cronSchedule` field on `MaterializedFeature`
 
 `MaterializedFeature.cronSchedule: string` is a Quartz cron expression. The
 field name is fine; the type could be a branded `CronExpression` for stronger
 typing, but flagging only for completeness.
 
-### L5. `req` parameter naming in client methods
-
-Standard SDK-wide convention. Fine.
-
-### L6. `ContinuousWindow.offset` allows non-positive
+### L4. `ContinuousWindow.offset` allows non-positive
 
 Note in JSDoc: "must be non-positive" — i.e., 0 or negative duration. The
 type is `Temporal.Duration` which doesn't constrain sign. Documentation-only
 constraint; not enforced. Same critique as `SlidingWindow.slideDuration`
 ("must be positive and less than duration").
 
-### L7. `ProtoSchemaSpec.schemaText` carries the entire `.proto` file text
+### L5. `ProtoSchemaSpec.schemaText` carries the entire `.proto` file text
 
 A `string` containing potentially many KB of source text. Naming is fine; the
 data shape is the design choice. Listing for completeness.
 
-### L8. `SecretScopeReference { scope, key }`
+### L6. `SecretScopeReference { scope, key }`
 
 Two-field reference to a Databricks secret. Standard. Fine.
 
-### L9. `TimeWindow`, `ContinuousWindow`, `TumblingWindow`, `SlidingWindow`
+### L7. `TimeWindow`, `ContinuousWindow`, `TumblingWindow`, `SlidingWindow`
 
 Four Spark Structured Streaming idioms. Standard. Fine.
 
-### L10. `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask`
+### L8. `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask`
 
 Three field-mask builders. Standard generator pattern. Fine.
 
-### L11. `req.featureName` query parameter on `ListMaterializedFeaturesRequest`
+### L9. `req.featureName` query parameter on `ListMaterializedFeaturesRequest`
 
 The list endpoint filters by feature name (full UC name). Field is
 `featureName?: string` — fine. Distinguishes from `MaterializedFeature.featureName`

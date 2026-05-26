@@ -149,9 +149,7 @@ synthesis step that updates `_SUMMARY.md` or similar).
 
 ### Active TODOs
 
-- 2026-05-26 — rebase + rerun audit on updated branch — rescan done (87/87 pkgs: 1 fix in logdelivery, rest still); `_SUMMARY.md` synthesis pending, will roll into the next cleanup synthesis.
-- 2026-05-26 — collapse retired/orphan audit bodies to just the title + status block (example given: `qualitymonitors`) — in progress.
-- 2026-05-26 — prune findings whose primary recommendation is a JSDoc/doc change (example: `apps.md` H9 `noCompute` doc clarification). Reason: "those can be anytime." — in progress.
+- 2026-05-26 — regenerate `_SUMMARY.md` to reflect all the 2026-05-26 pruning passes (rebase+rescan, AIP-name, sibling-enum, field-rename, doc-change, SDK-internal, non-TS) and the orphan deletions. — in progress.
 
 (When populated, each line is one TODO in the form:
 `- YYYY-MM-DD — <verbatim command> — <status>`.)

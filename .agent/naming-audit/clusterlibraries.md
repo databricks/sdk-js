@@ -1,7 +1,7 @@
 # Naming Audit: `clusterlibraries` (v2)
 
 Path: `/home/parth.bansal/sdk-js/packages/clusterlibraries/`
-Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/utils.ts`, `src/v2/index.ts`
+Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 Scope: every type, field, enum value, method, and exported identifier.
 
 Findings are grouped by category. Severity reflects the impact on TS consumers
@@ -233,15 +233,5 @@ Methods audited (`client.ts`):
 - `clusterStatus` (110).
 - `installLibraries` (144).
 - `uninstallLibraries` (176).
-
-Utilities audited (`utils.ts`):
-- `HttpCallOptions` (15).
-- `executeCall` (26).
-- `readAll` (40).
-- `executeHttpCall` (65).
-- `buildHttpRequest` (96).
-- `parseResponse` (113).
-- `marshalRequest` (119).
-- `flattenQueryParams` (123).
 
 ---
