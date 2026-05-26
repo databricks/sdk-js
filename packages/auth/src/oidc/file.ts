@@ -1,13 +1,13 @@
 import {readFile} from 'node:fs/promises';
 
-import type {IDTokenProvider} from './oidc';
+import type {IdTokenProvider} from './oidc';
 import {idTokenProviderFn} from './oidc';
 
 /**
- * Returns an IDTokenProvider that reads the ID token from a file. The file
+ * Returns an IdTokenProvider that reads the ID token from a file. The file
  * should contain a single line with the token.
  */
-export function newFileTokenProvider(path: string): IDTokenProvider {
+export function newFileTokenProvider(path: string): IdTokenProvider {
   return idTokenProviderFn(async () => {
     if (path === '') {
       throw new Error('missing path');
