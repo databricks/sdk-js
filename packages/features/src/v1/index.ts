@@ -6,6 +6,7 @@ export {
   ScalarDataType,
   Function_FunctionType,
   MaterializedFeature_PipelineScheduleState,
+  StreamingMode_StreamingModeType,
 } from './model';
 
 export type {
@@ -24,6 +25,7 @@ export type {
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
   CreateMaterializedFeatureRequest,
+  CronSchedule,
   DataSource,
   DeleteFeatureRequest,
   DeleteKafkaConfigRequest,
@@ -64,8 +66,10 @@ export type {
   SlidingWindow,
   StddevPopFunction,
   StddevSampFunction,
+  StreamingMode,
   SubscriptionMode,
   SumFunction,
+  TableTrigger,
   TimeWindow,
   TimeseriesColumn,
   TumblingWindow,

@@ -74,7 +74,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: AGENT_SERVICE_STANDARD = 331; Next id: 332 */
+/** Latest kind: CONNECTION_GOOGLE_CLOUD_LAKEHOUSE_SERVICE_ACCOUNT = 340; Next id: 341 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',
