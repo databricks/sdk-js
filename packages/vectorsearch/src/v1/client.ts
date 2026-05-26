@@ -41,10 +41,14 @@ import type {
   QueryVectorIndexNextPageRequest,
   QueryVectorIndexRequest,
   QueryVectorIndexResponse,
+  RetrieveUserVisibleMetricsRequest,
+  RetrieveUserVisibleMetricsResponse,
   ScanVectorIndexRequest,
   ScanVectorIndexResponse,
   SyncVectorIndexRequest,
   SyncVectorIndexResponse,
+  UpdateEndpointCustomTagsRequest,
+  UpdateEndpointCustomTagsResponse,
   UpsertDataVectorIndexRequest,
   UpsertDataVectorIndexResponse,
   VectorIndex,
@@ -57,8 +61,10 @@ import {
   marshalPatchEndpointRequestSchema,
   marshalQueryVectorIndexNextPageRequestSchema,
   marshalQueryVectorIndexRequestSchema,
+  marshalRetrieveUserVisibleMetricsRequestSchema,
   marshalScanVectorIndexRequestSchema,
   marshalSyncVectorIndexRequestSchema,
+  marshalUpdateEndpointCustomTagsRequestSchema,
   marshalUpsertDataVectorIndexRequestSchema,
   unmarshalDeleteDataVectorIndexResponseSchema,
   unmarshalDeleteEndpointResponseSchema,
@@ -68,8 +74,10 @@ import {
   unmarshalListVectorIndexResponseSchema,
   unmarshalPatchEndpointBudgetPolicyResponseSchema,
   unmarshalQueryVectorIndexResponseSchema,
+  unmarshalRetrieveUserVisibleMetricsResponseSchema,
   unmarshalScanVectorIndexResponseSchema,
   unmarshalSyncVectorIndexResponseSchema,
+  unmarshalUpdateEndpointCustomTagsResponseSchema,
   unmarshalUpsertDataVectorIndexResponseSchema,
   unmarshalVectorIndexSchema,
 } from './model';
@@ -525,6 +533,38 @@ export class Client {
     return resp;
   }
 
+  /** Retrieve user-visible metrics for an endpoint */
+  async retrieveUserVisibleMetrics(
+    req: RetrieveUserVisibleMetricsRequest,
+    options?: CallOptions
+  ): Promise<RetrieveUserVisibleMetricsResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/metrics`;
+    const body = marshalRequest(
+      req,
+      marshalRetrieveUserVisibleMetricsRequestSchema
+    );
+    let resp: RetrieveUserVisibleMetricsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalRetrieveUserVisibleMetricsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /** Scan the specified vector index and return the first `num_results` entries after the exclusive `primary_key`. */
   async scanVectorIndex(
     req: ScanVectorIndexRequest,
@@ -569,6 +609,38 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSyncVectorIndexResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update the custom tags of an endpoint. */
+  async updateEndpointCustomTags(
+    req: UpdateEndpointCustomTagsRequest,
+    options?: CallOptions
+  ): Promise<UpdateEndpointCustomTagsResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/tags`;
+    const body = marshalRequest(
+      req,
+      marshalUpdateEndpointCustomTagsRequestSchema
+    );
+    let resp: UpdateEndpointCustomTagsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateEndpointCustomTagsResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

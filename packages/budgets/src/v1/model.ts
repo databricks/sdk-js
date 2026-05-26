@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+/** Type of action that a budget alert executes when its threshold is crossed. */
 export enum ActionConfigurationType {
   EMAIL_NOTIFICATION = 'EMAIL_NOTIFICATION',
 }
