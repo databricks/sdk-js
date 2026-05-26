@@ -55,6 +55,23 @@ export enum MaterializedFeature_PipelineScheduleState {
   PAUSED = 'PAUSED',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum StreamingMode_StreamingModeType {
+  /** Default value, not used. */
+  STREAMING_MODE_TYPE_UNSPECIFIED = 'STREAMING_MODE_TYPE_UNSPECIFIED',
+  /**
+   * Real-time mode. Ultra-low-latency trigger intended for operational workloads
+   * that need responses in milliseconds or sub-second latency.
+   */
+  STREAMING_MODE_TYPE_RTM = 'STREAMING_MODE_TYPE_RTM',
+  /**
+   * Micro-batch mode in Structured Streaming. Better suited for ETL and analytics
+   * workloads where latency is measured in seconds or minutes and cost efficiency
+   * matters more.
+   */
+  STREAMING_MODE_TYPE_MBM = 'STREAMING_MODE_TYPE_MBM',
+}
+
 /** An aggregation function applied over a time window. */
 export interface AggregationFunction {
   /** The type of the aggregation function. */
@@ -198,6 +215,12 @@ export interface CreateKafkaConfigRequest {
 export interface CreateMaterializedFeatureRequest {
   /** The materialized feature to create. */
   materializedFeature?: MaterializedFeature | undefined;
+}
+
+/** A cron-based schedule trigger for the materialization pipeline. */
+export interface CronSchedule {
+  /** The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). */
+  cronExpression?: string | undefined;
 }
 
 /** Specifies the data source backing a feature. Exactly one source type must be set. */
@@ -560,6 +583,28 @@ export interface MaterializedFeature {
   cronSchedule?: string | undefined;
   /** True if this is an online materialized feature. False if it is an offline materialized feature. */
   isOnline?: boolean | undefined;
+  /** The trigger configuration for the materialization pipeline. */
+  trigger?:
+    | {
+        $case: 'cronScheduleTrigger';
+        /** A cron-based schedule trigger for the materialization pipeline. */
+        cronScheduleTrigger: CronSchedule;
+      }
+    | {
+        $case: 'tableTrigger';
+        /** A trigger that fires when the upstream source table changes. */
+        tableTrigger: TableTrigger;
+      }
+    | {
+        $case: 'streamingMode';
+        /**
+         * The Structured Streaming trigger mode used for materialization. Real-time mode (RTM) targets
+         * sub-second latency for operational workloads; micro-batch mode (MBM) favors cost efficiency
+         * for ETL and analytics workloads.
+         */
+        streamingMode: StreamingMode;
+      }
+    | undefined;
 }
 
 /** Computes the maximum value. */
@@ -729,6 +774,12 @@ export interface StddevSampFunction {
   input?: string | undefined;
 }
 
+/** The streaming mode configuration for a streaming materialization pipeline. */
+export interface StreamingMode {
+  /** The type of streaming mode used by the materialization pipeline. */
+  mode?: StreamingMode_StreamingModeType | undefined;
+}
+
 /** Deprecated: Use KafkaSubscriptionMode instead. */
 export interface SubscriptionMode {
   /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
@@ -764,6 +815,10 @@ export interface SumFunction {
    */
   input?: string | undefined;
 }
+
+/** A trigger that fires when the upstream source table changes. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface TableTrigger {}
 
 export interface TimeWindow {
   windowType?:
@@ -1016,6 +1071,14 @@ export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
+  .object({
+    cron_expression: z.string().optional(),
+  })
+  .transform(d => ({
+    cronExpression: d.cron_expression,
   }));
 
 export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
@@ -1297,6 +1360,11 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .optional(),
       cron_schedule: z.string().optional(),
       is_online: z.boolean().optional(),
+      cron_schedule_trigger: z
+        .lazy(() => unmarshalCronScheduleSchema)
+        .optional(),
+      table_trigger: z.lazy(() => unmarshalTableTriggerSchema).optional(),
+      streaming_mode: z.lazy(() => unmarshalStreamingModeSchema).optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -1318,6 +1386,20 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       lastMaterializationTime: d.last_materialization_time,
       cronSchedule: d.cron_schedule,
       isOnline: d.is_online,
+      trigger:
+        d.cron_schedule_trigger !== undefined
+          ? {
+              $case: 'cronScheduleTrigger' as const,
+              cronScheduleTrigger: d.cron_schedule_trigger,
+            }
+          : d.table_trigger !== undefined
+            ? {$case: 'tableTrigger' as const, tableTrigger: d.table_trigger}
+            : d.streaming_mode !== undefined
+              ? {
+                  $case: 'streamingMode' as const,
+                  streamingMode: d.streaming_mode,
+                }
+              : undefined,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -1469,6 +1551,14 @@ export const unmarshalStddevSampFunctionSchema: z.ZodType<StddevSampFunction> =
       input: d.input,
     }));
 
+export const unmarshalStreamingModeSchema: z.ZodType<StreamingMode> = z
+  .object({
+    mode: z.enum(StreamingMode_StreamingModeType).optional(),
+  })
+  .transform(d => ({
+    mode: d.mode,
+  }));
+
 export const unmarshalSubscriptionModeSchema: z.ZodType<SubscriptionMode> = z
   .object({
     assign: z.string().optional(),
@@ -1496,6 +1586,10 @@ export const unmarshalSumFunctionSchema: z.ZodType<SumFunction> = z
   .transform(d => ({
     input: d.input,
   }));
+
+export const unmarshalTableTriggerSchema: z.ZodType<TableTrigger> = z.object(
+  {}
+);
 
 export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
   .object({
@@ -1779,6 +1873,14 @@ export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
     materialized_feature: d.materializedFeature,
   }));
 
+export const marshalCronScheduleSchema: z.ZodType = z
+  .object({
+    cronExpression: z.string().optional(),
+  })
+  .transform(d => ({
+    cron_expression: d.cronExpression,
+  }));
+
 export const marshalDataSourceSchema: z.ZodType = z
   .object({
     dataSource: z
@@ -2036,6 +2138,22 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       .optional(),
     cronSchedule: z.string().optional(),
     isOnline: z.boolean().optional(),
+    trigger: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('cronScheduleTrigger'),
+          cronScheduleTrigger: z.lazy(() => marshalCronScheduleSchema),
+        }),
+        z.object({
+          $case: z.literal('tableTrigger'),
+          tableTrigger: z.lazy(() => marshalTableTriggerSchema),
+        }),
+        z.object({
+          $case: z.literal('streamingMode'),
+          streamingMode: z.lazy(() => marshalStreamingModeSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -2051,6 +2169,15 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     last_materialization_time: d.lastMaterializationTime,
     cron_schedule: d.cronSchedule,
     is_online: d.isOnline,
+    ...(d.trigger?.$case === 'cronScheduleTrigger' && {
+      cron_schedule_trigger: d.trigger.cronScheduleTrigger,
+    }),
+    ...(d.trigger?.$case === 'tableTrigger' && {
+      table_trigger: d.trigger.tableTrigger,
+    }),
+    ...(d.trigger?.$case === 'streamingMode' && {
+      streaming_mode: d.trigger.streamingMode,
+    }),
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -2202,6 +2329,14 @@ export const marshalStddevSampFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
+export const marshalStreamingModeSchema: z.ZodType = z
+  .object({
+    mode: z.enum(StreamingMode_StreamingModeType).optional(),
+  })
+  .transform(d => ({
+    mode: d.mode,
+  }));
+
 export const marshalSubscriptionModeSchema: z.ZodType = z
   .object({
     subscriptionMode: z
@@ -2234,6 +2369,8 @@ export const marshalSumFunctionSchema: z.ZodType = z
   .transform(d => ({
     input: d.input,
   }));
+
+export const marshalTableTriggerSchema: z.ZodType = z.object({});
 
 export const marshalTimeWindowSchema: z.ZodType = z
   .object({
@@ -2381,6 +2518,10 @@ const countFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
+const cronScheduleFieldMaskSchema: FieldMaskSchema = {
+  cronExpression: {wire: 'cron_expression'},
+};
+
 const dataSourceFieldMaskSchema: FieldMaskSchema = {
   deltaTableSource: {
     wire: 'delta_table_source',
@@ -2506,6 +2647,10 @@ const lineageContextFieldMaskSchema: FieldMaskSchema = {
 
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   cronSchedule: {wire: 'cron_schedule'},
+  cronScheduleTrigger: {
+    wire: 'cron_schedule_trigger',
+    children: () => cronScheduleFieldMaskSchema,
+  },
   featureName: {wire: 'feature_name'},
   isOnline: {wire: 'is_online'},
   lastMaterializationTime: {wire: 'last_materialization_time'},
@@ -2519,7 +2664,15 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
     children: () => onlineStoreConfigFieldMaskSchema,
   },
   pipelineScheduleState: {wire: 'pipeline_schedule_state'},
+  streamingMode: {
+    wire: 'streaming_mode',
+    children: () => streamingModeFieldMaskSchema,
+  },
   tableName: {wire: 'table_name'},
+  tableTrigger: {
+    wire: 'table_trigger',
+    children: () => tableTriggerFieldMaskSchema,
+  },
 };
 
 export function materializedFeatureFieldMask(
@@ -2601,6 +2754,10 @@ const stddevSampFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
+const streamingModeFieldMaskSchema: FieldMaskSchema = {
+  mode: {wire: 'mode'},
+};
+
 const subscriptionModeFieldMaskSchema: FieldMaskSchema = {
   assign: {wire: 'assign'},
   subscribe: {wire: 'subscribe'},
@@ -2610,6 +2767,8 @@ const subscriptionModeFieldMaskSchema: FieldMaskSchema = {
 const sumFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
+
+const tableTriggerFieldMaskSchema: FieldMaskSchema = {};
 
 const timeWindowFieldMaskSchema: FieldMaskSchema = {
   continuous: {

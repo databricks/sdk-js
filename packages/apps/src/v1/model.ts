@@ -761,6 +761,10 @@ export interface App {
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
   effectiveUsagePolicyId?: string | undefined;
+  /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
+  computeMinInstances?: number | undefined;
+  /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
+  computeMaxInstances?: number | undefined;
   /**
    * Git repository configuration for app deployments. When specified, deployments can
    * reference code from this repository by providing only the git reference (branch, tag, or commit).
@@ -1002,6 +1006,10 @@ export interface AppUpdate {
   userApiScopes?: string[] | undefined;
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
+  /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
+  computeMinInstances?: number | undefined;
+  /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
+  computeMaxInstances?: number | undefined;
   gitRepository?: GitRepository | undefined;
 }
 
@@ -1443,6 +1451,8 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     compute_size: z.enum(ComputeSize).optional(),
     usage_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    compute_min_instances: z.number().optional(),
+    compute_max_instances: z.number().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
     telemetry_export_destinations: z
       .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
@@ -1477,6 +1487,8 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     computeSize: d.compute_size,
     usagePolicyId: d.usage_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    computeMinInstances: d.compute_min_instances,
+    computeMaxInstances: d.compute_max_instances,
     gitRepository: d.git_repository,
     telemetryExportDestinations: d.telemetry_export_destinations,
     thumbnailUrl: d.thumbnail_url,
@@ -1885,6 +1897,8 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     user_api_scopes: z.array(z.string()).optional(),
     compute_size: z.enum(ComputeSize).optional(),
     usage_policy_id: z.string().optional(),
+    compute_min_instances: z.number().optional(),
+    compute_max_instances: z.number().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
   })
   .transform(d => ({
@@ -1895,6 +1909,8 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     userApiScopes: d.user_api_scopes,
     computeSize: d.compute_size,
     usagePolicyId: d.usage_policy_id,
+    computeMinInstances: d.compute_min_instances,
+    computeMaxInstances: d.compute_max_instances,
     gitRepository: d.git_repository,
   }));
 
@@ -2223,6 +2239,8 @@ export const marshalAppSchema: z.ZodType = z
     computeSize: z.enum(ComputeSize).optional(),
     usagePolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
+    computeMinInstances: z.number().optional(),
+    computeMaxInstances: z.number().optional(),
     gitRepository: z.lazy(() => marshalGitRepositorySchema).optional(),
     telemetryExportDestinations: z
       .array(z.lazy(() => marshalTelemetryExportDestinationSchema))
@@ -2257,6 +2275,8 @@ export const marshalAppSchema: z.ZodType = z
     compute_size: d.computeSize,
     usage_policy_id: d.usagePolicyId,
     effective_usage_policy_id: d.effectiveUsagePolicyId,
+    compute_min_instances: d.computeMinInstances,
+    compute_max_instances: d.computeMaxInstances,
     git_repository: d.gitRepository,
     telemetry_export_destinations: d.telemetryExportDestinations,
     thumbnail_url: d.thumbnailUrl,
@@ -2898,6 +2918,8 @@ const appFieldMaskSchema: FieldMaskSchema = {
     children: () => applicationStatusFieldMaskSchema,
   },
   budgetPolicyId: {wire: 'budget_policy_id'},
+  computeMaxInstances: {wire: 'compute_max_instances'},
+  computeMinInstances: {wire: 'compute_min_instances'},
   computeSize: {wire: 'compute_size'},
   computeStatus: {
     wire: 'compute_status',
