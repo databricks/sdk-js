@@ -6,9 +6,10 @@
  */
 
 import {ClientInfo, ClientInfoError, isSemVer} from './clientinfo';
+import pkgJson from '../../package.json' with {type: 'json'};
 
 export const MODULE_NAME = 'sdk-js-core';
-export const VERSION = '0.1.0';
+export const VERSION: string = pkgJson.version;
 
 // Holds segments added via addToDefault, setProduct, and setPartner.
 // createDefault returns a copy of this with env detection appended.
