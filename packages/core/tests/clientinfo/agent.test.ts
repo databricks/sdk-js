@@ -65,9 +65,14 @@ describe('lookupAgentProvider', () => {
       want: 'copilot-cli',
     },
     {
-      name: 'copilot vscode',
+      name: 'vscode-agent',
+      env: {VSCODE_AGENT: '1'},
+      want: 'vscode-agent',
+    },
+    {
+      name: 'COPILOT_MODEL alone is no longer detected',
       env: {COPILOT_MODEL: 'gpt-4'},
-      want: 'copilot-vscode',
+      want: '',
     },
     {
       name: 'cursor',
@@ -165,13 +170,8 @@ describe('lookupAgentProvider', () => {
       want: 'claude-code',
     },
     {
-      name: 'COPILOT_CLI + COPILOT_MODEL collapses to copilot-cli (BYOK)',
-      env: {COPILOT_CLI: '1', COPILOT_MODEL: 'gpt-4'},
-      want: 'copilot-cli',
-    },
-    {
-      name: 'COPILOT_CLI + COPILOT_MODEL + CLAUDECODE still reports multiple after BYOK collapse',
-      env: {COPILOT_CLI: '1', COPILOT_MODEL: 'gpt-4', CLAUDECODE: '1'},
+      name: 'VSCODE_AGENT + COPILOT_CLI reports multiple',
+      env: {VSCODE_AGENT: '1', COPILOT_CLI: '1'},
       want: 'multiple',
     },
   ];
