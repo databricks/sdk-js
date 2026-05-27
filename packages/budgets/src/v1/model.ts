@@ -54,9 +54,9 @@ export interface BudgetConfiguration {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** Creation time of this budget configuration. */
-  createTime?: number | undefined;
+  createTime?: bigint | undefined;
   /** Update time of this budget configuration. */
-  updateTime?: number | undefined;
+  updateTime?: bigint | undefined;
   /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
   alertConfigurations?: AlertConfiguration[] | undefined;
   /**
@@ -93,7 +93,7 @@ export interface BudgetConfigurationFilter_TagClause {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface BudgetConfigurationFilter_WorkspaceIdClause {
   operator?: BudgetConfigurationFilter_Operator | undefined;
-  values?: number[] | undefined;
+  values?: bigint[] | undefined;
 }
 
 export interface CreateBudgetConfigurationBudget {
@@ -102,9 +102,9 @@ export interface CreateBudgetConfigurationBudget {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** Creation time of this budget configuration. */
-  createTime?: number | undefined;
+  createTime?: bigint | undefined;
   /** Update time of this budget configuration. */
-  updateTime?: number | undefined;
+  updateTime?: bigint | undefined;
   /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
   alertConfigurations?: AlertConfiguration[] | undefined;
   /**
@@ -179,9 +179,9 @@ export interface UpdateBudgetConfigurationBudget {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** Creation time of this budget configuration. */
-  createTime?: number | undefined;
+  createTime?: bigint | undefined;
   /** Update time of this budget configuration. */
-  updateTime?: number | undefined;
+  updateTime?: bigint | undefined;
   /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
   alertConfigurations?: AlertConfiguration[] | undefined;
   /**
@@ -245,8 +245,14 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
     .object({
       budget_configuration_id: z.string().optional(),
       account_id: z.string().optional(),
-      create_time: z.number().optional(),
-      update_time: z.number().optional(),
+      create_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      update_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       alert_configurations: z
         .array(z.lazy(() => unmarshalAlertConfigurationSchema))
         .optional(),
@@ -309,7 +315,9 @@ export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodTy
   z
     .object({
       operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
-      values: z.array(z.number()).optional(),
+      values: z
+        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .optional(),
     })
     .transform(d => ({
       operator: d.operator,
@@ -439,7 +447,7 @@ export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType
   z
     .object({
       operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
-      values: z.array(z.number()).optional(),
+      values: z.array(z.bigint()).optional(),
     })
     .transform(d => ({
       operator: d.operator,
@@ -450,8 +458,8 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
     budgetConfigurationId: z.string().optional(),
     accountId: z.string().optional(),
-    createTime: z.number().optional(),
-    updateTime: z.number().optional(),
+    createTime: z.bigint().optional(),
+    updateTime: z.bigint().optional(),
     alertConfigurations: z
       .array(z.lazy(() => marshalAlertConfigurationSchema))
       .optional(),
@@ -482,8 +490,8 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
     budgetConfigurationId: z.string().optional(),
     accountId: z.string().optional(),
-    createTime: z.number().optional(),
-    updateTime: z.number().optional(),
+    createTime: z.bigint().optional(),
+    updateTime: z.bigint().optional(),
     alertConfigurations: z
       .array(z.lazy(() => marshalAlertConfigurationSchema))
       .optional(),

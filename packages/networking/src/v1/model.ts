@@ -256,13 +256,13 @@ export interface AccountIpAccessList {
   addressCount?: number | undefined;
   listType?: AccountIpAccessListType_IpAccessListType | undefined;
   /** Creation timestamp in milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The ID of the user that created this list. */
-  createdBy?: number | undefined;
+  createdBy?: bigint | undefined;
   /** Update timestamp in milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The ID of the user that last updated this list. */
-  updatedBy?: number | undefined;
+  updatedBy?: bigint | undefined;
   /** Specifies whether this IP access list is enabled. */
   enabled?: boolean | undefined;
 }
@@ -378,9 +378,9 @@ export interface CreateNetworkConnectivityConfiguration {
     | CustomerFacingNetworkConnectivityConfigEgressConfig
     | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
 }
 
 export interface CreateNetworkPolicyRequest {
@@ -459,13 +459,13 @@ export interface CreatePrivateEndpointRule {
    */
   domainNames?: string[] | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Whether this private endpoint is deactivated. */
   deactivated?: boolean | undefined;
   /** Time in epoch milliseconds when this object was deactivated. */
-  deactivatedAt?: number | undefined;
+  deactivatedAt?: bigint | undefined;
   errorMessage?: string | undefined;
   /** The Azure resource ID of the target resource. */
   resourceId?: string | undefined;
@@ -590,7 +590,7 @@ export interface CustomerFacingIngressNetworkPolicy_AuthenticationIdentity {
   principalType?:
     | CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
     | undefined;
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -785,7 +785,7 @@ export interface CustomerFacingIngressNetworkPolicy_WorkspaceApiDestination {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_WorkspaceIdList {
-  workspaceIds?: number[] | undefined;
+  workspaceIds?: bigint[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -816,9 +816,9 @@ export interface CustomerFacingNetworkConnectivityConfig {
     | CustomerFacingNetworkConnectivityConfigEgressConfig
     | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
 }
 
 /**
@@ -868,13 +868,13 @@ export interface CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule {
     | CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
     | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Whether this private endpoint is deactivated. */
   deactivated?: boolean | undefined;
   /** Time in epoch milliseconds when this object was deactivated. */
-  deactivatedAt?: number | undefined;
+  deactivatedAt?: bigint | undefined;
   /**
    * Only used by private endpoints towards an AWS S3 service.
    *
@@ -920,13 +920,13 @@ export interface CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule
     | CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
     | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Whether this private endpoint is deactivated. */
   deactivated?: boolean | undefined;
   /** Time in epoch milliseconds when this object was deactivated. */
-  deactivatedAt?: number | undefined;
+  deactivatedAt?: bigint | undefined;
   /**
    * Not used by customer-managed private endpoint services.
    *
@@ -1334,7 +1334,7 @@ export interface GetWorkspaceNetworkOptionRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** The workspace ID. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
 }
 
 /** Definition of an IP Access list */
@@ -1348,13 +1348,13 @@ export interface IpAccessList {
   addressCount?: number | undefined;
   listType?: IpAccessListType | undefined;
   /** Creation timestamp in milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** User ID of the user who created this list. */
-  createdBy?: number | undefined;
+  createdBy?: bigint | undefined;
   /** Update timestamp in milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** User ID of the user who updated this list. */
-  updatedBy?: number | undefined;
+  updatedBy?: bigint | undefined;
   /** Specifies whether this IP access list is enabled. */
   enabled?: boolean | undefined;
 }
@@ -1496,13 +1496,13 @@ export interface NccPrivateEndpointRule {
    */
   domainNames?: string[] | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Whether this private endpoint is deactivated. */
   deactivated?: boolean | undefined;
   /** Time in epoch milliseconds when this object was deactivated. */
-  deactivatedAt?: number | undefined;
+  deactivatedAt?: bigint | undefined;
   errorMessage?: string | undefined;
   /** The Azure resource ID of the target resource. */
   resourceId?: string | undefined;
@@ -1544,7 +1544,7 @@ export interface Network {
   /** The <Databricks> account ID associated with this network configuration. */
   accountId?: string | undefined;
   /** Workspace ID associated with this network configuration. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** The ID of the VPC associated with this network configuration. VPC IDs can be used in multiple networks. */
   vpcId?: string | undefined;
   /** IDs of at least two subnets associated with this network. Subnet IDs **cannot** be used in multiple network configurations. */
@@ -1557,7 +1557,7 @@ export interface Network {
   /** The human-readable name of the network configuration. */
   networkName?: string | undefined;
   /** Time in epoch milliseconds when the network was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Array of warning messages about the network configuration. */
   warningMessages?: NetworkWarning[] | undefined;
   vpcEndpoints?: NetworkVpcEndpoints | undefined;
@@ -1759,13 +1759,13 @@ export interface UpdatePrivateEndpointRule {
    */
   domainNames?: string[] | undefined;
   /** Time in epoch milliseconds when this object was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was updated. */
-  updatedTime?: number | undefined;
+  updatedTime?: bigint | undefined;
   /** Whether this private endpoint is deactivated. */
   deactivated?: boolean | undefined;
   /** Time in epoch milliseconds when this object was deactivated. */
-  deactivatedAt?: number | undefined;
+  deactivatedAt?: bigint | undefined;
   errorMessage?: string | undefined;
   /** The Azure resource ID of the target resource. */
   resourceId?: string | undefined;
@@ -1805,7 +1805,7 @@ export interface UpdateWorkspaceNetworkOptionRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** The workspace ID. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** The network option details for the workspace. */
   workspaceNetworkOption?: WorkspaceNetworkOption | undefined;
 }
@@ -1819,7 +1819,7 @@ export interface WorkspaceNetworkOption {
    */
   networkPolicyId?: string | undefined;
   /** The workspace ID. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
 }
 
 export const unmarshalAccountIpAccessListSchema: z.ZodType<AccountIpAccessList> =
@@ -1830,10 +1830,22 @@ export const unmarshalAccountIpAccessListSchema: z.ZodType<AccountIpAccessList> 
       ip_addresses: z.array(z.string()).optional(),
       address_count: z.number().optional(),
       list_type: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
-      created_at: z.number().optional(),
-      created_by: z.number().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      created_by: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      updated_by: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       enabled: z.boolean().optional(),
     })
     .transform(d => ({
@@ -2024,7 +2036,10 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentityS
           CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
         )
         .optional(),
-      principal_id: z.number().optional(),
+      principal_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       principalType: d.principal_type,
@@ -2409,7 +2424,9 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestination
 export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceIdList> =
   z
     .object({
-      workspace_ids: z.array(z.number()).optional(),
+      workspace_ids: z
+        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .optional(),
     })
     .transform(d => ({
       workspaceIds: d.workspace_ids,
@@ -2438,8 +2455,14 @@ export const unmarshalCustomerFacingNetworkConnectivityConfigSchema: z.ZodType<C
             unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
         )
         .optional(),
-      updated_time: z.number().optional(),
-      creation_time: z.number().optional(),
+      updated_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       networkConnectivityConfigId: d.network_connectivity_config_id,
@@ -2466,10 +2489,19 @@ export const unmarshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointR
           CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
         )
         .optional(),
-      creation_time: z.number().optional(),
-      updated_time: z.number().optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      updated_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       deactivated: z.boolean().optional(),
-      deactivated_at: z.number().optional(),
+      deactivated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       enabled: z.boolean().optional(),
       error_message: z.string().optional(),
     })
@@ -2503,10 +2535,19 @@ export const unmarshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpoin
           CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
         )
         .optional(),
-      creation_time: z.number().optional(),
-      updated_time: z.number().optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      updated_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       deactivated: z.boolean().optional(),
-      deactivated_at: z.number().optional(),
+      deactivated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       domain_names: z.array(z.string()).optional(),
       error_message: z.string().optional(),
     })
@@ -2850,10 +2891,22 @@ export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
     ip_addresses: z.array(z.string()).optional(),
     address_count: z.number().optional(),
     list_type: z.enum(IpAccessListType).optional(),
-    created_at: z.number().optional(),
-    created_by: z.number().optional(),
-    updated_at: z.number().optional(),
-    updated_by: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    created_by: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    updated_by: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     enabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2954,10 +3007,19 @@ export const unmarshalNccPrivateEndpointRuleSchema: z.ZodType<NccPrivateEndpoint
         .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
         .optional(),
       domain_names: z.array(z.string()).optional(),
-      creation_time: z.number().optional(),
-      updated_time: z.number().optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      updated_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       deactivated: z.boolean().optional(),
-      deactivated_at: z.number().optional(),
+      deactivated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       error_message: z.string().optional(),
       resource_id: z.string().optional(),
       group_id: z.string().optional(),
@@ -2997,7 +3059,10 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
   .object({
     network_id: z.string().optional(),
     account_id: z.string().optional(),
-    workspace_id: z.number().optional(),
+    workspace_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     vpc_id: z.string().optional(),
     subnet_ids: z.array(z.string()).optional(),
     security_group_ids: z.array(z.string()).optional(),
@@ -3006,7 +3071,10 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
       .array(z.lazy(() => unmarshalNetworkHealthSchema))
       .optional(),
     network_name: z.string().optional(),
-    creation_time: z.number().optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     warning_messages: z
       .array(z.lazy(() => unmarshalNetworkWarningSchema))
       .optional(),
@@ -3157,7 +3225,10 @@ export const unmarshalWorkspaceNetworkOptionSchema: z.ZodType<WorkspaceNetworkOp
   z
     .object({
       network_policy_id: z.string().optional(),
-      workspace_id: z.number().optional(),
+      workspace_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       networkPolicyId: d.network_policy_id,
@@ -3235,8 +3306,8 @@ export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
         () => marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
       )
       .optional(),
-    updatedTime: z.number().optional(),
-    creationTime: z.number().optional(),
+    updatedTime: z.bigint().optional(),
+    creationTime: z.bigint().optional(),
   })
   .transform(d => ({
     network_connectivity_config_id: d.networkConnectivityConfigId,
@@ -3294,10 +3365,10 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
       .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
       .optional(),
     domainNames: z.array(z.string()).optional(),
-    creationTime: z.number().optional(),
-    updatedTime: z.number().optional(),
+    creationTime: z.bigint().optional(),
+    updatedTime: z.bigint().optional(),
     deactivated: z.boolean().optional(),
-    deactivatedAt: z.number().optional(),
+    deactivatedAt: z.bigint().optional(),
     errorMessage: z.string().optional(),
     resourceId: z.string().optional(),
     groupId: z.string().optional(),
@@ -3477,7 +3548,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySch
           CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
         )
         .optional(),
-      principalId: z.number().optional(),
+      principalId: z.bigint().optional(),
     })
     .transform(d => ({
       principal_type: d.principalType,
@@ -3876,7 +3947,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSc
 export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType =
   z
     .object({
-      workspaceIds: z.array(z.number()).optional(),
+      workspaceIds: z.array(z.bigint()).optional(),
     })
     .transform(d => ({
       workspace_ids: d.workspaceIds,
@@ -3907,10 +3978,10 @@ export const marshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRul
           CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
         )
         .optional(),
-      creationTime: z.number().optional(),
-      updatedTime: z.number().optional(),
+      creationTime: z.bigint().optional(),
+      updatedTime: z.bigint().optional(),
       deactivated: z.boolean().optional(),
-      deactivatedAt: z.number().optional(),
+      deactivatedAt: z.bigint().optional(),
       enabled: z.boolean().optional(),
       errorMessage: z.string().optional(),
     })
@@ -3944,10 +4015,10 @@ export const marshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointR
           CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
         )
         .optional(),
-      creationTime: z.number().optional(),
-      updatedTime: z.number().optional(),
+      creationTime: z.bigint().optional(),
+      updatedTime: z.bigint().optional(),
       deactivated: z.boolean().optional(),
-      deactivatedAt: z.number().optional(),
+      deactivatedAt: z.bigint().optional(),
       domainNames: z.array(z.string()).optional(),
       errorMessage: z.string().optional(),
     })
@@ -4354,10 +4425,10 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
       .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
       .optional(),
     domainNames: z.array(z.string()).optional(),
-    creationTime: z.number().optional(),
-    updatedTime: z.number().optional(),
+    creationTime: z.bigint().optional(),
+    updatedTime: z.bigint().optional(),
     deactivated: z.boolean().optional(),
-    deactivatedAt: z.number().optional(),
+    deactivatedAt: z.bigint().optional(),
     errorMessage: z.string().optional(),
     resourceId: z.string().optional(),
     groupId: z.string().optional(),
@@ -4402,7 +4473,7 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
 export const marshalWorkspaceNetworkOptionSchema: z.ZodType = z
   .object({
     networkPolicyId: z.string().optional(),
-    workspaceId: z.number().optional(),
+    workspaceId: z.bigint().optional(),
   })
   .transform(d => ({
     network_policy_id: d.networkPolicyId,

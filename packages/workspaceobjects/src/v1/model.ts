@@ -150,7 +150,7 @@ export interface ListRequest {
   /** The absolute path of the notebook or directory. */
   path?: string | undefined;
   /** UTC timestamp in milliseconds */
-  notebooksModifiedAfter?: number | undefined;
+  notebooksModifiedAfter?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -188,13 +188,13 @@ export interface ObjectInfo {
   /** The language of the object. This value is set only if the object type is ``NOTEBOOK``. For Jupyter (.ipynb) notebooks, this is always ``PYTHON``. */
   language?: Language | undefined;
   /** Only applicable to files. The creation UTC timestamp. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Only applicable to files, the last modified UTC timestamp. */
-  modifiedAt?: number | undefined;
+  modifiedAt?: bigint | undefined;
   /** Unique identifier for the object. */
-  objectId?: number | undefined;
+  objectId?: bigint | undefined;
   /** Only applicable to files. The file size in bytes can be returned. */
-  size?: number | undefined;
+  size?: bigint | undefined;
   /** A unique identifier for the object that is consistent across all Databricks APIs. */
   resourceId?: string | undefined;
 }
@@ -241,10 +241,22 @@ export const unmarshalObjectInfoSchema: z.ZodType<ObjectInfo> = z
     object_type: z.enum(ObjectType).optional(),
     path: z.string().optional(),
     language: z.enum(Language).optional(),
-    created_at: z.number().optional(),
-    modified_at: z.number().optional(),
-    object_id: z.number().optional(),
-    size: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    modified_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    object_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    size: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     resource_id: z.string().optional(),
   })
   .transform(d => ({

@@ -16,7 +16,7 @@ export enum UsageDashboardType {
 
 export interface CreateBillingUsageDashboardRequest {
   /** The workspace ID of the workspace in which the usage dashboard is created. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account. */
@@ -33,7 +33,7 @@ export interface CreateBillingUsageDashboardRequest_Response {
 
 export interface GetBillingUsageDashboardRequest {
   /** The workspace ID of the workspace in which the usage dashboard is created. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account. */
@@ -72,7 +72,7 @@ export const unmarshalGetBillingUsageDashboardRequest_ResponseSchema: z.ZodType<
 
 export const marshalCreateBillingUsageDashboardRequestSchema: z.ZodType = z
   .object({
-    workspaceId: z.number().optional(),
+    workspaceId: z.bigint().optional(),
     accountId: z.string().optional(),
     dashboardType: z.enum(UsageDashboardType).optional(),
     majorVersion: z.enum(UsageDashboardMajorVersion).optional(),

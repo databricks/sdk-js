@@ -50,7 +50,7 @@ export interface StorageConfiguration {
   /** The human-readable name of the storage configuration. */
   storageConfigurationName?: string | undefined;
   /** Time in epoch milliseconds when the storage configuration was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /**
    * Optional IAM role that is used to access the workspace catalog which is created during workspace creation
    * for UC by Default. If a storage configuration with this field populated is used to create a workspace,
@@ -75,7 +75,10 @@ export const unmarshalStorageConfigurationSchema: z.ZodType<StorageConfiguration
       account_id: z.string().optional(),
       root_bucket_info: z.lazy(() => unmarshalRootBucketInfoSchema).optional(),
       storage_configuration_name: z.string().optional(),
-      creation_time: z.number().optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       role_arn: z.string().optional(),
     })
     .transform(d => ({

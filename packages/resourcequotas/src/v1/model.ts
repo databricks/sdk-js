@@ -69,7 +69,7 @@ export interface QuotaInfo {
   /** The current limit of the resource quota. */
   quotaLimit?: number | undefined;
   /** The timestamp that indicates when the quota count was last updated. */
-  lastRefreshedAt?: number | undefined;
+  lastRefreshedAt?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -101,7 +101,10 @@ export const unmarshalQuotaInfoSchema: z.ZodType<QuotaInfo> = z
     quota_name: z.string().optional(),
     quota_count: z.number().optional(),
     quota_limit: z.number().optional(),
-    last_refreshed_at: z.number().optional(),
+    last_refreshed_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     parentSecurableType: d.parent_securable_type,

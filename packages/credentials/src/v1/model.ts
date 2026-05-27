@@ -272,11 +272,11 @@ export interface CreateAccountsStorageCredential {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -354,11 +354,11 @@ export interface CreateCredentialRequest {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -439,11 +439,11 @@ export interface CreateStorageCredentialRequest {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -512,11 +512,11 @@ export interface CredentialInfo {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -545,7 +545,7 @@ export interface Credentials {
   /** The human-readable name of the credential configuration object. */
   credentialsName?: string | undefined;
   /** Time in epoch milliseconds when the credential was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
 }
 
 /**
@@ -646,7 +646,7 @@ export interface GenerateTemporaryPathCredentialRequest_Response {
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
    */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /** The URL of the storage path accessible by the temporary credential. */
   url?: string | undefined;
 }
@@ -714,7 +714,7 @@ export interface GenerateTemporaryTableCredentialRequest_Response {
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
    */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /** The URL of the storage path accessible by the temporary credential. */
   url?: string | undefined;
 }
@@ -747,7 +747,7 @@ export interface GenerateTemporaryVolumeCredentialRequest_Response {
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
    */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /** The URL of the storage path accessible by the temporary credential. */
   url?: string | undefined;
 }
@@ -919,11 +919,11 @@ export interface StorageCredentialInfo {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -974,7 +974,7 @@ export interface TemporaryCredentials {
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
    */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /** The URL of the storage path accessible by the temporary credential. */
   url?: string | undefined;
 }
@@ -1031,11 +1031,11 @@ export interface UpdateAccountsStorageCredential {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -1116,11 +1116,11 @@ export interface UpdateCredentialRequest {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -1200,11 +1200,11 @@ export interface UpdateStorageCredentialRequest {
   /** Unique identifier of the parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this credential was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of credential creator. */
   createdBy?: string | undefined;
   /** Time at which this credential was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the credential. */
   updatedBy?: string | undefined;
   /**
@@ -1508,9 +1508,15 @@ export const unmarshalCredentialInfoSchema: z.ZodType<CredentialInfo> = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastore_id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     used_for_managed_storage: z.boolean().optional(),
     full_name: z.string().optional(),
@@ -1568,7 +1574,10 @@ export const unmarshalCredentialsSchema: z.ZodType<Credentials> = z
     account_id: z.string().optional(),
     aws_credentials: z.lazy(() => unmarshalAwsCredentialsSchema).optional(),
     credentials_name: z.string().optional(),
-    creation_time: z.number().optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     credentialsId: d.credentials_id,
@@ -1640,7 +1649,10 @@ export const unmarshalGenerateTemporaryPathCredentialRequest_ResponseSchema: z.Z
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      expiration_time: z.number().optional(),
+      expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       url: z.string().optional(),
     })
     .transform(d => ({
@@ -1689,7 +1701,10 @@ export const unmarshalGenerateTemporaryTableCredentialRequest_ResponseSchema: z.
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      expiration_time: z.number().optional(),
+      expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       url: z.string().optional(),
     })
     .transform(d => ({
@@ -1738,7 +1753,10 @@ export const unmarshalGenerateTemporaryVolumeCredentialRequest_ResponseSchema: z
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      expiration_time: z.number().optional(),
+      expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       url: z.string().optional(),
     })
     .transform(d => ({
@@ -1835,9 +1853,15 @@ export const unmarshalStorageCredentialInfoSchema: z.ZodType<StorageCredentialIn
       owner: z.string().optional(),
       id: z.string().optional(),
       metastore_id: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       created_by: z.string().optional(),
-      updated_at: z.number().optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       updated_by: z.string().optional(),
       used_for_managed_storage: z.boolean().optional(),
       full_name: z.string().optional(),
@@ -1920,7 +1944,10 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      expiration_time: z.number().optional(),
+      expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       url: z.string().optional(),
     })
     .transform(d => ({
@@ -2148,9 +2175,9 @@ export const marshalCreateAccountsStorageCredentialSchema: z.ZodType = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
@@ -2246,9 +2273,9 @@ export const marshalCreateCredentialRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
@@ -2353,9 +2380,9 @@ export const marshalCreateStorageCredentialRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
@@ -2546,9 +2573,9 @@ export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
@@ -2632,9 +2659,9 @@ export const marshalUpdateCredentialRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
@@ -2722,9 +2749,9 @@ export const marshalUpdateStorageCredentialRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     id: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),

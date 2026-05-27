@@ -117,7 +117,7 @@ export interface CancelRefreshRequest {
    */
   objectId?: string | undefined;
   /** Unique id of the refresh operation. */
-  refreshId?: number | undefined;
+  refreshId?: bigint | undefined;
 }
 
 /** Response to cancelling a refresh. */
@@ -227,7 +227,7 @@ export interface DataProfilingConfig {
    * numeric fashion (1,2,3...). The field has flexibility to take on negative values, which can indicate corrupted
    * monitor_version numbers.
    */
-  monitorVersion?: number | undefined;
+  monitorVersion?: bigint | undefined;
   /** The warehouse for dashboard creation */
   effectiveWarehouseId?: string | undefined;
 }
@@ -284,7 +284,7 @@ export interface DeleteRefreshRequest {
    */
   objectId?: string | undefined;
   /** Unique id of the refresh operation. */
-  refreshId?: number | undefined;
+  refreshId?: bigint | undefined;
 }
 
 /** Request to get a Monitor. */
@@ -322,7 +322,7 @@ export interface GetRefreshRequest {
    */
   objectId?: string | undefined;
   /** Unique id of the refresh operation. */
-  refreshId?: number | undefined;
+  refreshId?: bigint | undefined;
 }
 
 /** Inference log configuration. */
@@ -433,15 +433,15 @@ export interface Refresh {
    */
   objectId?: string | undefined;
   /** Unique id of the refresh operation. */
-  refreshId?: number | undefined;
+  refreshId?: bigint | undefined;
   /** The current state of the refresh. */
   state?: RefreshState | undefined;
   /** An optional message to give insight into the current state of the refresh (e.g. FAILURE messages). */
   message?: string | undefined;
   /** Time when the refresh started (milliseconds since 1/1/1970 UTC). */
-  startTimeMs?: number | undefined;
+  startTimeMs?: bigint | undefined;
   /** Time when the refresh ended (milliseconds since 1/1/1970 UTC). */
-  endTimeMs?: number | undefined;
+  endTimeMs?: bigint | undefined;
   /** What triggered the refresh. */
   trigger?: RefreshTrigger | undefined;
 }
@@ -500,7 +500,7 @@ export interface UpdateRefreshRequest {
    */
   objectId?: string | undefined;
   /** Unique id of the refresh operation. */
-  refreshId?: number | undefined;
+  refreshId?: bigint | undefined;
   /** The refresh to update. */
   refresh?: Refresh | undefined;
   /** The field mask to specify which fields to update. */
@@ -562,7 +562,10 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
       profile_metrics_table_name: z.string().optional(),
       drift_metrics_table_name: z.string().optional(),
       dashboard_id: z.string().optional(),
-      monitor_version: z.number().optional(),
+      monitor_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       effective_warehouse_id: z.string().optional(),
     })
     .transform(d => ({
@@ -693,11 +696,20 @@ export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
-    refresh_id: z.number().optional(),
+    refresh_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.enum(RefreshState).optional(),
     message: z.string().optional(),
-    start_time_ms: z.number().optional(),
-    end_time_ms: z.number().optional(),
+    start_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     trigger: z.enum(RefreshTrigger).optional(),
   })
   .transform(d => ({
@@ -736,7 +748,7 @@ export const marshalCancelRefreshRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
-    refreshId: z.number().optional(),
+    refreshId: z.bigint().optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -793,7 +805,7 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
     profileMetricsTableName: z.string().optional(),
     driftMetricsTableName: z.string().optional(),
     dashboardId: z.string().optional(),
-    monitorVersion: z.number().optional(),
+    monitorVersion: z.bigint().optional(),
     effectiveWarehouseId: z.string().optional(),
   })
   .transform(d => ({
@@ -897,11 +909,11 @@ export const marshalRefreshSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
-    refreshId: z.number().optional(),
+    refreshId: z.bigint().optional(),
     state: z.enum(RefreshState).optional(),
     message: z.string().optional(),
-    startTimeMs: z.number().optional(),
-    endTimeMs: z.number().optional(),
+    startTimeMs: z.bigint().optional(),
+    endTimeMs: z.bigint().optional(),
     trigger: z.enum(RefreshTrigger).optional(),
   })
   .transform(d => ({

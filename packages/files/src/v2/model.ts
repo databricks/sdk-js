@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 export interface AddBlockRequest {
   /** The handle on an open stream. */
-  handle?: number | undefined;
+  handle?: bigint | undefined;
   /** The base64-encoded data to append to the stream. This has a limit of 1 MB. */
   data?: Uint8Array | undefined;
 }
@@ -14,7 +14,7 @@ export interface AddBlockRequest_Response {}
 
 export interface CloseRequest {
   /** The handle on an open stream. */
-  handle?: number | undefined;
+  handle?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -39,7 +39,7 @@ export interface CreateRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreateRequest_Response {
   /** Handle which should subsequently be passed into the AddBlock and Close calls when writing to a file through a stream. */
-  handle?: number | undefined;
+  handle?: bigint | undefined;
 }
 
 /** Delete a directory */
@@ -103,7 +103,7 @@ export interface DownloadFileRequest {
 
 export interface DownloadFileResponse {
   /** The length of the HTTP response body in bytes. */
-  contentLength?: number | undefined;
+  contentLength?: bigint | undefined;
   contentType?: string | undefined;
   contents?: ReadableStream | undefined;
   /** The last modified time of the file in HTTP-date (RFC 7231) format. */
@@ -117,9 +117,9 @@ export interface FileInfo {
   /** True if the path is a directory. */
   isDir?: boolean | undefined;
   /** The length of the file in bytes. This field is omitted for directories. */
-  fileSize?: number | undefined;
+  fileSize?: bigint | undefined;
   /** Last modification time of given file in milliseconds since epoch. */
-  modificationTime?: number | undefined;
+  modificationTime?: bigint | undefined;
 }
 
 /** Get directory metadata */
@@ -151,7 +151,7 @@ export interface GetFileMetadataRequest {
 
 export interface GetFileMetadataResponse {
   /** The length of the HTTP response body in bytes. */
-  contentLength?: number | undefined;
+  contentLength?: bigint | undefined;
   contentType?: string | undefined;
   /** The last modified time of the file in HTTP-date (RFC 7231) format. */
   lastModified?: string | undefined;
@@ -169,9 +169,9 @@ export interface GetStatusRequest_Response {
   /** True if the path is a directory. */
   isDir?: boolean | undefined;
   /** The length of the file in bytes. This field is omitted for directories. */
-  fileSize?: number | undefined;
+  fileSize?: bigint | undefined;
   /** Last modification time of given file in milliseconds since epoch. */
-  modificationTime?: number | undefined;
+  modificationTime?: bigint | undefined;
 }
 
 /** List directory contents */
@@ -189,7 +189,7 @@ export interface ListDirectoryContentsRequest {
    * If unspecified, at most 1000 directory entries will be returned.
    * The maximum value is 1000. Values above 1000 will be coerced to 1000.
    */
-  pageSize?: number | undefined;
+  pageSize?: bigint | undefined;
   /**
    * An opaque page token which was the `next_page_token` in the response of the previous
    * request to list the contents of this directory. Provide this token to retrieve the
@@ -255,12 +255,12 @@ export interface ReadRequest {
   /** The path of the file to read. The path should be the absolute DBFS path. */
   path?: string | undefined;
   /** The offset to read from in bytes. */
-  offset?: number | undefined;
+  offset?: bigint | undefined;
   /**
    * The number of bytes to read starting from the offset. This has a limit of 1 MB, and a default
    * value of 0.5 MB.
    */
-  length?: number | undefined;
+  length?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -269,7 +269,7 @@ export interface ReadRequest_Response {
    * The number of bytes read (could be less than ``length`` if we hit end of file). This refers to
    * number of bytes read in unencoded version (response data is base64-encoded).
    */
-  bytesRead?: number | undefined;
+  bytesRead?: bigint | undefined;
   /** The base64-encoded contents of the file read. */
   data?: Uint8Array | undefined;
 }
@@ -301,7 +301,10 @@ export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryRe
 export const unmarshalCreateRequest_ResponseSchema: z.ZodType<CreateRequest_Response> =
   z
     .object({
-      handle: z.number().optional(),
+      handle: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       handle: d.handle,
@@ -337,8 +340,14 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   .object({
     path: z.string().optional(),
     is_dir: z.boolean().optional(),
-    file_size: z.number().optional(),
-    modification_time: z.number().optional(),
+    file_size: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    modification_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     path: d.path,
@@ -353,7 +362,10 @@ export const unmarshalGetDirectoryMetadataResponseSchema: z.ZodType<GetDirectory
 export const unmarshalGetFileMetadataResponseSchema: z.ZodType<GetFileMetadataResponse> =
   z
     .object({
-      'content-length': z.number().optional(),
+      'content-length': z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       'content-type': z.string().optional(),
       'last-modified': z.string().optional(),
     })
@@ -369,8 +381,14 @@ export const unmarshalGetStatusRequest_ResponseSchema: z.ZodType<GetStatusReques
     .object({
       path: z.string().optional(),
       is_dir: z.boolean().optional(),
-      file_size: z.number().optional(),
-      modification_time: z.number().optional(),
+      file_size: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      modification_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       path: d.path,
@@ -416,7 +434,10 @@ export const unmarshalPutRequest_ResponseSchema: z.ZodType<PutRequest_Response> 
 export const unmarshalReadRequest_ResponseSchema: z.ZodType<ReadRequest_Response> =
   z
     .object({
-      bytes_read: z.number().optional(),
+      bytes_read: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       data: z
         .string()
         .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -432,7 +453,7 @@ export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
 
 export const marshalAddBlockRequestSchema: z.ZodType = z
   .object({
-    handle: z.number().optional(),
+    handle: z.bigint().optional(),
     data: z
       .any()
       .transform((d: Uint8Array) =>
@@ -447,7 +468,7 @@ export const marshalAddBlockRequestSchema: z.ZodType = z
 
 export const marshalCloseRequestSchema: z.ZodType = z
   .object({
-    handle: z.number().optional(),
+    handle: z.bigint().optional(),
   })
   .transform(d => ({
     handle: d.handle,

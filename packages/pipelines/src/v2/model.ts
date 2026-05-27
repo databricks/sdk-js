@@ -341,7 +341,7 @@ export interface ClonePipelineRequest {
    * If the settings were modified after that time, then the request will fail with
    * a conflict.
    */
-  expectedLastModified?: number | undefined;
+  expectedLastModified?: bigint | undefined;
   /** If false, deployment will fail if name conflicts with that of another pipeline. */
   allowDuplicateNames?: boolean | undefined;
   /** Unique identifier for this pipeline. */
@@ -594,7 +594,7 @@ export interface DataPlaneId {
   /** The instance name of the data plane emitting an event. */
   instance?: string | undefined;
   /** A sequence number, unique and increasing within the data plane instance. */
-  seqNo?: number | undefined;
+  seqNo?: bigint | undefined;
 }
 
 /** Location of staged data storage */
@@ -640,7 +640,7 @@ export interface EditPipelineRequest {
    * If the settings were modified after that time, then the request will fail with
    * a conflict.
    */
-  expectedLastModified?: number | undefined;
+  expectedLastModified?: bigint | undefined;
   runAs?: PipelinesJobRunAs | undefined;
   /**
    * Key/value map of default parameters to use for pipeline execution.
@@ -859,7 +859,7 @@ export interface GetPipelineRequest_Response {
   /** Status of the latest updates for the pipeline. Ordered with the newest update first. */
   latestUpdates?: UpdateStateInfo[] | undefined;
   /** The last time the pipeline settings were modified or created. */
-  lastModified?: number | undefined;
+  lastModified?: bigint | undefined;
   /** Username of the user that the pipeline will run on behalf of. */
   runAsUserName?: string | undefined;
   /** Serverless budget policy ID of this pipeline. */
@@ -1196,7 +1196,7 @@ export interface IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConne
    * If not set, hard deletion synchronization via snapshots is disabled.
    * This field is mutable and can be updated without triggering a full snapshot.
    */
-  hardDeletionSyncMinIntervalInSeconds?: number | undefined;
+  hardDeletionSyncMinIntervalInSeconds?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1293,7 +1293,7 @@ export interface KafkaOptions {
    */
   startingOffset?: string | undefined;
   /** Internal option to control the maximum number of offsets to process per trigger. */
-  maxOffsetsPerTrigger?: number | undefined;
+  maxOffsetsPerTrigger?: bigint | undefined;
   /**
    * Undocumented backdoor mechanism for overriding parameters
    * to pass to the Kafka client.
@@ -1498,7 +1498,7 @@ export interface Origin {
   /** The cloud region. */
   region?: string | undefined;
   /** The org id of the user. Unique within a cloud. */
-  orgId?: number | undefined;
+  orgId?: bigint | undefined;
   /** The id of the pipeline. Globally unique. */
   pipelineId?: string | undefined;
   /** The name of the pipeline. Not unique. */
@@ -1521,7 +1521,7 @@ export interface Origin {
   /** The name of the flow. Not unique. */
   flowName?: string | undefined;
   /** The id of a batch. Unique within a flow. */
-  batchId?: number | undefined;
+  batchId?: bigint | undefined;
   /** The id of the request that caused an update. */
   requestId?: string | undefined;
   /** The Unity Catalog id of the MV or ST being updated. */
@@ -2324,7 +2324,7 @@ export interface Sequencing {
   /** the ID assigned by the data plane. */
   dataPlaneId?: DataPlaneId | undefined;
   /** A sequence number, unique and increasing per pipeline. */
-  controlPlaneSeqNo?: number | undefined;
+  controlPlaneSeqNo?: bigint | undefined;
 }
 
 export interface SerializedException {
@@ -2547,7 +2547,7 @@ export interface UpdateInfo {
   /** The ID of the cluster that the update is running on. */
   clusterId?: string | undefined;
   /** The time when this update was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** If true, this update will reset all tables before running. */
   fullRefresh?: boolean | undefined;
   /**
@@ -2745,7 +2745,10 @@ export const unmarshalCronTriggerSchema: z.ZodType<CronTrigger> = z
 export const unmarshalDataPlaneIdSchema: z.ZodType<DataPlaneId> = z
   .object({
     instance: z.string().optional(),
-    seq_no: z.number().optional(),
+    seq_no: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     instance: d.instance,
@@ -2873,7 +2876,10 @@ export const unmarshalGetPipelineRequest_ResponseSchema: z.ZodType<GetPipelineRe
       latest_updates: z
         .array(z.lazy(() => unmarshalUpdateStateInfoSchema))
         .optional(),
-      last_modified: z.number().optional(),
+      last_modified: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       run_as_user_name: z.string().optional(),
       effective_budget_policy_id: z.string().optional(),
       effective_publishing_mode: z.enum(PublishingMode).optional(),
@@ -3172,7 +3178,10 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBased
     .object({
       cursor_columns: z.array(z.string()).optional(),
       deletion_condition: z.string().optional(),
-      hard_deletion_sync_min_interval_in_seconds: z.number().optional(),
+      hard_deletion_sync_min_interval_in_seconds: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       cursorColumns: d.cursor_columns,
@@ -3249,7 +3258,10 @@ export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
     key_transformer: z.lazy(() => unmarshalTransformerSchema).optional(),
     value_transformer: z.lazy(() => unmarshalTransformerSchema).optional(),
     starting_offset: z.string().optional(),
-    max_offsets_per_trigger: z.number().optional(),
+    max_offsets_per_trigger: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     client_config: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -3366,7 +3378,10 @@ export const unmarshalOriginSchema: z.ZodType<Origin> = z
   .object({
     cloud: z.string().optional(),
     region: z.string().optional(),
-    org_id: z.number().optional(),
+    org_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     pipeline_id: z.string().optional(),
     pipeline_name: z.string().optional(),
     cluster_id: z.string().optional(),
@@ -3376,7 +3391,10 @@ export const unmarshalOriginSchema: z.ZodType<Origin> = z
     dataset_name: z.string().optional(),
     flow_id: z.string().optional(),
     flow_name: z.string().optional(),
-    batch_id: z.number().optional(),
+    batch_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     request_id: z.string().optional(),
     uc_resource_id: z.string().optional(),
     host: z.string().optional(),
@@ -3876,7 +3894,10 @@ export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
 export const unmarshalSequencingSchema: z.ZodType<Sequencing> = z
   .object({
     data_plane_id: z.lazy(() => unmarshalDataPlaneIdSchema).optional(),
-    control_plane_seq_no: z.number().optional(),
+    control_plane_seq_no: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     dataPlaneId: d.data_plane_id,
@@ -4039,7 +4060,10 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     cause: z.enum(UpdateCause).optional(),
     state: z.enum(UpdateState).optional(),
     cluster_id: z.string().optional(),
-    creation_time: z.number().optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     full_refresh: z.boolean().optional(),
     refresh_selection: z.array(z.string()).optional(),
     full_refresh_selection: z.array(z.string()).optional(),
@@ -4103,7 +4127,7 @@ export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
 export const marshalClonePipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
-    expectedLastModified: z.number().optional(),
+    expectedLastModified: z.bigint().optional(),
     allowDuplicateNames: z.boolean().optional(),
     id: z.string().optional(),
     name: z.string().optional(),
@@ -4381,7 +4405,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     allowDuplicateNames: z.boolean().optional(),
-    expectedLastModified: z.number().optional(),
+    expectedLastModified: z.bigint().optional(),
     runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
@@ -4791,7 +4815,7 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedCo
     .object({
       cursorColumns: z.array(z.string()).optional(),
       deletionCondition: z.string().optional(),
-      hardDeletionSyncMinIntervalInSeconds: z.number().optional(),
+      hardDeletionSyncMinIntervalInSeconds: z.bigint().optional(),
     })
     .transform(d => ({
       cursor_columns: d.cursorColumns,
@@ -4866,7 +4890,7 @@ export const marshalKafkaOptionsSchema: z.ZodType = z
     keyTransformer: z.lazy(() => marshalTransformerSchema).optional(),
     valueTransformer: z.lazy(() => marshalTransformerSchema).optional(),
     startingOffset: z.string().optional(),
-    maxOffsetsPerTrigger: z.number().optional(),
+    maxOffsetsPerTrigger: z.bigint().optional(),
     clientConfig: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({

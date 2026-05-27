@@ -168,7 +168,7 @@ export interface QueryEndpointResponse {
   /** The ID of the query that may be returned by a __completions or chat external/foundation model__ serving endpoint. */
   id?: string | undefined;
   /** The timestamp in seconds when the query was created in Unix time returned by a __completions or chat external/foundation model__ serving endpoint. */
-  created?: number | undefined;
+  created?: bigint | undefined;
   /**
    * The type of object returned by the __external/foundation model__ serving endpoint, one of
    * [text_completion, chat.completion, list (of embeddings)].
@@ -245,7 +245,10 @@ export const unmarshalQueryEndpointResponseSchema: z.ZodType<QueryEndpointRespon
       model: z.string().optional(),
       usage: z.lazy(() => unmarshalExternalModelUsageElementSchema).optional(),
       id: z.string().optional(),
-      created: z.number().optional(),
+      created: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       object: z.enum(QueryEndpointResponseObject).optional(),
       predictions: z.array(jsonValueSchema).optional(),
       outputs: z.array(jsonValueSchema).optional(),

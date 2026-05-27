@@ -741,7 +741,7 @@ export interface App {
   pendingDeployment?: AppDeployment | undefined;
   /** Resources for the app. */
   resources?: AppResource[] | undefined;
-  servicePrincipalId?: number | undefined;
+  servicePrincipalId?: bigint | undefined;
   servicePrincipalName?: string | undefined;
   /**
    * The default workspace file system path of the source code from which app deployment are
@@ -1338,7 +1338,7 @@ export interface Space {
   /** The effective api scopes granted to the user access token. */
   effectiveUserApiScopes?: string[] | undefined;
   /** The service principal ID for the app space. */
-  servicePrincipalId?: number | undefined;
+  servicePrincipalId?: bigint | undefined;
   /** The service principal name for the app space. */
   servicePrincipalName?: string | undefined;
   /** The service principal client ID for the app space. */
@@ -1437,7 +1437,10 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     updater: z.string().optional(),
     pending_deployment: z.lazy(() => unmarshalAppDeploymentSchema).optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
-    service_principal_id: z.number().optional(),
+    service_principal_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     service_principal_name: z.string().optional(),
     default_source_code_path: z.string().optional(),
     budget_policy_id: z.string().optional(),
@@ -2120,7 +2123,10 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
     user_api_scopes: z.array(z.string()).optional(),
     effective_user_api_scopes: z.array(z.string()).optional(),
-    service_principal_id: z.number().optional(),
+    service_principal_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     service_principal_name: z.string().optional(),
     service_principal_client_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
@@ -2225,7 +2231,7 @@ export const marshalAppSchema: z.ZodType = z
     updater: z.string().optional(),
     pendingDeployment: z.lazy(() => marshalAppDeploymentSchema).optional(),
     resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
-    servicePrincipalId: z.number().optional(),
+    servicePrincipalId: z.bigint().optional(),
     servicePrincipalName: z.string().optional(),
     defaultSourceCodePath: z.string().optional(),
     budgetPolicyId: z.string().optional(),
@@ -2818,7 +2824,7 @@ export const marshalSpaceSchema: z.ZodType = z
     resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
     userApiScopes: z.array(z.string()).optional(),
     effectiveUserApiScopes: z.array(z.string()).optional(),
-    servicePrincipalId: z.number().optional(),
+    servicePrincipalId: z.bigint().optional(),
     servicePrincipalName: z.string().optional(),
     servicePrincipalClientId: z.string().optional(),
     usagePolicyId: z.string().optional(),

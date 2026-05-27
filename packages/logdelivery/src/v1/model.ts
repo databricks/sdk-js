@@ -88,7 +88,7 @@ export interface CreateLogDeliveryConfigurationParams {
   /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
   storageConfigurationId?: string | undefined;
   /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
-  workspaceIdsFilter?: number[] | undefined;
+  workspaceIdsFilter?: bigint[] | undefined;
   /** The optional delivery path prefix within Amazon S3 storage. Defaults to empty, which means that logs are delivered to the root of the bucket. This must be a valid S3 object key. This must not start or end with a slash character. */
   deliveryPathPrefix?: string | undefined;
   /** This field applies only if log_type is BILLABLE_USAGE. This is the optional start month and year for delivery, specified in YYYY-MM format. Defaults to current year and month. BILLABLE_USAGE logs are not available for usage before March 2019 (2019-03). */
@@ -96,9 +96,9 @@ export interface CreateLogDeliveryConfigurationParams {
   /** Status of log delivery configuration. Set to `ENABLED` (enabled) or `DISABLED` (disabled). Defaults to `ENABLED`. You can [enable or disable the configuration](#operation/patch-log-delivery-config-status) later. Deletion of a configuration is not supported, so disable a log delivery configuration that is no longer needed. */
   status?: LogDeliveryConfigStatus | undefined;
   /** Time in epoch milliseconds when the log delivery configuration was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when the log delivery configuration was updated. */
-  updateTime?: number | undefined;
+  updateTime?: bigint | undefined;
   /** The LogDeliveryStatus of this log delivery configuration */
   logDeliveryStatus?: LogDeliveryStatus | undefined;
 }
@@ -190,7 +190,7 @@ export interface LogDeliveryConfiguration {
   /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
   storageConfigurationId?: string | undefined;
   /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
-  workspaceIdsFilter?: number[] | undefined;
+  workspaceIdsFilter?: bigint[] | undefined;
   /** The optional delivery path prefix within Amazon S3 storage. Defaults to empty, which means that logs are delivered to the root of the bucket. This must be a valid S3 object key. This must not start or end with a slash character. */
   deliveryPathPrefix?: string | undefined;
   /** This field applies only if log_type is BILLABLE_USAGE. This is the optional start month and year for delivery, specified in YYYY-MM format. Defaults to current year and month. BILLABLE_USAGE logs are not available for usage before March 2019 (2019-03). */
@@ -198,9 +198,9 @@ export interface LogDeliveryConfiguration {
   /** Status of log delivery configuration. Set to `ENABLED` (enabled) or `DISABLED` (disabled). Defaults to `ENABLED`. You can [enable or disable the configuration](#operation/patch-log-delivery-config-status) later. Deletion of a configuration is not supported, so disable a log delivery configuration that is no longer needed. */
   status?: LogDeliveryConfigStatus | undefined;
   /** Time in epoch milliseconds when the log delivery configuration was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Time in epoch milliseconds when the log delivery configuration was updated. */
-  updateTime?: number | undefined;
+  updateTime?: bigint | undefined;
   /** The LogDeliveryStatus of this log delivery configuration */
   logDeliveryStatus?: LogDeliveryStatus | undefined;
 }
@@ -287,12 +287,20 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
       account_id: z.string().optional(),
       credentials_id: z.string().optional(),
       storage_configuration_id: z.string().optional(),
-      workspace_ids_filter: z.array(z.number()).optional(),
+      workspace_ids_filter: z
+        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .optional(),
       delivery_path_prefix: z.string().optional(),
       delivery_start_time: z.string().optional(),
       status: z.enum(LogDeliveryConfigStatus).optional(),
-      creation_time: z.number().optional(),
-      update_time: z.number().optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      update_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       log_delivery_status: z
         .lazy(() => unmarshalLogDeliveryStatusSchema)
         .optional(),
@@ -341,12 +349,12 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
     accountId: z.string().optional(),
     credentialsId: z.string().optional(),
     storageConfigurationId: z.string().optional(),
-    workspaceIdsFilter: z.array(z.number()).optional(),
+    workspaceIdsFilter: z.array(z.bigint()).optional(),
     deliveryPathPrefix: z.string().optional(),
     deliveryStartTime: z.string().optional(),
     status: z.enum(LogDeliveryConfigStatus).optional(),
-    creationTime: z.number().optional(),
-    updateTime: z.number().optional(),
+    creationTime: z.bigint().optional(),
+    updateTime: z.bigint().optional(),
     logDeliveryStatus: z.lazy(() => marshalLogDeliveryStatusSchema).optional(),
   })
   .transform(d => ({

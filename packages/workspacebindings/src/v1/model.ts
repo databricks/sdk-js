@@ -17,7 +17,7 @@ export interface GetCatalogWorkspaceBindingsRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetCatalogWorkspaceBindingsRequest_Response {
   /** A list of workspace IDs */
-  workspaces?: number[] | undefined;
+  workspaces?: bigint[] | undefined;
 }
 
 export interface GetWorkspaceBindingsRequest {
@@ -52,15 +52,15 @@ export interface UpdateCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
   catalogName?: string | undefined;
   /** A list of workspace IDs. */
-  assignWorkspaces?: number[] | undefined;
+  assignWorkspaces?: bigint[] | undefined;
   /** A list of workspace IDs. */
-  unassignWorkspaces?: number[] | undefined;
+  unassignWorkspaces?: bigint[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface UpdateCatalogWorkspaceBindingsRequest_Response {
   /** A list of workspace IDs */
-  workspaces?: number[] | undefined;
+  workspaces?: bigint[] | undefined;
 }
 
 export interface UpdateWorkspaceBindingsRequest {
@@ -87,7 +87,7 @@ export interface UpdateWorkspaceBindingsRequest_Response {
 
 export interface WorkspaceBindingInfo {
   /** Required */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** One of READ_WRITE/READ_ONLY. Default is READ_WRITE. */
   bindingType?: BindingType | undefined;
 }
@@ -96,7 +96,9 @@ export interface WorkspaceBindingInfo {
 export const unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindingsRequest_Response> =
   z
     .object({
-      workspaces: z.array(z.number()).optional(),
+      workspaces: z
+        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .optional(),
     })
     .transform(d => ({
       workspaces: d.workspaces,
@@ -120,7 +122,9 @@ export const unmarshalGetWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetW
 export const unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindingsRequest_Response> =
   z
     .object({
-      workspaces: z.array(z.number()).optional(),
+      workspaces: z
+        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .optional(),
     })
     .transform(d => ({
       workspaces: d.workspaces,
@@ -141,7 +145,10 @@ export const unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema: z.ZodType<U
 export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo> =
   z
     .object({
-      workspace_id: z.number().optional(),
+      workspace_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       binding_type: z.enum(BindingType).optional(),
     })
     .transform(d => ({
@@ -152,8 +159,8 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
 export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
-    assignWorkspaces: z.array(z.number()).optional(),
-    unassignWorkspaces: z.array(z.number()).optional(),
+    assignWorkspaces: z.array(z.bigint()).optional(),
+    unassignWorkspaces: z.array(z.bigint()).optional(),
   })
   .transform(d => ({
     catalog_name: d.catalogName,
@@ -177,7 +184,7 @@ export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
 
 export const marshalWorkspaceBindingInfoSchema: z.ZodType = z
   .object({
-    workspaceId: z.number().optional(),
+    workspaceId: z.bigint().optional(),
     bindingType: z.enum(BindingType).optional(),
   })
   .transform(d => ({

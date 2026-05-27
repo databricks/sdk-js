@@ -54,7 +54,7 @@ export interface Filter {
    * The policy creator user id to be filtered on.
    * If unspecified, all policies will be returned.
    */
-  creatorUserId?: number | undefined;
+  creatorUserId?: bigint | undefined;
   /**
    * The policy creator user name to be filtered on.
    * If unspecified, all policies will be returned.
@@ -126,7 +126,7 @@ export interface UsagePolicy {
   /** A list of tags defined by the customer. At most 20 entries are allowed per policy. */
   customTags?: CustomPolicyTag[] | undefined;
   /** List of workspaces that this usage policy will be exclusively bound to. */
-  bindingWorkspaceIds?: number[] | undefined;
+  bindingWorkspaceIds?: bigint[] | undefined;
 }
 
 export const unmarshalCustomPolicyTagSchema: z.ZodType<CustomPolicyTag> = z
@@ -159,7 +159,9 @@ export const unmarshalUsagePolicySchema: z.ZodType<UsagePolicy> = z
     custom_tags: z
       .array(z.lazy(() => unmarshalCustomPolicyTagSchema))
       .optional(),
-    binding_workspace_ids: z.array(z.number()).optional(),
+    binding_workspace_ids: z
+      .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+      .optional(),
   })
   .transform(d => ({
     policyId: d.policy_id,
@@ -193,7 +195,7 @@ export const marshalCustomPolicyTagSchema: z.ZodType = z
 export const marshalFilterSchema: z.ZodType = z
   .object({
     policyName: z.string().optional(),
-    creatorUserId: z.number().optional(),
+    creatorUserId: z.bigint().optional(),
     creatorUserName: z.string().optional(),
   })
   .transform(d => ({
@@ -219,7 +221,7 @@ export const marshalUsagePolicySchema: z.ZodType = z
     policyId: z.string().optional(),
     policyName: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalCustomPolicyTagSchema)).optional(),
-    bindingWorkspaceIds: z.array(z.number()).optional(),
+    bindingWorkspaceIds: z.array(z.bigint()).optional(),
   })
   .transform(d => ({
     policy_id: d.policyId,

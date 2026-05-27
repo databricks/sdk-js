@@ -73,7 +73,7 @@ export interface ContinuousUpdateStatus {
    * The last source table Delta version that was synced to the online table. Note that this Delta
    * version may not be completely synced to the online table yet.
    */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The timestamp of the last time any data was synchronized from the source table to the online
    * table.
@@ -105,7 +105,7 @@ export interface FailedStatus {
    * version may only be partially synced to the online table. Only populated if the table is still
    * online and available for serving.
    */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The timestamp of the last time any data was synchronized from the source table to the online
    * table. Only populated if the table is still online and available for serving.
@@ -204,11 +204,11 @@ export interface PipelineProgress {
    * The source table Delta version that was last processed by the pipeline. The pipeline may not
    * have completely processed this version yet.
    */
-  latestVersionCurrentlyProcessing?: number | undefined;
+  latestVersionCurrentlyProcessing?: bigint | undefined;
   /** The number of rows that have been synced in this update. */
-  syncedRowCount?: number | undefined;
+  syncedRowCount?: bigint | undefined;
   /** The total number of rows that need to be synced in this update. This number may be an estimate. */
-  totalRowCount?: number | undefined;
+  totalRowCount?: bigint | undefined;
   /** The completion ratio of this update. This is a number between 0 and 1. */
   syncProgressCompletion?: number | undefined;
   /** The estimated time remaining to complete this update in seconds. */
@@ -240,7 +240,7 @@ export interface TriggeredUpdateStatus {
    * The last source table Delta version that was synced to the online table. Note that this Delta
    * version may not be completely synced to the online table yet.
    */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The timestamp of the last time any data was synchronized from the source table to the online
    * table.
@@ -253,7 +253,10 @@ export interface TriggeredUpdateStatus {
 export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateStatus> =
   z
     .object({
-      last_processed_commit_version: z.number().optional(),
+      last_processed_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       timestamp: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -270,7 +273,10 @@ export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateSt
 
 export const unmarshalFailedStatusSchema: z.ZodType<FailedStatus> = z
   .object({
-    last_processed_commit_version: z.number().optional(),
+    last_processed_commit_version: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     timestamp: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -377,9 +383,18 @@ export const unmarshalOnlineTableStatusSchema: z.ZodType<OnlineTableStatus> = z
 
 export const unmarshalPipelineProgressSchema: z.ZodType<PipelineProgress> = z
   .object({
-    latest_version_currently_processing: z.number().optional(),
-    synced_row_count: z.number().optional(),
-    total_row_count: z.number().optional(),
+    latest_version_currently_processing: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    synced_row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    total_row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     sync_progress_completion: z.number().optional(),
     estimated_completion_time_seconds: z.number().optional(),
   })
@@ -405,7 +420,10 @@ export const unmarshalProvisioningStatusSchema: z.ZodType<ProvisioningStatus> =
 export const unmarshalTriggeredUpdateStatusSchema: z.ZodType<TriggeredUpdateStatus> =
   z
     .object({
-      last_processed_commit_version: z.number().optional(),
+      last_processed_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       timestamp: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -422,7 +440,7 @@ export const unmarshalTriggeredUpdateStatusSchema: z.ZodType<TriggeredUpdateStat
 
 export const marshalContinuousUpdateStatusSchema: z.ZodType = z
   .object({
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     timestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -439,7 +457,7 @@ export const marshalContinuousUpdateStatusSchema: z.ZodType = z
 
 export const marshalFailedStatusSchema: z.ZodType = z
   .object({
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     timestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -560,9 +578,9 @@ export const marshalOnlineTableStatusSchema: z.ZodType = z
 
 export const marshalPipelineProgressSchema: z.ZodType = z
   .object({
-    latestVersionCurrentlyProcessing: z.number().optional(),
-    syncedRowCount: z.number().optional(),
-    totalRowCount: z.number().optional(),
+    latestVersionCurrentlyProcessing: z.bigint().optional(),
+    syncedRowCount: z.bigint().optional(),
+    totalRowCount: z.bigint().optional(),
     syncProgressCompletion: z.number().optional(),
     estimatedCompletionTimeSeconds: z.number().optional(),
   })
@@ -586,7 +604,7 @@ export const marshalProvisioningStatusSchema: z.ZodType = z
 
 export const marshalTriggeredUpdateStatusSchema: z.ZodType = z
   .object({
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     timestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())

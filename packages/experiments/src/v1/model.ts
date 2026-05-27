@@ -102,7 +102,7 @@ export interface CreateRunRequest {
   /** The name of the run. */
   runName?: string | undefined;
   /** Unix timestamp in milliseconds of when the run started. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** Additional metadata for run. */
   tags?: RunTag[] | undefined;
 }
@@ -191,7 +191,7 @@ export interface DeleteRunsRequest {
    * The maximum creation timestamp in milliseconds since the UNIX epoch for deleting runs. Only runs created prior to
    * or at this timestamp are deleted.
    */
-  maxTimestampMillis?: number | undefined;
+  maxTimestampMillis?: bigint | undefined;
   /**
    * An optional positive integer indicating the maximum number of runs to delete. The maximum allowed value for
    * max_runs is 10000.
@@ -229,9 +229,9 @@ export interface Experiment {
    */
   lifecycleStage?: string | undefined;
   /** Last update time */
-  lastUpdateTime?: number | undefined;
+  lastUpdateTime?: bigint | undefined;
   /** Creation time */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Tags: Additional metadata key-value pairs. */
   tags?: ExperimentTag[] | undefined;
 }
@@ -251,7 +251,7 @@ export interface FileInfo {
   /** Whether the path is a directory. */
   isDir?: boolean | undefined;
   /** The size in bytes of the file. Unset for directories. */
-  fileSize?: number | undefined;
+  fileSize?: bigint | undefined;
 }
 
 export interface FinalizeLoggedModelRequest {
@@ -410,7 +410,7 @@ export interface ListExperimentsRequest {
    * Callers of this endpoint are encouraged to pass max_results explicitly and leverage
    * page_token to iterate through experiments.
    */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /** Token indicating the page of experiments to fetch */
   pageToken?: string | undefined;
 }
@@ -484,9 +484,9 @@ export interface LogMetricRequest {
   /** Double value of the metric being logged. */
   value?: number | undefined;
   /** Unix timestamp in milliseconds at the time metric was logged. */
-  timestamp?: number | undefined;
+  timestamp?: bigint | undefined;
   /** Step at which to log the metric */
-  step?: number | undefined;
+  step?: bigint | undefined;
   /** ID of the logged model associated with the metric, if applicable */
   modelId?: string | undefined;
   /**
@@ -573,15 +573,15 @@ export interface LoggedModelInfo {
   /** The name of the model. */
   name?: string | undefined;
   /** The timestamp when the model was created in milliseconds since the UNIX epoch. */
-  creationTimestampMs?: number | undefined;
+  creationTimestampMs?: bigint | undefined;
   /** The timestamp when the model was last updated in milliseconds since the UNIX epoch. */
-  lastUpdatedTimestampMs?: number | undefined;
+  lastUpdatedTimestampMs?: bigint | undefined;
   /** The URI of the directory where model artifacts are stored. */
   artifactUri?: string | undefined;
   /** The status of whether or not the model is ready for use. */
   status?: LoggedModelStatus | undefined;
   /** The ID of the user or principal that created the model. */
-  creatorId?: number | undefined;
+  creatorId?: bigint | undefined;
   /** The type of model, such as ``"Agent"``, ``"Classifier"``, ``"LLM"``. */
   modelType?: string | undefined;
   /** The ID of the run that created the model. */
@@ -615,9 +615,9 @@ export interface Metric {
   /** The value of the metric. */
   value?: number | undefined;
   /** The timestamp at which the metric was recorded. */
-  timestamp?: number | undefined;
+  timestamp?: bigint | undefined;
   /** The step at which the metric was logged. */
-  step?: number | undefined;
+  step?: bigint | undefined;
   /**
    * The name of the dataset associated with the metric.
    * E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3”
@@ -649,7 +649,7 @@ export interface ModelOutput {
   /** The unique identifier of the model. */
   modelId?: string | undefined;
   /** The step at which the model was produced. */
-  step?: number | undefined;
+  step?: bigint | undefined;
 }
 
 /** Param associated with a run. */
@@ -683,7 +683,7 @@ export interface RestoreRunsRequest {
    * The minimum deletion timestamp in milliseconds since the UNIX epoch for restoring runs. Only runs deleted no
    * earlier than this timestamp are restored.
    */
-  minTimestampMillis?: number | undefined;
+  minTimestampMillis?: bigint | undefined;
   /**
    * An optional positive integer indicating the maximum number of runs to restore. The maximum allowed value for
    * max_runs is 10000.
@@ -739,9 +739,9 @@ export interface RunInfo {
   /** Current status of the run. */
   status?: RunStatus | undefined;
   /** Unix timestamp of when the run started in milliseconds. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** Unix timestamp of when the run ended in milliseconds. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /**
    * URI of the directory where artifacts should be uploaded.
    * This can be a local path (starting with "/"), or a distributed file system (DFS)
@@ -771,7 +771,7 @@ export interface RunTag {
 
 export interface SearchExperimentsRequest {
   /** Maximum number of experiments desired. Max threshold is 3000. */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /** Token indicating the page of experiments to fetch */
   pageToken?: string | undefined;
   /** String representing a SQL filter condition (e.g. "name ILIKE 'my-experiment%'") */
@@ -966,7 +966,7 @@ export interface UpdateRunRequest {
   /** Updated status of the run. */
   status?: RunStatus | undefined;
   /** Unix timestamp in milliseconds of when the run ended. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** Updated name of the run. */
   runName?: string | undefined;
 }
@@ -1071,8 +1071,14 @@ export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
     name: z.string().optional(),
     artifact_location: z.string().optional(),
     lifecycle_stage: z.string().optional(),
-    last_update_time: z.number().optional(),
-    creation_time: z.number().optional(),
+    last_update_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     tags: z.array(z.lazy(() => unmarshalExperimentTagSchema)).optional(),
   })
   .transform(d => ({
@@ -1099,7 +1105,10 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   .object({
     path: z.string().optional(),
     is_dir: z.boolean().optional(),
-    file_size: z.number().optional(),
+    file_size: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     path: d.path,
@@ -1262,11 +1271,20 @@ export const unmarshalLoggedModelInfoSchema: z.ZodType<LoggedModelInfo> = z
     model_id: z.string().optional(),
     experiment_id: z.string().optional(),
     name: z.string().optional(),
-    creation_timestamp_ms: z.number().optional(),
-    last_updated_timestamp_ms: z.number().optional(),
+    creation_timestamp_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     artifact_uri: z.string().optional(),
     status: z.enum(LoggedModelStatus).optional(),
-    creator_id: z.number().optional(),
+    creator_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     model_type: z.string().optional(),
     source_run_id: z.string().optional(),
     status_message: z.string().optional(),
@@ -1312,8 +1330,14 @@ export const unmarshalMetricSchema: z.ZodType<Metric> = z
   .object({
     key: z.string().optional(),
     value: z.number().optional(),
-    timestamp: z.number().optional(),
-    step: z.number().optional(),
+    timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    step: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     dataset_name: z.string().optional(),
     dataset_digest: z.string().optional(),
     model_id: z.string().optional(),
@@ -1398,8 +1422,14 @@ export const unmarshalRunInfoSchema: z.ZodType<RunInfo> = z
     run_name: z.string().optional(),
     user_id: z.string().optional(),
     status: z.enum(RunStatus).optional(),
-    start_time: z.number().optional(),
-    end_time: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     artifact_uri: z.string().optional(),
     lifecycle_stage: z.string().optional(),
   })
@@ -1535,7 +1565,7 @@ export const marshalCreateRunRequestSchema: z.ZodType = z
     experimentId: z.string().optional(),
     userId: z.string().optional(),
     runName: z.string().optional(),
-    startTime: z.number().optional(),
+    startTime: z.bigint().optional(),
     tags: z.array(z.lazy(() => marshalRunTagSchema)).optional(),
   })
   .transform(d => ({
@@ -1593,7 +1623,7 @@ export const marshalDeleteRunRequestSchema: z.ZodType = z
 export const marshalDeleteRunsRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
-    maxTimestampMillis: z.number().optional(),
+    maxTimestampMillis: z.bigint().optional(),
     maxRuns: z.number().optional(),
   })
   .transform(d => ({
@@ -1684,8 +1714,8 @@ export const marshalLogMetricRequestSchema: z.ZodType = z
     runUuid: z.string().optional(),
     key: z.string().optional(),
     value: z.number().optional(),
-    timestamp: z.number().optional(),
-    step: z.number().optional(),
+    timestamp: z.bigint().optional(),
+    step: z.bigint().optional(),
     modelId: z.string().optional(),
     datasetName: z.string().optional(),
     datasetDigest: z.string().optional(),
@@ -1760,8 +1790,8 @@ export const marshalMetricSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.number().optional(),
-    timestamp: z.number().optional(),
-    step: z.number().optional(),
+    timestamp: z.bigint().optional(),
+    step: z.bigint().optional(),
     datasetName: z.string().optional(),
     datasetDigest: z.string().optional(),
     modelId: z.string().optional(),
@@ -1789,7 +1819,7 @@ export const marshalModelInputSchema: z.ZodType = z
 export const marshalModelOutputSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
-    step: z.number().optional(),
+    step: z.bigint().optional(),
   })
   .transform(d => ({
     model_id: d.modelId,
@@ -1825,7 +1855,7 @@ export const marshalRestoreRunRequestSchema: z.ZodType = z
 export const marshalRestoreRunsRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
-    minTimestampMillis: z.number().optional(),
+    minTimestampMillis: z.bigint().optional(),
     maxRuns: z.number().optional(),
   })
   .transform(d => ({
@@ -1846,7 +1876,7 @@ export const marshalRunTagSchema: z.ZodType = z
 
 export const marshalSearchExperimentsRequestSchema: z.ZodType = z
   .object({
-    maxResults: z.number().optional(),
+    maxResults: z.bigint().optional(),
     pageToken: z.string().optional(),
     filter: z.string().optional(),
     orderBy: z.array(z.string()).optional(),
@@ -1977,7 +2007,7 @@ export const marshalUpdateRunRequestSchema: z.ZodType = z
     runId: z.string().optional(),
     runUuid: z.string().optional(),
     status: z.enum(RunStatus).optional(),
-    endTime: z.number().optional(),
+    endTime: z.bigint().optional(),
     runName: z.string().optional(),
   })
   .transform(d => ({
