@@ -10,7 +10,13 @@ import type {
 } from '@databricks/sdk-core/http';
 import type {Logger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
+import JSONBig from 'json-bigint';
 import type {z} from 'zod';
+
+// JSON codec that preserves int64 precision. On the way in, large integer
+// literals come back as bigint instead of being rounded to JS Number. On the
+// way out, bigint values are emitted as raw JSON number digits.
+const jsonBigint = JSONBig({useNativeBigInt: true});
 
 export interface HttpCallOptions {
   readonly request: HttpRequest;
@@ -112,12 +118,12 @@ export function buildHttpRequest(
 
 export function parseResponse<T>(body: Uint8Array, schema: z.ZodType<T>): T {
   const text = new TextDecoder().decode(body);
-  const parsed: unknown = JSON.parse(text);
+  const parsed: unknown = jsonBigint.parse(text);
   return schema.parse(parsed);
 }
 
 export function marshalRequest(data: unknown, schema: z.ZodType): string {
-  return JSON.stringify(schema.parse(data));
+  return jsonBigint.stringify(schema.parse(data));
 }
 
 export function flattenQueryParams(

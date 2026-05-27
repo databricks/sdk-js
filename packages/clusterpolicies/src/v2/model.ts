@@ -41,7 +41,7 @@ export interface CreatePolicyRequest {
    */
   policyFamilyDefinitionOverrides?: string | undefined;
   /** Max number of clusters per user that can be active using this policy. If not present, there is no max limit. */
-  maxClustersPerUser?: number | undefined;
+  maxClustersPerUser?: bigint | undefined;
   /** A list of libraries to be installed on the next cluster restart that uses this policy. The maximum number of libraries is 500. */
   libraries?: Library[] | undefined;
 }
@@ -89,7 +89,7 @@ export interface EditPolicyRequest {
    */
   policyFamilyDefinitionOverrides?: string | undefined;
   /** Max number of clusters per user that can be active using this policy. If not present, there is no max limit. */
-  maxClustersPerUser?: number | undefined;
+  maxClustersPerUser?: bigint | undefined;
   /** A list of libraries to be installed on the next cluster restart that uses this policy. The maximum number of libraries is 500. */
   libraries?: Library[] | undefined;
 }
@@ -211,7 +211,7 @@ export interface Policy {
    */
   creatorUserName?: string | undefined;
   /** Creation time. The timestamp (in millisecond) when this Cluster Policy was created. */
-  createdAtTimestamp?: number | undefined;
+  createdAtTimestamp?: bigint | undefined;
   /**
    * If true, policy is a default policy created and managed by <Databricks>.
    * Default policies cannot be deleted, and their policy families cannot be changed.
@@ -243,7 +243,7 @@ export interface Policy {
    */
   policyFamilyDefinitionOverrides?: string | undefined;
   /** Max number of clusters per user that can be active using this policy. If not present, there is no max limit. */
-  maxClustersPerUser?: number | undefined;
+  maxClustersPerUser?: bigint | undefined;
   /** A list of libraries to be installed on the next cluster restart that uses this policy. The maximum number of libraries is 500. */
   libraries?: Library[] | undefined;
 }
@@ -344,14 +344,20 @@ export const unmarshalPolicySchema: z.ZodType<Policy> = z
   .object({
     policy_id: z.string().optional(),
     creator_user_name: z.string().optional(),
-    created_at_timestamp: z.number().optional(),
+    created_at_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     is_default: z.boolean().optional(),
     name: z.string().optional(),
     definition: z.string().optional(),
     description: z.string().optional(),
     policy_family_id: z.string().optional(),
     policy_family_definition_overrides: z.string().optional(),
-    max_clusters_per_user: z.number().optional(),
+    max_clusters_per_user: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
   })
   .transform(d => ({
@@ -395,7 +401,7 @@ export const marshalCreatePolicyRequestSchema: z.ZodType = z
     description: z.string().optional(),
     policyFamilyId: z.string().optional(),
     policyFamilyDefinitionOverrides: z.string().optional(),
-    maxClustersPerUser: z.number().optional(),
+    maxClustersPerUser: z.bigint().optional(),
     libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
   })
   .transform(d => ({
@@ -424,7 +430,7 @@ export const marshalEditPolicyRequestSchema: z.ZodType = z
     description: z.string().optional(),
     policyFamilyId: z.string().optional(),
     policyFamilyDefinitionOverrides: z.string().optional(),
-    maxClustersPerUser: z.number().optional(),
+    maxClustersPerUser: z.bigint().optional(),
     libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
   })
   .transform(d => ({

@@ -25,7 +25,7 @@ export interface CreateCredentialsRequest {
    */
   personalAccessToken?: string | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
   /** the name of the git credential, used for identification and ease of lookup */
   name?: string | undefined;
   /** if the credential is the default for the given provider */
@@ -42,7 +42,7 @@ export interface CreateCredentialsRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreateCredentialsRequest_Response {
   /** ID of the credential object in the workspace. */
-  credentialId?: number | undefined;
+  credentialId?: bigint | undefined;
   /** The Git provider associated with the credential. */
   gitProvider?: string | undefined;
   /**
@@ -67,7 +67,7 @@ export interface CreateCredentialsRequest_Response {
 
 export interface Credential {
   /** ID of the credential object in the workspace. */
-  credentialId?: number | undefined;
+  credentialId?: bigint | undefined;
   /**
    * The Git provider associated with the credential. One of `gitHub`, `bitbucketCloud`,
    * `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including Microsoft Entra ID
@@ -97,9 +97,9 @@ export interface Credential {
 
 export interface DeleteCredentialsRequest {
   /** The ID for the corresponding credential to access. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -107,15 +107,15 @@ export interface DeleteCredentialsRequest_Response {}
 
 export interface GetCredentialsRequest {
   /** The ID for the corresponding credential to access. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetCredentialsRequest_Response {
   /** ID of the credential object in the workspace. */
-  credentialId?: number | undefined;
+  credentialId?: bigint | undefined;
   /** The Git provider associated with the credential. */
   gitProvider?: string | undefined;
   /**
@@ -140,7 +140,7 @@ export interface GetCredentialsRequest_Response {
 
 export interface ListCredentialsRequest {
   /** The ID of the service principal whose credentials will be listed. Only service principal managers can perform this action. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -151,7 +151,7 @@ export interface ListCredentialsRequest_Response {
 
 export interface UpdateCredentialsRequest {
   /** The ID for the corresponding credential to access. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /**
    * The personal access token used to authenticate to the corresponding Git provider.
    * For certain providers, support may exist for other types of scoped access tokens.
@@ -174,7 +174,7 @@ export interface UpdateCredentialsRequest {
    */
   gitUsername?: string | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
   /** the name of the git credential, used for identification and ease of lookup */
   name?: string | undefined;
   /** if the credential is the default for the given provider */
@@ -195,7 +195,10 @@ export interface UpdateCredentialsRequest_Response {}
 export const unmarshalCreateCredentialsRequest_ResponseSchema: z.ZodType<CreateCredentialsRequest_Response> =
   z
     .object({
-      credential_id: z.number().optional(),
+      credential_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       git_provider: z.string().optional(),
       git_username: z.string().optional(),
       name: z.string().optional(),
@@ -213,7 +216,10 @@ export const unmarshalCreateCredentialsRequest_ResponseSchema: z.ZodType<CreateC
 
 export const unmarshalCredentialSchema: z.ZodType<Credential> = z
   .object({
-    credential_id: z.number().optional(),
+    credential_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     git_provider: z.string().optional(),
     git_username: z.string().optional(),
     name: z.string().optional(),
@@ -237,7 +243,10 @@ export const unmarshalDeleteCredentialsRequest_ResponseSchema: z.ZodType<DeleteC
 export const unmarshalGetCredentialsRequest_ResponseSchema: z.ZodType<GetCredentialsRequest_Response> =
   z
     .object({
-      credential_id: z.number().optional(),
+      credential_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       git_provider: z.string().optional(),
       git_username: z.string().optional(),
       name: z.string().optional(),
@@ -272,7 +281,7 @@ export const marshalCreateCredentialsRequestSchema: z.ZodType = z
     gitProvider: z.string().optional(),
     gitUsername: z.string().optional(),
     personalAccessToken: z.string().optional(),
-    principalId: z.number().optional(),
+    principalId: z.bigint().optional(),
     name: z.string().optional(),
     isDefaultForProvider: z.boolean().optional(),
     gitEmail: z.string().optional(),
@@ -289,11 +298,11 @@ export const marshalCreateCredentialsRequestSchema: z.ZodType = z
 
 export const marshalUpdateCredentialsRequestSchema: z.ZodType = z
   .object({
-    id: z.number().optional(),
+    id: z.bigint().optional(),
     personalAccessToken: z.string().optional(),
     gitProvider: z.string().optional(),
     gitUsername: z.string().optional(),
-    principalId: z.number().optional(),
+    principalId: z.bigint().optional(),
     name: z.string().optional(),
     isDefaultForProvider: z.boolean().optional(),
     gitEmail: z.string().optional(),

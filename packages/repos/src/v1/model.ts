@@ -28,7 +28,7 @@ export interface CreateRepoRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreateRepoRequest_Response {
   /** ID of the Git folder (repo) object in the workspace. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** Path of the Git folder (repo) in the workspace. */
   path?: string | undefined;
   /** URL of the linked Git repository. */
@@ -49,7 +49,7 @@ export interface CreateRepoRequest_Response {
 
 export interface DeleteProjectRequest {
   /** The ID for the corresponding repo to delete. */
-  id?: number | undefined;
+  id?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -57,13 +57,13 @@ export interface DeleteProjectRequest_Response {}
 
 export interface GetRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
-  id?: number | undefined;
+  id?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetRepoRequest_Response {
   /** ID of the Git folder (repo) object in the workspace. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** Path of the Git folder (repo) in the workspace. */
   path?: string | undefined;
   /** URL of the linked Git repository. */
@@ -110,7 +110,7 @@ export interface ListReposRequest_Response {
 /** Git folder (repo) information. */
 export interface RepoInfo {
   /** Id of the git folder (repo) in the Workspace. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** Root path of the git folder (repo) in the Workspace. */
   path?: string | undefined;
   /** URL of the remote git repository. */
@@ -151,7 +151,7 @@ export interface SparseCheckoutUpdate {
 
 export interface UpdateRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** Branch that the local version of the repo is checked out to. */
   branch?: string | undefined;
   /**
@@ -174,7 +174,10 @@ export interface UpdateRepoRequest_Response {}
 export const unmarshalCreateRepoRequest_ResponseSchema: z.ZodType<CreateRepoRequest_Response> =
   z
     .object({
-      id: z.number().optional(),
+      id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       path: z.string().optional(),
       url: z.string().optional(),
       provider: z.string().optional(),
@@ -200,7 +203,10 @@ export const unmarshalDeleteProjectRequest_ResponseSchema: z.ZodType<DeleteProje
 export const unmarshalGetRepoRequest_ResponseSchema: z.ZodType<GetRepoRequest_Response> =
   z
     .object({
-      id: z.number().optional(),
+      id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       path: z.string().optional(),
       url: z.string().optional(),
       provider: z.string().optional(),
@@ -232,7 +238,10 @@ export const unmarshalListReposRequest_ResponseSchema: z.ZodType<ListReposReques
 
 export const unmarshalRepoInfoSchema: z.ZodType<RepoInfo> = z
   .object({
-    id: z.number().optional(),
+    id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     path: z.string().optional(),
     url: z.string().optional(),
     provider: z.string().optional(),
@@ -294,7 +303,7 @@ export const marshalSparseCheckoutUpdateSchema: z.ZodType = z
 
 export const marshalUpdateRepoRequestSchema: z.ZodType = z
   .object({
-    id: z.number().optional(),
+    id: z.bigint().optional(),
     branch: z.string().optional(),
     tag: z.string().optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutUpdateSchema).optional(),

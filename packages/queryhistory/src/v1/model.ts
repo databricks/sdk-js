@@ -160,7 +160,7 @@ export interface QueryFilter {
   /** A range filter for query submitted time. The time range must be less than or equal to 30 days. */
   queryStartTimeRange?: TimeRange | undefined;
   /** A list of user IDs who ran the queries. */
-  userIds?: number[] | undefined;
+  userIds?: bigint[] | undefined;
   /**
    * A list of statuses (QUEUED, RUNNING, CANCELED, FAILED, FINISHED) to match query results. Corresponds to
    * the `status` field in the response.
@@ -190,13 +190,13 @@ export interface QueryInfo {
   /** The text of the query. */
   queryText?: string | undefined;
   /** The time the query started. */
-  queryStartTimeMs?: number | undefined;
+  queryStartTimeMs?: bigint | undefined;
   /** The time execution of the query ended. */
-  executionEndTimeMs?: number | undefined;
+  executionEndTimeMs?: bigint | undefined;
   /** The time the query ended. */
-  queryEndTimeMs?: number | undefined;
+  queryEndTimeMs?: bigint | undefined;
   /** The ID of the user who ran the query. */
-  userId?: number | undefined;
+  userId?: bigint | undefined;
   /** The email address or username of the user who ran the query. */
   userName?: string | undefined;
   /** URL to the Spark UI query plan. */
@@ -204,7 +204,7 @@ export interface QueryInfo {
   /** Alias for `warehouse_id`. */
   endpointId?: string | undefined;
   /** The number of results returned by the query. */
-  rowsProduced?: number | undefined;
+  rowsProduced?: bigint | undefined;
   /** Message describing why the query could not complete. */
   errorMessage?: string | undefined;
   /** A key that can be used to look up query details. */
@@ -212,7 +212,7 @@ export interface QueryInfo {
   /** Metrics about query execution. */
   metrics?: QueryMetrics | undefined;
   /** The ID of the user whose credentials were used to run the query. */
-  executedAsUserId?: number | undefined;
+  executedAsUserId?: bigint | undefined;
   /** The email address or username of the user whose credentials were used to run the query. */
   executedAsUserName?: string | undefined;
   /**
@@ -234,7 +234,7 @@ export interface QueryInfo {
    * Total time of the statement execution. This value does not include the time taken to retrieve the results, which
    * can result in a discrepancy between this value and the start-to-finish wall-clock time.
    */
-  duration?: number | undefined;
+  duration?: bigint | undefined;
   /**
    * Client application that ran the statement. For example: Databricks SQL Editor, Tableau, and Power BI.
    * This field is derived from information provided by client applications. While values are expected to
@@ -258,55 +258,55 @@ export interface QueryInfo {
  */
 export interface QueryMetrics {
   /** Total execution time of the query from the client’s point of view, in milliseconds. */
-  totalTimeMs?: number | undefined;
+  totalTimeMs?: bigint | undefined;
   /** Total size of data read by the query, in bytes. */
-  readBytes?: number | undefined;
+  readBytes?: bigint | undefined;
   /** Total number of rows returned by the query. */
-  rowsProducedCount?: number | undefined;
+  rowsProducedCount?: bigint | undefined;
   /** Time spent loading metadata and optimizing the query, in milliseconds. */
-  compilationTimeMs?: number | undefined;
+  compilationTimeMs?: bigint | undefined;
   /** Time spent executing the query, in milliseconds. */
-  executionTimeMs?: number | undefined;
+  executionTimeMs?: bigint | undefined;
   /** Size of persistent data read from cloud object storage on your cloud tenant, in bytes. */
-  readRemoteBytes?: number | undefined;
+  readRemoteBytes?: bigint | undefined;
   /** Size pf persistent data written to cloud object storage in your cloud tenant, in bytes. */
-  writeRemoteBytes?: number | undefined;
+  writeRemoteBytes?: bigint | undefined;
   /** Size of persistent data read from the cache, in bytes. */
-  readCacheBytes?: number | undefined;
+  readCacheBytes?: bigint | undefined;
   /** Size of data temporarily written to disk while executing the query, in bytes. */
-  spillToDiskBytes?: number | undefined;
+  spillToDiskBytes?: bigint | undefined;
   /** Sum of execution time for all of the query’s tasks, in milliseconds. */
-  taskTotalTimeMs?: number | undefined;
+  taskTotalTimeMs?: bigint | undefined;
   /** Number of files read after pruning */
-  readFilesCount?: number | undefined;
+  readFilesCount?: bigint | undefined;
   /** Number of partitions read after pruning. */
-  readPartitionsCount?: number | undefined;
+  readPartitionsCount?: bigint | undefined;
   /** Total execution time for all individual Photon query engine tasks in the query, in milliseconds. */
-  photonTotalTimeMs?: number | undefined;
+  photonTotalTimeMs?: bigint | undefined;
   /** Total number of rows read by the query. */
-  rowsReadCount?: number | undefined;
+  rowsReadCount?: bigint | undefined;
   /** Time spent fetching the query results after the execution finished, in milliseconds. */
-  resultFetchTimeMs?: number | undefined;
+  resultFetchTimeMs?: bigint | undefined;
   /** Total amount of data sent over the network between executor nodes during shuffle, in bytes. */
-  networkSentBytes?: number | undefined;
+  networkSentBytes?: bigint | undefined;
   /** `true` if the query result was fetched from cache, `false` otherwise. */
   resultFromCache?: boolean | undefined;
   /** Total number of file bytes in all tables not read due to pruning */
-  prunedBytes?: number | undefined;
+  prunedBytes?: bigint | undefined;
   /** Total number of files from all tables not read due to pruning */
-  prunedFilesCount?: number | undefined;
+  prunedFilesCount?: bigint | undefined;
   /**
    * Timestamp of when the query was enqueued waiting for a cluster to be provisioned for the warehouse.
    * This field is optional and will not appear if the query skipped the provisioning queue.
    */
-  provisioningQueueStartTimestamp?: number | undefined;
+  provisioningQueueStartTimestamp?: bigint | undefined;
   /**
    * Timestamp of when the query was enqueued waiting while the warehouse was at max load.
    * This field is optional and will not appear if the query skipped the overloading queue.
    */
-  overloadingQueueStartTimestamp?: number | undefined;
+  overloadingQueueStartTimestamp?: bigint | undefined;
   /** Timestamp of when the underlying compute started compilation of the query. */
-  queryCompilationStartTimestamp?: number | undefined;
+  queryCompilationStartTimestamp?: bigint | undefined;
   /**
    * sum of task times completed in a range of wall clock time, approximated to a configurable number of points
    * aggregated over all stages and jobs in the query (based on task_total_time_ms)
@@ -316,23 +316,23 @@ export interface QueryMetrics {
    * remaining work to be done across all stages in the query, calculated by autoscaler StatementAnalysis.scala, in milliseconds
    * deprecated: using projected_remaining_task_total_time_ms instead
    */
-  workToBeDone?: number | undefined;
+  workToBeDone?: bigint | undefined;
   /**
    * number of remaining tasks to complete, calculated by autoscaler StatementAnalysis.scala
    * deprecated: use remaining_task_count instead
    */
-  runnableTasks?: number | undefined;
+  runnableTasks?: bigint | undefined;
   /** projected remaining work to be done aggregated across all stages in the query, in milliseconds */
-  projectedRemainingTaskTotalTimeMs?: number | undefined;
+  projectedRemainingTaskTotalTimeMs?: bigint | undefined;
   /**
    * number of remaining tasks to complete
    * this is based on the current status and could be bigger or smaller in the future based on future updates
    */
-  remainingTaskCount?: number | undefined;
+  remainingTaskCount?: bigint | undefined;
   /** projected lower bound on remaining total task time based on projected_remaining_task_total_time_ms / maximum concurrency */
-  projectedRemainingWallclockTimeMs?: number | undefined;
+  projectedRemainingWallclockTimeMs?: bigint | undefined;
   /** Total number of file bytes in all tables read */
-  readFilesBytes?: number | undefined;
+  readFilesBytes?: bigint | undefined;
 }
 
 /**
@@ -352,19 +352,19 @@ export interface TaskTimeOverRange {
    * the same for all entries
    * start time of first interval is query_start_time_ms
    */
-  interval?: number | undefined;
+  interval?: bigint | undefined;
 }
 
 export interface TaskTimeOverRangeEntry {
   /** total task completion time in this time range, aggregated over all stages and jobs in the query */
-  taskCompletedTimeMs?: number | undefined;
+  taskCompletedTimeMs?: bigint | undefined;
 }
 
 export interface TimeRange {
   /** The start time in milliseconds. */
-  startTimeMs?: number | undefined;
+  startTimeMs?: bigint | undefined;
   /** The end time in milliseconds. */
-  endTimeMs?: number | undefined;
+  endTimeMs?: bigint | undefined;
 }
 
 export const unmarshalChannelInfoSchema: z.ZodType<ChannelInfo> = z
@@ -433,18 +433,36 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
     query_id: z.string().optional(),
     status: z.enum(QueryStatus).optional(),
     query_text: z.string().optional(),
-    query_start_time_ms: z.number().optional(),
-    execution_end_time_ms: z.number().optional(),
-    query_end_time_ms: z.number().optional(),
-    user_id: z.number().optional(),
+    query_start_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    execution_end_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    query_end_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    user_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     user_name: z.string().optional(),
     spark_ui_url: z.string().optional(),
     endpoint_id: z.string().optional(),
-    rows_produced: z.number().optional(),
+    rows_produced: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     error_message: z.string().optional(),
     lookup_key: z.string().optional(),
     metrics: z.lazy(() => unmarshalQueryMetricsSchema).optional(),
-    executed_as_user_id: z.number().optional(),
+    executed_as_user_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     executed_as_user_name: z.string().optional(),
     session_id: z.string().optional(),
     is_final: z.boolean().optional(),
@@ -452,7 +470,10 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
     plans_state: z.enum(PlansState).optional(),
     statement_type: z.enum(QueryStatementType).optional(),
     warehouse_id: z.string().optional(),
-    duration: z.number().optional(),
+    duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     client_application: z.string().optional(),
     query_source: z.lazy(() => unmarshalExternalQuerySourceSchema).optional(),
     cache_query_id: z.string().optional(),
@@ -490,37 +511,118 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
 
 export const unmarshalQueryMetricsSchema: z.ZodType<QueryMetrics> = z
   .object({
-    total_time_ms: z.number().optional(),
-    read_bytes: z.number().optional(),
-    rows_produced_count: z.number().optional(),
-    compilation_time_ms: z.number().optional(),
-    execution_time_ms: z.number().optional(),
-    read_remote_bytes: z.number().optional(),
-    write_remote_bytes: z.number().optional(),
-    read_cache_bytes: z.number().optional(),
-    spill_to_disk_bytes: z.number().optional(),
-    task_total_time_ms: z.number().optional(),
-    read_files_count: z.number().optional(),
-    read_partitions_count: z.number().optional(),
-    photon_total_time_ms: z.number().optional(),
-    rows_read_count: z.number().optional(),
-    result_fetch_time_ms: z.number().optional(),
-    network_sent_bytes: z.number().optional(),
+    total_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    read_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    rows_produced_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    compilation_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    execution_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    read_remote_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    write_remote_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    read_cache_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    spill_to_disk_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    task_total_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    read_files_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    read_partitions_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    photon_total_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    rows_read_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    result_fetch_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    network_sent_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     result_from_cache: z.boolean().optional(),
-    pruned_bytes: z.number().optional(),
-    pruned_files_count: z.number().optional(),
-    provisioning_queue_start_timestamp: z.number().optional(),
-    overloading_queue_start_timestamp: z.number().optional(),
-    query_compilation_start_timestamp: z.number().optional(),
+    pruned_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    pruned_files_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    provisioning_queue_start_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    overloading_queue_start_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    query_compilation_start_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     task_time_over_time_range: z
       .lazy(() => unmarshalTaskTimeOverRangeSchema)
       .optional(),
-    work_to_be_done: z.number().optional(),
-    runnable_tasks: z.number().optional(),
-    projected_remaining_task_total_time_ms: z.number().optional(),
-    remaining_task_count: z.number().optional(),
-    projected_remaining_wallclock_time_ms: z.number().optional(),
-    read_files_bytes: z.number().optional(),
+    work_to_be_done: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    runnable_tasks: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    projected_remaining_task_total_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    remaining_task_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    projected_remaining_wallclock_time_ms: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    read_files_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     totalTimeMs: d.total_time_ms,
@@ -569,7 +671,10 @@ export const unmarshalTaskTimeOverRangeSchema: z.ZodType<TaskTimeOverRange> = z
     entries: z
       .array(z.lazy(() => unmarshalTaskTimeOverRangeEntrySchema))
       .optional(),
-    interval: z.number().optional(),
+    interval: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     entries: d.entries,
@@ -579,7 +684,10 @@ export const unmarshalTaskTimeOverRangeSchema: z.ZodType<TaskTimeOverRange> = z
 export const unmarshalTaskTimeOverRangeEntrySchema: z.ZodType<TaskTimeOverRangeEntry> =
   z
     .object({
-      task_completed_time_ms: z.number().optional(),
+      task_completed_time_ms: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       taskCompletedTimeMs: d.task_completed_time_ms,
@@ -588,7 +696,7 @@ export const unmarshalTaskTimeOverRangeEntrySchema: z.ZodType<TaskTimeOverRangeE
 export const marshalQueryFilterSchema: z.ZodType = z
   .object({
     queryStartTimeRange: z.lazy(() => marshalTimeRangeSchema).optional(),
-    userIds: z.array(z.number()).optional(),
+    userIds: z.array(z.bigint()).optional(),
     statuses: z.array(z.enum(QueryStatus)).optional(),
     warehouseIds: z.array(z.string()).optional(),
     statementIds: z.array(z.string()).optional(),
@@ -603,8 +711,8 @@ export const marshalQueryFilterSchema: z.ZodType = z
 
 export const marshalTimeRangeSchema: z.ZodType = z
   .object({
-    startTimeMs: z.number().optional(),
-    endTimeMs: z.number().optional(),
+    startTimeMs: z.bigint().optional(),
+    endTimeMs: z.bigint().optional(),
   })
   .transform(d => ({
     start_time_ms: d.startTimeMs,

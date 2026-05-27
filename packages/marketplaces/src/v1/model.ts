@@ -254,7 +254,7 @@ export interface CreateProviderRequest_Response {
 }
 
 export interface DataRefreshInfo {
-  interval?: number | undefined;
+  interval?: bigint | undefined;
   unit?: DataRefresh | undefined;
 }
 
@@ -298,9 +298,9 @@ export interface Exchange {
   name?: string | undefined;
   comment?: string | undefined;
   filters?: ExchangeFilter[] | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   updatedBy?: string | undefined;
   linkedListings?: ExchangeListing[] | undefined;
 }
@@ -310,9 +310,9 @@ export interface ExchangeFilter {
   exchangeId?: string | undefined;
   filterValue?: string | undefined;
   name?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   updatedBy?: string | undefined;
   filterType?: ExchangeFilterType | undefined;
 }
@@ -323,7 +323,7 @@ export interface ExchangeListing {
   exchangeName?: string | undefined;
   listingId?: string | undefined;
   listingName?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   createdBy?: string | undefined;
 }
 
@@ -333,8 +333,8 @@ export interface FileInfo {
   fileParent?: FileParent | undefined;
   mimeType?: string | undefined;
   downloadLink?: string | undefined;
-  createdAt?: number | undefined;
-  updatedAt?: number | undefined;
+  createdAt?: bigint | undefined;
+  updatedAt?: bigint | undefined;
   /** Name displayed to users for applicable files, e.g. embedded notebooks */
   displayName?: string | undefined;
   status?: FileStatus | undefined;
@@ -409,7 +409,7 @@ export interface GetLatestVersionProviderAnalyticsDashboardRequest {}
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetLatestVersionProviderAnalyticsDashboardRequest_Response {
   /** version here is latest logical version of the dashboard template */
-  version?: number | undefined;
+  version?: bigint | undefined;
 }
 
 export interface GetListingContent {
@@ -549,7 +549,7 @@ export interface InstallationDetail {
   listingId?: string | undefined;
   shareName?: string | undefined;
   catalogName?: string | undefined;
-  installedOn?: number | undefined;
+  installedOn?: bigint | undefined;
   status?: InstallationStatus | undefined;
   errorMessage?: string | undefined;
   listingName?: string | undefined;
@@ -621,7 +621,7 @@ export interface ListProviderAnalyticsDashboardRequest {}
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ListProviderAnalyticsDashboardRequest_Response {
   id?: string | undefined;
-  version?: number | undefined;
+  version?: bigint | undefined;
   /** dashboard_id will be used to open Lakeview dashboard. */
   dashboardId?: string | undefined;
 }
@@ -677,9 +677,9 @@ export interface ListingDetail {
   /** Smallest unit of time in the dataset */
   collectionGranularity?: DataRefreshInfo | undefined;
   /** The starting date timestamp for when the data spans */
-  collectionDateStart?: number | undefined;
+  collectionDateStart?: bigint | undefined;
   /** The ending date timestamp for when the data spans */
-  collectionDateEnd?: number | undefined;
+  collectionDateEnd?: bigint | undefined;
   /** Where/how the data is sourced */
   dataSource?: string | undefined;
   /** size of the dataset in GB */
@@ -723,16 +723,16 @@ export interface ListingSummary {
   share?: ShareInfo | undefined;
   providerRegion?: RegionInfo | undefined;
   setting?: ListingSetting | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   updatedBy?: string | undefined;
-  publishedAt?: number | undefined;
+  publishedAt?: bigint | undefined;
   publishedBy?: string | undefined;
   categories?: Category[] | undefined;
   listingType?: ListingType | undefined;
-  createdById?: number | undefined;
-  updatedById?: number | undefined;
+  createdById?: bigint | undefined;
+  updatedById?: bigint | undefined;
   providerId?: string | undefined;
   exchangeIds?: string[] | undefined;
   /** if a git repo is being created, a listing will be initialized with this field as opposed to a share */
@@ -759,9 +759,9 @@ export interface PersonalizationRequest {
    * but should be empty/ignored for non-data listings (MCP and App).
    */
   share?: ShareInfo | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   listingId?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   metastoreId?: string | undefined;
   listingName?: string | undefined;
   isFromLighthouse?: boolean | undefined;
@@ -863,7 +863,7 @@ export interface TokenInfo {
   /** Unique id of the Recipient Token. */
   id?: string | undefined;
   /** Time at which this Recipient Token was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of Recipient Token creator. */
   createdBy?: string | undefined;
   /**
@@ -872,9 +872,9 @@ export interface TokenInfo {
    */
   activationUrl?: string | undefined;
   /** Expiration timestamp of the token in epoch milliseconds. */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /** Time at which this Recipient Token was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of Recipient Token updater. */
   updatedBy?: string | undefined;
 }
@@ -947,14 +947,14 @@ export interface UpdateProviderAnalyticsDashboardRequest {
    * this is the version of the dashboard template we want to update our user to
    * current expectation is that it should be equal to latest version of the dashboard template
    */
-  version?: number | undefined;
+  version?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface UpdateProviderAnalyticsDashboardRequest_Response {
   /** id & version should be the same as the request */
   id?: string | undefined;
-  version?: number | undefined;
+  version?: bigint | undefined;
   /** this is newly created Lakeview dashboard for the user */
   dashboardId?: string | undefined;
 }
@@ -1084,7 +1084,10 @@ export const unmarshalCreateProviderRequest_ResponseSchema: z.ZodType<CreateProv
 
 export const unmarshalDataRefreshInfoSchema: z.ZodType<DataRefreshInfo> = z
   .object({
-    interval: z.number().optional(),
+    interval: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     unit: z.enum(DataRefresh).optional(),
   })
   .transform(d => ({
@@ -1116,9 +1119,15 @@ export const unmarshalExchangeSchema: z.ZodType<Exchange> = z
     name: z.string().optional(),
     comment: z.string().optional(),
     filters: z.array(z.lazy(() => unmarshalExchangeFilterSchema)).optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     linked_listings: z
       .array(z.lazy(() => unmarshalExchangeListingSchema))
@@ -1142,9 +1151,15 @@ export const unmarshalExchangeFilterSchema: z.ZodType<ExchangeFilter> = z
     exchange_id: z.string().optional(),
     filter_value: z.string().optional(),
     name: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     filter_type: z.enum(ExchangeFilterType).optional(),
   })
@@ -1167,7 +1182,10 @@ export const unmarshalExchangeListingSchema: z.ZodType<ExchangeListing> = z
     exchange_name: z.string().optional(),
     listing_id: z.string().optional(),
     listing_name: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
   })
   .transform(d => ({
@@ -1187,8 +1205,14 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     file_parent: z.lazy(() => unmarshalFileParentSchema).optional(),
     mime_type: z.string().optional(),
     download_link: z.string().optional(),
-    created_at: z.number().optional(),
-    updated_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     display_name: z.string().optional(),
     status: z.enum(FileStatus).optional(),
     status_message: z.string().optional(),
@@ -1281,7 +1305,10 @@ export const unmarshalGetInstallationDetails_ResponseSchema: z.ZodType<GetInstal
 export const unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema: z.ZodType<GetLatestVersionProviderAnalyticsDashboardRequest_Response> =
   z
     .object({
-      version: z.number().optional(),
+      version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       version: d.version,
@@ -1422,7 +1449,10 @@ export const unmarshalInstallationDetailSchema: z.ZodType<InstallationDetail> =
       listing_id: z.string().optional(),
       share_name: z.string().optional(),
       catalog_name: z.string().optional(),
-      installed_on: z.number().optional(),
+      installed_on: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       status: z.enum(InstallationStatus).optional(),
       error_message: z.string().optional(),
       listing_name: z.string().optional(),
@@ -1513,7 +1543,10 @@ export const unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema: z.Zo
   z
     .object({
       id: z.string().optional(),
-      version: z.number().optional(),
+      version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       dashboard_id: z.string().optional(),
     })
     .transform(d => ({
@@ -1576,8 +1609,14 @@ export const unmarshalListingDetailSchema: z.ZodType<ListingDetail> = z
     collection_granularity: z
       .lazy(() => unmarshalDataRefreshInfoSchema)
       .optional(),
-    collection_date_start: z.number().optional(),
-    collection_date_end: z.number().optional(),
+    collection_date_start: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    collection_date_end: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     data_source: z.string().optional(),
     size: z.number().optional(),
     assets: z.array(z.enum(AssetType)).optional(),
@@ -1639,16 +1678,31 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
     share: z.lazy(() => unmarshalShareInfoSchema).optional(),
     provider_region: z.lazy(() => unmarshalRegionInfoSchema).optional(),
     setting: z.lazy(() => unmarshalListingSettingSchema).optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
-    published_at: z.number().optional(),
+    published_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     published_by: z.string().optional(),
     categories: z.array(z.enum(Category)).optional(),
     listingType: z.enum(ListingType).optional(),
-    created_by_id: z.number().optional(),
-    updated_by_id: z.number().optional(),
+    created_by_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    updated_by_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     provider_id: z.string().optional(),
     exchange_ids: z.array(z.string()).optional(),
     git_repo: z.lazy(() => unmarshalRepoInfoSchema).optional(),
@@ -1696,9 +1750,15 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
       status: z.enum(PersonalizationRequestStatus).optional(),
       status_message: z.string().optional(),
       share: z.lazy(() => unmarshalShareInfoSchema).optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       listing_id: z.string().optional(),
-      updated_at: z.number().optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       metastore_id: z.string().optional(),
       listing_name: z.string().optional(),
       is_from_lighthouse: z.boolean().optional(),
@@ -1828,11 +1888,20 @@ export const unmarshalTokenDetailSchema: z.ZodType<TokenDetail> = z
 export const unmarshalTokenInfoSchema: z.ZodType<TokenInfo> = z
   .object({
     id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
     activation_url: z.string().optional(),
-    expiration_time: z.number().optional(),
-    updated_at: z.number().optional(),
+    expiration_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
   })
   .transform(d => ({
@@ -1902,7 +1971,10 @@ export const unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema: z.
   z
     .object({
       id: z.string().optional(),
-      version: z.number().optional(),
+      version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       dashboard_id: z.string().optional(),
     })
     .transform(d => ({
@@ -2014,7 +2086,7 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
 
 export const marshalDataRefreshInfoSchema: z.ZodType = z
   .object({
-    interval: z.number().optional(),
+    interval: z.bigint().optional(),
     unit: z.enum(DataRefresh).optional(),
   })
   .transform(d => ({
@@ -2028,9 +2100,9 @@ export const marshalExchangeSchema: z.ZodType = z
     name: z.string().optional(),
     comment: z.string().optional(),
     filters: z.array(z.lazy(() => marshalExchangeFilterSchema)).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     linkedListings: z
       .array(z.lazy(() => marshalExchangeListingSchema))
@@ -2054,9 +2126,9 @@ export const marshalExchangeFilterSchema: z.ZodType = z
     exchangeId: z.string().optional(),
     filterValue: z.string().optional(),
     name: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     filterType: z.enum(ExchangeFilterType).optional(),
   })
@@ -2079,7 +2151,7 @@ export const marshalExchangeListingSchema: z.ZodType = z
     exchangeName: z.string().optional(),
     listingId: z.string().optional(),
     listingName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
   })
   .transform(d => ({
@@ -2099,8 +2171,8 @@ export const marshalFileInfoSchema: z.ZodType = z
     fileParent: z.lazy(() => marshalFileParentSchema).optional(),
     mimeType: z.string().optional(),
     downloadLink: z.string().optional(),
-    createdAt: z.number().optional(),
-    updatedAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
+    updatedAt: z.bigint().optional(),
     displayName: z.string().optional(),
     status: z.enum(FileStatus).optional(),
     statusMessage: z.string().optional(),
@@ -2152,7 +2224,7 @@ export const marshalInstallationDetailSchema: z.ZodType = z
     listingId: z.string().optional(),
     shareName: z.string().optional(),
     catalogName: z.string().optional(),
-    installedOn: z.number().optional(),
+    installedOn: z.bigint().optional(),
     status: z.enum(InstallationStatus).optional(),
     errorMessage: z.string().optional(),
     listingName: z.string().optional(),
@@ -2208,8 +2280,8 @@ export const marshalListingDetailSchema: z.ZodType = z
     collectionGranularity: z
       .lazy(() => marshalDataRefreshInfoSchema)
       .optional(),
-    collectionDateStart: z.number().optional(),
-    collectionDateEnd: z.number().optional(),
+    collectionDateStart: z.bigint().optional(),
+    collectionDateEnd: z.bigint().optional(),
     dataSource: z.string().optional(),
     size: z.number().optional(),
     assets: z.array(z.enum(AssetType)).optional(),
@@ -2254,16 +2326,16 @@ export const marshalListingSummarySchema: z.ZodType = z
     share: z.lazy(() => marshalShareInfoSchema).optional(),
     providerRegion: z.lazy(() => marshalRegionInfoSchema).optional(),
     setting: z.lazy(() => marshalListingSettingSchema).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    publishedAt: z.number().optional(),
+    publishedAt: z.bigint().optional(),
     publishedBy: z.string().optional(),
     categories: z.array(z.enum(Category)).optional(),
     listingType: z.enum(ListingType).optional(),
-    createdById: z.number().optional(),
-    updatedById: z.number().optional(),
+    createdById: z.bigint().optional(),
+    updatedById: z.bigint().optional(),
     providerId: z.string().optional(),
     exchangeIds: z.array(z.string()).optional(),
     gitRepo: z.lazy(() => marshalRepoInfoSchema).optional(),
@@ -2389,11 +2461,11 @@ export const marshalTokenDetailSchema: z.ZodType = z
 export const marshalTokenInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     activationUrl: z.string().optional(),
-    expirationTime: z.number().optional(),
-    updatedAt: z.number().optional(),
+    expirationTime: z.bigint().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
   })
   .transform(d => ({
@@ -2470,7 +2542,7 @@ export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
 export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    version: z.number().optional(),
+    version: z.bigint().optional(),
   })
   .transform(d => ({
     id: d.id,

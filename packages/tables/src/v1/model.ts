@@ -326,11 +326,11 @@ export interface CreateTableRequest {
   /** Unique ID of the Data Access Configuration to use with the table data. */
   dataAccessConfigurationId?: string | undefined;
   /** Time at which this table was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of table creator. */
   createdBy?: string | undefined;
   /** Time at which this table was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the table. */
   updatedBy?: string | undefined;
   /** The unique identifier of the table. */
@@ -338,7 +338,7 @@ export interface CreateTableRequest {
   /** Information pertaining to current state of the delta table. */
   deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
-  deletedAt?: number | undefined;
+  deletedAt?: bigint | undefined;
   effectivePredictiveOptimizationFlag?:
     | EffectivePredictiveOptimizationFlag
     | undefined;
@@ -749,11 +749,11 @@ export interface TableInfo {
   /** Unique ID of the Data Access Configuration to use with the table data. */
   dataAccessConfigurationId?: string | undefined;
   /** Time at which this table was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of table creator. */
   createdBy?: string | undefined;
   /** Time at which this table was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the table. */
   updatedBy?: string | undefined;
   /** The unique identifier of the table. */
@@ -761,7 +761,7 @@ export interface TableInfo {
   /** Information pertaining to current state of the delta table. */
   deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
-  deletedAt?: number | undefined;
+  deletedAt?: bigint | undefined;
   effectivePredictiveOptimizationFlag?:
     | EffectivePredictiveOptimizationFlag
     | undefined;
@@ -836,11 +836,11 @@ export interface UpdateTableRequest {
   /** Unique ID of the Data Access Configuration to use with the table data. */
   dataAccessConfigurationId?: string | undefined;
   /** Time at which this table was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of table creator. */
   createdBy?: string | undefined;
   /** Time at which this table was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the table. */
   updatedBy?: string | undefined;
   /** The unique identifier of the table. */
@@ -848,7 +848,7 @@ export interface UpdateTableRequest {
   /** Information pertaining to current state of the delta table. */
   deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
-  deletedAt?: number | undefined;
+  deletedAt?: bigint | undefined;
   effectivePredictiveOptimizationFlag?:
     | EffectivePredictiveOptimizationFlag
     | undefined;
@@ -1248,15 +1248,24 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     data_access_configuration_id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     table_id: z.string().optional(),
     delta_runtime_properties_kvpairs: z
       .lazy(() => unmarshalDeltaRuntimePropertiesKvPairsSchema)
       .optional(),
-    deleted_at: z.number().optional(),
+    deleted_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     effective_predictive_optimization_flag: z
       .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
       .optional(),
@@ -1411,15 +1420,15 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
     dataAccessConfigurationId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     tableId: z.string().optional(),
     deltaRuntimePropertiesKvpairs: z
       .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
       .optional(),
-    deletedAt: z.number().optional(),
+    deletedAt: z.bigint().optional(),
     effectivePredictiveOptimizationFlag: z
       .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
       .optional(),
@@ -1749,15 +1758,15 @@ export const marshalUpdateTableRequestSchema: z.ZodType = z
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
     dataAccessConfigurationId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     tableId: z.string().optional(),
     deltaRuntimePropertiesKvpairs: z
       .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
       .optional(),
-    deletedAt: z.number().optional(),
+    deletedAt: z.bigint().optional(),
     effectivePredictiveOptimizationFlag: z
       .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
       .optional(),

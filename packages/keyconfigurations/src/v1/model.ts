@@ -117,7 +117,7 @@ export interface CustomerManagedKey {
   /** ID of the encryption key configuration object. */
   customerManagedKeyId?: string | undefined;
   /** Time in epoch milliseconds when the customer key was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** The <Databricks> account ID that holds the customer-managed key. */
   accountId?: string | undefined;
   /**
@@ -219,7 +219,10 @@ export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
   z
     .object({
       customer_managed_key_id: z.string().optional(),
-      creation_time: z.number().optional(),
+      creation_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       account_id: z.string().optional(),
       aws_key_info: z.lazy(() => unmarshalAwsKeyInfoSchema).optional(),
       azure_key_info: z.lazy(() => unmarshalAzureKeyInfoSchema).optional(),

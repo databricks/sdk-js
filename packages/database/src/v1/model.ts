@@ -435,7 +435,7 @@ export interface DeleteSyncedDatabaseTableRequest {
 
 export interface DeltaTableSyncInfo {
   /** The Delta Lake commit version that was last successfully synced. */
-  deltaCommitVersion?: number | undefined;
+  deltaCommitVersion?: bigint | undefined;
   /**
    * The timestamp when the above Delta version was committed in the source Delta table.
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
@@ -640,7 +640,7 @@ export interface SyncedDatabaseTable {
  */
 export interface SyncedTableContinuousUpdateStatus {
   /** The last source table Delta version that was successfully synced to the synced table. */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
@@ -661,7 +661,7 @@ export interface SyncedTableFailedStatus {
    * Only populated if the table is still
    * synced and available for serving.
    */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. Only populated if the table is still synced and available for serving.
@@ -675,11 +675,11 @@ export interface SyncedTablePipelineProgress {
    * The source table Delta version that was last processed by the pipeline. The pipeline may not
    * have completely processed this version yet.
    */
-  latestVersionCurrentlyProcessing?: number | undefined;
+  latestVersionCurrentlyProcessing?: bigint | undefined;
   /** The number of rows that have been synced in this update. */
-  syncedRowCount?: number | undefined;
+  syncedRowCount?: bigint | undefined;
   /** The total number of rows that need to be synced in this update. This number may be an estimate. */
-  totalRowCount?: number | undefined;
+  totalRowCount?: bigint | undefined;
   /** The completion ratio of this update. This is a number between 0 and 1. */
   syncProgressCompletion?: number | undefined;
   /** The estimated time remaining to complete this update in seconds. */
@@ -801,7 +801,7 @@ export interface SyncedTableStatus {
  */
 export interface SyncedTableTriggeredUpdateStatus {
   /** The last source table Delta version that was successfully synced to the synced table. */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
@@ -1013,7 +1013,10 @@ export const unmarshalDatabaseTableSchema: z.ZodType<DatabaseTable> = z
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
     .object({
-      delta_commit_version: z.number().optional(),
+      delta_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       delta_commit_timestamp: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -1118,7 +1121,10 @@ export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> 
 export const unmarshalSyncedTableContinuousUpdateStatusSchema: z.ZodType<SyncedTableContinuousUpdateStatus> =
   z
     .object({
-      last_processed_commit_version: z.number().optional(),
+      last_processed_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       timestamp: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -1136,7 +1142,10 @@ export const unmarshalSyncedTableContinuousUpdateStatusSchema: z.ZodType<SyncedT
 export const unmarshalSyncedTableFailedStatusSchema: z.ZodType<SyncedTableFailedStatus> =
   z
     .object({
-      last_processed_commit_version: z.number().optional(),
+      last_processed_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       timestamp: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -1150,9 +1159,18 @@ export const unmarshalSyncedTableFailedStatusSchema: z.ZodType<SyncedTableFailed
 export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePipelineProgress> =
   z
     .object({
-      latest_version_currently_processing: z.number().optional(),
-      synced_row_count: z.number().optional(),
-      total_row_count: z.number().optional(),
+      latest_version_currently_processing: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      synced_row_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      total_row_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       sync_progress_completion: z.number().optional(),
       estimated_completion_time_seconds: z.number().optional(),
       provisioning_phase: z.enum(ProvisioningPhase).optional(),
@@ -1272,7 +1290,10 @@ export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
 export const unmarshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType<SyncedTableTriggeredUpdateStatus> =
   z
     .object({
-      last_processed_commit_version: z.number().optional(),
+      last_processed_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       timestamp: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -1448,7 +1469,7 @@ export const marshalDatabaseTableSchema: z.ZodType = z
 
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
-    deltaCommitVersion: z.number().optional(),
+    deltaCommitVersion: z.bigint().optional(),
     deltaCommitTimestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -1540,7 +1561,7 @@ export const marshalSyncedDatabaseTableSchema: z.ZodType = z
 
 export const marshalSyncedTableContinuousUpdateStatusSchema: z.ZodType = z
   .object({
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     timestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -1557,7 +1578,7 @@ export const marshalSyncedTableContinuousUpdateStatusSchema: z.ZodType = z
 
 export const marshalSyncedTableFailedStatusSchema: z.ZodType = z
   .object({
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     timestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -1570,9 +1591,9 @@ export const marshalSyncedTableFailedStatusSchema: z.ZodType = z
 
 export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
   .object({
-    latestVersionCurrentlyProcessing: z.number().optional(),
-    syncedRowCount: z.number().optional(),
-    totalRowCount: z.number().optional(),
+    latestVersionCurrentlyProcessing: z.bigint().optional(),
+    syncedRowCount: z.bigint().optional(),
+    totalRowCount: z.bigint().optional(),
     syncProgressCompletion: z.number().optional(),
     estimatedCompletionTimeSeconds: z.number().optional(),
     provisioningPhase: z.enum(ProvisioningPhase).optional(),
@@ -1697,7 +1718,7 @@ export const marshalSyncedTableStatusSchema: z.ZodType = z
 
 export const marshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType = z
   .object({
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     timestamp: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())

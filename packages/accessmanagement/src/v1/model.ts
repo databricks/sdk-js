@@ -93,7 +93,7 @@ export interface AccessControlResponse {
  * group can be a principal of a permission set assignment but an actor is always a user or a service principal
  */
 export interface Actor {
-  kind?: {$case: 'actorId'; actorId: number} | undefined;
+  kind?: {$case: 'actorId'; actorId: bigint} | undefined;
 }
 
 export interface CheckPolicyRequest {
@@ -123,9 +123,9 @@ export interface DeleteWorkspacePermissionAssignmentRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID for the account. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** The ID of the user, service principal, or group. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -204,7 +204,7 @@ export interface GetWorkspacePermissionAssignmentsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID for the account. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -232,7 +232,7 @@ export interface ListWorkspacePermissionsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -284,7 +284,7 @@ export interface PrincipalOutput {
       }
     | undefined;
   /** The unique, opaque id of the principal. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
   /** The display name of the principal. */
   displayName?: string | undefined;
 }
@@ -363,9 +363,9 @@ export interface UpdateWorkspacePermissionAssignmentRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** The ID of the user, service principal, or group. */
-  principalId?: number | undefined;
+  principalId?: bigint | undefined;
   /**
    * Array of permissions assignments to update on the workspace.
    * Valid values are "USER" and "ADMIN" (case-sensitive).
@@ -549,7 +549,10 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
     user_name: z.string().optional(),
     group_name: z.string().optional(),
     service_principal_name: z.string().optional(),
-    principal_id: z.number().optional(),
+    principal_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     display_name: z.string().optional(),
   })
   .transform(d => ({
@@ -632,7 +635,7 @@ export const marshalActorSchema: z.ZodType = z
   .object({
     kind: z
       .discriminatedUnion('$case', [
-        z.object({$case: z.literal('actorId'), actorId: z.number()}),
+        z.object({$case: z.literal('actorId'), actorId: z.bigint()}),
       ])
       .optional(),
   })
@@ -726,8 +729,8 @@ export const marshalUpdateWorkspacePermissionAssignmentRequestSchema: z.ZodType 
   z
     .object({
       accountId: z.string().optional(),
-      workspaceId: z.number().optional(),
-      principalId: z.number().optional(),
+      workspaceId: z.bigint().optional(),
+      principalId: z.bigint().optional(),
       permissions: z.array(z.enum(WorkspacePermission)).optional(),
     })
     .transform(d => ({
