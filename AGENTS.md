@@ -149,7 +149,7 @@ synthesis step that updates `_SUMMARY.md` or similar).
 
 ### Active TODOs
 
-- 2026-05-26 — regenerate `_SUMMARY.md` to reflect all the 2026-05-26 pruning passes (rebase+rescan, AIP-name, sibling-enum, field-rename, doc-change, SDK-internal, non-TS) and the orphan deletions. — in progress.
+_None._
 
 (When populated, each line is one TODO in the form:
 `- YYYY-MM-DD — <verbatim command> — <status>`.)
