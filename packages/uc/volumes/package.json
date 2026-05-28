@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-volumes",
+  "name": "@databricks/sdk-uc-volumes",
   "version": "0.0.0",
   "description": "",
   "type": "module",

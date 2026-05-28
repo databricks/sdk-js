@@ -13,3 +13,5 @@ export type {
   ListEntityTagAssignmentsResponse,
   UpdateEntityTagAssignmentRequest,
 } from './model';
+
+export {entityTagAssignmentFieldMask} from './model';

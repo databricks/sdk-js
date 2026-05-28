@@ -14,3 +14,5 @@ export type {
   ListExternalMetadataResponseV2,
   UpdateExternalMetadataRequest,
 } from './model';
+
+export {externalMetadataFieldMask} from './model';

@@ -15,3 +15,5 @@ export type {
   Table,
   UpdateCustomLlmRequest,
 } from './model';
+
+export {customLlmFieldMask} from './model';

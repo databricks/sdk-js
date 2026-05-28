@@ -13,3 +13,5 @@ export type {
   GetCatalogConfigRequest,
   UpdateCatalogConfigRequest,
 } from './model';
+
+export {catalogConfigFieldMask} from './model';

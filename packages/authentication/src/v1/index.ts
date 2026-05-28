@@ -2,8 +2,6 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {
   CreateAccountFederationPolicyRequest,
   CreateServicePrincipalFederationPolicyRequest,
@@ -26,3 +24,5 @@ export type {
   UpdateAccountFederationPolicyRequest,
   UpdateServicePrincipalFederationPolicyRequest,
 } from './model';
+
+export {federationPolicyFieldMask} from './model';

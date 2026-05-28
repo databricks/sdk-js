@@ -2,8 +2,6 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {
   CreateTagAssignmentRequest,
   DeleteTagAssignmentRequest,
@@ -13,3 +11,5 @@ export type {
   TagAssignment,
   UpdateTagAssignmentRequest,
 } from './model';
+
+export {tagAssignmentFieldMask} from './model';

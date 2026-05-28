@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-rfa",
+  "name": "@databricks/sdk-uc-rfa",
   "version": "0.0.0",
   "description": "",
   "type": "module",

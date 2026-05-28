@@ -65,3 +65,9 @@ export type {
   UpdateDatabaseInstanceRequest,
   UpdateSyncedDatabaseTableRequest,
 } from './model';
+
+export {
+  databaseCatalogFieldMask,
+  databaseInstanceFieldMask,
+  syncedDatabaseTableFieldMask,
+} from './model';

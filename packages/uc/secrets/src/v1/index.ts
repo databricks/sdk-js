@@ -2,8 +2,6 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {
   CreateSecretRequest,
   DeleteSecretRequest,
@@ -13,3 +11,5 @@ export type {
   Secret,
   UpdateSecretRequest,
 } from './model';
+
+export {secretFieldMask} from './model';

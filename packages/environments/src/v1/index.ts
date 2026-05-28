@@ -31,3 +31,5 @@ export type {
   WorkspaceBaseEnvironmentCache,
   WorkspaceBaseEnvironmentOperationMetadata,
 } from './model';
+
+export {defaultWorkspaceBaseEnvironmentFieldMask} from './model';

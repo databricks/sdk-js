@@ -39,3 +39,5 @@ export type {
   UpdateMonitorRequest,
   UpdateRefreshRequest,
 } from './model';
+
+export {monitorFieldMask, refreshFieldMask} from './model';

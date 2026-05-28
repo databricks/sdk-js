@@ -2,6 +2,4 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {DownloadRequest, DownloadResponse} from './model';
