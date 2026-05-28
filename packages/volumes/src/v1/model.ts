@@ -38,10 +38,10 @@ export interface CreateVolumeRequest {
   volumeId?: string | undefined;
   /** The unique identifier of the metastore */
   metastoreId?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the volume last time */
   updatedBy?: string | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
@@ -150,10 +150,10 @@ export interface UpdateVolumeRequest {
   volumeId?: string | undefined;
   /** The unique identifier of the metastore */
   metastoreId?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the volume last time */
   updatedBy?: string | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
@@ -188,10 +188,10 @@ export interface VolumeInfo {
   volumeId?: string | undefined;
   /** The unique identifier of the metastore */
   metastoreId?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the volume last time */
   updatedBy?: string | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
@@ -256,9 +256,15 @@ export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
     full_name: z.string().optional(),
     volume_id: z.string().optional(),
     metastore_id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     access_point: z.string().optional(),
     encryption_details: z
@@ -298,9 +304,9 @@ export const marshalCreateVolumeRequestSchema: z.ZodType = z
     fullName: z.string().optional(),
     volumeId: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     accessPoint: z.string().optional(),
     encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
@@ -367,9 +373,9 @@ export const marshalUpdateVolumeRequestSchema: z.ZodType = z
     fullName: z.string().optional(),
     volumeId: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     accessPoint: z.string().optional(),
     encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),

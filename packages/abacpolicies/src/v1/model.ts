@@ -203,11 +203,11 @@ export interface PolicyInfo {
    */
   matchColumns?: MatchColumn[] | undefined;
   /** Time at which the policy was created, in epoch milliseconds. Output only. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of the user who created the policy. Output only. */
   createdBy?: string | undefined;
   /** Time at which the policy was last modified, in epoch milliseconds. Output only. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of the user who last modified the policy. Output only. */
   updatedBy?: string | undefined;
 }
@@ -318,9 +318,15 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     row_filter: z.lazy(() => unmarshalRowFilterOptionsSchema).optional(),
     column_mask: z.lazy(() => unmarshalColumnMaskOptionsSchema).optional(),
     match_columns: z.array(z.lazy(() => unmarshalMatchColumnSchema)).optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
   })
   .transform(d => ({
@@ -418,9 +424,9 @@ export const marshalPolicyInfoSchema: z.ZodType = z
       ])
       .optional(),
     matchColumns: z.array(z.lazy(() => marshalMatchColumnSchema)).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
   })
   .transform(d => ({

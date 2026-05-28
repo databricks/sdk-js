@@ -123,11 +123,11 @@ export interface CreateFunction {
   /** Full name of Function, in form of **catalog_name**.**schema_name**.**function_name** */
   fullName?: string | undefined;
   /** Time at which this function was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of function creator. */
   createdBy?: string | undefined;
   /** Time at which this function was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the function. */
   updatedBy?: string | undefined;
   /** Id of Function, relative to parent schema. */
@@ -232,11 +232,11 @@ export interface FunctionInfo {
   /** Full name of Function, in form of **catalog_name**.**schema_name**.**function_name** */
   fullName?: string | undefined;
   /** Time at which this function was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of function creator. */
   createdBy?: string | undefined;
   /** Time at which this function was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the function. */
   updatedBy?: string | undefined;
   /** Id of Function, relative to parent schema. */
@@ -371,11 +371,11 @@ export interface UpdateFunctionRequest {
   /** Full name of Function, in form of **catalog_name**.**schema_name**.**function_name** */
   fullName?: string | undefined;
   /** Time at which this function was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of function creator. */
   createdBy?: string | undefined;
   /** Time at which this function was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the function. */
   updatedBy?: string | undefined;
   /** Id of Function, relative to parent schema. */
@@ -475,9 +475,15 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
       .optional(),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     function_id: z.string().optional(),
     browse_only: z.boolean().optional(),
@@ -611,9 +617,9 @@ export const marshalCreateFunctionSchema: z.ZodType = z
     routineDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     functionId: z.string().optional(),
     browseOnly: z.boolean().optional(),
@@ -788,9 +794,9 @@ export const marshalUpdateFunctionRequestSchema: z.ZodType = z
     routineDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     functionId: z.string().optional(),
     browseOnly: z.boolean().optional(),

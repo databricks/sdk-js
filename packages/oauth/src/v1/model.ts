@@ -56,7 +56,7 @@ export interface CustomOAuthAppIntegration {
   /** Token access policy */
   tokenAccessPolicy?: TokenAccessPolicy | undefined;
   scopes?: string[] | undefined;
-  createdBy?: number | undefined;
+  createdBy?: bigint | undefined;
   createTime?: string | undefined;
   creatorUsername?: string | undefined;
   /**
@@ -177,7 +177,7 @@ export interface PublishedOAuthAppIntegration {
   name?: string | undefined;
   /** Token access policy */
   tokenAccessPolicy?: TokenAccessPolicy | undefined;
-  createdBy?: number | undefined;
+  createdBy?: bigint | undefined;
   createTime?: string | undefined;
 }
 
@@ -261,7 +261,10 @@ export const unmarshalCustomOAuthAppIntegrationSchema: z.ZodType<CustomOAuthAppI
         .lazy(() => unmarshalTokenAccessPolicySchema)
         .optional(),
       scopes: z.array(z.string()).optional(),
-      created_by: z.number().optional(),
+      created_by: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       create_time: z.string().optional(),
       creator_username: z.string().optional(),
       user_authorized_scopes: z.array(z.string()).optional(),
@@ -370,7 +373,10 @@ export const unmarshalPublishedOAuthAppIntegrationSchema: z.ZodType<PublishedOAu
       token_access_policy: z
         .lazy(() => unmarshalTokenAccessPolicySchema)
         .optional(),
-      created_by: z.number().optional(),
+      created_by: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       create_time: z.string().optional(),
     })
     .transform(d => ({

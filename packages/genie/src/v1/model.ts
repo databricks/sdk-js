@@ -755,14 +755,14 @@ export interface ChunkInfo {
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
-  rowOffset?: number | undefined;
+  rowOffset?: bigint | undefined;
   /** The number of rows within the result chunk. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /**
    * The number of bytes in the result chunk. This field is not available when using `INLINE`
    * disposition.
    */
-  byteCount?: number | undefined;
+  byteCount?: bigint | undefined;
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
@@ -855,14 +855,14 @@ export interface ExternalLink {
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
-  rowOffset?: number | undefined;
+  rowOffset?: bigint | undefined;
   /** The number of rows within the result chunk. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /**
    * The number of bytes in the result chunk. This field is not available when using `INLINE`
    * disposition.
    */
-  byteCount?: number | undefined;
+  byteCount?: bigint | undefined;
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
@@ -918,11 +918,11 @@ export interface GenieConversation {
   /** Genie space ID */
   spaceId?: string | undefined;
   /** ID of the user who created the conversation */
-  userId?: number | undefined;
+  userId?: bigint | undefined;
   /** Timestamp when the message was created */
-  createdTimestamp?: number | undefined;
+  createdTimestamp?: bigint | undefined;
   /** Timestamp when the message was last updated */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** Conversation title */
   title?: string | undefined;
   /** Conversation ID */
@@ -932,7 +932,7 @@ export interface GenieConversation {
 export interface GenieConversationSummary {
   conversationId?: string | undefined;
   title?: string | undefined;
-  createdTimestamp?: number | undefined;
+  createdTimestamp?: bigint | undefined;
 }
 
 export interface GenieCreateConversationMessageRequest {
@@ -1022,7 +1022,7 @@ export interface GenieEvalResult {
   /** Stored snapshot of original benchmark answer text. */
   benchmarkAnswer?: string | undefined;
   /** User ID who created evaluation result. */
-  createdByUser?: number | undefined;
+  createdByUser?: bigint | undefined;
 }
 
 /** Shows detailed information for an evaluation result. */
@@ -1088,19 +1088,19 @@ export interface GenieEvalRunResponse {
   /** Current status of the evaluation run. */
   evalRunStatus?: EvaluationStatusType | undefined;
   /** User ID who initiated the evaluation run. */
-  runByUser?: number | undefined;
+  runByUser?: bigint | undefined;
   /** Timestamp when the evaluation run was created (milliseconds since epoch). */
-  createdTimestamp?: number | undefined;
+  createdTimestamp?: bigint | undefined;
   /** Total number of questions in the evaluation run. */
-  numQuestions?: number | undefined;
+  numQuestions?: bigint | undefined;
   /** Number of questions answered correctly. */
-  numCorrect?: number | undefined;
+  numCorrect?: bigint | undefined;
   /** Number of questions that need manual review. */
-  numNeedsReview?: number | undefined;
+  numNeedsReview?: bigint | undefined;
   /** Number of questions that have been completed. */
-  numDone?: number | undefined;
+  numDone?: bigint | undefined;
   /** Timestamp when the evaluation run was last updated (milliseconds since epoch). */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
 }
 
 export interface GenieExecuteMessageAttachmentQueryRequest {
@@ -1375,11 +1375,11 @@ export interface GenieMessage {
   /** Conversation ID */
   conversationId?: string | undefined;
   /** ID of the user who created the message */
-  userId?: number | undefined;
+  userId?: bigint | undefined;
   /** Timestamp when the message was created */
-  createdTimestamp?: number | undefined;
+  createdTimestamp?: bigint | undefined;
   /** Timestamp when the message was last updated */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   status?: MessageStatus_MessageStatus | undefined;
   /** User message content */
   content?: string | undefined;
@@ -1409,11 +1409,11 @@ export interface GenieMessageComment {
   /** Comment ID */
   messageCommentId?: string | undefined;
   /** ID of the user who created the comment */
-  userId?: number | undefined;
+  userId?: bigint | undefined;
   /** Comment text content */
   content?: string | undefined;
   /** Timestamp when the comment was created */
-  createdTimestamp?: number | undefined;
+  createdTimestamp?: bigint | undefined;
 }
 
 export interface GenieQueryAttachment {
@@ -1424,7 +1424,7 @@ export interface GenieQueryAttachment {
   /** Description of the query */
   description?: string | undefined;
   /** Time when the user updated the query last */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   parameters?: QueryAttachmentParameter[] | undefined;
   id?: string | undefined;
   /** Statement Execution API statement id. Use [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) to get the full result data. */
@@ -1437,7 +1437,7 @@ export interface GenieQueryAttachment {
 
 export interface GenieResultMetadata {
   /** The number of rows in the result set. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /** Indicates whether the result set is truncated. */
   isTruncated?: boolean | undefined;
 }
@@ -1590,7 +1590,7 @@ export interface Result {
   /** Statement Execution API statement id. Use [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) to get the full result data. */
   statementId?: string | undefined;
   /** Row count of the result */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /** If result is truncated */
   isTruncated?: boolean | undefined;
   /** JWT corresponding to the statement contained in this result */
@@ -1615,14 +1615,14 @@ export interface ResultData {
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
-  rowOffset?: number | undefined;
+  rowOffset?: bigint | undefined;
   /** The number of rows within the result chunk. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /**
    * The number of bytes in the result chunk. This field is not available when using `INLINE`
    * disposition.
    */
-  byteCount?: number | undefined;
+  byteCount?: bigint | undefined;
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
@@ -1646,12 +1646,12 @@ export interface ResultManifest {
   /** Array of result set chunk metadata. */
   chunks?: ChunkInfo[] | undefined;
   /** The total number of rows in the result set. */
-  totalRowCount?: number | undefined;
+  totalRowCount?: bigint | undefined;
   /**
    * The total number of bytes in the result set. This field is not available when using `INLINE`
    * disposition.
    */
-  totalByteCount?: number | undefined;
+  totalByteCount?: bigint | undefined;
   /** Indicates whether the result is truncated due to `row_limit` or `byte_limit`. */
   truncated?: boolean | undefined;
 }
@@ -1783,9 +1783,18 @@ export interface Value {
 export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
   .object({
     chunk_index: z.number().optional(),
-    row_offset: z.number().optional(),
-    row_count: z.number().optional(),
-    byte_count: z.number().optional(),
+    row_offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     next_chunk_index: z.number().optional(),
     next_chunk_internal_link: z.string().optional(),
   })
@@ -1861,9 +1870,18 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     expiration: z.string().optional(),
     http_headers: z.record(z.string(), z.string()).optional(),
     chunk_index: z.number().optional(),
-    row_offset: z.number().optional(),
-    row_count: z.number().optional(),
-    byte_count: z.number().optional(),
+    row_offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     next_chunk_index: z.number().optional(),
     next_chunk_internal_link: z.string().optional(),
   })
@@ -1907,9 +1925,18 @@ export const unmarshalGenieConversationSchema: z.ZodType<GenieConversation> = z
   .object({
     id: z.string().optional(),
     space_id: z.string().optional(),
-    user_id: z.number().optional(),
-    created_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    user_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    created_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     title: z.string().optional(),
     conversation_id: z.string().optional(),
   })
@@ -1928,7 +1955,10 @@ export const unmarshalGenieConversationSummarySchema: z.ZodType<GenieConversatio
     .object({
       conversation_id: z.string().optional(),
       title: z.string().optional(),
-      created_timestamp: z.number().optional(),
+      created_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       conversationId: d.conversation_id,
@@ -1958,7 +1988,10 @@ export const unmarshalGenieEvalResultSchema: z.ZodType<GenieEvalResult> = z
     status: z.enum(EvaluationStatusType).optional(),
     question: z.string().optional(),
     benchmark_answer: z.string().optional(),
-    created_by_user: z.number().optional(),
+    created_by_user: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     resultId: d.result_id,
@@ -2004,13 +2037,34 @@ export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse
     .object({
       eval_run_id: z.string().optional(),
       eval_run_status: z.enum(EvaluationStatusType).optional(),
-      run_by_user: z.number().optional(),
-      created_timestamp: z.number().optional(),
-      num_questions: z.number().optional(),
-      num_correct: z.number().optional(),
-      num_needs_review: z.number().optional(),
-      num_done: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
+      run_by_user: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      created_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      num_questions: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      num_correct: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      num_needs_review: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      num_done: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      last_updated_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       evalRunId: d.eval_run_id,
@@ -2159,9 +2213,18 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
     id: z.string().optional(),
     space_id: z.string().optional(),
     conversation_id: z.string().optional(),
-    user_id: z.number().optional(),
-    created_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    user_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    created_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     status: z.enum(MessageStatus_MessageStatus).optional(),
     content: z.string().optional(),
     attachments: z
@@ -2195,9 +2258,15 @@ export const unmarshalGenieMessageCommentSchema: z.ZodType<GenieMessageComment> 
       conversation_id: z.string().optional(),
       message_id: z.string().optional(),
       message_comment_id: z.string().optional(),
-      user_id: z.number().optional(),
+      user_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       content: z.string().optional(),
-      created_timestamp: z.number().optional(),
+      created_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       spaceId: d.space_id,
@@ -2215,7 +2284,10 @@ export const unmarshalGenieQueryAttachmentSchema: z.ZodType<GenieQueryAttachment
       title: z.string().optional(),
       query: z.string().optional(),
       description: z.string().optional(),
-      last_updated_timestamp: z.number().optional(),
+      last_updated_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       parameters: z
         .array(z.lazy(() => unmarshalQueryAttachmentParameterSchema))
         .optional(),
@@ -2241,7 +2313,10 @@ export const unmarshalGenieQueryAttachmentSchema: z.ZodType<GenieQueryAttachment
 export const unmarshalGenieResultMetadataSchema: z.ZodType<GenieResultMetadata> =
   z
     .object({
-      row_count: z.number().optional(),
+      row_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       is_truncated: z.boolean().optional(),
     })
     .transform(d => ({
@@ -2353,7 +2428,10 @@ export const unmarshalQueryAttachmentParameterSchema: z.ZodType<QueryAttachmentP
 export const unmarshalResultSchema: z.ZodType<Result> = z
   .object({
     statement_id: z.string().optional(),
-    row_count: z.number().optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     is_truncated: z.boolean().optional(),
     statement_id_signature: z.string().optional(),
   })
@@ -2371,9 +2449,18 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
       .optional(),
     data_array: z.array(z.lazy(() => unmarshalListValueSchema)).optional(),
     chunk_index: z.number().optional(),
-    row_offset: z.number().optional(),
-    row_count: z.number().optional(),
-    byte_count: z.number().optional(),
+    row_offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     next_chunk_index: z.number().optional(),
     next_chunk_internal_link: z.string().optional(),
   })
@@ -2394,8 +2481,14 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
     schema: z.lazy(() => unmarshalSchemaSchema).optional(),
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
-    total_row_count: z.number().optional(),
-    total_byte_count: z.number().optional(),
+    total_row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    total_byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     truncated: z.boolean().optional(),
   })
   .transform(d => ({

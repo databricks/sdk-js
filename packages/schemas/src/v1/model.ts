@@ -30,11 +30,11 @@ export interface CreateSchemaRequest {
   /** Full name of schema, in form of __catalog_name__.__schema_name__. */
   fullName?: string | undefined;
   /** Time at which this schema was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of schema creator. */
   createdBy?: string | undefined;
   /** Time at which this schema was created, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified schema. */
   updatedBy?: string | undefined;
   /** The type of the parent catalog. */
@@ -139,11 +139,11 @@ export interface SchemaInfo {
   /** Full name of schema, in form of __catalog_name__.__schema_name__. */
   fullName?: string | undefined;
   /** Time at which this schema was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of schema creator. */
   createdBy?: string | undefined;
   /** Time at which this schema was created, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified schema. */
   updatedBy?: string | undefined;
   /** The type of the parent catalog. */
@@ -197,11 +197,11 @@ export interface UpdateSchemaRequest {
   /** Full name of schema, in form of __catalog_name__.__schema_name__. */
   fullName?: string | undefined;
   /** Time at which this schema was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of schema creator. */
   createdBy?: string | undefined;
   /** Time at which this schema was created, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified schema. */
   updatedBy?: string | undefined;
   /** The type of the parent catalog. */
@@ -272,9 +272,15 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     enable_predictive_optimization: z.string().optional(),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     catalog_type: z.enum(CatalogType).optional(),
     storage_location: z.string().optional(),
@@ -319,9 +325,9 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     enablePredictiveOptimization: z.string().optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),
@@ -380,9 +386,9 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
     enablePredictiveOptimization: z.string().optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),

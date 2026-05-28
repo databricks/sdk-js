@@ -106,14 +106,14 @@ export interface ChunkInfo {
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
-  rowOffset?: number | undefined;
+  rowOffset?: bigint | undefined;
   /** The number of rows within the result chunk. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /**
    * The number of bytes in the result chunk. This field is not available when using `INLINE`
    * disposition.
    */
-  byteCount?: number | undefined;
+  byteCount?: bigint | undefined;
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
@@ -173,7 +173,7 @@ export interface ExecuteStatementRequest {
    * it also sets the `truncated` field in the response to indicate whether the result was trimmed due to the limit or
    * not.
    */
-  rowLimit?: number | undefined;
+  rowLimit?: bigint | undefined;
   /**
    * Applies the given byte limit to the statement's result size. Byte counts are based on internal data
    * representations and might not match the final size in the requested `format`. If the result was truncated due to
@@ -181,7 +181,7 @@ export interface ExecuteStatementRequest {
    * When using `EXTERNAL_LINKS` disposition, a default `byte_limit` of 100 GiB is applied if `byte_limit` is not
    * explicitly set.
    */
-  byteLimit?: number | undefined;
+  byteLimit?: bigint | undefined;
   /**
    * Statement execution supports three result formats: `JSON_ARRAY` (default), `ARROW_STREAM`, and `CSV`.
    *
@@ -350,14 +350,14 @@ export interface ExternalLink {
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
-  rowOffset?: number | undefined;
+  rowOffset?: bigint | undefined;
   /** The number of rows within the result chunk. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /**
    * The number of bytes in the result chunk. This field is not available when using `INLINE`
    * disposition.
    */
-  byteCount?: number | undefined;
+  byteCount?: bigint | undefined;
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
@@ -423,14 +423,14 @@ export interface ResultData {
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
-  rowOffset?: number | undefined;
+  rowOffset?: bigint | undefined;
   /** The number of rows within the result chunk. */
-  rowCount?: number | undefined;
+  rowCount?: bigint | undefined;
   /**
    * The number of bytes in the result chunk. This field is not available when using `INLINE`
    * disposition.
    */
-  byteCount?: number | undefined;
+  byteCount?: bigint | undefined;
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
@@ -454,12 +454,12 @@ export interface ResultManifest {
   /** Array of result set chunk metadata. */
   chunks?: ChunkInfo[] | undefined;
   /** The total number of rows in the result set. */
-  totalRowCount?: number | undefined;
+  totalRowCount?: bigint | undefined;
   /**
    * The total number of bytes in the result set. This field is not available when using `INLINE`
    * disposition.
    */
-  totalByteCount?: number | undefined;
+  totalByteCount?: bigint | undefined;
   /** Indicates whether the result is truncated due to `row_limit` or `byte_limit`. */
   truncated?: boolean | undefined;
 }
@@ -528,9 +528,18 @@ export const unmarshalCancelStatementResponseSchema: z.ZodType<CancelStatementRe
 export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
   .object({
     chunk_index: z.number().optional(),
-    row_offset: z.number().optional(),
-    row_count: z.number().optional(),
-    byte_count: z.number().optional(),
+    row_offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     next_chunk_index: z.number().optional(),
     next_chunk_internal_link: z.string().optional(),
   })
@@ -569,9 +578,18 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     expiration: z.string().optional(),
     http_headers: z.record(z.string(), z.string()).optional(),
     chunk_index: z.number().optional(),
-    row_offset: z.number().optional(),
-    row_count: z.number().optional(),
-    byte_count: z.number().optional(),
+    row_offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     next_chunk_index: z.number().optional(),
     next_chunk_internal_link: z.string().optional(),
   })
@@ -594,9 +612,18 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
       .optional(),
     data_array: z.array(z.array(jsonValueSchema)).optional(),
     chunk_index: z.number().optional(),
-    row_offset: z.number().optional(),
-    row_count: z.number().optional(),
-    byte_count: z.number().optional(),
+    row_offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     next_chunk_index: z.number().optional(),
     next_chunk_internal_link: z.string().optional(),
   })
@@ -617,8 +644,14 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
     schema: z.lazy(() => unmarshalSchemaSchema).optional(),
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
-    total_row_count: z.number().optional(),
-    total_byte_count: z.number().optional(),
+    total_row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    total_byte_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     truncated: z.boolean().optional(),
   })
   .transform(d => ({
@@ -691,8 +724,8 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     warehouseId: z.string().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
-    rowLimit: z.number().optional(),
-    byteLimit: z.number().optional(),
+    rowLimit: z.bigint().optional(),
+    byteLimit: z.bigint().optional(),
     format: z.enum(Format).optional(),
     disposition: z.enum(Disposition).optional(),
     waitTimeout: z.string().optional(),

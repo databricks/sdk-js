@@ -467,9 +467,9 @@ export interface ListAccountGroupsRequest {
   /** Comma-separated list of attributes to exclude in response. */
   excludedAttributes?: string | undefined;
   /** Specifies the index of the first result. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Desired number of results per page. Default is 10000. */
-  count?: number | undefined;
+  count?: bigint | undefined;
   /** Attribute to sort the results. */
   sortBy?: string | undefined;
   /** The order to sort the results. */
@@ -482,7 +482,7 @@ export interface ListAccountGroupsResponse {
   /** User objects returned in the response. */
   resources?: AccountGroup[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Total results that match the request filters. */
   totalResults?: number | undefined;
 }
@@ -492,7 +492,7 @@ export interface ListAccountServicePrincipalsRequest {
   /** Comma-separated list of attributes to return in response. */
   attributes?: string | undefined;
   /** Desired number of results per page. Default is 10000. */
-  count?: number | undefined;
+  count?: bigint | undefined;
   /** Comma-separated list of attributes to exclude in response. */
   excludedAttributes?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
@@ -502,7 +502,7 @@ export interface ListAccountServicePrincipalsRequest {
   /** The order to sort the results. */
   sortOrder?: AccountListSort_Order | undefined;
   /** Specifies the index of the first result. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -513,7 +513,7 @@ export interface ListAccountServicePrincipalsResponse {
   /** User objects returned in the response. */
   resources?: AccountServicePrincipal[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Total results that match the request filters. */
   totalResults?: number | undefined;
 }
@@ -523,7 +523,7 @@ export interface ListAccountUsersRequest {
   /** Comma-separated list of attributes to return in response. */
   attributes?: string | undefined;
   /** Desired number of results per page. Default is 10000. */
-  count?: number | undefined;
+  count?: bigint | undefined;
   /** Comma-separated list of attributes to exclude in response. */
   excludedAttributes?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
@@ -533,7 +533,7 @@ export interface ListAccountUsersRequest {
   /** The order to sort the results. */
   sortOrder?: AccountListSort_Order | undefined;
   /** Specifies the index of the first result. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -544,7 +544,7 @@ export interface ListAccountUsersResponse {
   /** User objects returned in the response. */
   resources?: AccountUser[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Total results that match the request filters. */
   totalResults?: number | undefined;
 }
@@ -558,9 +558,9 @@ export interface ListGroupsRequest {
   /** Comma-separated list of attributes to exclude in response. */
   excludedAttributes?: string | undefined;
   /** Specifies the index of the first result. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Desired number of results per page. */
-  count?: number | undefined;
+  count?: bigint | undefined;
   /** Attribute to sort the results. */
   sortBy?: string | undefined;
   /** The order to sort the results. */
@@ -575,7 +575,7 @@ export interface ListGroupsResponse {
   /** The schema of the service principal. */
   schemas?: ListResponseSchema[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Total results that match the request filters. */
   totalResults?: number | undefined;
 }
@@ -588,7 +588,7 @@ export interface ListServicePrincipalResponse {
   /** The schema of the List response. */
   schemas?: ListResponseSchema[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Total results that match the request filters. */
   totalResults?: number | undefined;
 }
@@ -598,7 +598,7 @@ export interface ListServicePrincipalsRequest {
   /** Comma-separated list of attributes to return in response. */
   attributes?: string | undefined;
   /** Desired number of results per page. */
-  count?: number | undefined;
+  count?: bigint | undefined;
   /** Comma-separated list of attributes to exclude in response. */
   excludedAttributes?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
@@ -608,7 +608,7 @@ export interface ListServicePrincipalsRequest {
   /** The order to sort the results. */
   sortOrder?: ListSort_Order | undefined;
   /** Specifies the index of the first result. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
 }
 
 /**
@@ -623,7 +623,7 @@ export interface ListUsersRequest {
   /** Comma-separated list of attributes to return in response. */
   attributes?: string | undefined;
   /** Desired number of results per page. */
-  count?: number | undefined;
+  count?: bigint | undefined;
   /** Comma-separated list of attributes to exclude in response. */
   excludedAttributes?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
@@ -633,7 +633,7 @@ export interface ListUsersRequest {
   /** The order to sort the results. */
   sortOrder?: ListSort_Order | undefined;
   /** Specifies the index of the first result. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
 }
 
 export interface ListUsersResponse {
@@ -644,7 +644,7 @@ export interface ListUsersResponse {
   /** The schema of the List response. */
   schemas?: ListResponseSchema[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
-  startIndex?: number | undefined;
+  startIndex?: bigint | undefined;
   /** Total results that match the request filters. */
   totalResults?: number | undefined;
 }
@@ -1094,7 +1094,10 @@ export const unmarshalListAccountGroupsResponseSchema: z.ZodType<ListAccountGrou
     .object({
       itemsPerPage: z.number().optional(),
       Resources: z.array(z.lazy(() => unmarshalAccountGroupSchema)).optional(),
-      startIndex: z.number().optional(),
+      startIndex: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       totalResults: z.number().optional(),
     })
     .transform(d => ({
@@ -1111,7 +1114,10 @@ export const unmarshalListAccountServicePrincipalsResponseSchema: z.ZodType<List
       Resources: z
         .array(z.lazy(() => unmarshalAccountServicePrincipalSchema))
         .optional(),
-      startIndex: z.number().optional(),
+      startIndex: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       totalResults: z.number().optional(),
     })
     .transform(d => ({
@@ -1126,7 +1132,10 @@ export const unmarshalListAccountUsersResponseSchema: z.ZodType<ListAccountUsers
     .object({
       itemsPerPage: z.number().optional(),
       Resources: z.array(z.lazy(() => unmarshalAccountUserSchema)).optional(),
-      startIndex: z.number().optional(),
+      startIndex: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       totalResults: z.number().optional(),
     })
     .transform(d => ({
@@ -1142,7 +1151,10 @@ export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> =
       itemsPerPage: z.number().optional(),
       Resources: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
       schemas: z.array(z.enum(ListResponseSchema)).optional(),
-      startIndex: z.number().optional(),
+      startIndex: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       totalResults: z.number().optional(),
     })
     .transform(d => ({
@@ -1161,7 +1173,10 @@ export const unmarshalListServicePrincipalResponseSchema: z.ZodType<ListServiceP
         .array(z.lazy(() => unmarshalServicePrincipalSchema))
         .optional(),
       schemas: z.array(z.enum(ListResponseSchema)).optional(),
-      startIndex: z.number().optional(),
+      startIndex: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       totalResults: z.number().optional(),
     })
     .transform(d => ({
@@ -1177,7 +1192,10 @@ export const unmarshalListUsersResponseSchema: z.ZodType<ListUsersResponse> = z
     itemsPerPage: z.number().optional(),
     Resources: z.array(z.lazy(() => unmarshalUserSchema)).optional(),
     schemas: z.array(z.enum(ListResponseSchema)).optional(),
-    startIndex: z.number().optional(),
+    startIndex: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     totalResults: z.number().optional(),
   })
   .transform(d => ({

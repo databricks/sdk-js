@@ -190,7 +190,7 @@ export interface LineageModelVersionInfo {
   /** Name of the model. */
   modelName?: string | undefined;
   /** Version number of the model. */
-  version?: number | undefined;
+  version?: bigint | undefined;
   /** Timestamp of the lineage event. */
   eventTime?: Temporal.Instant | undefined;
 }
@@ -422,7 +422,10 @@ export const unmarshalLineageModelVersionInfoSchema: z.ZodType<LineageModelVersi
   z
     .object({
       model_name: z.string().optional(),
-      version: z.number().optional(),
+      version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       event_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))

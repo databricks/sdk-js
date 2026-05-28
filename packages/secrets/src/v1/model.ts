@@ -185,7 +185,7 @@ export interface SecretMetadata {
   /** A unique name to identify the secret. */
   key?: string | undefined;
   /** The last updated timestamp (in milliseconds) for the secret. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
 }
 
 /**
@@ -295,7 +295,10 @@ export const unmarshalPutSecretRequest_ResponseSchema: z.ZodType<PutSecretReques
 export const unmarshalSecretMetadataSchema: z.ZodType<SecretMetadata> = z
   .object({
     key: z.string().optional(),
-    last_updated_timestamp: z.number().optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     key: d.key,

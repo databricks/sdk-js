@@ -255,9 +255,9 @@ export interface CleanRoom {
   owner?: string | undefined;
   comment?: string | undefined;
   /** When the clean room was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** When the clean room was last updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Clean room status. */
   status?: CleanRoom_Status_Enum | undefined;
   /** The alias of the collaborator tied to the local clean room. */
@@ -295,7 +295,7 @@ export interface CleanRoomAsset {
   /** The type of the asset. */
   assetType?: CleanRoomAsset_AssetType | undefined;
   /** When the asset is added to the clean room, in epoch milliseconds. */
-  addedAt?: number | undefined;
+  addedAt?: bigint | undefined;
   /** Status of the asset */
   status?: CleanRoomAsset_Status_Enum | undefined;
   /** The alias of the collaborator who owns this asset */
@@ -483,7 +483,7 @@ export interface CleanRoomAutoApprovalRule {
       }
     | undefined;
   /** Timestamp of when the rule was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
 }
 
 /** Publicly visible clean room collaborator. */
@@ -500,7 +500,7 @@ export interface CleanRoomCollaborator {
    * invite_recipient_email is specified.
    * It should be empty when the collaborator is the creator of the clean room.
    */
-  inviteRecipientWorkspaceId?: number | undefined;
+  inviteRecipientWorkspaceId?: bigint | undefined;
   /**
    * Email of the user who is receiving the clean room "invitation". It should be empty
    * for the creator of the clean room, and non-empty for the invitees of the clean room.
@@ -525,7 +525,7 @@ export interface CleanRoomNotebookReview {
   /** Collaborator alias of the reviewer */
   reviewerCollaboratorAlias?: string | undefined;
   /** When the review was submitted, in epoch milliseconds */
-  createdAtMillis?: number | undefined;
+  createdAtMillis?: bigint | undefined;
   /** Review outcome */
   reviewState?: CleanRoomNotebookReview_NotebookReviewState | undefined;
   /** Review comment */
@@ -539,9 +539,9 @@ export interface CleanRoomNotebookTaskRun {
   /** Asset name of the notebook executed in this task run. */
   notebookName?: string | undefined;
   /** When the task run started, in epoch milliseconds. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** Duration of the task run, in milliseconds. */
-  runDuration?: number | undefined;
+  runDuration?: bigint | undefined;
   /** State of the task run. */
   notebookJobRunState?: CleanRoomTaskRunState | undefined;
   /**
@@ -554,11 +554,11 @@ export interface CleanRoomNotebookTaskRun {
   /** Name of the output schema associated with the clean rooms notebook task run. */
   outputSchemaName?: string | undefined;
   /** Expiration time of the output schema of the task run (if any), in epoch milliseconds. */
-  outputSchemaExpirationTime?: number | undefined;
+  outputSchemaExpirationTime?: bigint | undefined;
   /** Etag of the notebook executed in this task run, used to identify the notebook version. */
   notebookEtag?: string | undefined;
   /** The timestamp of when the notebook was last updated. */
-  notebookUpdatedAt?: number | undefined;
+  notebookUpdatedAt?: bigint | undefined;
 }
 
 export interface CleanRoomOutputCatalog {
@@ -605,13 +605,13 @@ export interface CleanRoomTaskRunState {
 
 export interface CollaboratorJobRunInfo {
   /** Job ID of the task run in the collaborator's workspace. */
-  collaboratorJobId?: number | undefined;
+  collaboratorJobId?: bigint | undefined;
   /** Job run ID of the task run in the collaborator's workspace. */
-  collaboratorJobRunId?: number | undefined;
+  collaboratorJobRunId?: bigint | undefined;
   /** Task run ID of the task run in the collaborator's workspace. */
-  collaboratorTaskRunId?: number | undefined;
+  collaboratorTaskRunId?: bigint | undefined;
   /** ID of the collaborator's workspace that triggered the task run. */
-  collaboratorWorkspaceId?: number | undefined;
+  collaboratorWorkspaceId?: bigint | undefined;
   /** Alias of the collaborator that triggered the task run. */
   collaboratorAlias?: string | undefined;
 }
@@ -1018,8 +1018,14 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
       .optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
-    created_at: z.number().optional(),
-    updated_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     status: z.enum(CleanRoom_Status_Enum).optional(),
     local_collaborator_alias: z.string().optional(),
     output_catalog: z
@@ -1045,7 +1051,10 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
     clean_room_name: z.string().optional(),
     name: z.string().optional(),
     asset_type: z.enum(CleanRoomAsset_AssetType).optional(),
-    added_at: z.number().optional(),
+    added_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     status: z.enum(CleanRoomAsset_Status_Enum).optional(),
     owner_collaborator_alias: z.string().optional(),
     table_local_details: z
@@ -1213,7 +1222,10 @@ export const unmarshalCleanRoomAutoApprovalRuleSchema: z.ZodType<CleanRoomAutoAp
       author_collaborator_alias: z.string().optional(),
       author_scope: z.enum(CleanRoomAutoApprovalRule_AuthorScope).optional(),
       runner_collaborator_alias: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       cleanRoomName: d.clean_room_name,
@@ -1243,7 +1255,10 @@ export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborat
     .object({
       global_metastore_id: z.string().optional(),
       organization_name: z.string().optional(),
-      invite_recipient_workspace_id: z.number().optional(),
+      invite_recipient_workspace_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       invite_recipient_email: z.string().optional(),
       collaborator_alias: z.string().optional(),
       display_name: z.string().optional(),
@@ -1261,7 +1276,10 @@ export const unmarshalCleanRoomNotebookReviewSchema: z.ZodType<CleanRoomNotebook
   z
     .object({
       reviewer_collaborator_alias: z.string().optional(),
-      created_at_millis: z.number().optional(),
+      created_at_millis: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       review_state: z
         .enum(CleanRoomNotebookReview_NotebookReviewState)
         .optional(),
@@ -1282,8 +1300,14 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
   z
     .object({
       notebook_name: z.string().optional(),
-      start_time: z.number().optional(),
-      run_duration: z.number().optional(),
+      start_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      run_duration: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       notebook_job_run_state: z
         .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
         .optional(),
@@ -1291,9 +1315,15 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
         .lazy(() => unmarshalCollaboratorJobRunInfoSchema)
         .optional(),
       output_schema_name: z.string().optional(),
-      output_schema_expiration_time: z.number().optional(),
+      output_schema_expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       notebook_etag: z.string().optional(),
-      notebook_updated_at: z.number().optional(),
+      notebook_updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       notebookName: d.notebook_name,
@@ -1359,10 +1389,22 @@ export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunSta
 export const unmarshalCollaboratorJobRunInfoSchema: z.ZodType<CollaboratorJobRunInfo> =
   z
     .object({
-      collaborator_job_id: z.number().optional(),
-      collaborator_job_run_id: z.number().optional(),
-      collaborator_task_run_id: z.number().optional(),
-      collaborator_workspace_id: z.number().optional(),
+      collaborator_job_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      collaborator_job_run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      collaborator_task_run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      collaborator_workspace_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       collaborator_alias: z.string().optional(),
     })
     .transform(d => ({
@@ -1701,8 +1743,8 @@ export const marshalCleanRoomSchema: z.ZodType = z
       .optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
-    createdAt: z.number().optional(),
-    updatedAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
+    updatedAt: z.bigint().optional(),
     status: z.enum(CleanRoom_Status_Enum).optional(),
     localCollaboratorAlias: z.string().optional(),
     outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
@@ -1726,7 +1768,7 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
     cleanRoomName: z.string().optional(),
     name: z.string().optional(),
     assetType: z.enum(CleanRoomAsset_AssetType).optional(),
-    addedAt: z.number().optional(),
+    addedAt: z.bigint().optional(),
     status: z.enum(CleanRoomAsset_Status_Enum).optional(),
     ownerCollaboratorAlias: z.string().optional(),
     localDetails: z
@@ -1916,7 +1958,7 @@ export const marshalCleanRoomAutoApprovalRuleSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
   })
   .transform(d => ({
     clean_room_name: d.cleanRoomName,
@@ -1938,7 +1980,7 @@ export const marshalCleanRoomCollaboratorSchema: z.ZodType = z
   .object({
     globalMetastoreId: z.string().optional(),
     organizationName: z.string().optional(),
-    inviteRecipientWorkspaceId: z.number().optional(),
+    inviteRecipientWorkspaceId: z.bigint().optional(),
     inviteRecipientEmail: z.string().optional(),
     collaboratorAlias: z.string().optional(),
     displayName: z.string().optional(),
@@ -1955,7 +1997,7 @@ export const marshalCleanRoomCollaboratorSchema: z.ZodType = z
 export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
   .object({
     reviewerCollaboratorAlias: z.string().optional(),
-    createdAtMillis: z.number().optional(),
+    createdAtMillis: z.bigint().optional(),
     reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
     comment: z.string().optional(),
     reviewSubReason: z

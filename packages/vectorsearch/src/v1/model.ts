@@ -108,7 +108,7 @@ export interface CreateEndpointRequest {
    * The actual replica count is calculated at index creation/sync time based on this value.
    * Best-effort target; the system does not guarantee this QPS will be achieved.
    */
-  targetQps?: number | undefined;
+  targetQps?: bigint | undefined;
 }
 
 export interface CreateVectorIndexRequest {
@@ -278,9 +278,9 @@ export interface Endpoint {
   /** Creator of the endpoint */
   creator?: string | undefined;
   /** Timestamp of endpoint creation */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** Timestamp of last update to the endpoint */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** Type of endpoint */
   endpointType?: EndpointType | undefined;
   /** User who last updated the endpoint */
@@ -308,7 +308,7 @@ export interface EndpointScalingInfo {
    * The requested QPS target for the endpoint. Best-effort; the system does not
    * guarantee this QPS will be achieved.
    */
-  requestedTargetQps?: number | undefined;
+  requestedTargetQps?: bigint | undefined;
 }
 
 /** Status information of an endpoint */
@@ -395,7 +395,7 @@ export interface MetricLabel {
 /** Single metric value at a specific timestamp */
 export interface MetricValue {
   /** Timestamp of the metric value (milliseconds since epoch) */
-  timestamp?: number | undefined;
+  timestamp?: bigint | undefined;
   /** Metric value */
   value?: number | undefined;
 }
@@ -453,7 +453,7 @@ export interface PatchEndpointRequest {
    * Target QPS for the endpoint. Best-effort; the system does not guarantee this QPS
    * will be achieved.
    */
-  targetQps?: number | undefined;
+  targetQps?: bigint | undefined;
 }
 
 /** Request payload for getting next page of results. */
@@ -626,7 +626,7 @@ export interface UpsertDataVectorIndexResponse {
 
 export interface UpsertDeleteDataResult {
   /** Count of successfully processed rows. */
-  successRowCount?: number | undefined;
+  successRowCount?: bigint | undefined;
   /** List of primary keys for rows that failed to process. */
   failedPrimaryKeys?: string[] | undefined;
 }
@@ -671,7 +671,7 @@ export interface VectorIndexStatus {
   /** Message associated with the index status */
   message?: string | undefined;
   /** Number of rows indexed */
-  indexedRowCount?: number | undefined;
+  indexedRowCount?: bigint | undefined;
   /** Whether the index is ready for search */
   ready?: boolean | undefined;
   /** Index API Url to be used to perform operations on the index */
@@ -793,8 +793,14 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
   .object({
     name: z.string().optional(),
     creator: z.string().optional(),
-    creation_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     endpoint_type: z.enum(EndpointType).optional(),
     last_updated_user: z.string().optional(),
     id: z.string().optional(),
@@ -825,7 +831,10 @@ export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> 
   z
     .object({
       state: z.enum(ScalingChangeState).optional(),
-      requested_target_qps: z.number().optional(),
+      requested_target_qps: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       state: d.state,
@@ -909,7 +918,10 @@ export const unmarshalMetricLabelSchema: z.ZodType<MetricLabel> = z
 
 export const unmarshalMetricValueSchema: z.ZodType<MetricValue> = z
   .object({
-    timestamp: z.number().optional(),
+    timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     value: z.number().optional(),
   })
   .transform(d => ({
@@ -1071,7 +1083,10 @@ export const unmarshalUpsertDataVectorIndexResponseSchema: z.ZodType<UpsertDataV
 export const unmarshalUpsertDeleteDataResultSchema: z.ZodType<UpsertDeleteDataResult> =
   z
     .object({
-      success_row_count: z.number().optional(),
+      success_row_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       failed_primary_keys: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -1143,7 +1158,10 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
 export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
   .object({
     message: z.string().optional(),
-    indexed_row_count: z.number().optional(),
+    indexed_row_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     ready: z.boolean().optional(),
     index_url: z.string().optional(),
   })
@@ -1160,7 +1178,7 @@ export const marshalCreateEndpointRequestSchema: z.ZodType = z
     endpointType: z.enum(EndpointType).optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
-    targetQps: z.number().optional(),
+    targetQps: z.bigint().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1327,7 +1345,7 @@ export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
 export const marshalPatchEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    targetQps: z.number().optional(),
+    targetQps: z.bigint().optional(),
   })
   .transform(d => ({
     name: d.name,

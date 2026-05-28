@@ -181,7 +181,7 @@ export interface CreateWorkspaceRequest_CustomTagsEntry {
 }
 
 export interface DeleteWorkspaceRequest {
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   accountId?: string | undefined;
 }
 
@@ -218,7 +218,7 @@ export interface GcpManagedNetworkConfig {
 }
 
 export interface GetWorkspaceRequest {
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   accountId?: string | undefined;
 }
 
@@ -248,12 +248,12 @@ export interface UpdateWorkspaceRequest {
 
 export interface Workspace {
   /** A unique integer ID for the workspace */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** The human-readable name of the workspace. */
   workspaceName?: string | undefined;
   awsRegion?: string | undefined;
   /** Time in epoch milliseconds when the workspace was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   deploymentName?: string | undefined;
   /** The status of a workspace */
   workspaceStatus?: WorkspaceStatus | undefined;
@@ -427,10 +427,16 @@ export const unmarshalGkeConfigSchema: z.ZodType<GkeConfig> = z
 
 export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
   .object({
-    workspace_id: z.number().optional(),
+    workspace_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     workspace_name: z.string().optional(),
     aws_region: z.string().optional(),
-    creation_time: z.number().optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     deployment_name: z.string().optional(),
     workspace_status: z.enum(WorkspaceStatus).optional(),
     account_id: z.string().optional(),
@@ -640,10 +646,10 @@ export const marshalGkeConfigSchema: z.ZodType = z
 
 export const marshalWorkspaceSchema: z.ZodType = z
   .object({
-    workspaceId: z.number().optional(),
+    workspaceId: z.bigint().optional(),
     workspaceName: z.string().optional(),
     awsRegion: z.string().optional(),
-    creationTime: z.number().optional(),
+    creationTime: z.bigint().optional(),
     deploymentName: z.string().optional(),
     workspaceStatus: z.enum(WorkspaceStatus).optional(),
     accountId: z.string().optional(),

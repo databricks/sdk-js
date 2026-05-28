@@ -783,7 +783,7 @@ export interface BranchStatus {
   /** A timestamp indicating when the `current_state` began. */
   stateChangeTime?: Temporal.Instant | undefined;
   /** The logical size of the branch. */
-  logicalSizeBytes?: number | undefined;
+  logicalSizeBytes?: bigint | undefined;
   /** Absolute expiration time for the branch. Empty if expiration is disabled. */
   expireTime?: Temporal.Instant | undefined;
   /** Part of the resource name. */
@@ -1145,7 +1145,7 @@ export interface DeleteSyncedTableRequest {
 
 export interface DeltaTableSyncInfo {
   /** The Delta Lake commit version that was last successfully synced. */
-  deltaCommitVersion?: number | undefined;
+  deltaCommitVersion?: bigint | undefined;
   /**
    * The timestamp when the above Delta version was committed in the source Delta table.
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
@@ -1687,9 +1687,9 @@ export interface ProjectStatus {
   /** The effective default endpoint settings. */
   defaultEndpointSettings?: ProjectDefaultEndpointSettings | undefined;
   /** The logical size limit for a branch. */
-  branchLogicalSizeLimitBytes?: number | undefined;
+  branchLogicalSizeLimitBytes?: bigint | undefined;
   /** The current space occupied by the project in storage. */
-  syntheticStorageSizeBytes?: number | undefined;
+  syntheticStorageSizeBytes?: bigint | undefined;
   /** The budget policy that is applied to the project. */
   budgetPolicyId?: string | undefined;
   /** The effective custom tags associated with the project. */
@@ -1922,7 +1922,7 @@ export interface SyncedTable_SyncedTableStatus {
   /** The current phase of the data synchronization pipeline. */
   provisioningPhase?: ProvisioningPhase | undefined;
   /** The last source table Delta version that was successfully synced to the synced table. */
-  lastProcessedCommitVersion?: number | undefined;
+  lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
@@ -1952,11 +1952,11 @@ export interface SyncedTablePipelineProgress {
    * The source table Delta version that was last processed by the pipeline. The pipeline may not
    * have completely processed this version yet.
    */
-  latestVersionCurrentlyProcessing?: number | undefined;
+  latestVersionCurrentlyProcessing?: bigint | undefined;
   /** The number of rows that have been synced in this update. */
-  syncedRowCount?: number | undefined;
+  syncedRowCount?: bigint | undefined;
   /** The total number of rows that need to be synced in this update. This number may be an estimate. */
-  totalRowCount?: number | undefined;
+  totalRowCount?: bigint | undefined;
   /** The completion ratio of this update. This is a number between 0 and 1. */
   syncProgressCompletion?: number | undefined;
   /** The estimated time remaining to complete this update in seconds. */
@@ -2141,7 +2141,10 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    logical_size_bytes: z.number().optional(),
+    logical_size_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     expire_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -2314,7 +2317,10 @@ export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodTyp
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
     .object({
-      delta_commit_version: z.number().optional(),
+      delta_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       delta_commit_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -2675,8 +2681,14 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     default_endpoint_settings: z
       .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
       .optional(),
-    branch_logical_size_limit_bytes: z.number().optional(),
-    synthetic_storage_size_bytes: z.number().optional(),
+    branch_logical_size_limit_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    synthetic_storage_size_bytes: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     budget_policy_id: z.string().optional(),
     custom_tags: z
       .array(z.lazy(() => unmarshalProjectCustomTagSchema))
@@ -2839,7 +2851,10 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
         .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
         .optional(),
       provisioning_phase: z.enum(ProvisioningPhase).optional(),
-      last_processed_commit_version: z.number().optional(),
+      last_processed_commit_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       last_sync_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -2871,9 +2886,18 @@ export const unmarshalSyncedTableOperationMetadataSchema: z.ZodType<SyncedTableO
 export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePipelineProgress> =
   z
     .object({
-      latest_version_currently_processing: z.number().optional(),
-      synced_row_count: z.number().optional(),
-      total_row_count: z.number().optional(),
+      latest_version_currently_processing: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      synced_row_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      total_row_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       sync_progress_completion: z.number().optional(),
       estimated_completion_time_seconds: z.number().optional(),
     })
@@ -2995,7 +3019,7 @@ export const marshalBranchStatusSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    logicalSizeBytes: z.number().optional(),
+    logicalSizeBytes: z.bigint().optional(),
     expireTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3128,7 +3152,7 @@ export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
 
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
-    deltaCommitVersion: z.number().optional(),
+    deltaCommitVersion: z.bigint().optional(),
     deltaCommitTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3422,8 +3446,8 @@ export const marshalProjectStatusSchema: z.ZodType = z
     defaultEndpointSettings: z
       .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
       .optional(),
-    branchLogicalSizeLimitBytes: z.number().optional(),
-    syntheticStorageSizeBytes: z.number().optional(),
+    branchLogicalSizeLimitBytes: z.bigint().optional(),
+    syntheticStorageSizeBytes: z.bigint().optional(),
     budgetPolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
     owner: z.string().optional(),
@@ -3599,7 +3623,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
       .lazy(() => marshalSyncedTablePipelineProgressSchema)
       .optional(),
     provisioningPhase: z.enum(ProvisioningPhase).optional(),
-    lastProcessedCommitVersion: z.number().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
     lastSyncTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3625,9 +3649,9 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
 
 export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
   .object({
-    latestVersionCurrentlyProcessing: z.number().optional(),
-    syncedRowCount: z.number().optional(),
-    totalRowCount: z.number().optional(),
+    latestVersionCurrentlyProcessing: z.bigint().optional(),
+    syncedRowCount: z.bigint().optional(),
+    totalRowCount: z.bigint().optional(),
     syncProgressCompletion: z.number().optional(),
     estimatedCompletionTimeSeconds: z.number().optional(),
   })

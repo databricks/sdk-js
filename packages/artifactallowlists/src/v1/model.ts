@@ -26,7 +26,7 @@ export interface ArtifactAllowlistInfo {
   /** Username of the user who set the artifact allowlist. */
   createdBy?: string | undefined;
   /** Time at which this artifact allowlist was set, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
 }
 
 export interface ArtifactMatcher {
@@ -51,7 +51,7 @@ export interface SetArtifactAllowlistRequest {
   /** Username of the user who set the artifact allowlist. */
   createdBy?: string | undefined;
   /** Time at which this artifact allowlist was set, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
 }
 
 export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistInfo> =
@@ -62,7 +62,10 @@ export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistIn
         .optional(),
       metastore_id: z.string().optional(),
       created_by: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       artifactMatchers: d.artifact_matchers,
@@ -99,7 +102,7 @@ export const marshalSetArtifactAllowlistRequestSchema: z.ZodType = z
       .optional(),
     metastoreId: z.string().optional(),
     createdBy: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
   })
   .transform(d => ({
     artifact_type: d.artifactType,

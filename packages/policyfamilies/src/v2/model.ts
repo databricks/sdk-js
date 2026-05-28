@@ -7,13 +7,13 @@ export interface GetPolicyFamilyRequest {
   /** The family ID about which to retrieve information. */
   policyFamilyId?: string | undefined;
   /** The version number for the family to fetch. Defaults to the latest version. */
-  version?: number | undefined;
+  version?: bigint | undefined;
 }
 
 /** Returns the list of policy families available to use at their latest version */
 export interface ListPolicyFamiliesRequest {
   /** Maximum number of policy families to return. */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /** A token that can be used to get the next page of results. */
   pageToken?: string | undefined;
 }
