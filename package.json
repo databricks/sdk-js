@@ -47,7 +47,8 @@
     "ws": "8.19.0",
     "picomatch": "4.0.3",
     "get-tsconfig": "4.13.6",
-    "ts-api-utils": "2.4.0"
+    "ts-api-utils": "2.4.0",
+    "bignumber.js": "9.1.2"
   },
   "packageManager": "npm@10.9.3",
   "engines": {
