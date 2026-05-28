@@ -112,7 +112,7 @@ export interface ApproxPercentileFunction {
   /** The percentile value to compute (between 0 and 1). */
   percentile?: number | undefined;
   /** The accuracy parameter (higher is more accurate but slower). */
-  accuracy?: number | undefined;
+  accuracy?: bigint | undefined;
 }
 
 export interface AuthConfig {
@@ -432,9 +432,9 @@ export interface GetMaterializedFeatureRequest {
 
 export interface JobContext {
   /** The job ID where this API invoked. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** The job run ID where this API was invoked. */
-  jobRunId?: number | undefined;
+  jobRunId?: bigint | undefined;
 }
 
 export interface KafkaConfig {
@@ -495,7 +495,7 @@ export interface LastFunction {
 /** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
 export interface LineageContext {
   /** The notebook ID where this API was invoked. */
-  notebookId?: number | undefined;
+  notebookId?: bigint | undefined;
   /** Job context information including job ID and run ID. */
   jobContext?: JobContext | undefined;
 }
@@ -967,7 +967,10 @@ export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentile
     .object({
       input: z.string().optional(),
       percentile: z.number().optional(),
-      accuracy: z.number().optional(),
+      accuracy: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       input: d.input,
@@ -1236,8 +1239,14 @@ export const unmarshalFunction_ExtraParameterSchema: z.ZodType<Function_ExtraPar
 
 export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
   .object({
-    job_id: z.number().optional(),
-    job_run_id: z.number().optional(),
+    job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    job_run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     jobId: d.job_id,
@@ -1294,7 +1303,10 @@ export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
 
 export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
   .object({
-    notebook_id: z.number().optional(),
+    notebook_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     job_context: z.lazy(() => unmarshalJobContextSchema).optional(),
   })
   .transform(d => ({
@@ -1749,7 +1761,7 @@ export const marshalApproxPercentileFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     percentile: z.number().optional(),
-    accuracy: z.number().optional(),
+    accuracy: z.bigint().optional(),
   })
   .transform(d => ({
     input: d.input,
@@ -2046,8 +2058,8 @@ export const marshalFunction_ExtraParameterSchema: z.ZodType = z
 
 export const marshalJobContextSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
-    jobRunId: z.number().optional(),
+    jobId: z.bigint().optional(),
+    jobRunId: z.bigint().optional(),
   })
   .transform(d => ({
     job_id: d.jobId,
@@ -2104,7 +2116,7 @@ export const marshalLastFunctionSchema: z.ZodType = z
 
 export const marshalLineageContextSchema: z.ZodType = z
   .object({
-    notebookId: z.number().optional(),
+    notebookId: z.bigint().optional(),
     jobContext: z.lazy(() => marshalJobContextSchema).optional(),
   })
   .transform(d => ({

@@ -6,21 +6,21 @@ export interface AdminTokenInfo {
   /** ID of the token. */
   tokenId?: string | undefined;
   /** Timestamp when the token was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Timestamp when the token expires. */
-  expiryTime?: number | undefined;
+  expiryTime?: bigint | undefined;
   /** Comment that describes the purpose of the token, specified by the token creator. */
   comment?: string | undefined;
   /** User ID of the user that created the token. */
-  createdById?: number | undefined;
+  createdById?: bigint | undefined;
   /** Username of the user that created the token. */
   createdByUsername?: string | undefined;
   /** User ID of the user that owns the token. */
-  ownerId?: number | undefined;
+  ownerId?: bigint | undefined;
   /** If applicable, the ID of the workspace that the token was created in. */
-  workspaceId?: number | undefined;
+  workspaceId?: bigint | undefined;
   /** Approximate timestamp for the day the token was last used. Accurate up to 1 day. */
-  lastUsedDay?: number | undefined;
+  lastUsedDay?: bigint | undefined;
 }
 
 /** Configuration details for creating on-behalf tokens. */
@@ -28,7 +28,7 @@ export interface CreateOnBehalfOfTokenRequest {
   /** Application ID of the service principal. */
   applicationId?: string | undefined;
   /** The number of seconds before the token expires. */
-  lifetimeSeconds?: number | undefined;
+  lifetimeSeconds?: bigint | undefined;
   /** Comment that describes the purpose of the token. */
   comment?: string | undefined;
   scopes?: string[] | undefined;
@@ -70,7 +70,7 @@ export interface GetTokenRequest_Response {
  */
 export interface ListTokensRequest {
   /** User ID of the user that created the token. */
-  createdById?: number | undefined;
+  createdById?: bigint | undefined;
   /** Username of the user that created the token. */
   createdByUsername?: string | undefined;
 }
@@ -94,14 +94,32 @@ export interface RevokeTokenRequest_Response {}
 export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
   .object({
     token_id: z.string().optional(),
-    creation_time: z.number().optional(),
-    expiry_time: z.number().optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    expiry_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     comment: z.string().optional(),
-    created_by_id: z.number().optional(),
+    created_by_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by_username: z.string().optional(),
-    owner_id: z.number().optional(),
-    workspace_id: z.number().optional(),
-    last_used_day: z.number().optional(),
+    owner_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    workspace_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_used_day: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     tokenId: d.token_id,
@@ -156,7 +174,7 @@ export const unmarshalRevokeTokenRequest_ResponseSchema: z.ZodType<RevokeTokenRe
 export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
   .object({
     applicationId: z.string().optional(),
-    lifetimeSeconds: z.number().optional(),
+    lifetimeSeconds: z.bigint().optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
   })

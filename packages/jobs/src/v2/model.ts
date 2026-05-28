@@ -873,7 +873,7 @@ export interface AzureAttributes {
 
 export interface BaseJob {
   /** The canonical identifier for this job. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
   creatorUserName?: string | undefined;
   /**
@@ -885,7 +885,7 @@ export interface BaseJob {
   /** Settings for this job and all of its runs. These settings can be updated using the `resetJob` method. */
   settings?: JobSettings | undefined;
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
-  createdTime?: number | undefined;
+  createdTime?: bigint | undefined;
   /** State of the trigger associated with the job. */
   triggerState?: TriggerState | undefined;
   /**
@@ -907,15 +907,15 @@ export interface BaseJob {
 
 export interface BaseRun {
   /** The canonical identifier of the job that contains this run. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** The canonical identifier of the run. This ID is unique across all runs of all jobs. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
   creatorUserName?: string | undefined;
   /** A unique identifier for this job run. This is set to the same value as `run_id`. */
-  numberInJob?: number | undefined;
+  numberInJob?: bigint | undefined;
   /** If this run is a retry of a prior run attempt, this field contains the run_id of the original attempt; otherwise, it is the same as the run_id. */
-  originalAttemptRunId?: number | undefined;
+  originalAttemptRunId?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
   /** The cron schedule that triggered this run if it was triggered by the periodic scheduler. */
@@ -965,7 +965,7 @@ export interface BaseRun {
    * For legacy and single-task job runs the field is populated with the job run ID.
    * For task runs, the field is populated with the ID of the job run that the task run belongs to.
    */
-  jobRunId?: number | undefined;
+  jobRunId?: bigint | undefined;
   /**
    * Indicates if the run has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/getrun endpoint.
    * It is only relevant for API 2.2 :method:jobs/listruns requests with `expand_tasks=true`.
@@ -981,24 +981,24 @@ export interface BaseRun {
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  setupDuration?: number | undefined;
+  setupDuration?: bigint | undefined;
   /** The time in milliseconds it took to execute the commands in the JAR or notebook until they  completed, failed, timed out, were cancelled, or encountered an unexpected error. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the  `cleanup_duration`. The `execution_duration` field is set to 0 for multitask job runs. The total  duration of a multitask job run is the value of the `run_duration` field. */
-  executionDuration?: number | undefined;
+  executionDuration?: bigint | undefined;
   /** The time in milliseconds it took to terminate the cluster and clean up any associated artifacts. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `cleanup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  cleanupDuration?: number | undefined;
+  cleanupDuration?: bigint | undefined;
   /** The time at which this run ended in epoch milliseconds (milliseconds since 1/1/1970 UTC). This field is set to 0 if the job is still running. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** The time in milliseconds it took the job run and all of its repairs to finish. */
-  runDuration?: number | undefined;
+  runDuration?: bigint | undefined;
   /** The time in milliseconds that the run has spent in the queue. */
-  queueDuration?: number | undefined;
+  queueDuration?: bigint | undefined;
 }
 
 export interface CancelAllRunsRequest {
   /** The canonical identifier of the job to cancel all runs of. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** Optional boolean parameter to cancel all queued runs. If no job_id is provided, all queued runs in the workspace are canceled. */
   allQueuedRuns?: boolean | undefined;
 }
@@ -1009,7 +1009,7 @@ export interface CancelAllRunsRequest_Response {}
 
 export interface CancelRunRequest {
   /** This field is required. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
 }
 
 /** Run was cancelled successfully. */
@@ -1509,7 +1509,7 @@ export interface CreateJobRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreateJobRequest_Response {
   /** The canonical identifier for the newly created job. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
 }
 
 /**
@@ -1594,7 +1594,7 @@ export interface DbtCloudJobRunStep {
 /** Deprecated in favor of DbtPlatformTask */
 export interface DbtCloudTask {
   /** Id of the dbt Cloud job to be triggered */
-  dbtCloudJobId?: number | undefined;
+  dbtCloudJobId?: bigint | undefined;
   /** The resource name of the UC connection that authenticates the dbt Cloud for this task */
   connectionResourceName?: string | undefined;
 }
@@ -1602,7 +1602,7 @@ export interface DbtCloudTask {
 /** Deprecated in favor of DbtPlatformTaskOutput */
 export interface DbtCloudTaskOutput {
   /** Id of the job run in dbt Cloud */
-  dbtCloudJobRunId?: number | undefined;
+  dbtCloudJobRunId?: bigint | undefined;
   /** Url where full run details can be viewed */
   dbtCloudJobRunUrl?: string | undefined;
   /** Steps of the job run as received from dbt Cloud */
@@ -1686,7 +1686,7 @@ export interface DbtTask_DbtTaskOutput_ArtifactsHeadersEntry {
 
 export interface DeleteJobRequest {
   /** The canonical identifier of the job to delete. This field is required. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
 }
 
 /** Job was deleted successfully. */
@@ -1695,7 +1695,7 @@ export interface DeleteJobRequest_Response {}
 
 export interface DeleteRunRequest {
   /** ID of the run to delete. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
 }
 
 /** Run was deleted successfully. */
@@ -1723,7 +1723,7 @@ export interface DockerImage {
 
 export interface EnforcePolicyComplianceForJob {
   /** The ID of the job you want to enforce policy compliance on. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /**
    * If set, previews changes made to the job to comply with its policy, but
    * does not update the job.
@@ -1818,7 +1818,7 @@ export interface Environment {
 /** Retrieves the export of a job run task. */
 export interface ExportRunRequest {
   /** The canonical identifier for the run. This field is required. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** Which views to export (CODE, DASHBOARDS, or ALL). Defaults to CODE. */
   viewsToExport?: ViewsToExport | undefined;
 }
@@ -1961,7 +1961,7 @@ export interface GenAiComputeTask {
 /** Retrieves information about a single job. */
 export interface GetJobRequest {
   /** The canonical identifier of the job to retrieve information about. This field is required. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** Flag that indicates that trigger state should be included in the response. */
   includeTriggerState?: boolean | undefined;
   /** Use `next_page_token` returned from the previous GetJob response to request the next page of the job's array properties. */
@@ -1974,7 +1974,7 @@ export interface GetJobRequest_Response {
   /** A token that can be used to list the next page of array properties. */
   nextPageToken?: string | undefined;
   /** The canonical identifier for this job. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
   creatorUserName?: string | undefined;
   /**
@@ -1986,7 +1986,7 @@ export interface GetJobRequest_Response {
   /** Settings for this job and all of its runs. These settings can be updated using the `resetJob` method. */
   settings?: JobSettings | undefined;
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
-  createdTime?: number | undefined;
+  createdTime?: bigint | undefined;
   /** State of the trigger associated with the job. */
   triggerState?: TriggerState | undefined;
   /**
@@ -2008,7 +2008,7 @@ export interface GetJobRequest_Response {
 
 export interface GetPolicyComplianceForJob {
   /** The ID of the job whose compliance status you are requesting. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2040,7 +2040,7 @@ export interface GetPolicyComplianceForJob_Response_ViolationsEntry {
 /** Retrieves both the output and the metadata of a run. */
 export interface GetRunOutputRequest {
   /** The canonical identifier for the run. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
 }
 
 /** Run output was retrieved successfully. */
@@ -2120,7 +2120,7 @@ export interface GetRunRequest {
    * The canonical identifier of the run for which to retrieve the metadata.
    * This field is required.
    */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** Whether to include the repair history in the response. */
   includeHistory?: boolean | undefined;
   /** Whether to include resolved parameter values in the response. */
@@ -2135,15 +2135,15 @@ export interface GetRunRequest_Response {
   /** A token that can be used to list the next page of array properties. */
   nextPageToken?: string | undefined;
   /** The canonical identifier of the job that contains this run. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** The canonical identifier of the run. This ID is unique across all runs of all jobs. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
   creatorUserName?: string | undefined;
   /** A unique identifier for this job run. This is set to the same value as `run_id`. */
-  numberInJob?: number | undefined;
+  numberInJob?: bigint | undefined;
   /** If this run is a retry of a prior run attempt, this field contains the run_id of the original attempt; otherwise, it is the same as the run_id. */
-  originalAttemptRunId?: number | undefined;
+  originalAttemptRunId?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
   /** The cron schedule that triggered this run if it was triggered by the periodic scheduler. */
@@ -2193,7 +2193,7 @@ export interface GetRunRequest_Response {
    * For legacy and single-task job runs the field is populated with the job run ID.
    * For task runs, the field is populated with the ID of the job run that the task run belongs to.
    */
-  jobRunId?: number | undefined;
+  jobRunId?: bigint | undefined;
   /**
    * Indicates if the run has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/getrun endpoint.
    * It is only relevant for API 2.2 :method:jobs/listruns requests with `expand_tasks=true`.
@@ -2209,19 +2209,19 @@ export interface GetRunRequest_Response {
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  setupDuration?: number | undefined;
+  setupDuration?: bigint | undefined;
   /** The time in milliseconds it took to execute the commands in the JAR or notebook until they  completed, failed, timed out, were cancelled, or encountered an unexpected error. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the  `cleanup_duration`. The `execution_duration` field is set to 0 for multitask job runs. The total  duration of a multitask job run is the value of the `run_duration` field. */
-  executionDuration?: number | undefined;
+  executionDuration?: bigint | undefined;
   /** The time in milliseconds it took to terminate the cluster and clean up any associated artifacts. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `cleanup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  cleanupDuration?: number | undefined;
+  cleanupDuration?: bigint | undefined;
   /** The time at which this run ended in epoch milliseconds (milliseconds since 1/1/1970 UTC). This field is set to 0 if the job is still running. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** The time in milliseconds it took the job run and all of its repairs to finish. */
-  runDuration?: number | undefined;
+  runDuration?: bigint | undefined;
   /** The time in milliseconds that the run has spent in the queue. */
-  queueDuration?: number | undefined;
+  queueDuration?: bigint | undefined;
 }
 
 /** Read-only state of the remote repository at the time the job was run. This field is only included on job runs. */
@@ -2557,7 +2557,7 @@ export interface JobsHealthRule {
   metric?: JobsHealthMetric | undefined;
   op?: JobsHealthOperator | undefined;
   /** Specifies the threshold value that the health metric should obey to satisfy the health rule. */
-  value?: number | undefined;
+  value?: bigint | undefined;
 }
 
 /** An optional set of health rules that can be defined for this job. */
@@ -2645,7 +2645,7 @@ export interface ListJobComplianceForPolicy {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ListJobComplianceForPolicy_JobCompliance {
   /** Canonical unique identifier for a job. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** Whether this job is in compliance with the latest version of its policy. */
   isCompliant?: boolean | undefined;
   /**
@@ -2717,7 +2717,7 @@ export interface ListJobsRequest_Response {
 /** Lists runs from most recently started to least. */
 export interface ListRunsRequest {
   /** The job for which to list runs. If omitted, the Jobs service lists runs from all jobs. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   stateConstraint?:
     | {
         $case: 'activeOnly';
@@ -2760,12 +2760,12 @@ export interface ListRunsRequest {
    * Show runs that started _at or after_ this value. The value must be a UTC timestamp
    * in milliseconds. Can be combined with _start_time_to_ to filter by a time range.
    */
-  startTimeFrom?: number | undefined;
+  startTimeFrom?: bigint | undefined;
   /**
    * Show runs that started _at or before_ this value. The value must be a UTC timestamp
    * in milliseconds. Can be combined with _start_time_from_ to filter by a time range.
    */
-  startTimeTo?: number | undefined;
+  startTimeTo?: bigint | undefined;
   /** Use `next_page_token` or `prev_page_token` returned from the previous request to list the next or previous page of runs respectively. */
   pageToken?: string | undefined;
 }
@@ -2909,7 +2909,7 @@ export interface OutputSchemaInfo {
   catalogName?: string | undefined;
   schemaName?: string | undefined;
   /** The expiration time for the output schema as a Unix timestamp in milliseconds. */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3083,15 +3083,15 @@ export interface Repair {
   /** The repair history item type. Indicates whether a run is the original run or a repair run. */
   type?: RepairType | undefined;
   /** The start time of the (repaired) run. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** The end time of the (repaired) run. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
   /** The ID of the repair. Only returned for the items that represent a repair in `repair_history`. */
-  id?: number | undefined;
+  id?: bigint | undefined;
   /** The run IDs of the task runs that ran as part of this repair history item. */
-  taskRunIds?: number[] | undefined;
+  taskRunIds?: bigint[] | undefined;
   status?: RunStatus | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
@@ -3104,9 +3104,9 @@ export interface Repair {
 
 export interface RepairRunRequest {
   /** The job run ID of the run to repair. The run must not be in progress. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** The ID of the latest repair. This parameter is not required when repairing a run for the first time, but must be provided on subsequent requests to repair the same run. */
-  latestRepairId?: number | undefined;
+  latestRepairId?: bigint | undefined;
   /** The task keys of the task runs to repair. */
   rerunTasks?: string[] | undefined;
   /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
@@ -3218,7 +3218,7 @@ export interface RepairRunRequest_PythonNamedParamsEntry {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface RepairRunRequest_Response {
   /** The ID of the repair. Must be provided in subsequent repairs using the `latest_repair_id` field to ensure sequential repairs. */
-  repairId?: number | undefined;
+  repairId?: bigint | undefined;
 }
 
 /** Name-based parameters for jobs running notebook tasks. */
@@ -3231,7 +3231,7 @@ export interface RepairRunRequest_SqlParamsEntry {
 
 export interface ResetJobRequest {
   /** The canonical identifier of the job to reset. This field is required. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /**
    * The new settings of the job. These settings completely replace the old settings.
    *
@@ -3398,15 +3398,15 @@ export interface ResolvedValues_SqlTaskResolvedValues_ParametersEntry {
 
 export interface Run {
   /** The canonical identifier of the job that contains this run. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** The canonical identifier of the run. This ID is unique across all runs of all jobs. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
   creatorUserName?: string | undefined;
   /** A unique identifier for this job run. This is set to the same value as `run_id`. */
-  numberInJob?: number | undefined;
+  numberInJob?: bigint | undefined;
   /** If this run is a retry of a prior run attempt, this field contains the run_id of the original attempt; otherwise, it is the same as the run_id. */
-  originalAttemptRunId?: number | undefined;
+  originalAttemptRunId?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
   /** The cron schedule that triggered this run if it was triggered by the periodic scheduler. */
@@ -3456,7 +3456,7 @@ export interface Run {
    * For legacy and single-task job runs the field is populated with the job run ID.
    * For task runs, the field is populated with the ID of the job run that the task run belongs to.
    */
-  jobRunId?: number | undefined;
+  jobRunId?: bigint | undefined;
   /**
    * Indicates if the run has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/getrun endpoint.
    * It is only relevant for API 2.2 :method:jobs/listruns requests with `expand_tasks=true`.
@@ -3472,19 +3472,19 @@ export interface Run {
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  setupDuration?: number | undefined;
+  setupDuration?: bigint | undefined;
   /** The time in milliseconds it took to execute the commands in the JAR or notebook until they  completed, failed, timed out, were cancelled, or encountered an unexpected error. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the  `cleanup_duration`. The `execution_duration` field is set to 0 for multitask job runs. The total  duration of a multitask job run is the value of the `run_duration` field. */
-  executionDuration?: number | undefined;
+  executionDuration?: bigint | undefined;
   /** The time in milliseconds it took to terminate the cluster and clean up any associated artifacts. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `cleanup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  cleanupDuration?: number | undefined;
+  cleanupDuration?: bigint | undefined;
   /** The time at which this run ended in epoch milliseconds (milliseconds since 1/1/1970 UTC). This field is set to 0 if the job is still running. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** The time in milliseconds it took the job run and all of its repairs to finish. */
-  runDuration?: number | undefined;
+  runDuration?: bigint | undefined;
   /** The time in milliseconds that the run has spent in the queue. */
-  queueDuration?: number | undefined;
+  queueDuration?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3499,7 +3499,7 @@ export interface Run_JobLevelParameters {
 
 export interface RunJobTask {
   /** ID of the job to trigger. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** Job-level parameters used to trigger the job. */
   jobParameters?: Record<string, string> | undefined;
   /** Controls whether the pipeline should perform a full refresh */
@@ -3597,7 +3597,7 @@ export interface RunJobTask_PythonNamedParamsEntry {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface RunJobTask_RunJobTaskOutput {
   /** The run id of the triggered job run */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
 }
 
 /** Name-based parameters for jobs running notebook tasks. */
@@ -3616,7 +3616,7 @@ export interface RunLifecycleStateV2 {}
 
 export interface RunNowRequest {
   /** The ID of the job to be executed */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
   jobParameters?: Record<string, string> | undefined;
   /**
@@ -3739,9 +3739,9 @@ export interface RunNowRequest_PythonNamedParamsEntry {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface RunNowRequest_Response {
   /** The globally unique ID of the newly triggered run. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** A unique identifier for this job run. This is set to the same value as `run_id`. */
-  numberInJob?: number | undefined;
+  numberInJob?: bigint | undefined;
 }
 
 /** Name-based parameters for jobs running notebook tasks. */
@@ -3874,7 +3874,7 @@ export interface RunStatus {
 /** Used when outputting a child run, in GetRun or ListRuns. */
 export interface RunTask {
   /** The ID of the task run. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
   runPageUrl?: string | undefined;
@@ -4067,19 +4067,19 @@ export interface RunTask {
   /** An option to disable auto optimization in serverless */
   disableAutoOptimization?: boolean | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  setupDuration?: number | undefined;
+  setupDuration?: bigint | undefined;
   /** The time in milliseconds it took to execute the commands in the JAR or notebook until they  completed, failed, timed out, were cancelled, or encountered an unexpected error. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the  `cleanup_duration`. The `execution_duration` field is set to 0 for multitask job runs. The total  duration of a multitask job run is the value of the `run_duration` field. */
-  executionDuration?: number | undefined;
+  executionDuration?: bigint | undefined;
   /** The time in milliseconds it took to terminate the cluster and clean up any associated artifacts. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `cleanup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  cleanupDuration?: number | undefined;
+  cleanupDuration?: bigint | undefined;
   /** The time at which this run ended in epoch milliseconds (milliseconds since 1/1/1970 UTC). This field is set to 0 if the job is still running. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** The time in milliseconds it took the job run and all of its repairs to finish. */
-  runDuration?: number | undefined;
+  runDuration?: bigint | undefined;
   /** The time in milliseconds that the run has spent in the queue. */
-  queueDuration?: number | undefined;
+  queueDuration?: bigint | undefined;
 }
 
 export interface RunTaskSettings {
@@ -4260,7 +4260,7 @@ export interface RunTaskSettings {
 /** Additional details about what triggered the run */
 export interface RunTriggerInfo {
   /** The run id of the Run Job task run */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
 }
 
 /** A storage location in Amazon S3 */
@@ -4433,9 +4433,9 @@ export interface SqlTask_SqlDashboardWidgetOutput {
   /** The information about the error when execution fails. */
   error?: SqlTask_SqlOutputError | undefined;
   /** Time (in epoch milliseconds) when execution of the SQL widget starts. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** Time (in epoch milliseconds) when execution of the SQL widget ends. */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4601,7 +4601,7 @@ export interface SubmitRunRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SubmitRunRequest_Response {
   /** The canonical identifier for the newly submitted run. */
-  runId?: number | undefined;
+  runId?: bigint | undefined;
 }
 
 export interface Subscription {
@@ -4898,7 +4898,7 @@ export interface TriggerState {
 
 export interface UpdateJobRequest {
   /** The canonical identifier of the job to update. This field is required. */
-  jobId?: number | undefined;
+  jobId?: bigint | undefined;
   /**
    * The new settings for the job.
    *
@@ -5082,11 +5082,17 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
 
 export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
   .object({
-    job_id: z.number().optional(),
+    job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
     settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
-    created_time: z.number().optional(),
+    created_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
@@ -5106,11 +5112,23 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
 
 export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
   .object({
-    job_id: z.number().optional(),
-    run_id: z.number().optional(),
+    job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     creator_user_name: z.string().optional(),
-    number_in_job: z.number().optional(),
-    original_attempt_run_id: z.number().optional(),
+    number_in_job: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    original_attempt_run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
     cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
@@ -5133,19 +5151,43 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    job_run_id: z.number().optional(),
+    job_run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     has_more: z.boolean().optional(),
     effective_performance_target: z
       .enum(PerformanceTarget_PerformanceTarget)
       .optional(),
     effective_usage_policy_id: z.string().optional(),
-    start_time: z.number().optional(),
-    setup_duration: z.number().optional(),
-    execution_duration: z.number().optional(),
-    cleanup_duration: z.number().optional(),
-    end_time: z.number().optional(),
-    run_duration: z.number().optional(),
-    queue_duration: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    setup_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    execution_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    cleanup_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    run_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    queue_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     jobId: d.job_id,
@@ -5429,7 +5471,10 @@ export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
 export const unmarshalCreateJobRequest_ResponseSchema: z.ZodType<CreateJobRequest_Response> =
   z
     .object({
-      job_id: z.number().optional(),
+      job_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       jobId: d.job_id,
@@ -5510,7 +5555,10 @@ export const unmarshalDbtCloudJobRunStepSchema: z.ZodType<DbtCloudJobRunStep> =
 
 export const unmarshalDbtCloudTaskSchema: z.ZodType<DbtCloudTask> = z
   .object({
-    dbt_cloud_job_id: z.number().optional(),
+    dbt_cloud_job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     connection_resource_name: z.string().optional(),
   })
   .transform(d => ({
@@ -5521,7 +5569,10 @@ export const unmarshalDbtCloudTaskSchema: z.ZodType<DbtCloudTask> = z
 export const unmarshalDbtCloudTaskOutputSchema: z.ZodType<DbtCloudTaskOutput> =
   z
     .object({
-      dbt_cloud_job_run_id: z.number().optional(),
+      dbt_cloud_job_run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       dbt_cloud_job_run_url: z.string().optional(),
       dbt_cloud_job_run_output: z
         .array(z.lazy(() => unmarshalDbtCloudJobRunStepSchema))
@@ -5794,11 +5845,17 @@ export const unmarshalGetJobRequest_ResponseSchema: z.ZodType<GetJobRequest_Resp
   z
     .object({
       next_page_token: z.string().optional(),
-      job_id: z.number().optional(),
+      job_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       creator_user_name: z.string().optional(),
       run_as_user_name: z.string().optional(),
       settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
-      created_time: z.number().optional(),
+      created_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
       has_more: z.boolean().optional(),
       effective_budget_policy_id: z.string().optional(),
@@ -5919,11 +5976,23 @@ export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Resp
   z
     .object({
       next_page_token: z.string().optional(),
-      job_id: z.number().optional(),
-      run_id: z.number().optional(),
+      job_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       creator_user_name: z.string().optional(),
-      number_in_job: z.number().optional(),
-      original_attempt_run_id: z.number().optional(),
+      number_in_job: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      original_attempt_run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       state: z.lazy(() => unmarshalRunStateSchema).optional(),
       schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
       cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
@@ -5946,19 +6015,43 @@ export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Resp
       git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
       repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
       status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-      job_run_id: z.number().optional(),
+      job_run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       has_more: z.boolean().optional(),
       effective_performance_target: z
         .enum(PerformanceTarget_PerformanceTarget)
         .optional(),
       effective_usage_policy_id: z.string().optional(),
-      start_time: z.number().optional(),
-      setup_duration: z.number().optional(),
-      execution_duration: z.number().optional(),
-      cleanup_duration: z.number().optional(),
-      end_time: z.number().optional(),
-      run_duration: z.number().optional(),
-      queue_duration: z.number().optional(),
+      start_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      setup_duration: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      execution_duration: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      cleanup_duration: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      end_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      run_duration: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      queue_duration: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       nextPageToken: d.next_page_token,
@@ -6239,7 +6332,10 @@ export const unmarshalJobsHealthRuleSchema: z.ZodType<JobsHealthRule> = z
   .object({
     metric: z.enum(JobsHealthMetric).optional(),
     op: z.enum(JobsHealthOperator).optional(),
-    value: z.number().optional(),
+    value: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     metric: d.metric,
@@ -6291,7 +6387,10 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
 export const unmarshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType<ListJobComplianceForPolicy_JobCompliance> =
   z
     .object({
-      job_id: z.number().optional(),
+      job_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       is_compliant: z.boolean().optional(),
       violations: z.record(z.string(), z.string()).optional(),
     })
@@ -6452,7 +6551,10 @@ export const unmarshalOutputSchemaInfoSchema: z.ZodType<OutputSchemaInfo> = z
   .object({
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    expiration_time: z.number().optional(),
+    expiration_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     catalogName: d.catalog_name,
@@ -6634,11 +6736,22 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
 export const unmarshalRepairSchema: z.ZodType<Repair> = z
   .object({
     type: z.enum(RepairType).optional(),
-    start_time: z.number().optional(),
-    end_time: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
-    id: z.number().optional(),
-    task_run_ids: z.array(z.number()).optional(),
+    id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    task_run_ids: z
+      .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+      .optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     effective_performance_target: z
       .enum(PerformanceTarget_PerformanceTarget)
@@ -6659,7 +6772,10 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
 export const unmarshalRepairRunRequest_ResponseSchema: z.ZodType<RepairRunRequest_Response> =
   z
     .object({
-      repair_id: z.number().optional(),
+      repair_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       repairId: d.repair_id,
@@ -6859,11 +6975,23 @@ export const unmarshalResolvedValues_SqlTaskResolvedValuesSchema: z.ZodType<Reso
 
 export const unmarshalRunSchema: z.ZodType<Run> = z
   .object({
-    job_id: z.number().optional(),
-    run_id: z.number().optional(),
+    job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     creator_user_name: z.string().optional(),
-    number_in_job: z.number().optional(),
-    original_attempt_run_id: z.number().optional(),
+    number_in_job: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    original_attempt_run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
     cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
@@ -6886,19 +7014,43 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    job_run_id: z.number().optional(),
+    job_run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     has_more: z.boolean().optional(),
     effective_performance_target: z
       .enum(PerformanceTarget_PerformanceTarget)
       .optional(),
     effective_usage_policy_id: z.string().optional(),
-    start_time: z.number().optional(),
-    setup_duration: z.number().optional(),
-    execution_duration: z.number().optional(),
-    cleanup_duration: z.number().optional(),
-    end_time: z.number().optional(),
-    run_duration: z.number().optional(),
-    queue_duration: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    setup_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    execution_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    cleanup_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    run_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    queue_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     jobId: d.job_id,
@@ -6953,7 +7105,10 @@ export const unmarshalRun_JobLevelParametersSchema: z.ZodType<Run_JobLevelParame
 
 export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
   .object({
-    job_id: z.number().optional(),
+    job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     job_parameters: z.record(z.string(), z.string()).optional(),
     pipeline_params: z.lazy(() => unmarshalPipelineParametersSchema).optional(),
     jar_params: z.array(z.string()).optional(),
@@ -6981,7 +7136,10 @@ export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
 export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_RunJobTaskOutput> =
   z
     .object({
-      run_id: z.number().optional(),
+      run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       runId: d.run_id,
@@ -6991,8 +7149,14 @@ export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_Ru
 export const unmarshalRunNowRequest_ResponseSchema: z.ZodType<RunNowRequest_Response> =
   z
     .object({
-      run_id: z.number().optional(),
-      number_in_job: z.number().optional(),
+      run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      number_in_job: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       runId: d.run_id,
@@ -7053,7 +7217,10 @@ export const unmarshalRunStatusSchema: z.ZodType<RunStatus> = z
 
 export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
   .object({
-    run_id: z.number().optional(),
+    run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
     run_page_url: z.string().optional(),
     cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
@@ -7115,13 +7282,34 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     min_retry_interval_millis: z.number().optional(),
     retry_on_timeout: z.boolean().optional(),
     disable_auto_optimization: z.boolean().optional(),
-    start_time: z.number().optional(),
-    setup_duration: z.number().optional(),
-    execution_duration: z.number().optional(),
-    cleanup_duration: z.number().optional(),
-    end_time: z.number().optional(),
-    run_duration: z.number().optional(),
-    queue_duration: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    setup_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    execution_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    cleanup_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    run_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    queue_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     runId: d.run_id,
@@ -7267,7 +7455,10 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
 
 export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
   .object({
-    run_id: z.number().optional(),
+    run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     runId: d.run_id,
@@ -7402,8 +7593,14 @@ export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_
       output_link: z.string().optional(),
       status: z.enum(SqlTask_SqlTaskQueryStatus).optional(),
       error: z.lazy(() => unmarshalSqlTask_SqlOutputErrorSchema).optional(),
-      start_time: z.number().optional(),
-      end_time: z.number().optional(),
+      start_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      end_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       widgetId: d.widget_id,
@@ -7552,7 +7749,10 @@ export const unmarshalSqlTaskSubscriptionSchema: z.ZodType<SqlTaskSubscription> 
 export const unmarshalSubmitRunRequest_ResponseSchema: z.ZodType<SubmitRunRequest_Response> =
   z
     .object({
-      run_id: z.number().optional(),
+      run_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       runId: d.run_id,
@@ -8088,7 +8288,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
 
 export const marshalCancelAllRunsRequestSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
     allQueuedRuns: z.boolean().optional(),
   })
   .transform(d => ({
@@ -8098,7 +8298,7 @@ export const marshalCancelAllRunsRequestSchema: z.ZodType = z
 
 export const marshalCancelRunRequestSchema: z.ZodType = z
   .object({
-    runId: z.number().optional(),
+    runId: z.bigint().optional(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -8385,7 +8585,7 @@ export const marshalDbfsStorageInfoSchema: z.ZodType = z
 
 export const marshalDbtCloudTaskSchema: z.ZodType = z
   .object({
-    dbtCloudJobId: z.number().optional(),
+    dbtCloudJobId: z.bigint().optional(),
     connectionResourceName: z.string().optional(),
   })
   .transform(d => ({
@@ -8425,7 +8625,7 @@ export const marshalDbtTaskSchema: z.ZodType = z
 
 export const marshalDeleteJobRequestSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
   })
   .transform(d => ({
     job_id: d.jobId,
@@ -8433,7 +8633,7 @@ export const marshalDeleteJobRequestSchema: z.ZodType = z
 
 export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
-    runId: z.number().optional(),
+    runId: z.bigint().optional(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -8470,7 +8670,7 @@ export const marshalDockerImageSchema: z.ZodType = z
 
 export const marshalEnforcePolicyComplianceForJobSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
     validateOnly: z.boolean().optional(),
   })
   .transform(d => ({
@@ -8834,7 +9034,7 @@ export const marshalJobsHealthRuleSchema: z.ZodType = z
   .object({
     metric: z.enum(JobsHealthMetric).optional(),
     op: z.enum(JobsHealthOperator).optional(),
-    value: z.number().optional(),
+    value: z.bigint().optional(),
   })
   .transform(d => ({
     metric: d.metric,
@@ -9124,8 +9324,8 @@ export const marshalRCranLibrarySchema: z.ZodType = z
 
 export const marshalRepairRunRequestSchema: z.ZodType = z
   .object({
-    runId: z.number().optional(),
-    latestRepairId: z.number().optional(),
+    runId: z.bigint().optional(),
+    latestRepairId: z.bigint().optional(),
     rerunTasks: z.array(z.string()).optional(),
     jobParameters: z.record(z.string(), z.string()).optional(),
     rerunAllFailedTasks: z.boolean().optional(),
@@ -9160,7 +9360,7 @@ export const marshalRepairRunRequestSchema: z.ZodType = z
 
 export const marshalResetJobRequestSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
   })
   .transform(d => ({
@@ -9170,7 +9370,7 @@ export const marshalResetJobRequestSchema: z.ZodType = z
 
 export const marshalRunJobTaskSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
     jobParameters: z.record(z.string(), z.string()).optional(),
     pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
     jarParams: z.array(z.string()).optional(),
@@ -9196,7 +9396,7 @@ export const marshalRunJobTaskSchema: z.ZodType = z
 
 export const marshalRunNowRequestSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
     jobParameters: z.record(z.string(), z.string()).optional(),
     idempotencyToken: z.string().optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
@@ -9955,7 +10155,7 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
 
 export const marshalUpdateJobRequestSchema: z.ZodType = z
   .object({
-    jobId: z.number().optional(),
+    jobId: z.bigint().optional(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
     fieldsToRemove: z.array(z.string()).optional(),
   })

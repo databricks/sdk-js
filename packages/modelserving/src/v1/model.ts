@@ -92,7 +92,7 @@ export interface AiGatewayConfig {
 
 export interface AiGatewayRateLimit {
   /** Used to specify how many calls are allowed for a key within the renewal_period. */
-  calls?: number | undefined;
+  calls?: bigint | undefined;
   /**
    * Key field for a rate limit. Currently, 'user', 'user_group, 'service_principal', and 'endpoint' are supported,
    * with 'endpoint' being the default if not specified.
@@ -103,7 +103,7 @@ export interface AiGatewayRateLimit {
   /** Principal field for a user, user group, or service principal to apply rate limiting to. Accepts a user email, group name, or service principal application ID. */
   principal?: string | undefined;
   /** Used to specify how many tokens are allowed for a key within the renewal_period. */
-  tokens?: number | undefined;
+  tokens?: bigint | undefined;
 }
 
 export interface AiGuardrailParameters {
@@ -391,7 +391,7 @@ export interface EndpointCoreConfig {
 
 export interface EndpointCoreConfigOutput {
   /** The config version that the serving endpoint is currently serving. */
-  configVersion?: number | undefined;
+  configVersion?: bigint | undefined;
   /** The list of served entities under the serving endpoint config. */
   servedEntities?: ServedModel[] | undefined;
   /** (Deprecated, use served_entities instead) The list of served models under the serving endpoint config. */
@@ -627,9 +627,9 @@ export interface InferenceEndpoint {
   /** The email of the user who created the serving endpoint. */
   creator?: string | undefined;
   /** The timestamp when the endpoint was created in Unix time. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** The timestamp when the endpoint was last updated by a user in Unix time. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** Information corresponding to the state of the serving endpoint. */
   state?: InferenceEndpointState | undefined;
   /** The config that is currently being served by the endpoint. */
@@ -656,9 +656,9 @@ export interface InferenceEndpointDetailed {
   /** The email of the user who created the serving endpoint. */
   creator?: string | undefined;
   /** The timestamp when the endpoint was created in Unix time. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** The timestamp when the endpoint was last updated by a user in Unix time. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** Information corresponding to the state of the serving endpoint. */
   state?: InferenceEndpointState | undefined;
   /** The config that is currently being served by the endpoint. */
@@ -863,7 +863,7 @@ export interface PendingConfig {
   /** The config version that the serving endpoint is currently serving. */
   configVersion?: number | undefined;
   /** The timestamp when the update to the pending config started. */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /**
    * Configuration for legacy Inference Tables which automatically log requests and responses to Unity
    * Catalog.
@@ -891,7 +891,7 @@ export interface PtServedModel {
   entityName?: string | undefined;
   entityVersion?: string | undefined;
   /** The number of model units to be provisioned. */
-  provisionedModelUnits?: number | undefined;
+  provisionedModelUnits?: bigint | undefined;
   /**
    * Whether burst scaling is enabled. When enabled (default), the endpoint can automatically
    * scale up beyond provisioned capacity to handle traffic spikes. When disabled, the endpoint
@@ -986,7 +986,7 @@ export interface PutPtEndpointConfigRequest {
 
 export interface RateLimit {
   /** Used to specify how many calls are allowed for a key within the renewal_period. */
-  calls?: number | undefined;
+  calls?: bigint | undefined;
   /** Key field for a serving endpoint rate limit. Currently, only 'user' and 'endpoint' are supported, with 'endpoint' being the default if not specified. */
   key?: string | undefined;
   /** Renewal period field for a serving endpoint rate limit. Currently, only 'minute' is supported. */
@@ -1020,7 +1020,7 @@ export interface ServedModel {
   /** The workload size of the served entity. The workload size corresponds to a range of provisioned concurrency that the compute autoscales between. A single unit of provisioned concurrency can process one request at a time. Valid workload sizes are "Small" (4 - 4 provisioned concurrency), "Medium" (8 - 16 provisioned concurrency), and "Large" (16 - 64 provisioned concurrency). Additional custom workload sizes can also be used when available in the workspace. If scale-to-zero is enabled, the lower bound of the provisioned concurrency for each workload size is 0. Do not use if min_provisioned_concurrency and max_provisioned_concurrency are specified. */
   workloadSize?: string | undefined;
   /** The number of model units provisioned. */
-  provisionedModelUnits?: number | undefined;
+  provisionedModelUnits?: bigint | undefined;
   /**
    * Whether burst scaling is enabled. When enabled (default), the endpoint can automatically
    * scale up beyond provisioned capacity to handle traffic spikes. When disabled, the endpoint
@@ -1038,7 +1038,7 @@ export interface ServedModel {
   foundationModel?: FoundationModel | undefined;
   state?: ServedModelState | undefined;
   creator?: string | undefined;
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1129,11 +1129,17 @@ export const unmarshalAiGatewayConfigSchema: z.ZodType<AiGatewayConfig> = z
 export const unmarshalAiGatewayRateLimitSchema: z.ZodType<AiGatewayRateLimit> =
   z
     .object({
-      calls: z.number().optional(),
+      calls: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       key: z.string().optional(),
       renewal_period: z.string().optional(),
       principal: z.string().optional(),
-      tokens: z.number().optional(),
+      tokens: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       calls: d.calls,
@@ -1313,7 +1319,10 @@ export const unmarshalEmailNotificationsSchema: z.ZodType<EmailNotifications> =
 export const unmarshalEndpointCoreConfigOutputSchema: z.ZodType<EndpointCoreConfigOutput> =
   z
     .object({
-      config_version: z.number().optional(),
+      config_version: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       served_entities: z
         .array(z.lazy(() => unmarshalServedModelSchema))
         .optional(),
@@ -1490,8 +1499,14 @@ export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
   .object({
     name: z.string().optional(),
     creator: z.string().optional(),
-    creation_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
     config: z.lazy(() => unmarshalEndpointCoreConfigSummarySchema).optional(),
     tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
@@ -1523,8 +1538,14 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
     .object({
       name: z.string().optional(),
       creator: z.string().optional(),
-      creation_timestamp: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
+      creation_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      last_updated_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
       config: z.lazy(() => unmarshalEndpointCoreConfigOutputSchema).optional(),
       pending_config: z.lazy(() => unmarshalPendingConfigSchema).optional(),
@@ -1685,7 +1706,10 @@ export const unmarshalPendingConfigSchema: z.ZodType<PendingConfig> = z
     served_models: z.array(z.lazy(() => unmarshalServedModelSchema)).optional(),
     traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
     config_version: z.number().optional(),
-    start_time: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     auto_capture_config: z
       .lazy(() => unmarshalAutoCaptureConfigSchema)
       .optional(),
@@ -1743,7 +1767,10 @@ export const unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema: z.Zo
 
 export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
-    calls: z.number().optional(),
+    calls: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     key: z.string().optional(),
     renewal_period: z.string().optional(),
   })
@@ -1776,7 +1803,10 @@ export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
     min_provisioned_concurrency: z.number().optional(),
     max_provisioned_concurrency: z.number().optional(),
     workload_size: z.string().optional(),
-    provisioned_model_units: z.number().optional(),
+    provisioned_model_units: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     burst_scaling_enabled: z.boolean().optional(),
     scale_to_zero_enabled: z.boolean().optional(),
     model_name: z.string().optional(),
@@ -1786,7 +1816,10 @@ export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
     foundation_model: z.lazy(() => unmarshalFoundationModelSchema).optional(),
     state: z.lazy(() => unmarshalServedModelStateSchema).optional(),
     creator: z.string().optional(),
-    creation_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1906,11 +1939,11 @@ export const marshalAiGatewayConfigSchema: z.ZodType = z
 
 export const marshalAiGatewayRateLimitSchema: z.ZodType = z
   .object({
-    calls: z.number().optional(),
+    calls: z.bigint().optional(),
     key: z.string().optional(),
     renewalPeriod: z.string().optional(),
     principal: z.string().optional(),
-    tokens: z.number().optional(),
+    tokens: z.bigint().optional(),
   })
   .transform(d => ({
     calls: d.calls,
@@ -2375,7 +2408,7 @@ export const marshalPtServedModelSchema: z.ZodType = z
     name: z.string().optional(),
     entityName: z.string().optional(),
     entityVersion: z.string().optional(),
-    provisionedModelUnits: z.number().optional(),
+    provisionedModelUnits: z.bigint().optional(),
     burstScalingEnabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2448,7 +2481,7 @@ export const marshalPutPtEndpointConfigRequestSchema: z.ZodType = z
 
 export const marshalRateLimitSchema: z.ZodType = z
   .object({
-    calls: z.number().optional(),
+    calls: z.bigint().optional(),
     key: z.string().optional(),
     renewalPeriod: z.string().optional(),
   })
@@ -2481,7 +2514,7 @@ export const marshalServedModelSchema: z.ZodType = z
     minProvisionedConcurrency: z.number().optional(),
     maxProvisionedConcurrency: z.number().optional(),
     workloadSize: z.string().optional(),
-    provisionedModelUnits: z.number().optional(),
+    provisionedModelUnits: z.bigint().optional(),
     burstScalingEnabled: z.boolean().optional(),
     scaleToZeroEnabled: z.boolean().optional(),
     modelName: z.string().optional(),
@@ -2491,7 +2524,7 @@ export const marshalServedModelSchema: z.ZodType = z
     foundationModel: z.lazy(() => marshalFoundationModelSchema).optional(),
     state: z.lazy(() => marshalServedModelStateSchema).optional(),
     creator: z.string().optional(),
-    creationTimestamp: z.number().optional(),
+    creationTimestamp: z.bigint().optional(),
   })
   .transform(d => ({
     name: d.name,

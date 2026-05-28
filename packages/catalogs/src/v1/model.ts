@@ -81,11 +81,11 @@ export interface CatalogInfo {
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this catalog was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of catalog creator. */
   createdBy?: string | undefined;
   /** Time at which this catalog was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified catalog. */
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for managed tables within catalog. */
@@ -146,11 +146,11 @@ export interface CreateCatalogRequest {
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this catalog was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of catalog creator. */
   createdBy?: string | undefined;
   /** Time at which this catalog was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified catalog. */
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for managed tables within catalog. */
@@ -293,11 +293,11 @@ export interface UpdateCatalogRequest {
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this catalog was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of catalog creator. */
   createdBy?: string | undefined;
   /** Time at which this catalog was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified catalog. */
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for managed tables within catalog. */
@@ -358,9 +358,15 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     share_name: z.string().optional(),
     connection_name: z.string().optional(),
     metastore_id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     storage_location: z.string().optional(),
     isolation_mode: z.enum(CatalogIsolationMode).optional(),
@@ -481,9 +487,9 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     shareName: z.string().optional(),
     connectionName: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
     isolationMode: z.enum(CatalogIsolationMode).optional(),
@@ -576,9 +582,9 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     shareName: z.string().optional(),
     connectionName: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
     isolationMode: z.enum(CatalogIsolationMode).optional(),

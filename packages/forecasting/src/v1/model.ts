@@ -29,7 +29,7 @@ export interface CreateForecastingExperimentRequest {
    */
   forecastGranularity?: string | undefined;
   /** The number of time steps into the future to make predictions, calculated as a multiple of forecast_granularity. This value represents how far ahead the model should forecast. */
-  forecastHorizon?: number | undefined;
+  forecastHorizon?: bigint | undefined;
   /** The evaluation metric used to optimize the forecasting model. */
   primaryMetric?: string | undefined;
   /** List of frameworks to include for model tuning. Possible values are 'Prophet', 'ARIMA', 'DeepAR'. An empty list includes all supported frameworks. */
@@ -37,7 +37,7 @@ export interface CreateForecastingExperimentRequest {
   /** The path in the workspace to store the created experiment. */
   experimentPath?: string | undefined;
   /** The maximum duration for the experiment in minutes. The experiment stops automatically if it exceeds this limit. */
-  maxRuntime?: number | undefined;
+  maxRuntime?: bigint | undefined;
   /** // The column in the training table used for custom data splits. Values must be 'train', 'validate', or 'test'. */
   splitColumn?: string | undefined;
   /** The column in the training table used to customize weights for each time series. */
@@ -111,11 +111,11 @@ export const marshalCreateForecastingExperimentRequestSchema: z.ZodType = z
     targetColumn: z.string().optional(),
     timeColumn: z.string().optional(),
     forecastGranularity: z.string().optional(),
-    forecastHorizon: z.number().optional(),
+    forecastHorizon: z.bigint().optional(),
     primaryMetric: z.string().optional(),
     trainingFrameworks: z.array(z.string()).optional(),
     experimentPath: z.string().optional(),
-    maxRuntime: z.number().optional(),
+    maxRuntime: z.bigint().optional(),
     splitColumn: z.string().optional(),
     customWeightsColumn: z.string().optional(),
     registerTo: z.string().optional(),

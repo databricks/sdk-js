@@ -375,7 +375,7 @@ export interface Subscription {
   /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
   subscriber?: Subscription_Subscriber | undefined;
   /** UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule. */
-  createdByUserId?: number | undefined;
+  createdByUserId?: bigint | undefined;
   /**
    * The etag for the subscription. Must be left empty on create, can be optionally provided on delete
    * to ensure that the subscription has not been deleted since the last read.
@@ -415,7 +415,7 @@ export interface Subscription_Subscriber_Destination {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_User {
   /** UserId of the subscriber. */
-  userId?: number | undefined;
+  userId?: bigint | undefined;
 }
 
 export interface TrashDashboardRequest {
@@ -637,7 +637,10 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
     schedule_id: z.string().optional(),
     dashboard_id: z.string().optional(),
     subscriber: z.lazy(() => unmarshalSubscription_SubscriberSchema).optional(),
-    created_by_user_id: z.number().optional(),
+    created_by_user_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     etag: z.string().optional(),
     create_time: z
       .string()
@@ -691,7 +694,10 @@ export const unmarshalSubscription_Subscriber_DestinationSchema: z.ZodType<Subsc
 export const unmarshalSubscription_Subscriber_UserSchema: z.ZodType<Subscription_Subscriber_User> =
   z
     .object({
-      user_id: z.number().optional(),
+      user_id: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       userId: d.user_id,
@@ -817,7 +823,7 @@ export const marshalSubscriptionSchema: z.ZodType = z
     scheduleId: z.string().optional(),
     dashboardId: z.string().optional(),
     subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
-    createdByUserId: z.number().optional(),
+    createdByUserId: z.bigint().optional(),
     etag: z.string().optional(),
     createTime: z
       .any()
@@ -868,7 +874,7 @@ export const marshalSubscription_Subscriber_DestinationSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSubscription_Subscriber_UserSchema: z.ZodType = z
   .object({
-    userId: z.number().optional(),
+    userId: z.bigint().optional(),
   })
   .transform(d => ({
     user_id: d.userId,

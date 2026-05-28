@@ -149,14 +149,14 @@ export enum RegistryWebhookStatus {
  */
 export interface Activity {
   /** Creation time of the object, as a Unix timestamp in milliseconds. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** The username of the user that created the object. */
   userId?: string | undefined;
   activityType?: ActivityType | undefined;
   /** User-provided comment associated with the activity, comment, or transition request. */
   comment?: string | undefined;
   /** Time of the object at last update, as a Unix timestamp in milliseconds. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /**
    * Source stage of the transition (if the activity is stage transition related). Valid values are:
    *
@@ -226,14 +226,14 @@ export interface ApproveTransitionRequest_Response {
  */
 export interface CommentObject {
   /** Creation time of the object, as a Unix timestamp in milliseconds. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** The username of the user that created the object. */
   userId?: string | undefined;
   activityType?: ActivityType | undefined;
   /** User-provided comment associated with the activity, comment, or transition request. */
   comment?: string | undefined;
   /** Time of the object at last update, as a Unix timestamp in milliseconds. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /**
    * Source stage of the transition (if the activity is stage transition related). Valid values are:
    *
@@ -581,7 +581,7 @@ export interface LinkedFeature {
 
 export interface ListRegisteredModelsRequest {
   /** Maximum number of registered models desired. Max threshold is 1000. */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /** Pagination token to go to the next page based on a previous query. */
   pageToken?: string | undefined;
 }
@@ -631,7 +631,7 @@ export interface ListRegistryWebhooksRequest {
   events?: RegistryWebhookEvent[] | undefined;
   /** Token indicating the page of artifact results to fetch */
   pageToken?: string | undefined;
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -661,9 +661,9 @@ export interface ModelVersion {
   /** Model's version number. */
   version?: string | undefined;
   /** Timestamp recorded when this `model_version` was created. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** Timestamp recorded when metadata for this `model_version` was last updated. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** User that created this `model_version`. */
   userId?: string | undefined;
   /** Current stage for this `model_version`. */
@@ -693,9 +693,9 @@ export interface ModelVersionDatabricks {
   /** Version of the model. */
   version?: string | undefined;
   /** Creation time of the object, as a Unix timestamp in milliseconds. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** Time of the object at last update, as a Unix timestamp in milliseconds. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** The username of the user that created the object. */
   userId?: string | undefined;
   currentStage?: string | undefined;
@@ -739,9 +739,9 @@ export interface RegisteredModel {
   /** Unique name for the model. */
   name?: string | undefined;
   /** Timestamp recorded when this `registered_model` was created. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** Timestamp recorded when metadata for this `registered_model` was last updated. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** User that created this `registered_model` */
   userId?: string | undefined;
   /** Description of this `registered_model`. */
@@ -759,9 +759,9 @@ export interface RegisteredModelDatabricks {
   /** Name of the model. */
   name?: string | undefined;
   /** Creation time of the object, as a Unix timestamp in milliseconds. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** Last update time of the object, as a Unix timestamp in milliseconds. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** The username of the user that created the object. */
   userId?: string | undefined;
   /** User-specified description for the object. */
@@ -815,9 +815,9 @@ export interface RegistryWebhook {
    */
   events?: RegistryWebhookEvent[] | undefined;
   /** Creation time of the object, as a Unix timestamp in milliseconds. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** Time of the object at last update, as a Unix timestamp in milliseconds. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /** User-specified description for the webhook. */
   description?: string | undefined;
   status?: RegistryWebhookStatus | undefined;
@@ -874,7 +874,7 @@ export interface SearchModelVersionsRequest {
    */
   filter?: string | undefined;
   /** Maximum number of models desired. Max threshold is 10K. */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /**
    * List of columns to be ordered by including model name, version, stage with an
    * optional "DESC" or "ASC" annotation, where "ASC" is the default.
@@ -902,7 +902,7 @@ export interface SearchRegisteredModelsRequest {
    */
   filter?: string | undefined;
   /** Maximum number of models desired. Default is 100. Max threshold is 1000. */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /**
    * List of columns for ordering search results, which can include model name and last updated
    * timestamp with an optional "DESC" or "ASC" annotation, where "ASC" is the default.
@@ -1014,14 +1014,14 @@ export interface TransitionModelVersionStageDatabricksRequest_Response {
  */
 export interface TransitionRequest {
   /** Creation time of the object, as a Unix timestamp in milliseconds. */
-  creationTimestamp?: number | undefined;
+  creationTimestamp?: bigint | undefined;
   /** The username of the user that created the object. */
   userId?: string | undefined;
   activityType?: ActivityType | undefined;
   /** User-provided comment associated with the activity, comment, or transition request. */
   comment?: string | undefined;
   /** Time of the object at last update, as a Unix timestamp in milliseconds. */
-  lastUpdatedTimestamp?: number | undefined;
+  lastUpdatedTimestamp?: bigint | undefined;
   /**
    * Source stage of the transition (if the activity is stage transition related). Valid values are:
    *
@@ -1140,11 +1140,17 @@ export interface UpdateRegistryWebhookRequest_Response {
 
 export const unmarshalActivitySchema: z.ZodType<Activity> = z
   .object({
-    creation_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     user_id: z.string().optional(),
     activity_type: z.enum(ActivityType).optional(),
     comment: z.string().optional(),
-    last_updated_timestamp: z.number().optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     from_stage: z.string().optional(),
     to_stage: z.string().optional(),
     system_comment: z.string().optional(),
@@ -1176,11 +1182,17 @@ export const unmarshalApproveTransitionRequest_ResponseSchema: z.ZodType<Approve
 
 export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
   .object({
-    creation_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     user_id: z.string().optional(),
     activity_type: z.enum(ActivityType).optional(),
     comment: z.string().optional(),
-    last_updated_timestamp: z.number().optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     from_stage: z.string().optional(),
     to_stage: z.string().optional(),
     system_comment: z.string().optional(),
@@ -1416,8 +1428,14 @@ export const unmarshalModelVersionSchema: z.ZodType<ModelVersion> = z
   .object({
     name: z.string().optional(),
     version: z.string().optional(),
-    creation_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     user_id: z.string().optional(),
     current_stage: z.string().optional(),
     description: z.string().optional(),
@@ -1449,8 +1467,14 @@ export const unmarshalModelVersionDatabricksSchema: z.ZodType<ModelVersionDatabr
     .object({
       name: z.string().optional(),
       version: z.string().optional(),
-      creation_timestamp: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
+      creation_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      last_updated_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       user_id: z.string().optional(),
       current_stage: z.string().optional(),
       description: z.string().optional(),
@@ -1500,8 +1524,14 @@ export const unmarshalModelVersionTagSchema: z.ZodType<ModelVersionTag> = z
 export const unmarshalRegisteredModelSchema: z.ZodType<RegisteredModel> = z
   .object({
     name: z.string().optional(),
-    creation_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     user_id: z.string().optional(),
     description: z.string().optional(),
     latest_versions: z
@@ -1523,8 +1553,14 @@ export const unmarshalRegisteredModelDatabricksSchema: z.ZodType<RegisteredModel
   z
     .object({
       name: z.string().optional(),
-      creation_timestamp: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
+      creation_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      last_updated_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       user_id: z.string().optional(),
       description: z.string().optional(),
       latest_versions: z
@@ -1561,8 +1597,14 @@ export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
   .object({
     id: z.string().optional(),
     events: z.array(z.enum(RegistryWebhookEvent)).optional(),
-    creation_timestamp: z.number().optional(),
-    last_updated_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     description: z.string().optional(),
     status: z.enum(RegistryWebhookStatus).optional(),
     http_url_spec: z.lazy(() => unmarshalHttpUrlSpecSchema).optional(),
@@ -1663,11 +1705,17 @@ export const unmarshalTransitionModelVersionStageDatabricksRequest_ResponseSchem
 
 export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
   .object({
-    creation_timestamp: z.number().optional(),
+    creation_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     user_id: z.string().optional(),
     activity_type: z.enum(ActivityType).optional(),
     comment: z.string().optional(),
-    last_updated_timestamp: z.number().optional(),
+    last_updated_timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     from_stage: z.string().optional(),
     to_stage: z.string().optional(),
     system_comment: z.string().optional(),

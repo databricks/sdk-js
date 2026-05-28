@@ -74,11 +74,11 @@ export interface CreateExternalLocationRequest {
   /** Unique ID of the location's storage credential. */
   credentialId?: string | undefined;
   /** Time at which this external location was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of external location creator. */
   createdBy?: string | undefined;
   /** Time at which external location this was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the external location. */
   updatedBy?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -144,11 +144,11 @@ export interface ExternalLocationInfo {
   /** Unique ID of the location's storage credential. */
   credentialId?: string | undefined;
   /** Time at which this external location was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of external location creator. */
   createdBy?: string | undefined;
   /** Time at which external location this was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the external location. */
   updatedBy?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -273,11 +273,11 @@ export interface UpdateExternalLocationRequest {
   /** Unique ID of the location's storage credential. */
   credentialId?: string | undefined;
   /** Time at which this external location was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of external location creator. */
   createdBy?: string | undefined;
   /** Time at which external location this was last modified, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified the external location. */
   updatedBy?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -356,9 +356,15 @@ export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo
         .optional(),
       metastore_id: z.string().optional(),
       credential_id: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       created_by: z.string().optional(),
-      updated_at: z.number().optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       updated_by: z.string().optional(),
       browse_only: z.boolean().optional(),
       isolation_mode: z.enum(IsolationMode).optional(),
@@ -495,9 +501,9 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
     encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
     metastoreId: z.string().optional(),
     credentialId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     browseOnly: z.boolean().optional(),
     isolationMode: z.enum(IsolationMode).optional(),
@@ -641,9 +647,9 @@ export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
     encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
     metastoreId: z.string().optional(),
     credentialId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     browseOnly: z.boolean().optional(),
     isolationMode: z.enum(IsolationMode).optional(),

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "auth-and-errors": "node --import tsx/esm src/auth-and-errors.ts",
+    "int64-e2e": "node --import tsx/esm src/int64-e2e.ts",
     "build": "echo 'nothing to build'",
     "lint": "echo 'skipped'",
     "lint:fix": "echo 'skipped'",

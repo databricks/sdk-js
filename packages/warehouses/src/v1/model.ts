@@ -1074,7 +1074,7 @@ export interface EndpointInfo {
   /** current number of clusters running for the service */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
-  numActiveSessions?: number | undefined;
+  numActiveSessions?: bigint | undefined;
   /** state of the endpoint */
   state?: EndpointState | undefined;
   /** the jdbc connection string for this warehouse */
@@ -1209,7 +1209,7 @@ export interface GetWarehouseRequest_Response {
   /** current number of clusters running for the service */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
-  numActiveSessions?: number | undefined;
+  numActiveSessions?: bigint | undefined;
   /** state of the endpoint */
   state?: EndpointState | undefined;
   /** the jdbc connection string for this warehouse */
@@ -1435,7 +1435,7 @@ export interface ListWarehousesRequest {
    * Service Principal which will be used to fetch the list of endpoints.
    * If not specified, SQL Gateway will use the user from the session header.
    */
-  runAsUserId?: number | undefined;
+  runAsUserId?: bigint | undefined;
   /** The max number of warehouses to return. */
   pageSize?: number | undefined;
   /**
@@ -1566,7 +1566,10 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     enable_serverless_compute: z.boolean().optional(),
     warehouse_type: z.enum(WarehouseType).optional(),
     num_clusters: z.number().optional(),
-    num_active_sessions: z.number().optional(),
+    num_active_sessions: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     state: z.enum(EndpointState).optional(),
     jdbc_url: z.string().optional(),
     odbc_params: z.lazy(() => unmarshalOdbcParamsSchema).optional(),
@@ -1634,7 +1637,10 @@ export const unmarshalGetWarehouseRequest_ResponseSchema: z.ZodType<GetWarehouse
       enable_serverless_compute: z.boolean().optional(),
       warehouse_type: z.enum(WarehouseType).optional(),
       num_clusters: z.number().optional(),
-      num_active_sessions: z.number().optional(),
+      num_active_sessions: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       state: z.enum(EndpointState).optional(),
       jdbc_url: z.string().optional(),
       odbc_params: z.lazy(() => unmarshalOdbcParamsSchema).optional(),

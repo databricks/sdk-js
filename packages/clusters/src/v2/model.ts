@@ -1276,7 +1276,7 @@ export interface ClusterEvent {
    * The timestamp when the event occurred, stored as the number of milliseconds since
    * the Unix epoch. If not provided, this will be assigned by the Timeline service.
    */
-  timestamp?: number | undefined;
+  timestamp?: bigint | undefined;
   type?: ClusterEventType_ClusterEventType | undefined;
   details?: EventDetails | undefined;
   dataPlaneEventDetails?: DataPlaneEventDetails | undefined;
@@ -1305,7 +1305,7 @@ export interface ClusterInfo {
    */
   stateMessage?: string | undefined;
   /** Total amount of cluster memory, in megabytes */
-  clusterMemoryMb?: number | undefined;
+  clusterMemoryMb?: bigint | undefined;
   /**
    * Number of CPU cores available for this cluster.
    * Note that this can be fractional, e.g. 7.5 cores, since certain node types are configured to
@@ -1350,7 +1350,7 @@ export interface ClusterInfo {
    * The pair `(cluster_id, spark_context_id)` is a globally unique identifier over all Spark
    * contexts.
    */
-  sparkContextId?: number | undefined;
+  sparkContextId?: bigint | undefined;
   /**
    * Port on which Spark JDBC server is listening, in the driver nod. No service will be listeningon
    * on this port in executor nodes.
@@ -1513,13 +1513,13 @@ export interface ClusterInfo {
    * Time (in epoch milliseconds) when the cluster creation request was received (when the cluster
    * entered a `PENDING` state).
    */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /** Time (in epoch milliseconds) when the cluster was terminated, if applicable. */
-  terminatedTime?: number | undefined;
+  terminatedTime?: bigint | undefined;
   /** Time when the cluster driver last lost its state (due to a restart or driver failure). */
-  lastStateLossTime?: number | undefined;
+  lastStateLossTime?: bigint | undefined;
   /** the timestamp that the cluster was started/restarted */
-  lastRestartedTime?: number | undefined;
+  lastRestartedTime?: bigint | undefined;
   size?:
     | {
         $case: 'numWorkers';
@@ -2092,7 +2092,7 @@ export interface CreateClusterRequest_SparkEnvVarsEntry {
 
 export interface DataPlaneEventDetails {
   eventType?: DataPlaneClusterEventType | undefined;
-  timestamp?: number | undefined;
+  timestamp?: bigint | undefined;
   hostId?: string | undefined;
   executorFailures?: number | undefined;
 }
@@ -2424,10 +2424,10 @@ export interface EventDetails {
   /** The user that caused the event to occur. (Empty if it was done by the control plane.) */
   user?: string | undefined;
   /** Previous disk size in bytes */
-  previousDiskSize?: number | undefined;
+  previousDiskSize?: bigint | undefined;
   /** Current disk size in bytes */
-  diskSize?: number | undefined;
-  freeSpace?: number | undefined;
+  diskSize?: bigint | undefined;
+  freeSpace?: bigint | undefined;
   /** Instance Id where the event originated from */
   instanceId?: string | undefined;
   didNotExpandReason?: string | undefined;
@@ -2523,12 +2523,12 @@ export interface GetEvents {
    * The start time in epoch milliseconds.
    * If empty, returns events starting from the beginning of time.
    */
-  startTime?: number | undefined;
+  startTime?: bigint | undefined;
   /**
    * The end time in epoch milliseconds.
    * If empty, returns events up to the current time.
    */
-  endTime?: number | undefined;
+  endTime?: bigint | undefined;
   /** The order to list events in; either "ASC" or "DESC". Defaults to "DESC". */
   order?: GetEventsOrder | undefined;
   /**
@@ -2542,14 +2542,14 @@ export interface GetEvents {
    * The offset in the result set. Defaults to 0 (no offset). When an offset is specified
    * and the results are requested in descending order, the end_time field is required.
    */
-  offset?: number | undefined;
+  offset?: bigint | undefined;
   /**
    * Deprecated: use page_token in combination with page_size instead.
    *
    * The maximum number of events to include in a page of events.
    * Defaults to 50, and maximum allowed value is 500.
    */
-  limit?: number | undefined;
+  limit?: bigint | undefined;
   /**
    * Use next_page_token or prev_page_token returned from the previous request to list the next or previous page of events respectively.
    * If page_token is empty, the first page is returned.
@@ -2579,7 +2579,7 @@ export interface GetEvents_Response {
    *
    * The total number of events filtered by the start_time, end_time, and event_types.
    */
-  totalCount?: number | undefined;
+  totalCount?: bigint | undefined;
   /**
    * This field represents the pagination token to retrieve the next page of results.
    * If the value is "", it means no further results for the request.
@@ -2888,7 +2888,7 @@ export interface LogSyncStatus {
    * The timestamp of last attempt. If the last attempt fails, `last_exception` will contain the
    * exception in the last attempt.
    */
-  lastAttempted?: number | undefined;
+  lastAttempted?: bigint | undefined;
   /**
    * The exception thrown in the last attempt, it would be null (omitted in the response) if
    * there is no exception in last attempted.
@@ -3106,7 +3106,7 @@ export interface SparkInfo_SparkNode {
   /** Globally unique identifier for the host instance from the cloud provider. */
   instanceId?: string | undefined;
   /** The timestamp (in millisecond) when the Spark node is launched. */
-  startTimestamp?: number | undefined;
+  startTimestamp?: bigint | undefined;
   /** Attributes specific to AWS for a Spark node. */
   nodeAwsAttributes?: SparkInfo_SparkNode_SparkNodeAwsAttributes | undefined;
   /** The private IP address of the host instance. */
@@ -3578,7 +3578,10 @@ export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
 export const unmarshalClusterEventSchema: z.ZodType<ClusterEvent> = z
   .object({
     cluster_id: z.string().optional(),
-    timestamp: z.number().optional(),
+    timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     type: z.enum(ClusterEventType_ClusterEventType).optional(),
     details: z.lazy(() => unmarshalEventDetailsSchema).optional(),
     data_plane_event_details: z
@@ -3599,7 +3602,10 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     creator_user_name: z.string().optional(),
     state: z.enum(ClusterState_ClusterState).optional(),
     state_message: z.string().optional(),
-    cluster_memory_mb: z.number().optional(),
+    cluster_memory_mb: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     cluster_cores: z.number().optional(),
     default_tags: z.record(z.string(), z.string()).optional(),
     cluster_log_status: z.lazy(() => unmarshalLogSyncStatusSchema).optional(),
@@ -3611,7 +3617,10 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     executors: z
       .array(z.lazy(() => unmarshalSparkInfo_SparkNodeSchema))
       .optional(),
-    spark_context_id: z.number().optional(),
+    spark_context_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     jdbc_port: z.number().optional(),
     cluster_name: z.string().optional(),
     spark_version: z.string().optional(),
@@ -3650,10 +3659,22 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     is_single_node: z.boolean().optional(),
     remote_disk_throughput: z.number().optional(),
     total_initial_remote_disk_size: z.number().optional(),
-    start_time: z.number().optional(),
-    terminated_time: z.number().optional(),
-    last_state_loss_time: z.number().optional(),
-    last_restarted_time: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    terminated_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_state_loss_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_restarted_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     num_workers: z.number().optional(),
     autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
   })
@@ -3846,7 +3867,10 @@ export const unmarshalDataPlaneEventDetailsSchema: z.ZodType<DataPlaneEventDetai
   z
     .object({
       event_type: z.enum(DataPlaneClusterEventType).optional(),
-      timestamp: z.number().optional(),
+      timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       host_id: z.string().optional(),
       executor_failures: z.number().optional(),
     })
@@ -3942,9 +3966,18 @@ export const unmarshalEventDetailsSchema: z.ZodType<EventDetails> = z
     cause: z.enum(ResizeCause_ResizeCause).optional(),
     reason: z.lazy(() => unmarshalTerminationReasonSchema).optional(),
     user: z.string().optional(),
-    previous_disk_size: z.number().optional(),
-    disk_size: z.number().optional(),
-    free_space: z.number().optional(),
+    previous_disk_size: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    disk_size: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    free_space: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     instance_id: z.string().optional(),
     did_not_expand_reason: z.string().optional(),
     driver_state_message: z.string().optional(),
@@ -4013,12 +4046,24 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
 export const unmarshalGetEventsSchema: z.ZodType<GetEvents> = z
   .object({
     cluster_id: z.string().optional(),
-    start_time: z.number().optional(),
-    end_time: z.number().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     order: z.enum(GetEventsOrder).optional(),
     event_types: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
-    offset: z.number().optional(),
-    limit: z.number().optional(),
+    offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    limit: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     page_token: z.string().optional(),
     page_size: z.number().optional(),
   })
@@ -4040,7 +4085,10 @@ export const unmarshalGetEvents_ResponseSchema: z.ZodType<GetEvents_Response> =
     .object({
       events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
       next_page: z.lazy(() => unmarshalGetEventsSchema).optional(),
-      total_count: z.number().optional(),
+      total_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       next_page_token: z.string().optional(),
       prev_page_token: z.string().optional(),
     })
@@ -4243,7 +4291,10 @@ export const unmarshalLogAnalyticsInfoSchema: z.ZodType<LogAnalyticsInfo> = z
 
 export const unmarshalLogSyncStatusSchema: z.ZodType<LogSyncStatus> = z
   .object({
-    last_attempted: z.number().optional(),
+    last_attempted: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     last_exception: z.string().optional(),
   })
   .transform(d => ({
@@ -4368,7 +4419,10 @@ export const unmarshalSparkInfo_SparkNodeSchema: z.ZodType<SparkInfo_SparkNode> 
       public_dns: z.string().optional(),
       node_id: z.string().optional(),
       instance_id: z.string().optional(),
-      start_timestamp: z.number().optional(),
+      start_timestamp: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       node_aws_attributes: z
         .lazy(() => unmarshalSparkInfo_SparkNode_SparkNodeAwsAttributesSchema)
         .optional(),
@@ -4830,12 +4884,12 @@ export const marshalGcsStorageInfoSchema: z.ZodType = z
 export const marshalGetEventsSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
-    startTime: z.number().optional(),
-    endTime: z.number().optional(),
+    startTime: z.bigint().optional(),
+    endTime: z.bigint().optional(),
     order: z.enum(GetEventsOrder).optional(),
     eventTypes: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
-    offset: z.number().optional(),
-    limit: z.number().optional(),
+    offset: z.bigint().optional(),
+    limit: z.bigint().optional(),
     pageToken: z.string().optional(),
     pageSize: z.number().optional(),
   })

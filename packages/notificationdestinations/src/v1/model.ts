@@ -60,7 +60,7 @@ export interface GetNotificationDestinationRequest {
 
 export interface ListNotificationDestinationsRequest {
   pageToken?: string | undefined;
-  pageSize?: number | undefined;
+  pageSize?: bigint | undefined;
 }
 
 export interface ListNotificationDestinationsResponse {

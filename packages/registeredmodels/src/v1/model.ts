@@ -36,11 +36,11 @@ export interface CreateRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullName?: string | undefined;
   /** Creation timestamp of the registered model in milliseconds since the Unix epoch */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the registered model */
   createdBy?: string | undefined;
   /** Last-update timestamp of the registered model in milliseconds since the Unix epoch */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the registered model last time */
   updatedBy?: string | undefined;
   /** List of aliases associated with the registered model */
@@ -59,7 +59,7 @@ export interface DeleteModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
-  versionArg?: number | undefined;
+  versionArg?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -121,7 +121,7 @@ export interface GetModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
-  versionArg?: number | undefined;
+  versionArg?: bigint | undefined;
   /** Whether to include aliases associated with the model version in the response */
   includeAliases?: boolean | undefined;
   /** Whether to include model versions in the response for which the principal can only access selective metadata for */
@@ -147,7 +147,7 @@ export interface ListModelVersionsRequest {
    * - when set to 0, the page length is set to a server configured value (100, as of 1/3/2024) (recommended);
    * - when set to a value less than 0, an invalid parameter error is returned;
    */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
   /** Whether to include model versions in the response for which the principal can only access selective metadata for */
@@ -192,7 +192,7 @@ export interface ListRegisteredModelsRequest {
    * - when set to 0, the page length is set to a server configured value (100, as of 4/2/2024);
    * - when set to a value less than 0, an invalid parameter error is returned;
    */
-  maxResults?: number | undefined;
+  maxResults?: bigint | undefined;
   /** Opaque token to send for the next page of results (pagination). */
   pageToken?: string | undefined;
 }
@@ -227,7 +227,7 @@ export interface ModelVersionInfo {
    * ID of the <Databricks> workspace containing the MLflow run that generated this model
    * version, if applicable
    */
-  runWorkspaceId?: number | undefined;
+  runWorkspaceId?: bigint | undefined;
   /** Model version dependencies, for feature-store packaged models */
   modelVersionDependencies?: DependencyList | undefined;
   /**
@@ -238,15 +238,15 @@ export interface ModelVersionInfo {
    */
   status?: ModelVersionStatus | undefined;
   /** Integer model version number, used to reference the model version in API requests. */
-  version?: number | undefined;
+  version?: bigint | undefined;
   /** The storage location on the cloud under which model version data files are stored */
   storageLocation?: string | undefined;
   /** The unique identifier of the metastore containing the model version */
   metastoreId?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the model version */
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the model version last time */
   updatedBy?: string | undefined;
   /** The unique identifier of the model version */
@@ -259,7 +259,7 @@ export interface RegisteredModelAliasInfo {
   /** Name of the alias, e.g. 'champion' or 'latest_stable' */
   aliasName?: string | undefined;
   /** Integer version number of the model version to which this alias points. */
-  versionNum?: number | undefined;
+  versionNum?: bigint | undefined;
   /** The unique identifier of the alias */
   id?: string | undefined;
   /** The name of the parent registered model of the model version, relative to parent schema */
@@ -288,11 +288,11 @@ export interface RegisteredModelInfo {
   /** The three-level (fully qualified) name of the registered model */
   fullName?: string | undefined;
   /** Creation timestamp of the registered model in milliseconds since the Unix epoch */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the registered model */
   createdBy?: string | undefined;
   /** Last-update timestamp of the registered model in milliseconds since the Unix epoch */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the registered model last time */
   updatedBy?: string | undefined;
   /** List of aliases associated with the registered model */
@@ -307,7 +307,7 @@ export interface SetRegisteredModelAliasRequest {
   /** The name of the alias */
   aliasArg?: string | undefined;
   /** The version number of the model version to which the alias points */
-  versionNum?: number | undefined;
+  versionNum?: bigint | undefined;
 }
 
 /** A table that is dependent on a SQL object. */
@@ -320,7 +320,7 @@ export interface UpdateModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
-  versionArg?: number | undefined;
+  versionArg?: bigint | undefined;
   /** The name of the parent registered model of the model version, relative to parent schema */
   modelName?: string | undefined;
   /** The name of the catalog containing the model version */
@@ -340,7 +340,7 @@ export interface UpdateModelVersionRequest {
    * ID of the <Databricks> workspace containing the MLflow run that generated this model
    * version, if applicable
    */
-  runWorkspaceId?: number | undefined;
+  runWorkspaceId?: bigint | undefined;
   /** Model version dependencies, for feature-store packaged models */
   modelVersionDependencies?: DependencyList | undefined;
   /**
@@ -351,15 +351,15 @@ export interface UpdateModelVersionRequest {
    */
   status?: ModelVersionStatus | undefined;
   /** Integer model version number, used to reference the model version in API requests. */
-  version?: number | undefined;
+  version?: bigint | undefined;
   /** The storage location on the cloud under which model version data files are stored */
   storageLocation?: string | undefined;
   /** The unique identifier of the metastore containing the model version */
   metastoreId?: string | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the model version */
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the model version last time */
   updatedBy?: string | undefined;
   /** The unique identifier of the model version */
@@ -390,11 +390,11 @@ export interface UpdateRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullName?: string | undefined;
   /** Creation timestamp of the registered model in milliseconds since the Unix epoch */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The identifier of the user who created the registered model */
   createdBy?: string | undefined;
   /** Last-update timestamp of the registered model in milliseconds since the Unix epoch */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the registered model last time */
   updatedBy?: string | undefined;
   /** List of aliases associated with the registered model */
@@ -506,17 +506,29 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
     source: z.string().optional(),
     comment: z.string().optional(),
     run_id: z.string().optional(),
-    run_workspace_id: z.number().optional(),
+    run_workspace_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     model_version_dependencies: z
       .lazy(() => unmarshalDependencyListSchema)
       .optional(),
     status: z.enum(ModelVersionStatus).optional(),
-    version: z.number().optional(),
+    version: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     storage_location: z.string().optional(),
     metastore_id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     id: z.string().optional(),
     aliases: z
@@ -548,7 +560,10 @@ export const unmarshalRegisteredModelAliasInfoSchema: z.ZodType<RegisteredModelA
   z
     .object({
       alias_name: z.string().optional(),
-      version_num: z.number().optional(),
+      version_num: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       id: z.string().optional(),
       model_name: z.string().optional(),
       catalog_name: z.string().optional(),
@@ -574,9 +589,15 @@ export const unmarshalRegisteredModelInfoSchema: z.ZodType<RegisteredModelInfo> 
       storage_location: z.string().optional(),
       metastore_id: z.string().optional(),
       full_name: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       created_by: z.string().optional(),
-      updated_at: z.number().optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       updated_by: z.string().optional(),
       aliases: z
         .array(z.lazy(() => unmarshalRegisteredModelAliasInfoSchema))
@@ -626,9 +647,9 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
     storageLocation: z.string().optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     aliases: z
       .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
@@ -709,7 +730,7 @@ export const marshalFunctionDependencySchema: z.ZodType = z
 export const marshalRegisteredModelAliasInfoSchema: z.ZodType = z
   .object({
     aliasName: z.string().optional(),
-    versionNum: z.number().optional(),
+    versionNum: z.bigint().optional(),
     id: z.string().optional(),
     modelName: z.string().optional(),
     catalogName: z.string().optional(),
@@ -728,7 +749,7 @@ export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     aliasArg: z.string().optional(),
-    versionNum: z.number().optional(),
+    versionNum: z.bigint().optional(),
   })
   .transform(d => ({
     full_name_arg: d.fullNameArg,
@@ -747,24 +768,24 @@ export const marshalTableDependencySchema: z.ZodType = z
 export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
-    versionArg: z.number().optional(),
+    versionArg: z.bigint().optional(),
     modelName: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
     source: z.string().optional(),
     comment: z.string().optional(),
     runId: z.string().optional(),
-    runWorkspaceId: z.number().optional(),
+    runWorkspaceId: z.bigint().optional(),
     modelVersionDependencies: z
       .lazy(() => marshalDependencyListSchema)
       .optional(),
     status: z.enum(ModelVersionStatus).optional(),
-    version: z.number().optional(),
+    version: z.bigint().optional(),
     storageLocation: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     id: z.string().optional(),
     aliases: z
@@ -806,9 +827,9 @@ export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
     storageLocation: z.string().optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     aliases: z
       .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))

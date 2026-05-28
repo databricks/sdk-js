@@ -38,7 +38,7 @@ import {
 
 // Package identity segment for this client to be used in the User-Agent header.
 const PACKAGE_SEGMENT = {
-  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
 
@@ -65,7 +65,7 @@ export class Client {
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
       info = info
-        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
         .with({key: 'auth', value: options.credentials.name()});
     }
     this.userAgent = info.toString();

@@ -50,11 +50,11 @@ export interface GlobalInitScriptDetails {
   /** The username of the user who created the script. */
   createdBy?: string | undefined;
   /** Time when the script was created, represented as a Unix timestamp in milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** The username of the user who last updated the script */
   updatedBy?: string | undefined;
   /** Time when the script was updated, represented as a Unix timestamp in milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -116,9 +116,15 @@ export const unmarshalGlobalInitScriptDetailsSchema: z.ZodType<GlobalInitScriptD
       position: z.number().optional(),
       enabled: z.boolean().optional(),
       created_by: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       updated_by: z.string().optional(),
-      updated_at: z.number().optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       scriptId: d.script_id,

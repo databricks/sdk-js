@@ -116,11 +116,11 @@ export interface CreateProviderRequest {
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
   recipientProfile?: RecipientProfile | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of Provider creator. */
   createdBy?: string | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified Provider. */
   updatedBy?: string | undefined;
   /** Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
@@ -158,7 +158,7 @@ export interface CreateRecipientRequest {
    */
   propertiesKvpairs?: PropertiesKvPairs | undefined;
   /** Expiration timestamp of the token, in epoch milliseconds. */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /**
    * Full activation url to retrieve the access token.
    * It will be empty if the token is already retrieved.
@@ -167,13 +167,13 @@ export interface CreateRecipientRequest {
   /** A boolean status field showing whether the Recipient's activation URL has been exercised or not. */
   activated?: boolean | undefined;
   /** Time at which this recipient was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of recipient creator. */
   createdBy?: string | undefined;
   /** This field is only present when the __authentication_type__ is **TOKEN**. */
   tokens?: RecipientTokenInfo[] | undefined;
   /** Time at which the recipient was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of recipient updater. */
   updatedBy?: string | undefined;
   /**
@@ -207,11 +207,11 @@ export interface CreateShareRequest {
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of share creator. */
   createdBy?: string | undefined;
   /** Time at which this share was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of share updater. */
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for the share. */
@@ -749,11 +749,11 @@ export interface ProviderInfo {
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
   recipientProfile?: RecipientProfile | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of Provider creator. */
   createdBy?: string | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified Provider. */
   updatedBy?: string | undefined;
   /** Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
@@ -796,7 +796,7 @@ export interface RecipientInfo {
    */
   propertiesKvpairs?: PropertiesKvPairs | undefined;
   /** Expiration timestamp of the token, in epoch milliseconds. */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /**
    * Full activation url to retrieve the access token.
    * It will be empty if the token is already retrieved.
@@ -805,13 +805,13 @@ export interface RecipientInfo {
   /** A boolean status field showing whether the Recipient's activation URL has been exercised or not. */
   activated?: boolean | undefined;
   /** Time at which this recipient was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of recipient creator. */
   createdBy?: string | undefined;
   /** This field is only present when the __authentication_type__ is **TOKEN**. */
   tokens?: RecipientTokenInfo[] | undefined;
   /** Time at which the recipient was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of recipient updater. */
   updatedBy?: string | undefined;
   /**
@@ -846,15 +846,15 @@ export interface RecipientTokenInfo {
   /** Unique ID of the recipient token. */
   id?: string | undefined;
   /** Time at which this recipient token was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of recipient token creator. */
   createdBy?: string | undefined;
   /** Full activation URL to retrieve the access token. It will be empty if the token is already retrieved. */
   activationUrl?: string | undefined;
   /** Expiration timestamp of the token in epoch milliseconds. */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /** Time at which this recipient token was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of recipient token updater. */
   updatedBy?: string | undefined;
 }
@@ -863,7 +863,7 @@ export interface RegisteredModelAlias {
   /** Name of the alias. */
   aliasName?: string | undefined;
   /** Numeric model version that alias will reference. */
-  versionNum?: number | undefined;
+  versionNum?: bigint | undefined;
 }
 
 export interface RetrieveToken {
@@ -891,7 +891,7 @@ export interface RotateRecipientTokenRequest {
    * of existing token only to a smaller timestamp, it cannot extend the expiration_time. Use 0 to
    * expire the existing token immediately, negative number will return an error.
    */
-  existingTokenExpireInSeconds?: number | undefined;
+  existingTokenExpireInSeconds?: bigint | undefined;
 }
 
 export interface Share {
@@ -911,11 +911,11 @@ export interface ShareInfo {
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of share creator. */
   createdBy?: string | undefined;
   /** Time at which this share was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of share updater. */
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for the share. */
@@ -938,7 +938,7 @@ export interface SharedDataObject {
   /** The type of the data object. */
   dataObjectType?: string | undefined;
   /** The time when this data object is added to the share, in epoch milliseconds. */
-  addedAt?: number | undefined;
+  addedAt?: bigint | undefined;
   /** Username of the sharer. */
   addedBy?: string | undefined;
   /** A user-provided comment when adding the data object to the share. */
@@ -982,7 +982,7 @@ export interface SharedDataObject {
    *
    * NOTE: The start_version should be <= the `current` version of the object.
    */
-  startVersion?: number | undefined;
+  startVersion?: bigint | undefined;
   /** One of: **ACTIVE**, **PERMISSION_DENIED**. */
   status?: SharedDataObject_Status_Enum | undefined;
   /**
@@ -1081,11 +1081,11 @@ export interface UpdateProviderRequest {
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
   recipientProfile?: RecipientProfile | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of Provider creator. */
   createdBy?: string | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified Provider. */
   updatedBy?: string | undefined;
   /** Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
@@ -1130,7 +1130,7 @@ export interface UpdateRecipientRequest {
    */
   propertiesKvpairs?: PropertiesKvPairs | undefined;
   /** Expiration timestamp of the token, in epoch milliseconds. */
-  expirationTime?: number | undefined;
+  expirationTime?: bigint | undefined;
   /**
    * Full activation url to retrieve the access token.
    * It will be empty if the token is already retrieved.
@@ -1139,13 +1139,13 @@ export interface UpdateRecipientRequest {
   /** A boolean status field showing whether the Recipient's activation URL has been exercised or not. */
   activated?: boolean | undefined;
   /** Time at which this recipient was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of recipient creator. */
   createdBy?: string | undefined;
   /** This field is only present when the __authentication_type__ is **TOKEN**. */
   tokens?: RecipientTokenInfo[] | undefined;
   /** Time at which the recipient was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of recipient updater. */
   updatedBy?: string | undefined;
   /**
@@ -1200,11 +1200,11 @@ export interface UpdateShareRequest {
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of share creator. */
   createdBy?: string | undefined;
   /** Time at which this share was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of share updater. */
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for the share. */
@@ -1610,9 +1610,15 @@ export const unmarshalProviderInfoSchema: z.ZodType<ProviderInfo> = z
     comment: z.string().optional(),
     owner: z.string().optional(),
     recipient_profile: z.lazy(() => unmarshalRecipientProfileSchema).optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -1656,13 +1662,22 @@ export const unmarshalRecipientInfoSchema: z.ZodType<RecipientInfo> = z
     properties_kvpairs: z
       .lazy(() => unmarshalPropertiesKvPairsSchema)
       .optional(),
-    expiration_time: z.number().optional(),
+    expiration_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     activation_url: z.string().optional(),
     activated: z.boolean().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
     tokens: z.array(z.lazy(() => unmarshalRecipientTokenInfoSchema)).optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -1708,11 +1723,20 @@ export const unmarshalRecipientTokenInfoSchema: z.ZodType<RecipientTokenInfo> =
   z
     .object({
       id: z.string().optional(),
-      created_at: z.number().optional(),
+      created_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       created_by: z.string().optional(),
       activation_url: z.string().optional(),
-      expiration_time: z.number().optional(),
-      updated_at: z.number().optional(),
+      expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
       updated_by: z.string().optional(),
     })
     .transform(d => ({
@@ -1729,7 +1753,10 @@ export const unmarshalRegisteredModelAliasSchema: z.ZodType<RegisteredModelAlias
   z
     .object({
       alias_name: z.string().optional(),
-      version_num: z.number().optional(),
+      version_num: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       aliasName: d.alias_name,
@@ -1769,9 +1796,15 @@ export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
     comment: z.string().optional(),
     storage_root: z.string().optional(),
     objects: z.array(z.lazy(() => unmarshalSharedDataObjectSchema)).optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     storage_location: z.string().optional(),
   })
@@ -1805,7 +1838,10 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
   .object({
     name: z.string().optional(),
     data_object_type: z.string().optional(),
-    added_at: z.number().optional(),
+    added_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     added_by: z.string().optional(),
     comment: z.string().optional(),
     shared_as: z.string().optional(),
@@ -1813,7 +1849,10 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
     history_data_sharing_status: z
       .enum(SharedDataObject_HistoryDataSharingStatus_Enum)
       .optional(),
-    start_version: z.number().optional(),
+    start_version: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     status: z.enum(SharedDataObject_Status_Enum).optional(),
     content: z.string().optional(),
     string_shared_as: z.string().optional(),
@@ -1921,9 +1960,9 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     owner: z.string().optional(),
     recipientProfile: z.lazy(() => marshalRecipientProfileSchema).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -1957,13 +1996,13 @@ export const marshalCreateRecipientRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
     propertiesKvpairs: z.lazy(() => marshalPropertiesKvPairsSchema).optional(),
-    expirationTime: z.number().optional(),
+    expirationTime: z.bigint().optional(),
     activationUrl: z.string().optional(),
     activated: z.boolean().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     tokens: z.array(z.lazy(() => marshalRecipientTokenInfoSchema)).optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -2000,9 +2039,9 @@ export const marshalCreateShareRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
     objects: z.array(z.lazy(() => marshalSharedDataObjectSchema)).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
   })
@@ -2140,11 +2179,11 @@ export const marshalRecipientProfileSchema: z.ZodType = z
 export const marshalRecipientTokenInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     activationUrl: z.string().optional(),
-    expirationTime: z.number().optional(),
-    updatedAt: z.number().optional(),
+    expirationTime: z.bigint().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
   })
   .transform(d => ({
@@ -2160,7 +2199,7 @@ export const marshalRecipientTokenInfoSchema: z.ZodType = z
 export const marshalRotateRecipientTokenRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    existingTokenExpireInSeconds: z.number().optional(),
+    existingTokenExpireInSeconds: z.bigint().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2171,7 +2210,7 @@ export const marshalSharedDataObjectSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     dataObjectType: z.string().optional(),
-    addedAt: z.number().optional(),
+    addedAt: z.bigint().optional(),
     addedBy: z.string().optional(),
     comment: z.string().optional(),
     sharedAs: z.string().optional(),
@@ -2179,7 +2218,7 @@ export const marshalSharedDataObjectSchema: z.ZodType = z
     historyDataSharingStatus: z
       .enum(SharedDataObject_HistoryDataSharingStatus_Enum)
       .optional(),
-    startVersion: z.number().optional(),
+    startVersion: z.bigint().optional(),
     status: z.enum(SharedDataObject_Status_Enum).optional(),
     content: z.string().optional(),
     stringSharedAs: z.string().optional(),
@@ -2213,9 +2252,9 @@ export const marshalUpdateProviderRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     owner: z.string().optional(),
     recipientProfile: z.lazy(() => marshalRecipientProfileSchema).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -2253,13 +2292,13 @@ export const marshalUpdateRecipientRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
     propertiesKvpairs: z.lazy(() => marshalPropertiesKvPairsSchema).optional(),
-    expirationTime: z.number().optional(),
+    expirationTime: z.bigint().optional(),
     activationUrl: z.string().optional(),
     activated: z.boolean().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     tokens: z.array(z.lazy(() => marshalRecipientTokenInfoSchema)).optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -2317,9 +2356,9 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
     objects: z.array(z.lazy(() => marshalSharedDataObjectSchema)).optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
   })

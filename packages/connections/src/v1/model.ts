@@ -108,11 +108,11 @@ export interface ConnectionInfo {
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this connection was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of connection creator. */
   createdBy?: string | undefined;
   /** Time at which this connection was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
   securableType?: SecurableType | undefined;
@@ -157,11 +157,11 @@ export interface CreateConnectionRequest {
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this connection was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of connection creator. */
   createdBy?: string | undefined;
   /** Time at which this connection was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
   securableType?: SecurableType | undefined;
@@ -253,11 +253,11 @@ export interface UpdateConnectionRequest {
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Time at which this connection was created, in epoch milliseconds. */
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   /** Username of connection creator. */
   createdBy?: string | undefined;
   /** Time at which this connection was updated, in epoch milliseconds. */
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
   securableType?: SecurableType | undefined;
@@ -292,9 +292,15 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     credential_type: z.enum(CredentialType).optional(),
     connection_id: z.string().optional(),
     metastore_id: z.string().optional(),
-    created_at: z.number().optional(),
+    created_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     created_by: z.string().optional(),
-    updated_at: z.number().optional(),
+    updated_at: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     updated_by: z.string().optional(),
     securable_type: z.enum(SecurableType).optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
@@ -360,9 +366,9 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     credentialType: z.enum(CredentialType).optional(),
     connectionId: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
@@ -412,9 +418,9 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     credentialType: z.enum(CredentialType).optional(),
     connectionId: z.string().optional(),
     metastoreId: z.string().optional(),
-    createdAt: z.number().optional(),
+    createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    updatedAt: z.number().optional(),
+    updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),

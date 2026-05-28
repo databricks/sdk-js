@@ -27,7 +27,7 @@ export interface BudgetPolicy {
    * List of workspaces that this budget policy will be exclusively bound to.
    * An empty binding implies that this budget policy is open to any workspace in the account.
    */
-  bindingWorkspaceIds?: number[] | undefined;
+  bindingWorkspaceIds?: bigint[] | undefined;
 }
 
 /** A request to create a BudgetPolicy. */
@@ -82,7 +82,7 @@ export interface Filter {
    * The policy creator user id to be filtered on.
    * If unspecified, all policies will be returned.
    */
-  creatorUserId?: number | undefined;
+  creatorUserId?: bigint | undefined;
   /**
    * The policy creator user name to be filtered on.
    * If unspecified, all policies will be returned.
@@ -172,7 +172,9 @@ export const unmarshalBudgetPolicySchema: z.ZodType<BudgetPolicy> = z
     custom_tags: z
       .array(z.lazy(() => unmarshalCustomPolicyTagSchema))
       .optional(),
-    binding_workspace_ids: z.array(z.number()).optional(),
+    binding_workspace_ids: z
+      .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+      .optional(),
   })
   .transform(d => ({
     policyId: d.policy_id,
@@ -209,7 +211,7 @@ export const marshalBudgetPolicySchema: z.ZodType = z
     policyId: z.string().optional(),
     policyName: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalCustomPolicyTagSchema)).optional(),
-    bindingWorkspaceIds: z.array(z.number()).optional(),
+    bindingWorkspaceIds: z.array(z.bigint()).optional(),
   })
   .transform(d => ({
     policy_id: d.policyId,
@@ -243,7 +245,7 @@ export const marshalCustomPolicyTagSchema: z.ZodType = z
 export const marshalFilterSchema: z.ZodType = z
   .object({
     policyName: z.string().optional(),
-    creatorUserId: z.number().optional(),
+    creatorUserId: z.bigint().optional(),
     creatorUserName: z.string().optional(),
   })
   .transform(d => ({

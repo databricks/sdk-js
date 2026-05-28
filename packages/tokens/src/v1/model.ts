@@ -10,7 +10,7 @@ export interface CreateTokenRequest {
    *
    * If the lifetime is not specified, this token remains valid for 2 years.
    */
-  lifetimeSeconds?: number | undefined;
+  lifetimeSeconds?: bigint | undefined;
   /** Optional description to attach to the token. */
   comment?: string | undefined;
   /** Optional scopes of the token. */
@@ -38,9 +38,9 @@ export interface PublicTokenInfo {
   /** The ID of this token. */
   tokenId?: string | undefined;
   /** Server time (in epoch milliseconds) when the token was created. */
-  creationTime?: number | undefined;
+  creationTime?: bigint | undefined;
   /** Server time (in epoch milliseconds) when the token will expire, or -1 if not applicable. */
-  expiryTime?: number | undefined;
+  expiryTime?: bigint | undefined;
   /** Comment the token was created with, if applicable. */
   comment?: string | undefined;
 }
@@ -91,8 +91,14 @@ export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequ
 export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
   .object({
     token_id: z.string().optional(),
-    creation_time: z.number().optional(),
-    expiry_time: z.number().optional(),
+    creation_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    expiry_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -111,7 +117,7 @@ export const unmarshalUpdateTokenResponseSchema: z.ZodType<UpdateTokenResponse> 
 
 export const marshalCreateTokenRequestSchema: z.ZodType = z
   .object({
-    lifetimeSeconds: z.number().optional(),
+    lifetimeSeconds: z.bigint().optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
   })
@@ -124,8 +130,8 @@ export const marshalCreateTokenRequestSchema: z.ZodType = z
 export const marshalPublicTokenInfoSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
-    creationTime: z.number().optional(),
-    expiryTime: z.number().optional(),
+    creationTime: z.bigint().optional(),
+    expiryTime: z.bigint().optional(),
     comment: z.string().optional(),
   })
   .transform(d => ({
