@@ -23,13 +23,16 @@ import type {
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
   CreateMaterializedFeatureRequest,
+  CreateStreamRequest,
   DeleteFeatureRequest,
   DeleteKafkaConfigRequest,
   DeleteMaterializedFeatureRequest,
+  DeleteStreamRequest,
   Feature,
   GetFeatureRequest,
   GetKafkaConfigRequest,
   GetMaterializedFeatureRequest,
+  GetStreamRequest,
   KafkaConfig,
   ListFeaturesRequest,
   ListFeaturesResponse,
@@ -37,28 +40,35 @@ import type {
   ListKafkaConfigsResponse,
   ListMaterializedFeaturesRequest,
   ListMaterializedFeaturesResponse,
+  ListStreamsRequest,
+  ListStreamsResponse,
   MaterializedFeature,
+  Stream,
   UpdateFeatureRequest,
   UpdateKafkaConfigRequest,
   UpdateMaterializedFeatureRequest,
+  UpdateStreamRequest,
 } from './model';
 import {
   marshalBatchCreateMaterializedFeaturesRequestSchema,
   marshalFeatureSchema,
   marshalKafkaConfigSchema,
   marshalMaterializedFeatureSchema,
+  marshalStreamSchema,
   unmarshalBatchCreateMaterializedFeaturesResponseSchema,
   unmarshalFeatureSchema,
   unmarshalKafkaConfigSchema,
   unmarshalListFeaturesResponseSchema,
   unmarshalListKafkaConfigsResponseSchema,
   unmarshalListMaterializedFeaturesResponseSchema,
+  unmarshalListStreamsResponseSchema,
   unmarshalMaterializedFeatureSchema,
+  unmarshalStreamSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
 const PACKAGE_SEGMENT = {
-  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
 
@@ -85,7 +95,7 @@ export class Client {
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
       info = info
-        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
         .with({key: 'auth', value: options.credentials.name()});
     }
     this.userAgent = info.toString();
@@ -221,6 +231,35 @@ export class Client {
     return resp;
   }
 
+  /** Create a Stream, a governed UC entity representing an external streaming data source. */
+  async createStream(
+    req: CreateStreamRequest,
+    options?: CallOptions
+  ): Promise<Stream> {
+    const url = `${this.host}/api/2.0/feature-engineering/streams`;
+    const body = marshalRequest(req.stream, marshalStreamSchema);
+    let resp: Stream | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalStreamSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /** Delete a Feature. */
   async deleteFeature(
     req: DeleteFeatureRequest,
@@ -275,6 +314,28 @@ export class Client {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeatureId ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Delete a Stream by its full three-part name (catalog.schema.stream). */
+  async deleteStream(
+    req: DeleteStreamRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/feature-engineering/streams/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -371,6 +432,34 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get a Stream by its full three-part name (catalog.schema.stream). */
+  async getStream(
+    req: GetStreamRequest,
+    options?: CallOptions
+  ): Promise<Stream> {
+    const url = `${this.host}/api/2.0/feature-engineering/streams/${req.name ?? ''}`;
+    let resp: Stream | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalStreamSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -557,6 +646,63 @@ export class Client {
     }
   }
 
+  /** List Streams under a given catalog.schema parent. */
+  async listStreams(
+    req: ListStreamsRequest,
+    options?: CallOptions
+  ): Promise<ListStreamsResponse> {
+    const url = `${this.host}/api/2.0/feature-engineering/streams`;
+    const params = new URLSearchParams();
+    if (req.parent !== undefined) {
+      params.append('parent', req.parent);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListStreamsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListStreamsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listStreamsIter(
+    req: ListStreamsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Stream> {
+    const pageReq: ListStreamsRequest = {...req};
+    for (;;) {
+      const resp = await this.listStreams(pageReq, options);
+      for (const item of resp.streams ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
   /** Update a Feature. */
   async updateFeature(
     req: UpdateFeatureRequest,
@@ -679,6 +825,47 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update a Stream. Only fields listed in `update_mask` are mutated. */
+  async updateStream(
+    req: UpdateStreamRequest,
+    options?: CallOptions
+  ): Promise<Stream> {
+    const url = `${this.host}/api/2.0/feature-engineering/streams/${req.stream?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.stream, marshalStreamSchema);
+    let resp: Stream | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalStreamSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

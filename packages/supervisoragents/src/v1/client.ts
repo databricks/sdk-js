@@ -54,7 +54,7 @@ import {
 
 // Package identity segment for this client to be used in the User-Agent header.
 const PACKAGE_SEGMENT = {
-  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
 
@@ -81,7 +81,7 @@ export class Client {
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
       info = info
-        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
         .with({key: 'auth', value: options.credentials.name()});
     }
     this.userAgent = info.toString();
@@ -149,7 +149,7 @@ export class Client {
     return resp;
   }
 
-  /** Creates a Tool under a Supervisor Agent. Specify one of "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "app", "volume", "dashboard", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search" in the request body. The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively. */
+  /** Creates a Tool under a Supervisor Agent. Specify one of "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "app", "volume", "dashboard", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search", "skill" in the request body. The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively. */
   async createTool(
     req: CreateToolRequest,
     options?: CallOptions
