@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Databricks Modular SDKs for JavaScript",
   "workspaces": [
-    "packages/*"
+    "packages/**"
   ],
   "scripts": {
     "build": "turbo run build",
