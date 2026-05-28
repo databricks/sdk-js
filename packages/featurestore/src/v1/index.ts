@@ -17,3 +17,5 @@ export type {
   PublishTableResponse,
   UpdateOnlineStoreRequest,
 } from './model';
+
+export {onlineStoreFieldMask} from './model';

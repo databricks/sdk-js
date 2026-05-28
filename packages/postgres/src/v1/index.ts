@@ -130,3 +130,11 @@ export type {
   UpdateProjectRequest,
   UpdateRoleRequest,
 } from './model';
+
+export {
+  branchFieldMask,
+  databaseFieldMask,
+  endpointFieldMask,
+  projectFieldMask,
+  roleFieldMask,
+} from './model';

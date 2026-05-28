@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-catalogs",
+  "name": "@databricks/sdk-uc-catalogs",
   "version": "0.0.0",
   "description": "",
   "type": "module",

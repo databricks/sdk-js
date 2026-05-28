@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-externalmetadata",
+  "name": "@databricks/sdk-uc-externalmetadata",
   "version": "0.0.0",
   "description": "",
   "type": "module",

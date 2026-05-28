@@ -872,8 +872,6 @@ export interface Catalog_CatalogStatus {
    * Format: projects/{project_id}/branches/{branch_id}.
    */
   branch?: string | undefined;
-  /** Part of the resource name. */
-  catalogId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1938,8 +1936,6 @@ export interface SyncedTable_SyncedTableStatus {
    * Format: "projects/{project_id}".
    */
   project?: string | undefined;
-  /** Part of the resource name. */
-  syncedTableId?: string | undefined;
 }
 
 /** Metadata for SyncedTable long-running operations. */
@@ -2220,13 +2216,11 @@ export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStat
       postgres_database: z.string().optional(),
       project: z.string().optional(),
       branch: z.string().optional(),
-      catalog_id: z.string().optional(),
     })
     .transform(d => ({
       postgresDatabase: d.postgres_database,
       project: d.project,
       branch: d.branch,
-      catalogId: d.catalog_id,
     }));
 
 export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperationMetadata> =
@@ -2864,7 +2858,6 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
         .enum(ProvisioningInfo_State)
         .optional(),
       project: z.string().optional(),
-      synced_table_id: z.string().optional(),
     })
     .transform(d => ({
       message: d.message,
@@ -2877,7 +2870,6 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
       pipelineId: d.pipeline_id,
       unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
       project: d.project,
-      syncedTableId: d.synced_table_id,
     }));
 
 export const unmarshalSyncedTableOperationMetadataSchema: z.ZodType<SyncedTableOperationMetadata> =
@@ -3093,13 +3085,11 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
     postgresDatabase: z.string().optional(),
     project: z.string().optional(),
     branch: z.string().optional(),
-    catalogId: z.string().optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
     project: d.project,
     branch: d.branch,
-    catalog_id: d.catalogId,
   }));
 
 export const marshalDatabaseSchema: z.ZodType = z
@@ -3631,7 +3621,6 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     pipelineId: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
     project: z.string().optional(),
-    syncedTableId: z.string().optional(),
   })
   .transform(d => ({
     message: d.message,
@@ -3644,7 +3633,6 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     pipeline_id: d.pipelineId,
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
     project: d.project,
-    synced_table_id: d.syncedTableId,
   }));
 
 export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z

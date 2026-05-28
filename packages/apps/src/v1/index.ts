@@ -113,3 +113,5 @@ export type {
   UpdateCustomTemplateRequest,
   UpdateSpaceRequest,
 } from './model';
+
+export {appFieldMask, spaceFieldMask} from './model';

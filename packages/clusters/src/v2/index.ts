@@ -139,3 +139,5 @@ export type {
   WorkloadType_ClientsTypes,
   WorkspaceStorageInfo,
 } from './model';
+
+export {updateClusterRequest_UpdateClusterResourceFieldMask} from './model';

@@ -21,3 +21,5 @@ export type {
   UpdateAlertRequest,
   UpdateAlertRequestAlert,
 } from './model';
+
+export {updateAlertRequestAlertFieldMask} from './model';

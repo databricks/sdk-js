@@ -517,7 +517,13 @@ export interface QueryVectorIndexResponse {
 }
 
 export interface RerankerConfig {
+  /**
+   * Reranker identifier:
+   * - When model_type=BASE/UNSPECIFIED: must be "databricks_reranker".
+   * - When model_type=FINETUNED: the Model Serving endpoint name hosting a finetuned reranker.
+   */
   model?: string | undefined;
+  /** Parameters that control how the reranker processes the query results. */
   parameters?: RerankerConfig_RerankerParameters | undefined;
 }
 

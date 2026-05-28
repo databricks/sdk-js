@@ -28,3 +28,5 @@ export type {
   UpdateFailoverGroupRequest,
   WorkspaceSet,
 } from './model';
+
+export {failoverGroupFieldMask} from './model';
