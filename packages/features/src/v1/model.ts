@@ -217,6 +217,12 @@ export interface CreateMaterializedFeatureRequest {
   materializedFeature?: MaterializedFeature | undefined;
 }
 
+/** Create a Stream, a governed UC entity representing an external streaming data source. */
+export interface CreateStreamRequest {
+  /** The Stream to create. */
+  stream?: Stream | undefined;
+}
+
 /** A cron-based schedule trigger for the materialization pipeline. */
 export interface CronSchedule {
   /** The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). */
@@ -259,6 +265,12 @@ export interface DeleteMaterializedFeatureRequest {
   materializedFeatureId?: string | undefined;
 }
 
+/** Delete a Stream by its full three-part name (catalog.schema.stream). */
+export interface DeleteStreamRequest {
+  /** Full three-part name (catalog.schema.stream) of the Stream to delete. */
+  name?: string | undefined;
+}
+
 export interface DeltaTableSource {
   /** The full three-part (catalog, schema, table) name of the Delta table. */
   fullName?: string | undefined;
@@ -286,6 +298,34 @@ export interface DeltaTableSource {
    * Example: {"type":"struct","fields":[{"name":"col_a","type":"integer","nullable":true,"metadata":{}},{"name":"col_c","type":"integer","nullable":true,"metadata":{}}]}
    */
   dataframeSchema?: string | undefined;
+}
+
+/**
+ * Direct connection configs for mTLS, as Kafka Connections do not support mTLS yet (XTA-18030).
+ * Temporarily used until UC Kafka Connections gain mTLS support.
+ */
+export interface DirectMtlsConfig {
+  /** A comma-separated list of host:port pairs for the Kafka bootstrap servers. */
+  bootstrapServers?: string | undefined;
+  /** Mutual-TLS authentication configuration. */
+  mtlsConfig?: MtlsConfig | undefined;
+}
+
+/**
+ * Schema definitions provided directly on the Stream, as opposed to referencing a schema registry.
+ * In a future milestone, we will support schema registries through a UC Connection.
+ */
+export interface DirectSchemas {
+  /**
+   * Schema for the message payload. For Kafka, this is the value schema.
+   * Unless the platform supports another schema (e.g. keys for Kafka), this must be specified.
+   */
+  payloadSchema?: SchemaConfig | undefined;
+  /**
+   * Schema for the message key. This is only used for Kafka streams.
+   * For Kafka, at least one of payload_schema or key_schema must be specified.
+   */
+  keySchema?: SchemaConfig | undefined;
 }
 
 export interface EntityColumn {
@@ -430,6 +470,57 @@ export interface GetMaterializedFeatureRequest {
   materializedFeatureId?: string | undefined;
 }
 
+/** Get a Stream by its full three-part name (catalog.schema.stream). */
+export interface GetStreamRequest {
+  /** Full three-part name (catalog.schema.stream) of the Stream to get. */
+  name?: string | undefined;
+}
+
+/**
+ * Configuration for the <Databricks>-managed ingestion pipeline.
+ * Groups the ingestion destination (required) and optional backfill source.
+ */
+export interface IngestionConfig {
+  /**
+   * Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training.
+   * This table contains both 1) forward-filled data from the Stream and 2) backfilled data from the BackfillSource (if provided).
+   * This table is created and managed by <Databricks> and is deleted when the Stream is deleted.
+   */
+  ingestionDestination?: IngestionDestination | undefined;
+  /**
+   * A user-provided source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Stream.
+   * The backfill data stored in this location will be copied into the ingestion table for offline querying and training.
+   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream.
+   */
+  backfillSource?: BackfillSource | undefined;
+  /**
+   * Column paths used to identify duplicate rows during ingestion; only one row per
+   * distinct combination of these values is kept. Use dot notation for nested fields
+   * (e.g. `value.user_id`). Empty list means every column is compared.
+   */
+  deduplicationColumns?: string[] | undefined;
+  /**
+   * The ID of the SDP pipeline that continuously copies new events from the streaming source
+   * into the ingestion Delta table.
+   */
+  ingestionPipelineId?: string | undefined;
+  /** The ID of the Databricks Job that performs the forward-fill ingestion. */
+  ingestionJobId?: bigint | undefined;
+  /** The ID of the Databricks Job that performs the historical backfill of the ingestion Delta table. */
+  backfillJobId?: bigint | undefined;
+}
+
+/** Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training. */
+export interface IngestionDestination {
+  ingestionDestination?:
+    | {
+        $case: 'deltaTableName';
+        /** The full three-part name (catalog, schema, name) of the Delta table to be created for ingestion. */
+        deltaTableName: string;
+      }
+    | undefined;
+}
+
 export interface JobContext {
   /** The job ID where this API invoked. */
   jobId?: bigint | undefined;
@@ -484,6 +575,49 @@ export interface KafkaSource {
   timeseriesColumnIdentifier?: ColumnIdentifier | undefined;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
+}
+
+/** Kafka-specific configuration for a Stream. */
+export interface KafkaStreamConfig {
+  /** Options to configure which Kafka topics to pull data from. */
+  subscriptionMode?: KafkaSubscriptionMode | undefined;
+  /**
+   * Miscellaneous source options. Accepted keys are source options or Kafka consumer options (kafka.*),
+   * validated against an allow-list at request time.
+   * All auth configuration goes through the underlying UC Connection(s) or configs and should not be stored here.
+   */
+  extraOptions?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface KafkaStreamConfig_ExtraOptionsEntry {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+/** Subscription mode for Kafka topic selection, matching standard Spark Structured Streaming options. */
+export interface KafkaSubscriptionMode {
+  /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
+  subscriptionMode?:
+    | {
+        $case: 'assign';
+        /**
+         * A JSON string that contains the specific topic-partitions to consume from.
+         * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
+         */
+        assign: string;
+      }
+    | {
+        $case: 'subscribe';
+        /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
+        subscribe: string;
+      }
+    | {
+        $case: 'subscribePattern';
+        /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
+        subscribePattern: string;
+      }
+    | undefined;
 }
 
 /** Returns the last value. */
@@ -548,6 +682,24 @@ export interface ListMaterializedFeaturesRequest {
 export interface ListMaterializedFeaturesResponse {
   /** List of materialized features. */
   materializedFeatures?: MaterializedFeature[] | undefined;
+  /** Pagination token to request the next page of results for this query. */
+  nextPageToken?: string | undefined;
+}
+
+/** List Streams under a given parent. */
+export interface ListStreamsRequest {
+  /** Two-part name (catalog.schema) of the parent under which to list Streams. */
+  parent?: string | undefined;
+  /** The maximum number of results to return. */
+  pageSize?: number | undefined;
+  /** Pagination token to go to the next page based on a previous query. */
+  pageToken?: string | undefined;
+}
+
+/** Response to a ListStreamsRequest. */
+export interface ListStreamsResponse {
+  /** List of Streams. */
+  streams?: Stream[] | undefined;
   /** Pagination token to request the next page of results for this query. */
   nextPageToken?: string | undefined;
 }
@@ -774,6 +926,88 @@ export interface StddevSampFunction {
   input?: string | undefined;
 }
 
+/**
+ * A Stream is a governed UC entity representing an external streaming data source.
+ * The source_config oneof determines the streaming platform source (e.g. Kafka, Kinesis, etc.).
+ */
+export interface Stream {
+  /** Full three-part (catalog.schema.stream) name of the stream. */
+  name?: string | undefined;
+  /** User-provided description. */
+  description?: string | undefined;
+  /** Source-specific configuration. Determines the streaming platform source. */
+  sourceConfig?: StreamSourceConfig | undefined;
+  /** Specifies how to connect and authenticate to the stream platform. */
+  connectionConfig?: StreamConnectionConfig | undefined;
+  /**
+   * Schema definitions for the stream. Currently only direct schemas are supported.
+   * In a future milestone, we will support schema registries through a UC Connection.
+   */
+  schemaConfig?: StreamSchemaConfig | undefined;
+  /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
+  ingestionConfig?: IngestionConfig | undefined;
+  /** Time at which this Stream was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Username of the Stream creator. */
+  createdBy?: string | undefined;
+  /** Time at which this Stream was last modified. */
+  updateTime?: Temporal.Instant | undefined;
+  /** Username of user who last modified the Stream. */
+  updatedBy?: string | undefined;
+  /**
+   * Indicates whether the principal is limited to retrieving metadata for the
+   * associated object through the BROWSE privilege when include_browse is enabled in the request.
+   */
+  browseOnly?: boolean | undefined;
+}
+
+/** Specifies how to connect and authenticate to the stream platform. */
+export interface StreamConnectionConfig {
+  connectionConfig?:
+    | {
+        $case: 'ucConnectionName';
+        /**
+         * Name of an existing UC Connection for stream platform access.
+         * Must be the correct type for the streaming platform (e.g. a Kafka Connection for a Kafka Stream).
+         */
+        ucConnectionName: string;
+      }
+    | {
+        $case: 'directMtlsConfig';
+        /**
+         * Direct mTLS configuration for stream platform access. This is only used in the short term until UC Kafka Connections support mTLS (XTA-18030).
+         * Once UC Kafka Connections support mTLS, this will be deprecated.
+         */
+        directMtlsConfig: DirectMtlsConfig;
+      }
+    | undefined;
+}
+
+/**
+ * Schema definitions for the stream. Currently only direct schemas are supported.
+ * In a future milestone, we will support schema registries through a UC Connection.
+ */
+export interface StreamSchemaConfig {
+  schemaConfig?:
+    | {
+        $case: 'directSchemas';
+        /** Schema definitions provided directly on the Stream. */
+        directSchemas: DirectSchemas;
+      }
+    | undefined;
+}
+
+/** Source-specific configuration. Determines the streaming platform source. */
+export interface StreamSourceConfig {
+  sourceConfig?:
+    | {
+        $case: 'kafkaStreamConfig';
+        /** Configuration for Apache Kafka streams. */
+        kafkaStreamConfig: KafkaStreamConfig;
+      }
+    | undefined;
+}
+
 /** The streaming mode configuration for a streaming materialization pipeline. */
 export interface StreamingMode {
   /** The type of streaming mode used by the materialization pipeline. */
@@ -868,6 +1102,14 @@ export interface UpdateMaterializedFeatureRequest {
    * Currently, only the pipeline_state field can be updated.
    */
   updateMask?: FieldMask<MaterializedFeature> | undefined;
+}
+
+/** Update a Stream. Only fields listed in `update_mask` are mutated. */
+export interface UpdateStreamRequest {
+  /** The Stream to update. */
+  stream?: Stream | undefined;
+  /** The list of fields to update. */
+  updateMask?: FieldMask<Stream> | undefined;
 }
 
 /** Computes the population variance. */
@@ -1124,6 +1366,26 @@ export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
     dataframeSchema: d.dataframe_schema,
   }));
 
+export const unmarshalDirectMtlsConfigSchema: z.ZodType<DirectMtlsConfig> = z
+  .object({
+    bootstrap_servers: z.string().optional(),
+    mtls_config: z.lazy(() => unmarshalMtlsConfigSchema).optional(),
+  })
+  .transform(d => ({
+    bootstrapServers: d.bootstrap_servers,
+    mtlsConfig: d.mtls_config,
+  }));
+
+export const unmarshalDirectSchemasSchema: z.ZodType<DirectSchemas> = z
+  .object({
+    payload_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
+    key_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
+  })
+  .transform(d => ({
+    payloadSchema: d.payload_schema,
+    keySchema: d.key_schema,
+  }));
+
 export const unmarshalEntityColumnSchema: z.ZodType<EntityColumn> = z
   .object({
     name: z.string().optional(),
@@ -1237,6 +1499,47 @@ export const unmarshalFunction_ExtraParameterSchema: z.ZodType<Function_ExtraPar
       value: d.value,
     }));
 
+export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
+  .object({
+    ingestion_destination: z
+      .lazy(() => unmarshalIngestionDestinationSchema)
+      .optional(),
+    backfill_source: z.lazy(() => unmarshalBackfillSourceSchema).optional(),
+    deduplication_columns: z.array(z.string()).optional(),
+    ingestion_pipeline_id: z.string().optional(),
+    ingestion_job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    backfill_job_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    ingestionDestination: d.ingestion_destination,
+    backfillSource: d.backfill_source,
+    deduplicationColumns: d.deduplication_columns,
+    ingestionPipelineId: d.ingestion_pipeline_id,
+    ingestionJobId: d.ingestion_job_id,
+    backfillJobId: d.backfill_job_id,
+  }));
+
+export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination> =
+  z
+    .object({
+      delta_table_name: z.string().optional(),
+    })
+    .transform(d => ({
+      ingestionDestination:
+        d.delta_table_name !== undefined
+          ? {
+              $case: 'deltaTableName' as const,
+              deltaTableName: d.delta_table_name,
+            }
+          : undefined,
+    }));
+
 export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
   .object({
     job_id: z
@@ -1293,6 +1596,39 @@ export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
     filterCondition: d.filter_condition,
   }));
 
+export const unmarshalKafkaStreamConfigSchema: z.ZodType<KafkaStreamConfig> = z
+  .object({
+    subscription_mode: z
+      .lazy(() => unmarshalKafkaSubscriptionModeSchema)
+      .optional(),
+    extra_options: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    subscriptionMode: d.subscription_mode,
+    extraOptions: d.extra_options,
+  }));
+
+export const unmarshalKafkaSubscriptionModeSchema: z.ZodType<KafkaSubscriptionMode> =
+  z
+    .object({
+      assign: z.string().optional(),
+      subscribe: z.string().optional(),
+      subscribe_pattern: z.string().optional(),
+    })
+    .transform(d => ({
+      subscriptionMode:
+        d.assign !== undefined
+          ? {$case: 'assign' as const, assign: d.assign}
+          : d.subscribe !== undefined
+            ? {$case: 'subscribe' as const, subscribe: d.subscribe}
+            : d.subscribe_pattern !== undefined
+              ? {
+                  $case: 'subscribePattern' as const,
+                  subscribePattern: d.subscribe_pattern,
+                }
+              : undefined,
+    }));
+
 export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
   .object({
     input: z.string().optional(),
@@ -1348,6 +1684,17 @@ export const unmarshalListMaterializedFeaturesResponseSchema: z.ZodType<ListMate
     })
     .transform(d => ({
       materializedFeatures: d.materialized_features,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListStreamsResponseSchema: z.ZodType<ListStreamsResponse> =
+  z
+    .object({
+      streams: z.array(z.lazy(() => unmarshalStreamSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      streams: d.streams,
       nextPageToken: d.next_page_token,
     }));
 
@@ -1561,6 +1908,94 @@ export const unmarshalStddevSampFunctionSchema: z.ZodType<StddevSampFunction> =
     })
     .transform(d => ({
       input: d.input,
+    }));
+
+export const unmarshalStreamSchema: z.ZodType<Stream> = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    source_config: z.lazy(() => unmarshalStreamSourceConfigSchema).optional(),
+    connection_config: z
+      .lazy(() => unmarshalStreamConnectionConfigSchema)
+      .optional(),
+    schema_config: z.lazy(() => unmarshalStreamSchemaConfigSchema).optional(),
+    ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema).optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    created_by: z.string().optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    updated_by: z.string().optional(),
+    browse_only: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    sourceConfig: d.source_config,
+    connectionConfig: d.connection_config,
+    schemaConfig: d.schema_config,
+    ingestionConfig: d.ingestion_config,
+    createTime: d.create_time,
+    createdBy: d.created_by,
+    updateTime: d.update_time,
+    updatedBy: d.updated_by,
+    browseOnly: d.browse_only,
+  }));
+
+export const unmarshalStreamConnectionConfigSchema: z.ZodType<StreamConnectionConfig> =
+  z
+    .object({
+      uc_connection_name: z.string().optional(),
+      direct_mtls_config: z
+        .lazy(() => unmarshalDirectMtlsConfigSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      connectionConfig:
+        d.uc_connection_name !== undefined
+          ? {
+              $case: 'ucConnectionName' as const,
+              ucConnectionName: d.uc_connection_name,
+            }
+          : d.direct_mtls_config !== undefined
+            ? {
+                $case: 'directMtlsConfig' as const,
+                directMtlsConfig: d.direct_mtls_config,
+              }
+            : undefined,
+    }));
+
+export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
+  z
+    .object({
+      direct_schemas: z.lazy(() => unmarshalDirectSchemasSchema).optional(),
+    })
+    .transform(d => ({
+      schemaConfig:
+        d.direct_schemas !== undefined
+          ? {$case: 'directSchemas' as const, directSchemas: d.direct_schemas}
+          : undefined,
+    }));
+
+export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
+  z
+    .object({
+      kafka_stream_config: z
+        .lazy(() => unmarshalKafkaStreamConfigSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      sourceConfig:
+        d.kafka_stream_config !== undefined
+          ? {
+              $case: 'kafkaStreamConfig' as const,
+              kafkaStreamConfig: d.kafka_stream_config,
+            }
+          : undefined,
     }));
 
 export const unmarshalStreamingModeSchema: z.ZodType<StreamingMode> = z
@@ -1942,6 +2377,26 @@ export const marshalDeltaTableSourceSchema: z.ZodType = z
     dataframe_schema: d.dataframeSchema,
   }));
 
+export const marshalDirectMtlsConfigSchema: z.ZodType = z
+  .object({
+    bootstrapServers: z.string().optional(),
+    mtlsConfig: z.lazy(() => marshalMtlsConfigSchema).optional(),
+  })
+  .transform(d => ({
+    bootstrap_servers: d.bootstrapServers,
+    mtls_config: d.mtlsConfig,
+  }));
+
+export const marshalDirectSchemasSchema: z.ZodType = z
+  .object({
+    payloadSchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
+    keySchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
+  })
+  .transform(d => ({
+    payload_schema: d.payloadSchema,
+    key_schema: d.keySchema,
+  }));
+
 export const marshalEntityColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2056,6 +2511,43 @@ export const marshalFunction_ExtraParameterSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalIngestionConfigSchema: z.ZodType = z
+  .object({
+    ingestionDestination: z
+      .lazy(() => marshalIngestionDestinationSchema)
+      .optional(),
+    backfillSource: z.lazy(() => marshalBackfillSourceSchema).optional(),
+    deduplicationColumns: z.array(z.string()).optional(),
+    ingestionPipelineId: z.string().optional(),
+    ingestionJobId: z.bigint().optional(),
+    backfillJobId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    ingestion_destination: d.ingestionDestination,
+    backfill_source: d.backfillSource,
+    deduplication_columns: d.deduplicationColumns,
+    ingestion_pipeline_id: d.ingestionPipelineId,
+    ingestion_job_id: d.ingestionJobId,
+    backfill_job_id: d.backfillJobId,
+  }));
+
+export const marshalIngestionDestinationSchema: z.ZodType = z
+  .object({
+    ingestionDestination: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableName'),
+          deltaTableName: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.ingestionDestination?.$case === 'deltaTableName' && {
+      delta_table_name: d.ingestionDestination.deltaTableName,
+    }),
+  }));
+
 export const marshalJobContextSchema: z.ZodType = z
   .object({
     jobId: z.bigint().optional(),
@@ -2104,6 +2596,43 @@ export const marshalKafkaSourceSchema: z.ZodType = z
     entity_column_identifiers: d.entityColumnIdentifiers,
     timeseries_column_identifier: d.timeseriesColumnIdentifier,
     filter_condition: d.filterCondition,
+  }));
+
+export const marshalKafkaStreamConfigSchema: z.ZodType = z
+  .object({
+    subscriptionMode: z
+      .lazy(() => marshalKafkaSubscriptionModeSchema)
+      .optional(),
+    extraOptions: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    subscription_mode: d.subscriptionMode,
+    extra_options: d.extraOptions,
+  }));
+
+export const marshalKafkaSubscriptionModeSchema: z.ZodType = z
+  .object({
+    subscriptionMode: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('assign'), assign: z.string()}),
+        z.object({$case: z.literal('subscribe'), subscribe: z.string()}),
+        z.object({
+          $case: z.literal('subscribePattern'),
+          subscribePattern: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.subscriptionMode?.$case === 'assign' && {
+      assign: d.subscriptionMode.assign,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribe' && {
+      subscribe: d.subscriptionMode.subscribe,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribePattern' && {
+      subscribe_pattern: d.subscriptionMode.subscribePattern,
+    }),
   }));
 
 export const marshalLastFunctionSchema: z.ZodType = z
@@ -2341,6 +2870,100 @@ export const marshalStddevSampFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
+export const marshalStreamSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    sourceConfig: z.lazy(() => marshalStreamSourceConfigSchema).optional(),
+    connectionConfig: z
+      .lazy(() => marshalStreamConnectionConfigSchema)
+      .optional(),
+    schemaConfig: z.lazy(() => marshalStreamSchemaConfigSchema).optional(),
+    ingestionConfig: z.lazy(() => marshalIngestionConfigSchema).optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createdBy: z.string().optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updatedBy: z.string().optional(),
+    browseOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    source_config: d.sourceConfig,
+    connection_config: d.connectionConfig,
+    schema_config: d.schemaConfig,
+    ingestion_config: d.ingestionConfig,
+    create_time: d.createTime,
+    created_by: d.createdBy,
+    update_time: d.updateTime,
+    updated_by: d.updatedBy,
+    browse_only: d.browseOnly,
+  }));
+
+export const marshalStreamConnectionConfigSchema: z.ZodType = z
+  .object({
+    connectionConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ucConnectionName'),
+          ucConnectionName: z.string(),
+        }),
+        z.object({
+          $case: z.literal('directMtlsConfig'),
+          directMtlsConfig: z.lazy(() => marshalDirectMtlsConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.connectionConfig?.$case === 'ucConnectionName' && {
+      uc_connection_name: d.connectionConfig.ucConnectionName,
+    }),
+    ...(d.connectionConfig?.$case === 'directMtlsConfig' && {
+      direct_mtls_config: d.connectionConfig.directMtlsConfig,
+    }),
+  }));
+
+export const marshalStreamSchemaConfigSchema: z.ZodType = z
+  .object({
+    schemaConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('directSchemas'),
+          directSchemas: z.lazy(() => marshalDirectSchemasSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.schemaConfig?.$case === 'directSchemas' && {
+      direct_schemas: d.schemaConfig.directSchemas,
+    }),
+  }));
+
+export const marshalStreamSourceConfigSchema: z.ZodType = z
+  .object({
+    sourceConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('kafkaStreamConfig'),
+          kafkaStreamConfig: z.lazy(() => marshalKafkaStreamConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.sourceConfig?.$case === 'kafkaStreamConfig' && {
+      kafka_stream_config: d.sourceConfig.kafkaStreamConfig,
+    }),
+  }));
+
 export const marshalStreamingModeSchema: z.ZodType = z
   .object({
     mode: z.enum(StreamingMode_StreamingModeType).optional(),
@@ -2558,6 +3181,19 @@ const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
   transformationSql: {wire: 'transformation_sql'},
 };
 
+const directMtlsConfigFieldMaskSchema: FieldMaskSchema = {
+  bootstrapServers: {wire: 'bootstrap_servers'},
+  mtlsConfig: {wire: 'mtls_config', children: () => mtlsConfigFieldMaskSchema},
+};
+
+const directSchemasFieldMaskSchema: FieldMaskSchema = {
+  keySchema: {wire: 'key_schema', children: () => schemaConfigFieldMaskSchema},
+  payloadSchema: {
+    wire: 'payload_schema',
+    children: () => schemaConfigFieldMaskSchema,
+  },
+};
+
 const featureFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   createdAt: {wire: 'created_at'},
@@ -2607,6 +3243,25 @@ const functionFieldMaskSchema: FieldMaskSchema = {
   functionType: {wire: 'function_type'},
 };
 
+const ingestionConfigFieldMaskSchema: FieldMaskSchema = {
+  backfillJobId: {wire: 'backfill_job_id'},
+  backfillSource: {
+    wire: 'backfill_source',
+    children: () => backfillSourceFieldMaskSchema,
+  },
+  deduplicationColumns: {wire: 'deduplication_columns'},
+  ingestionDestination: {
+    wire: 'ingestion_destination',
+    children: () => ingestionDestinationFieldMaskSchema,
+  },
+  ingestionJobId: {wire: 'ingestion_job_id'},
+  ingestionPipelineId: {wire: 'ingestion_pipeline_id'},
+};
+
+const ingestionDestinationFieldMaskSchema: FieldMaskSchema = {
+  deltaTableName: {wire: 'delta_table_name'},
+};
+
 const jobContextFieldMaskSchema: FieldMaskSchema = {
   jobId: {wire: 'job_id'},
   jobRunId: {wire: 'job_run_id'},
@@ -2646,6 +3301,20 @@ const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'timeseries_column_identifier',
     children: () => columnIdentifierFieldMaskSchema,
   },
+};
+
+const kafkaStreamConfigFieldMaskSchema: FieldMaskSchema = {
+  extraOptions: {wire: 'extra_options'},
+  subscriptionMode: {
+    wire: 'subscription_mode',
+    children: () => kafkaSubscriptionModeFieldMaskSchema,
+  },
+};
+
+const kafkaSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
+  assign: {wire: 'assign'},
+  subscribe: {wire: 'subscribe'},
+  subscribePattern: {wire: 'subscribe_pattern'},
 };
 
 const lastFunctionFieldMaskSchema: FieldMaskSchema = {
@@ -2764,6 +3433,58 @@ const stddevPopFunctionFieldMaskSchema: FieldMaskSchema = {
 
 const stddevSampFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
+};
+
+const streamFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  connectionConfig: {
+    wire: 'connection_config',
+    children: () => streamConnectionConfigFieldMaskSchema,
+  },
+  createTime: {wire: 'create_time'},
+  createdBy: {wire: 'created_by'},
+  description: {wire: 'description'},
+  ingestionConfig: {
+    wire: 'ingestion_config',
+    children: () => ingestionConfigFieldMaskSchema,
+  },
+  name: {wire: 'name'},
+  schemaConfig: {
+    wire: 'schema_config',
+    children: () => streamSchemaConfigFieldMaskSchema,
+  },
+  sourceConfig: {
+    wire: 'source_config',
+    children: () => streamSourceConfigFieldMaskSchema,
+  },
+  updateTime: {wire: 'update_time'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function streamFieldMask(...paths: string[]): FieldMask<Stream> {
+  return FieldMask.build<Stream>(paths, streamFieldMaskSchema);
+}
+
+const streamConnectionConfigFieldMaskSchema: FieldMaskSchema = {
+  directMtlsConfig: {
+    wire: 'direct_mtls_config',
+    children: () => directMtlsConfigFieldMaskSchema,
+  },
+  ucConnectionName: {wire: 'uc_connection_name'},
+};
+
+const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
+  directSchemas: {
+    wire: 'direct_schemas',
+    children: () => directSchemasFieldMaskSchema,
+  },
+};
+
+const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {
+  kafkaStreamConfig: {
+    wire: 'kafka_stream_config',
+    children: () => kafkaStreamConfigFieldMaskSchema,
+  },
 };
 
 const streamingModeFieldMaskSchema: FieldMaskSchema = {

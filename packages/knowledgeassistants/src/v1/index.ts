@@ -31,3 +31,9 @@ export type {
   UpdateKnowledgeAssistantRequest,
   UpdateKnowledgeSourceRequest,
 } from './model';
+
+export {
+  exampleFieldMask,
+  knowledgeAssistantFieldMask,
+  knowledgeSourceFieldMask,
+} from './model';

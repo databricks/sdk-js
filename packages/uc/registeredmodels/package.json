@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-registeredmodels",
+  "name": "@databricks/sdk-uc-registeredmodels",
   "version": "0.0.0",
   "description": "",
   "type": "module",

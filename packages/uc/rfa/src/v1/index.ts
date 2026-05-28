@@ -22,3 +22,5 @@ export type {
   SecurablePermissions,
   UpdateAccessRequestDestinationsRequest,
 } from './model';
+
+export {accessRequestDestinationsFieldMask} from './model';

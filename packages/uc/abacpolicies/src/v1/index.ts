@@ -18,3 +18,5 @@ export type {
   RowFilterOptions,
   UpdatePolicyRequest,
 } from './model';
+
+export {policyInfoFieldMask} from './model';

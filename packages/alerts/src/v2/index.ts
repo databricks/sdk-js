@@ -28,3 +28,5 @@ export type {
   TrashAlertRequest,
   UpdateAlertRequest,
 } from './model';
+
+export {alertFieldMask} from './model';

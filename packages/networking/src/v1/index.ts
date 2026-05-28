@@ -151,3 +151,5 @@ export type {
   UpdateWorkspaceNetworkOptionRequest,
   WorkspaceNetworkOption,
 } from './model';
+
+export {updatePrivateEndpointRuleFieldMask} from './model';

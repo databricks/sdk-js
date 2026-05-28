@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-externallineage",
+  "name": "@databricks/sdk-uc-externallineage",
   "version": "0.0.0",
   "description": "",
   "type": "module",

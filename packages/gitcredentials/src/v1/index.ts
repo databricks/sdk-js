@@ -2,8 +2,6 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {
   CreateCredentialsRequest,
   CreateCredentialsRequest_Response,

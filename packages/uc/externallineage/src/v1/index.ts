@@ -31,3 +31,5 @@ export type {
   UpdateRequestExternalLineage,
   UpdateRequestExternalLineage_PropertiesEntry,
 } from './model';
+
+export {updateRequestExternalLineageFieldMask} from './model';

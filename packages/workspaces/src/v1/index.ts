@@ -32,3 +32,5 @@ export type {
   Workspace_CustomTagsEntry,
   WorkspaceNetwork,
 } from './model';
+
+export {workspaceFieldMask} from './model';

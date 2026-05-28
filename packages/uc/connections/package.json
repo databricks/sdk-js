@@ -1,5 +1,5 @@
 {
-  "name": "@databricks/sdk-connections",
+  "name": "@databricks/sdk-uc-connections",
   "version": "0.0.0",
   "description": "",
   "type": "module",

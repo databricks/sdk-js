@@ -58,3 +58,5 @@ export type {
   StopRequest,
   StopRequest_Response,
 } from './model';
+
+export {defaultWarehouseOverrideFieldMask} from './model';

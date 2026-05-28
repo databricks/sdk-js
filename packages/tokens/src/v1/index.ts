@@ -2,8 +2,6 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {
   CreateTokenRequest,
   CreateTokenRequest_Response,
@@ -15,3 +13,5 @@ export type {
   UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';
+
+export {publicTokenInfoFieldMask} from './model';

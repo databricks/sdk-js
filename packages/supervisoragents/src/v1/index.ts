@@ -2,8 +2,6 @@
 
 export {Client} from './client';
 
-export {} from './model';
-
 export type {
   App,
   CreateExampleRequest,
@@ -32,4 +30,10 @@ export type {
   UpdateSupervisorAgentRequest,
   UpdateToolRequest,
   Volume,
+} from './model';
+
+export {
+  exampleFieldMask,
+  supervisorAgentFieldMask,
+  toolFieldMask,
 } from './model';

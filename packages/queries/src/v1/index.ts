@@ -35,3 +35,5 @@ export type {
   UpdateQueryRequestQuery,
   Visualization,
 } from './model';
+
+export {updateQueryRequestQueryFieldMask} from './model';
