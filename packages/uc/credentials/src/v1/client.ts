@@ -127,12 +127,10 @@ export class Client {
     this.accountId = options.accountId;
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
