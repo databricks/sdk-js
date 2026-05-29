@@ -18,6 +18,7 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  AdminTokenInfo,
   CreateOnBehalfOfTokenRequest,
   CreateOnBehalfOfTokenRequest_Response,
   GetTokenRequest,
@@ -26,9 +27,12 @@ import type {
   ListTokensRequest_Response,
   RevokeTokenRequest,
   RevokeTokenRequest_Response,
+  UpdateToken,
 } from './model';
 import {
   marshalCreateOnBehalfOfTokenRequestSchema,
+  marshalUpdateTokenSchema,
+  unmarshalAdminTokenInfoSchema,
   unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema,
   unmarshalGetTokenRequest_ResponseSchema,
   unmarshalListTokensRequest_ResponseSchema,
@@ -41,7 +45,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class Client {
+export class TokenmanagementClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -61,12 +65,10 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
@@ -191,6 +193,35 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListTokensRequest_ResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Updates a token, specified by its ID. */
+  async updateToken(
+    req: UpdateToken,
+    options?: CallOptions
+  ): Promise<AdminTokenInfo> {
+    const url = `${this.host}/api/2.0/token-management/tokens/${req.token?.tokenId ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateTokenSchema);
+    let resp: AdminTokenInfo | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalAdminTokenInfoSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client, CreateDatabaseInstanceWaiter} from './client';
+export {DatabaseClient, CreateDatabaseInstanceWaiter} from './client';
 
 export {
   ProvisioningPhase,

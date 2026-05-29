@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Credentials} from '@databricks/sdk-auth';
+import {defaultCredentials} from '@databricks/sdk-auth/credentials';
 import type {
   HttpClient,
   HttpRequest,
@@ -24,13 +25,10 @@ export function newHttpClient(options?: ClientOptions): HttpClient {
     return opts.httpClient;
   }
 
-  if (opts.credentials === undefined) {
-    // TODO: Load default credentials from profile.
-    throw new Error('no credentials provided');
-  }
+  const credentials = opts.credentials ?? defaultCredentials();
 
   const base = newFetchHttpClient();
-  let client: HttpClient = new AuthHttpClient(base, opts.credentials);
+  let client: HttpClient = new AuthHttpClient(base, credentials);
 
   if (opts.timeout !== undefined) {
     client = new TimeoutHttpClient(client, opts.timeout);

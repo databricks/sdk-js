@@ -38,7 +38,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class Client {
+export class OnlinetablesClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -58,12 +58,10 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
@@ -165,7 +163,7 @@ export class Client {
 
 export class CreateOnlineTableWaiter {
   constructor(
-    private readonly client: Client,
+    private readonly client: OnlinetablesClient,
     readonly name: string
   ) {}
 

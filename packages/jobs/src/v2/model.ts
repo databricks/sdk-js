@@ -2352,6 +2352,18 @@ export interface JobDeployment {
   kind?: JobDeployment_DeploymentKind | undefined;
   /** Path of the file that contains deployment metadata. */
   metadataFilePath?: string | undefined;
+  /**
+   * ID of the deployment that manages this job. Only set when `kind` is
+   * `BUNDLE`. Used to look up deployment metadata from the Deployment
+   * Metadata service.
+   */
+  deploymentId?: string | undefined;
+  /**
+   * ID of the version of the deployment that produced this job. Only set
+   * when `kind` is `BUNDLE`. Identifies a specific snapshot of the deployment
+   * in the Deployment Metadata service.
+   */
+  versionId?: string | undefined;
 }
 
 export interface JobEmailNotifications {
@@ -4890,6 +4902,7 @@ export interface TriggerSettings {
 }
 
 export interface TriggerState {
+  /** (-- Next ID: 7. --) */
   triggerType?:
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
@@ -6170,10 +6183,14 @@ export const unmarshalJobDeploymentSchema: z.ZodType<JobDeployment> = z
   .object({
     kind: z.enum(JobDeployment_DeploymentKind).optional(),
     metadata_file_path: z.string().optional(),
+    deployment_id: z.string().optional(),
+    version_id: z.string().optional(),
   })
   .transform(d => ({
     kind: d.kind,
     metadataFilePath: d.metadata_file_path,
+    deploymentId: d.deployment_id,
+    versionId: d.version_id,
   }));
 
 export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotifications> =
@@ -8869,10 +8886,14 @@ export const marshalJobDeploymentSchema: z.ZodType = z
   .object({
     kind: z.enum(JobDeployment_DeploymentKind).optional(),
     metadataFilePath: z.string().optional(),
+    deploymentId: z.string().optional(),
+    versionId: z.string().optional(),
   })
   .transform(d => ({
     kind: d.kind,
     metadata_file_path: d.metadataFilePath,
+    deployment_id: d.deploymentId,
+    version_id: d.versionId,
   }));
 
 export const marshalJobEmailNotificationsSchema: z.ZodType = z

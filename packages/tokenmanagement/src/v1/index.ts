@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client} from './client';
+export {TokenmanagementClient} from './client';
+
+export {AutoscopeState} from './model';
 
 export type {
   AdminTokenInfo,
@@ -12,4 +14,7 @@ export type {
   ListTokensRequest_Response,
   RevokeTokenRequest,
   RevokeTokenRequest_Response,
+  UpdateToken,
 } from './model';
+
+export {adminTokenInfoFieldMask} from './model';

@@ -43,7 +43,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class Client {
+export class TokensClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -63,12 +63,10 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
@@ -176,7 +174,7 @@ export class Client {
   /**
    * Updates the comment or scopes of a token.
    *
-   * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
+   * If a token with the specified ID is not valid, this call returns an error **NOT_FOUND**.
    */
   async updateToken(
     req: UpdateTokenRequest,
