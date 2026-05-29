@@ -92,7 +92,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class Client {
+export class AppsClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -112,12 +112,10 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
@@ -1027,7 +1025,7 @@ export class Client {
 
 export class CreateSpaceOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     private operation: Operation
   ) {}
 
@@ -1117,7 +1115,7 @@ export class CreateSpaceOperation {
 
 export class DeleteSpaceOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     private operation: Operation
   ) {}
 
@@ -1196,7 +1194,7 @@ export class DeleteSpaceOperation {
 
 export class UpdateSpaceOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     private operation: Operation
   ) {}
 
@@ -1286,7 +1284,7 @@ export class UpdateSpaceOperation {
 
 export class AsyncUpdateAppWaiter {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     readonly appName: string
   ) {}
 
@@ -1364,7 +1362,7 @@ export class AsyncUpdateAppWaiter {
 
 export class CreateAppWaiter {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     readonly name: string
   ) {}
 
@@ -1444,7 +1442,7 @@ export class CreateAppWaiter {
 
 export class CreateAppDeploymentWaiter {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     readonly deploymentId: string,
     readonly appName: string
   ) {}
@@ -1525,7 +1523,7 @@ export class CreateAppDeploymentWaiter {
 
 export class StartAppWaiter {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     readonly name: string
   ) {}
 
@@ -1605,7 +1603,7 @@ export class StartAppWaiter {
 
 export class StopAppWaiter {
   constructor(
-    private readonly client: Client,
+    private readonly client: AppsClient,
     readonly name: string
   ) {}
 

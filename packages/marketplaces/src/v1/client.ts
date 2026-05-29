@@ -207,7 +207,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class Client {
+export class MarketplacesClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -227,12 +227,10 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
@@ -310,7 +308,7 @@ export class Client {
     req: CreatePersonalizationRequest,
     options?: CallOptions
   ): Promise<CreatePersonalizationRequest_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     const body = marshalRequest(req, marshalCreatePersonalizationRequestSchema);
     let resp: CreatePersonalizationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -342,7 +340,7 @@ export class Client {
     req: GetAllInstallations,
     options?: CallOptions
   ): Promise<GetAllInstallations_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/installations`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -399,7 +397,7 @@ export class Client {
     req: GetAllPersonalizationRequestsForConsumer,
     options?: CallOptions
   ): Promise<GetAllPersonalizationRequestsForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/personalization-requests`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -459,7 +457,7 @@ export class Client {
     req: GetInstallationDetails,
     options?: CallOptions
   ): Promise<GetInstallationDetails_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -516,7 +514,7 @@ export class Client {
     req: GetListingContent,
     options?: CallOptions
   ): Promise<GetListingContent_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -574,7 +572,7 @@ export class Client {
     req: GetListingFulfillments,
     options?: CallOptions
   ): Promise<GetListingFulfillments_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -631,7 +629,7 @@ export class Client {
     req: GetPersonalizationRequestsForConsumer,
     options?: CallOptions
   ): Promise<GetPersonalizationRequestsForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     let resp: GetPersonalizationRequestsForConsumer_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -662,7 +660,7 @@ export class Client {
     req: GetPublishedListingForConsumer,
     options?: CallOptions
   ): Promise<GetPublishedListingForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.id ?? ''}`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.id ?? ''}`;
     let resp: GetPublishedListingForConsumer_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -693,7 +691,7 @@ export class Client {
     req: GetPublishedListingsForConsumer,
     options?: CallOptions
   ): Promise<GetPublishedListingsForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -775,7 +773,7 @@ export class Client {
     req: GetPublishedProviderForConsumer,
     options?: CallOptions
   ): Promise<GetPublishedProviderForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/providers/${req.id ?? ''}`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/providers/${req.id ?? ''}`;
     let resp: GetPublishedProviderForConsumer_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -806,7 +804,7 @@ export class Client {
     req: InstallListing,
     options?: CallOptions
   ): Promise<InstallListing_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const body = marshalRequest(req, marshalInstallListingSchema);
     let resp: InstallListing_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -835,7 +833,7 @@ export class Client {
     req: ListPublishedProvidersForConsumer,
     options?: CallOptions
   ): Promise<ListPublishedProvidersForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/providers`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -901,7 +899,7 @@ export class Client {
     req: SearchPublishedListingsForConsumer,
     options?: CallOptions
   ): Promise<SearchPublishedListingsForConsumer_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/search-listings`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/search-listings`;
     const params = new URLSearchParams();
     if (req.query !== undefined) {
       params.append('query', req.query);
@@ -979,7 +977,7 @@ export class Client {
     req: UninstallListing,
     options?: CallOptions
   ): Promise<UninstallListing_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     let resp: UninstallListing_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1012,7 +1010,7 @@ export class Client {
     req: UpdateInstallationDetail,
     options?: CallOptions
   ): Promise<UpdateInstallationDetail_Response> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateInstallationDetailSchema);
     let resp: UpdateInstallationDetail_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2189,7 +2187,7 @@ export class Client {
     req: UpdatePersonalizationRequestStatusRequest,
     options?: CallOptions
   ): Promise<UpdatePersonalizationRequestStatusRequest_Response> {
-    const url = `${this.host}/api/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
+    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
     const body = marshalRequest(
       req,
       marshalUpdatePersonalizationRequestStatusRequestSchema

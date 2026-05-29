@@ -117,7 +117,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class Client {
+export class PostgresClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -137,12 +137,10 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
-    let info = createDefault().with(PACKAGE_SEGMENT);
-    if (options.credentials !== undefined) {
-      info = info
-        .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-        .with({key: 'auth', value: options.credentials.name()});
-    }
+    const info = createDefault()
+      .with(PACKAGE_SEGMENT)
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
+      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
   }
@@ -1621,7 +1619,7 @@ export class Client {
 
 export class CreateBranchOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -1713,7 +1711,7 @@ export class CreateBranchOperation {
 
 export class CreateCatalogOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -1805,7 +1803,7 @@ export class CreateCatalogOperation {
 
 export class CreateDatabaseOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -1897,7 +1895,7 @@ export class CreateDatabaseOperation {
 
 export class CreateEndpointOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -1989,7 +1987,7 @@ export class CreateEndpointOperation {
 
 export class CreateProjectOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2081,7 +2079,7 @@ export class CreateProjectOperation {
 
 export class CreateRoleOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2173,7 +2171,7 @@ export class CreateRoleOperation {
 
 export class CreateSyncedTableOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2267,7 +2265,7 @@ export class CreateSyncedTableOperation {
 
 export class DeleteBranchOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2348,7 +2346,7 @@ export class DeleteBranchOperation {
 
 export class DeleteCatalogOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2429,7 +2427,7 @@ export class DeleteCatalogOperation {
 
 export class DeleteDatabaseOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2510,7 +2508,7 @@ export class DeleteDatabaseOperation {
 
 export class DeleteEndpointOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2591,7 +2589,7 @@ export class DeleteEndpointOperation {
 
 export class DeleteProjectOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2672,7 +2670,7 @@ export class DeleteProjectOperation {
 
 export class DeleteRoleOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2753,7 +2751,7 @@ export class DeleteRoleOperation {
 
 export class DeleteSyncedTableOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2834,7 +2832,7 @@ export class DeleteSyncedTableOperation {
 
 export class UndeleteBranchOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2915,7 +2913,7 @@ export class UndeleteBranchOperation {
 
 export class UndeleteProjectOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -2996,7 +2994,7 @@ export class UndeleteProjectOperation {
 
 export class UpdateBranchOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -3088,7 +3086,7 @@ export class UpdateBranchOperation {
 
 export class UpdateDatabaseOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -3180,7 +3178,7 @@ export class UpdateDatabaseOperation {
 
 export class UpdateEndpointOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -3272,7 +3270,7 @@ export class UpdateEndpointOperation {
 
 export class UpdateProjectOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -3364,7 +3362,7 @@ export class UpdateProjectOperation {
 
 export class UpdateRoleOperation {
   constructor(
-    private readonly client: Client,
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 

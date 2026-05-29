@@ -1744,6 +1744,18 @@ export interface PipelineDeployment {
   kind?: DeploymentKind | undefined;
   /** The path to the file containing metadata about the deployment. */
   metadataFilePath?: string | undefined;
+  /**
+   * ID of the deployment that manages this pipeline. Only set when `kind` is
+   * `BUNDLE`. Used to look up deployment metadata from the Deployment
+   * Metadata service.
+   */
+  deploymentId?: string | undefined;
+  /**
+   * ID of the version of the deployment that produced this pipeline. Only
+   * set when `kind` is `BUNDLE`. Identifies a specific snapshot of the
+   * deployment in the Deployment Metadata service.
+   */
+  versionId?: string | undefined;
 }
 
 export interface PipelineEvent {
@@ -3527,10 +3539,14 @@ export const unmarshalPipelineDeploymentSchema: z.ZodType<PipelineDeployment> =
     .object({
       kind: z.enum(DeploymentKind).optional(),
       metadata_file_path: z.string().optional(),
+      deployment_id: z.string().optional(),
+      version_id: z.string().optional(),
     })
     .transform(d => ({
       kind: d.kind,
       metadataFilePath: d.metadata_file_path,
+      deploymentId: d.deployment_id,
+      versionId: d.version_id,
     }));
 
 export const unmarshalPipelineEventSchema: z.ZodType<PipelineEvent> = z
@@ -5052,10 +5068,14 @@ export const marshalPipelineDeploymentSchema: z.ZodType = z
   .object({
     kind: z.enum(DeploymentKind).optional(),
     metadataFilePath: z.string().optional(),
+    deploymentId: z.string().optional(),
+    versionId: z.string().optional(),
   })
   .transform(d => ({
     kind: d.kind,
     metadata_file_path: d.metadataFilePath,
+    deployment_id: d.deploymentId,
+    version_id: d.versionId,
   }));
 
 export const marshalPipelineLibrarySchema: z.ZodType = z

@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client, CreateOnlineTableWaiter} from './client';
+export {OnlinetablesClient, CreateOnlineTableWaiter} from './client';
 
 export {OnlineTableState, ProvisioningInfo_State} from './model';
 

@@ -4,6 +4,22 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/**
+ * State of inferred scope collection (autoscope) for an external PAT.
+ * Mirrored in databricks.identity.AutoscopeState in common/principal-context/api/proto/tokendetails.proto.
+ * Token store and token management proto can depend on this.
+ * Principal context proto should NOT depend on this proto definitions because too many services depend on the principal context proto.
+ */
+export enum AutoscopeState {
+  AUTOSCOPE_STATE_UNSPECIFIED = 'AUTOSCOPE_STATE_UNSPECIFIED',
+  AUTOSCOPE_STATE_DISABLED = 'AUTOSCOPE_STATE_DISABLED',
+  AUTOSCOPE_STATE_RUNNING = 'AUTOSCOPE_STATE_RUNNING',
+  AUTOSCOPE_STATE_COMPLETED = 'AUTOSCOPE_STATE_COMPLETED',
+  AUTOSCOPE_STATE_BACKFILLED = 'AUTOSCOPE_STATE_BACKFILLED',
+  AUTOSCOPE_STATE_USER_SELECTED = 'AUTOSCOPE_STATE_USER_SELECTED',
+  AUTOSCOPE_STATE_API_NOT_COVERED = 'AUTOSCOPE_STATE_API_NOT_COVERED',
+}
+
 export interface CreateTokenRequest {
   /**
    * The lifetime of the token, in seconds.
@@ -15,6 +31,11 @@ export interface CreateTokenRequest {
   comment?: string | undefined;
   /** Optional scopes of the token. */
   scopes?: string[] | undefined;
+  /**
+   * Whether to enable autoscoping for this token. When true, the token will
+   * automatically collect inferred API path scopes as it is used.
+   */
+  autoscopeEnabled?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -43,6 +64,14 @@ export interface PublicTokenInfo {
   expiryTime?: bigint | undefined;
   /** Comment the token was created with, if applicable. */
   comment?: string | undefined;
+  /** Scope of the token was created with, if applicable. */
+  scopes?: string[] | undefined;
+  /** Output only. The autoscope state of this token. */
+  autoscopeState?: AutoscopeState | undefined;
+  /** Output only. Inferred API path scopes collected for this token when autoscope is enabled. */
+  inferredScopes?: string[] | undefined;
+  /** Output only. Scopes inferred from offline backfill processing. */
+  backfillScopes?: string[] | undefined;
 }
 
 export interface RevokeTokenRequest {
@@ -53,11 +82,15 @@ export interface RevokeTokenRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface RevokeTokenRequest_Response {}
 
+/**
+ * For the list of supported token scopes, see
+ * https://docs.databricks.com/api/workspace/api/scopes.
+ */
 export interface UpdateTokenRequest {
   /** The SHA-256 hash of the token to be updated. */
   tokenId?: string | undefined;
   token?: PublicTokenInfo | undefined;
-  /** A list of field name under PublicTokenInfo, For example in request use {"update_mask": "comment,scopes"} */
+  /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
   updateMask?: FieldMask<PublicTokenInfo> | undefined;
 }
 
@@ -100,12 +133,20 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     comment: z.string().optional(),
+    scopes: z.array(z.string()).optional(),
+    autoscope_state: z.enum(AutoscopeState).optional(),
+    inferred_scopes: z.array(z.string()).optional(),
+    backfill_scopes: z.array(z.string()).optional(),
   })
   .transform(d => ({
     tokenId: d.token_id,
     creationTime: d.creation_time,
     expiryTime: d.expiry_time,
     comment: d.comment,
+    scopes: d.scopes,
+    autoscopeState: d.autoscope_state,
+    inferredScopes: d.inferred_scopes,
+    backfillScopes: d.backfill_scopes,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -120,11 +161,13 @@ export const marshalCreateTokenRequestSchema: z.ZodType = z
     lifetimeSeconds: z.bigint().optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
+    autoscopeEnabled: z.boolean().optional(),
   })
   .transform(d => ({
     lifetime_seconds: d.lifetimeSeconds,
     comment: d.comment,
     scopes: d.scopes,
+    autoscope_enabled: d.autoscopeEnabled,
   }));
 
 export const marshalPublicTokenInfoSchema: z.ZodType = z
@@ -133,12 +176,20 @@ export const marshalPublicTokenInfoSchema: z.ZodType = z
     creationTime: z.bigint().optional(),
     expiryTime: z.bigint().optional(),
     comment: z.string().optional(),
+    scopes: z.array(z.string()).optional(),
+    autoscopeState: z.enum(AutoscopeState).optional(),
+    inferredScopes: z.array(z.string()).optional(),
+    backfillScopes: z.array(z.string()).optional(),
   })
   .transform(d => ({
     token_id: d.tokenId,
     creation_time: d.creationTime,
     expiry_time: d.expiryTime,
     comment: d.comment,
+    scopes: d.scopes,
+    autoscope_state: d.autoscopeState,
+    inferred_scopes: d.inferredScopes,
+    backfill_scopes: d.backfillScopes,
   }));
 
 export const marshalRevokeTokenRequestSchema: z.ZodType = z
@@ -165,9 +216,13 @@ export const marshalUpdateTokenRequestSchema: z.ZodType = z
   }));
 
 const publicTokenInfoFieldMaskSchema: FieldMaskSchema = {
+  autoscopeState: {wire: 'autoscope_state'},
+  backfillScopes: {wire: 'backfill_scopes'},
   comment: {wire: 'comment'},
   creationTime: {wire: 'creation_time'},
   expiryTime: {wire: 'expiry_time'},
+  inferredScopes: {wire: 'inferred_scopes'},
+  scopes: {wire: 'scopes'},
   tokenId: {wire: 'token_id'},
 };
 

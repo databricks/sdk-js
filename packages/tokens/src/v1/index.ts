@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client} from './client';
+export {TokensClient} from './client';
+
+export {AutoscopeState} from './model';
 
 export type {
   CreateTokenRequest,

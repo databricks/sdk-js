@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client} from './client';
+export {BudgetpolicyClient} from './client';
 
 export {SortSpec_Field} from './model';
 

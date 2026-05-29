@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 export {
-  Client,
+  GenieClient,
   GenieCreateConversationMessageWaiter,
   GenieStartConversationWaiter,
 } from './client';
