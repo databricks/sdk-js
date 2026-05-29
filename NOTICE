@@ -1,0 +1,29 @@
+Copyright (2026) Databricks, Inc.
+
+This Software includes software developed at Databricks (https://www.databricks.com/) and its use is subject to the included LICENSE file.
+
+This Software contains code from the following open source projects, licensed under the Apache 2.0 license:
+
+jsbi - https://github.com/GoogleChromeLabs/jsbi
+Copyright GoogleChromeLabs
+License - https://github.com/GoogleChromeLabs/jsbi/blob/HEAD/LICENSE
+
+This Software contains code from the following open source projects, licensed under the ISC license:
+
+@js-temporal/polyfill - https://github.com/js-temporal/temporal-polyfill
+Copyright 2017, 2018, 2019, 2020 ECMA International
+License - https://github.com/js-temporal/temporal-polyfill/blob/HEAD/LICENSE
+
+This Software contains code from the following open source projects, licensed under the MIT license:
+
+bignumber.js - https://github.com/MikeMcl/bignumber.js
+Copyright 2023 Michael Mclaughlin
+License - https://github.com/MikeMcl/bignumber.js/blob/HEAD/LICENCE.md
+
+json-bigint - https://github.com/sidorares/json-bigint
+Copyright 2013 Andrey Sidorov
+License - https://github.com/sidorares/json-bigint/blob/HEAD/LICENSE
+
+zod - https://github.com/colinhacks/zod
+Copyright 2025 Colin McDonnell
+License - https://github.com/colinhacks/zod/blob/HEAD/LICENSE
