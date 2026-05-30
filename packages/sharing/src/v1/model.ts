@@ -385,62 +385,6 @@ export interface GetRecipientRequest {
   name?: string | undefined;
 }
 
-export interface GetRecipientSharePermissionsRequest {
-  /** The name of the Recipient. */
-  name?: string | undefined;
-  /**
-   * Maximum number of permissions to return.
-   * - when set to 0, the page length is set to a server configured value (recommended);
-   * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value;
-   * - when set to a value less than 0, an invalid parameter error is returned;
-   * - If not set, all valid permissions are returned (not recommended).
-   * - Note: The number of returned permissions might be less than the specified max_results size, even zero.
-   * The only definitive indication that no further permissions can be fetched is when the next_page_token is unset from the response.
-   */
-  maxResults?: number | undefined;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRecipientSharePermissionsRequest_Response {
-  /** An array of data share permissions for a recipient. */
-  permissionsOut?: ShareToPrivilegeAssignment[] | undefined;
-  /**
-   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
-   * __page_token__ should be set to this value for the next request (for the next page of results).
-   */
-  nextPageToken?: string | undefined;
-}
-
-export interface GetSharePermissionsRequest {
-  /** The name of the share. */
-  name?: string | undefined;
-  /**
-   * Maximum number of permissions to return.
-   * - when set to 0, the page length is set to a server configured value (recommended);
-   * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value;
-   * - when set to a value less than 0, an invalid parameter error is returned;
-   * - If not set, all valid permissions are returned (not recommended).
-   * - Note: The number of returned permissions might be less than the specified max_results size, even zero.
-   * The only definitive indication that no further permissions can be fetched is when the next_page_token is unset from the response.
-   */
-  maxResults?: number | undefined;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetSharePermissionsRequest_Response {
-  /**
-   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
-   * __page_token__ should be set to this value for the next request (for the next page of results).
-   */
-  nextPageToken?: string | undefined;
-  /** The privileges assigned to each principal */
-  privilegeAssignments?: PrivilegeAssignment[] | undefined;
-}
-
 export interface GetShareRequest {
   /** The name of the share. */
   name?: string | undefined;
@@ -554,6 +498,34 @@ export interface ListProvidersRequest_Response {
   nextPageToken?: string | undefined;
 }
 
+export interface ListRecipientSharePermissionsRequest {
+  /** The name of the Recipient. */
+  name?: string | undefined;
+  /**
+   * Maximum number of permissions to return.
+   * - when set to 0, the page length is set to a server configured value (recommended);
+   * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value;
+   * - when set to a value less than 0, an invalid parameter error is returned;
+   * - If not set, all valid permissions are returned (not recommended).
+   * - Note: The number of returned permissions might be less than the specified max_results size, even zero.
+   * The only definitive indication that no further permissions can be fetched is when the next_page_token is unset from the response.
+   */
+  maxResults?: number | undefined;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListRecipientSharePermissionsRequest_Response {
+  /** An array of data share permissions for a recipient. */
+  permissionsOut?: ShareToPrivilegeAssignment[] | undefined;
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * __page_token__ should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+}
+
 export interface ListRecipientsRequest {
   /**
    * If not provided, all recipients will be returned.
@@ -583,6 +555,34 @@ export interface ListRecipientsRequest_Response {
    * __page_token__ should be set to this value for the next request (for the next page of results).
    */
   nextPageToken?: string | undefined;
+}
+
+export interface ListSharePermissionsRequest {
+  /** The name of the share. */
+  name?: string | undefined;
+  /**
+   * Maximum number of permissions to return.
+   * - when set to 0, the page length is set to a server configured value (recommended);
+   * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value;
+   * - when set to a value less than 0, an invalid parameter error is returned;
+   * - If not set, all valid permissions are returned (not recommended).
+   * - Note: The number of returned permissions might be less than the specified max_results size, even zero.
+   * The only definitive indication that no further permissions can be fetched is when the next_page_token is unset from the response.
+   */
+  maxResults?: number | undefined;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListSharePermissionsRequest_Response {
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * __page_token__ should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+  /** The privileges assigned to each principal */
+  privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
 
 export interface ListSharesRequest {
@@ -1400,34 +1400,6 @@ export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterI
 export const unmarshalGetActivationUrlInfoRequest_ResponseSchema: z.ZodType<GetActivationUrlInfoRequest_Response> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRecipientSharePermissionsRequest_ResponseSchema: z.ZodType<GetRecipientSharePermissionsRequest_Response> =
-  z
-    .object({
-      permissions_out: z
-        .array(z.lazy(() => unmarshalShareToPrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionsOut: d.permissions_out,
-      nextPageToken: d.next_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetSharePermissionsRequest_ResponseSchema: z.ZodType<GetSharePermissionsRequest_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
-
 export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
   .object({
     allowed_ip_addresses: z.array(z.string()).optional(),
@@ -1491,6 +1463,20 @@ export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvide
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListRecipientSharePermissionsRequest_ResponseSchema: z.ZodType<ListRecipientSharePermissionsRequest_Response> =
+  z
+    .object({
+      permissions_out: z
+        .array(z.lazy(() => unmarshalShareToPrivilegeAssignmentSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      permissionsOut: d.permissions_out,
+      nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListRecipientsRequest_ResponseSchema: z.ZodType<ListRecipientsRequest_Response> =
   z
     .object({
@@ -1502,6 +1488,20 @@ export const unmarshalListRecipientsRequest_ResponseSchema: z.ZodType<ListRecipi
     .transform(d => ({
       recipients: d.recipients,
       nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListSharePermissionsRequest_ResponseSchema: z.ZodType<ListSharePermissionsRequest_Response> =
+  z
+    .object({
+      next_page_token: z.string().optional(),
+      privilege_assignments: z
+        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      nextPageToken: d.next_page_token,
+      privilegeAssignments: d.privilege_assignments,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

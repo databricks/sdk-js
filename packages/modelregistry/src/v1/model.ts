@@ -498,22 +498,6 @@ export interface FeatureList {
   features?: LinkedFeature[] | undefined;
 }
 
-export interface GetLatestVersionsRequest {
-  /** Registered model unique name identifier. */
-  name?: string | undefined;
-  /** List of stages. */
-  stages?: string[] | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetLatestVersionsRequest_Response {
-  /**
-   * Latest version models for each requests stage. Only return models with current `READY` status.
-   * If no `stages` provided, returns the latest version for each stage, including `"None"`.
-   */
-  modelVersions?: ModelVersion[] | undefined;
-}
-
 export interface GetModelVersionDownloadUriRequest {
   /** Name of the registered model */
   name?: string | undefined;
@@ -577,6 +561,22 @@ export interface LinkedFeature {
   featureName?: string | undefined;
   /** Feature table id */
   featureTableId?: string | undefined;
+}
+
+export interface ListLatestVersionsRequest {
+  /** Registered model unique name identifier. */
+  name?: string | undefined;
+  /** List of stages. */
+  stages?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListLatestVersionsRequest_Response {
+  /**
+   * Latest version models for each requests stage. Only return models with current `READY` status.
+   * If no `stages` provided, returns the latest version for each stage, including `"None"`.
+   */
+  modelVersions?: ModelVersion[] | undefined;
 }
 
 export interface ListRegisteredModelsRequest {
@@ -1305,18 +1305,6 @@ export const unmarshalFeatureListSchema: z.ZodType<FeatureList> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLatestVersionsRequest_ResponseSchema: z.ZodType<GetLatestVersionsRequest_Response> =
-  z
-    .object({
-      model_versions: z
-        .array(z.lazy(() => unmarshalModelVersionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      modelVersions: d.model_versions,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetModelVersionDownloadUriRequest_ResponseSchema: z.ZodType<GetModelVersionDownloadUriRequest_Response> =
   z
     .object({
@@ -1385,6 +1373,18 @@ export const unmarshalLinkedFeatureSchema: z.ZodType<LinkedFeature> = z
     featureName: d.feature_name,
     featureTableId: d.feature_table_id,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListLatestVersionsRequest_ResponseSchema: z.ZodType<ListLatestVersionsRequest_Response> =
+  z
+    .object({
+      model_versions: z
+        .array(z.lazy(() => unmarshalModelVersionSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      modelVersions: d.model_versions,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> =
@@ -1865,16 +1865,6 @@ export const marshalCreateTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalGetLatestVersionsRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    stages: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    stages: d.stages,
-  }));
-
 export const marshalHttpUrlSpecSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
@@ -1899,6 +1889,16 @@ export const marshalJobSpecSchema: z.ZodType = z
     job_id: d.jobId,
     workspace_url: d.workspaceUrl,
     access_token: d.accessToken,
+  }));
+
+export const marshalListLatestVersionsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    stages: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    stages: d.stages,
   }));
 
 export const marshalModelVersionTagSchema: z.ZodType = z

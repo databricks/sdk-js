@@ -53,10 +53,6 @@ import type {
   ExchangeFilter,
   ExchangeListing,
   FileInfo,
-  GetAllInstallations,
-  GetAllInstallations_Response,
-  GetAllPersonalizationRequestsForConsumer,
-  GetAllPersonalizationRequestsForConsumer_Response,
   GetExchangeRequest,
   GetExchangeResponse,
   GetFileRequest,
@@ -67,12 +63,8 @@ import type {
   GetLatestVersionProviderAnalyticsDashboardRequest_Response,
   GetListingContent,
   GetListingContent_Response,
-  GetListingFulfillments,
-  GetListingFulfillments_Response,
   GetListingRequest,
   GetListingRequest_Response,
-  GetListingsRequest,
-  GetListingsRequest_Response,
   GetPersonalizationRequestsForConsumer,
   GetPersonalizationRequestsForConsumer_Response,
   GetPersonalizationRequestsForProviderRequest,
@@ -81,8 +73,6 @@ import type {
   GetProviderRequest_Response,
   GetPublishedListingForConsumer,
   GetPublishedListingForConsumer_Response,
-  GetPublishedListingsForConsumer,
-  GetPublishedListingsForConsumer_Response,
   GetPublishedProviderForConsumer,
   GetPublishedProviderForConsumer_Response,
   InstallListing,
@@ -96,12 +86,22 @@ import type {
   ListExchangesResponse,
   ListFilesRequest,
   ListFilesRequest_Response,
+  ListInstallationsRequest,
+  ListInstallationsRequest_Response,
+  ListListingFulfillmentsRequest,
+  ListListingFulfillmentsRequest_Response,
   ListListingsForExchangeRequest,
   ListListingsForExchangeResponse,
+  ListListingsRequest,
+  ListListingsRequest_Response,
+  ListPersonalizationRequestsForConsumerRequest,
+  ListPersonalizationRequestsForConsumerRequest_Response,
   ListProviderAnalyticsDashboardRequest,
   ListProviderAnalyticsDashboardRequest_Response,
   ListProvidersRequest,
   ListProvidersRequest_Response,
+  ListPublishedListingsForConsumerRequest,
+  ListPublishedListingsForConsumerRequest_Response,
   ListPublishedProvidersForConsumer,
   ListPublishedProvidersForConsumer_Response,
   Listing,
@@ -164,30 +164,30 @@ import {
   unmarshalDeleteFileRequest_ResponseSchema,
   unmarshalDeleteListingRequest_ResponseSchema,
   unmarshalDeleteProviderRequest_ResponseSchema,
-  unmarshalGetAllInstallations_ResponseSchema,
-  unmarshalGetAllPersonalizationRequestsForConsumer_ResponseSchema,
   unmarshalGetExchangeResponseSchema,
   unmarshalGetFileRequest_ResponseSchema,
   unmarshalGetInstallationDetails_ResponseSchema,
   unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema,
   unmarshalGetListingContent_ResponseSchema,
-  unmarshalGetListingFulfillments_ResponseSchema,
   unmarshalGetListingRequest_ResponseSchema,
-  unmarshalGetListingsRequest_ResponseSchema,
   unmarshalGetPersonalizationRequestsForConsumer_ResponseSchema,
   unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema,
   unmarshalGetProviderRequest_ResponseSchema,
   unmarshalGetPublishedListingForConsumer_ResponseSchema,
-  unmarshalGetPublishedListingsForConsumer_ResponseSchema,
   unmarshalGetPublishedProviderForConsumer_ResponseSchema,
   unmarshalInstallListing_ResponseSchema,
   unmarshalListExchangeFiltersResponseSchema,
   unmarshalListExchangesForListingResponseSchema,
   unmarshalListExchangesResponseSchema,
   unmarshalListFilesRequest_ResponseSchema,
+  unmarshalListInstallationsRequest_ResponseSchema,
+  unmarshalListListingFulfillmentsRequest_ResponseSchema,
   unmarshalListListingsForExchangeResponseSchema,
+  unmarshalListListingsRequest_ResponseSchema,
+  unmarshalListPersonalizationRequestsForConsumerRequest_ResponseSchema,
   unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema,
   unmarshalListProvidersRequest_ResponseSchema,
+  unmarshalListPublishedListingsForConsumerRequest_ResponseSchema,
   unmarshalListPublishedProvidersForConsumer_ResponseSchema,
   unmarshalRemoveExchangeForListingResponseSchema,
   unmarshalSearchPublishedListingsForConsumer_ResponseSchema,
@@ -335,123 +335,6 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** List all installations across all listings. */
-  async getAllInstallations(
-    req: GetAllInstallations,
-    options?: CallOptions
-  ): Promise<GetAllInstallations_Response> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/installations`;
-    const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetAllInstallations_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAllInstallations_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *getAllInstallationsIter(
-    req: GetAllInstallations,
-    options?: CallOptions
-  ): AsyncGenerator<InstallationDetail> {
-    const pageReq: GetAllInstallations = {...req};
-    for (;;) {
-      const resp = await this.getAllInstallations(pageReq, options);
-      for (const item of resp.installations ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
-  /** List personalization requests for a consumer across all listings. */
-  async getAllPersonalizationRequestsForConsumer(
-    req: GetAllPersonalizationRequestsForConsumer,
-    options?: CallOptions
-  ): Promise<GetAllPersonalizationRequestsForConsumer_Response> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/personalization-requests`;
-    const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetAllPersonalizationRequestsForConsumer_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAllPersonalizationRequestsForConsumer_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *getAllPersonalizationRequestsForConsumerIter(
-    req: GetAllPersonalizationRequestsForConsumer,
-    options?: CallOptions
-  ): AsyncGenerator<PersonalizationRequest> {
-    const pageReq: GetAllPersonalizationRequestsForConsumer = {...req};
-    for (;;) {
-      const resp = await this.getAllPersonalizationRequestsForConsumer(
-        pageReq,
-        options
-      );
-      for (const item of resp.personalizationRequests ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
   /** List all installations for a particular listing. */
   async getInstallationDetails(
     req: GetInstallationDetails,
@@ -563,67 +446,6 @@ export class MarketplacesClient {
     }
   }
 
-  /**
-   * Get all listings fulfillments associated with a listing. A _fulfillment_ is a potential installation.
-   * Standard installations contain metadata about the attached share or git repo. Only one of these fields will be present.
-   * Personalized installations contain metadata about the attached share or git repo, as well as the Delta Sharing recipient type.
-   */
-  async getListingFulfillments(
-    req: GetListingFulfillments,
-    options?: CallOptions
-  ): Promise<GetListingFulfillments_Response> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
-    const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetListingFulfillments_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetListingFulfillments_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *getListingFulfillmentsIter(
-    req: GetListingFulfillments,
-    options?: CallOptions
-  ): AsyncGenerator<ListingFulfillment> {
-    const pageReq: GetListingFulfillments = {...req};
-    for (;;) {
-      const resp = await this.getListingFulfillments(pageReq, options);
-      for (const item of resp.fulfillments ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
   /** Get the personalization request for a listing. Each consumer can make at *most* one personalization request for a listing. */
   async getPersonalizationRequestsForConsumer(
     req: GetPersonalizationRequestsForConsumer,
@@ -686,88 +508,6 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** List all published listings in the Databricks Marketplace that the consumer has access to. */
-  async getPublishedListingsForConsumer(
-    req: GetPublishedListingsForConsumer,
-    options?: CallOptions
-  ): Promise<GetPublishedListingsForConsumer_Response> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings`;
-    const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    if (req.assets !== undefined) {
-      params.append('assets', String(req.assets));
-    }
-    if (req.categories !== undefined) {
-      params.append('categories', String(req.categories));
-    }
-    if (req.tags !== undefined) {
-      flattenQueryParams(
-        'tags',
-        marshalListingTagSchema.parse(req.tags),
-        params
-      );
-    }
-    if (req.isFree !== undefined) {
-      params.append('is_free', String(req.isFree));
-    }
-    if (req.isPrivateExchange !== undefined) {
-      params.append('is_private_exchange', String(req.isPrivateExchange));
-    }
-    if (req.isStaffPick !== undefined) {
-      params.append('is_staff_pick', String(req.isStaffPick));
-    }
-    if (req.providerIds !== undefined) {
-      params.append('provider_ids', String(req.providerIds));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPublishedListingsForConsumer_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetPublishedListingsForConsumer_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *getPublishedListingsForConsumerIter(
-    req: GetPublishedListingsForConsumer,
-    options?: CallOptions
-  ): AsyncGenerator<Listing> {
-    const pageReq: GetPublishedListingsForConsumer = {...req};
-    for (;;) {
-      const resp = await this.getPublishedListingsForConsumer(pageReq, options);
-      for (const item of resp.listings ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
   /** Get a provider in the Databricks Marketplace with at least one visible listing. */
   async getPublishedProviderForConsumer(
     req: GetPublishedProviderForConsumer,
@@ -826,6 +566,271 @@ export class MarketplacesClient {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  /** List all installations across all listings. */
+  async listInstallations(
+    req: ListInstallationsRequest,
+    options?: CallOptions
+  ): Promise<ListInstallationsRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-consumer/installations`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListInstallationsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListInstallationsRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listInstallationsIter(
+    req: ListInstallationsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<InstallationDetail> {
+    const pageReq: ListInstallationsRequest = {...req};
+    for (;;) {
+      const resp = await this.listInstallations(pageReq, options);
+      for (const item of resp.installations ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Get all listings fulfillments associated with a listing. A _fulfillment_ is a potential installation.
+   * Standard installations contain metadata about the attached share or git repo. Only one of these fields will be present.
+   * Personalized installations contain metadata about the attached share or git repo, as well as the Delta Sharing recipient type.
+   */
+  async listListingFulfillments(
+    req: ListListingFulfillmentsRequest,
+    options?: CallOptions
+  ): Promise<ListListingFulfillmentsRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListListingFulfillmentsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListListingFulfillmentsRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listListingFulfillmentsIter(
+    req: ListListingFulfillmentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<ListingFulfillment> {
+    const pageReq: ListListingFulfillmentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listListingFulfillments(pageReq, options);
+      for (const item of resp.fulfillments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List personalization requests for a consumer across all listings. */
+  async listPersonalizationRequestsForConsumer(
+    req: ListPersonalizationRequestsForConsumerRequest,
+    options?: CallOptions
+  ): Promise<ListPersonalizationRequestsForConsumerRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-consumer/personalization-requests`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp:
+      | ListPersonalizationRequestsForConsumerRequest_Response
+      | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListPersonalizationRequestsForConsumerRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listPersonalizationRequestsForConsumerIter(
+    req: ListPersonalizationRequestsForConsumerRequest,
+    options?: CallOptions
+  ): AsyncGenerator<PersonalizationRequest> {
+    const pageReq: ListPersonalizationRequestsForConsumerRequest = {...req};
+    for (;;) {
+      const resp = await this.listPersonalizationRequestsForConsumer(
+        pageReq,
+        options
+      );
+      for (const item of resp.personalizationRequests ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List all published listings in the Databricks Marketplace that the consumer has access to. */
+  async listPublishedListingsForConsumer(
+    req: ListPublishedListingsForConsumerRequest,
+    options?: CallOptions
+  ): Promise<ListPublishedListingsForConsumerRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-consumer/listings`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.assets !== undefined) {
+      params.append('assets', String(req.assets));
+    }
+    if (req.categories !== undefined) {
+      params.append('categories', String(req.categories));
+    }
+    if (req.tags !== undefined) {
+      flattenQueryParams(
+        'tags',
+        marshalListingTagSchema.parse(req.tags),
+        params
+      );
+    }
+    if (req.isFree !== undefined) {
+      params.append('is_free', String(req.isFree));
+    }
+    if (req.isPrivateExchange !== undefined) {
+      params.append('is_private_exchange', String(req.isPrivateExchange));
+    }
+    if (req.isStaffPick !== undefined) {
+      params.append('is_staff_pick', String(req.isStaffPick));
+    }
+    if (req.providerIds !== undefined) {
+      params.append('provider_ids', String(req.providerIds));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListPublishedListingsForConsumerRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListPublishedListingsForConsumerRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listPublishedListingsForConsumerIter(
+    req: ListPublishedListingsForConsumerRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Listing> {
+    const pageReq: ListPublishedListingsForConsumerRequest = {...req};
+    for (;;) {
+      const resp = await this.listPublishedListingsForConsumer(
+        pageReq,
+        options
+      );
+      for (const item of resp.listings ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** List all providers in the Databricks Marketplace with at least one visible listing. */
@@ -1524,63 +1529,6 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** List listings owned by this provider */
-  async getListings(
-    req: GetListingsRequest,
-    options?: CallOptions
-  ): Promise<GetListingsRequest_Response> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listings`;
-    const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetListingsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetListingsRequest_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *getListingsIter(
-    req: GetListingsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Listing> {
-    const pageReq: GetListingsRequest = {...req};
-    for (;;) {
-      const resp = await this.getListings(pageReq, options);
-      for (const item of resp.listings ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
   /**
    * List personalization requests to this provider.
    * This will return all personalization requests, regardless of which listing they are for.
@@ -1901,6 +1849,63 @@ export class MarketplacesClient {
     for (;;) {
       const resp = await this.listFiles(pageReq, options);
       for (const item of resp.fileInfos ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List listings owned by this provider */
+  async listListings(
+    req: ListListingsRequest,
+    options?: CallOptions
+  ): Promise<ListListingsRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/listings`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListListingsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListListingsRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listListingsIter(
+    req: ListListingsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Listing> {
+    const pageReq: ListListingsRequest = {...req};
+    for (;;) {
+      const resp = await this.listListings(pageReq, options);
+      for (const item of resp.listings ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {

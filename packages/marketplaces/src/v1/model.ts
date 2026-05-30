@@ -348,28 +348,6 @@ export interface FileParent {
   fileParentType?: FileParentType | undefined;
 }
 
-export interface GetAllInstallations {
-  pageToken?: string | undefined;
-  pageSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetAllInstallations_Response {
-  installations?: InstallationDetail[] | undefined;
-  nextPageToken?: string | undefined;
-}
-
-export interface GetAllPersonalizationRequestsForConsumer {
-  pageToken?: string | undefined;
-  pageSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetAllPersonalizationRequestsForConsumer_Response {
-  personalizationRequests?: PersonalizationRequest[] | undefined;
-  nextPageToken?: string | undefined;
-}
-
 export interface GetExchangeRequest {
   id?: string | undefined;
 }
@@ -424,18 +402,6 @@ export interface GetListingContent_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface GetListingFulfillments {
-  listingId?: string | undefined;
-  pageToken?: string | undefined;
-  pageSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetListingFulfillments_Response {
-  fulfillments?: ListingFulfillment[] | undefined;
-  nextPageToken?: string | undefined;
-}
-
 export interface GetListingRequest {
   id?: string | undefined;
 }
@@ -443,17 +409,6 @@ export interface GetListingRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetListingRequest_Response {
   listing?: Listing | undefined;
-}
-
-export interface GetListingsRequest {
-  pageToken?: string | undefined;
-  pageSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetListingsRequest_Response {
-  listings?: Listing[] | undefined;
-  nextPageToken?: string | undefined;
 }
 
 export interface GetPersonalizationRequestsForConsumer {
@@ -492,32 +447,6 @@ export interface GetPublishedListingForConsumer {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetPublishedListingForConsumer_Response {
   listing?: Listing | undefined;
-}
-
-/** Listing messages */
-export interface GetPublishedListingsForConsumer {
-  pageToken?: string | undefined;
-  pageSize?: number | undefined;
-  /** Matches any of the following asset types */
-  assets?: AssetType[] | undefined;
-  /** Matches any of the following categories */
-  categories?: Category[] | undefined;
-  /** Matches listings with this tag */
-  tags?: ListingTag | undefined;
-  /** Filters each listing based on if it is free. */
-  isFree?: boolean | undefined;
-  /** Filters each listing based on if it is a private exchange. */
-  isPrivateExchange?: boolean | undefined;
-  /** Filters each listing based on whether it is a staff pick. */
-  isStaffPick?: boolean | undefined;
-  /** Matches any of the following provider ids */
-  providerIds?: string[] | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPublishedListingsForConsumer_Response {
-  listings?: Listing[] | undefined;
-  nextPageToken?: string | undefined;
 }
 
 export interface GetPublishedProviderForConsumer {
@@ -604,6 +533,29 @@ export interface ListFilesRequest_Response {
   nextPageToken?: string | undefined;
 }
 
+export interface ListInstallationsRequest {
+  pageToken?: string | undefined;
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListInstallationsRequest_Response {
+  installations?: InstallationDetail[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
+export interface ListListingFulfillmentsRequest {
+  listingId?: string | undefined;
+  pageToken?: string | undefined;
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListListingFulfillmentsRequest_Response {
+  fulfillments?: ListingFulfillment[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
 export interface ListListingsForExchangeRequest {
   exchangeId?: string | undefined;
   pageToken?: string | undefined;
@@ -612,6 +564,28 @@ export interface ListListingsForExchangeRequest {
 
 export interface ListListingsForExchangeResponse {
   exchangeListings?: ExchangeListing[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
+export interface ListListingsRequest {
+  pageToken?: string | undefined;
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListListingsRequest_Response {
+  listings?: Listing[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
+export interface ListPersonalizationRequestsForConsumerRequest {
+  pageToken?: string | undefined;
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListPersonalizationRequestsForConsumerRequest_Response {
+  personalizationRequests?: PersonalizationRequest[] | undefined;
   nextPageToken?: string | undefined;
 }
 
@@ -634,6 +608,32 @@ export interface ListProvidersRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ListProvidersRequest_Response {
   providers?: ProviderInfo[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
+/** Listing messages */
+export interface ListPublishedListingsForConsumerRequest {
+  pageToken?: string | undefined;
+  pageSize?: number | undefined;
+  /** Matches any of the following asset types */
+  assets?: AssetType[] | undefined;
+  /** Matches any of the following categories */
+  categories?: Category[] | undefined;
+  /** Matches listings with this tag */
+  tags?: ListingTag | undefined;
+  /** Filters each listing based on if it is free. */
+  isFree?: boolean | undefined;
+  /** Filters each listing based on if it is a private exchange. */
+  isPrivateExchange?: boolean | undefined;
+  /** Filters each listing based on whether it is a staff pick. */
+  isStaffPick?: boolean | undefined;
+  /** Matches any of the following provider ids */
+  providerIds?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListPublishedListingsForConsumerRequest_Response {
+  listings?: Listing[] | undefined;
   nextPageToken?: string | undefined;
 }
 
@@ -1240,34 +1240,6 @@ export const unmarshalFileParentSchema: z.ZodType<FileParent> = z
     fileParentType: d.file_parent_type,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetAllInstallations_ResponseSchema: z.ZodType<GetAllInstallations_Response> =
-  z
-    .object({
-      installations: z
-        .array(z.lazy(() => unmarshalInstallationDetailSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      installations: d.installations,
-      nextPageToken: d.next_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetAllPersonalizationRequestsForConsumer_ResponseSchema: z.ZodType<GetAllPersonalizationRequestsForConsumer_Response> =
-  z
-    .object({
-      personalization_requests: z
-        .array(z.lazy(() => unmarshalPersonalizationRequestSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      personalizationRequests: d.personalization_requests,
-      nextPageToken: d.next_page_token,
-    }));
-
 export const unmarshalGetExchangeResponseSchema: z.ZodType<GetExchangeResponse> =
   z
     .object({
@@ -1329,20 +1301,6 @@ export const unmarshalGetListingContent_ResponseSchema: z.ZodType<GetListingCont
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetListingFulfillments_ResponseSchema: z.ZodType<GetListingFulfillments_Response> =
-  z
-    .object({
-      fulfillments: z
-        .array(z.lazy(() => unmarshalListingFulfillmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      fulfillments: d.fulfillments,
-      nextPageToken: d.next_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetListingRequest_ResponseSchema: z.ZodType<GetListingRequest_Response> =
   z
     .object({
@@ -1350,18 +1308,6 @@ export const unmarshalGetListingRequest_ResponseSchema: z.ZodType<GetListingRequ
     })
     .transform(d => ({
       listing: d.listing,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetListingsRequest_ResponseSchema: z.ZodType<GetListingsRequest_Response> =
-  z
-    .object({
-      listings: z.array(z.lazy(() => unmarshalListingSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      listings: d.listings,
-      nextPageToken: d.next_page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1408,18 +1354,6 @@ export const unmarshalGetPublishedListingForConsumer_ResponseSchema: z.ZodType<G
     })
     .transform(d => ({
       listing: d.listing,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPublishedListingsForConsumer_ResponseSchema: z.ZodType<GetPublishedListingsForConsumer_Response> =
-  z
-    .object({
-      listings: z.array(z.lazy(() => unmarshalListingSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      listings: d.listings,
-      nextPageToken: d.next_page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1525,6 +1459,34 @@ export const unmarshalListFilesRequest_ResponseSchema: z.ZodType<ListFilesReques
       nextPageToken: d.next_page_token,
     }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListInstallationsRequest_ResponseSchema: z.ZodType<ListInstallationsRequest_Response> =
+  z
+    .object({
+      installations: z
+        .array(z.lazy(() => unmarshalInstallationDetailSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      installations: d.installations,
+      nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListListingFulfillmentsRequest_ResponseSchema: z.ZodType<ListListingFulfillmentsRequest_Response> =
+  z
+    .object({
+      fulfillments: z
+        .array(z.lazy(() => unmarshalListingFulfillmentSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      fulfillments: d.fulfillments,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListListingsForExchangeResponseSchema: z.ZodType<ListListingsForExchangeResponse> =
   z
     .object({
@@ -1535,6 +1497,32 @@ export const unmarshalListListingsForExchangeResponseSchema: z.ZodType<ListListi
     })
     .transform(d => ({
       exchangeListings: d.exchange_listings,
+      nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListListingsRequest_ResponseSchema: z.ZodType<ListListingsRequest_Response> =
+  z
+    .object({
+      listings: z.array(z.lazy(() => unmarshalListingSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      listings: d.listings,
+      nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListPersonalizationRequestsForConsumerRequest_ResponseSchema: z.ZodType<ListPersonalizationRequestsForConsumerRequest_Response> =
+  z
+    .object({
+      personalization_requests: z
+        .array(z.lazy(() => unmarshalPersonalizationRequestSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      personalizationRequests: d.personalization_requests,
       nextPageToken: d.next_page_token,
     }));
 
@@ -1564,6 +1552,18 @@ export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvide
     })
     .transform(d => ({
       providers: d.providers,
+      nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListPublishedListingsForConsumerRequest_ResponseSchema: z.ZodType<ListPublishedListingsForConsumerRequest_Response> =
+  z
+    .object({
+      listings: z.array(z.lazy(() => unmarshalListingSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      listings: d.listings,
       nextPageToken: d.next_page_token,
     }));
 

@@ -311,39 +311,6 @@ export interface GetLoggedModelRequest_Response {
   model?: LoggedModel | undefined;
 }
 
-export interface GetMetricHistoryRequest {
-  /** ID of the run from which to fetch metric values. Must be provided. */
-  runId?: string | undefined;
-  /**
-   * [Deprecated, use `run_id` instead] ID of the run from which to fetch metric values. This field
-   * will be removed in a future MLflow version.
-   */
-  runUuid?: string | undefined;
-  /** Name of the metric. */
-  metricKey?: string | undefined;
-  /** Token indicating the page of metric histories to fetch. */
-  pageToken?: string | undefined;
-  /**
-   * Maximum number of Metric records to return per paginated request. Default is set to 25,000. If set higher than
-   * 25,000, a request Exception will be raised.
-   */
-  maxResults?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetMetricHistoryRequest_Response {
-  /**
-   * All logged values for this metric if `max_results` is not specified in the request or if the total count of
-   * metrics returned is less than the service level pagination threshold. Otherwise, this is one page of results.
-   */
-  metrics?: Metric[] | undefined;
-  /**
-   * A token that can be used to issue a query for the next page of metric history values. A missing token indicates
-   * that no additional metrics are available to fetch.
-   */
-  nextPageToken?: string | undefined;
-}
-
 export interface GetRunRequest {
   /** ID of the run to fetch. Must be provided. */
   runId?: string | undefined;
@@ -422,6 +389,39 @@ export interface ListExperimentsRequest_Response {
   /**
    * Token that can be used to retrieve the next page of experiments.
    * Empty token means no more experiment is available for retrieval.
+   */
+  nextPageToken?: string | undefined;
+}
+
+export interface ListMetricHistoryRequest {
+  /** ID of the run from which to fetch metric values. Must be provided. */
+  runId?: string | undefined;
+  /**
+   * [Deprecated, use `run_id` instead] ID of the run from which to fetch metric values. This field
+   * will be removed in a future MLflow version.
+   */
+  runUuid?: string | undefined;
+  /** Name of the metric. */
+  metricKey?: string | undefined;
+  /** Token indicating the page of metric histories to fetch. */
+  pageToken?: string | undefined;
+  /**
+   * Maximum number of Metric records to return per paginated request. Default is set to 25,000. If set higher than
+   * 25,000, a request Exception will be raised.
+   */
+  maxResults?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListMetricHistoryRequest_Response {
+  /**
+   * All logged values for this metric if `max_results` is not specified in the request or if the total count of
+   * metrics returned is less than the service level pagination threshold. Otherwise, this is one page of results.
+   */
+  metrics?: Metric[] | undefined;
+  /**
+   * A token that can be used to issue a query for the next page of metric history values. A missing token indicates
+   * that no additional metrics are available to fetch.
    */
   nextPageToken?: string | undefined;
 }
@@ -1159,18 +1159,6 @@ export const unmarshalGetLoggedModelRequest_ResponseSchema: z.ZodType<GetLoggedM
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetMetricHistoryRequest_ResponseSchema: z.ZodType<GetMetricHistoryRequest_Response> =
-  z
-    .object({
-      metrics: z.array(z.lazy(() => unmarshalMetricSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      metrics: d.metrics,
-      nextPageToken: d.next_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Response> =
   z
     .object({
@@ -1213,6 +1201,18 @@ export const unmarshalListExperimentsRequest_ResponseSchema: z.ZodType<ListExper
     })
     .transform(d => ({
       experiments: d.experiments,
+      nextPageToken: d.next_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListMetricHistoryRequest_ResponseSchema: z.ZodType<ListMetricHistoryRequest_Response> =
+  z
+    .object({
+      metrics: z.array(z.lazy(() => unmarshalMetricSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      metrics: d.metrics,
       nextPageToken: d.next_page_token,
     }));
 

@@ -35,10 +35,6 @@ import type {
   GetFederationPolicyRequest,
   GetProviderRequest,
   GetRecipientRequest,
-  GetRecipientSharePermissionsRequest,
-  GetRecipientSharePermissionsRequest_Response,
-  GetSharePermissionsRequest,
-  GetSharePermissionsRequest_Response,
   GetShareRequest,
   ListFederationPoliciesRequest,
   ListFederationPoliciesResponse,
@@ -48,8 +44,12 @@ import type {
   ListProviderSharesRequest_Response,
   ListProvidersRequest,
   ListProvidersRequest_Response,
+  ListRecipientSharePermissionsRequest,
+  ListRecipientSharePermissionsRequest_Response,
   ListRecipientsRequest,
   ListRecipientsRequest_Response,
+  ListSharePermissionsRequest,
+  ListSharePermissionsRequest_Response,
   ListSharesRequest,
   ListSharesRequest_Response,
   ProviderInfo,
@@ -80,13 +80,13 @@ import {
   unmarshalDeleteShareRequest_ResponseSchema,
   unmarshalFederationPolicySchema,
   unmarshalGetActivationUrlInfoRequest_ResponseSchema,
-  unmarshalGetRecipientSharePermissionsRequest_ResponseSchema,
-  unmarshalGetSharePermissionsRequest_ResponseSchema,
   unmarshalListFederationPoliciesResponseSchema,
   unmarshalListProviderShareAssetsResponseSchema,
   unmarshalListProviderSharesRequest_ResponseSchema,
   unmarshalListProvidersRequest_ResponseSchema,
+  unmarshalListRecipientSharePermissionsRequest_ResponseSchema,
   unmarshalListRecipientsRequest_ResponseSchema,
+  unmarshalListSharePermissionsRequest_ResponseSchema,
   unmarshalListSharesRequest_ResponseSchema,
   unmarshalProviderInfoSchema,
   unmarshalRecipientInfoSchema,
@@ -518,46 +518,6 @@ export class SharingClient {
     return resp;
   }
 
-  /** Gets the share permissions for the specified Recipient. The caller must have the **USE_RECIPIENT** privilege on the metastore or be the owner of the Recipient. */
-  async getRecipientSharePermissions(
-    req: GetRecipientSharePermissionsRequest,
-    options?: CallOptions
-  ): Promise<GetRecipientSharePermissionsRequest_Response> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/share-permissions`;
-    const params = new URLSearchParams();
-    if (req.maxResults !== undefined) {
-      params.append('max_results', String(req.maxResults));
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetRecipientSharePermissionsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetRecipientSharePermissionsRequest_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Gets a data object share from the metastore. The caller must have the USE_SHARE privilege on the metastore or be the owner of the share. */
   async getShare(
     req: GetShareRequest,
@@ -584,49 +544,6 @@ export class SharingClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalShareInfoSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /**
-   * Gets the permissions for a data share from the metastore.
-   * The caller must have the USE_SHARE privilege on the metastore or be the owner of the share.
-   */
-  async getSharePermissions(
-    req: GetSharePermissionsRequest,
-    options?: CallOptions
-  ): Promise<GetSharePermissionsRequest_Response> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
-    const params = new URLSearchParams();
-    if (req.maxResults !== undefined) {
-      params.append('max_results', String(req.maxResults));
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetSharePermissionsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetSharePermissionsRequest_ResponseSchema
-      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -875,6 +792,46 @@ export class SharingClient {
     }
   }
 
+  /** Gets the share permissions for the specified Recipient. The caller must have the **USE_RECIPIENT** privilege on the metastore or be the owner of the Recipient. */
+  async listRecipientSharePermissions(
+    req: ListRecipientSharePermissionsRequest,
+    options?: CallOptions
+  ): Promise<ListRecipientSharePermissionsRequest_Response> {
+    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/share-permissions`;
+    const params = new URLSearchParams();
+    if (req.maxResults !== undefined) {
+      params.append('max_results', String(req.maxResults));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListRecipientSharePermissionsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListRecipientSharePermissionsRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /**
    * Gets an array of all share recipients within the current metastore where:
    *
@@ -942,6 +899,49 @@ export class SharingClient {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
+  }
+
+  /**
+   * Gets the permissions for a data share from the metastore.
+   * The caller must have the USE_SHARE privilege on the metastore or be the owner of the share.
+   */
+  async listSharePermissions(
+    req: ListSharePermissionsRequest,
+    options?: CallOptions
+  ): Promise<ListSharePermissionsRequest_Response> {
+    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
+    const params = new URLSearchParams();
+    if (req.maxResults !== undefined) {
+      params.append('max_results', String(req.maxResults));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListSharePermissionsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListSharePermissionsRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
   }
 
   /**
