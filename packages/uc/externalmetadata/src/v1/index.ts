@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ExternalmetadataClient} from './client';
+export {ExternalMetadataClient} from './client';
 
 export {SystemType} from './model';
 

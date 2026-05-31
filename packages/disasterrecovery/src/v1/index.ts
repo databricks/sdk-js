@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {DisasterrecoveryClient} from './client';
+export {DisasterRecoveryClient} from './client';
 
 export {
   FailoverFailoverGroupRequest_FailoverType,

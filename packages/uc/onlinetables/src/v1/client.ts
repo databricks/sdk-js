@@ -38,7 +38,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class OnlinetablesClient {
+export class OnlineTablesClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -163,7 +163,7 @@ export class OnlinetablesClient {
 
 export class CreateOnlineTableWaiter {
   constructor(
-    private readonly client: OnlinetablesClient,
+    private readonly client: OnlineTablesClient,
     readonly name: string
   ) {}
 

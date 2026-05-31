@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {StatementexecutionClient} from './client';
+export {StatementExecutionClient} from './client';
 
 export {
   ColumnTypeName,

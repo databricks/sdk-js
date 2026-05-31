@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {GlobalinitscriptsClient} from './client';
+export {GlobalInitScriptsClient} from './client';
 
 export type {
   CreateGlobalInitScriptRequest,

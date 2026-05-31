@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {EntitytagassignmentsClient} from './client';
+export {EntityTagAssignmentsClient} from './client';
 
 export {TagAssignmentSourceType} from './model';
 

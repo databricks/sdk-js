@@ -16,78 +16,78 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 
 export enum GetSortOrder {
   GET_SORT_ORDER_UNSPECIFIED = 'GET_SORT_ORDER_UNSPECIFIED',
-  ASCENDING = 'ASCENDING',
-  DESCENDING = 'DESCENDING',
+  ASCENDING = 'ascending',
+  DESCENDING = 'descending',
 }
 
 export enum GroupSchema {
   GROUP_SCHEMA_UNSPECIFIED = 'GROUP_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_GROUP = 'URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_GROUP',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_GROUP = 'urn:ietf:params:scim:schemas:core:2.0:Group',
 }
 
 export enum ListResponseSchema {
   LIST_RESPONSE_SCHEMA_UNSPECIFIED = 'LIST_RESPONSE_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_LIST_RESPONSE = 'URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_LIST_RESPONSE',
+  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_LIST_RESPONSE = 'urn:ietf:params:scim:api:messages:2.0:ListResponse',
 }
 
 /** Type of patch operation. */
 export enum PatchOp {
   PATCH_OP_UNSPECIFIED = 'PATCH_OP_UNSPECIFIED',
-  ADD = 'ADD',
-  REMOVE = 'REMOVE',
-  REPLACE = 'REPLACE',
+  ADD = 'add',
+  REMOVE = 'remove',
+  REPLACE = 'replace',
 }
 
 export enum PatchSchema {
   PATCH_SCHEMA_UNSPECIFIED = 'PATCH_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP = 'URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP',
+  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP = 'urn:ietf:params:scim:api:messages:2.0:PatchOp',
 }
 
 export enum ServicePrincipalSchema {
   SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED = 'SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_SERVICE_PRINCIPAL = 'URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_SERVICE_PRINCIPAL',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_SERVICE_PRINCIPAL = 'urn:ietf:params:scim:schemas:core:2.0:ServicePrincipal',
 }
 
 export enum UserSchema {
   USER_SCHEMA_UNSPECIFIED = 'USER_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_USER = 'URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_USER',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_EXTENSION_WORKSPACE_2_0_USER = 'URN_IETF_PARAMS_SCIM_SCHEMAS_EXTENSION_WORKSPACE_2_0_USER',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_USER = 'urn:ietf:params:scim:schemas:core:2.0:User',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_EXTENSION_WORKSPACE_2_0_USER = 'urn:ietf:params:scim:schemas:extension:workspace:2.0:User',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AccountGetSortOrder_GetSortOrder {
   GET_SORT_ORDER_UNSPECIFIED = 'GET_SORT_ORDER_UNSPECIFIED',
-  ASCENDING = 'ASCENDING',
-  DESCENDING = 'DESCENDING',
+  ASCENDING = 'ascending',
+  DESCENDING = 'descending',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AccountListSort_Order {
   ORDER_UNSPECIFIED = 'ORDER_UNSPECIFIED',
-  ASCENDING = 'ASCENDING',
-  DESCENDING = 'DESCENDING',
+  ASCENDING = 'ascending',
+  DESCENDING = 'descending',
 }
 
 /** Type of patch operation. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AccountPatchOp_PatchOp {
   PATCH_OP_UNSPECIFIED = 'PATCH_OP_UNSPECIFIED',
-  ADD = 'ADD',
-  REMOVE = 'REMOVE',
-  REPLACE = 'REPLACE',
+  ADD = 'add',
+  REMOVE = 'remove',
+  REPLACE = 'replace',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AccountPatchSchema_PatchSchema {
   PATCH_SCHEMA_UNSPECIFIED = 'PATCH_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP = 'URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP',
+  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP = 'urn:ietf:params:scim:api:messages:2.0:PatchOp',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ListSort_Order {
   ORDER_UNSPECIFIED = 'ORDER_UNSPECIFIED',
-  ASCENDING = 'ASCENDING',
-  DESCENDING = 'DESCENDING',
+  ASCENDING = 'ascending',
+  DESCENDING = 'descending',
 }
 
 /** Permission level */

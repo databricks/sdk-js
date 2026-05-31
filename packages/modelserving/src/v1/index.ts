@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 export {
-  ModelservingClient,
+  ModelServingClient,
   CreateInferenceEndpointWaiter,
   CreateProvisionedThroughputInferenceEndpointWaiter,
   PutInferenceEndpointConfigWaiter,

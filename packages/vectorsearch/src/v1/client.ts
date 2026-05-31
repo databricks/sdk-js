@@ -90,7 +90,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class VectorsearchClient {
+export class VectorSearchClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -738,7 +738,7 @@ export class VectorsearchClient {
 
 export class CreateEndpointWaiter {
   constructor(
-    private readonly client: VectorsearchClient,
+    private readonly client: VectorSearchClient,
     readonly name: string
   ) {}
 

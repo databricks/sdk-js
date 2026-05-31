@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {AccessmanagementClient} from './client';
+export {AccessManagementClient} from './client';
 
 export {
   PermissionLevel,

@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {TagpoliciesClient} from './client';
+export {TagPoliciesClient} from './client';
 
 export type {
   CreateTagPolicyRequest,

@@ -43,7 +43,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class LogdeliveryClient {
+export class LogDeliveryClient {
   private readonly host: string;
   // Fallback for endpoints whose path contains {account_id}. If the request
   // already carries an accountId, that value wins.

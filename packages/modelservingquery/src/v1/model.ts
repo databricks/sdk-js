@@ -17,15 +17,15 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 /** The role of the message. One of [system, user, assistant]. */
 export enum ChatMessageRole {
   CHAT_MESSAGE_ROLE_UNSPECIFIED = 'CHAT_MESSAGE_ROLE_UNSPECIFIED',
-  SYSTEM = 'SYSTEM',
-  USER = 'USER',
-  ASSISTANT = 'ASSISTANT',
+  SYSTEM = 'system',
+  USER = 'user',
+  ASSISTANT = 'assistant',
 }
 
 /** This will always be 'embedding'. */
 export enum EmbeddingsV1ResponseEmbeddingElementObject {
   EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED = 'EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED',
-  EMBEDDING = 'EMBEDDING',
+  EMBEDDING = 'embedding',
 }
 
 /**
@@ -34,9 +34,9 @@ export enum EmbeddingsV1ResponseEmbeddingElementObject {
  */
 export enum QueryEndpointResponseObject {
   QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED = 'QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED',
-  TEXT_COMPLETION = 'TEXT_COMPLETION',
-  CHAT_COMPLETION = 'CHAT_COMPLETION',
-  LIST = 'LIST',
+  TEXT_COMPLETION = 'text_completion',
+  CHAT_COMPLETION = 'chat.completion',
+  LIST = 'list',
 }
 
 export interface ChatMessage {

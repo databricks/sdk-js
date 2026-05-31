@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {DataqualityClient} from './client';
+export {DataQualityClient} from './client';
 
 export {
   AggregationGranularity,

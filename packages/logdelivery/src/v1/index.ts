@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {LogdeliveryClient} from './client';
+export {LogDeliveryClient} from './client';
 
 export {
   LogDeliveryConfigStatus,

@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {CleanroomsClient, CreateCleanRoomWaiter} from './client';
+export {CleanRoomsClient, CreateCleanRoomWaiter} from './client';
 
 export {
   CleanRoomTaskRunLifeCycleState,

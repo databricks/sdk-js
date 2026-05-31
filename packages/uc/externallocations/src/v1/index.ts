@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ExternallocationsClient} from './client';
+export {ExternalLocationsClient} from './client';
 
 export {IsolationMode, SseEncryptionAlgorithm} from './model';
 

@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {KeyconfigurationsClient} from './client';
+export {KeyConfigurationsClient} from './client';
 
 export {CmkUseCase} from './model';
 

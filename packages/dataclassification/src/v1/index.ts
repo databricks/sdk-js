@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {DataclassificationClient} from './client';
+export {DataClassificationClient} from './client';
 
 export {AutoTaggingConfig_AutoTaggingMode} from './model';
 

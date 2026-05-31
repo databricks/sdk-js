@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {KnowledgeassistantsClient} from './client';
+export {KnowledgeAssistantsClient} from './client';
 
 export {KnowledgeAssistant_State, KnowledgeSource_State} from './model';
 

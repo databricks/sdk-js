@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {RegisteredmodelsClient} from './client';
+export {RegisteredModelsClient} from './client';
 
 export {ModelVersionStatus} from './model';
 
