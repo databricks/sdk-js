@@ -23,14 +23,14 @@ import type {
   CheckPolicyResponse,
   DeleteWorkspacePermissionAssignmentRequest,
   DeleteWorkspacePermissionAssignmentRequest_Response,
-  GetAssignableRolesForResourceRequest,
-  GetAssignableRolesForResourceResponse,
   GetObjectPermissionsRequest,
-  GetPermissionLevelsRequest,
-  GetPermissionLevelsRequest_Response,
   GetRuleSetRequest,
-  GetWorkspacePermissionAssignmentsRequest,
-  GetWorkspacePermissionAssignmentsRequest_Response,
+  ListAssignableRolesForResourceRequest,
+  ListAssignableRolesForResourceResponse,
+  ListPermissionLevelsRequest,
+  ListPermissionLevelsRequest_Response,
+  ListWorkspacePermissionAssignmentsRequest,
+  ListWorkspacePermissionAssignmentsRequest_Response,
   ListWorkspacePermissionsRequest,
   ListWorkspacePermissionsRequest_Response,
   PermissionsResponse,
@@ -51,9 +51,9 @@ import {
   marshalUpdateWorkspacePermissionAssignmentRequestSchema,
   unmarshalCheckPolicyResponseSchema,
   unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema,
-  unmarshalGetAssignableRolesForResourceResponseSchema,
-  unmarshalGetPermissionLevelsRequest_ResponseSchema,
-  unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema,
+  unmarshalListAssignableRolesForResourceResponseSchema,
+  unmarshalListPermissionLevelsRequest_ResponseSchema,
+  unmarshalListWorkspacePermissionAssignmentsRequest_ResponseSchema,
   unmarshalListWorkspacePermissionsRequest_ResponseSchema,
   unmarshalPermissionsResponseSchema,
   unmarshalRuleSetSchema,
@@ -127,12 +127,12 @@ export class AccessmanagementClient {
   }
 
   /** Get the permission assignments for the specified <Account> and <Workspace>. */
-  async getWorkspacePermissionAssignments(
-    req: GetWorkspacePermissionAssignmentsRequest,
+  async listWorkspacePermissionAssignments(
+    req: ListWorkspacePermissionAssignmentsRequest,
     options?: CallOptions
-  ): Promise<GetWorkspacePermissionAssignmentsRequest_Response> {
+  ): Promise<ListWorkspacePermissionAssignmentsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
-    let resp: GetWorkspacePermissionAssignmentsRequest_Response | undefined;
+    let resp: ListWorkspacePermissionAssignmentsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -144,7 +144,7 @@ export class AccessmanagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema
+        unmarshalListWorkspacePermissionAssignmentsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -205,80 +205,6 @@ export class AccessmanagementClient {
       resp = parseResponse(
         respBody,
         unmarshalWorkspacePermissionAssignmentOutputSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /**
-   * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
-   * resource can contain an access rule of the role.
-   */
-  async getAssignableRolesForResource(
-    req: GetAssignableRolesForResourceRequest,
-    options?: CallOptions
-  ): Promise<GetAssignableRolesForResourceResponse> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
-    const params = new URLSearchParams();
-    if (req.resource !== undefined) {
-      params.append('resource', req.resource);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetAssignableRolesForResourceResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAssignableRolesForResourceResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /**
-   * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
-   * resource can contain an access rule of the role.
-   */
-  async getAssignableRolesForResourceProxy(
-    req: GetAssignableRolesForResourceRequest,
-    options?: CallOptions
-  ): Promise<GetAssignableRolesForResourceResponse> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
-    const params = new URLSearchParams();
-    if (req.resource !== undefined) {
-      params.append('resource', req.resource);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetAssignableRolesForResourceResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAssignableRolesForResourceResponseSchema
       );
     };
     await executeCall(call, options);
@@ -354,6 +280,80 @@ export class AccessmanagementClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
+   * resource can contain an access rule of the role.
+   */
+  async listAssignableRolesForResource(
+    req: ListAssignableRolesForResourceRequest,
+    options?: CallOptions
+  ): Promise<ListAssignableRolesForResourceResponse> {
+    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
+    const params = new URLSearchParams();
+    if (req.resource !== undefined) {
+      params.append('resource', req.resource);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListAssignableRolesForResourceResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListAssignableRolesForResourceResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
+   * resource can contain an access rule of the role.
+   */
+  async listAssignableRolesForResourceProxy(
+    req: ListAssignableRolesForResourceRequest,
+    options?: CallOptions
+  ): Promise<ListAssignableRolesForResourceResponse> {
+    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
+    const params = new URLSearchParams();
+    if (req.resource !== undefined) {
+      params.append('resource', req.resource);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListAssignableRolesForResourceResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListAssignableRolesForResourceResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -449,12 +449,12 @@ export class AccessmanagementClient {
   }
 
   /** Gets the permission levels that a user can have on an object. */
-  async getPermissionLevels(
-    req: GetPermissionLevelsRequest,
+  async listPermissionLevels(
+    req: ListPermissionLevelsRequest,
     options?: CallOptions
-  ): Promise<GetPermissionLevelsRequest_Response> {
+  ): Promise<ListPermissionLevelsRequest_Response> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
-    let resp: GetPermissionLevelsRequest_Response | undefined;
+    let resp: ListPermissionLevelsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -469,7 +469,7 @@ export class AccessmanagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPermissionLevelsRequest_ResponseSchema
+        unmarshalListPermissionLevelsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

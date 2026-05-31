@@ -46,14 +46,14 @@ import type {
   GetExperimentRequest_Response,
   GetLoggedModelRequest,
   GetLoggedModelRequest_Response,
-  GetMetricHistoryRequest,
-  GetMetricHistoryRequest_Response,
   GetRunRequest,
   GetRunRequest_Response,
   ListArtifactsRequest,
   ListArtifactsRequest_Response,
   ListExperimentsRequest,
   ListExperimentsRequest_Response,
+  ListMetricHistoryRequest,
+  ListMetricHistoryRequest_Response,
   LogBatchRequest,
   LogBatchRequest_Response,
   LogInputsRequest,
@@ -133,10 +133,10 @@ import {
   unmarshalGetExperimentByNameRequest_ResponseSchema,
   unmarshalGetExperimentRequest_ResponseSchema,
   unmarshalGetLoggedModelRequest_ResponseSchema,
-  unmarshalGetMetricHistoryRequest_ResponseSchema,
   unmarshalGetRunRequest_ResponseSchema,
   unmarshalListArtifactsRequest_ResponseSchema,
   unmarshalListExperimentsRequest_ResponseSchema,
+  unmarshalListMetricHistoryRequest_ResponseSchema,
   unmarshalLogBatchRequest_ResponseSchema,
   unmarshalLogInputsRequest_ResponseSchema,
   unmarshalLogLoggedModelParamsRequest_ResponseSchema,
@@ -632,72 +632,6 @@ export class ExperimentsClient {
     return resp;
   }
 
-  /** Gets a list of all values for the specified metric for a given run. */
-  async getMetricHistory(
-    req: GetMetricHistoryRequest,
-    options?: CallOptions
-  ): Promise<GetMetricHistoryRequest_Response> {
-    const url = `${this.host}/api/2.0/mlflow/metrics/get-history`;
-    const params = new URLSearchParams();
-    if (req.runId !== undefined) {
-      params.append('run_id', req.runId);
-    }
-    if (req.runUuid !== undefined) {
-      params.append('run_uuid', req.runUuid);
-    }
-    if (req.metricKey !== undefined) {
-      params.append('metric_key', req.metricKey);
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.maxResults !== undefined) {
-      params.append('max_results', String(req.maxResults));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetMetricHistoryRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetMetricHistoryRequest_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *getMetricHistoryIter(
-    req: GetMetricHistoryRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Metric> {
-    const pageReq: GetMetricHistoryRequest = {...req};
-    for (;;) {
-      const resp = await this.getMetricHistory(pageReq, options);
-      for (const item of resp.metrics ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
   /**
    * Gets the metadata, metrics, params, and tags for a run. In the case where multiple metrics with the same key are
    * logged for a run, return only the value with the latest timestamp.
@@ -860,6 +794,72 @@ export class ExperimentsClient {
     for (;;) {
       const resp = await this.listExperiments(pageReq, options);
       for (const item of resp.experiments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Gets a list of all values for the specified metric for a given run. */
+  async listMetricHistory(
+    req: ListMetricHistoryRequest,
+    options?: CallOptions
+  ): Promise<ListMetricHistoryRequest_Response> {
+    const url = `${this.host}/api/2.0/mlflow/metrics/get-history`;
+    const params = new URLSearchParams();
+    if (req.runId !== undefined) {
+      params.append('run_id', req.runId);
+    }
+    if (req.runUuid !== undefined) {
+      params.append('run_uuid', req.runUuid);
+    }
+    if (req.metricKey !== undefined) {
+      params.append('metric_key', req.metricKey);
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.maxResults !== undefined) {
+      params.append('max_results', String(req.maxResults));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListMetricHistoryRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListMetricHistoryRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listMetricHistoryIter(
+    req: ListMetricHistoryRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Metric> {
+    const pageReq: ListMetricHistoryRequest = {...req};
+    for (;;) {
+      const resp = await this.listMetricHistory(pageReq, options);
+      for (const item of resp.metrics ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {

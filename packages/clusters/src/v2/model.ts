@@ -2516,82 +2516,6 @@ export interface GetClusterRequest {
   clusterId?: string | undefined;
 }
 
-export interface GetEvents {
-  /** The ID of the cluster to retrieve events about. */
-  clusterId?: string | undefined;
-  /**
-   * The start time in epoch milliseconds.
-   * If empty, returns events starting from the beginning of time.
-   */
-  startTime?: bigint | undefined;
-  /**
-   * The end time in epoch milliseconds.
-   * If empty, returns events up to the current time.
-   */
-  endTime?: bigint | undefined;
-  /** The order to list events in; either "ASC" or "DESC". Defaults to "DESC". */
-  order?: GetEventsOrder | undefined;
-  /**
-   * An optional set of event types to filter on.
-   * If empty, all event types are returned.
-   */
-  eventTypes?: ClusterEventType_ClusterEventType[] | undefined;
-  /**
-   * Deprecated: use page_token in combination with page_size instead.
-   *
-   * The offset in the result set. Defaults to 0 (no offset). When an offset is specified
-   * and the results are requested in descending order, the end_time field is required.
-   */
-  offset?: bigint | undefined;
-  /**
-   * Deprecated: use page_token in combination with page_size instead.
-   *
-   * The maximum number of events to include in a page of events.
-   * Defaults to 50, and maximum allowed value is 500.
-   */
-  limit?: bigint | undefined;
-  /**
-   * Use next_page_token or prev_page_token returned from the previous request to list the next or previous page of events respectively.
-   * If page_token is empty, the first page is returned.
-   */
-  pageToken?: string | undefined;
-  /**
-   * The maximum number of events to include in a page of events.
-   * The server may further constrain the maximum number of results returned in a single page.
-   * If the page_size is empty or 0, the server will decide the number of results to be returned.
-   * The field has to be in the range [0,500]. If the value is outside the range, the server enforces 0 or 500.
-   */
-  pageSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetEvents_Response {
-  events?: ClusterEvent[] | undefined;
-  /**
-   * Deprecated: use next_page_token or prev_page_token instead.
-   *
-   * The parameters required to retrieve the next page of events.
-   * Omitted if there are no more events to read.
-   */
-  nextPage?: GetEvents | undefined;
-  /**
-   * Deprecated: Returns 0 when request uses page_token. Will start returning zero when request uses offset/limit soon.
-   *
-   * The total number of events filtered by the start_time, end_time, and event_types.
-   */
-  totalCount?: bigint | undefined;
-  /**
-   * This field represents the pagination token to retrieve the next page of results.
-   * If the value is "", it means no further results for the request.
-   */
-  nextPageToken?: string | undefined;
-  /**
-   * This field represents the pagination token to retrieve the previous page of results.
-   * If the value is "", it means no further results for the request.
-   */
-  prevPageToken?: string | undefined;
-}
-
 export interface GetPolicyComplianceForClusterRequest {
   /** The ID of the cluster to get the compliance status */
   clusterId?: string | undefined;
@@ -2851,6 +2775,82 @@ export interface ListClustersRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ListClustersRequest_Response {
   clusters?: ClusterInfo[] | undefined;
+  /**
+   * This field represents the pagination token to retrieve the next page of results.
+   * If the value is "", it means no further results for the request.
+   */
+  nextPageToken?: string | undefined;
+  /**
+   * This field represents the pagination token to retrieve the previous page of results.
+   * If the value is "", it means no further results for the request.
+   */
+  prevPageToken?: string | undefined;
+}
+
+export interface ListEventsRequest {
+  /** The ID of the cluster to retrieve events about. */
+  clusterId?: string | undefined;
+  /**
+   * The start time in epoch milliseconds.
+   * If empty, returns events starting from the beginning of time.
+   */
+  startTime?: bigint | undefined;
+  /**
+   * The end time in epoch milliseconds.
+   * If empty, returns events up to the current time.
+   */
+  endTime?: bigint | undefined;
+  /** The order to list events in; either "ASC" or "DESC". Defaults to "DESC". */
+  order?: GetEventsOrder | undefined;
+  /**
+   * An optional set of event types to filter on.
+   * If empty, all event types are returned.
+   */
+  eventTypes?: ClusterEventType_ClusterEventType[] | undefined;
+  /**
+   * Deprecated: use page_token in combination with page_size instead.
+   *
+   * The offset in the result set. Defaults to 0 (no offset). When an offset is specified
+   * and the results are requested in descending order, the end_time field is required.
+   */
+  offset?: bigint | undefined;
+  /**
+   * Deprecated: use page_token in combination with page_size instead.
+   *
+   * The maximum number of events to include in a page of events.
+   * Defaults to 50, and maximum allowed value is 500.
+   */
+  limit?: bigint | undefined;
+  /**
+   * Use next_page_token or prev_page_token returned from the previous request to list the next or previous page of events respectively.
+   * If page_token is empty, the first page is returned.
+   */
+  pageToken?: string | undefined;
+  /**
+   * The maximum number of events to include in a page of events.
+   * The server may further constrain the maximum number of results returned in a single page.
+   * If the page_size is empty or 0, the server will decide the number of results to be returned.
+   * The field has to be in the range [0,500]. If the value is outside the range, the server enforces 0 or 500.
+   */
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListEventsRequest_Response {
+  events?: ClusterEvent[] | undefined;
+  /**
+   * Deprecated: use next_page_token or prev_page_token instead.
+   *
+   * The parameters required to retrieve the next page of events.
+   * Omitted if there are no more events to read.
+   */
+  nextPage?: ListEventsRequest | undefined;
+  /**
+   * Deprecated: Returns 0 when request uses page_token. Will start returning zero when request uses offset/limit soon.
+   *
+   * The total number of events filtered by the start_time, end_time, and event_types.
+   */
+  totalCount?: bigint | undefined;
   /**
    * This field represents the pagination token to retrieve the next page of results.
    * If the value is "", it means no further results for the request.
@@ -4043,63 +4043,6 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
     destination: d.destination,
   }));
 
-export const unmarshalGetEventsSchema: z.ZodType<GetEvents> = z
-  .object({
-    cluster_id: z.string().optional(),
-    start_time: z
-      .union([z.number(), z.bigint()])
-      .transform(v => BigInt(v))
-      .optional(),
-    end_time: z
-      .union([z.number(), z.bigint()])
-      .transform(v => BigInt(v))
-      .optional(),
-    order: z.enum(GetEventsOrder).optional(),
-    event_types: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
-    offset: z
-      .union([z.number(), z.bigint()])
-      .transform(v => BigInt(v))
-      .optional(),
-    limit: z
-      .union([z.number(), z.bigint()])
-      .transform(v => BigInt(v))
-      .optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    clusterId: d.cluster_id,
-    startTime: d.start_time,
-    endTime: d.end_time,
-    order: d.order,
-    eventTypes: d.event_types,
-    offset: d.offset,
-    limit: d.limit,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetEvents_ResponseSchema: z.ZodType<GetEvents_Response> =
-  z
-    .object({
-      events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
-      next_page: z.lazy(() => unmarshalGetEventsSchema).optional(),
-      total_count: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      events: d.events,
-      nextPage: d.next_page,
-      totalCount: d.total_count,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema: z.ZodType<GetPolicyComplianceForClusterRequest_Response> =
   z
@@ -4257,6 +4200,63 @@ export const unmarshalListClustersRequest_ResponseSchema: z.ZodType<ListClusters
     })
     .transform(d => ({
       clusters: d.clusters,
+      nextPageToken: d.next_page_token,
+      prevPageToken: d.prev_page_token,
+    }));
+
+export const unmarshalListEventsRequestSchema: z.ZodType<ListEventsRequest> = z
+  .object({
+    cluster_id: z.string().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    end_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    order: z.enum(GetEventsOrder).optional(),
+    event_types: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
+    offset: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    limit: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    page_token: z.string().optional(),
+    page_size: z.number().optional(),
+  })
+  .transform(d => ({
+    clusterId: d.cluster_id,
+    startTime: d.start_time,
+    endTime: d.end_time,
+    order: d.order,
+    eventTypes: d.event_types,
+    offset: d.offset,
+    limit: d.limit,
+    pageToken: d.page_token,
+    pageSize: d.page_size,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListEventsRequest_ResponseSchema: z.ZodType<ListEventsRequest_Response> =
+  z
+    .object({
+      events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
+      next_page: z.lazy(() => unmarshalListEventsRequestSchema).optional(),
+      total_count: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      next_page_token: z.string().optional(),
+      prev_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      events: d.events,
+      nextPage: d.next_page,
+      totalCount: d.total_count,
       nextPageToken: d.next_page_token,
       prevPageToken: d.prev_page_token,
     }));
@@ -4881,30 +4881,6 @@ export const marshalGcsStorageInfoSchema: z.ZodType = z
     destination: d.destination,
   }));
 
-export const marshalGetEventsSchema: z.ZodType = z
-  .object({
-    clusterId: z.string().optional(),
-    startTime: z.bigint().optional(),
-    endTime: z.bigint().optional(),
-    order: z.enum(GetEventsOrder).optional(),
-    eventTypes: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
-    offset: z.bigint().optional(),
-    limit: z.bigint().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    cluster_id: d.clusterId,
-    start_time: d.startTime,
-    end_time: d.endTime,
-    order: d.order,
-    event_types: d.eventTypes,
-    offset: d.offset,
-    limit: d.limit,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalInitScriptInfoSchema: z.ZodType = z
   .object({
     storageInfo: z
@@ -4950,6 +4926,30 @@ export const marshalInitScriptInfoSchema: z.ZodType = z
       workspace: d.storageInfo.workspace,
     }),
     ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
+  }));
+
+export const marshalListEventsRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    startTime: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    order: z.enum(GetEventsOrder).optional(),
+    eventTypes: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
+    offset: z.bigint().optional(),
+    limit: z.bigint().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    start_time: d.startTime,
+    end_time: d.endTime,
+    order: d.order,
+    event_types: d.eventTypes,
+    offset: d.offset,
+    limit: d.limit,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
   }));
 
 export const marshalLocalFileInfoSchema: z.ZodType = z

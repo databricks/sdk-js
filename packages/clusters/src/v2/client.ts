@@ -33,8 +33,6 @@ import type {
   EnforcePolicyComplianceForClusterRequest,
   EnforcePolicyComplianceForClusterRequest_Response,
   GetClusterRequest,
-  GetEvents,
-  GetEvents_Response,
   GetPolicyComplianceForClusterRequest,
   GetPolicyComplianceForClusterRequest_Response,
   GetSparkVersionsRequest,
@@ -45,6 +43,8 @@ import type {
   ListClusterComplianceForPolicyRequest_Response,
   ListClustersRequest,
   ListClustersRequest_Response,
+  ListEventsRequest,
+  ListEventsRequest_Response,
   ListNodeTypesRequest,
   ListNodeTypesRequest_Response,
   PermanentDeleteClusterRequest,
@@ -69,7 +69,7 @@ import {
   marshalDeleteClusterRequestSchema,
   marshalEditClusterRequestSchema,
   marshalEnforcePolicyComplianceForClusterRequestSchema,
-  marshalGetEventsSchema,
+  marshalListEventsRequestSchema,
   marshalPermanentDeleteClusterRequestSchema,
   marshalPinClusterRequestSchema,
   marshalResizeClusterRequestSchema,
@@ -83,12 +83,12 @@ import {
   unmarshalDeleteClusterRequest_ResponseSchema,
   unmarshalEditClusterRequest_ResponseSchema,
   unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema,
-  unmarshalGetEvents_ResponseSchema,
   unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema,
   unmarshalGetSparkVersionsRequest_ResponseSchema,
   unmarshalListAvailableZonesRequest_ResponseSchema,
   unmarshalListClusterComplianceForPolicyRequest_ResponseSchema,
   unmarshalListClustersRequest_ResponseSchema,
+  unmarshalListEventsRequest_ResponseSchema,
   unmarshalListNodeTypesRequest_ResponseSchema,
   unmarshalPermanentDeleteClusterRequest_ResponseSchema,
   unmarshalPinClusterRequest_ResponseSchema,
@@ -140,13 +140,13 @@ export class ClustersClient {
    * This API is paginated. If there are more events to read, the response includes all the
    * parameters necessary to request the next page of events.
    */
-  async getEvents(
-    req: GetEvents,
+  async listEvents(
+    req: ListEventsRequest,
     options?: CallOptions
-  ): Promise<GetEvents_Response> {
+  ): Promise<ListEventsRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/events`;
-    const body = marshalRequest(req, marshalGetEventsSchema);
-    let resp: GetEvents_Response | undefined;
+    const body = marshalRequest(req, marshalListEventsRequestSchema);
+    let resp: ListEventsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -159,7 +159,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetEvents_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListEventsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -168,13 +168,13 @@ export class ClustersClient {
     return resp;
   }
 
-  async *getEventsIter(
-    req: GetEvents,
+  async *listEventsIter(
+    req: ListEventsRequest,
     options?: CallOptions
   ): AsyncGenerator<ClusterEvent> {
-    const pageReq: GetEvents = {...req};
+    const pageReq: ListEventsRequest = {...req};
     for (;;) {
-      const resp = await this.getEvents(pageReq, options);
+      const resp = await this.listEvents(pageReq, options);
       for (const item of resp.events ?? []) {
         yield item;
       }

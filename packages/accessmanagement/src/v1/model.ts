@@ -131,43 +131,11 @@ export interface DeleteWorkspacePermissionAssignmentRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeleteWorkspacePermissionAssignmentRequest_Response {}
 
-export interface GetAssignableRolesForResourceRequest {
-  /** <Databricks> account ID. */
-  accountId?: string | undefined;
-  /**
-   * The resource name for which assignable roles will be listed.
-   *
-   * Examples | Summary
-   * :--- | :---
-   * `resource=accounts/<ACCOUNT_ID>` | A resource name for the account.
-   * `resource=accounts/<ACCOUNT_ID>/groups/<GROUP_ID>` | A resource name for the group.
-   * `resource=accounts/<ACCOUNT_ID>/servicePrincipals/<SP_ID>` | A resource name for the service principal.
-   * `resource=accounts/<ACCOUNT_ID>/tagPolicies/<TAG_POLICY_ID>` | A resource name for the tag policy.
-   */
-  resource?: string | undefined;
-}
-
-export interface GetAssignableRolesForResourceResponse {
-  roles?: Role[] | undefined;
-}
-
 export interface GetObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
-}
-
-export interface GetPermissionLevelsRequest {
-  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
-  requestObjectType?: string | undefined;
-  requestObjectId?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPermissionLevelsRequest_Response {
-  /** Specific permission levels */
-  permissionLevels?: PermissionsDescription[] | undefined;
 }
 
 export interface GetRuleSetRequest {
@@ -199,20 +167,6 @@ export interface GetRuleSetRequest {
   etag?: string | undefined;
 }
 
-/** Gets all the permission assignments for a workspace, given an account and a workspace. */
-export interface GetWorkspacePermissionAssignmentsRequest {
-  /** The account ID. */
-  accountId?: string | undefined;
-  /** The workspace ID for the account. */
-  workspaceId?: bigint | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWorkspacePermissionAssignmentsRequest_Response {
-  /** Array of permissions assignments defined for a workspace. */
-  permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
-}
-
 export interface GrantRule {
   /**
    * Principals this grant rule applies to.
@@ -225,6 +179,52 @@ export interface GrantRule {
   principals?: string[] | undefined;
   /** Role that is assigned to the list of principals. */
   role?: string | undefined;
+}
+
+export interface ListAssignableRolesForResourceRequest {
+  /** <Databricks> account ID. */
+  accountId?: string | undefined;
+  /**
+   * The resource name for which assignable roles will be listed.
+   *
+   * Examples | Summary
+   * :--- | :---
+   * `resource=accounts/<ACCOUNT_ID>` | A resource name for the account.
+   * `resource=accounts/<ACCOUNT_ID>/groups/<GROUP_ID>` | A resource name for the group.
+   * `resource=accounts/<ACCOUNT_ID>/servicePrincipals/<SP_ID>` | A resource name for the service principal.
+   * `resource=accounts/<ACCOUNT_ID>/tagPolicies/<TAG_POLICY_ID>` | A resource name for the tag policy.
+   */
+  resource?: string | undefined;
+}
+
+export interface ListAssignableRolesForResourceResponse {
+  roles?: Role[] | undefined;
+}
+
+export interface ListPermissionLevelsRequest {
+  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
+  requestObjectType?: string | undefined;
+  requestObjectId?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListPermissionLevelsRequest_Response {
+  /** Specific permission levels */
+  permissionLevels?: PermissionsDescription[] | undefined;
+}
+
+/** Gets all the permission assignments for a workspace, given an account and a workspace. */
+export interface ListWorkspacePermissionAssignmentsRequest {
+  /** The account ID. */
+  accountId?: string | undefined;
+  /** The workspace ID for the account. */
+  workspaceId?: bigint | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListWorkspacePermissionAssignmentsRequest_Response {
+  /** Array of permissions assignments defined for a workspace. */
+  permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
 }
 
 /** List permissions for a workspace, given an account and a workspace. */
@@ -441,7 +441,17 @@ export const unmarshalConsistencyTokenSchema: z.ZodType<ConsistencyToken> = z
 export const unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignmentRequest_Response> =
   z.object({});
 
-export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<GetAssignableRolesForResourceResponse> =
+export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
+  .object({
+    principals: z.array(z.string()).optional(),
+    role: z.string().optional(),
+  })
+  .transform(d => ({
+    principals: d.principals,
+    role: d.role,
+  }));
+
+export const unmarshalListAssignableRolesForResourceResponseSchema: z.ZodType<ListAssignableRolesForResourceResponse> =
   z
     .object({
       roles: z.array(z.lazy(() => unmarshalRoleSchema)).optional(),
@@ -451,7 +461,7 @@ export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<Get
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissionLevelsRequest_ResponseSchema: z.ZodType<GetPermissionLevelsRequest_Response> =
+export const unmarshalListPermissionLevelsRequest_ResponseSchema: z.ZodType<ListPermissionLevelsRequest_Response> =
   z
     .object({
       permission_levels: z
@@ -463,7 +473,7 @@ export const unmarshalGetPermissionLevelsRequest_ResponseSchema: z.ZodType<GetPe
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema: z.ZodType<GetWorkspacePermissionAssignmentsRequest_Response> =
+export const unmarshalListWorkspacePermissionAssignmentsRequest_ResponseSchema: z.ZodType<ListWorkspacePermissionAssignmentsRequest_Response> =
   z
     .object({
       permission_assignments: z
@@ -473,16 +483,6 @@ export const unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema: z
     .transform(d => ({
       permissionAssignments: d.permission_assignments,
     }));
-
-export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
-  .object({
-    principals: z.array(z.string()).optional(),
-    role: z.string().optional(),
-  })
-  .transform(d => ({
-    principals: d.principals,
-    role: d.role,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListWorkspacePermissionsRequest_ResponseSchema: z.ZodType<ListWorkspacePermissionsRequest_Response> =

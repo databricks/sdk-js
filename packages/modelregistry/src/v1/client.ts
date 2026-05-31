@@ -44,14 +44,14 @@ import type {
   DeleteRegistryWebhookRequest_Response,
   DeleteTransitionRequest,
   DeleteTransitionRequest_Response,
-  GetLatestVersionsRequest,
-  GetLatestVersionsRequest_Response,
   GetModelVersionDownloadUriRequest,
   GetModelVersionDownloadUriRequest_Response,
   GetModelVersionRequest,
   GetModelVersionRequest_Response,
   GetRegisteredModelDatabricksRequest,
   GetRegisteredModelDatabricksRequest_Response,
+  ListLatestVersionsRequest,
+  ListLatestVersionsRequest_Response,
   ListRegisteredModelsRequest,
   ListRegisteredModelsRequest_Response,
   ListRegistryWebhooksRequest,
@@ -93,7 +93,7 @@ import {
   marshalCreateRegisteredModelRequestSchema,
   marshalCreateRegistryWebhookRequestSchema,
   marshalCreateTransitionRequestSchema,
-  marshalGetLatestVersionsRequestSchema,
+  marshalListLatestVersionsRequestSchema,
   marshalRejectTransitionRequestSchema,
   marshalRenameRegisteredModelRequestSchema,
   marshalSetModelVersionTagRequestSchema,
@@ -117,10 +117,10 @@ import {
   unmarshalDeleteRegisteredModelTagRequest_ResponseSchema,
   unmarshalDeleteRegistryWebhookRequest_ResponseSchema,
   unmarshalDeleteTransitionRequest_ResponseSchema,
-  unmarshalGetLatestVersionsRequest_ResponseSchema,
   unmarshalGetModelVersionDownloadUriRequest_ResponseSchema,
   unmarshalGetModelVersionRequest_ResponseSchema,
   unmarshalGetRegisteredModelDatabricksRequest_ResponseSchema,
+  unmarshalListLatestVersionsRequest_ResponseSchema,
   unmarshalListRegisteredModelsRequest_ResponseSchema,
   unmarshalListRegistryWebhooksRequest_ResponseSchema,
   unmarshalListTransitionRequest_ResponseSchema,
@@ -979,38 +979,6 @@ export class ModelregistryClient {
     return resp;
   }
 
-  /** Gets the latest version of a registered model. */
-  async getLatestVersions(
-    req: GetLatestVersionsRequest,
-    options?: CallOptions
-  ): Promise<GetLatestVersionsRequest_Response> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/get-latest-versions`;
-    const body = marshalRequest(req, marshalGetLatestVersionsRequestSchema);
-    let resp: GetLatestVersionsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetLatestVersionsRequest_ResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Get a model version. */
   async getModelVersion(
     req: GetModelVersionRequest,
@@ -1082,6 +1050,38 @@ export class ModelregistryClient {
       resp = parseResponse(
         respBody,
         unmarshalGetModelVersionDownloadUriRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets the latest version of a registered model. */
+  async listLatestVersions(
+    req: ListLatestVersionsRequest,
+    options?: CallOptions
+  ): Promise<ListLatestVersionsRequest_Response> {
+    const url = `${this.host}/api/2.0/mlflow/registered-models/get-latest-versions`;
+    const body = marshalRequest(req, marshalListLatestVersionsRequestSchema);
+    let resp: ListLatestVersionsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (this.workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListLatestVersionsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
