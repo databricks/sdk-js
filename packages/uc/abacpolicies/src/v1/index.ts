@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {AbacpoliciesClient} from './client';
+export {AbacPoliciesClient} from './client';
 
 export {PolicyType, SecurableType} from './model';
 

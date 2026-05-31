@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {CustomllmsClient} from './client';
+export {CustomLlmsClient} from './client';
 
 export {State} from './model';
 

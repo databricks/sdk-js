@@ -79,7 +79,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class ModelservingClient {
+export class ModelServingClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -665,7 +665,7 @@ export class ModelservingClient {
 
 export class CreateInferenceEndpointWaiter {
   constructor(
-    private readonly client: ModelservingClient,
+    private readonly client: ModelServingClient,
     readonly name: string
   ) {}
 
@@ -745,7 +745,7 @@ export class CreateInferenceEndpointWaiter {
 
 export class CreateProvisionedThroughputInferenceEndpointWaiter {
   constructor(
-    private readonly client: ModelservingClient,
+    private readonly client: ModelServingClient,
     readonly name: string
   ) {}
 
@@ -825,7 +825,7 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
 
 export class PutInferenceEndpointConfigWaiter {
   constructor(
-    private readonly client: ModelservingClient,
+    private readonly client: ModelServingClient,
     readonly name: string
   ) {}
 
@@ -905,7 +905,7 @@ export class PutInferenceEndpointConfigWaiter {
 
 export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
   constructor(
-    private readonly client: ModelservingClient,
+    private readonly client: ModelServingClient,
     readonly name: string
   ) {}
 

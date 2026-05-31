@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ExternallineageClient} from './client';
+export {ExternalLineageClient} from './client';
 
 export {SystemType, Direction_LineageDirection} from './model';
 

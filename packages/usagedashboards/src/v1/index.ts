@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {UsagedashboardsClient} from './client';
+export {UsageDashboardsClient} from './client';
 
 export {UsageDashboardMajorVersion, UsageDashboardType} from './model';
 

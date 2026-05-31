@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {WorkspacebindingsClient} from './client';
+export {WorkspaceBindingsClient} from './client';
 
 export {BindingType} from './model';
 

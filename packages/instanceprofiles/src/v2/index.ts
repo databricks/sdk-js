@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {InstanceprofilesClient} from './client';
+export {InstanceProfilesClient} from './client';
 
 export type {
   AddInstanceProfileRequest,

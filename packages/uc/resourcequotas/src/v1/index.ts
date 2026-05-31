@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ResourcequotasClient} from './client';
+export {ResourceQuotasClient} from './client';
 
 export {SecurableType} from './model';
 

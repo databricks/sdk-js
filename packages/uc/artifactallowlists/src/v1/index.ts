@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ArtifactallowlistsClient} from './client';
+export {ArtifactAllowlistsClient} from './client';
 
 export {ArtifactType, ArtifactMatcher_MatchType} from './model';
 

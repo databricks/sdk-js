@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {TagassignmentsClient} from './client';
+export {TagAssignmentsClient} from './client';
 
 export type {
   CreateTagAssignmentRequest,

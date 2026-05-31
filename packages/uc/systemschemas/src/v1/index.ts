@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {SystemschemasClient} from './client';
+export {SystemSchemasClient} from './client';
 
 export type {
   DisableSystemSchemaRequest,

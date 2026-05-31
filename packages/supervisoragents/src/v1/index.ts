@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {SupervisoragentsClient} from './client';
+export {SupervisorAgentsClient} from './client';
 
 export type {
   App,

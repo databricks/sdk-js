@@ -49,7 +49,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class DisasterrecoveryClient {
+export class DisasterRecoveryClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every

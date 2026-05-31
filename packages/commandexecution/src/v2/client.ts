@@ -53,7 +53,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class CommandexecutionClient {
+export class CommandExecutionClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -353,7 +353,7 @@ export class CommandexecutionClient {
 
 export class CancelWaiter {
   constructor(
-    private readonly client: CommandexecutionClient,
+    private readonly client: CommandExecutionClient,
     readonly clusterId: string,
     readonly contextId: string,
     readonly commandId: string
@@ -437,7 +437,7 @@ export class CancelWaiter {
 
 export class CreateWaiter {
   constructor(
-    private readonly client: CommandexecutionClient,
+    private readonly client: CommandExecutionClient,
     readonly clusterId: string,
     readonly contextId: string
   ) {}
@@ -518,7 +518,7 @@ export class CreateWaiter {
 
 export class ExecuteWaiter {
   constructor(
-    private readonly client: CommandexecutionClient,
+    private readonly client: CommandExecutionClient,
     readonly clusterId: string,
     readonly contextId: string,
     readonly commandId: string

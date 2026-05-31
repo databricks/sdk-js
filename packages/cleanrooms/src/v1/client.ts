@@ -82,7 +82,7 @@ const PACKAGE_SEGMENT = {
 
 class StillRunningError extends Error {}
 
-export class CleanroomsClient {
+export class CleanRoomsClient {
   private readonly host: string;
   // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
   // When set, workspace-level methods send X-Databricks-Org-Id on every
@@ -878,7 +878,7 @@ export class CleanroomsClient {
 
 export class CreateCleanRoomWaiter {
   constructor(
-    private readonly client: CleanroomsClient,
+    private readonly client: CleanRoomsClient,
     readonly name: string
   ) {}
 

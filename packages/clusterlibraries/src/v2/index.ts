@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ClusterlibrariesClient} from './client';
+export {ClusterLibrariesClient} from './client';
 
 export {LibraryInstallStatus} from './model';
 

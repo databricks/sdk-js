@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ClusterpoliciesClient} from './client';
+export {ClusterPoliciesClient} from './client';
 
 export {ListOrder, PolicySortColumn} from './model';
 

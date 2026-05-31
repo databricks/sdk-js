@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {ModelregistryClient} from './client';
+export {ModelRegistryClient} from './client';
 
 export {
   ActivityAction,

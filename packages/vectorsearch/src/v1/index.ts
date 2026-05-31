@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {VectorsearchClient, CreateEndpointWaiter} from './client';
+export {VectorSearchClient, CreateEndpointWaiter} from './client';
 
 export {
   EndpointType,
