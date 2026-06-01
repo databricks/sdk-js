@@ -16,6 +16,7 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "checks": "turbo run lint format:check",
+    "ci:verify": "turbo run build lint format:check",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean",
     "check:licenses": "node scripts/check-licenses.mjs",
