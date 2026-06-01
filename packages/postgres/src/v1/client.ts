@@ -1,12 +1,12 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
 import {
@@ -15,6 +15,8 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  executeWait,
+  StillRunningError,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
@@ -1644,8 +1646,7 @@ export class CreateBranchOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Branch> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Branch> {
     let result: Branch | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1653,14 +1654,14 @@ export class CreateBranchOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1683,14 +1684,7 @@ export class CreateBranchOperation {
       result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1736,8 +1730,7 @@ export class CreateCatalogOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Catalog> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Catalog> {
     let result: Catalog | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1745,14 +1738,14 @@ export class CreateCatalogOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1775,14 +1768,7 @@ export class CreateCatalogOperation {
       result = z.lazy(() => unmarshalCatalogSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1828,8 +1814,7 @@ export class CreateDatabaseOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Database> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Database> {
     let result: Database | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1837,14 +1822,14 @@ export class CreateDatabaseOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1867,14 +1852,7 @@ export class CreateDatabaseOperation {
       result = z.lazy(() => unmarshalDatabaseSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1920,8 +1898,7 @@ export class CreateEndpointOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Endpoint> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Endpoint> {
     let result: Endpoint | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1929,14 +1906,14 @@ export class CreateEndpointOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1959,14 +1936,7 @@ export class CreateEndpointOperation {
       result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -2012,8 +1982,7 @@ export class CreateProjectOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Project> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Project> {
     let result: Project | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2021,14 +1990,14 @@ export class CreateProjectOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2051,14 +2020,7 @@ export class CreateProjectOperation {
       result = z.lazy(() => unmarshalProjectSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -2104,8 +2066,7 @@ export class CreateRoleOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Role> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Role> {
     let result: Role | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2113,14 +2074,14 @@ export class CreateRoleOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2143,14 +2104,7 @@ export class CreateRoleOperation {
       result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -2196,8 +2150,7 @@ export class CreateSyncedTableOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<SyncedTable> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<SyncedTable> {
     let result: SyncedTable | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2205,14 +2158,14 @@ export class CreateSyncedTableOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2237,14 +2190,7 @@ export class CreateSyncedTableOperation {
         .parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -2290,22 +2236,20 @@ export class DeleteBranchOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2322,14 +2266,7 @@ export class DeleteBranchOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2371,22 +2308,20 @@ export class DeleteCatalogOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2403,14 +2338,7 @@ export class DeleteCatalogOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2452,22 +2380,20 @@ export class DeleteDatabaseOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2484,14 +2410,7 @@ export class DeleteDatabaseOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2533,22 +2452,20 @@ export class DeleteEndpointOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2565,14 +2482,7 @@ export class DeleteEndpointOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2614,22 +2524,20 @@ export class DeleteProjectOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2646,14 +2554,7 @@ export class DeleteProjectOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2695,22 +2596,20 @@ export class DeleteRoleOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2727,14 +2626,7 @@ export class DeleteRoleOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2776,22 +2668,20 @@ export class DeleteSyncedTableOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2808,14 +2698,7 @@ export class DeleteSyncedTableOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2857,22 +2740,20 @@ export class UndeleteBranchOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2889,14 +2770,7 @@ export class UndeleteBranchOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -2938,22 +2812,20 @@ export class UndeleteProjectOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -2970,14 +2842,7 @@ export class UndeleteProjectOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -3019,8 +2884,7 @@ export class UpdateBranchOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Branch> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Branch> {
     let result: Branch | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -3028,14 +2892,14 @@ export class UpdateBranchOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -3058,14 +2922,7 @@ export class UpdateBranchOperation {
       result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -3111,8 +2968,7 @@ export class UpdateDatabaseOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Database> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Database> {
     let result: Database | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -3120,14 +2976,14 @@ export class UpdateDatabaseOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -3150,14 +3006,7 @@ export class UpdateDatabaseOperation {
       result = z.lazy(() => unmarshalDatabaseSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -3203,8 +3052,7 @@ export class UpdateEndpointOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Endpoint> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Endpoint> {
     let result: Endpoint | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -3212,14 +3060,14 @@ export class UpdateEndpointOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -3242,14 +3090,7 @@ export class UpdateEndpointOperation {
       result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -3295,8 +3136,7 @@ export class UpdateProjectOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Project> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Project> {
     let result: Project | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -3304,14 +3144,14 @@ export class UpdateProjectOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -3334,14 +3174,7 @@ export class UpdateProjectOperation {
       result = z.lazy(() => unmarshalProjectSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -3387,8 +3220,7 @@ export class UpdateRoleOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Role> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Role> {
     let result: Role | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -3396,14 +3228,14 @@ export class UpdateRoleOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -3426,14 +3258,7 @@ export class UpdateRoleOperation {
       result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }

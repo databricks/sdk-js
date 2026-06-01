@@ -1,12 +1,12 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
 import {
@@ -15,6 +15,8 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  executeWait,
+  StillRunningError,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
@@ -502,8 +504,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<WorkspaceBaseEnvironment> {
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -511,14 +512,14 @@ export class CreateWorkspaceBaseEnvironmentOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -543,14 +544,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
         .parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -596,8 +590,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<WorkspaceBaseEnvironment> {
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -605,14 +598,14 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -637,14 +630,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
         .parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -690,8 +676,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<WorkspaceBaseEnvironment> {
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -699,14 +684,14 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -731,14 +716,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
         .parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
