@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -84,7 +83,7 @@ export class InstanceProfilesClient {
     const url = `${this.host}/api/2.0/instance-profiles/add`;
     const body = marshalRequest(req, marshalAddInstanceProfileRequestSchema);
     let resp: AddInstanceProfileRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -103,7 +102,7 @@ export class InstanceProfilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -129,7 +128,7 @@ export class InstanceProfilesClient {
     const url = `${this.host}/api/2.0/instance-profiles/edit`;
     const body = marshalRequest(req, marshalEditInstanceProfileRequestSchema);
     let resp: EditInstanceProfileRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -148,7 +147,7 @@ export class InstanceProfilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -164,7 +163,7 @@ export class InstanceProfilesClient {
   ): Promise<ListInstanceProfilesRequest_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/list`;
     let resp: ListInstanceProfilesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -183,7 +182,7 @@ export class InstanceProfilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -201,7 +200,7 @@ export class InstanceProfilesClient {
     const url = `${this.host}/api/2.0/instance-profiles/remove`;
     const body = marshalRequest(req, marshalRemoveInstanceProfileRequestSchema);
     let resp: RemoveInstanceProfileRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -220,7 +219,7 @@ export class InstanceProfilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

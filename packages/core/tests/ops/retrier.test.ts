@@ -1,5 +1,5 @@
 import {describe, it, expect, vi} from 'vitest';
-import {BackoffPolicy, rand, retryOn} from '../../src/api/retrier';
+import {BackoffPolicy, rand, retryOn} from '../../src/ops/retrier';
 
 // Always returns the maximum value (n - 1) for deterministic tests.
 function deterministicRand(n: number): number {

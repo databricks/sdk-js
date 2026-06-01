@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import type {Limiter, Retrier} from '@databricks/sdk-core/api';
+import type {Limiter, Retrier} from '@databricks/sdk-core/ops';
 
 /** Options that configure a single call against the Databricks API. */
 export interface CallOptions {

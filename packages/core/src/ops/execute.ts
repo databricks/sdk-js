@@ -1,9 +1,6 @@
 import type {Options} from './options';
 import type {Retrier} from './retrier';
 
-/** Call represents a call to a Databricks API. */
-export type Call = (signal?: AbortSignal) => Promise<void>;
-
 // Coerces an unknown value to an Error instance.
 function toError(value: unknown): Error {
   return value instanceof Error ? value : new Error(String(value));
@@ -39,14 +36,14 @@ export function sleep(ms: number, signal?: AbortSignal): Promise<void> {
 // Sleeper is a convenience type for readability.
 type Sleeper = (ms: number, signal?: AbortSignal) => Promise<void>;
 
-/** Makes a call to a Databricks API using the given options. */
+/** Executes operation op with the given options. */
 export async function execute(
   signal: AbortSignal | undefined,
-  call: Call,
+  op: (signal?: AbortSignal) => Promise<void>,
   options?: Options
 ): Promise<void> {
   const opts: Options = {...options};
-  return executeImpl(signal, call, opts, sleep);
+  return executeImpl(signal, op, opts, sleep);
 }
 
 /**
@@ -55,7 +52,7 @@ export async function execute(
  */
 async function executeImpl(
   signal: AbortSignal | undefined,
-  apiCall: Call,
+  op: (signal?: AbortSignal) => Promise<void>,
   opts: Options,
   sleep: Sleeper
 ): Promise<void> {
@@ -68,7 +65,7 @@ async function executeImpl(
   }
 
   // Get a new retrier for this specific execution. This is instantiated
-  // lazily if and when the first call execution returns an error.
+  // lazily if and when the first operation execution returns an error.
   let retrier: Retrier | undefined;
 
   for (;;) {
@@ -77,7 +74,7 @@ async function executeImpl(
     }
 
     try {
-      await apiCall(signal);
+      await op(signal);
       return; // Nothing to retry.
     } catch (err: unknown) {
       const error = toError(err);

@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -68,7 +67,7 @@ export class ForecastingClient {
   }
 
   /** Creates a serverless forecasting experiment. Returns the experiment ID. */
-  async createForecastingExperiment(
+  private async createForecastingExperiment(
     req: CreateForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<CreateForecastingExperimentResponse> {
@@ -78,7 +77,7 @@ export class ForecastingClient {
       marshalCreateForecastingExperimentRequestSchema
     );
     let resp: CreateForecastingExperimentResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -97,7 +96,7 @@ export class ForecastingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -122,7 +121,7 @@ export class ForecastingClient {
   ): Promise<ForecastingExperiment> {
     const url = `${this.host}/api/2.0/automl/get-forecasting-experiment/${req.experimentId ?? ''}`;
     let resp: ForecastingExperiment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -138,7 +137,7 @@ export class ForecastingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -158,7 +157,7 @@ export class CreateForecastingExperimentWaiter {
   async wait(options?: CallOptions): Promise<ForecastingExperiment> {
     let result: ForecastingExperiment | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getForecastingExperiment(
         {
           experimentId: this.experimentId,
@@ -194,7 +193,7 @@ export class CreateForecastingExperimentWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

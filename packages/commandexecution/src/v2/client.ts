@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -86,14 +85,14 @@ export class CommandExecutionClient {
    *
    * The command ID is obtained from a prior successful call to __execute__.
    */
-  async cancel(
+  private async cancel(
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelResponse> {
     const url = `${this.host}/api/1.2/commands/cancel`;
     const body = marshalRequest(req, marshalCancelCommandRequestSchema);
     let resp: CancelResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -109,7 +108,7 @@ export class CommandExecutionClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -160,7 +159,7 @@ export class CommandExecutionClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetCommandStatusResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -176,7 +175,7 @@ export class CommandExecutionClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -197,7 +196,7 @@ export class CommandExecutionClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetContextStatusResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -213,7 +212,7 @@ export class CommandExecutionClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -223,14 +222,14 @@ export class CommandExecutionClient {
    *
    * If successful, this method returns the ID of the new execution context.
    */
-  async create(
+  private async create(
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
     const url = `${this.host}/api/1.2/contexts/create`;
     const body = marshalRequest(req, marshalCreateContextRequestSchema);
     let resp: CreateResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -246,7 +245,7 @@ export class CommandExecutionClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -275,7 +274,7 @@ export class CommandExecutionClient {
     const url = `${this.host}/api/1.2/contexts/destroy`;
     const body = marshalRequest(req, marshalDestroyContextRequestSchema);
     let resp: DestroyResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -291,7 +290,7 @@ export class CommandExecutionClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -301,14 +300,14 @@ export class CommandExecutionClient {
    *
    * If successful, it returns an ID for tracking the status of the command's execution.
    */
-  async execute(
+  private async execute(
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
     const url = `${this.host}/api/1.2/commands/execute`;
     const body = marshalRequest(req, marshalExecuteCommandRequestSchema);
     let resp: CreateResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -324,7 +323,7 @@ export class CommandExecutionClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -367,7 +366,7 @@ export class CancelWaiter {
   async wait(options?: CallOptions): Promise<GetCommandStatusResponse> {
     let result: GetCommandStatusResponse | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.commandStatus(
         {
           clusterId: this.clusterId,
@@ -404,7 +403,7 @@ export class CancelWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -450,7 +449,7 @@ export class CreateWaiter {
   async wait(options?: CallOptions): Promise<GetContextStatusResponse> {
     let result: GetContextStatusResponse | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.contextStatus(
         {
           clusterId: this.clusterId,
@@ -486,7 +485,7 @@ export class CreateWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -532,7 +531,7 @@ export class ExecuteWaiter {
   async wait(options?: CallOptions): Promise<GetCommandStatusResponse> {
     let result: GetCommandStatusResponse | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.commandStatus(
         {
           clusterId: this.clusterId,
@@ -571,7 +570,7 @@ export class ExecuteWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

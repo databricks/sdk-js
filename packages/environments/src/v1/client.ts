@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -86,7 +85,7 @@ export class EnvironmentsClient {
    * to optimize dependency resolution and is only marked as done when the materialized environment has been
    * successfully generated or has failed.
    */
-  async createWorkspaceBaseEnvironment(
+  private async createWorkspaceBaseEnvironment(
     req: CreateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -108,7 +107,7 @@ export class EnvironmentsClient {
       marshalWorkspaceBaseEnvironmentSchema
     );
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -130,7 +129,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -153,7 +152,7 @@ export class EnvironmentsClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -179,7 +178,7 @@ export class EnvironmentsClient {
   ): Promise<DefaultWorkspaceBaseEnvironment> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -198,7 +197,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -213,7 +212,7 @@ export class EnvironmentsClient {
   ): Promise<Operation> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -229,7 +228,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -241,7 +240,7 @@ export class EnvironmentsClient {
   ): Promise<WorkspaceBaseEnvironment> {
     const url = `${this.host}/api/environments/v1/${req.name ?? ''}`;
     let resp: WorkspaceBaseEnvironment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -257,7 +256,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -293,7 +292,7 @@ export class EnvironmentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWorkspaceBaseEnvironmentsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -312,7 +311,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -340,7 +339,7 @@ export class EnvironmentsClient {
    * and is only marked as done when the materialized environment has been successfully generated or has failed.
    * The existing materialized environment remains available until it expires.
    */
-  async refreshWorkspaceBaseEnvironment(
+  private async refreshWorkspaceBaseEnvironment(
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -350,7 +349,7 @@ export class EnvironmentsClient {
       marshalRefreshWorkspaceBaseEnvironmentRequestSchema
     );
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -366,7 +365,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -399,7 +398,7 @@ export class EnvironmentsClient {
       marshalDefaultWorkspaceBaseEnvironmentSchema
     );
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -424,7 +423,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -435,7 +434,7 @@ export class EnvironmentsClient {
    * and is only marked as done when the materialized environment has been successfully generated or has failed.
    * The existing materialized environment remains available until it expires.
    */
-  async updateWorkspaceBaseEnvironment(
+  private async updateWorkspaceBaseEnvironment(
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -445,7 +444,7 @@ export class EnvironmentsClient {
       marshalWorkspaceBaseEnvironmentSchema
     );
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -461,7 +460,7 @@ export class EnvironmentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -507,7 +506,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: WorkspaceBaseEnvironment | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -553,7 +552,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -601,7 +600,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: WorkspaceBaseEnvironment | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -647,7 +646,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -695,7 +694,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: WorkspaceBaseEnvironment | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -741,7 +740,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

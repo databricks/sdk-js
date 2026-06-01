@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -147,7 +146,7 @@ export class ClustersClient {
     const url = `${this.host}/api/2.1/clusters/events`;
     const body = marshalRequest(req, marshalListEventsRequestSchema);
     let resp: ListEventsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -163,7 +162,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -193,7 +192,7 @@ export class ClustersClient {
     const url = `${this.host}/api/2.1/clusters/change-owner`;
     const body = marshalRequest(req, marshalChangeClusterOwnerRequestSchema);
     let resp: ChangeClusterOwnerRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -212,7 +211,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -231,14 +230,14 @@ export class ClustersClient {
    * Rather than authoring the cluster's JSON definition from scratch, Databricks recommends filling out the
    * [create compute UI](/compute/configure.html) and then copying the generated JSON definition from the UI.
    */
-  async createCluster(
+  private async createCluster(
     req: CreateClusterRequest,
     options?: CallOptions
   ): Promise<CreateClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/create`;
     const body = marshalRequest(req, marshalCreateClusterRequestSchema);
     let resp: CreateClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -257,7 +256,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -280,14 +279,14 @@ export class ClustersClient {
    * Once the termination has completed, the cluster will be in a `TERMINATED` state.
    * If the cluster is already in a `TERMINATING` or `TERMINATED` state, nothing will happen.
    */
-  async deleteCluster(
+  private async deleteCluster(
     req: DeleteClusterRequest,
     options?: CallOptions
   ): Promise<DeleteClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/delete`;
     const body = marshalRequest(req, marshalDeleteClusterRequestSchema);
     let resp: DeleteClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -306,7 +305,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -336,14 +335,14 @@ export class ClustersClient {
    *
    * Clusters created by the Databricks Jobs service cannot be edited.
    */
-  async editCluster(
+  private async editCluster(
     req: EditClusterRequest,
     options?: CallOptions
   ): Promise<EditClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/edit`;
     const body = marshalRequest(req, marshalEditClusterRequestSchema);
     let resp: EditClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -362,7 +361,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -396,7 +395,7 @@ export class ClustersClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ClusterInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -412,7 +411,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -427,7 +426,7 @@ export class ClustersClient {
   ): Promise<ListAvailableZonesRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/list-zones`;
     let resp: ListAvailableZonesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -446,7 +445,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -467,7 +466,7 @@ export class ClustersClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListClustersRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -486,7 +485,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -515,7 +514,7 @@ export class ClustersClient {
   ): Promise<ListNodeTypesRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/list-node-types`;
     let resp: ListNodeTypesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -534,7 +533,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -546,7 +545,7 @@ export class ClustersClient {
   ): Promise<GetSparkVersionsRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/spark-versions`;
     let resp: GetSparkVersionsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -565,7 +564,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -586,7 +585,7 @@ export class ClustersClient {
       marshalPermanentDeleteClusterRequestSchema
     );
     let resp: PermanentDeleteClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -605,7 +604,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -622,7 +621,7 @@ export class ClustersClient {
     const url = `${this.host}/api/2.1/clusters/pin`;
     const body = marshalRequest(req, marshalPinClusterRequestSchema);
     let resp: PinClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -638,20 +637,20 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Resizes a cluster to have a desired number of workers. This will fail unless the cluster is in a `RUNNING` state. */
-  async resizeCluster(
+  private async resizeCluster(
     req: ResizeClusterRequest,
     options?: CallOptions
   ): Promise<ResizeClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/resize`;
     const body = marshalRequest(req, marshalResizeClusterRequestSchema);
     let resp: ResizeClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -670,7 +669,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -689,14 +688,14 @@ export class ClustersClient {
   }
 
   /** Restarts a Spark cluster with the supplied ID. If the cluster is not currently in a `RUNNING` state, nothing will happen. */
-  async restartCluster(
+  private async restartCluster(
     req: RestartClusterRequest,
     options?: CallOptions
   ): Promise<RestartClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/restart`;
     const body = marshalRequest(req, marshalRestartClusterRequestSchema);
     let resp: RestartClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -715,7 +714,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -742,14 +741,14 @@ export class ClustersClient {
    * - If the cluster is not currently in a ``TERMINATED`` state, nothing will happen.
    * - Clusters launched to run a job cannot be started.
    */
-  async startCluster(
+  private async startCluster(
     req: StartClusterRequest,
     options?: CallOptions
   ): Promise<StartClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/start`;
     const body = marshalRequest(req, marshalStartClusterRequestSchema);
     let resp: StartClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -768,7 +767,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -798,7 +797,7 @@ export class ClustersClient {
     const url = `${this.host}/api/2.1/clusters/unpin`;
     const body = marshalRequest(req, marshalUnpinClusterRequestSchema);
     let resp: UnpinClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -817,7 +816,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -832,14 +831,14 @@ export class ClustersClient {
    * Attempts to update a cluster in any other state will be rejected with an `INVALID_STATE` error code.
    * Clusters created by the Databricks Jobs service cannot be updated.
    */
-  async updateCluster(
+  private async updateCluster(
     req: UpdateClusterRequest,
     options?: CallOptions
   ): Promise<UpdateClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/update`;
     const body = marshalRequest(req, marshalUpdateClusterRequestSchema);
     let resp: UpdateClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -858,7 +857,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -898,7 +897,7 @@ export class ClustersClient {
       marshalEnforcePolicyComplianceForClusterRequestSchema
     );
     let resp: EnforcePolicyComplianceForClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -917,7 +916,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -938,7 +937,7 @@ export class ClustersClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetPolicyComplianceForClusterRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -957,7 +956,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -985,7 +984,7 @@ export class ClustersClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListClusterComplianceForPolicyRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1004,7 +1003,7 @@ export class ClustersClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1041,7 +1040,7 @@ export class CreateClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1077,7 +1076,7 @@ export class CreateClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1121,7 +1120,7 @@ export class DeleteClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1156,7 +1155,7 @@ export class DeleteClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1199,7 +1198,7 @@ export class EditClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1235,7 +1234,7 @@ export class EditClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1279,7 +1278,7 @@ export class ResizeClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1315,7 +1314,7 @@ export class ResizeClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1359,7 +1358,7 @@ export class RestartClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1395,7 +1394,7 @@ export class RestartClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1439,7 +1438,7 @@ export class StartClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1475,7 +1474,7 @@ export class StartClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1519,7 +1518,7 @@ export class UpdateClusterWaiter {
   async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
         {
           clusterId: this.clusterId,
@@ -1555,7 +1554,7 @@ export class UpdateClusterWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

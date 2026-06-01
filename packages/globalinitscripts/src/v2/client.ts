@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -84,7 +83,7 @@ export class GlobalInitScriptsClient {
       marshalCreateGlobalInitScriptRequestSchema
     );
     let resp: CreateGlobalInitScriptRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -103,7 +102,7 @@ export class GlobalInitScriptsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -115,7 +114,7 @@ export class GlobalInitScriptsClient {
   ): Promise<DeleteGlobalInitScriptRequest_Response> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
     let resp: DeleteGlobalInitScriptRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -134,7 +133,7 @@ export class GlobalInitScriptsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -146,7 +145,7 @@ export class GlobalInitScriptsClient {
   ): Promise<GlobalInitScriptDetails> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
     let resp: GlobalInitScriptDetails | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -162,7 +161,7 @@ export class GlobalInitScriptsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -177,7 +176,7 @@ export class GlobalInitScriptsClient {
   ): Promise<ListGlobalInitScriptsRequest_Response> {
     const url = `${this.host}/api/2.0/global-init-scripts`;
     let resp: ListGlobalInitScriptsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -196,7 +195,7 @@ export class GlobalInitScriptsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -215,7 +214,7 @@ export class GlobalInitScriptsClient {
       marshalUpdateGlobalInitScriptRequestSchema
     );
     let resp: UpdateGlobalInitScriptRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -234,7 +233,7 @@ export class GlobalInitScriptsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

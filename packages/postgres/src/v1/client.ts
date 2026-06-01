@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -146,7 +145,7 @@ export class PostgresClient {
   }
 
   /** Creates a new database branch in the project. */
-  async createBranch(
+  private async createBranch(
     req: CreateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -162,7 +161,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.branch, marshalBranchSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -184,7 +183,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -198,7 +197,7 @@ export class PostgresClient {
   }
 
   /** Register a Postgres database in the Unity Catalog. */
-  async createCatalog(
+  private async createCatalog(
     req: CreateCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -211,7 +210,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.catalog, marshalCatalogSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -233,7 +232,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -251,7 +250,7 @@ export class PostgresClient {
    *
    * Creates a database in the specified branch. A branch can have multiple databases.
    */
-  async createDatabase(
+  private async createDatabase(
     req: CreateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -264,7 +263,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.database, marshalDatabaseSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -286,7 +285,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -300,7 +299,7 @@ export class PostgresClient {
   }
 
   /** Creates a new compute endpoint in the branch. */
-  async createEndpoint(
+  private async createEndpoint(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -316,7 +315,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -338,7 +337,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -352,7 +351,7 @@ export class PostgresClient {
   }
 
   /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
-  async createProject(
+  private async createProject(
     req: CreateProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -365,7 +364,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.project, marshalProjectSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -387,7 +386,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -401,7 +400,7 @@ export class PostgresClient {
   }
 
   /** Creates a new Postgres role in the branch. */
-  async createRole(
+  private async createRole(
     req: CreateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -414,7 +413,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.role, marshalRoleSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -436,7 +435,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -450,7 +449,7 @@ export class PostgresClient {
   }
 
   /** Create a Synced Table. */
-  async createSyncedTable(
+  private async createSyncedTable(
     req: CreateSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -463,7 +462,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.syncedTable, marshalSyncedTableSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -485,7 +484,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -499,7 +498,7 @@ export class PostgresClient {
   }
 
   /** Deletes the specified database branch. */
-  async deleteBranch(
+  private async deleteBranch(
     req: DeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -511,7 +510,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -527,7 +526,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -541,13 +540,13 @@ export class PostgresClient {
   }
 
   /** Delete a Database Catalog. */
-  async deleteCatalog(
+  private async deleteCatalog(
     req: DeleteCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -563,7 +562,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -577,13 +576,13 @@ export class PostgresClient {
   }
 
   /** Delete a Database. */
-  async deleteDatabase(
+  private async deleteDatabase(
     req: DeleteDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -599,7 +598,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -613,13 +612,13 @@ export class PostgresClient {
   }
 
   /** Deletes the specified compute endpoint. */
-  async deleteEndpoint(
+  private async deleteEndpoint(
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -635,7 +634,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -649,7 +648,7 @@ export class PostgresClient {
   }
 
   /** Deletes the specified database project. */
-  async deleteProject(
+  private async deleteProject(
     req: DeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -661,7 +660,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -677,7 +676,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -691,7 +690,7 @@ export class PostgresClient {
   }
 
   /** Deletes the specified Postgres role. */
-  async deleteRole(
+  private async deleteRole(
     req: DeleteRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -703,7 +702,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -719,7 +718,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -733,13 +732,13 @@ export class PostgresClient {
   }
 
   /** Delete a Synced Table. */
-  async deleteSyncedTable(
+  private async deleteSyncedTable(
     req: DeleteSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -755,7 +754,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -779,7 +778,7 @@ export class PostgresClient {
       marshalGenerateDatabaseCredentialRequestSchema
     );
     let resp: DatabaseCredential | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -795,7 +794,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -807,7 +806,7 @@ export class PostgresClient {
   ): Promise<Branch> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Branch | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -823,7 +822,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -835,7 +834,7 @@ export class PostgresClient {
   ): Promise<Catalog> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Catalog | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -851,7 +850,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -863,7 +862,7 @@ export class PostgresClient {
   ): Promise<Database> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Database | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -879,7 +878,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -891,7 +890,7 @@ export class PostgresClient {
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -907,7 +906,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -919,7 +918,7 @@ export class PostgresClient {
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -935,7 +934,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -947,7 +946,7 @@ export class PostgresClient {
   ): Promise<Project> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Project | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -963,7 +962,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -972,7 +971,7 @@ export class PostgresClient {
   async getRole(req: GetRoleRequest, options?: CallOptions): Promise<Role> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Role | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -988,7 +987,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1000,7 +999,7 @@ export class PostgresClient {
   ): Promise<SyncedTable> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: SyncedTable | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1016,7 +1015,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1040,7 +1039,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListBranchesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1056,7 +1055,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1094,7 +1093,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDatabasesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1110,7 +1109,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1148,7 +1147,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListEndpointsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1164,7 +1163,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1205,7 +1204,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListProjectsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1221,7 +1220,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1259,7 +1258,7 @@ export class PostgresClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListRolesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1275,7 +1274,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1298,14 +1297,14 @@ export class PostgresClient {
   }
 
   /** Undeletes the specified database branch. */
-  async undeleteBranch(
+  private async undeleteBranch(
     req: UndeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
     const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1321,7 +1320,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1335,14 +1334,14 @@ export class PostgresClient {
   }
 
   /** Undeletes a soft-deleted project. */
-  async undeleteProject(
+  private async undeleteProject(
     req: UndeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
     const body = marshalRequest(req, marshalUndeleteProjectRequestSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1358,7 +1357,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1372,7 +1371,7 @@ export class PostgresClient {
   }
 
   /** Updates the specified database branch. You can set this branch as the project's default branch, or protect/unprotect it. */
-  async updateBranch(
+  private async updateBranch(
     req: UpdateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1385,7 +1384,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.branch, marshalBranchSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1407,7 +1406,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1421,7 +1420,7 @@ export class PostgresClient {
   }
 
   /** Update a Database. */
-  async updateDatabase(
+  private async updateDatabase(
     req: UpdateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1434,7 +1433,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.database, marshalDatabaseSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1456,7 +1455,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1470,7 +1469,7 @@ export class PostgresClient {
   }
 
   /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
-  async updateEndpoint(
+  private async updateEndpoint(
     req: UpdateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1483,7 +1482,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1505,7 +1504,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1519,7 +1518,7 @@ export class PostgresClient {
   }
 
   /** Updates the specified database project. */
-  async updateProject(
+  private async updateProject(
     req: UpdateProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1532,7 +1531,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.project, marshalProjectSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1554,7 +1553,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1568,7 +1567,7 @@ export class PostgresClient {
   }
 
   /** Update a role for a branch. */
-  async updateRole(
+  private async updateRole(
     req: UpdateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1581,7 +1580,7 @@ export class PostgresClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.role, marshalRoleSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1603,7 +1602,7 @@ export class PostgresClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1649,7 +1648,7 @@ export class CreateBranchOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Branch | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -1693,7 +1692,7 @@ export class CreateBranchOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1741,7 +1740,7 @@ export class CreateCatalogOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Catalog | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -1785,7 +1784,7 @@ export class CreateCatalogOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1833,7 +1832,7 @@ export class CreateDatabaseOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Database | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -1877,7 +1876,7 @@ export class CreateDatabaseOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1925,7 +1924,7 @@ export class CreateEndpointOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Endpoint | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -1969,7 +1968,7 @@ export class CreateEndpointOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -2017,7 +2016,7 @@ export class CreateProjectOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Project | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2061,7 +2060,7 @@ export class CreateProjectOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -2109,7 +2108,7 @@ export class CreateRoleOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Role | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2153,7 +2152,7 @@ export class CreateRoleOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -2201,7 +2200,7 @@ export class CreateSyncedTableOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: SyncedTable | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2247,7 +2246,7 @@ export class CreateSyncedTableOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -2294,7 +2293,7 @@ export class DeleteBranchOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2375,7 +2374,7 @@ export class DeleteCatalogOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2456,7 +2455,7 @@ export class DeleteDatabaseOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2537,7 +2536,7 @@ export class DeleteEndpointOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2618,7 +2617,7 @@ export class DeleteProjectOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2699,7 +2698,7 @@ export class DeleteRoleOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2780,7 +2779,7 @@ export class DeleteSyncedTableOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2861,7 +2860,7 @@ export class UndeleteBranchOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -2942,7 +2941,7 @@ export class UndeleteProjectOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -3024,7 +3023,7 @@ export class UpdateBranchOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Branch | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -3068,7 +3067,7 @@ export class UpdateBranchOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -3116,7 +3115,7 @@ export class UpdateDatabaseOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Database | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -3160,7 +3159,7 @@ export class UpdateDatabaseOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -3208,7 +3207,7 @@ export class UpdateEndpointOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Endpoint | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -3252,7 +3251,7 @@ export class UpdateEndpointOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -3300,7 +3299,7 @@ export class UpdateProjectOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Project | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -3344,7 +3343,7 @@ export class UpdateProjectOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -3392,7 +3391,7 @@ export class UpdateRoleOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Role | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
         {
           name: this.operation.name,
@@ -3436,7 +3435,7 @@ export class UpdateRoleOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

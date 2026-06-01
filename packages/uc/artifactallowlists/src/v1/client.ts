@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -72,7 +71,7 @@ export class ArtifactAllowlistsClient {
   ): Promise<ArtifactAllowlistInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
     let resp: ArtifactAllowlistInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -88,7 +87,7 @@ export class ArtifactAllowlistsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -106,7 +105,7 @@ export class ArtifactAllowlistsClient {
     const url = `${this.host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
     const body = marshalRequest(req, marshalSetArtifactAllowlistRequestSchema);
     let resp: ArtifactAllowlistInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -122,7 +121,7 @@ export class ArtifactAllowlistsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

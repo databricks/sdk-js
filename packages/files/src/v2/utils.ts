@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Options} from '@databricks/sdk-core/ops';
+import {execute} from '@databricks/sdk-core/ops';
 import {ApiError} from '@databricks/sdk-core/apierror';
 import type {
   HttpClient,
@@ -30,7 +30,7 @@ export interface HttpCallOptions {
  * API from the executor's internal type so they can diverge.
  */
 export async function executeCall(
-  call: Call,
+  call: (signal?: AbortSignal) => Promise<void>,
   options?: CallOptions
 ): Promise<void> {
   const opts: Options = {

@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -121,14 +120,14 @@ export class AppsClient {
   }
 
   /** Creates an app update and starts the update process. The update process is asynchronous and the status of the update can be checked with the GetAppUpdate method. */
-  async asyncUpdateApp(
+  private async asyncUpdateApp(
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AppUpdate> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/update`;
     const body = marshalRequest(req, marshalAsyncUpdateAppRequestSchema);
     let resp: AppUpdate | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -144,7 +143,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -161,7 +160,10 @@ export class AppsClient {
   }
 
   /** Creates a new app. */
-  async createApp(req: CreateAppRequest, options?: CallOptions): Promise<App> {
+  private async createApp(
+    req: CreateAppRequest,
+    options?: CallOptions
+  ): Promise<App> {
     const url = `${this.host}/api/2.0/apps`;
     const params = new URLSearchParams();
     if (req.noCompute !== undefined) {
@@ -171,7 +173,7 @@ export class AppsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.app, marshalAppSchema);
     let resp: App | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -193,7 +195,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -210,14 +212,14 @@ export class AppsClient {
   }
 
   /** Creates an app deployment for the app with the supplied name. */
-  async createAppDeployment(
+  private async createAppDeployment(
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
     const body = marshalRequest(req.appDeployment, marshalAppDeploymentSchema);
     let resp: AppDeployment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -233,7 +235,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -262,7 +264,7 @@ export class AppsClient {
     const url = `${this.host}/api/2.0/apps-settings/templates`;
     const body = marshalRequest(req.template, marshalCustomTemplateSchema);
     let resp: CustomTemplate | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -278,20 +280,20 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Creates a new app space. */
-  async createSpace(
+  private async createSpace(
     req: CreateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces`;
     const body = marshalRequest(req.space, marshalSpaceSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -307,7 +309,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -324,7 +326,7 @@ export class AppsClient {
   async deleteApp(req: DeleteAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}`;
     let resp: App | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -340,7 +342,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -351,7 +353,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -374,7 +376,7 @@ export class AppsClient {
   ): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
     let resp: CustomTemplate | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -390,19 +392,19 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Deletes an app space. */
-  async deleteSpace(
+  private async deleteSpace(
     req: DeleteSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -418,7 +420,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -435,7 +437,7 @@ export class AppsClient {
   async getApp(req: GetAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}`;
     let resp: App | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -451,7 +453,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -463,7 +465,7 @@ export class AppsClient {
   ): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments/${req.deploymentId ?? ''}`;
     let resp: AppDeployment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -479,7 +481,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -491,7 +493,7 @@ export class AppsClient {
   ): Promise<AppUpdate> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/update`;
     let resp: AppUpdate | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -507,7 +509,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -519,7 +521,7 @@ export class AppsClient {
   ): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
     let resp: CustomTemplate | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -535,7 +537,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -544,7 +546,7 @@ export class AppsClient {
   async getSpace(req: GetSpaceRequest, options?: CallOptions): Promise<Space> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}`;
     let resp: Space | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -560,7 +562,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -572,7 +574,7 @@ export class AppsClient {
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}/operation`;
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -588,7 +590,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -609,7 +611,7 @@ export class AppsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAppDeploymentsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -625,7 +627,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -666,7 +668,7 @@ export class AppsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAppsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -682,7 +684,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -720,7 +722,7 @@ export class AppsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListCustomTemplatesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -739,7 +741,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -777,7 +779,7 @@ export class AppsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListSpacesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -793,7 +795,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -816,11 +818,14 @@ export class AppsClient {
   }
 
   /** Start the last active deployment of the app in the workspace. */
-  async startApp(req: StartAppRequest, options?: CallOptions): Promise<App> {
+  private async startApp(
+    req: StartAppRequest,
+    options?: CallOptions
+  ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/start`;
     const body = marshalRequest(req, marshalStartAppRequestSchema);
     let resp: App | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -836,7 +841,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -853,11 +858,14 @@ export class AppsClient {
   }
 
   /** Stops the active deployment of the app in the workspace. */
-  async stopApp(req: StopAppRequest, options?: CallOptions): Promise<App> {
+  private async stopApp(
+    req: StopAppRequest,
+    options?: CallOptions
+  ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopAppRequestSchema);
     let resp: App | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -873,7 +881,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -894,7 +902,7 @@ export class AppsClient {
     const url = `${this.host}/api/2.0/apps/${req.app?.name ?? ''}`;
     const body = marshalRequest(req.app, marshalAppSchema);
     let resp: App | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -910,7 +918,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -923,7 +931,7 @@ export class AppsClient {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
     const body = marshalRequest(req, marshalUpdateAppThumbnailRequestSchema);
     let resp: AppThumbnail | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -939,7 +947,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -952,7 +960,7 @@ export class AppsClient {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.template?.name ?? ''}`;
     const body = marshalRequest(req.template, marshalCustomTemplateSchema);
     let resp: CustomTemplate | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -968,13 +976,13 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
-  async updateSpace(
+  private async updateSpace(
     req: UpdateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -987,7 +995,7 @@ export class AppsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.space, marshalSpaceSchema);
     let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1009,7 +1017,7 @@ export class AppsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1053,7 +1061,7 @@ export class CreateSpaceOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Space | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
         {
           name: this.operation.name,
@@ -1097,7 +1105,7 @@ export class CreateSpaceOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1142,7 +1150,7 @@ export class DeleteSpaceOperation {
   async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
         {
           name: this.operation.name,
@@ -1222,7 +1230,7 @@ export class UpdateSpaceOperation {
     const errStillRunning = new Error('operation still in progress');
     let result: Space | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
         {
           name: this.operation.name,
@@ -1266,7 +1274,7 @@ export class UpdateSpaceOperation {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1296,7 +1304,7 @@ export class AsyncUpdateAppWaiter {
   async wait(options?: CallOptions): Promise<AppUpdate> {
     let result: AppUpdate | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getAppUpdate(
         {
           appName: this.appName,
@@ -1331,7 +1339,7 @@ export class AsyncUpdateAppWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1374,7 +1382,7 @@ export class CreateAppWaiter {
   async wait(options?: CallOptions): Promise<App> {
     let result: App | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getApp(
         {
           name: this.name,
@@ -1410,7 +1418,7 @@ export class CreateAppWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1455,7 +1463,7 @@ export class CreateAppDeploymentWaiter {
   async wait(options?: CallOptions): Promise<AppDeployment> {
     let result: AppDeployment | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getAppDeployment(
         {
           deploymentId: this.deploymentId,
@@ -1491,7 +1499,7 @@ export class CreateAppDeploymentWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1535,7 +1543,7 @@ export class StartAppWaiter {
   async wait(options?: CallOptions): Promise<App> {
     let result: App | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getApp(
         {
           name: this.name,
@@ -1571,7 +1579,7 @@ export class StartAppWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1615,7 +1623,7 @@ export class StopAppWaiter {
   async wait(options?: CallOptions): Promise<App> {
     let result: App | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getApp(
         {
           name: this.name,
@@ -1650,7 +1658,7 @@ export class StopAppWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
