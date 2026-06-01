@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -94,7 +93,7 @@ export class DisasterRecoveryClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
     let resp: FailoverGroup | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -116,7 +115,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -138,7 +137,7 @@ export class DisasterRecoveryClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.stableUrl, marshalStableUrlSchema);
     let resp: StableUrl | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -160,7 +159,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -177,7 +176,7 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -199,7 +198,7 @@ export class DisasterRecoveryClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -223,7 +222,7 @@ export class DisasterRecoveryClient {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}/failover`;
     const body = marshalRequest(req, marshalFailoverFailoverGroupRequestSchema);
     let resp: FailoverGroup | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -239,7 +238,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -251,7 +250,7 @@ export class DisasterRecoveryClient {
   ): Promise<FailoverGroup> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     let resp: FailoverGroup | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -267,7 +266,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -279,7 +278,7 @@ export class DisasterRecoveryClient {
   ): Promise<StableUrl> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     let resp: StableUrl | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -295,7 +294,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -316,7 +315,7 @@ export class DisasterRecoveryClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListFailoverGroupsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -332,7 +331,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -370,7 +369,7 @@ export class DisasterRecoveryClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListStableUrlsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -386,7 +385,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -422,7 +421,7 @@ export class DisasterRecoveryClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
     let resp: FailoverGroup | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -444,7 +443,7 @@ export class DisasterRecoveryClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

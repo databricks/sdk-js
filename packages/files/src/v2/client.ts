@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -132,7 +131,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/add-block`;
     const body = marshalRequest(req, marshalAddBlockRequestSchema);
     let resp: AddBlockRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -148,7 +147,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -164,7 +163,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/close`;
     const body = marshalRequest(req, marshalCloseRequestSchema);
     let resp: CloseRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -180,7 +179,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -203,7 +202,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/create`;
     const body = marshalRequest(req, marshalCreateRequestSchema);
     let resp: CreateRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -219,7 +218,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -247,7 +246,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/delete`;
     const body = marshalRequest(req, marshalDeleteRequestSchema);
     let resp: DeleteRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -263,7 +262,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -284,7 +283,7 @@ export class FilesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetStatusRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -300,7 +299,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -328,7 +327,7 @@ export class FilesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListStatusRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -344,7 +343,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -361,7 +360,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/mkdirs`;
     const body = marshalRequest(req, marshalMkDirsRequestSchema);
     let resp: MkDirsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -377,7 +376,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -395,7 +394,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/move`;
     const body = marshalRequest(req, marshalMoveRequestSchema);
     let resp: MoveRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -411,7 +410,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -435,7 +434,7 @@ export class FilesClient {
     const url = `${this.host}/api/2.0/dbfs/put`;
     const body = marshalRequest(req, marshalPutRequestSchema);
     let resp: PutRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -451,7 +450,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -482,7 +481,7 @@ export class FilesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ReadRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -498,7 +497,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -515,7 +514,7 @@ export class FilesClient {
   ): Promise<CreateDirectoryResponse> {
     const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     let resp: CreateDirectoryResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -531,7 +530,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -548,7 +547,7 @@ export class FilesClient {
   ): Promise<DeleteDirectoryResponse> {
     const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     let resp: DeleteDirectoryResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -564,7 +563,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -576,7 +575,7 @@ export class FilesClient {
   ): Promise<DeleteFileResponse> {
     const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: DeleteFileResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -592,7 +591,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -608,7 +607,7 @@ export class FilesClient {
   ): Promise<DownloadFileResponse> {
     const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: DownloadFileResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (req.range !== undefined) {
         headers.set('Range', req.range);
@@ -639,7 +638,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -660,7 +659,7 @@ export class FilesClient {
   ): Promise<GetDirectoryMetadataResponse> {
     const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     let resp: GetDirectoryMetadataResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -679,7 +678,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -694,7 +693,7 @@ export class FilesClient {
   ): Promise<GetFileMetadataResponse> {
     const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: GetFileMetadataResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (req.range !== undefined) {
         headers.set('Range', req.range);
@@ -716,7 +715,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -740,7 +739,7 @@ export class FilesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDirectoryResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -756,7 +755,7 @@ export class FilesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -78,7 +77,7 @@ export class AlertsClient {
     const url = `${this.host}/api/2.0/sql/alerts`;
     const body = marshalRequest(req, marshalCreateAlertRequestSchema);
     let resp: Alert | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -94,7 +93,7 @@ export class AlertsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -103,7 +102,7 @@ export class AlertsClient {
   async getAlert(req: GetAlertRequest, options?: CallOptions): Promise<Alert> {
     const url = `${this.host}/api/2.0/sql/alerts/${req.id ?? ''}`;
     let resp: Alert | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -119,7 +118,7 @@ export class AlertsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -140,7 +139,7 @@ export class AlertsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAlertsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -156,7 +155,7 @@ export class AlertsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -185,7 +184,7 @@ export class AlertsClient {
   ): Promise<Empty> {
     const url = `${this.host}/api/2.0/sql/alerts/${req.id ?? ''}`;
     let resp: Empty | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -201,7 +200,7 @@ export class AlertsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -214,7 +213,7 @@ export class AlertsClient {
     const url = `${this.host}/api/2.0/sql/alerts/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAlertRequestSchema);
     let resp: Alert | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -230,7 +229,7 @@ export class AlertsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

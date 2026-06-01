@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -199,7 +198,7 @@ export class NetworkingClient {
       marshalCreateAccountIpAccessListRequestSchema
     );
     let resp: CreateAccountIpAccessListRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -215,7 +214,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -227,7 +226,7 @@ export class NetworkingClient {
   ): Promise<DeleteAccountIpAccessListRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
     let resp: DeleteAccountIpAccessListRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -243,7 +242,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -255,7 +254,7 @@ export class NetworkingClient {
   ): Promise<GetAccountIpAccessListRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
     let resp: GetAccountIpAccessListRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -271,7 +270,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -283,7 +282,7 @@ export class NetworkingClient {
   ): Promise<ListAccountIpAccessListsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
     let resp: ListAccountIpAccessListsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -299,7 +298,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -327,7 +326,7 @@ export class NetworkingClient {
       marshalReplaceAccountIpAccessListRequestSchema
     );
     let resp: ReplaceAccountIpAccessListRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -343,7 +342,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -374,7 +373,7 @@ export class NetworkingClient {
       marshalUpdateAccountIpAccessListRequestSchema
     );
     let resp: UpdateAccountIpAccessListRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
@@ -390,7 +389,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -412,7 +411,7 @@ export class NetworkingClient {
     const url = `${this.host}/api/networking/v1/${req.parent ?? ''}/endpoints`;
     const body = marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Endpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -428,7 +427,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -443,7 +442,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/networking/v1/${req.name ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -466,7 +465,7 @@ export class NetworkingClient {
   ): Promise<Endpoint> {
     const url = `${this.host}/api/networking/v1/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -482,7 +481,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -503,7 +502,7 @@ export class NetworkingClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListEndpointsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -519,7 +518,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -562,7 +561,7 @@ export class NetworkingClient {
     const url = `${this.host}/api/2.0/ip-access-lists`;
     const body = marshalRequest(req, marshalCreateIpAccessListSchema);
     let resp: CreateIpAccessList_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -581,7 +580,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -593,7 +592,7 @@ export class NetworkingClient {
   ): Promise<DeleteIpAccessList_Response> {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     let resp: DeleteIpAccessList_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -612,7 +611,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -624,7 +623,7 @@ export class NetworkingClient {
   ): Promise<GetIpAccessList_Response> {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     let resp: GetIpAccessList_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -640,7 +639,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -652,7 +651,7 @@ export class NetworkingClient {
   ): Promise<ListIpAccessLists_Response> {
     const url = `${this.host}/api/2.0/ip-access-lists`;
     let resp: ListIpAccessLists_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -668,7 +667,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -694,7 +693,7 @@ export class NetworkingClient {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(req, marshalReplaceIpAccessListSchema);
     let resp: ReplaceIpAccessList_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -713,7 +712,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -740,7 +739,7 @@ export class NetworkingClient {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateIpAccessListSchema);
     let resp: UpdateIpAccessList_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -759,7 +758,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -785,7 +784,7 @@ export class NetworkingClient {
       marshalCreateNetworkConnectivityConfigurationSchema
     );
     let resp: CustomerFacingNetworkConnectivityConfig | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -801,7 +800,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -812,7 +811,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -832,7 +831,7 @@ export class NetworkingClient {
   ): Promise<CustomerFacingNetworkConnectivityConfig> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
     let resp: CustomerFacingNetworkConnectivityConfig | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -848,7 +847,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -866,7 +865,7 @@ export class NetworkingClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListNetworkConnectivityConfigsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -882,7 +881,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -926,7 +925,7 @@ export class NetworkingClient {
       marshalCreatePrivateEndpointRuleSchema
     );
     let resp: NccPrivateEndpointRule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -939,7 +938,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -957,7 +956,7 @@ export class NetworkingClient {
   ): Promise<NccPrivateEndpointRule> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules/${req.privateEndpointRuleId ?? ''}`;
     let resp: NccPrivateEndpointRule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -970,7 +969,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -982,7 +981,7 @@ export class NetworkingClient {
   ): Promise<NccPrivateEndpointRule> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules/${req.privateEndpointRuleId ?? ''}`;
     let resp: NccPrivateEndpointRule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -995,7 +994,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1013,7 +1012,7 @@ export class NetworkingClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListNccPrivateEndpointRulesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -1029,7 +1028,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1068,7 +1067,7 @@ export class NetworkingClient {
       marshalUpdatePrivateEndpointRuleSchema
     );
     let resp: NccPrivateEndpointRule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -1087,7 +1086,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1106,7 +1105,7 @@ export class NetworkingClient {
       marshalAccountNetworkPolicySchema
     );
     let resp: AccountNetworkPolicy | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -1119,7 +1118,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1130,7 +1129,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-policies/${req.networkPolicyId ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -1150,7 +1149,7 @@ export class NetworkingClient {
   ): Promise<AccountNetworkPolicy> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-policies/${req.networkPolicyId ?? ''}`;
     let resp: AccountNetworkPolicy | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1163,7 +1162,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1181,7 +1180,7 @@ export class NetworkingClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListNetworkPoliciesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -1197,7 +1196,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1230,7 +1229,7 @@ export class NetworkingClient {
       marshalAccountNetworkPolicySchema
     );
     let resp: AccountNetworkPolicy | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -1243,7 +1242,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1256,7 +1255,7 @@ export class NetworkingClient {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks`;
     const body = marshalRequest(req, marshalCreateNetworkRequestSchema);
     let resp: Network | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -1269,7 +1268,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1290,7 +1289,7 @@ export class NetworkingClient {
       marshalCreatePrivateAccessSettingsRequestSchema
     );
     let resp: CustomerFacingPrivateAccessSettings | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -1306,7 +1305,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1331,7 +1330,7 @@ export class NetworkingClient {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints`;
     const body = marshalRequest(req, marshalCreateVpcEndpointRequestSchema);
     let resp: CustomerFacingVpcEndpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -1344,7 +1343,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1360,7 +1359,7 @@ export class NetworkingClient {
   ): Promise<Network> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks/${req.networkId ?? ''}`;
     let resp: Network | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -1373,7 +1372,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1385,7 +1384,7 @@ export class NetworkingClient {
   ): Promise<CustomerFacingPrivateAccessSettings> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
     let resp: CustomerFacingPrivateAccessSettings | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -1401,7 +1400,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1413,7 +1412,7 @@ export class NetworkingClient {
   ): Promise<CustomerFacingVpcEndpoint> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
     let resp: CustomerFacingVpcEndpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -1426,7 +1425,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1438,7 +1437,7 @@ export class NetworkingClient {
   ): Promise<Network> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks/${req.networkId ?? ''}`;
     let resp: Network | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1451,7 +1450,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1463,7 +1462,7 @@ export class NetworkingClient {
   ): Promise<CustomerFacingPrivateAccessSettings> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
     let resp: CustomerFacingPrivateAccessSettings | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1479,7 +1478,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1496,7 +1495,7 @@ export class NetworkingClient {
   ): Promise<CustomerFacingVpcEndpoint> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
     let resp: CustomerFacingVpcEndpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1509,7 +1508,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1521,7 +1520,7 @@ export class NetworkingClient {
   ): Promise<ListNetworkResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks`;
     let resp: ListNetworkResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1539,7 +1538,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1551,7 +1550,7 @@ export class NetworkingClient {
   ): Promise<ListPrivateAccessSettingsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings`;
     let resp: ListPrivateAccessSettingsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1571,7 +1570,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1583,7 +1582,7 @@ export class NetworkingClient {
   ): Promise<ListVpcEndpointResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints`;
     let resp: ListVpcEndpointResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1601,7 +1600,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1622,7 +1621,7 @@ export class NetworkingClient {
       marshalCustomerFacingPrivateAccessSettingsSchema
     );
     let resp: CustomerFacingPrivateAccessSettings | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -1638,7 +1637,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1653,7 +1652,7 @@ export class NetworkingClient {
   ): Promise<WorkspaceNetworkOption> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/network`;
     let resp: WorkspaceNetworkOption | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -1666,7 +1665,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1685,7 +1684,7 @@ export class NetworkingClient {
       marshalWorkspaceNetworkOptionSchema
     );
     let resp: WorkspaceNetworkOption | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -1698,7 +1697,7 @@ export class NetworkingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

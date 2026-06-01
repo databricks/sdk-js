@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -119,14 +118,14 @@ export class VectorSearchClient {
   }
 
   /** Create a new endpoint. */
-  async createEndpoint(
+  private async createEndpoint(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints`;
     const body = marshalRequest(req, marshalCreateEndpointRequestSchema);
     let resp: Endpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -142,7 +141,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -166,7 +165,7 @@ export class VectorSearchClient {
     const url = `${this.host}/api/2.0/vector-search/indexes`;
     const body = marshalRequest(req, marshalCreateVectorIndexRequestSchema);
     let resp: VectorIndex | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -182,7 +181,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -200,7 +199,7 @@ export class VectorSearchClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DeleteDataVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -219,7 +218,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -231,7 +230,7 @@ export class VectorSearchClient {
   ): Promise<DeleteEndpointResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: DeleteEndpointResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -247,7 +246,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -259,7 +258,7 @@ export class VectorSearchClient {
   ): Promise<DeleteVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     let resp: DeleteVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -275,7 +274,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -287,7 +286,7 @@ export class VectorSearchClient {
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -303,7 +302,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -324,7 +323,7 @@ export class VectorSearchClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: VectorIndex | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -340,7 +339,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -358,7 +357,7 @@ export class VectorSearchClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListEndpointResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -374,7 +373,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -412,7 +411,7 @@ export class VectorSearchClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -428,7 +427,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -458,7 +457,7 @@ export class VectorSearchClient {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalPatchEndpointRequestSchema);
     let resp: Endpoint | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -474,7 +473,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -490,7 +489,7 @@ export class VectorSearchClient {
       marshalPatchEndpointBudgetPolicyRequestSchema
     );
     let resp: PatchEndpointBudgetPolicyResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -509,7 +508,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -522,7 +521,7 @@ export class VectorSearchClient {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query`;
     const body = marshalRequest(req, marshalQueryVectorIndexRequestSchema);
     let resp: QueryVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -538,7 +537,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -554,7 +553,7 @@ export class VectorSearchClient {
       marshalQueryVectorIndexNextPageRequestSchema
     );
     let resp: QueryVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -570,7 +569,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -586,7 +585,7 @@ export class VectorSearchClient {
       marshalRetrieveUserVisibleMetricsRequestSchema
     );
     let resp: RetrieveUserVisibleMetricsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -605,7 +604,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -618,7 +617,7 @@ export class VectorSearchClient {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/scan`;
     const body = marshalRequest(req, marshalScanVectorIndexRequestSchema);
     let resp: ScanVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -634,7 +633,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -647,7 +646,7 @@ export class VectorSearchClient {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/sync`;
     const body = marshalRequest(req, marshalSyncVectorIndexRequestSchema);
     let resp: SyncVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -663,7 +662,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -679,7 +678,7 @@ export class VectorSearchClient {
       marshalUpdateEndpointCustomTagsRequestSchema
     );
     let resp: UpdateEndpointCustomTagsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -698,7 +697,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -711,7 +710,7 @@ export class VectorSearchClient {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/upsert-data`;
     const body = marshalRequest(req, marshalUpsertDataVectorIndexRequestSchema);
     let resp: UpsertDataVectorIndexResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -730,7 +729,7 @@ export class VectorSearchClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -750,7 +749,7 @@ export class CreateEndpointWaiter {
   async wait(options?: CallOptions): Promise<Endpoint> {
     let result: Endpoint | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getEndpoint(
         {
           name: this.name,
@@ -785,7 +784,7 @@ export class CreateEndpointWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

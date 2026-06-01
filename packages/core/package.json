@@ -44,9 +44,9 @@
       "types": "./dist/logger/index.d.ts",
       "import": "./dist/logger/index.js"
     },
-    "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.js"
+    "./ops": {
+      "types": "./dist/ops/index.d.ts",
+      "import": "./dist/ops/index.js"
     },
     "./apierror": {
       "types": "./dist/apierror/index.d.ts",

@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -79,7 +78,7 @@ export class AbacPoliciesClient {
     const url = `${this.host}/api/2.1/unity-catalog/policies`;
     const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
     let resp: PolicyInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -95,7 +94,7 @@ export class AbacPoliciesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -107,7 +106,7 @@ export class AbacPoliciesClient {
   ): Promise<DeletePolicyRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: DeletePolicyRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -126,7 +125,7 @@ export class AbacPoliciesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -138,7 +137,7 @@ export class AbacPoliciesClient {
   ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: PolicyInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -154,7 +153,7 @@ export class AbacPoliciesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -184,7 +183,7 @@ export class AbacPoliciesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListPoliciesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -203,7 +202,7 @@ export class AbacPoliciesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -239,7 +238,7 @@ export class AbacPoliciesClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
     let resp: PolicyInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -261,7 +260,7 @@ export class AbacPoliciesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

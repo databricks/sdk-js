@@ -1,9 +1,8 @@
 import {describe, it, expect, vi} from 'vitest';
-import {execute, sleep} from '../../src/api/execute';
-import type {Call} from '../../src/api/execute';
-import type {Retrier} from '../../src/api/retrier';
-import type {Limiter} from '../../src/api/limiter';
-import type {Options} from '../../src/api/options';
+import {execute, sleep} from '../../src/ops/execute';
+import type {Retrier} from '../../src/ops/retrier';
+import type {Limiter} from '../../src/ops/limiter';
+import type {Options} from '../../src/ops/options';
 
 describe('execute retries', () => {
   const retriableError = new Error('retriable error');
@@ -62,7 +61,7 @@ describe('execute retries', () => {
     '$name',
     async ({callErrors, options, wantErr, wantCallCount}) => {
       let gotCallCount = 0;
-      const call: Call = () => {
+      const call = (): Promise<void> => {
         const err = callErrors[gotCallCount];
         gotCallCount++;
         if (err) {
@@ -132,7 +131,7 @@ describe('execute timeout', () => {
     async ({ctxTimeout, optTimeout, callDelay, wantTimeout}) => {
       // Cancellable call that succeeds after the call delay or throws the
       // abort reason if the signal is aborted.
-      const call: Call = async (signal?: AbortSignal) => {
+      const call = async (signal?: AbortSignal): Promise<void> => {
         await sleep(callDelay, signal);
       };
 
@@ -192,7 +191,7 @@ describe('execute rate limiting', () => {
 
   it.each(testCases)('$name', async ({limiter, wantErr, wantCalls}) => {
     let gotCalls = 0;
-    const call: Call = () => {
+    const call = (): Promise<void> => {
       gotCalls++;
       return Promise.resolve();
     };
@@ -234,7 +233,7 @@ describe('sleep listener cleanup', () => {
 describe('execute context cancellation', () => {
   it('should stop retrying when the signal is aborted', async () => {
     const testErr = new Error('test error');
-    const call: Call = () => Promise.reject(testErr); // Always fail.
+    const call = (): Promise<void> => Promise.reject(testErr); // Always fail.
     const retrier: Retrier = {
       isRetriable(): number | undefined {
         return 5; // Always retry after 5ms.

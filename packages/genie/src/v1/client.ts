@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -138,7 +137,7 @@ export class GenieClient {
     const url = `${this.host}/api/2.0/genie/spaces`;
     const body = marshalRequest(req, marshalGenieCreateSpaceRequestSchema);
     let resp: GenieSpace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -154,7 +153,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -163,7 +162,7 @@ export class GenieClient {
    * Create new message in a [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
    */
-  async genieCreateConversationMessage(
+  private async genieCreateConversationMessage(
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
@@ -173,7 +172,7 @@ export class GenieClient {
       marshalGenieCreateConversationMessageRequestSchema
     );
     let resp: GenieMessage | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -189,7 +188,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -228,7 +227,7 @@ export class GenieClient {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs`;
     const body = marshalRequest(req, marshalGenieCreateEvalRunRequestSchema);
     let resp: GenieEvalRunResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -244,7 +243,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -260,7 +259,7 @@ export class GenieClient {
       marshalGenieCreateMessageCommentRequestSchema
     );
     let resp: GenieMessageComment | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -276,7 +275,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -287,7 +286,7 @@ export class GenieClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -309,7 +308,7 @@ export class GenieClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -336,7 +335,7 @@ export class GenieClient {
       marshalGenieExecuteMessageAttachmentQueryRequestSchema
     );
     let resp: GenieGetMessageQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -355,7 +354,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -371,7 +370,7 @@ export class GenieClient {
       marshalGenieExecuteMessageQueryRequestSchema
     );
     let resp: GenieGetMessageQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -390,7 +389,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -430,7 +429,7 @@ export class GenieClient {
       marshalGenieGenerateDownloadFullQueryResultRequestSchema
     );
     let resp: GenieGenerateDownloadFullQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -449,7 +448,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -461,7 +460,7 @@ export class GenieClient {
   ): Promise<GenieMessage> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}`;
     let resp: GenieMessage | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -477,7 +476,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -519,7 +518,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieGetDownloadFullQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -538,7 +537,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -550,7 +549,7 @@ export class GenieClient {
   ): Promise<GenieEvalResultDetails> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}/results/${req.resultId ?? ''}`;
     let resp: GenieEvalResultDetails | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -566,7 +565,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -578,7 +577,7 @@ export class GenieClient {
   ): Promise<GenieEvalRunResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}`;
     let resp: GenieEvalRunResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -594,7 +593,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -609,7 +608,7 @@ export class GenieClient {
   ): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/query-result`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -628,7 +627,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -640,7 +639,7 @@ export class GenieClient {
   ): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/query-result`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -659,7 +658,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -671,7 +670,7 @@ export class GenieClient {
   ): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/query-result/${req.attachmentId ?? ''}`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -690,7 +689,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -711,7 +710,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieSpace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -727,7 +726,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -748,7 +747,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListConversationCommentsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -767,7 +766,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -788,7 +787,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListConversationMessagesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -807,7 +806,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -831,7 +830,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListConversationsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -850,7 +849,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -871,7 +870,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListEvalResultsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -890,7 +889,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -911,7 +910,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListEvalRunsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -927,7 +926,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -948,7 +947,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListMessageCommentsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -967,7 +966,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -988,7 +987,7 @@ export class GenieClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListSpacesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1004,7 +1003,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1019,7 +1018,7 @@ export class GenieClient {
       req,
       marshalGenieSendMessageFeedbackRequestSchema
     );
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1036,7 +1035,7 @@ export class GenieClient {
   }
 
   /** Start a new conversation. */
-  async genieStartConversation(
+  private async genieStartConversation(
     req: GenieStartConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationResponse> {
@@ -1046,7 +1045,7 @@ export class GenieClient {
       marshalGenieStartConversationMessageRequestSchema
     );
     let resp: GenieStartConversationResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1065,7 +1064,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1102,7 +1101,7 @@ export class GenieClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1126,7 +1125,7 @@ export class GenieClient {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
     const body = marshalRequest(req, marshalGenieUpdateSpaceRequestSchema);
     let resp: GenieSpace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1142,7 +1141,7 @@ export class GenieClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1164,7 +1163,7 @@ export class GenieCreateConversationMessageWaiter {
   async wait(options?: CallOptions): Promise<GenieMessage> {
     let result: GenieMessage | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.genieGetConversationMessage(
         {
           messageId: this.messageId,
@@ -1201,7 +1200,7 @@ export class GenieCreateConversationMessageWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1248,7 +1247,7 @@ export class GenieStartConversationWaiter {
   async wait(options?: CallOptions): Promise<GenieMessage> {
     let result: GenieMessage | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.genieGetConversationMessage(
         {
           messageId: this.messageId,
@@ -1285,7 +1284,7 @@ export class GenieStartConversationWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

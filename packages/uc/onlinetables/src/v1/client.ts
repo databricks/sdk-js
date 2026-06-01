@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -67,14 +66,14 @@ export class OnlineTablesClient {
   }
 
   /** Create a new Online Table. */
-  async createOnlineTable(
+  private async createOnlineTable(
     req: CreateOnlineTableRequest,
     options?: CallOptions
   ): Promise<OnlineTable> {
     const url = `${this.host}/api/2.0/online-tables`;
     const body = marshalRequest(req.table, marshalOnlineTableSchema);
     let resp: OnlineTable | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -90,7 +89,7 @@ export class OnlineTablesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -116,7 +115,7 @@ export class OnlineTablesClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/online-tables/${req.name ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -139,7 +138,7 @@ export class OnlineTablesClient {
   ): Promise<OnlineTable> {
     const url = `${this.host}/api/2.0/online-tables/${req.name ?? ''}`;
     let resp: OnlineTable | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -155,7 +154,7 @@ export class OnlineTablesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -175,7 +174,7 @@ export class CreateOnlineTableWaiter {
   async wait(options?: CallOptions): Promise<OnlineTable> {
     let result: OnlineTable | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getOnlineTable(
         {
           name: this.name,
@@ -210,7 +209,7 @@ export class CreateOnlineTableWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

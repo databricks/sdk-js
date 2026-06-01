@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -147,7 +146,7 @@ export class JobsClient {
       marshalEnforcePolicyComplianceForJobSchema
     );
     let resp: EnforcePolicyComplianceForJob_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -166,7 +165,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -189,7 +188,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetPolicyComplianceForJob_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -208,7 +207,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -237,7 +236,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListJobComplianceForPolicy_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -256,7 +255,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -289,7 +288,7 @@ export class JobsClient {
     const url = `${this.host}/api/2.2/jobs/runs/cancel-all`;
     const body = marshalRequest(req, marshalCancelAllRunsRequestSchema);
     let resp: CancelAllRunsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -308,7 +307,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -317,14 +316,14 @@ export class JobsClient {
    * Cancels a job run or a task run. The run is canceled asynchronously, so it may still be running when
    * this request completes.
    */
-  async cancelRun(
+  private async cancelRun(
     req: CancelRunRequest,
     options?: CallOptions
   ): Promise<CancelRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel`;
     const body = marshalRequest(req, marshalCancelRunRequestSchema);
     let resp: CancelRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -340,7 +339,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -364,7 +363,7 @@ export class JobsClient {
     const url = `${this.host}/api/2.2/jobs/create`;
     const body = marshalRequest(req, marshalCreateJobRequestSchema);
     let resp: CreateJobRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -380,7 +379,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -393,7 +392,7 @@ export class JobsClient {
     const url = `${this.host}/api/2.2/jobs/delete`;
     const body = marshalRequest(req, marshalDeleteJobRequestSchema);
     let resp: DeleteJobRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -409,7 +408,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -422,7 +421,7 @@ export class JobsClient {
     const url = `${this.host}/api/2.2/jobs/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
     let resp: DeleteRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -438,7 +437,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -459,7 +458,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ExportRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -475,7 +474,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -506,7 +505,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetJobRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -522,7 +521,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -559,7 +558,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -575,7 +574,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -603,7 +602,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetRunOutputRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -622,7 +621,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -652,7 +651,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListJobsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -668,7 +667,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -733,7 +732,7 @@ export class JobsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListRunsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -749,7 +748,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -776,14 +775,14 @@ export class JobsClient {
    * They use the current job and task settings, and can be viewed in the history for the
    * original job run.
    */
-  async repair(
+  private async repair(
     req: RepairRunRequest,
     options?: CallOptions
   ): Promise<RepairRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/repair`;
     const body = marshalRequest(req, marshalRepairRunRequestSchema);
     let resp: RepairRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -799,7 +798,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -823,7 +822,7 @@ export class JobsClient {
     const url = `${this.host}/api/2.2/jobs/reset`;
     const body = marshalRequest(req, marshalResetJobRequestSchema);
     let resp: ResetJobRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -839,20 +838,20 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Run a job and return the `run_id` of the triggered run. */
-  async runNow(
+  private async runNow(
     req: RunNowRequest,
     options?: CallOptions
   ): Promise<RunNowRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowRequestSchema);
     let resp: RunNowRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -868,7 +867,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -897,14 +896,14 @@ export class JobsClient {
    * the compute needs for the job. Alternatively, use the `POST /jobs/create` and
    * `POST /jobs/run-now` endpoints to create and run a saved job.
    */
-  async submitRun(
+  private async submitRun(
     req: SubmitRunRequest,
     options?: CallOptions
   ): Promise<SubmitRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/submit`;
     const body = marshalRequest(req, marshalSubmitRunRequestSchema);
     let resp: SubmitRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -920,7 +919,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -944,7 +943,7 @@ export class JobsClient {
     const url = `${this.host}/api/2.2/jobs/update`;
     const body = marshalRequest(req, marshalUpdateJobRequestSchema);
     let resp: UpdateJobRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -960,7 +959,7 @@ export class JobsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -980,7 +979,7 @@ export class CancelRunWaiter {
   async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
     let result: GetRunRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
         {
           runId: this.runId,
@@ -1016,7 +1015,7 @@ export class CancelRunWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1060,7 +1059,7 @@ export class RepairWaiter {
   async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
     let result: GetRunRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
         {
           runId: this.runId,
@@ -1096,7 +1095,7 @@ export class RepairWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1140,7 +1139,7 @@ export class RunNowWaiter {
   async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
     let result: GetRunRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
         {
           runId: this.runId,
@@ -1176,7 +1175,7 @@ export class RunNowWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -1220,7 +1219,7 @@ export class SubmitRunWaiter {
   async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
     let result: GetRunRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
         {
           runId: this.runId,
@@ -1256,7 +1255,7 @@ export class SubmitRunWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

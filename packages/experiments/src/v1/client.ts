@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -208,7 +207,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/experiments/create`;
     const body = marshalRequest(req, marshalCreateExperimentRequestSchema);
     let resp: CreateExperimentRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -227,7 +226,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -240,7 +239,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/logged-models`;
     const body = marshalRequest(req, marshalCreateLoggedModelRequestSchema);
     let resp: CreateLoggedModelRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -259,7 +258,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -276,7 +275,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/create`;
     const body = marshalRequest(req, marshalCreateRunRequestSchema);
     let resp: CreateRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -292,7 +291,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -308,7 +307,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/experiments/delete`;
     const body = marshalRequest(req, marshalDeleteExperimentRequestSchema);
     let resp: DeleteExperimentRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -327,7 +326,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -339,7 +338,7 @@ export class ExperimentsClient {
   ): Promise<DeleteLoggedModelRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     let resp: DeleteLoggedModelRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -358,7 +357,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -370,7 +369,7 @@ export class ExperimentsClient {
   ): Promise<DeleteLoggedModelTagRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: DeleteLoggedModelTagRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -389,7 +388,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -402,7 +401,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
     let resp: DeleteRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -418,7 +417,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -434,7 +433,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/databricks/runs/delete-runs`;
     const body = marshalRequest(req, marshalDeleteRunsRequestSchema);
     let resp: DeleteRunsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -450,7 +449,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -466,7 +465,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/delete-tag`;
     const body = marshalRequest(req, marshalDeleteTagRequestSchema);
     let resp: DeleteTagRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -482,7 +481,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -495,7 +494,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     const body = marshalRequest(req, marshalFinalizeLoggedModelRequestSchema);
     let resp: FinalizeLoggedModelRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -514,7 +513,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -532,7 +531,7 @@ export class ExperimentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetExperimentRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -551,7 +550,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -577,7 +576,7 @@ export class ExperimentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetExperimentByNameRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -596,7 +595,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -608,7 +607,7 @@ export class ExperimentsClient {
   ): Promise<GetLoggedModelRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     let resp: GetLoggedModelRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -627,7 +626,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -653,7 +652,7 @@ export class ExperimentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -669,7 +668,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -702,7 +701,7 @@ export class ExperimentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListArtifactsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -721,7 +720,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -762,7 +761,7 @@ export class ExperimentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListExperimentsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -781,7 +780,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -828,7 +827,7 @@ export class ExperimentsClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListMetricHistoryRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -847,7 +846,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -918,7 +917,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/log-batch`;
     const body = marshalRequest(req, marshalLogBatchRequestSchema);
     let resp: LogBatchRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -934,7 +933,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -947,7 +946,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/log-inputs`;
     const body = marshalRequest(req, marshalLogInputsRequestSchema);
     let resp: LogInputsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -963,7 +962,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -980,7 +979,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/params`;
     const body = marshalRequest(req, marshalLogLoggedModelParamsRequestSchema);
     let resp: LogLoggedModelParamsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -999,7 +998,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1016,7 +1015,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/log-metric`;
     const body = marshalRequest(req, marshalLogMetricRequestSchema);
     let resp: LogMetricRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1032,7 +1031,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1049,7 +1048,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/log-model`;
     const body = marshalRequest(req, marshalLogModelRequestSchema);
     let resp: LogModelRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1065,7 +1064,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1078,7 +1077,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/outputs`;
     const body = marshalRequest(req, marshalLogOutputsRequestSchema);
     let resp: LogOutputsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1094,7 +1093,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1111,7 +1110,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/log-parameter`;
     const body = marshalRequest(req, marshalLogParamRequestSchema);
     let resp: LogParamRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1127,7 +1126,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1146,7 +1145,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/experiments/restore`;
     const body = marshalRequest(req, marshalRestoreExperimentRequestSchema);
     let resp: RestoreExperimentRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1165,7 +1164,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1182,7 +1181,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/restore`;
     const body = marshalRequest(req, marshalRestoreRunRequestSchema);
     let resp: RestoreRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1198,7 +1197,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1214,7 +1213,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/databricks/runs/restore-runs`;
     const body = marshalRequest(req, marshalRestoreRunsRequestSchema);
     let resp: RestoreRunsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1233,7 +1232,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1246,7 +1245,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/experiments/search`;
     const body = marshalRequest(req, marshalSearchExperimentsRequestSchema);
     let resp: SearchExperimentsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1265,7 +1264,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1295,7 +1294,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/logged-models/search`;
     const body = marshalRequest(req, marshalSearchLoggedModelsRequestSchema);
     let resp: SearchLoggedModelsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1314,7 +1313,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1331,7 +1330,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/search`;
     const body = marshalRequest(req, marshalSearchRunsRequestSchema);
     let resp: SearchRunsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1347,7 +1346,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1377,7 +1376,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/experiments/set-experiment-tag`;
     const body = marshalRequest(req, marshalSetExperimentTagRequestSchema);
     let resp: SetExperimentTagRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1396,7 +1395,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1409,7 +1408,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags`;
     const body = marshalRequest(req, marshalSetLoggedModelTagsRequestSchema);
     let resp: SetLoggedModelTagsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1428,7 +1427,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1444,7 +1443,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/set-tag`;
     const body = marshalRequest(req, marshalSetTagRequestSchema);
     let resp: SetTagRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1460,7 +1459,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1473,7 +1472,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/experiments/update`;
     const body = marshalRequest(req, marshalUpdateExperimentRequestSchema);
     let resp: UpdateExperimentRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1492,7 +1491,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1505,7 +1504,7 @@ export class ExperimentsClient {
     const url = `${this.host}/api/2.0/mlflow/runs/update`;
     const body = marshalRequest(req, marshalUpdateRunRequestSchema);
     let resp: UpdateRunRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1521,7 +1520,7 @@ export class ExperimentsClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

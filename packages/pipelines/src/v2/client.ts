@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -116,7 +115,7 @@ export class PipelinesClient {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/environment/apply`;
     const body = marshalRequest(req, marshalApplyEnvironmentRequestSchema);
     let resp: ApplyEnvironmentRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -135,7 +134,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -152,7 +151,7 @@ export class PipelinesClient {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/clone`;
     const body = marshalRequest(req, marshalClonePipelineRequestSchema);
     let resp: ClonePipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -171,7 +170,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -187,7 +186,7 @@ export class PipelinesClient {
     const url = `${this.host}/api/2.0/pipelines`;
     const body = marshalRequest(req, marshalCreatePipelineRequestSchema);
     let resp: CreatePipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -206,7 +205,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -230,7 +229,7 @@ export class PipelinesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DeletePipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -249,7 +248,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -262,7 +261,7 @@ export class PipelinesClient {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
     const body = marshalRequest(req, marshalEditPipelineRequestSchema);
     let resp: EditPipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -281,7 +280,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -308,7 +307,7 @@ export class PipelinesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListPipelineEventsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -327,7 +326,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -356,7 +355,7 @@ export class PipelinesClient {
   ): Promise<GetPipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
     let resp: GetPipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -375,7 +374,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -387,7 +386,7 @@ export class PipelinesClient {
   ): Promise<GetUpdateRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates/${req.updateId ?? ''}`;
     let resp: GetUpdateRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -403,7 +402,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -430,7 +429,7 @@ export class PipelinesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListPipelinesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -449,7 +448,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -490,7 +489,7 @@ export class PipelinesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListUpdatesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -509,7 +508,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -522,7 +521,7 @@ export class PipelinesClient {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
     const body = marshalRequest(req, marshalStartUpdateRequestSchema);
     let resp: StartUpdateRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -541,20 +540,20 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Stops the pipeline by canceling the active update. If there is no active update for the pipeline, this request is a no-op. */
-  async stop(
+  private async stop(
     req: StopPipelineRequest,
     options?: CallOptions
   ): Promise<StopPipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopPipelineRequestSchema);
     let resp: StopPipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -573,7 +572,7 @@ export class PipelinesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -606,7 +605,7 @@ export class StopWaiter {
   async wait(options?: CallOptions): Promise<GetPipelineRequest_Response> {
     let result: GetPipelineRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.get(
         {
           pipelineId: this.pipelineId,
@@ -641,7 +640,7 @@ export class StopWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import type {Limiter, Retrier} from '@databricks/sdk-core/api';
+import type {Limiter, Retrier} from '@databricks/sdk-core/ops';
 
 import type {CallOptions} from '../../src/call';
 

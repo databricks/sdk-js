@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -121,7 +120,7 @@ export class LakeviewClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.dashboard, marshalDashboardSchema);
     let resp: Dashboard | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -143,7 +142,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -156,7 +155,7 @@ export class LakeviewClient {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules`;
     const body = marshalRequest(req.schedule, marshalScheduleSchema);
     let resp: Schedule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -172,7 +171,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -185,7 +184,7 @@ export class LakeviewClient {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.subscription?.dashboardId ?? ''}/schedules/${req.subscription?.scheduleId ?? ''}/subscriptions`;
     const body = marshalRequest(req.subscription, marshalSubscriptionSchema);
     let resp: Subscription | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -201,7 +200,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -218,7 +217,7 @@ export class LakeviewClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -246,7 +245,7 @@ export class LakeviewClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -269,7 +268,7 @@ export class LakeviewClient {
   ): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
     let resp: Dashboard | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -285,7 +284,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -297,7 +296,7 @@ export class LakeviewClient {
   ): Promise<PublishedDashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     let resp: PublishedDashboard | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -313,7 +312,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -334,7 +333,7 @@ export class LakeviewClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetPublishedDashboardTokenInfoResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -353,7 +352,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -365,7 +364,7 @@ export class LakeviewClient {
   ): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
     let resp: Schedule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -381,7 +380,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -393,7 +392,7 @@ export class LakeviewClient {
   ): Promise<Subscription> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
     let resp: Subscription | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -409,7 +408,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -436,7 +435,7 @@ export class LakeviewClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDashboardsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -452,7 +451,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -490,7 +489,7 @@ export class LakeviewClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListSchedulesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -506,7 +505,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -544,7 +543,7 @@ export class LakeviewClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListSubscriptionsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -560,7 +559,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -590,7 +589,7 @@ export class LakeviewClient {
     const url = `${this.host}/api/2.0/lakeview/dashboards/migrate`;
     const body = marshalRequest(req, marshalMigrateDashboardRequestSchema);
     let resp: Dashboard | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -606,7 +605,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -619,7 +618,7 @@ export class LakeviewClient {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     const body = marshalRequest(req, marshalPublishDashboardRequestSchema);
     let resp: PublishedDashboard | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -635,7 +634,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -648,7 +647,7 @@ export class LakeviewClient {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/revert`;
     const body = marshalRequest(req, marshalRevertDashboardRequestSchema);
     let resp: RevertDashboardResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -664,7 +663,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -676,7 +675,7 @@ export class LakeviewClient {
   ): Promise<TrashDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
     let resp: TrashDashboardResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -692,7 +691,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -704,7 +703,7 @@ export class LakeviewClient {
   ): Promise<UnpublishDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     let resp: UnpublishDashboardResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -720,7 +719,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -742,7 +741,7 @@ export class LakeviewClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.dashboard, marshalDashboardSchema);
     let resp: Dashboard | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -764,7 +763,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -777,7 +776,7 @@ export class LakeviewClient {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules/${req.schedule?.scheduleId ?? ''}`;
     const body = marshalRequest(req.schedule, marshalScheduleSchema);
     let resp: Schedule | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -793,7 +792,7 @@ export class LakeviewClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }

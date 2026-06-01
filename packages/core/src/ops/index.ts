@@ -1,11 +1,11 @@
 /**
- * Databricks API client utilities.
+ * Utilities to execute Databricks operations with retry, timeout, and rate
+ * limiting.
  *
  * @packageDocumentation
  */
 
 export {execute} from './execute';
-export type {Call} from './execute';
 export type {Limiter} from './limiter';
 export type {Options} from './options';
 export {BackoffPolicy, retryOn} from './retrier';

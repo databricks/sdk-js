@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -83,14 +82,14 @@ export class WorkspacesClient {
    *
    * This operation is available only if your account is on the E2 version of the platform or on a select custom plan that allows multiple workspaces per account.
    */
-  async createWorkspacePublic(
+  private async createWorkspacePublic(
     req: CreateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
     const body = marshalRequest(req, marshalCreateWorkspaceRequestSchema);
     let resp: Workspace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -103,7 +102,7 @@ export class WorkspacesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -128,7 +127,7 @@ export class WorkspacesClient {
   ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
     let resp: Workspace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -141,7 +140,7 @@ export class WorkspacesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -156,7 +155,7 @@ export class WorkspacesClient {
   ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
     let resp: Workspace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -169,7 +168,7 @@ export class WorkspacesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -181,7 +180,7 @@ export class WorkspacesClient {
   ): Promise<ListWorkspacesResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
     let resp: ListWorkspacesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -199,13 +198,13 @@ export class WorkspacesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Updates a workspace. */
-  async updateWorkspacePublic(
+  private async updateWorkspacePublic(
     req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
@@ -221,7 +220,7 @@ export class WorkspacesClient {
       marshalWorkspaceSchema
     );
     let resp: Workspace | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -240,7 +239,7 @@ export class WorkspacesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -273,7 +272,7 @@ export class CreateWorkspacePublicWaiter {
   async wait(options?: CallOptions): Promise<Workspace> {
     let result: Workspace | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWorkspacePublic(
         {
           workspaceId: this.workspaceId,
@@ -309,7 +308,7 @@ export class CreateWorkspacePublicWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -353,7 +352,7 @@ export class UpdateWorkspacePublicWaiter {
   async wait(options?: CallOptions): Promise<Workspace> {
     let result: Workspace | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWorkspacePublic(
         {
           workspaceId: this.workspaceId,
@@ -389,7 +388,7 @@ export class UpdateWorkspacePublicWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

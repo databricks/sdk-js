@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -108,7 +107,7 @@ export class ModelServingClient {
   }
 
   /** Create a new serving endpoint. */
-  async createInferenceEndpoint(
+  private async createInferenceEndpoint(
     req: CreateInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -118,7 +117,7 @@ export class ModelServingClient {
       marshalCreateInferenceEndpointRequestSchema
     );
     let resp: InferenceEndpointDetailed | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -134,7 +133,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -151,14 +150,14 @@ export class ModelServingClient {
   }
 
   /** Create a new PT serving endpoint. */
-  async createProvisionedThroughputInferenceEndpoint(
+  private async createProvisionedThroughputInferenceEndpoint(
     req: CreatePtEndpointRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/pt`;
     const body = marshalRequest(req, marshalCreatePtEndpointRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -174,7 +173,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -200,7 +199,7 @@ export class ModelServingClient {
   ): Promise<DeleteInferenceEndpointRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
     let resp: DeleteInferenceEndpointRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -219,7 +218,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -231,7 +230,7 @@ export class ModelServingClient {
   ): Promise<ExportMetricsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/metrics`;
     let resp: ExportMetricsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -249,7 +248,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -261,7 +260,7 @@ export class ModelServingClient {
   ): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
     let resp: InferenceEndpointDetailed | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -277,7 +276,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -289,7 +288,7 @@ export class ModelServingClient {
   ): Promise<GetOpenApiResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/openapi`;
     let resp: GetOpenApiResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -307,7 +306,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -319,7 +318,7 @@ export class ModelServingClient {
   ): Promise<GetServedModelBuildLogsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/build-logs`;
     let resp: GetServedModelBuildLogsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -338,7 +337,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -350,7 +349,7 @@ export class ModelServingClient {
   ): Promise<GetServedModelLogsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/logs`;
     let resp: GetServedModelLogsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -369,7 +368,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -381,7 +380,7 @@ export class ModelServingClient {
   ): Promise<ListInferenceEndpointsRequest_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints`;
     let resp: ListInferenceEndpointsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -400,7 +399,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -416,7 +415,7 @@ export class ModelServingClient {
       marshalPatchInferenceEndpointTagsRequestSchema
     );
     let resp: PatchInferenceEndpointTagsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -435,7 +434,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -451,7 +450,7 @@ export class ModelServingClient {
       marshalPutInferenceEndpointAiGatewayRequestSchema
     );
     let resp: PutInferenceEndpointAiGatewayRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -470,13 +469,13 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Updates any combination of the serving endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. An endpoint that already has an update in progress can not be updated until the current update completes or fails. */
-  async putInferenceEndpointConfig(
+  private async putInferenceEndpointConfig(
     req: PutInferenceEndpointConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -486,7 +485,7 @@ export class ModelServingClient {
       marshalPutInferenceEndpointConfigRequestSchema
     );
     let resp: InferenceEndpointDetailed | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -502,7 +501,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -529,7 +528,7 @@ export class ModelServingClient {
       marshalPutInferenceEndpointRateLimitsRequestSchema
     );
     let resp: PutInferenceEndpointRateLimitsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -548,20 +547,20 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Updates any combination of the pt endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. Updates are instantaneous and endpoint should be updated instantly */
-  async putProvisionedThroughputInferenceEndpointConfig(
+  private async putProvisionedThroughputInferenceEndpointConfig(
     req: PutPtEndpointConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/pt/${req.name ?? ''}/config`;
     const body = marshalRequest(req, marshalPutPtEndpointConfigRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -577,7 +576,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -607,7 +606,7 @@ export class ModelServingClient {
       marshalUpdateInferenceEndpointNotificationsRequestSchema
     );
     let resp: UpdateInferenceEndpointNotificationsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -626,7 +625,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -639,7 +638,7 @@ export class ModelServingClient {
     const url = `${this.host}/api/2.0/external-function`;
     const body = marshalRequest(req, marshalExternalFunctionRequestSchema);
     let resp: ExternalFunctionResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -657,7 +656,7 @@ export class ModelServingClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -677,7 +676,7 @@ export class CreateInferenceEndpointWaiter {
   async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
         {
           name: this.name,
@@ -713,7 +712,7 @@ export class CreateInferenceEndpointWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -757,7 +756,7 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
   async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
         {
           name: this.name,
@@ -793,7 +792,7 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -837,7 +836,7 @@ export class PutInferenceEndpointConfigWaiter {
   async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
         {
           name: this.name,
@@ -873,7 +872,7 @@ export class PutInferenceEndpointConfigWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -917,7 +916,7 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
   async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
         {
           name: this.name,
@@ -953,7 +952,7 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }

@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -155,7 +154,7 @@ export class ScimClient {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateAccountGroupRequestSchema);
     let resp: AccountGroup | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -168,7 +167,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -179,7 +178,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -199,7 +198,7 @@ export class ScimClient {
   ): Promise<AccountGroup> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     let resp: AccountGroup | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -212,7 +211,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -253,7 +252,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAccountGroupsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -266,7 +265,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -296,7 +295,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchAccountGroupRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
@@ -316,7 +315,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAccountGroupRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -340,7 +339,7 @@ export class ScimClient {
       marshalCreateAccountServicePrincipalRequestSchema
     );
     let resp: AccountServicePrincipal | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -353,7 +352,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -364,7 +363,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -384,7 +383,7 @@ export class ScimClient {
   ): Promise<AccountServicePrincipal> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     let resp: AccountServicePrincipal | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
@@ -397,7 +396,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -433,7 +432,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAccountServicePrincipalsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -449,7 +448,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -482,7 +481,7 @@ export class ScimClient {
       req,
       marshalPatchAccountServicePrincipalRequestSchema
     );
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
@@ -509,7 +508,7 @@ export class ScimClient {
       req,
       marshalUpdateAccountServicePrincipalRequestSchema
     );
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -530,7 +529,7 @@ export class ScimClient {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateAccountUserRequestSchema);
     let resp: AccountUser | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
@@ -543,7 +542,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -554,7 +553,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -598,7 +597,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: AccountUser | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -611,7 +610,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -647,7 +646,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAccountUsersResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
@@ -660,7 +659,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -690,7 +689,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchAccountUserRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
@@ -710,7 +709,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAccountUserRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
@@ -736,7 +735,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: User | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -752,7 +751,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -765,7 +764,7 @@ export class ScimClient {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateGroupRequestSchema);
     let resp: Group | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -781,7 +780,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -792,7 +791,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -812,7 +811,7 @@ export class ScimClient {
   async getGroup(req: GetGroupRequest, options?: CallOptions): Promise<Group> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     let resp: Group | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -828,7 +827,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -864,7 +863,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListGroupsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -880,7 +879,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -910,7 +909,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchGroupRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -933,7 +932,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateGroupRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -960,7 +959,7 @@ export class ScimClient {
       marshalCreateServicePrincipalRequestSchema
     );
     let resp: ServicePrincipal | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -976,7 +975,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -987,7 +986,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1010,7 +1009,7 @@ export class ScimClient {
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     let resp: ServicePrincipal | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1026,7 +1025,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1062,7 +1061,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListServicePrincipalResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1081,7 +1080,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1111,7 +1110,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchServicePrincipalRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1141,7 +1140,7 @@ export class ScimClient {
       req,
       marshalUpdateServicePrincipalRequestSchema
     );
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1165,7 +1164,7 @@ export class ScimClient {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateUserRequestSchema);
     let resp: User | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1181,7 +1180,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1192,7 +1191,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1215,7 +1214,7 @@ export class ScimClient {
   ): Promise<GetPasswordPermissionLevelsResponse> {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords/permissionLevels`;
     let resp: GetPasswordPermissionLevelsResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1234,7 +1233,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1246,7 +1245,7 @@ export class ScimClient {
   ): Promise<PasswordPermissions> {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
     let resp: PasswordPermissions | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1262,7 +1261,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1295,7 +1294,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: User | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1311,7 +1310,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1347,7 +1346,7 @@ export class ScimClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListUsersResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1363,7 +1362,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1390,7 +1389,7 @@ export class ScimClient {
   async patchUser(req: PatchUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchUserRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1414,7 +1413,7 @@ export class ScimClient {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
     const body = marshalRequest(req, marshalPasswordPermissionsRequestSchema);
     let resp: PasswordPermissions | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1430,7 +1429,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1443,7 +1442,7 @@ export class ScimClient {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
     const body = marshalRequest(req, marshalPasswordPermissionsRequestSchema);
     let resp: PasswordPermissions | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -1459,7 +1458,7 @@ export class ScimClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -1471,7 +1470,7 @@ export class ScimClient {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateUserRequestSchema);
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);

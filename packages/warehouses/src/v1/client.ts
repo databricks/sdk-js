@@ -1,8 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call} from '@databricks/sdk-core/api';
-import {retryOn} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -126,7 +125,7 @@ export class WarehousesClient {
       marshalDefaultWarehouseOverrideSchema
     );
     let resp: DefaultWarehouseOverride | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -148,20 +147,20 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Creates a new SQL warehouse. */
-  async createWarehouse(
+  private async createWarehouse(
     req: CreateWarehouseRequest,
     options?: CallOptions
   ): Promise<CreateWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses`;
     const body = marshalRequest(req, marshalCreateWarehouseRequestSchema);
     let resp: CreateWarehouseRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -180,7 +179,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -206,7 +205,7 @@ export class WarehousesClient {
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -229,7 +228,7 @@ export class WarehousesClient {
   ): Promise<DeleteWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: DeleteWarehouseRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -248,20 +247,20 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Updates the configuration for a SQL warehouse. */
-  async editWarehouse(
+  private async editWarehouse(
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/edit`;
     const body = marshalRequest(req, marshalEditWarehouseRequestSchema);
     let resp: EditWarehouseRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -280,7 +279,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -307,7 +306,7 @@ export class WarehousesClient {
   ): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
     let resp: DefaultWarehouseOverride | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -323,7 +322,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -335,7 +334,7 @@ export class WarehousesClient {
   ): Promise<GetWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: GetWarehouseRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -354,7 +353,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -366,7 +365,7 @@ export class WarehousesClient {
   ): Promise<GetWorkspaceWarehouseConfigRequest_Response> {
     const url = `${this.host}/api/2.0/sql/config/warehouses`;
     let resp: GetWorkspaceWarehouseConfigRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -385,7 +384,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -409,7 +408,7 @@ export class WarehousesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDefaultWarehouseOverridesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -428,7 +427,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -469,7 +468,7 @@ export class WarehousesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWarehousesRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -488,7 +487,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -521,7 +520,7 @@ export class WarehousesClient {
       marshalSetWorkspaceWarehouseConfigRequestSchema
     );
     let resp: SetWorkspaceWarehouseConfigRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -540,20 +539,20 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
 
   /** Starts a SQL warehouse. */
-  async startWarehouse(
+  private async startWarehouse(
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/start`;
     const body = marshalRequest(req, marshalStartRequestSchema);
     let resp: StartRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -569,7 +568,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -586,14 +585,14 @@ export class WarehousesClient {
   }
 
   /** Stops a SQL warehouse. */
-  async stopWarehouse(
+  private async stopWarehouse(
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopRequestSchema);
     let resp: StopRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -609,7 +608,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -648,7 +647,7 @@ export class WarehousesClient {
       marshalDefaultWarehouseOverrideSchema
     );
     let resp: DefaultWarehouseOverride | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
         headers.set('X-Databricks-Org-Id', this.workspaceId);
@@ -670,7 +669,7 @@ export class WarehousesClient {
     };
     await executeCall(call, options);
     if (resp === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return resp;
   }
@@ -690,7 +689,7 @@ export class CreateWarehouseWaiter {
   async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
     let result: GetWarehouseRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
         {
           id: this.id,
@@ -726,7 +725,7 @@ export class CreateWarehouseWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -770,7 +769,7 @@ export class EditWarehouseWaiter {
   async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
     let result: GetWarehouseRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
         {
           id: this.id,
@@ -806,7 +805,7 @@ export class EditWarehouseWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -850,7 +849,7 @@ export class StartWarehouseWaiter {
   async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
     let result: GetWarehouseRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
         {
           id: this.id,
@@ -886,7 +885,7 @@ export class StartWarehouseWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
@@ -930,7 +929,7 @@ export class StopWarehouseWaiter {
   async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
     let result: GetWarehouseRequest_Response | undefined;
 
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
         {
           id: this.id,
@@ -961,7 +960,7 @@ export class StopWarehouseWaiter {
     };
     await executeCall(call, retryOptions);
     if (result === undefined) {
-      throw new Error('API call completed without a result.');
+      throw new Error('operation completed without a result.');
     }
     return result;
   }
