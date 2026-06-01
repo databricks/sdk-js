@@ -1,12 +1,12 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
 import {
@@ -15,6 +15,8 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  executeWait,
+  StillRunningError,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
@@ -88,8 +90,6 @@ const PACKAGE_SEGMENT = {
   key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
-
-class StillRunningError extends Error {}
 
 export class AppsClient {
   private readonly host: string;
@@ -1057,8 +1057,7 @@ export class CreateSpaceOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Space> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Space> {
     let result: Space | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1066,14 +1065,14 @@ export class CreateSpaceOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1096,14 +1095,7 @@ export class CreateSpaceOperation {
       result = z.lazy(() => unmarshalSpaceSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1147,22 +1139,20 @@ export class DeleteSpaceOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
+  async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1179,14 +1169,7 @@ export class DeleteSpaceOperation {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
   }
 
   /** Checks whether the operation has completed */
@@ -1226,8 +1209,7 @@ export class UpdateSpaceOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(options?: CallOptions): Promise<Space> {
-    const errStillRunning = new Error('operation still in progress');
+  async wait(options?: LroOptions): Promise<Space> {
     let result: Space | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1235,14 +1217,14 @@ export class UpdateSpaceOperation {
         {
           name: this.operation.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
       this.operation = op;
       if (op.done === undefined) {
         throw new Error('operation is missing the done field');
       }
       if (!op.done) {
-        throw errStillRunning;
+        throw new StillRunningError();
       }
 
       if (op.result?.$case === 'error') {
@@ -1265,14 +1247,7 @@ export class UpdateSpaceOperation {
       result = z.lazy(() => unmarshalSpaceSchema).parse(op.result.response);
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1301,7 +1276,7 @@ export class AsyncUpdateAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<AppUpdate> {
+  async wait(options?: LroOptions): Promise<AppUpdate> {
     let result: AppUpdate | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1309,7 +1284,7 @@ export class AsyncUpdateAppWaiter {
         {
           appName: this.appName,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.status?.state;
@@ -1330,14 +1305,7 @@ export class AsyncUpdateAppWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1379,7 +1347,7 @@ export class CreateAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<App> {
+  async wait(options?: LroOptions): Promise<App> {
     let result: App | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1387,7 +1355,7 @@ export class CreateAppWaiter {
         {
           name: this.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.computeStatus?.state;
@@ -1409,14 +1377,7 @@ export class CreateAppWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1460,7 +1421,7 @@ export class CreateAppDeploymentWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<AppDeployment> {
+  async wait(options?: LroOptions): Promise<AppDeployment> {
     let result: AppDeployment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1469,7 +1430,7 @@ export class CreateAppDeploymentWaiter {
           deploymentId: this.deploymentId,
           appName: this.appName,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.status?.state;
@@ -1490,14 +1451,7 @@ export class CreateAppDeploymentWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1540,7 +1494,7 @@ export class StartAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<App> {
+  async wait(options?: LroOptions): Promise<App> {
     let result: App | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1548,7 +1502,7 @@ export class StartAppWaiter {
         {
           name: this.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.computeStatus?.state;
@@ -1570,14 +1524,7 @@ export class StartAppWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -1620,7 +1567,7 @@ export class StopAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<App> {
+  async wait(options?: LroOptions): Promise<App> {
     let result: App | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1628,7 +1575,7 @@ export class StopAppWaiter {
         {
           name: this.name,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.computeStatus?.state;
@@ -1649,14 +1596,7 @@ export class StopAppWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }

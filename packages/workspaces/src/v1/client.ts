@@ -1,12 +1,12 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import {retryOn} from '@databricks/sdk-core/ops';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
 import {
@@ -15,6 +15,8 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  executeWait,
+  StillRunningError,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
@@ -39,8 +41,6 @@ const PACKAGE_SEGMENT = {
   key: 'sdk-js-' + pkgJson.name.replace(/^@[^/]+\/sdk-/, ''),
   value: pkgJson.version,
 };
-
-class StillRunningError extends Error {}
 
 export class WorkspacesClient {
   private readonly host: string;
@@ -269,7 +269,7 @@ export class CreateWorkspacePublicWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<Workspace> {
+  async wait(options?: LroOptions): Promise<Workspace> {
     let result: Workspace | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -277,7 +277,7 @@ export class CreateWorkspacePublicWaiter {
         {
           workspaceId: this.workspaceId,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.workspaceStatus;
@@ -299,14 +299,7 @@ export class CreateWorkspacePublicWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }
@@ -349,7 +342,7 @@ export class UpdateWorkspacePublicWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<Workspace> {
+  async wait(options?: LroOptions): Promise<Workspace> {
     let result: Workspace | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -357,7 +350,7 @@ export class UpdateWorkspacePublicWaiter {
         {
           workspaceId: this.workspaceId,
         },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+        callSignal !== undefined ? {signal: callSignal} : undefined
       );
 
       const status = pollResp.workspaceStatus;
@@ -379,14 +372,7 @@ export class UpdateWorkspacePublicWaiter {
       }
     };
 
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err instanceof StillRunningError;
-        }),
-    };
-    await executeCall(call, retryOptions);
+    await executeWait(call, options);
     if (result === undefined) {
       throw new Error('operation completed without a result.');
     }

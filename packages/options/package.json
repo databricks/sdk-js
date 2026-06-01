@@ -11,6 +11,10 @@
     "./call": {
       "types": "./dist/call/index.d.ts",
       "import": "./dist/call/index.js"
+    },
+    "./lro": {
+      "types": "./dist/lro/index.d.ts",
+      "import": "./dist/lro/index.js"
     }
   },
   "files": [
