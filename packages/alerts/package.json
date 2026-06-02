@@ -6,11 +6,13 @@
   "exports": {
     "./v1": {
       "types": "./dist/v1/index.d.ts",
-      "import": "./dist/v1/index.js"
+      "import": "./dist/v1/index.js",
+      "default": "./dist/v1/index.js"
     },
     "./v2": {
       "types": "./dist/v2/index.d.ts",
-      "import": "./dist/v2/index.js"
+      "import": "./dist/v2/index.js",
+      "default": "./dist/v2/index.js"
     }
   },
   "files": [
