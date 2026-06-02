@@ -19,32 +19,32 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
   AccountsCreateStorageCredentialRequest,
-  AccountsCreateStorageCredentialRequest_Response,
+  AccountsCreateStorageCredentialResponse,
   AccountsDeleteStorageCredentialRequest,
-  AccountsDeleteStorageCredentialRequest_Response,
+  AccountsDeleteStorageCredentialResponse,
   AccountsGetStorageCredentialRequest,
-  AccountsGetStorageCredentialRequest_Response,
+  AccountsGetStorageCredentialResponse,
   AccountsListStorageCredentialsRequest,
-  AccountsListStorageCredentialsRequest_Response,
+  AccountsListStorageCredentialsResponse,
   AccountsUpdateStorageCredentialRequest,
-  AccountsUpdateStorageCredentialRequest_Response,
+  AccountsUpdateStorageCredentialResponse,
   CreateCredentialRequest,
   CreateCredentialsRequest,
   CreateStorageCredentialRequest,
   CredentialInfo,
   Credentials,
   DeleteCredentialRequest,
-  DeleteCredentialRequest_Response,
+  DeleteCredentialResponse,
   DeleteCredentialsRequest,
   DeleteStorageCredentialRequest,
-  DeleteStorageCredentialRequest_Response,
+  DeleteStorageCredentialResponse,
   GenerateTemporaryPathCredentialRequest,
-  GenerateTemporaryPathCredentialRequest_Response,
+  GenerateTemporaryPathCredentialResponse,
   GenerateTemporaryServiceCredentialRequest,
   GenerateTemporaryTableCredentialRequest,
-  GenerateTemporaryTableCredentialRequest_Response,
+  GenerateTemporaryTableCredentialResponse,
   GenerateTemporaryVolumeCredentialRequest,
-  GenerateTemporaryVolumeCredentialRequest_Response,
+  GenerateTemporaryVolumeCredentialResponse,
   GetCredentialRequest,
   GetCredentialsRequest,
   GetStorageCredentialRequest,
@@ -53,15 +53,15 @@ import type {
   ListCredentialsRequest_Response,
   ListCredentialsResponse,
   ListStorageCredentialsRequest,
-  ListStorageCredentialsRequest_Response,
+  ListStorageCredentialsResponse,
   StorageCredentialInfo,
   TemporaryCredentials,
   UpdateCredentialRequest,
   UpdateStorageCredentialRequest,
   ValidateCredentialRequest,
-  ValidateCredentialRequest_Response,
+  ValidateCredentialResponse,
   ValidateStorageCredentialRequest,
-  ValidateStorageCredentialRequest_Response,
+  ValidateStorageCredentialResponse,
 } from './model';
 import {
   marshalAccountsCreateStorageCredentialRequestSchema,
@@ -77,23 +77,23 @@ import {
   marshalUpdateStorageCredentialRequestSchema,
   marshalValidateCredentialRequestSchema,
   marshalValidateStorageCredentialRequestSchema,
-  unmarshalAccountsCreateStorageCredentialRequest_ResponseSchema,
-  unmarshalAccountsDeleteStorageCredentialRequest_ResponseSchema,
-  unmarshalAccountsGetStorageCredentialRequest_ResponseSchema,
-  unmarshalAccountsListStorageCredentialsRequest_ResponseSchema,
-  unmarshalAccountsUpdateStorageCredentialRequest_ResponseSchema,
+  unmarshalAccountsCreateStorageCredentialResponseSchema,
+  unmarshalAccountsDeleteStorageCredentialResponseSchema,
+  unmarshalAccountsGetStorageCredentialResponseSchema,
+  unmarshalAccountsListStorageCredentialsResponseSchema,
+  unmarshalAccountsUpdateStorageCredentialResponseSchema,
   unmarshalCredentialsSchema,
-  unmarshalDeleteCredentialRequest_ResponseSchema,
-  unmarshalDeleteStorageCredentialRequest_ResponseSchema,
-  unmarshalGenerateTemporaryPathCredentialRequest_ResponseSchema,
-  unmarshalGenerateTemporaryTableCredentialRequest_ResponseSchema,
-  unmarshalGenerateTemporaryVolumeCredentialRequest_ResponseSchema,
+  unmarshalDeleteCredentialResponseSchema,
+  unmarshalDeleteStorageCredentialResponseSchema,
+  unmarshalGenerateTemporaryPathCredentialResponseSchema,
+  unmarshalGenerateTemporaryTableCredentialResponseSchema,
+  unmarshalGenerateTemporaryVolumeCredentialResponseSchema,
   unmarshalListCredentialsRequest_ResponseSchema,
-  unmarshalListStorageCredentialsRequest_ResponseSchema,
+  unmarshalListStorageCredentialsResponseSchema,
   unmarshalStorageCredentialInfoSchema,
   unmarshalTemporaryCredentialsSchema,
-  unmarshalValidateCredentialRequest_ResponseSchema,
-  unmarshalValidateStorageCredentialRequest_ResponseSchema,
+  unmarshalValidateCredentialResponseSchema,
+  unmarshalValidateStorageCredentialResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -145,13 +145,13 @@ export class CredentialsClient {
   async createAccountsStorageCredential(
     req: AccountsCreateStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsCreateStorageCredentialRequest_Response> {
+  ): Promise<AccountsCreateStorageCredentialResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateStorageCredentialRequestSchema
     );
-    let resp: AccountsCreateStorageCredentialRequest_Response | undefined;
+    let resp: AccountsCreateStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -163,7 +163,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsCreateStorageCredentialRequest_ResponseSchema
+        unmarshalAccountsCreateStorageCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -177,7 +177,7 @@ export class CredentialsClient {
   async deleteAccountsStorageCredential(
     req: AccountsDeleteStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsDeleteStorageCredentialRequest_Response> {
+  ): Promise<AccountsDeleteStorageCredentialResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -185,7 +185,7 @@ export class CredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: AccountsDeleteStorageCredentialRequest_Response | undefined;
+    let resp: AccountsDeleteStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -197,7 +197,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsDeleteStorageCredentialRequest_ResponseSchema
+        unmarshalAccountsDeleteStorageCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -214,9 +214,9 @@ export class CredentialsClient {
   async getAccountsStorageCredential(
     req: AccountsGetStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsGetStorageCredentialRequest_Response> {
+  ): Promise<AccountsGetStorageCredentialResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
-    let resp: AccountsGetStorageCredentialRequest_Response | undefined;
+    let resp: AccountsGetStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -228,7 +228,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsGetStorageCredentialRequest_ResponseSchema
+        unmarshalAccountsGetStorageCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -242,9 +242,9 @@ export class CredentialsClient {
   async listAccountsStorageCredentials(
     req: AccountsListStorageCredentialsRequest,
     options?: CallOptions
-  ): Promise<AccountsListStorageCredentialsRequest_Response> {
+  ): Promise<AccountsListStorageCredentialsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
-    let resp: AccountsListStorageCredentialsRequest_Response | undefined;
+    let resp: AccountsListStorageCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -256,7 +256,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsListStorageCredentialsRequest_ResponseSchema
+        unmarshalAccountsListStorageCredentialsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -273,13 +273,13 @@ export class CredentialsClient {
   async updateAccountsStorageCredential(
     req: AccountsUpdateStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsUpdateStorageCredentialRequest_Response> {
+  ): Promise<AccountsUpdateStorageCredentialResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateStorageCredentialRequestSchema
     );
-    let resp: AccountsUpdateStorageCredentialRequest_Response | undefined;
+    let resp: AccountsUpdateStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -291,7 +291,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsUpdateStorageCredentialRequest_ResponseSchema
+        unmarshalAccountsUpdateStorageCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -376,7 +376,7 @@ export class CredentialsClient {
   async deleteCredential(
     req: DeleteCredentialRequest,
     options?: CallOptions
-  ): Promise<DeleteCredentialRequest_Response> {
+  ): Promise<DeleteCredentialResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -384,7 +384,7 @@ export class CredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteCredentialRequest_Response | undefined;
+    let resp: DeleteCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -397,10 +397,7 @@ export class CredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCredentialRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteCredentialResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -413,7 +410,7 @@ export class CredentialsClient {
   async deleteStorageCredential(
     req: DeleteStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<DeleteStorageCredentialRequest_Response> {
+  ): Promise<DeleteStorageCredentialResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -421,7 +418,7 @@ export class CredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteStorageCredentialRequest_Response | undefined;
+    let resp: DeleteStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -436,7 +433,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteStorageCredentialRequest_ResponseSchema
+        unmarshalDeleteStorageCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -459,13 +456,13 @@ export class CredentialsClient {
   async generateTemporaryPathCredential(
     req: GenerateTemporaryPathCredentialRequest,
     options?: CallOptions
-  ): Promise<GenerateTemporaryPathCredentialRequest_Response> {
+  ): Promise<GenerateTemporaryPathCredentialResponse> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-path-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryPathCredentialRequestSchema
     );
-    let resp: GenerateTemporaryPathCredentialRequest_Response | undefined;
+    let resp: GenerateTemporaryPathCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -480,7 +477,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGenerateTemporaryPathCredentialRequest_ResponseSchema
+        unmarshalGenerateTemporaryPathCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -534,13 +531,13 @@ export class CredentialsClient {
   async generateTemporaryTableCredential(
     req: GenerateTemporaryTableCredentialRequest,
     options?: CallOptions
-  ): Promise<GenerateTemporaryTableCredentialRequest_Response> {
+  ): Promise<GenerateTemporaryTableCredentialResponse> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-table-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryTableCredentialRequestSchema
     );
-    let resp: GenerateTemporaryTableCredentialRequest_Response | undefined;
+    let resp: GenerateTemporaryTableCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -555,7 +552,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGenerateTemporaryTableCredentialRequest_ResponseSchema
+        unmarshalGenerateTemporaryTableCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -574,13 +571,13 @@ export class CredentialsClient {
   async generateTemporaryVolumeCredential(
     req: GenerateTemporaryVolumeCredentialRequest,
     options?: CallOptions
-  ): Promise<GenerateTemporaryVolumeCredentialRequest_Response> {
+  ): Promise<GenerateTemporaryVolumeCredentialResponse> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-volume-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryVolumeCredentialRequestSchema
     );
-    let resp: GenerateTemporaryVolumeCredentialRequest_Response | undefined;
+    let resp: GenerateTemporaryVolumeCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -595,7 +592,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGenerateTemporaryVolumeCredentialRequest_ResponseSchema
+        unmarshalGenerateTemporaryVolumeCredentialResponseSchema
       );
     };
     await executeCall(call, options);
@@ -750,7 +747,7 @@ export class CredentialsClient {
   async listStorageCredentials(
     req: ListStorageCredentialsRequest,
     options?: CallOptions
-  ): Promise<ListStorageCredentialsRequest_Response> {
+  ): Promise<ListStorageCredentialsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
     const params = new URLSearchParams();
     if (req.includeUnbound !== undefined) {
@@ -764,7 +761,7 @@ export class CredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListStorageCredentialsRequest_Response | undefined;
+    let resp: ListStorageCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -779,7 +776,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListStorageCredentialsRequest_ResponseSchema
+        unmarshalListStorageCredentialsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -894,10 +891,10 @@ export class CredentialsClient {
   async validateCredential(
     req: ValidateCredentialRequest,
     options?: CallOptions
-  ): Promise<ValidateCredentialRequest_Response> {
+  ): Promise<ValidateCredentialResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/validate-credentials`;
     const body = marshalRequest(req, marshalValidateCredentialRequestSchema);
-    let resp: ValidateCredentialRequest_Response | undefined;
+    let resp: ValidateCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -910,10 +907,7 @@ export class CredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalValidateCredentialRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalValidateCredentialResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -936,13 +930,13 @@ export class CredentialsClient {
   async validateStorageCredential(
     req: ValidateStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<ValidateStorageCredentialRequest_Response> {
+  ): Promise<ValidateStorageCredentialResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/validate-storage-credentials`;
     const body = marshalRequest(
       req,
       marshalValidateStorageCredentialRequestSchema
     );
-    let resp: ValidateStorageCredentialRequest_Response | undefined;
+    let resp: ValidateStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -957,7 +951,7 @@ export class CredentialsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalValidateStorageCredentialRequest_ResponseSchema
+        unmarshalValidateStorageCredentialResponseSchema
       );
     };
     await executeCall(call, options);

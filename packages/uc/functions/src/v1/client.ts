@@ -19,19 +19,19 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateFunctionRequest,
   DeleteFunctionRequest,
-  DeleteFunctionRequest_Response,
+  DeleteFunctionResponse,
   FunctionInfo,
   GetFunctionRequest,
   ListFunctionsRequest,
-  ListFunctionsRequest_Response,
+  ListFunctionsResponse,
   UpdateFunctionRequest,
 } from './model';
 import {
   marshalCreateFunctionRequestSchema,
   marshalUpdateFunctionRequestSchema,
-  unmarshalDeleteFunctionRequest_ResponseSchema,
+  unmarshalDeleteFunctionResponseSchema,
   unmarshalFunctionInfoSchema,
-  unmarshalListFunctionsRequest_ResponseSchema,
+  unmarshalListFunctionsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -115,7 +115,7 @@ export class FunctionsClient {
   async deleteFunction(
     req: DeleteFunctionRequest,
     options?: CallOptions
-  ): Promise<DeleteFunctionRequest_Response> {
+  ): Promise<DeleteFunctionResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -123,7 +123,7 @@ export class FunctionsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteFunctionRequest_Response | undefined;
+    let resp: DeleteFunctionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -136,10 +136,7 @@ export class FunctionsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteFunctionRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteFunctionResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -203,7 +200,7 @@ export class FunctionsClient {
   async listFunctions(
     req: ListFunctionsRequest,
     options?: CallOptions
-  ): Promise<ListFunctionsRequest_Response> {
+  ): Promise<ListFunctionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/functions`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -223,7 +220,7 @@ export class FunctionsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListFunctionsRequest_Response | undefined;
+    let resp: ListFunctionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -236,10 +233,7 @@ export class FunctionsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListFunctionsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListFunctionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

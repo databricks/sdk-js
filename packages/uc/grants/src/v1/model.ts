@@ -49,8 +49,7 @@ export interface GetEffectivePermissionsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetEffectivePermissionsRequest_Response {
+export interface GetEffectivePermissionsResponse {
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
    * __page_token__ should be set to this value for the next request (for the next page of results).
@@ -85,8 +84,7 @@ export interface GetPermissionsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPermissionsRequest_Response {
+export interface GetPermissionsResponse {
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
    * __page_token__ should be set to this value for the next request (for the next page of results).
@@ -127,8 +125,7 @@ export interface UpdatePermissionsRequest {
   changes?: PermissionsChange[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdatePermissionsRequest_Response {
+export interface UpdatePermissionsResponse {
   /** The privileges assigned to each principal */
   privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
@@ -159,8 +156,7 @@ export const unmarshalEffectivePrivilegeAssignmentSchema: z.ZodType<EffectivePri
       privileges: d.privileges,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetEffectivePermissionsRequest_ResponseSchema: z.ZodType<GetEffectivePermissionsRequest_Response> =
+export const unmarshalGetEffectivePermissionsResponseSchema: z.ZodType<GetEffectivePermissionsResponse> =
   z
     .object({
       next_page_token: z.string().optional(),
@@ -173,8 +169,7 @@ export const unmarshalGetEffectivePermissionsRequest_ResponseSchema: z.ZodType<G
       privilegeAssignments: d.privilege_assignments,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissionsRequest_ResponseSchema: z.ZodType<GetPermissionsRequest_Response> =
+export const unmarshalGetPermissionsResponseSchema: z.ZodType<GetPermissionsResponse> =
   z
     .object({
       next_page_token: z.string().optional(),
@@ -198,8 +193,7 @@ export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> 
       privileges: d.privileges,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePermissionsRequest_ResponseSchema: z.ZodType<UpdatePermissionsRequest_Response> =
+export const unmarshalUpdatePermissionsResponseSchema: z.ZodType<UpdatePermissionsResponse> =
   z
     .object({
       privilege_assignments: z

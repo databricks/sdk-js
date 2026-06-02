@@ -29,8 +29,8 @@ export interface AccountsCreateMetastoreAssignmentRequest {
 }
 
 /** The metastore assignment was successfully created. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsCreateMetastoreAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AccountsCreateMetastoreAssignmentResponse {}
 
 /** Properties of the new metastore. */
 export interface AccountsCreateMetastoreRequest {
@@ -39,8 +39,7 @@ export interface AccountsCreateMetastoreRequest {
   metastoreInfo?: CreateAccountsMetastore | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsCreateMetastoreRequest_Response {
+export interface AccountsCreateMetastoreResponse {
   metastoreInfo?: MetastoreInfo | undefined;
 }
 
@@ -55,8 +54,8 @@ export interface AccountsDeleteMetastoreAssignmentRequest {
 }
 
 /** The metastore assignment was successfully deleted. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsDeleteMetastoreAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AccountsDeleteMetastoreAssignmentResponse {}
 
 /** Delete a metastore for the given account */
 export interface AccountsDeleteMetastoreRequest {
@@ -69,8 +68,8 @@ export interface AccountsDeleteMetastoreRequest {
 }
 
 /** The metastore was successfully deleted. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsDeleteMetastoreRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AccountsDeleteMetastoreResponse {}
 
 /** Retrieves the assignment of which metastore to a given workspace */
 export interface AccountsGetMetastoreAssignmentRequest {
@@ -81,8 +80,7 @@ export interface AccountsGetMetastoreAssignmentRequest {
 }
 
 /** The workspace metastore assignment was successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsGetMetastoreAssignmentRequest_Response {
+export interface AccountsGetMetastoreAssignmentResponse {
   metastoreAssignment?: MetastoreAssignment | undefined;
 }
 
@@ -95,8 +93,7 @@ export interface AccountsGetMetastoreRequest {
 }
 
 /** The metastore was successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsGetMetastoreRequest_Response {
+export interface AccountsGetMetastoreResponse {
   metastoreInfo?: MetastoreInfo | undefined;
 }
 
@@ -107,8 +104,7 @@ export interface AccountsListMetastoresRequest {
 }
 
 /** Metastores were returned successfully. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsListMetastoresRequest_Response {
+export interface AccountsListMetastoresResponse {
   /** An array of metastore information objects. */
   metastores?: MetastoreInfo[] | undefined;
 }
@@ -122,8 +118,7 @@ export interface AccountsListWorkspaceIdsForMetastoreRequest {
 }
 
 /** The metastore assignments were successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsListWorkspaceIdsForMetastoreRequest_Response {
+export interface AccountsListWorkspaceIdsForMetastoreResponse {
   workspaceIds?: bigint[] | undefined;
 }
 
@@ -139,8 +134,8 @@ export interface AccountsUpdateMetastoreAssignmentRequest {
 }
 
 /** The metastore assignment was successfully updated. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsUpdateMetastoreAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AccountsUpdateMetastoreAssignmentResponse {}
 
 /** Properties of the metastore to change. */
 export interface AccountsUpdateMetastoreRequest {
@@ -153,8 +148,7 @@ export interface AccountsUpdateMetastoreRequest {
 }
 
 /** The metastore update request succeeded. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsUpdateMetastoreRequest_Response {
+export interface AccountsUpdateMetastoreResponse {
   metastoreInfo?: MetastoreInfo | undefined;
 }
 
@@ -212,8 +206,8 @@ export interface CreateMetastoreAssignmentRequest {
   defaultCatalogName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CreateMetastoreAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateMetastoreAssignmentResponse {}
 
 export interface CreateMetastoreRequest {
   /** The user-specified name of the metastore. */
@@ -263,8 +257,8 @@ export interface DeleteMetastoreAssignmentRequest {
   metastoreId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteMetastoreAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteMetastoreAssignmentResponse {}
 
 export interface DeleteMetastoreRequest {
   /** Unique ID of the metastore. */
@@ -273,8 +267,8 @@ export interface DeleteMetastoreRequest {
   force?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteMetastoreRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteMetastoreResponse {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeltaSharingScope {}
@@ -290,8 +284,7 @@ export interface GetMetastoreRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface GetMetastoreSummaryRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetMetastoreSummaryRequest_Response {
+export interface GetMetastoreSummaryResponse {
   /** Unique identifier of metastore. */
   metastoreId?: string | undefined;
   /** The user-specified name of the metastore. */
@@ -347,8 +340,7 @@ export interface ListMetastoresRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListMetastoresRequest_Response {
+export interface ListMetastoresResponse {
   /** An array of metastore information objects. */
   metastores?: MetastoreInfo[] | undefined;
   /**
@@ -465,8 +457,8 @@ export interface UpdateMetastoreAssignmentRequest {
   defaultCatalogName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateMetastoreAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateMetastoreAssignmentResponse {}
 
 export interface UpdateMetastoreRequest {
   /** Unique ID of the metastore. */
@@ -513,12 +505,10 @@ export interface UpdateMetastoreRequest {
   externalAccessEnabled?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsCreateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsCreateMetastoreAssignmentRequest_Response> =
+export const unmarshalAccountsCreateMetastoreAssignmentResponseSchema: z.ZodType<AccountsCreateMetastoreAssignmentResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsCreateMetastoreRequest_ResponseSchema: z.ZodType<AccountsCreateMetastoreRequest_Response> =
+export const unmarshalAccountsCreateMetastoreResponseSchema: z.ZodType<AccountsCreateMetastoreResponse> =
   z
     .object({
       metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
@@ -527,16 +517,13 @@ export const unmarshalAccountsCreateMetastoreRequest_ResponseSchema: z.ZodType<A
       metastoreInfo: d.metastore_info,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsDeleteMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsDeleteMetastoreAssignmentRequest_Response> =
+export const unmarshalAccountsDeleteMetastoreAssignmentResponseSchema: z.ZodType<AccountsDeleteMetastoreAssignmentResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsDeleteMetastoreRequest_ResponseSchema: z.ZodType<AccountsDeleteMetastoreRequest_Response> =
+export const unmarshalAccountsDeleteMetastoreResponseSchema: z.ZodType<AccountsDeleteMetastoreResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsGetMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsGetMetastoreAssignmentRequest_Response> =
+export const unmarshalAccountsGetMetastoreAssignmentResponseSchema: z.ZodType<AccountsGetMetastoreAssignmentResponse> =
   z
     .object({
       metastore_assignment: z
@@ -547,8 +534,7 @@ export const unmarshalAccountsGetMetastoreAssignmentRequest_ResponseSchema: z.Zo
       metastoreAssignment: d.metastore_assignment,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsGetMetastoreRequest_ResponseSchema: z.ZodType<AccountsGetMetastoreRequest_Response> =
+export const unmarshalAccountsGetMetastoreResponseSchema: z.ZodType<AccountsGetMetastoreResponse> =
   z
     .object({
       metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
@@ -557,8 +543,7 @@ export const unmarshalAccountsGetMetastoreRequest_ResponseSchema: z.ZodType<Acco
       metastoreInfo: d.metastore_info,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsListMetastoresRequest_ResponseSchema: z.ZodType<AccountsListMetastoresRequest_Response> =
+export const unmarshalAccountsListMetastoresResponseSchema: z.ZodType<AccountsListMetastoresResponse> =
   z
     .object({
       metastores: z
@@ -569,8 +554,7 @@ export const unmarshalAccountsListMetastoresRequest_ResponseSchema: z.ZodType<Ac
       metastores: d.metastores,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsListWorkspaceIdsForMetastoreRequest_ResponseSchema: z.ZodType<AccountsListWorkspaceIdsForMetastoreRequest_Response> =
+export const unmarshalAccountsListWorkspaceIdsForMetastoreResponseSchema: z.ZodType<AccountsListWorkspaceIdsForMetastoreResponse> =
   z
     .object({
       workspace_ids: z
@@ -581,12 +565,10 @@ export const unmarshalAccountsListWorkspaceIdsForMetastoreRequest_ResponseSchema
       workspaceIds: d.workspace_ids,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsUpdateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsUpdateMetastoreAssignmentRequest_Response> =
+export const unmarshalAccountsUpdateMetastoreAssignmentResponseSchema: z.ZodType<AccountsUpdateMetastoreAssignmentResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsUpdateMetastoreRequest_ResponseSchema: z.ZodType<AccountsUpdateMetastoreRequest_Response> =
+export const unmarshalAccountsUpdateMetastoreResponseSchema: z.ZodType<AccountsUpdateMetastoreResponse> =
   z
     .object({
       metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
@@ -595,20 +577,16 @@ export const unmarshalAccountsUpdateMetastoreRequest_ResponseSchema: z.ZodType<A
       metastoreInfo: d.metastore_info,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<CreateMetastoreAssignmentRequest_Response> =
+export const unmarshalCreateMetastoreAssignmentResponseSchema: z.ZodType<CreateMetastoreAssignmentResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteMetastoreAssignmentRequest_ResponseSchema: z.ZodType<DeleteMetastoreAssignmentRequest_Response> =
+export const unmarshalDeleteMetastoreAssignmentResponseSchema: z.ZodType<DeleteMetastoreAssignmentResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteMetastoreRequest_ResponseSchema: z.ZodType<DeleteMetastoreRequest_Response> =
+export const unmarshalDeleteMetastoreResponseSchema: z.ZodType<DeleteMetastoreResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetMetastoreSummaryRequest_ResponseSchema: z.ZodType<GetMetastoreSummaryRequest_Response> =
+export const unmarshalGetMetastoreSummaryResponseSchema: z.ZodType<GetMetastoreSummaryResponse> =
   z
     .object({
       metastore_id: z.string().optional(),
@@ -663,8 +641,7 @@ export const unmarshalGetMetastoreSummaryRequest_ResponseSchema: z.ZodType<GetMe
       externalAccessEnabled: d.external_access_enabled,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListMetastoresRequest_ResponseSchema: z.ZodType<ListMetastoresRequest_Response> =
+export const unmarshalListMetastoresResponseSchema: z.ZodType<ListMetastoresResponse> =
   z
     .object({
       metastores: z
@@ -747,8 +724,7 @@ export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
     externalAccessEnabled: d.external_access_enabled,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<UpdateMetastoreAssignmentRequest_Response> =
+export const unmarshalUpdateMetastoreAssignmentResponseSchema: z.ZodType<UpdateMetastoreAssignmentResponse> =
   z.object({});
 
 export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =

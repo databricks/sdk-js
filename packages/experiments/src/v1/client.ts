@@ -18,79 +18,79 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExperimentRequest,
-  CreateExperimentRequest_Response,
+  CreateExperimentResponse,
   CreateLoggedModelRequest,
-  CreateLoggedModelRequest_Response,
+  CreateLoggedModelResponse,
   CreateRunRequest,
-  CreateRunRequest_Response,
+  CreateRunResponse,
   DeleteExperimentRequest,
-  DeleteExperimentRequest_Response,
+  DeleteExperimentResponse,
   DeleteLoggedModelRequest,
-  DeleteLoggedModelRequest_Response,
+  DeleteLoggedModelResponse,
   DeleteLoggedModelTagRequest,
-  DeleteLoggedModelTagRequest_Response,
+  DeleteLoggedModelTagResponse,
   DeleteRunRequest,
-  DeleteRunRequest_Response,
+  DeleteRunResponse,
   DeleteRunsRequest,
-  DeleteRunsRequest_Response,
+  DeleteRunsResponse,
   DeleteTagRequest,
-  DeleteTagRequest_Response,
+  DeleteTagResponse,
   Experiment,
   FileInfo,
   FinalizeLoggedModelRequest,
-  FinalizeLoggedModelRequest_Response,
+  FinalizeLoggedModelResponse,
   GetExperimentByNameRequest,
-  GetExperimentByNameRequest_Response,
+  GetExperimentByNameResponse,
   GetExperimentRequest,
-  GetExperimentRequest_Response,
+  GetExperimentResponse,
   GetLoggedModelRequest,
-  GetLoggedModelRequest_Response,
+  GetLoggedModelResponse,
+  GetMetricHistoryResponse,
   GetRunRequest,
-  GetRunRequest_Response,
+  GetRunResponse,
   ListArtifactsRequest,
-  ListArtifactsRequest_Response,
+  ListArtifactsResponse,
   ListExperimentsRequest,
-  ListExperimentsRequest_Response,
+  ListExperimentsResponse,
   ListMetricHistoryRequest,
-  ListMetricHistoryRequest_Response,
   LogBatchRequest,
-  LogBatchRequest_Response,
+  LogBatchResponse,
   LogInputsRequest,
-  LogInputsRequest_Response,
+  LogInputsResponse,
   LogLoggedModelParamsRequest,
-  LogLoggedModelParamsRequest_Response,
+  LogLoggedModelParamsResponse,
   LogMetricRequest,
-  LogMetricRequest_Response,
+  LogMetricResponse,
   LogModelRequest,
-  LogModelRequest_Response,
+  LogModelResponse,
   LogOutputsRequest,
-  LogOutputsRequest_Response,
+  LogOutputsResponse,
   LogParamRequest,
-  LogParamRequest_Response,
+  LogParamResponse,
   Metric,
   RestoreExperimentRequest,
-  RestoreExperimentRequest_Response,
+  RestoreExperimentResponse,
   RestoreRunRequest,
-  RestoreRunRequest_Response,
+  RestoreRunResponse,
   RestoreRunsRequest,
-  RestoreRunsRequest_Response,
+  RestoreRunsResponse,
   Run,
   SearchExperimentsRequest,
-  SearchExperimentsRequest_Response,
+  SearchExperimentsResponse,
   SearchLoggedModelsRequest,
-  SearchLoggedModelsRequest_Response,
+  SearchLoggedModelsResponse,
   SearchRunsRequest,
-  SearchRunsRequest_Response,
+  SearchRunsResponse,
   SetExperimentTagRequest,
-  SetExperimentTagRequest_Response,
+  SetExperimentTagResponse,
   SetLoggedModelTagsRequest,
-  SetLoggedModelTagsRequest_Response,
+  SetLoggedModelTagsResponse,
   SetTagRequest,
-  SetTagRequest_Response,
+  SetTagResponse,
   UpdateExperimentRequest,
-  UpdateExperimentRequest_Response,
+  UpdateExperimentResponse,
   UpdateRunRequest,
-  UpdateRunRequest_Response,
+  UpdateRunResponse,
 } from './model';
 import {
   marshalCreateExperimentRequestSchema,
@@ -119,41 +119,41 @@ import {
   marshalSetTagRequestSchema,
   marshalUpdateExperimentRequestSchema,
   marshalUpdateRunRequestSchema,
-  unmarshalCreateExperimentRequest_ResponseSchema,
-  unmarshalCreateLoggedModelRequest_ResponseSchema,
-  unmarshalCreateRunRequest_ResponseSchema,
-  unmarshalDeleteExperimentRequest_ResponseSchema,
-  unmarshalDeleteLoggedModelRequest_ResponseSchema,
-  unmarshalDeleteLoggedModelTagRequest_ResponseSchema,
-  unmarshalDeleteRunRequest_ResponseSchema,
-  unmarshalDeleteRunsRequest_ResponseSchema,
-  unmarshalDeleteTagRequest_ResponseSchema,
-  unmarshalFinalizeLoggedModelRequest_ResponseSchema,
-  unmarshalGetExperimentByNameRequest_ResponseSchema,
-  unmarshalGetExperimentRequest_ResponseSchema,
-  unmarshalGetLoggedModelRequest_ResponseSchema,
-  unmarshalGetRunRequest_ResponseSchema,
-  unmarshalListArtifactsRequest_ResponseSchema,
-  unmarshalListExperimentsRequest_ResponseSchema,
-  unmarshalListMetricHistoryRequest_ResponseSchema,
-  unmarshalLogBatchRequest_ResponseSchema,
-  unmarshalLogInputsRequest_ResponseSchema,
-  unmarshalLogLoggedModelParamsRequest_ResponseSchema,
-  unmarshalLogMetricRequest_ResponseSchema,
-  unmarshalLogModelRequest_ResponseSchema,
-  unmarshalLogOutputsRequest_ResponseSchema,
-  unmarshalLogParamRequest_ResponseSchema,
-  unmarshalRestoreExperimentRequest_ResponseSchema,
-  unmarshalRestoreRunRequest_ResponseSchema,
-  unmarshalRestoreRunsRequest_ResponseSchema,
-  unmarshalSearchExperimentsRequest_ResponseSchema,
-  unmarshalSearchLoggedModelsRequest_ResponseSchema,
-  unmarshalSearchRunsRequest_ResponseSchema,
-  unmarshalSetExperimentTagRequest_ResponseSchema,
-  unmarshalSetLoggedModelTagsRequest_ResponseSchema,
-  unmarshalSetTagRequest_ResponseSchema,
-  unmarshalUpdateExperimentRequest_ResponseSchema,
-  unmarshalUpdateRunRequest_ResponseSchema,
+  unmarshalCreateExperimentResponseSchema,
+  unmarshalCreateLoggedModelResponseSchema,
+  unmarshalCreateRunResponseSchema,
+  unmarshalDeleteExperimentResponseSchema,
+  unmarshalDeleteLoggedModelResponseSchema,
+  unmarshalDeleteLoggedModelTagResponseSchema,
+  unmarshalDeleteRunResponseSchema,
+  unmarshalDeleteRunsResponseSchema,
+  unmarshalDeleteTagResponseSchema,
+  unmarshalFinalizeLoggedModelResponseSchema,
+  unmarshalGetExperimentByNameResponseSchema,
+  unmarshalGetExperimentResponseSchema,
+  unmarshalGetLoggedModelResponseSchema,
+  unmarshalGetMetricHistoryResponseSchema,
+  unmarshalGetRunResponseSchema,
+  unmarshalListArtifactsResponseSchema,
+  unmarshalListExperimentsResponseSchema,
+  unmarshalLogBatchResponseSchema,
+  unmarshalLogInputsResponseSchema,
+  unmarshalLogLoggedModelParamsResponseSchema,
+  unmarshalLogMetricResponseSchema,
+  unmarshalLogModelResponseSchema,
+  unmarshalLogOutputsResponseSchema,
+  unmarshalLogParamResponseSchema,
+  unmarshalRestoreExperimentResponseSchema,
+  unmarshalRestoreRunResponseSchema,
+  unmarshalRestoreRunsResponseSchema,
+  unmarshalSearchExperimentsResponseSchema,
+  unmarshalSearchLoggedModelsResponseSchema,
+  unmarshalSearchRunsResponseSchema,
+  unmarshalSetExperimentTagResponseSchema,
+  unmarshalSetLoggedModelTagsResponseSchema,
+  unmarshalSetTagResponseSchema,
+  unmarshalUpdateExperimentResponseSchema,
+  unmarshalUpdateRunResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -203,10 +203,10 @@ export class ExperimentsClient {
   async createExperiment(
     req: CreateExperimentRequest,
     options?: CallOptions
-  ): Promise<CreateExperimentRequest_Response> {
+  ): Promise<CreateExperimentResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/create`;
     const body = marshalRequest(req, marshalCreateExperimentRequestSchema);
-    let resp: CreateExperimentRequest_Response | undefined;
+    let resp: CreateExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -219,10 +219,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateExperimentRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateExperimentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -235,10 +232,10 @@ export class ExperimentsClient {
   async createLoggedModel(
     req: CreateLoggedModelRequest,
     options?: CallOptions
-  ): Promise<CreateLoggedModelRequest_Response> {
+  ): Promise<CreateLoggedModelResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models`;
     const body = marshalRequest(req, marshalCreateLoggedModelRequestSchema);
-    let resp: CreateLoggedModelRequest_Response | undefined;
+    let resp: CreateLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -251,10 +248,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateLoggedModelRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateLoggedModelResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -271,10 +265,10 @@ export class ExperimentsClient {
   async createRun(
     req: CreateRunRequest,
     options?: CallOptions
-  ): Promise<CreateRunRequest_Response> {
+  ): Promise<CreateRunResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/create`;
     const body = marshalRequest(req, marshalCreateRunRequestSchema);
-    let resp: CreateRunRequest_Response | undefined;
+    let resp: CreateRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -287,7 +281,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -303,10 +297,10 @@ export class ExperimentsClient {
   async deleteExperiment(
     req: DeleteExperimentRequest,
     options?: CallOptions
-  ): Promise<DeleteExperimentRequest_Response> {
+  ): Promise<DeleteExperimentResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/delete`;
     const body = marshalRequest(req, marshalDeleteExperimentRequestSchema);
-    let resp: DeleteExperimentRequest_Response | undefined;
+    let resp: DeleteExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -319,10 +313,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteExperimentRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteExperimentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -335,9 +326,9 @@ export class ExperimentsClient {
   async deleteLoggedModel(
     req: DeleteLoggedModelRequest,
     options?: CallOptions
-  ): Promise<DeleteLoggedModelRequest_Response> {
+  ): Promise<DeleteLoggedModelResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
-    let resp: DeleteLoggedModelRequest_Response | undefined;
+    let resp: DeleteLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -350,10 +341,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteLoggedModelRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteLoggedModelResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -366,9 +354,9 @@ export class ExperimentsClient {
   async deleteLoggedModelTag(
     req: DeleteLoggedModelTagRequest,
     options?: CallOptions
-  ): Promise<DeleteLoggedModelTagRequest_Response> {
+  ): Promise<DeleteLoggedModelTagResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags/${req.tagKey ?? ''}`;
-    let resp: DeleteLoggedModelTagRequest_Response | undefined;
+    let resp: DeleteLoggedModelTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -383,7 +371,7 @@ export class ExperimentsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteLoggedModelTagRequest_ResponseSchema
+        unmarshalDeleteLoggedModelTagResponseSchema
       );
     };
     await executeCall(call, options);
@@ -397,10 +385,10 @@ export class ExperimentsClient {
   async deleteRun(
     req: DeleteRunRequest,
     options?: CallOptions
-  ): Promise<DeleteRunRequest_Response> {
+  ): Promise<DeleteRunResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
-    let resp: DeleteRunRequest_Response | undefined;
+    let resp: DeleteRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -413,7 +401,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -429,10 +417,10 @@ export class ExperimentsClient {
   async deleteRuns(
     req: DeleteRunsRequest,
     options?: CallOptions
-  ): Promise<DeleteRunsRequest_Response> {
+  ): Promise<DeleteRunsResponse> {
     const url = `${this.host}/api/2.0/mlflow/databricks/runs/delete-runs`;
     const body = marshalRequest(req, marshalDeleteRunsRequestSchema);
-    let resp: DeleteRunsRequest_Response | undefined;
+    let resp: DeleteRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -445,7 +433,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteRunsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteRunsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -461,10 +449,10 @@ export class ExperimentsClient {
   async deleteTag(
     req: DeleteTagRequest,
     options?: CallOptions
-  ): Promise<DeleteTagRequest_Response> {
+  ): Promise<DeleteTagResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/delete-tag`;
     const body = marshalRequest(req, marshalDeleteTagRequestSchema);
-    let resp: DeleteTagRequest_Response | undefined;
+    let resp: DeleteTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -477,7 +465,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteTagRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteTagResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -490,10 +478,10 @@ export class ExperimentsClient {
   async finalizeLoggedModel(
     req: FinalizeLoggedModelRequest,
     options?: CallOptions
-  ): Promise<FinalizeLoggedModelRequest_Response> {
+  ): Promise<FinalizeLoggedModelResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     const body = marshalRequest(req, marshalFinalizeLoggedModelRequestSchema);
-    let resp: FinalizeLoggedModelRequest_Response | undefined;
+    let resp: FinalizeLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -508,7 +496,7 @@ export class ExperimentsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalFinalizeLoggedModelRequest_ResponseSchema
+        unmarshalFinalizeLoggedModelResponseSchema
       );
     };
     await executeCall(call, options);
@@ -522,7 +510,7 @@ export class ExperimentsClient {
   async getExperiment(
     req: GetExperimentRequest,
     options?: CallOptions
-  ): Promise<GetExperimentRequest_Response> {
+  ): Promise<GetExperimentResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/get`;
     const params = new URLSearchParams();
     if (req.experimentId !== undefined) {
@@ -530,7 +518,7 @@ export class ExperimentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetExperimentRequest_Response | undefined;
+    let resp: GetExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -543,10 +531,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetExperimentRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetExperimentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -567,7 +552,7 @@ export class ExperimentsClient {
   async getExperimentByName(
     req: GetExperimentByNameRequest,
     options?: CallOptions
-  ): Promise<GetExperimentByNameRequest_Response> {
+  ): Promise<GetExperimentByNameResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/get-by-name`;
     const params = new URLSearchParams();
     if (req.experimentName !== undefined) {
@@ -575,7 +560,7 @@ export class ExperimentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetExperimentByNameRequest_Response | undefined;
+    let resp: GetExperimentByNameResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -590,7 +575,7 @@ export class ExperimentsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetExperimentByNameRequest_ResponseSchema
+        unmarshalGetExperimentByNameResponseSchema
       );
     };
     await executeCall(call, options);
@@ -604,9 +589,9 @@ export class ExperimentsClient {
   async getLoggedModel(
     req: GetLoggedModelRequest,
     options?: CallOptions
-  ): Promise<GetLoggedModelRequest_Response> {
+  ): Promise<GetLoggedModelResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
-    let resp: GetLoggedModelRequest_Response | undefined;
+    let resp: GetLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -619,10 +604,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetLoggedModelRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetLoggedModelResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -640,7 +622,7 @@ export class ExperimentsClient {
   async getRun(
     req: GetRunRequest,
     options?: CallOptions
-  ): Promise<GetRunRequest_Response> {
+  ): Promise<GetRunResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -651,7 +633,7 @@ export class ExperimentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetRunRequest_Response | undefined;
+    let resp: GetRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -664,7 +646,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -683,7 +665,7 @@ export class ExperimentsClient {
   async listArtifacts(
     req: ListArtifactsRequest,
     options?: CallOptions
-  ): Promise<ListArtifactsRequest_Response> {
+  ): Promise<ListArtifactsResponse> {
     const url = `${this.host}/api/2.0/mlflow/artifacts/list`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -700,7 +682,7 @@ export class ExperimentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListArtifactsRequest_Response | undefined;
+    let resp: ListArtifactsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -713,10 +695,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListArtifactsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListArtifactsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -746,7 +725,7 @@ export class ExperimentsClient {
   async listExperiments(
     req: ListExperimentsRequest,
     options?: CallOptions
-  ): Promise<ListExperimentsRequest_Response> {
+  ): Promise<ListExperimentsResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/list`;
     const params = new URLSearchParams();
     if (req.viewType !== undefined) {
@@ -760,7 +739,7 @@ export class ExperimentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListExperimentsRequest_Response | undefined;
+    let resp: ListExperimentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -773,10 +752,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListExperimentsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListExperimentsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -806,7 +782,7 @@ export class ExperimentsClient {
   async listMetricHistory(
     req: ListMetricHistoryRequest,
     options?: CallOptions
-  ): Promise<ListMetricHistoryRequest_Response> {
+  ): Promise<GetMetricHistoryResponse> {
     const url = `${this.host}/api/2.0/mlflow/metrics/get-history`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -826,7 +802,7 @@ export class ExperimentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListMetricHistoryRequest_Response | undefined;
+    let resp: GetMetricHistoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -839,10 +815,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListMetricHistoryRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetMetricHistoryResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -913,10 +886,10 @@ export class ExperimentsClient {
   async logBatch(
     req: LogBatchRequest,
     options?: CallOptions
-  ): Promise<LogBatchRequest_Response> {
+  ): Promise<LogBatchResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-batch`;
     const body = marshalRequest(req, marshalLogBatchRequestSchema);
-    let resp: LogBatchRequest_Response | undefined;
+    let resp: LogBatchResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -929,7 +902,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalLogBatchRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalLogBatchResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -942,10 +915,10 @@ export class ExperimentsClient {
   async logInputs(
     req: LogInputsRequest,
     options?: CallOptions
-  ): Promise<LogInputsRequest_Response> {
+  ): Promise<LogInputsResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-inputs`;
     const body = marshalRequest(req, marshalLogInputsRequestSchema);
-    let resp: LogInputsRequest_Response | undefined;
+    let resp: LogInputsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -958,7 +931,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalLogInputsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalLogInputsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -975,10 +948,10 @@ export class ExperimentsClient {
   async logLoggedModelParams(
     req: LogLoggedModelParamsRequest,
     options?: CallOptions
-  ): Promise<LogLoggedModelParamsRequest_Response> {
+  ): Promise<LogLoggedModelParamsResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/params`;
     const body = marshalRequest(req, marshalLogLoggedModelParamsRequestSchema);
-    let resp: LogLoggedModelParamsRequest_Response | undefined;
+    let resp: LogLoggedModelParamsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -993,7 +966,7 @@ export class ExperimentsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalLogLoggedModelParamsRequest_ResponseSchema
+        unmarshalLogLoggedModelParamsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -1011,10 +984,10 @@ export class ExperimentsClient {
   async logMetric(
     req: LogMetricRequest,
     options?: CallOptions
-  ): Promise<LogMetricRequest_Response> {
+  ): Promise<LogMetricResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-metric`;
     const body = marshalRequest(req, marshalLogMetricRequestSchema);
-    let resp: LogMetricRequest_Response | undefined;
+    let resp: LogMetricResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1027,7 +1000,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalLogMetricRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalLogMetricResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1044,10 +1017,10 @@ export class ExperimentsClient {
   async logModel(
     req: LogModelRequest,
     options?: CallOptions
-  ): Promise<LogModelRequest_Response> {
+  ): Promise<LogModelResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-model`;
     const body = marshalRequest(req, marshalLogModelRequestSchema);
-    let resp: LogModelRequest_Response | undefined;
+    let resp: LogModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1060,7 +1033,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalLogModelRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalLogModelResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1073,10 +1046,10 @@ export class ExperimentsClient {
   async logOutputs(
     req: LogOutputsRequest,
     options?: CallOptions
-  ): Promise<LogOutputsRequest_Response> {
+  ): Promise<LogOutputsResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/outputs`;
     const body = marshalRequest(req, marshalLogOutputsRequestSchema);
-    let resp: LogOutputsRequest_Response | undefined;
+    let resp: LogOutputsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1089,7 +1062,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalLogOutputsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalLogOutputsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1106,10 +1079,10 @@ export class ExperimentsClient {
   async logParam(
     req: LogParamRequest,
     options?: CallOptions
-  ): Promise<LogParamRequest_Response> {
+  ): Promise<LogParamResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-parameter`;
     const body = marshalRequest(req, marshalLogParamRequestSchema);
-    let resp: LogParamRequest_Response | undefined;
+    let resp: LogParamResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1122,7 +1095,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalLogParamRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalLogParamResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1141,10 +1114,10 @@ export class ExperimentsClient {
   async restoreExperiment(
     req: RestoreExperimentRequest,
     options?: CallOptions
-  ): Promise<RestoreExperimentRequest_Response> {
+  ): Promise<RestoreExperimentResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/restore`;
     const body = marshalRequest(req, marshalRestoreExperimentRequestSchema);
-    let resp: RestoreExperimentRequest_Response | undefined;
+    let resp: RestoreExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1157,10 +1130,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalRestoreExperimentRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalRestoreExperimentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1177,10 +1147,10 @@ export class ExperimentsClient {
   async restoreRun(
     req: RestoreRunRequest,
     options?: CallOptions
-  ): Promise<RestoreRunRequest_Response> {
+  ): Promise<RestoreRunResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/restore`;
     const body = marshalRequest(req, marshalRestoreRunRequestSchema);
-    let resp: RestoreRunRequest_Response | undefined;
+    let resp: RestoreRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1193,7 +1163,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRestoreRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalRestoreRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1209,10 +1179,10 @@ export class ExperimentsClient {
   async restoreRuns(
     req: RestoreRunsRequest,
     options?: CallOptions
-  ): Promise<RestoreRunsRequest_Response> {
+  ): Promise<RestoreRunsResponse> {
     const url = `${this.host}/api/2.0/mlflow/databricks/runs/restore-runs`;
     const body = marshalRequest(req, marshalRestoreRunsRequestSchema);
-    let resp: RestoreRunsRequest_Response | undefined;
+    let resp: RestoreRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1225,10 +1195,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalRestoreRunsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalRestoreRunsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1241,10 +1208,10 @@ export class ExperimentsClient {
   async searchExperiments(
     req: SearchExperimentsRequest,
     options?: CallOptions
-  ): Promise<SearchExperimentsRequest_Response> {
+  ): Promise<SearchExperimentsResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/search`;
     const body = marshalRequest(req, marshalSearchExperimentsRequestSchema);
-    let resp: SearchExperimentsRequest_Response | undefined;
+    let resp: SearchExperimentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1257,10 +1224,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalSearchExperimentsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalSearchExperimentsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1290,10 +1254,10 @@ export class ExperimentsClient {
   async searchLoggedModels(
     req: SearchLoggedModelsRequest,
     options?: CallOptions
-  ): Promise<SearchLoggedModelsRequest_Response> {
+  ): Promise<SearchLoggedModelsResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/search`;
     const body = marshalRequest(req, marshalSearchLoggedModelsRequestSchema);
-    let resp: SearchLoggedModelsRequest_Response | undefined;
+    let resp: SearchLoggedModelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1306,10 +1270,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalSearchLoggedModelsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalSearchLoggedModelsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1326,10 +1287,10 @@ export class ExperimentsClient {
   async searchRuns(
     req: SearchRunsRequest,
     options?: CallOptions
-  ): Promise<SearchRunsRequest_Response> {
+  ): Promise<SearchRunsResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/search`;
     const body = marshalRequest(req, marshalSearchRunsRequestSchema);
-    let resp: SearchRunsRequest_Response | undefined;
+    let resp: SearchRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1342,7 +1303,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalSearchRunsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalSearchRunsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1372,10 +1333,10 @@ export class ExperimentsClient {
   async setExperimentTag(
     req: SetExperimentTagRequest,
     options?: CallOptions
-  ): Promise<SetExperimentTagRequest_Response> {
+  ): Promise<SetExperimentTagResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/set-experiment-tag`;
     const body = marshalRequest(req, marshalSetExperimentTagRequestSchema);
-    let resp: SetExperimentTagRequest_Response | undefined;
+    let resp: SetExperimentTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1388,10 +1349,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalSetExperimentTagRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalSetExperimentTagResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1404,10 +1362,10 @@ export class ExperimentsClient {
   async setLoggedModelTags(
     req: SetLoggedModelTagsRequest,
     options?: CallOptions
-  ): Promise<SetLoggedModelTagsRequest_Response> {
+  ): Promise<SetLoggedModelTagsResponse> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags`;
     const body = marshalRequest(req, marshalSetLoggedModelTagsRequestSchema);
-    let resp: SetLoggedModelTagsRequest_Response | undefined;
+    let resp: SetLoggedModelTagsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1420,10 +1378,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalSetLoggedModelTagsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalSetLoggedModelTagsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1439,10 +1394,10 @@ export class ExperimentsClient {
   async setTag(
     req: SetTagRequest,
     options?: CallOptions
-  ): Promise<SetTagRequest_Response> {
+  ): Promise<SetTagResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/set-tag`;
     const body = marshalRequest(req, marshalSetTagRequestSchema);
-    let resp: SetTagRequest_Response | undefined;
+    let resp: SetTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1455,7 +1410,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalSetTagRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalSetTagResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1468,10 +1423,10 @@ export class ExperimentsClient {
   async updateExperiment(
     req: UpdateExperimentRequest,
     options?: CallOptions
-  ): Promise<UpdateExperimentRequest_Response> {
+  ): Promise<UpdateExperimentResponse> {
     const url = `${this.host}/api/2.0/mlflow/experiments/update`;
     const body = marshalRequest(req, marshalUpdateExperimentRequestSchema);
-    let resp: UpdateExperimentRequest_Response | undefined;
+    let resp: UpdateExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1484,10 +1439,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateExperimentRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateExperimentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1500,10 +1452,10 @@ export class ExperimentsClient {
   async updateRun(
     req: UpdateRunRequest,
     options?: CallOptions
-  ): Promise<UpdateRunRequest_Response> {
+  ): Promise<UpdateRunResponse> {
     const url = `${this.host}/api/2.0/mlflow/runs/update`;
     const body = marshalRequest(req, marshalUpdateRunRequestSchema);
-    let resp: UpdateRunRequest_Response | undefined;
+    let resp: UpdateRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1516,7 +1468,7 @@ export class ExperimentsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdateRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalUpdateRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

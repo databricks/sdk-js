@@ -19,18 +19,18 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateSchemaRequest,
   DeleteSchemaRequest,
-  DeleteSchemaRequest_Response,
+  DeleteSchemaResponse,
   GetSchemaRequest,
   ListSchemasRequest,
-  ListSchemasRequest_Response,
+  ListSchemasResponse,
   SchemaInfo,
   UpdateSchemaRequest,
 } from './model';
 import {
   marshalCreateSchemaRequestSchema,
   marshalUpdateSchemaRequestSchema,
-  unmarshalDeleteSchemaRequest_ResponseSchema,
-  unmarshalListSchemasRequest_ResponseSchema,
+  unmarshalDeleteSchemaResponseSchema,
+  unmarshalListSchemasResponseSchema,
   unmarshalSchemaInfoSchema,
 } from './model';
 
@@ -107,7 +107,7 @@ export class SchemasClient {
   async deleteSchema(
     req: DeleteSchemaRequest,
     options?: CallOptions
-  ): Promise<DeleteSchemaRequest_Response> {
+  ): Promise<DeleteSchemaResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -115,7 +115,7 @@ export class SchemasClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteSchemaRequest_Response | undefined;
+    let resp: DeleteSchemaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -128,10 +128,7 @@ export class SchemasClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteSchemaRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteSchemaResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -191,7 +188,7 @@ export class SchemasClient {
   async listSchemas(
     req: ListSchemasRequest,
     options?: CallOptions
-  ): Promise<ListSchemasRequest_Response> {
+  ): Promise<ListSchemasResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -208,7 +205,7 @@ export class SchemasClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSchemasRequest_Response | undefined;
+    let resp: ListSchemasResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -221,10 +218,7 @@ export class SchemasClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSchemasRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListSchemasResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

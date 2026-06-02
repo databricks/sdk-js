@@ -7,13 +7,13 @@ export {AutoscopeState} from './model';
 export type {
   AdminTokenInfo,
   CreateOnBehalfOfTokenRequest,
-  CreateOnBehalfOfTokenRequest_Response,
+  CreateOnBehalfOfTokenResponse,
   GetTokenRequest,
-  GetTokenRequest_Response,
+  GetTokenResponse,
   ListTokensRequest,
-  ListTokensRequest_Response,
+  ListTokensResponse,
   RevokeTokenRequest,
-  RevokeTokenRequest_Response,
+  RevokeTokenResponse,
   UpdateToken,
 } from './model';
 

@@ -154,8 +154,8 @@ export interface DeleteFunctionRequest {
   force?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteFunctionRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteFunctionResponse {}
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
@@ -302,8 +302,7 @@ export interface ListFunctionsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListFunctionsRequest_Response {
+export interface ListFunctionsResponse {
   /** An array of function information objects. */
   functions?: FunctionInfo[] | undefined;
   /**
@@ -402,8 +401,7 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
       credentialName: d.credential_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteFunctionRequest_ResponseSchema: z.ZodType<DeleteFunctionRequest_Response> =
+export const unmarshalDeleteFunctionResponseSchema: z.ZodType<DeleteFunctionResponse> =
   z.object({});
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
@@ -563,8 +561,7 @@ export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterI
       parameters: d.parameters,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListFunctionsRequest_ResponseSchema: z.ZodType<ListFunctionsRequest_Response> =
+export const unmarshalListFunctionsResponseSchema: z.ZodType<ListFunctionsResponse> =
   z
     .object({
       functions: z.array(z.lazy(() => unmarshalFunctionInfoSchema)).optional(),

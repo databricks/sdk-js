@@ -18,22 +18,22 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateLogDeliveryConfigurationRequest,
-  CreateLogDeliveryConfigurationRequest_Response,
+  CreateLogDeliveryConfigurationResponse,
   GetLogDeliveryConfigurationRequest,
-  GetLogDeliveryConfigurationRequest_Response,
+  GetLogDeliveryConfigurationResponse,
   ListLogDeliveryConfigurationRequest,
-  ListLogDeliveryConfigurationRequest_Response,
+  ListLogDeliveryConfigurationResponse,
   LogDeliveryConfiguration,
   UpdateLogDeliveryConfigurationRequest,
-  UpdateLogDeliveryConfigurationRequest_Response,
+  UpdateLogDeliveryConfigurationResponse,
 } from './model';
 import {
   marshalCreateLogDeliveryConfigurationRequestSchema,
   marshalUpdateLogDeliveryConfigurationRequestSchema,
-  unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema,
-  unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema,
-  unmarshalListLogDeliveryConfigurationRequest_ResponseSchema,
-  unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema,
+  unmarshalCreateLogDeliveryConfigurationResponseSchema,
+  unmarshalGetLogDeliveryConfigurationResponseSchema,
+  unmarshalListLogDeliveryConfigurationResponseSchema,
+  unmarshalUpdateLogDeliveryConfigurationResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -87,13 +87,13 @@ export class LogDeliveryClient {
   async createLogDeliveryConfiguration(
     req: CreateLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<CreateLogDeliveryConfigurationRequest_Response> {
+  ): Promise<CreateLogDeliveryConfigurationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? this.accountId ?? ''}/log-delivery`;
     const body = marshalRequest(
       req,
       marshalCreateLogDeliveryConfigurationRequestSchema
     );
-    let resp: CreateLogDeliveryConfigurationRequest_Response | undefined;
+    let resp: CreateLogDeliveryConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -105,7 +105,7 @@ export class LogDeliveryClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema
+        unmarshalCreateLogDeliveryConfigurationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -119,9 +119,9 @@ export class LogDeliveryClient {
   async getLogDeliveryConfiguration(
     req: GetLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<GetLogDeliveryConfigurationRequest_Response> {
+  ): Promise<GetLogDeliveryConfigurationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
-    let resp: GetLogDeliveryConfigurationRequest_Response | undefined;
+    let resp: GetLogDeliveryConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -133,7 +133,7 @@ export class LogDeliveryClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema
+        unmarshalGetLogDeliveryConfigurationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -147,7 +147,7 @@ export class LogDeliveryClient {
   async listLogDeliveryConfiguration(
     req: ListLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<ListLogDeliveryConfigurationRequest_Response> {
+  ): Promise<ListLogDeliveryConfigurationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery`;
     const params = new URLSearchParams();
     if (req.credentialsId !== undefined) {
@@ -164,7 +164,7 @@ export class LogDeliveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListLogDeliveryConfigurationRequest_Response | undefined;
+    let resp: ListLogDeliveryConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -176,7 +176,7 @@ export class LogDeliveryClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListLogDeliveryConfigurationRequest_ResponseSchema
+        unmarshalListLogDeliveryConfigurationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -211,13 +211,13 @@ export class LogDeliveryClient {
   async updateLogDeliveryConfiguration(
     req: UpdateLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<UpdateLogDeliveryConfigurationRequest_Response> {
+  ): Promise<UpdateLogDeliveryConfigurationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateLogDeliveryConfigurationRequestSchema
     );
-    let resp: UpdateLogDeliveryConfigurationRequest_Response | undefined;
+    let resp: UpdateLogDeliveryConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -229,7 +229,7 @@ export class LogDeliveryClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema
+        unmarshalUpdateLogDeliveryConfigurationResponseSchema
       );
     };
     await executeCall(call, options);

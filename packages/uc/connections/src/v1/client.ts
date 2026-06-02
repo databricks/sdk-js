@@ -20,18 +20,18 @@ import type {
   ConnectionInfo,
   CreateConnectionRequest,
   DeleteConnectionRequest,
-  DeleteConnectionRequest_Response,
+  DeleteConnectionResponse,
   GetConnectionRequest,
   ListConnectionsRequest,
-  ListConnectionsRequest_Response,
+  ListConnectionsResponse,
   UpdateConnectionRequest,
 } from './model';
 import {
   marshalCreateConnectionRequestSchema,
   marshalUpdateConnectionRequestSchema,
   unmarshalConnectionInfoSchema,
-  unmarshalDeleteConnectionRequest_ResponseSchema,
-  unmarshalListConnectionsRequest_ResponseSchema,
+  unmarshalDeleteConnectionResponseSchema,
+  unmarshalListConnectionsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -106,9 +106,9 @@ export class ConnectionsClient {
   async deleteConnection(
     req: DeleteConnectionRequest,
     options?: CallOptions
-  ): Promise<DeleteConnectionRequest_Response> {
+  ): Promise<DeleteConnectionResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
-    let resp: DeleteConnectionRequest_Response | undefined;
+    let resp: DeleteConnectionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -121,10 +121,7 @@ export class ConnectionsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteConnectionRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteConnectionResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -172,7 +169,7 @@ export class ConnectionsClient {
   async listConnections(
     req: ListConnectionsRequest,
     options?: CallOptions
-  ): Promise<ListConnectionsRequest_Response> {
+  ): Promise<ListConnectionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/connections`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -183,7 +180,7 @@ export class ConnectionsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListConnectionsRequest_Response | undefined;
+    let resp: ListConnectionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -196,10 +193,7 @@ export class ConnectionsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListConnectionsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListConnectionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

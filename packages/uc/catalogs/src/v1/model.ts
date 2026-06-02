@@ -193,8 +193,8 @@ export interface DeleteCatalogRequest {
   force?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteCatalogRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteCatalogResponse {}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
@@ -247,8 +247,7 @@ export interface ListCatalogsRequest {
   includeUnbound?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListCatalogsRequest_Response {
+export interface ListCatalogsResponse {
   /** An array of catalog information objects. */
   catalogs?: CatalogInfo[] | undefined;
   /**
@@ -411,8 +410,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCatalogRequest_ResponseSchema: z.ZodType<DeleteCatalogRequest_Response> =
+export const unmarshalDeleteCatalogResponseSchema: z.ZodType<DeleteCatalogResponse> =
   z.object({});
 
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
@@ -443,8 +441,7 @@ export const unmarshalEncryptionSettingsSchema: z.ZodType<EncryptionSettings> =
       azureEncryptionSettings: d.azure_encryption_settings,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCatalogsRequest_ResponseSchema: z.ZodType<ListCatalogsRequest_Response> =
+export const unmarshalListCatalogsResponseSchema: z.ZodType<ListCatalogsResponse> =
   z
     .object({
       catalogs: z.array(z.lazy(() => unmarshalCatalogInfoSchema)).optional(),

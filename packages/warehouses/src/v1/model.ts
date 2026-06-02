@@ -811,8 +811,7 @@ export interface CreateWarehouseRequest {
   warehouseType?: WarehouseType | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateWarehouseRequest_Response {
+export interface CreateWarehouseResponse {
   /**
    * Id for the SQL warehouse.
    * This value is unique across all SQL warehouses.
@@ -852,6 +851,9 @@ export interface DeleteDefaultWarehouseOverrideRequest {
    */
   name?: string | undefined;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteWarehouseResponse {}
 
 /**
  * This is an incremental edit functionality, so all fields except id are optional. If a field is set, the corresponding
@@ -955,8 +957,8 @@ export interface EditWarehouseRequest {
   warehouseType?: WarehouseType | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditWarehouseRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EditWarehouseResponse {}
 
 export interface EndpointConfPair {
   key?: string | undefined;
@@ -1110,8 +1112,7 @@ export interface GetWarehouseRequest {
   id?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWarehouseRequest_Response {
+export interface GetWarehouseResponse {
   /** unique identifier for warehouse */
   id?: string | undefined;
   /**
@@ -1227,8 +1228,7 @@ export interface GetWarehouseRequest_Response {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface GetWorkspaceWarehouseConfigRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWorkspaceWarehouseConfigRequest_Response {
+export interface GetWorkspaceWarehouseConfigResponse {
   /** Security policy for warehouses */
   securityPolicy?: EndpointSecurityPolicy | undefined;
   /**
@@ -1299,6 +1299,16 @@ export interface ListDefaultWarehouseOverridesResponse {
   nextPageToken?: string | undefined;
 }
 
+export interface ListWarehousesResponse {
+  /** A list of warehouses and their configurations. */
+  warehouses?: EndpointInfo[] | undefined;
+  /**
+   * A token, which can be sent as `page_token` to retrieve the next page.
+   * If this field is omitted, there are no subsequent pages.
+   */
+  nextPageToken?: string | undefined;
+}
+
 export interface OdbcParams {
   hostname?: string | undefined;
   path?: string | undefined;
@@ -1358,8 +1368,14 @@ export interface SetWorkspaceWarehouseConfigRequest {
   enabledWarehouseTypes?: WarehouseTypePair[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface SetWorkspaceWarehouseConfigRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface SetWorkspaceWarehouseConfigResponse {}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface StartResponse {}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface StopResponse {}
 
 export interface TerminationReason {
   /** status code indicating why the cluster was terminated */
@@ -1422,9 +1438,6 @@ export interface DeleteWarehouseRequest {
   id?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteWarehouseRequest_Response {}
-
 /**
  * Lists all of the SQL warehouses.
  * TODO: consider paginating to limit the number of warehouses returned.
@@ -1449,17 +1462,6 @@ export interface ListWarehousesRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListWarehousesRequest_Response {
-  /** A list of warehouses and their configurations. */
-  warehouses?: EndpointInfo[] | undefined;
-  /**
-   * A token, which can be sent as `page_token` to retrieve the next page.
-   * If this field is omitted, there are no subsequent pages.
-   */
-  nextPageToken?: string | undefined;
-}
-
 /**
  * Starts a SQL warehouse.
  * This API is idempotent.
@@ -1469,9 +1471,6 @@ export interface StartRequest {
   id?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface StartRequest_Response {}
-
 /**
  * Stops a SQL warehouse.
  * This API is idempotent.
@@ -1480,9 +1479,6 @@ export interface StopRequest {
   /** Required. Id of the SQL warehouse. */
   id?: string | undefined;
 }
-
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface StopRequest_Response {}
 
 export const unmarshalChannelSchema: z.ZodType<Channel> = z
   .object({
@@ -1494,8 +1490,7 @@ export const unmarshalChannelSchema: z.ZodType<Channel> = z
     dbsqlVersion: d.dbsql_version,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateWarehouseRequest_ResponseSchema: z.ZodType<CreateWarehouseRequest_Response> =
+export const unmarshalCreateWarehouseResponseSchema: z.ZodType<CreateWarehouseResponse> =
   z
     .object({
       id: z.string().optional(),
@@ -1519,8 +1514,10 @@ export const unmarshalDefaultWarehouseOverrideSchema: z.ZodType<DefaultWarehouse
       warehouseId: d.warehouse_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditWarehouseRequest_ResponseSchema: z.ZodType<EditWarehouseRequest_Response> =
+export const unmarshalDeleteWarehouseResponseSchema: z.ZodType<DeleteWarehouseResponse> =
+  z.object({});
+
+export const unmarshalEditWarehouseResponseSchema: z.ZodType<EditWarehouseResponse> =
   z.object({});
 
 export const unmarshalEndpointConfPairSchema: z.ZodType<EndpointConfPair> = z
@@ -1618,8 +1615,7 @@ export const unmarshalEndpointTagsSchema: z.ZodType<EndpointTags> = z
     customTags: d.custom_tags,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWarehouseRequest_ResponseSchema: z.ZodType<GetWarehouseRequest_Response> =
+export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse> =
   z
     .object({
       id: z.string().optional(),
@@ -1669,8 +1665,7 @@ export const unmarshalGetWarehouseRequest_ResponseSchema: z.ZodType<GetWarehouse
       health: d.health,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest_Response> =
+export const unmarshalGetWorkspaceWarehouseConfigResponseSchema: z.ZodType<GetWorkspaceWarehouseConfigResponse> =
   z
     .object({
       security_policy: z.enum(EndpointSecurityPolicy).optional(),
@@ -1720,6 +1715,17 @@ export const unmarshalListDefaultWarehouseOverridesResponseSchema: z.ZodType<Lis
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalListWarehousesResponseSchema: z.ZodType<ListWarehousesResponse> =
+  z
+    .object({
+      warehouses: z.array(z.lazy(() => unmarshalEndpointInfoSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      warehouses: d.warehouses,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalOdbcParamsSchema: z.ZodType<OdbcParams> = z
   .object({
     hostname: z.string().optional(),
@@ -1749,9 +1755,16 @@ export const unmarshalRepeatedEndpointConfPairsSchema: z.ZodType<RepeatedEndpoin
       configurationPairs: d.configuration_pairs,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<SetWorkspaceWarehouseConfigRequest_Response> =
+export const unmarshalSetWorkspaceWarehouseConfigResponseSchema: z.ZodType<SetWorkspaceWarehouseConfigResponse> =
   z.object({});
+
+export const unmarshalStartResponseSchema: z.ZodType<StartResponse> = z.object(
+  {}
+);
+
+export const unmarshalStopResponseSchema: z.ZodType<StopResponse> = z.object(
+  {}
+);
 
 export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
   .object({
@@ -1774,30 +1787,6 @@ export const unmarshalWarehouseTypePairSchema: z.ZodType<WarehouseTypePair> = z
     warehouseType: d.warehouse_type,
     enabled: d.enabled,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteWarehouseRequest_ResponseSchema: z.ZodType<DeleteWarehouseRequest_Response> =
-  z.object({});
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListWarehousesRequest_ResponseSchema: z.ZodType<ListWarehousesRequest_Response> =
-  z
-    .object({
-      warehouses: z.array(z.lazy(() => unmarshalEndpointInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      warehouses: d.warehouses,
-      nextPageToken: d.next_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStartRequest_ResponseSchema: z.ZodType<StartRequest_Response> =
-  z.object({});
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStopRequest_ResponseSchema: z.ZodType<StopRequest_Response> =
-  z.object({});
 
 export const marshalChannelSchema: z.ZodType = z
   .object({

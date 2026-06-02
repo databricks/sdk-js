@@ -1047,8 +1047,8 @@ export interface ChangeClusterOwnerRequest {
   ownerUsername?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ChangeClusterOwnerRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ChangeClusterOwnerResponse {}
 
 export interface CloneCluster {
   /** The cluster that is being cloned. */
@@ -2071,11 +2071,6 @@ export interface CreateClusterRequest_CustomTagsEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateClusterRequest_Response {
-  clusterId?: string | undefined;
-}
-
 /** Spark configuration key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreateClusterRequest_SparkConfEntry {
@@ -2088,6 +2083,10 @@ export interface CreateClusterRequest_SparkConfEntry {
 export interface CreateClusterRequest_SparkEnvVarsEntry {
   key?: string | undefined;
   value?: string | undefined;
+}
+
+export interface CreateClusterResponse {
+  clusterId?: string | undefined;
 }
 
 export interface DataPlaneEventDetails {
@@ -2108,8 +2107,8 @@ export interface DeleteClusterRequest {
   clusterId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteClusterResponse {}
 
 export interface DockerBasicAuth {
   /** Name of the user */
@@ -2330,9 +2329,6 @@ export interface EditClusterRequest_CustomTagsEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditClusterRequest_Response {}
-
 /** Spark configuration key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EditClusterRequest_SparkConfEntry {
@@ -2347,6 +2343,9 @@ export interface EditClusterRequest_SparkEnvVarsEntry {
   value?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EditClusterResponse {}
+
 export interface EnforcePolicyComplianceForClusterRequest {
   /** The ID of the cluster you want to enforce policy compliance on. */
   clusterId?: string | undefined;
@@ -2357,8 +2356,7 @@ export interface EnforcePolicyComplianceForClusterRequest {
   validateOnly?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EnforcePolicyComplianceForClusterRequest_Response {
+export interface EnforcePolicyComplianceForClusterResponse {
   /**
    * Whether any changes have been made to the cluster settings for the cluster
    * to become compliant with its policy.
@@ -2369,7 +2367,7 @@ export interface EnforcePolicyComplianceForClusterRequest_Response {
    * the cluster to become compliant with its policy.
    */
   changes?:
-    | EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange[]
+    | EnforcePolicyComplianceForClusterResponse_ClusterSettingsChange[]
     | undefined;
 }
 
@@ -2378,7 +2376,7 @@ export interface EnforcePolicyComplianceForClusterRequest_Response {
  * to become compliant with its policy.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange {
+export interface EnforcePolicyComplianceForClusterResponse_ClusterSettingsChange {
   /** The field where this change would be made. */
   field?: string | undefined;
   /**
@@ -2516,13 +2514,39 @@ export interface GetClusterRequest {
   clusterId?: string | undefined;
 }
 
+export interface GetEventsResponse {
+  events?: ClusterEvent[] | undefined;
+  /**
+   * Deprecated: use next_page_token or prev_page_token instead.
+   *
+   * The parameters required to retrieve the next page of events.
+   * Omitted if there are no more events to read.
+   */
+  nextPage?: ListEventsRequest | undefined;
+  /**
+   * Deprecated: Returns 0 when request uses page_token. Will start returning zero when request uses offset/limit soon.
+   *
+   * The total number of events filtered by the start_time, end_time, and event_types.
+   */
+  totalCount?: bigint | undefined;
+  /**
+   * This field represents the pagination token to retrieve the next page of results.
+   * If the value is "", it means no further results for the request.
+   */
+  nextPageToken?: string | undefined;
+  /**
+   * This field represents the pagination token to retrieve the previous page of results.
+   * If the value is "", it means no further results for the request.
+   */
+  prevPageToken?: string | undefined;
+}
+
 export interface GetPolicyComplianceForClusterRequest {
   /** The ID of the cluster to get the compliance status */
   clusterId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPolicyComplianceForClusterRequest_Response {
+export interface GetPolicyComplianceForClusterResponse {
   /**
    * Whether the cluster is compliant with its policy or not. Clusters could be out
    * of compliance if the policy was updated after the cluster was last edited.
@@ -2538,7 +2562,7 @@ export interface GetPolicyComplianceForClusterRequest_Response {
 
 /** Proto defined to model a mapping from string to string. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPolicyComplianceForClusterRequest_Response_ViolationsEntry {
+export interface GetPolicyComplianceForClusterResponse_ViolationsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -2547,8 +2571,7 @@ export interface GetPolicyComplianceForClusterRequest_Response_ViolationsEntry {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface GetSparkVersionsRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetSparkVersionsRequest_Response {
+export interface GetSparkVersionsResponse {
   /** All the available Spark versions. */
   versions?: SparkVersion[] | undefined;
 }
@@ -2725,8 +2748,7 @@ export interface InitScriptInfo {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListAvailableZonesRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListAvailableZonesRequest_Response {
+export interface ListAvailableZonesResponse {
   /** The list of available zones (e.g., ['us-west-2c', 'us-east-2']). */
   zones?: string[] | undefined;
   /** The availability zone if no ``zone_id`` is provided in the cluster creation request. */
@@ -2749,8 +2771,7 @@ export interface ListClusterComplianceForPolicyRequest {
   pageSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListClusterComplianceForPolicyRequest_Response {
+export interface ListClusterComplianceForPolicyResponse {
   /** A list of clusters and their policy compliance statuses. */
   clusters?: ClusterCompliance[] | undefined;
   /**
@@ -2772,8 +2793,7 @@ export interface ListClustersRequest {
   pageSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListClustersRequest_Response {
+export interface ListClustersResponse {
   clusters?: ClusterInfo[] | undefined;
   /**
    * This field represents the pagination token to retrieve the next page of results.
@@ -2835,39 +2855,10 @@ export interface ListEventsRequest {
   pageSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListEventsRequest_Response {
-  events?: ClusterEvent[] | undefined;
-  /**
-   * Deprecated: use next_page_token or prev_page_token instead.
-   *
-   * The parameters required to retrieve the next page of events.
-   * Omitted if there are no more events to read.
-   */
-  nextPage?: ListEventsRequest | undefined;
-  /**
-   * Deprecated: Returns 0 when request uses page_token. Will start returning zero when request uses offset/limit soon.
-   *
-   * The total number of events filtered by the start_time, end_time, and event_types.
-   */
-  totalCount?: bigint | undefined;
-  /**
-   * This field represents the pagination token to retrieve the next page of results.
-   * If the value is "", it means no further results for the request.
-   */
-  nextPageToken?: string | undefined;
-  /**
-   * This field represents the pagination token to retrieve the previous page of results.
-   * If the value is "", it means no further results for the request.
-   */
-  prevPageToken?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListNodeTypesRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListNodeTypesRequest_Response {
+export interface ListNodeTypesResponse {
   /** The list of available Spark node types. */
   nodeTypes?: NodeType[] | undefined;
 }
@@ -2986,15 +2977,15 @@ export interface PermanentDeleteClusterRequest {
   clusterId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PermanentDeleteClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PermanentDeleteClusterResponse {}
 
 export interface PinClusterRequest {
   clusterId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PinClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PinClusterResponse {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ResizeCause {}
@@ -3028,8 +3019,8 @@ export interface ResizeClusterRequest {
     | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ResizeClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ResizeClusterResponse {}
 
 export interface RestartClusterRequest {
   /** The cluster to be started. */
@@ -3037,8 +3028,8 @@ export interface RestartClusterRequest {
   restartUser?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RestartClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RestartClusterResponse {}
 
 /** A storage location in Amazon S3 */
 export interface S3StorageInfo {
@@ -3137,8 +3128,8 @@ export interface StartClusterRequest {
   clusterId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface StartClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface StartClusterResponse {}
 
 export interface TerminationReason {
   /** status code indicating why the cluster was terminated */
@@ -3159,8 +3150,8 @@ export interface UnpinClusterRequest {
   clusterId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UnpinClusterRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UnpinClusterResponse {}
 
 export interface UpdateClusterRequest {
   /** ID of the cluster. */
@@ -3172,9 +3163,6 @@ export interface UpdateClusterRequest {
     | FieldMask<UpdateClusterRequest_UpdateClusterResource>
     | undefined;
 }
-
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateClusterRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface UpdateClusterRequest_UpdateClusterResource {
@@ -3387,6 +3375,9 @@ export interface UpdateClusterRequest_UpdateClusterResource_SparkEnvVarsEntry {
   value?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateClusterResponse {}
+
 /** A storage location back by UC Volumes. */
 export interface VolumesStorageInfo {
   /**
@@ -3476,8 +3467,7 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
     spotBidMaxPrice: d.spot_bid_max_price,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalChangeClusterOwnerRequest_ResponseSchema: z.ZodType<ChangeClusterOwnerRequest_Response> =
+export const unmarshalChangeClusterOwnerResponseSchema: z.ZodType<ChangeClusterOwnerResponse> =
   z.object({});
 
 export const unmarshalCloudProviderNodeInfoSchema: z.ZodType<CloudProviderNodeInfo> =
@@ -3853,8 +3843,7 @@ export const unmarshalClusterSizeSchema: z.ZodType<ClusterSize> = z
           : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateClusterRequest_ResponseSchema: z.ZodType<CreateClusterRequest_Response> =
+export const unmarshalCreateClusterResponseSchema: z.ZodType<CreateClusterResponse> =
   z
     .object({
       cluster_id: z.string().optional(),
@@ -3889,8 +3878,7 @@ export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
     destination: d.destination,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteClusterRequest_ResponseSchema: z.ZodType<DeleteClusterRequest_Response> =
+export const unmarshalDeleteClusterResponseSchema: z.ZodType<DeleteClusterResponse> =
   z.object({});
 
 export const unmarshalDockerBasicAuthSchema: z.ZodType<DockerBasicAuth> = z
@@ -3916,12 +3904,10 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
         : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditClusterRequest_ResponseSchema: z.ZodType<EditClusterRequest_Response> =
+export const unmarshalEditClusterResponseSchema: z.ZodType<EditClusterResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema: z.ZodType<EnforcePolicyComplianceForClusterRequest_Response> =
+export const unmarshalEnforcePolicyComplianceForClusterResponseSchema: z.ZodType<EnforcePolicyComplianceForClusterResponse> =
   z
     .object({
       has_changes: z.boolean().optional(),
@@ -3929,7 +3915,7 @@ export const unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema: z
         .array(
           z.lazy(
             () =>
-              unmarshalEnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChangeSchema
+              unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsChangeSchema
           )
         )
         .optional(),
@@ -3940,7 +3926,7 @@ export const unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema: z
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange> =
+export const unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForClusterResponse_ClusterSettingsChange> =
   z
     .object({
       field: z.string().optional(),
@@ -4043,8 +4029,26 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
     destination: d.destination,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema: z.ZodType<GetPolicyComplianceForClusterRequest_Response> =
+export const unmarshalGetEventsResponseSchema: z.ZodType<GetEventsResponse> = z
+  .object({
+    events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
+    next_page: z.lazy(() => unmarshalListEventsRequestSchema).optional(),
+    total_count: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    next_page_token: z.string().optional(),
+    prev_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    events: d.events,
+    nextPage: d.next_page,
+    totalCount: d.total_count,
+    nextPageToken: d.next_page_token,
+    prevPageToken: d.prev_page_token,
+  }));
+
+export const unmarshalGetPolicyComplianceForClusterResponseSchema: z.ZodType<GetPolicyComplianceForClusterResponse> =
   z
     .object({
       is_compliant: z.boolean().optional(),
@@ -4055,8 +4059,7 @@ export const unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema: z.Zod
       violations: d.violations,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetSparkVersionsRequest_ResponseSchema: z.ZodType<GetSparkVersionsRequest_Response> =
+export const unmarshalGetSparkVersionsResponseSchema: z.ZodType<GetSparkVersionsResponse> =
   z
     .object({
       versions: z.array(z.lazy(() => unmarshalSparkVersionSchema)).optional(),
@@ -4162,8 +4165,7 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
                     : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAvailableZonesRequest_ResponseSchema: z.ZodType<ListAvailableZonesRequest_Response> =
+export const unmarshalListAvailableZonesResponseSchema: z.ZodType<ListAvailableZonesResponse> =
   z
     .object({
       zones: z.array(z.string()).optional(),
@@ -4174,8 +4176,7 @@ export const unmarshalListAvailableZonesRequest_ResponseSchema: z.ZodType<ListAv
       defaultZone: d.default_zone,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListClusterComplianceForPolicyRequest_ResponseSchema: z.ZodType<ListClusterComplianceForPolicyRequest_Response> =
+export const unmarshalListClusterComplianceForPolicyResponseSchema: z.ZodType<ListClusterComplianceForPolicyResponse> =
   z
     .object({
       clusters: z
@@ -4190,8 +4191,7 @@ export const unmarshalListClusterComplianceForPolicyRequest_ResponseSchema: z.Zo
       prevPageToken: d.prev_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListClustersRequest_ResponseSchema: z.ZodType<ListClustersRequest_Response> =
+export const unmarshalListClustersResponseSchema: z.ZodType<ListClustersResponse> =
   z
     .object({
       clusters: z.array(z.lazy(() => unmarshalClusterInfoSchema)).optional(),
@@ -4240,29 +4240,7 @@ export const unmarshalListEventsRequestSchema: z.ZodType<ListEventsRequest> = z
     pageSize: d.page_size,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListEventsRequest_ResponseSchema: z.ZodType<ListEventsRequest_Response> =
-  z
-    .object({
-      events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
-      next_page: z.lazy(() => unmarshalListEventsRequestSchema).optional(),
-      total_count: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      events: d.events,
-      nextPage: d.next_page,
-      totalCount: d.total_count,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListNodeTypesRequest_ResponseSchema: z.ZodType<ListNodeTypesRequest_Response> =
+export const unmarshalListNodeTypesResponseSchema: z.ZodType<ListNodeTypesResponse> =
   z
     .object({
       node_types: z.array(z.lazy(() => unmarshalNodeTypeSchema)).optional(),
@@ -4375,20 +4353,16 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
       alternateNodeTypeIds: d.alternate_node_type_ids,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPermanentDeleteClusterRequest_ResponseSchema: z.ZodType<PermanentDeleteClusterRequest_Response> =
+export const unmarshalPermanentDeleteClusterResponseSchema: z.ZodType<PermanentDeleteClusterResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPinClusterRequest_ResponseSchema: z.ZodType<PinClusterRequest_Response> =
+export const unmarshalPinClusterResponseSchema: z.ZodType<PinClusterResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResizeClusterRequest_ResponseSchema: z.ZodType<ResizeClusterRequest_Response> =
+export const unmarshalResizeClusterResponseSchema: z.ZodType<ResizeClusterResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestartClusterRequest_ResponseSchema: z.ZodType<RestartClusterRequest_Response> =
+export const unmarshalRestartClusterResponseSchema: z.ZodType<RestartClusterResponse> =
   z.object({});
 
 export const unmarshalS3StorageInfoSchema: z.ZodType<S3StorageInfo> = z
@@ -4458,8 +4432,7 @@ export const unmarshalSparkVersionSchema: z.ZodType<SparkVersion> = z
     name: d.name,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStartClusterRequest_ResponseSchema: z.ZodType<StartClusterRequest_Response> =
+export const unmarshalStartClusterResponseSchema: z.ZodType<StartClusterResponse> =
   z.object({});
 
 export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
@@ -4474,12 +4447,10 @@ export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
     parameters: d.parameters,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUnpinClusterRequest_ResponseSchema: z.ZodType<UnpinClusterRequest_Response> =
+export const unmarshalUnpinClusterResponseSchema: z.ZodType<UnpinClusterResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateClusterRequest_ResponseSchema: z.ZodType<UpdateClusterRequest_Response> =
+export const unmarshalUpdateClusterResponseSchema: z.ZodType<UpdateClusterResponse> =
   z.object({});
 
 export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =

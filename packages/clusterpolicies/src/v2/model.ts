@@ -46,8 +46,7 @@ export interface CreatePolicyRequest {
   libraries?: Library[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePolicyRequest_Response {
+export interface CreatePolicyResponse {
   /** Canonical unique identifier for the cluster policy. */
   policyId?: string | undefined;
 }
@@ -57,8 +56,8 @@ export interface DeletePolicyRequest {
   policyId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePolicyRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeletePolicyResponse {}
 
 export interface EditPolicyRequest {
   /** The ID of the policy to update. */
@@ -94,8 +93,8 @@ export interface EditPolicyRequest {
   libraries?: Library[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditPolicyRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EditPolicyResponse {}
 
 export interface GetPolicyRequest {
   /** Canonical unique identifier for the Cluster Policy. */
@@ -178,8 +177,7 @@ export interface ListPoliciesRequest {
   sortColumn?: PolicySortColumn | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPoliciesRequest_Response {
+export interface ListPoliciesResponse {
   /** List of policies. */
   policies?: Policy[] | undefined;
 }
@@ -268,8 +266,7 @@ export interface RCranLibrary {
   repo?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreatePolicyRequest_ResponseSchema: z.ZodType<CreatePolicyRequest_Response> =
+export const unmarshalCreatePolicyResponseSchema: z.ZodType<CreatePolicyResponse> =
   z
     .object({
       policy_id: z.string().optional(),
@@ -278,12 +275,10 @@ export const unmarshalCreatePolicyRequest_ResponseSchema: z.ZodType<CreatePolicy
       policyId: d.policy_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePolicyRequest_ResponseSchema: z.ZodType<DeletePolicyRequest_Response> =
+export const unmarshalDeletePolicyResponseSchema: z.ZodType<DeletePolicyResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditPolicyRequest_ResponseSchema: z.ZodType<EditPolicyRequest_Response> =
+export const unmarshalEditPolicyResponseSchema: z.ZodType<EditPolicyResponse> =
   z.object({});
 
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
@@ -318,8 +313,7 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
                     : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPoliciesRequest_ResponseSchema: z.ZodType<ListPoliciesRequest_Response> =
+export const unmarshalListPoliciesResponseSchema: z.ZodType<ListPoliciesResponse> =
   z
     .object({
       policies: z.array(z.lazy(() => unmarshalPolicySchema)).optional(),

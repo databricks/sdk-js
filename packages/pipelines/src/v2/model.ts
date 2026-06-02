@@ -318,8 +318,8 @@ export interface ApplyEnvironmentRequest {
   pipelineId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ApplyEnvironmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ApplyEnvironmentResponse {}
 
 /** Policy for auto full refresh. */
 export interface AutoFullRefreshPolicy {
@@ -419,12 +419,6 @@ export interface ClonePipelineRequest_ConfigurationEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClonePipelineRequest_Response {
-  /** The pipeline id of the cloned pipeline */
-  pipelineId?: string | undefined;
-}
-
 /** A key-value entry that defines a single pipeline tags. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClonePipelineRequest_TagsEntry {
@@ -435,6 +429,11 @@ export interface ClonePipelineRequest_TagsEntry {
    * If the value is not provided, the key serves as the sole identifier of this key-value pair and the values is assumed to be an empty string.
    */
   value?: string | undefined;
+}
+
+export interface ClonePipelineResponse {
+  /** The pipeline id of the cloned pipeline */
+  pipelineId?: string | undefined;
 }
 
 /** Confluence specific options for ingestion */
@@ -565,14 +564,6 @@ export interface CreatePipelineRequest_ParametersEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipelineRequest_Response {
-  /** The unique identifier for the newly created pipeline. Only returned when dry_run is false. */
-  pipelineId?: string | undefined;
-  /** Only returned when dry_run is true. */
-  effectiveSettings?: PipelineSpec | undefined;
-}
-
 /** A key-value entry that defines a single pipeline tags. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreatePipelineRequest_TagsEntry {
@@ -583,6 +574,13 @@ export interface CreatePipelineRequest_TagsEntry {
    * If the value is not provided, the key serves as the sole identifier of this key-value pair and the values is assumed to be an empty string.
    */
   value?: string | undefined;
+}
+
+export interface CreatePipelineResponse {
+  /** The unique identifier for the newly created pipeline. Only returned when dry_run is false. */
+  pipelineId?: string | undefined;
+  /** Only returned when dry_run is true. */
+  effectiveSettings?: PipelineSpec | undefined;
 }
 
 export interface CronTrigger {
@@ -627,8 +625,8 @@ export interface DeletePipelineRequest {
   cascade?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePipelineRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeletePipelineResponse {}
 
 export interface EditPipelineRequest {
   /** Unique identifier for this pipeline. */
@@ -726,9 +724,6 @@ export interface EditPipelineRequest_ParametersEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditPipelineRequest_Response {}
-
 /** A key-value entry that defines a single pipeline tags. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EditPipelineRequest_TagsEntry {
@@ -740,6 +735,9 @@ export interface EditPipelineRequest_TagsEntry {
    */
   value?: string | undefined;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EditPipelineResponse {}
 
 export interface ErrorDetail {
   /** The exception thrown for this error, with its chain of cause. */
@@ -838,8 +836,7 @@ export interface GetPipelineRequest {
   pipelineId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPipelineRequest_Response {
+export interface GetPipelineResponse {
   /** The ID of the pipeline. */
   pipelineId?: string | undefined;
   /** The pipeline specification. This field is not returned when called by `ListPipelines`. */
@@ -880,7 +877,7 @@ export interface GetPipelineRequest_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPipelineRequest_Response_ParametersEntry {
+export interface GetPipelineResponse_ParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -892,8 +889,7 @@ export interface GetUpdateRequest {
   updateId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetUpdateRequest_Response {
+export interface GetUpdateResponse {
   /** The current update info. */
   update?: UpdateInfo | undefined;
 }
@@ -1347,8 +1343,7 @@ export interface ListPipelineEventsRequest {
   filter?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPipelineEventsRequest_Response {
+export interface ListPipelineEventsResponse {
   /** The list of events matching the request criteria. */
   events?: PipelineEvent[] | undefined;
   /** If present, a token to fetch the next page of events. */
@@ -1391,8 +1386,7 @@ export interface ListPipelinesRequest {
   filter?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPipelinesRequest_Response {
+export interface ListPipelinesResponse {
   /** The list of events matching the request criteria. */
   statuses?: PipelineStateInfo[] | undefined;
   /** If present, a token to fetch the next page of events. */
@@ -1415,8 +1409,7 @@ export interface ListUpdatesRequest {
   untilUpdateId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListUpdatesRequest_Response {
+export interface ListUpdatesResponse {
   updates?: UpdateInfo[] | undefined;
   /**
    * If present, then there are more results, and this a token to be used in a subsequent request
@@ -2453,8 +2446,7 @@ export interface StartUpdateRequest_ParametersEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface StartUpdateRequest_Response {
+export interface StartUpdateResponse {
   updateId?: string | undefined;
 }
 
@@ -2462,8 +2454,8 @@ export interface StopPipelineRequest {
   pipelineId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface StopPipelineRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface StopPipelineResponse {}
 
 /** TikTok Ads specific options for ingestion */
 export interface TikTokAdsOptions {
@@ -2601,8 +2593,7 @@ export interface ZendeskSupportOptions {
   startDate?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalApplyEnvironmentRequest_ResponseSchema: z.ZodType<ApplyEnvironmentRequest_Response> =
+export const unmarshalApplyEnvironmentResponseSchema: z.ZodType<ApplyEnvironmentResponse> =
   z.object({});
 
 export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPolicy> =
@@ -2616,8 +2607,7 @@ export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPoli
       minIntervalHours: d.min_interval_hours,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClonePipelineRequest_ResponseSchema: z.ZodType<ClonePipelineRequest_Response> =
+export const unmarshalClonePipelineResponseSchema: z.ZodType<ClonePipelineResponse> =
   z
     .object({
       pipeline_id: z.string().optional(),
@@ -2732,8 +2722,7 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                             : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreatePipelineRequest_ResponseSchema: z.ZodType<CreatePipelineRequest_Response> =
+export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResponse> =
   z
     .object({
       pipeline_id: z.string().optional(),
@@ -2780,12 +2769,10 @@ export const unmarshalDataStagingOptionsSchema: z.ZodType<DataStagingOptions> =
       volumeName: d.volume_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePipelineRequest_ResponseSchema: z.ZodType<DeletePipelineRequest_Response> =
+export const unmarshalDeletePipelineResponseSchema: z.ZodType<DeletePipelineResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditPipelineRequest_ResponseSchema: z.ZodType<EditPipelineRequest_Response> =
+export const unmarshalEditPipelineResponseSchema: z.ZodType<EditPipelineResponse> =
   z.object({});
 
 export const unmarshalErrorDetailSchema: z.ZodType<ErrorDetail> = z
@@ -2873,8 +2860,7 @@ export const unmarshalFiltersSchema: z.ZodType<Filters> = z
     exclude: d.exclude,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPipelineRequest_ResponseSchema: z.ZodType<GetPipelineRequest_Response> =
+export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> =
   z
     .object({
       pipeline_id: z.string().optional(),
@@ -2916,15 +2902,13 @@ export const unmarshalGetPipelineRequest_ResponseSchema: z.ZodType<GetPipelineRe
       parameters: d.parameters,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetUpdateRequest_ResponseSchema: z.ZodType<GetUpdateRequest_Response> =
-  z
-    .object({
-      update: z.lazy(() => unmarshalUpdateInfoSchema).optional(),
-    })
-    .transform(d => ({
-      update: d.update,
-    }));
+export const unmarshalGetUpdateResponseSchema: z.ZodType<GetUpdateResponse> = z
+  .object({
+    update: z.lazy(() => unmarshalUpdateInfoSchema).optional(),
+  })
+  .transform(d => ({
+    update: d.update,
+  }));
 
 export const unmarshalGoogleAdsConfigSchema: z.ZodType<GoogleAdsConfig> = z
   .object({
@@ -3286,8 +3270,7 @@ export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
     clientConfig: d.client_config,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPipelineEventsRequest_ResponseSchema: z.ZodType<ListPipelineEventsRequest_Response> =
+export const unmarshalListPipelineEventsResponseSchema: z.ZodType<ListPipelineEventsResponse> =
   z
     .object({
       events: z.array(z.lazy(() => unmarshalPipelineEventSchema)).optional(),
@@ -3300,8 +3283,7 @@ export const unmarshalListPipelineEventsRequest_ResponseSchema: z.ZodType<ListPi
       prevPageToken: d.prev_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPipelinesRequest_ResponseSchema: z.ZodType<ListPipelinesRequest_Response> =
+export const unmarshalListPipelinesResponseSchema: z.ZodType<ListPipelinesResponse> =
   z
     .object({
       statuses: z
@@ -3314,8 +3296,7 @@ export const unmarshalListPipelinesRequest_ResponseSchema: z.ZodType<ListPipelin
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListUpdatesRequest_ResponseSchema: z.ZodType<ListUpdatesRequest_Response> =
+export const unmarshalListUpdatesResponseSchema: z.ZodType<ListUpdatesResponse> =
   z
     .object({
       updates: z.array(z.lazy(() => unmarshalUpdateInfoSchema)).optional(),
@@ -3999,8 +3980,7 @@ export const unmarshalStackFrameSchema: z.ZodType<StackFrame> = z
     lineNumber: d.line_number,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStartUpdateRequest_ResponseSchema: z.ZodType<StartUpdateRequest_Response> =
+export const unmarshalStartUpdateResponseSchema: z.ZodType<StartUpdateResponse> =
   z
     .object({
       update_id: z.string().optional(),
@@ -4009,8 +3989,7 @@ export const unmarshalStartUpdateRequest_ResponseSchema: z.ZodType<StartUpdateRe
       updateId: d.update_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStopPipelineRequest_ResponseSchema: z.ZodType<StopPipelineRequest_Response> =
+export const unmarshalStopPipelineResponseSchema: z.ZodType<StopPipelineResponse> =
   z.object({});
 
 export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z

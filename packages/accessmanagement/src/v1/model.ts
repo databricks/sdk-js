@@ -128,14 +128,19 @@ export interface DeleteWorkspacePermissionAssignmentRequest {
   principalId?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteWorkspacePermissionAssignmentRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteWorkspacePermissionAssignmentResponse {}
 
 export interface GetObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
+}
+
+export interface GetPermissionLevelsResponse {
+  /** Specific permission levels */
+  permissionLevels?: PermissionsDescription[] | undefined;
 }
 
 export interface GetRuleSetRequest {
@@ -165,6 +170,11 @@ export interface GetRuleSetRequest {
    * `etag=RENUAAABhSweA4NvVmmUYdiU717H3Tgy0UJdor3gE4a+mq/oj9NjAf8ZsQ==` | An etag encoded a specific version of the rule set to get or to be updated.
    */
   etag?: string | undefined;
+}
+
+export interface GetWorkspacePermissionAssignmentsResponse {
+  /** Array of permissions assignments defined for a workspace. */
+  permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
 }
 
 export interface GrantRule {
@@ -207,24 +217,12 @@ export interface ListPermissionLevelsRequest {
   requestObjectId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPermissionLevelsRequest_Response {
-  /** Specific permission levels */
-  permissionLevels?: PermissionsDescription[] | undefined;
-}
-
 /** Gets all the permission assignments for a workspace, given an account and a workspace. */
 export interface ListWorkspacePermissionAssignmentsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID for the account. */
   workspaceId?: bigint | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListWorkspacePermissionAssignmentsRequest_Response {
-  /** Array of permissions assignments defined for a workspace. */
-  permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
 }
 
 /** List permissions for a workspace, given an account and a workspace. */
@@ -235,8 +233,7 @@ export interface ListWorkspacePermissionsRequest {
   workspaceId?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListWorkspacePermissionsRequest_Response {
+export interface ListWorkspacePermissionsResponse {
   /** Array of permissions defined for a workspace. */
   permissions?: PermissionOutput[] | undefined;
 }
@@ -437,9 +434,30 @@ export const unmarshalConsistencyTokenSchema: z.ZodType<ConsistencyToken> = z
     value: d.value,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignmentRequest_Response> =
+export const unmarshalDeleteWorkspacePermissionAssignmentResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignmentResponse> =
   z.object({});
+
+export const unmarshalGetPermissionLevelsResponseSchema: z.ZodType<GetPermissionLevelsResponse> =
+  z
+    .object({
+      permission_levels: z
+        .array(z.lazy(() => unmarshalPermissionsDescriptionSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      permissionLevels: d.permission_levels,
+    }));
+
+export const unmarshalGetWorkspacePermissionAssignmentsResponseSchema: z.ZodType<GetWorkspacePermissionAssignmentsResponse> =
+  z
+    .object({
+      permission_assignments: z
+        .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      permissionAssignments: d.permission_assignments,
+    }));
 
 export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
   .object({
@@ -460,32 +478,7 @@ export const unmarshalListAssignableRolesForResourceResponseSchema: z.ZodType<Li
       roles: d.roles,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPermissionLevelsRequest_ResponseSchema: z.ZodType<ListPermissionLevelsRequest_Response> =
-  z
-    .object({
-      permission_levels: z
-        .array(z.lazy(() => unmarshalPermissionsDescriptionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionLevels: d.permission_levels,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListWorkspacePermissionAssignmentsRequest_ResponseSchema: z.ZodType<ListWorkspacePermissionAssignmentsRequest_Response> =
-  z
-    .object({
-      permission_assignments: z
-        .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionAssignments: d.permission_assignments,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListWorkspacePermissionsRequest_ResponseSchema: z.ZodType<ListWorkspacePermissionsRequest_Response> =
+export const unmarshalListWorkspacePermissionsResponseSchema: z.ZodType<ListWorkspacePermissionsResponse> =
   z
     .object({
       permissions: z

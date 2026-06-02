@@ -6,7 +6,7 @@ export {UsageDashboardMajorVersion, UsageDashboardType} from './model';
 
 export type {
   CreateBillingUsageDashboardRequest,
-  CreateBillingUsageDashboardRequest_Response,
+  CreateBillingUsageDashboardResponse,
   GetBillingUsageDashboardRequest,
-  GetBillingUsageDashboardRequest_Response,
+  GetBillingUsageDashboardResponse,
 } from './model';

@@ -17,14 +17,14 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetQuotaRequest,
-  GetQuotaRequest_Response,
+  GetQuotaResponse,
   ListQuotasRequest,
-  ListQuotasRequest_Response,
+  ListQuotasResponse,
   QuotaInfo,
 } from './model';
 import {
-  unmarshalGetQuotaRequest_ResponseSchema,
-  unmarshalListQuotasRequest_ResponseSchema,
+  unmarshalGetQuotaResponseSchema,
+  unmarshalListQuotasResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -69,9 +69,9 @@ export class ResourceQuotasClient {
   async getQuota(
     req: GetQuotaRequest,
     options?: CallOptions
-  ): Promise<GetQuotaRequest_Response> {
+  ): Promise<GetQuotaResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/${req.parentSecurableType ?? ''}/${req.parentFullName ?? ''}/${req.quotaName ?? ''}`;
-    let resp: GetQuotaRequest_Response | undefined;
+    let resp: GetQuotaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -84,7 +84,7 @@ export class ResourceQuotasClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetQuotaRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetQuotaResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -103,7 +103,7 @@ export class ResourceQuotasClient {
   async listQuota(
     req: ListQuotasRequest,
     options?: CallOptions
-  ): Promise<ListQuotasRequest_Response> {
+  ): Promise<ListQuotasResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/all-resource-quotas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -114,7 +114,7 @@ export class ResourceQuotasClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListQuotasRequest_Response | undefined;
+    let resp: ListQuotasResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -127,7 +127,7 @@ export class ResourceQuotasClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListQuotasRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListQuotasResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

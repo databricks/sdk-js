@@ -21,47 +21,47 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ChangeClusterOwnerRequest,
-  ChangeClusterOwnerRequest_Response,
+  ChangeClusterOwnerResponse,
   ClusterCompliance,
   ClusterEvent,
   ClusterInfo,
   CreateClusterRequest,
-  CreateClusterRequest_Response,
+  CreateClusterResponse,
   DeleteClusterRequest,
-  DeleteClusterRequest_Response,
+  DeleteClusterResponse,
   EditClusterRequest,
-  EditClusterRequest_Response,
+  EditClusterResponse,
   EnforcePolicyComplianceForClusterRequest,
-  EnforcePolicyComplianceForClusterRequest_Response,
+  EnforcePolicyComplianceForClusterResponse,
   GetClusterRequest,
+  GetEventsResponse,
   GetPolicyComplianceForClusterRequest,
-  GetPolicyComplianceForClusterRequest_Response,
+  GetPolicyComplianceForClusterResponse,
   GetSparkVersionsRequest,
-  GetSparkVersionsRequest_Response,
+  GetSparkVersionsResponse,
   ListAvailableZonesRequest,
-  ListAvailableZonesRequest_Response,
+  ListAvailableZonesResponse,
   ListClusterComplianceForPolicyRequest,
-  ListClusterComplianceForPolicyRequest_Response,
+  ListClusterComplianceForPolicyResponse,
   ListClustersRequest,
-  ListClustersRequest_Response,
+  ListClustersResponse,
   ListEventsRequest,
-  ListEventsRequest_Response,
   ListNodeTypesRequest,
-  ListNodeTypesRequest_Response,
+  ListNodeTypesResponse,
   PermanentDeleteClusterRequest,
-  PermanentDeleteClusterRequest_Response,
+  PermanentDeleteClusterResponse,
   PinClusterRequest,
-  PinClusterRequest_Response,
+  PinClusterResponse,
   ResizeClusterRequest,
-  ResizeClusterRequest_Response,
+  ResizeClusterResponse,
   RestartClusterRequest,
-  RestartClusterRequest_Response,
+  RestartClusterResponse,
   StartClusterRequest,
-  StartClusterRequest_Response,
+  StartClusterResponse,
   UnpinClusterRequest,
-  UnpinClusterRequest_Response,
+  UnpinClusterResponse,
   UpdateClusterRequest,
-  UpdateClusterRequest_Response,
+  UpdateClusterResponse,
 } from './model';
 import {
   ClusterState_ClusterState,
@@ -78,26 +78,26 @@ import {
   marshalStartClusterRequestSchema,
   marshalUnpinClusterRequestSchema,
   marshalUpdateClusterRequestSchema,
-  unmarshalChangeClusterOwnerRequest_ResponseSchema,
+  unmarshalChangeClusterOwnerResponseSchema,
   unmarshalClusterInfoSchema,
-  unmarshalCreateClusterRequest_ResponseSchema,
-  unmarshalDeleteClusterRequest_ResponseSchema,
-  unmarshalEditClusterRequest_ResponseSchema,
-  unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema,
-  unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema,
-  unmarshalGetSparkVersionsRequest_ResponseSchema,
-  unmarshalListAvailableZonesRequest_ResponseSchema,
-  unmarshalListClusterComplianceForPolicyRequest_ResponseSchema,
-  unmarshalListClustersRequest_ResponseSchema,
-  unmarshalListEventsRequest_ResponseSchema,
-  unmarshalListNodeTypesRequest_ResponseSchema,
-  unmarshalPermanentDeleteClusterRequest_ResponseSchema,
-  unmarshalPinClusterRequest_ResponseSchema,
-  unmarshalResizeClusterRequest_ResponseSchema,
-  unmarshalRestartClusterRequest_ResponseSchema,
-  unmarshalStartClusterRequest_ResponseSchema,
-  unmarshalUnpinClusterRequest_ResponseSchema,
-  unmarshalUpdateClusterRequest_ResponseSchema,
+  unmarshalCreateClusterResponseSchema,
+  unmarshalDeleteClusterResponseSchema,
+  unmarshalEditClusterResponseSchema,
+  unmarshalEnforcePolicyComplianceForClusterResponseSchema,
+  unmarshalGetEventsResponseSchema,
+  unmarshalGetPolicyComplianceForClusterResponseSchema,
+  unmarshalGetSparkVersionsResponseSchema,
+  unmarshalListAvailableZonesResponseSchema,
+  unmarshalListClusterComplianceForPolicyResponseSchema,
+  unmarshalListClustersResponseSchema,
+  unmarshalListNodeTypesResponseSchema,
+  unmarshalPermanentDeleteClusterResponseSchema,
+  unmarshalPinClusterResponseSchema,
+  unmarshalResizeClusterResponseSchema,
+  unmarshalRestartClusterResponseSchema,
+  unmarshalStartClusterResponseSchema,
+  unmarshalUnpinClusterResponseSchema,
+  unmarshalUpdateClusterResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -142,10 +142,10 @@ export class ClustersClient {
   async listEvents(
     req: ListEventsRequest,
     options?: CallOptions
-  ): Promise<ListEventsRequest_Response> {
+  ): Promise<GetEventsResponse> {
     const url = `${this.host}/api/2.1/clusters/events`;
     const body = marshalRequest(req, marshalListEventsRequestSchema);
-    let resp: ListEventsRequest_Response | undefined;
+    let resp: GetEventsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -158,7 +158,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListEventsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetEventsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -188,10 +188,10 @@ export class ClustersClient {
   async changeClusterOwner(
     req: ChangeClusterOwnerRequest,
     options?: CallOptions
-  ): Promise<ChangeClusterOwnerRequest_Response> {
+  ): Promise<ChangeClusterOwnerResponse> {
     const url = `${this.host}/api/2.1/clusters/change-owner`;
     const body = marshalRequest(req, marshalChangeClusterOwnerRequestSchema);
-    let resp: ChangeClusterOwnerRequest_Response | undefined;
+    let resp: ChangeClusterOwnerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -204,10 +204,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalChangeClusterOwnerRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalChangeClusterOwnerResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -233,10 +230,10 @@ export class ClustersClient {
   private async createCluster(
     req: CreateClusterRequest,
     options?: CallOptions
-  ): Promise<CreateClusterRequest_Response> {
+  ): Promise<CreateClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/create`;
     const body = marshalRequest(req, marshalCreateClusterRequestSchema);
-    let resp: CreateClusterRequest_Response | undefined;
+    let resp: CreateClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -249,10 +246,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -282,10 +276,10 @@ export class ClustersClient {
   private async deleteCluster(
     req: DeleteClusterRequest,
     options?: CallOptions
-  ): Promise<DeleteClusterRequest_Response> {
+  ): Promise<DeleteClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/delete`;
     const body = marshalRequest(req, marshalDeleteClusterRequestSchema);
-    let resp: DeleteClusterRequest_Response | undefined;
+    let resp: DeleteClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -298,10 +292,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -338,10 +329,10 @@ export class ClustersClient {
   private async editCluster(
     req: EditClusterRequest,
     options?: CallOptions
-  ): Promise<EditClusterRequest_Response> {
+  ): Promise<EditClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/edit`;
     const body = marshalRequest(req, marshalEditClusterRequestSchema);
-    let resp: EditClusterRequest_Response | undefined;
+    let resp: EditClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -354,10 +345,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalEditClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalEditClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -423,9 +411,9 @@ export class ClustersClient {
   async listAvailableZones(
     _req: ListAvailableZonesRequest,
     options?: CallOptions
-  ): Promise<ListAvailableZonesRequest_Response> {
+  ): Promise<ListAvailableZonesResponse> {
     const url = `${this.host}/api/2.1/clusters/list-zones`;
-    let resp: ListAvailableZonesRequest_Response | undefined;
+    let resp: ListAvailableZonesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -438,10 +426,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListAvailableZonesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListAvailableZonesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -454,7 +439,7 @@ export class ClustersClient {
   async listClusters(
     req: ListClustersRequest,
     options?: CallOptions
-  ): Promise<ListClustersRequest_Response> {
+  ): Promise<ListClustersResponse> {
     const url = `${this.host}/api/2.1/clusters/list`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -465,7 +450,7 @@ export class ClustersClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListClustersRequest_Response | undefined;
+    let resp: ListClustersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -478,10 +463,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListClustersRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListClustersResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -511,9 +493,9 @@ export class ClustersClient {
   async listNodeTypes(
     _req: ListNodeTypesRequest,
     options?: CallOptions
-  ): Promise<ListNodeTypesRequest_Response> {
+  ): Promise<ListNodeTypesResponse> {
     const url = `${this.host}/api/2.1/clusters/list-node-types`;
-    let resp: ListNodeTypesRequest_Response | undefined;
+    let resp: ListNodeTypesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -526,10 +508,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListNodeTypesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListNodeTypesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -542,9 +521,9 @@ export class ClustersClient {
   async listSparkVersions(
     _req: GetSparkVersionsRequest,
     options?: CallOptions
-  ): Promise<GetSparkVersionsRequest_Response> {
+  ): Promise<GetSparkVersionsResponse> {
     const url = `${this.host}/api/2.1/clusters/spark-versions`;
-    let resp: GetSparkVersionsRequest_Response | undefined;
+    let resp: GetSparkVersionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -557,10 +536,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetSparkVersionsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetSparkVersionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -578,13 +554,13 @@ export class ClustersClient {
   async permanentDeleteCluster(
     req: PermanentDeleteClusterRequest,
     options?: CallOptions
-  ): Promise<PermanentDeleteClusterRequest_Response> {
+  ): Promise<PermanentDeleteClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/permanent-delete`;
     const body = marshalRequest(
       req,
       marshalPermanentDeleteClusterRequestSchema
     );
-    let resp: PermanentDeleteClusterRequest_Response | undefined;
+    let resp: PermanentDeleteClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -599,7 +575,7 @@ export class ClustersClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalPermanentDeleteClusterRequest_ResponseSchema
+        unmarshalPermanentDeleteClusterResponseSchema
       );
     };
     await executeCall(call, options);
@@ -617,10 +593,10 @@ export class ClustersClient {
   async pinCluster(
     req: PinClusterRequest,
     options?: CallOptions
-  ): Promise<PinClusterRequest_Response> {
+  ): Promise<PinClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/pin`;
     const body = marshalRequest(req, marshalPinClusterRequestSchema);
-    let resp: PinClusterRequest_Response | undefined;
+    let resp: PinClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -633,7 +609,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPinClusterRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPinClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -646,10 +622,10 @@ export class ClustersClient {
   private async resizeCluster(
     req: ResizeClusterRequest,
     options?: CallOptions
-  ): Promise<ResizeClusterRequest_Response> {
+  ): Promise<ResizeClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/resize`;
     const body = marshalRequest(req, marshalResizeClusterRequestSchema);
-    let resp: ResizeClusterRequest_Response | undefined;
+    let resp: ResizeClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -662,10 +638,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalResizeClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalResizeClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -691,10 +664,10 @@ export class ClustersClient {
   private async restartCluster(
     req: RestartClusterRequest,
     options?: CallOptions
-  ): Promise<RestartClusterRequest_Response> {
+  ): Promise<RestartClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/restart`;
     const body = marshalRequest(req, marshalRestartClusterRequestSchema);
-    let resp: RestartClusterRequest_Response | undefined;
+    let resp: RestartClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -707,10 +680,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalRestartClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalRestartClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -744,10 +714,10 @@ export class ClustersClient {
   private async startCluster(
     req: StartClusterRequest,
     options?: CallOptions
-  ): Promise<StartClusterRequest_Response> {
+  ): Promise<StartClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/start`;
     const body = marshalRequest(req, marshalStartClusterRequestSchema);
-    let resp: StartClusterRequest_Response | undefined;
+    let resp: StartClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -760,10 +730,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalStartClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalStartClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -793,10 +760,10 @@ export class ClustersClient {
   async unpinCluster(
     req: UnpinClusterRequest,
     options?: CallOptions
-  ): Promise<UnpinClusterRequest_Response> {
+  ): Promise<UnpinClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/unpin`;
     const body = marshalRequest(req, marshalUnpinClusterRequestSchema);
-    let resp: UnpinClusterRequest_Response | undefined;
+    let resp: UnpinClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -809,10 +776,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUnpinClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUnpinClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -834,10 +798,10 @@ export class ClustersClient {
   private async updateCluster(
     req: UpdateClusterRequest,
     options?: CallOptions
-  ): Promise<UpdateClusterRequest_Response> {
+  ): Promise<UpdateClusterResponse> {
     const url = `${this.host}/api/2.1/clusters/update`;
     const body = marshalRequest(req, marshalUpdateClusterRequestSchema);
-    let resp: UpdateClusterRequest_Response | undefined;
+    let resp: UpdateClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -850,10 +814,7 @@ export class ClustersClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateClusterRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateClusterResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -890,13 +851,13 @@ export class ClustersClient {
   async enforcePolicyComplianceForCluster(
     req: EnforcePolicyComplianceForClusterRequest,
     options?: CallOptions
-  ): Promise<EnforcePolicyComplianceForClusterRequest_Response> {
+  ): Promise<EnforcePolicyComplianceForClusterResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/enforce-compliance`;
     const body = marshalRequest(
       req,
       marshalEnforcePolicyComplianceForClusterRequestSchema
     );
-    let resp: EnforcePolicyComplianceForClusterRequest_Response | undefined;
+    let resp: EnforcePolicyComplianceForClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -911,7 +872,7 @@ export class ClustersClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema
+        unmarshalEnforcePolicyComplianceForClusterResponseSchema
       );
     };
     await executeCall(call, options);
@@ -928,7 +889,7 @@ export class ClustersClient {
   async getPolicyComplianceForCluster(
     req: GetPolicyComplianceForClusterRequest,
     options?: CallOptions
-  ): Promise<GetPolicyComplianceForClusterRequest_Response> {
+  ): Promise<GetPolicyComplianceForClusterResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/get-compliance`;
     const params = new URLSearchParams();
     if (req.clusterId !== undefined) {
@@ -936,7 +897,7 @@ export class ClustersClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPolicyComplianceForClusterRequest_Response | undefined;
+    let resp: GetPolicyComplianceForClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -951,7 +912,7 @@ export class ClustersClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema
+        unmarshalGetPolicyComplianceForClusterResponseSchema
       );
     };
     await executeCall(call, options);
@@ -969,7 +930,7 @@ export class ClustersClient {
   async listClusterComplianceForPolicy(
     req: ListClusterComplianceForPolicyRequest,
     options?: CallOptions
-  ): Promise<ListClusterComplianceForPolicyRequest_Response> {
+  ): Promise<ListClusterComplianceForPolicyResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/list-compliance`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
@@ -983,7 +944,7 @@ export class ClustersClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListClusterComplianceForPolicyRequest_Response | undefined;
+    let resp: ListClusterComplianceForPolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -998,7 +959,7 @@ export class ClustersClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListClusterComplianceForPolicyRequest_ResponseSchema
+        unmarshalListClusterComplianceForPolicyResponseSchema
       );
     };
     await executeCall(call, options);

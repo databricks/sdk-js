@@ -14,8 +14,8 @@ export {
 } from './model';
 
 export type {
+  ApiError,
   CreateWorkspaceBaseEnvironmentRequest,
-  DatabricksServiceExceptionWithDetailsProto,
   DefaultWorkspaceBaseEnvironment,
   DeleteWorkspaceBaseEnvironmentRequest,
   GetDefaultWorkspaceBaseEnvironmentRequest,

@@ -363,8 +363,8 @@ export interface DeleteInferenceEndpointRequest {
   name?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteInferenceEndpointRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteInferenceEndpointResponse {}
 
 export interface EmailNotifications {
   /** A list of email addresses to be notified when an endpoint successfully updates its configuration or state. */
@@ -564,8 +564,7 @@ export interface GetServedModelBuildLogsRequest {
   servedModelName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetServedModelBuildLogsRequest_Response {
+export interface GetServedModelBuildLogsResponse {
   /** The logs associated with building the served entity's environment. */
   logs?: string | undefined;
 }
@@ -577,8 +576,7 @@ export interface GetServedModelLogsRequest {
   servedModelName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetServedModelLogsRequest_Response {
+export interface GetServedModelLogsResponse {
   /** The most recent log lines of the model server processing invocation requests. */
   logs?: string | undefined;
 }
@@ -727,8 +725,7 @@ export interface InferenceTableConfig {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListInferenceEndpointsRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListInferenceEndpointsRequest_Response {
+export interface ListInferenceEndpointsResponse {
   /** The list of endpoints. */
   endpoints?: InferenceEndpoint[] | undefined;
 }
@@ -842,8 +839,7 @@ export interface PatchInferenceEndpointTagsRequest {
   deleteTags?: string[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PatchInferenceEndpointTagsRequest_Response {
+export interface PatchInferenceEndpointTagsResponse {
   tags?: EndpointTag[] | undefined;
 }
 
@@ -924,8 +920,7 @@ export interface PutInferenceEndpointAiGatewayRequest {
   fallbackConfig?: FallbackConfig | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PutInferenceEndpointAiGatewayRequest_Response {
+export interface PutInferenceEndpointAiGatewayResponse {
   /**
    * Configuration to enable usage tracking using system tables.
    * These tables allow you to monitor operational usage on endpoints and their associated costs.
@@ -972,8 +967,7 @@ export interface PutInferenceEndpointRateLimitsRequest {
   rateLimits?: RateLimit[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PutInferenceEndpointRateLimitsRequest_Response {
+export interface PutInferenceEndpointRateLimitsResponse {
   /** The list of endpoint rate limits. */
   rateLimits?: RateLimit[] | undefined;
 }
@@ -1083,8 +1077,7 @@ export interface UpdateInferenceEndpointNotificationsRequest {
   emailNotifications?: EmailNotifications | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateInferenceEndpointNotificationsRequest_Response {
+export interface UpdateInferenceEndpointNotificationsResponse {
   name?: string | undefined;
   emailNotifications?: EmailNotifications | undefined;
 }
@@ -1301,8 +1294,7 @@ export const unmarshalDatabricksModelServingConfigSchema: z.ZodType<DatabricksMo
       databricksApiTokenPlaintext: d.databricks_api_token_plaintext,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteInferenceEndpointRequest_ResponseSchema: z.ZodType<DeleteInferenceEndpointRequest_Response> =
+export const unmarshalDeleteInferenceEndpointResponseSchema: z.ZodType<DeleteInferenceEndpointResponse> =
   z.object({});
 
 export const unmarshalEmailNotificationsSchema: z.ZodType<EmailNotifications> =
@@ -1460,8 +1452,7 @@ export const unmarshalFoundationModelSchema: z.ZodType<FoundationModel> = z
     description: d.description,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetServedModelBuildLogsRequest_ResponseSchema: z.ZodType<GetServedModelBuildLogsRequest_Response> =
+export const unmarshalGetServedModelBuildLogsResponseSchema: z.ZodType<GetServedModelBuildLogsResponse> =
   z
     .object({
       logs: z.string().optional(),
@@ -1470,8 +1461,7 @@ export const unmarshalGetServedModelBuildLogsRequest_ResponseSchema: z.ZodType<G
       logs: d.logs,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetServedModelLogsRequest_ResponseSchema: z.ZodType<GetServedModelLogsRequest_Response> =
+export const unmarshalGetServedModelLogsResponseSchema: z.ZodType<GetServedModelLogsResponse> =
   z
     .object({
       logs: z.string().optional(),
@@ -1616,8 +1606,7 @@ export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig
       enabled: d.enabled,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInferenceEndpointsRequest_ResponseSchema: z.ZodType<ListInferenceEndpointsRequest_Response> =
+export const unmarshalListInferenceEndpointsResponseSchema: z.ZodType<ListInferenceEndpointsResponse> =
   z
     .object({
       endpoints: z
@@ -1676,8 +1665,7 @@ export const unmarshalPaLmConfigSchema: z.ZodType<PaLmConfig> = z
     palmApiKeyPlaintext: d.palm_api_key_plaintext,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPatchInferenceEndpointTagsRequest_ResponseSchema: z.ZodType<PatchInferenceEndpointTagsRequest_Response> =
+export const unmarshalPatchInferenceEndpointTagsResponseSchema: z.ZodType<PatchInferenceEndpointTagsResponse> =
   z
     .object({
       tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
@@ -1731,8 +1719,7 @@ export const unmarshalPiiSettingsSchema: z.ZodType<PiiSettings> = z
     behavior: d.behavior,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema: z.ZodType<PutInferenceEndpointAiGatewayRequest_Response> =
+export const unmarshalPutInferenceEndpointAiGatewayResponseSchema: z.ZodType<PutInferenceEndpointAiGatewayResponse> =
   z
     .object({
       usage_tracking_config: z
@@ -1755,8 +1742,7 @@ export const unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema: z.Zod
       fallbackConfig: d.fallback_config,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema: z.ZodType<PutInferenceEndpointRateLimitsRequest_Response> =
+export const unmarshalPutInferenceEndpointRateLimitsResponseSchema: z.ZodType<PutInferenceEndpointRateLimitsResponse> =
   z
     .object({
       rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
@@ -1882,8 +1868,7 @@ export const unmarshalTrafficConfigSchema: z.ZodType<TrafficConfig> = z
     routes: d.routes,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateInferenceEndpointNotificationsRequest_ResponseSchema: z.ZodType<UpdateInferenceEndpointNotificationsRequest_Response> =
+export const unmarshalUpdateInferenceEndpointNotificationsResponseSchema: z.ZodType<UpdateInferenceEndpointNotificationsResponse> =
   z
     .object({
       name: z.string().optional(),

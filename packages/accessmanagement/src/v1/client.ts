@@ -21,17 +21,17 @@ import type {
   CheckPolicyRequest,
   CheckPolicyResponse,
   DeleteWorkspacePermissionAssignmentRequest,
-  DeleteWorkspacePermissionAssignmentRequest_Response,
+  DeleteWorkspacePermissionAssignmentResponse,
   GetObjectPermissionsRequest,
+  GetPermissionLevelsResponse,
   GetRuleSetRequest,
+  GetWorkspacePermissionAssignmentsResponse,
   ListAssignableRolesForResourceRequest,
   ListAssignableRolesForResourceResponse,
   ListPermissionLevelsRequest,
-  ListPermissionLevelsRequest_Response,
   ListWorkspacePermissionAssignmentsRequest,
-  ListWorkspacePermissionAssignmentsRequest_Response,
   ListWorkspacePermissionsRequest,
-  ListWorkspacePermissionsRequest_Response,
+  ListWorkspacePermissionsResponse,
   PermissionsResponse,
   RuleSet,
   SetObjectPermissionsRequest,
@@ -49,11 +49,11 @@ import {
   marshalUpdateRuleSetRequestSchema,
   marshalUpdateWorkspacePermissionAssignmentRequestSchema,
   unmarshalCheckPolicyResponseSchema,
-  unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema,
+  unmarshalDeleteWorkspacePermissionAssignmentResponseSchema,
+  unmarshalGetPermissionLevelsResponseSchema,
+  unmarshalGetWorkspacePermissionAssignmentsResponseSchema,
   unmarshalListAssignableRolesForResourceResponseSchema,
-  unmarshalListPermissionLevelsRequest_ResponseSchema,
-  unmarshalListWorkspacePermissionAssignmentsRequest_ResponseSchema,
-  unmarshalListWorkspacePermissionsRequest_ResponseSchema,
+  unmarshalListWorkspacePermissionsResponseSchema,
   unmarshalPermissionsResponseSchema,
   unmarshalRuleSetSchema,
   unmarshalWorkspacePermissionAssignmentOutputSchema,
@@ -101,9 +101,9 @@ export class AccessManagementClient {
   async deleteWorkspacePermissionAssignment(
     req: DeleteWorkspacePermissionAssignmentRequest,
     options?: CallOptions
-  ): Promise<DeleteWorkspacePermissionAssignmentRequest_Response> {
+  ): Promise<DeleteWorkspacePermissionAssignmentResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
-    let resp: DeleteWorkspacePermissionAssignmentRequest_Response | undefined;
+    let resp: DeleteWorkspacePermissionAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -115,7 +115,7 @@ export class AccessManagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema
+        unmarshalDeleteWorkspacePermissionAssignmentResponseSchema
       );
     };
     await executeCall(call, options);
@@ -129,9 +129,9 @@ export class AccessManagementClient {
   async listWorkspacePermissionAssignments(
     req: ListWorkspacePermissionAssignmentsRequest,
     options?: CallOptions
-  ): Promise<ListWorkspacePermissionAssignmentsRequest_Response> {
+  ): Promise<GetWorkspacePermissionAssignmentsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
-    let resp: ListWorkspacePermissionAssignmentsRequest_Response | undefined;
+    let resp: GetWorkspacePermissionAssignmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -143,7 +143,7 @@ export class AccessManagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListWorkspacePermissionAssignmentsRequest_ResponseSchema
+        unmarshalGetWorkspacePermissionAssignmentsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -157,9 +157,9 @@ export class AccessManagementClient {
   async listWorkspacePermissions(
     req: ListWorkspacePermissionsRequest,
     options?: CallOptions
-  ): Promise<ListWorkspacePermissionsRequest_Response> {
+  ): Promise<ListWorkspacePermissionsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
-    let resp: ListWorkspacePermissionsRequest_Response | undefined;
+    let resp: ListWorkspacePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -171,7 +171,7 @@ export class AccessManagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListWorkspacePermissionsRequest_ResponseSchema
+        unmarshalListWorkspacePermissionsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -451,9 +451,9 @@ export class AccessManagementClient {
   async listPermissionLevels(
     req: ListPermissionLevelsRequest,
     options?: CallOptions
-  ): Promise<ListPermissionLevelsRequest_Response> {
+  ): Promise<GetPermissionLevelsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
-    let resp: ListPermissionLevelsRequest_Response | undefined;
+    let resp: GetPermissionLevelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -468,7 +468,7 @@ export class AccessManagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPermissionLevelsRequest_ResponseSchema
+        unmarshalGetPermissionLevelsResponseSchema
       );
     };
     await executeCall(call, options);

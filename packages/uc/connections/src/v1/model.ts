@@ -189,8 +189,8 @@ export interface DeleteConnectionRequest {
   nameArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteConnectionRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteConnectionResponse {}
 
 export interface GetConnectionRequest {
   /** Name of the connection. */
@@ -210,8 +210,7 @@ export interface ListConnectionsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListConnectionsRequest_Response {
+export interface ListConnectionsResponse {
   /** An array of connection information objects. */
   connections?: ConnectionInfo[] | undefined;
   /**
@@ -328,12 +327,10 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     properties: d.properties,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteConnectionRequest_ResponseSchema: z.ZodType<DeleteConnectionRequest_Response> =
+export const unmarshalDeleteConnectionResponseSchema: z.ZodType<DeleteConnectionResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListConnectionsRequest_ResponseSchema: z.ZodType<ListConnectionsRequest_Response> =
+export const unmarshalListConnectionsResponseSchema: z.ZodType<ListConnectionsResponse> =
   z
     .object({
       connections: z

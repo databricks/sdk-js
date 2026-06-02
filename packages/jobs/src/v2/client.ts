@@ -23,44 +23,44 @@ import type {
   BaseJob,
   BaseRun,
   CancelAllRunsRequest,
-  CancelAllRunsRequest_Response,
+  CancelAllRunsResponse,
   CancelRunRequest,
-  CancelRunRequest_Response,
+  CancelRunResponse,
   CreateJobRequest,
-  CreateJobRequest_Response,
+  CreateJobResponse,
   DeleteJobRequest,
-  DeleteJobRequest_Response,
+  DeleteJobResponse,
   DeleteRunRequest,
-  DeleteRunRequest_Response,
+  DeleteRunResponse,
   EnforcePolicyComplianceForJob,
-  EnforcePolicyComplianceForJob_Response,
+  EnforcePolicyComplianceResponse,
   ExportRunRequest,
-  ExportRunRequest_Response,
+  ExportRunResponse,
   GetJobRequest,
-  GetJobRequest_Response,
+  GetJobResponse,
   GetPolicyComplianceForJob,
-  GetPolicyComplianceForJob_Response,
+  GetPolicyComplianceForJobResponse,
   GetRunOutputRequest,
-  GetRunOutputRequest_Response,
+  GetRunOutputResponse,
   GetRunRequest,
-  GetRunRequest_Response,
+  GetRunResponse,
   ListJobComplianceForPolicy,
   ListJobComplianceForPolicy_JobCompliance,
-  ListJobComplianceForPolicy_Response,
+  ListJobComplianceResponse,
   ListJobsRequest,
-  ListJobsRequest_Response,
+  ListJobsResponse,
   ListRunsRequest,
-  ListRunsRequest_Response,
+  ListRunsResponse,
   RepairRunRequest,
-  RepairRunRequest_Response,
+  RepairRunResponse,
   ResetJobRequest,
-  ResetJobRequest_Response,
+  ResetJobResponse,
   RunNowRequest,
-  RunNowRequest_Response,
+  RunNowResponse,
   SubmitRunRequest,
-  SubmitRunRequest_Response,
+  SubmitRunResponse,
   UpdateJobRequest,
-  UpdateJobRequest_Response,
+  UpdateJobResponse,
 } from './model';
 import {
   RunLifeCycleState_RunLifeCycleState,
@@ -75,25 +75,25 @@ import {
   marshalRunNowRequestSchema,
   marshalSubmitRunRequestSchema,
   marshalUpdateJobRequestSchema,
-  unmarshalCancelAllRunsRequest_ResponseSchema,
-  unmarshalCancelRunRequest_ResponseSchema,
-  unmarshalCreateJobRequest_ResponseSchema,
-  unmarshalDeleteJobRequest_ResponseSchema,
-  unmarshalDeleteRunRequest_ResponseSchema,
-  unmarshalEnforcePolicyComplianceForJob_ResponseSchema,
-  unmarshalExportRunRequest_ResponseSchema,
-  unmarshalGetJobRequest_ResponseSchema,
-  unmarshalGetPolicyComplianceForJob_ResponseSchema,
-  unmarshalGetRunOutputRequest_ResponseSchema,
-  unmarshalGetRunRequest_ResponseSchema,
-  unmarshalListJobComplianceForPolicy_ResponseSchema,
-  unmarshalListJobsRequest_ResponseSchema,
-  unmarshalListRunsRequest_ResponseSchema,
-  unmarshalRepairRunRequest_ResponseSchema,
-  unmarshalResetJobRequest_ResponseSchema,
-  unmarshalRunNowRequest_ResponseSchema,
-  unmarshalSubmitRunRequest_ResponseSchema,
-  unmarshalUpdateJobRequest_ResponseSchema,
+  unmarshalCancelAllRunsResponseSchema,
+  unmarshalCancelRunResponseSchema,
+  unmarshalCreateJobResponseSchema,
+  unmarshalDeleteJobResponseSchema,
+  unmarshalDeleteRunResponseSchema,
+  unmarshalEnforcePolicyComplianceResponseSchema,
+  unmarshalExportRunResponseSchema,
+  unmarshalGetJobResponseSchema,
+  unmarshalGetPolicyComplianceForJobResponseSchema,
+  unmarshalGetRunOutputResponseSchema,
+  unmarshalGetRunResponseSchema,
+  unmarshalListJobComplianceResponseSchema,
+  unmarshalListJobsResponseSchema,
+  unmarshalListRunsResponseSchema,
+  unmarshalRepairRunResponseSchema,
+  unmarshalResetJobResponseSchema,
+  unmarshalRunNowResponseSchema,
+  unmarshalSubmitRunResponseSchema,
+  unmarshalUpdateJobResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -139,13 +139,13 @@ export class JobsClient {
   async enforcePolicyComplianceForJob(
     req: EnforcePolicyComplianceForJob,
     options?: CallOptions
-  ): Promise<EnforcePolicyComplianceForJob_Response> {
+  ): Promise<EnforcePolicyComplianceResponse> {
     const url = `${this.host}/api/2.0/policies/jobs/enforce-compliance`;
     const body = marshalRequest(
       req,
       marshalEnforcePolicyComplianceForJobSchema
     );
-    let resp: EnforcePolicyComplianceForJob_Response | undefined;
+    let resp: EnforcePolicyComplianceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -160,7 +160,7 @@ export class JobsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalEnforcePolicyComplianceForJob_ResponseSchema
+        unmarshalEnforcePolicyComplianceResponseSchema
       );
     };
     await executeCall(call, options);
@@ -179,7 +179,7 @@ export class JobsClient {
   async getPolicyComplianceForJob(
     req: GetPolicyComplianceForJob,
     options?: CallOptions
-  ): Promise<GetPolicyComplianceForJob_Response> {
+  ): Promise<GetPolicyComplianceForJobResponse> {
     const url = `${this.host}/api/2.0/policies/jobs/get-compliance`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
@@ -187,7 +187,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPolicyComplianceForJob_Response | undefined;
+    let resp: GetPolicyComplianceForJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -202,7 +202,7 @@ export class JobsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPolicyComplianceForJob_ResponseSchema
+        unmarshalGetPolicyComplianceForJobResponseSchema
       );
     };
     await executeCall(call, options);
@@ -221,7 +221,7 @@ export class JobsClient {
   async listJobComplianceForPolicy(
     req: ListJobComplianceForPolicy,
     options?: CallOptions
-  ): Promise<ListJobComplianceForPolicy_Response> {
+  ): Promise<ListJobComplianceResponse> {
     const url = `${this.host}/api/2.0/policies/jobs/list-compliance`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
@@ -235,7 +235,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListJobComplianceForPolicy_Response | undefined;
+    let resp: ListJobComplianceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -248,10 +248,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListJobComplianceForPolicy_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListJobComplianceResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -284,10 +281,10 @@ export class JobsClient {
   async cancelAllRuns(
     req: CancelAllRunsRequest,
     options?: CallOptions
-  ): Promise<CancelAllRunsRequest_Response> {
+  ): Promise<CancelAllRunsResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel-all`;
     const body = marshalRequest(req, marshalCancelAllRunsRequestSchema);
-    let resp: CancelAllRunsRequest_Response | undefined;
+    let resp: CancelAllRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -300,10 +297,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCancelAllRunsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCancelAllRunsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -319,10 +313,10 @@ export class JobsClient {
   private async cancelRun(
     req: CancelRunRequest,
     options?: CallOptions
-  ): Promise<CancelRunRequest_Response> {
+  ): Promise<CancelRunResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel`;
     const body = marshalRequest(req, marshalCancelRunRequestSchema);
-    let resp: CancelRunRequest_Response | undefined;
+    let resp: CancelRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -335,7 +329,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCancelRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCancelRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -359,10 +353,10 @@ export class JobsClient {
   async createJob(
     req: CreateJobRequest,
     options?: CallOptions
-  ): Promise<CreateJobRequest_Response> {
+  ): Promise<CreateJobResponse> {
     const url = `${this.host}/api/2.2/jobs/create`;
     const body = marshalRequest(req, marshalCreateJobRequestSchema);
-    let resp: CreateJobRequest_Response | undefined;
+    let resp: CreateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -375,7 +369,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateJobRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateJobResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -388,10 +382,10 @@ export class JobsClient {
   async deleteJob(
     req: DeleteJobRequest,
     options?: CallOptions
-  ): Promise<DeleteJobRequest_Response> {
+  ): Promise<DeleteJobResponse> {
     const url = `${this.host}/api/2.2/jobs/delete`;
     const body = marshalRequest(req, marshalDeleteJobRequestSchema);
-    let resp: DeleteJobRequest_Response | undefined;
+    let resp: DeleteJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -404,7 +398,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteJobRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteJobResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -417,10 +411,10 @@ export class JobsClient {
   async deleteRun(
     req: DeleteRunRequest,
     options?: CallOptions
-  ): Promise<DeleteRunRequest_Response> {
+  ): Promise<DeleteRunResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
-    let resp: DeleteRunRequest_Response | undefined;
+    let resp: DeleteRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -433,7 +427,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -446,7 +440,7 @@ export class JobsClient {
   async exportRun(
     req: ExportRunRequest,
     options?: CallOptions
-  ): Promise<ExportRunRequest_Response> {
+  ): Promise<ExportRunResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/export`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -457,7 +451,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ExportRunRequest_Response | undefined;
+    let resp: ExportRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -470,7 +464,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalExportRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalExportRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -490,7 +484,7 @@ export class JobsClient {
   async getJob(
     req: GetJobRequest,
     options?: CallOptions
-  ): Promise<GetJobRequest_Response> {
+  ): Promise<GetJobResponse> {
     const url = `${this.host}/api/2.2/jobs/get`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
@@ -504,7 +498,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetJobRequest_Response | undefined;
+    let resp: GetJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -517,7 +511,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetJobRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetJobResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -537,7 +531,7 @@ export class JobsClient {
   async getRun(
     req: GetRunRequest,
     options?: CallOptions
-  ): Promise<GetRunRequest_Response> {
+  ): Promise<GetRunResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -557,7 +551,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetRunRequest_Response | undefined;
+    let resp: GetRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -570,7 +564,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -593,7 +587,7 @@ export class JobsClient {
   async getRunOutput(
     req: GetRunOutputRequest,
     options?: CallOptions
-  ): Promise<GetRunOutputRequest_Response> {
+  ): Promise<GetRunOutputResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/get-output`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -601,7 +595,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetRunOutputRequest_Response | undefined;
+    let resp: GetRunOutputResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -614,10 +608,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetRunOutputRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetRunOutputResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -630,7 +621,7 @@ export class JobsClient {
   async listJobs(
     req: ListJobsRequest,
     options?: CallOptions
-  ): Promise<ListJobsRequest_Response> {
+  ): Promise<ListJobsResponse> {
     const url = `${this.host}/api/2.2/jobs/list`;
     const params = new URLSearchParams();
     if (req.offset !== undefined) {
@@ -650,7 +641,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListJobsRequest_Response | undefined;
+    let resp: ListJobsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -663,7 +654,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListJobsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListJobsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -693,7 +684,7 @@ export class JobsClient {
   async listRuns(
     req: ListRunsRequest,
     options?: CallOptions
-  ): Promise<ListRunsRequest_Response> {
+  ): Promise<ListRunsResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/list`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
@@ -731,7 +722,7 @@ export class JobsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListRunsRequest_Response | undefined;
+    let resp: ListRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -744,7 +735,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListRunsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListRunsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -778,10 +769,10 @@ export class JobsClient {
   private async repair(
     req: RepairRunRequest,
     options?: CallOptions
-  ): Promise<RepairRunRequest_Response> {
+  ): Promise<RepairRunResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/repair`;
     const body = marshalRequest(req, marshalRepairRunRequestSchema);
-    let resp: RepairRunRequest_Response | undefined;
+    let resp: RepairRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -794,7 +785,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRepairRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalRepairRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -818,10 +809,10 @@ export class JobsClient {
   async resetJob(
     req: ResetJobRequest,
     options?: CallOptions
-  ): Promise<ResetJobRequest_Response> {
+  ): Promise<ResetJobResponse> {
     const url = `${this.host}/api/2.2/jobs/reset`;
     const body = marshalRequest(req, marshalResetJobRequestSchema);
-    let resp: ResetJobRequest_Response | undefined;
+    let resp: ResetJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -834,7 +825,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalResetJobRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalResetJobResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -847,10 +838,10 @@ export class JobsClient {
   private async runNow(
     req: RunNowRequest,
     options?: CallOptions
-  ): Promise<RunNowRequest_Response> {
+  ): Promise<RunNowResponse> {
     const url = `${this.host}/api/2.2/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowRequestSchema);
-    let resp: RunNowRequest_Response | undefined;
+    let resp: RunNowResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -863,7 +854,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRunNowRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalRunNowResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -899,10 +890,10 @@ export class JobsClient {
   private async submitRun(
     req: SubmitRunRequest,
     options?: CallOptions
-  ): Promise<SubmitRunRequest_Response> {
+  ): Promise<SubmitRunResponse> {
     const url = `${this.host}/api/2.2/jobs/runs/submit`;
     const body = marshalRequest(req, marshalSubmitRunRequestSchema);
-    let resp: SubmitRunRequest_Response | undefined;
+    let resp: SubmitRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -915,7 +906,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalSubmitRunRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalSubmitRunResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -939,10 +930,10 @@ export class JobsClient {
   async updateJob(
     req: UpdateJobRequest,
     options?: CallOptions
-  ): Promise<UpdateJobRequest_Response> {
+  ): Promise<UpdateJobResponse> {
     const url = `${this.host}/api/2.2/jobs/update`;
     const body = marshalRequest(req, marshalUpdateJobRequestSchema);
-    let resp: UpdateJobRequest_Response | undefined;
+    let resp: UpdateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -955,7 +946,7 @@ export class JobsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdateJobRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalUpdateJobResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -976,8 +967,8 @@ export class CancelRunWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: LroOptions): Promise<GetRunRequest_Response> {
-    let result: GetRunRequest_Response | undefined;
+  async wait(options?: LroOptions): Promise<GetRunResponse> {
+    let result: GetRunResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
@@ -1049,8 +1040,8 @@ export class RepairWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: LroOptions): Promise<GetRunRequest_Response> {
-    let result: GetRunRequest_Response | undefined;
+  async wait(options?: LroOptions): Promise<GetRunResponse> {
+    let result: GetRunResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
@@ -1122,8 +1113,8 @@ export class RunNowWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: LroOptions): Promise<GetRunRequest_Response> {
-    let result: GetRunRequest_Response | undefined;
+  async wait(options?: LroOptions): Promise<GetRunResponse> {
+    let result: GetRunResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
@@ -1195,8 +1186,8 @@ export class SubmitRunWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: LroOptions): Promise<GetRunRequest_Response> {
-    let result: GetRunRequest_Response | undefined;
+  async wait(options?: LroOptions): Promise<GetRunResponse> {
+    let result: GetRunResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(

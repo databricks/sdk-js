@@ -19,17 +19,17 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreatePolicyRequest,
   DeletePolicyRequest,
-  DeletePolicyRequest_Response,
+  DeletePolicyResponse,
   GetPolicyRequest,
   ListPoliciesRequest,
-  ListPoliciesRequest_Response,
+  ListPoliciesResponse,
   PolicyInfo,
   UpdatePolicyRequest,
 } from './model';
 import {
   marshalPolicyInfoSchema,
-  unmarshalDeletePolicyRequest_ResponseSchema,
-  unmarshalListPoliciesRequest_ResponseSchema,
+  unmarshalDeletePolicyResponseSchema,
+  unmarshalListPoliciesResponseSchema,
   unmarshalPolicyInfoSchema,
 } from './model';
 
@@ -103,9 +103,9 @@ export class AbacPoliciesClient {
   async deletePolicy(
     req: DeletePolicyRequest,
     options?: CallOptions
-  ): Promise<DeletePolicyRequest_Response> {
+  ): Promise<DeletePolicyResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
-    let resp: DeletePolicyRequest_Response | undefined;
+    let resp: DeletePolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -118,10 +118,7 @@ export class AbacPoliciesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeletePolicyRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeletePolicyResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -168,7 +165,7 @@ export class AbacPoliciesClient {
   async listPolicies(
     req: ListPoliciesRequest,
     options?: CallOptions
-  ): Promise<ListPoliciesRequest_Response> {
+  ): Promise<ListPoliciesResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeInherited !== undefined) {
@@ -182,7 +179,7 @@ export class AbacPoliciesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPoliciesRequest_Response | undefined;
+    let resp: ListPoliciesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -195,10 +192,7 @@ export class AbacPoliciesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPoliciesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListPoliciesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

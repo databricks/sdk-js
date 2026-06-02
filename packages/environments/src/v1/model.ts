@@ -531,6 +531,14 @@ export enum WorkspaceBaseEnvironmentCache_Status {
   REFRESHING = 'REFRESHING',
 }
 
+/** Databricks Error that is returned by all Databricks APIs. */
+export interface ApiError {
+  errorCode?: ErrorCode | undefined;
+  message?: string | undefined;
+  stackTrace?: string | undefined;
+  details?: Record<string, unknown>[] | undefined;
+}
+
 /** Request message for CreateWorkspaceBaseEnvironment. */
 export interface CreateWorkspaceBaseEnvironmentRequest {
   /** Required. The workspace base environment to create. */
@@ -546,14 +554,6 @@ export interface CreateWorkspaceBaseEnvironmentRequest {
    * This request is only idempotent if a request_id is provided.
    */
   requestId?: string | undefined;
-}
-
-/** Databricks Error that is returned by all Databricks APIs. */
-export interface DatabricksServiceExceptionWithDetailsProto {
-  errorCode?: ErrorCode | undefined;
-  message?: string | undefined;
-  stackTrace?: string | undefined;
-  details?: Record<string, unknown>[] | undefined;
 }
 
 /**
@@ -667,7 +667,7 @@ export interface Operation {
     | {
         $case: 'error';
         /** The error result of the operation in case of failure or cancellation. */
-        error: DatabricksServiceExceptionWithDetailsProto;
+        error: ApiError;
       }
     | {
         $case: 'response';
@@ -754,20 +754,19 @@ export interface WorkspaceBaseEnvironmentCache {}
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface WorkspaceBaseEnvironmentOperationMetadata {}
 
-export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-      details: d.details,
-    }));
+export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
 
 export const unmarshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType<DefaultWorkspaceBaseEnvironment> =
   z
@@ -800,9 +799,7 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     done: z.boolean().optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
   .transform(d => ({

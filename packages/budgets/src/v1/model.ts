@@ -121,8 +121,7 @@ export interface CreateBudgetConfigurationRequest {
   budget?: CreateBudgetConfigurationBudget | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateBudgetConfigurationRequest_Response {
+export interface CreateBudgetConfigurationResponse {
   /** The created budget configuration. */
   budget?: BudgetConfiguration | undefined;
 }
@@ -138,8 +137,8 @@ export interface DeleteBudgetConfigurationRequest {
   accountId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteBudgetConfigurationRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteBudgetConfigurationResponse {}
 
 export interface GetBudgetConfigurationRequest {
   /** The budget configuration ID */
@@ -149,8 +148,7 @@ export interface GetBudgetConfigurationRequest {
   includeSpendStatus?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetBudgetConfigurationRequest_Response {
+export interface GetBudgetConfigurationResponse {
   budget?: BudgetConfiguration | undefined;
 }
 
@@ -166,8 +164,7 @@ export interface ListBudgetConfigurationsRequest {
   includeWorkspaceBudgets?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListBudgetConfigurationsRequest_Response {
+export interface ListBudgetConfigurationsResponse {
   budgets?: BudgetConfiguration[] | undefined;
   /** Token which can be sent as `page_token` to retrieve the next page of results. If this field is omitted, there are no subsequent budgets. */
   nextPageToken?: string | undefined;
@@ -200,8 +197,7 @@ export interface UpdateBudgetConfigurationRequest {
   budget?: UpdateBudgetConfigurationBudget | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateBudgetConfigurationRequest_Response {
+export interface UpdateBudgetConfigurationResponse {
   /** The updated budget. */
   budget?: BudgetConfiguration | undefined;
 }
@@ -324,8 +320,7 @@ export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodTy
       values: d.values,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateBudgetConfigurationRequest_ResponseSchema: z.ZodType<CreateBudgetConfigurationRequest_Response> =
+export const unmarshalCreateBudgetConfigurationResponseSchema: z.ZodType<CreateBudgetConfigurationResponse> =
   z
     .object({
       budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
@@ -334,12 +329,10 @@ export const unmarshalCreateBudgetConfigurationRequest_ResponseSchema: z.ZodType
       budget: d.budget,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteBudgetConfigurationRequest_ResponseSchema: z.ZodType<DeleteBudgetConfigurationRequest_Response> =
+export const unmarshalDeleteBudgetConfigurationResponseSchema: z.ZodType<DeleteBudgetConfigurationResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetBudgetConfigurationRequest_ResponseSchema: z.ZodType<GetBudgetConfigurationRequest_Response> =
+export const unmarshalGetBudgetConfigurationResponseSchema: z.ZodType<GetBudgetConfigurationResponse> =
   z
     .object({
       budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
@@ -348,8 +341,7 @@ export const unmarshalGetBudgetConfigurationRequest_ResponseSchema: z.ZodType<Ge
       budget: d.budget,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListBudgetConfigurationsRequest_ResponseSchema: z.ZodType<ListBudgetConfigurationsRequest_Response> =
+export const unmarshalListBudgetConfigurationsResponseSchema: z.ZodType<ListBudgetConfigurationsResponse> =
   z
     .object({
       budgets: z
@@ -362,8 +354,7 @@ export const unmarshalListBudgetConfigurationsRequest_ResponseSchema: z.ZodType<
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateBudgetConfigurationRequest_ResponseSchema: z.ZodType<UpdateBudgetConfigurationRequest_Response> =
+export const unmarshalUpdateBudgetConfigurationResponseSchema: z.ZodType<UpdateBudgetConfigurationResponse> =
   z
     .object({
       budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),

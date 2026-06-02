@@ -62,8 +62,8 @@ export interface DeleteModelVersionRequest {
   versionArg?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteModelVersionRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteModelVersionResponse {}
 
 export interface DeleteRegisteredModelAliasRequest {
   /** The three-level (fully qualified) name of the registered model */
@@ -72,16 +72,16 @@ export interface DeleteRegisteredModelAliasRequest {
   aliasArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegisteredModelAliasRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteRegisteredModelAliasResponse {}
 
 export interface DeleteRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullNameArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegisteredModelRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteRegisteredModelResponse {}
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
@@ -154,8 +154,7 @@ export interface ListModelVersionsRequest {
   includeBrowse?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListModelVersionsRequest_Response {
+export interface ListModelVersionsResponse {
   modelVersions?: ModelVersionInfo[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
@@ -197,8 +196,7 @@ export interface ListRegisteredModelsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRegisteredModelsRequest_Response {
+export interface ListRegisteredModelsResponse {
   registeredModels?: RegisteredModelInfo[] | undefined;
   /**
    * Opaque token for pagination. Omitted if there are no more results. page_token should
@@ -421,16 +419,13 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
       credentialName: d.credential_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> =
+export const unmarshalDeleteModelVersionResponseSchema: z.ZodType<DeleteModelVersionResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelAliasRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelAliasRequest_Response> =
+export const unmarshalDeleteRegisteredModelAliasResponseSchema: z.ZodType<DeleteRegisteredModelAliasResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> =
+export const unmarshalDeleteRegisteredModelResponseSchema: z.ZodType<DeleteRegisteredModelResponse> =
   z.object({});
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
@@ -470,8 +465,7 @@ export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
       functionFullName: d.function_full_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListModelVersionsRequest_ResponseSchema: z.ZodType<ListModelVersionsRequest_Response> =
+export const unmarshalListModelVersionsResponseSchema: z.ZodType<ListModelVersionsResponse> =
   z
     .object({
       model_versions: z
@@ -484,8 +478,7 @@ export const unmarshalListModelVersionsRequest_ResponseSchema: z.ZodType<ListMod
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> =
+export const unmarshalListRegisteredModelsResponseSchema: z.ZodType<ListRegisteredModelsResponse> =
   z
     .object({
       registered_models: z

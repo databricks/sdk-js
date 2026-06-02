@@ -383,16 +383,16 @@ export interface DeleteTableConstraintRequest {
   cascade?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteTableConstraintRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteTableConstraintResponse {}
 
 export interface DeleteTableRequest {
   /** Full name of the table. */
   fullNameArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteTableRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteTableResponse {}
 
 /**
  * Properties pertaining to the current state of the delta table as given by the commit server.
@@ -505,8 +505,7 @@ export interface ListTableSummariesRequest {
   includeManifestCapabilities?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTableSummariesRequest_Response {
+export interface ListTableSummariesResponse {
   /** List of table summaries. */
   tables?: TableSummary[] | undefined;
   /**
@@ -543,8 +542,7 @@ export interface ListTablesRequest {
   includeManifestCapabilities?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTablesRequest_Response {
+export interface ListTablesResponse {
   /** An array of table information objects. */
   tables?: TableInfo[] | undefined;
   /**
@@ -705,8 +703,7 @@ export interface TableExistsRequest {
   fullNameArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TableExistsRequest_Response {
+export interface TableExistsResponse {
   /** Whether the table exists or not. */
   tableExists?: boolean | undefined;
 }
@@ -875,8 +872,8 @@ export interface UpdateTableRequest_PropertiesEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateTableRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateTableResponse {}
 
 export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
@@ -940,12 +937,10 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
       credentialName: d.credential_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTableConstraintRequest_ResponseSchema: z.ZodType<DeleteTableConstraintRequest_Response> =
+export const unmarshalDeleteTableConstraintResponseSchema: z.ZodType<DeleteTableConstraintResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTableRequest_ResponseSchema: z.ZodType<DeleteTableRequest_Response> =
+export const unmarshalDeleteTableResponseSchema: z.ZodType<DeleteTableResponse> =
   z.object({});
 
 export const unmarshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType<DeltaRuntimePropertiesKvPairs> =
@@ -1040,8 +1035,7 @@ export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
       functionFullName: d.function_full_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTableSummariesRequest_ResponseSchema: z.ZodType<ListTableSummariesRequest_Response> =
+export const unmarshalListTableSummariesResponseSchema: z.ZodType<ListTableSummariesResponse> =
   z
     .object({
       tables: z.array(z.lazy(() => unmarshalTableSummarySchema)).optional(),
@@ -1052,8 +1046,7 @@ export const unmarshalListTableSummariesRequest_ResponseSchema: z.ZodType<ListTa
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTablesRequest_ResponseSchema: z.ZodType<ListTablesRequest_Response> =
+export const unmarshalListTablesResponseSchema: z.ZodType<ListTablesResponse> =
   z
     .object({
       tables: z.array(z.lazy(() => unmarshalTableInfoSchema)).optional(),
@@ -1219,8 +1212,7 @@ export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
     tableFullName: d.table_full_name,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTableExistsRequest_ResponseSchema: z.ZodType<TableExistsRequest_Response> =
+export const unmarshalTableExistsResponseSchema: z.ZodType<TableExistsResponse> =
   z
     .object({
       table_exists: z.boolean().optional(),
@@ -1335,8 +1327,7 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
     securableKindManifest: d.securable_kind_manifest,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateTableRequest_ResponseSchema: z.ZodType<UpdateTableRequest_Response> =
+export const unmarshalUpdateTableResponseSchema: z.ZodType<UpdateTableResponse> =
   z.object({});
 
 export const marshalColumnInfoSchema: z.ZodType = z

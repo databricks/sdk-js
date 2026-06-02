@@ -14,8 +14,7 @@ export interface GetCatalogWorkspaceBindingsRequest {
   catalogName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetCatalogWorkspaceBindingsRequest_Response {
+export interface GetCatalogWorkspaceBindingsResponse {
   /** A list of workspace IDs */
   workspaces?: bigint[] | undefined;
 }
@@ -37,8 +36,7 @@ export interface GetWorkspaceBindingsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWorkspaceBindingsRequest_Response {
+export interface GetWorkspaceBindingsResponse {
   /** List of workspace bindings */
   bindings?: WorkspaceBindingInfo[] | undefined;
   /**
@@ -57,8 +55,7 @@ export interface UpdateCatalogWorkspaceBindingsRequest {
   unassignWorkspaces?: bigint[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCatalogWorkspaceBindingsRequest_Response {
+export interface UpdateCatalogWorkspaceBindingsResponse {
   /** A list of workspace IDs */
   workspaces?: bigint[] | undefined;
 }
@@ -79,8 +76,7 @@ export interface UpdateWorkspaceBindingsRequest {
 }
 
 /** A list of workspace IDs that are bound to the securable */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateWorkspaceBindingsRequest_Response {
+export interface UpdateWorkspaceBindingsResponse {
   /** List of workspace bindings. */
   bindings?: WorkspaceBindingInfo[] | undefined;
 }
@@ -92,8 +88,7 @@ export interface WorkspaceBindingInfo {
   bindingType?: BindingType | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindingsRequest_Response> =
+export const unmarshalGetCatalogWorkspaceBindingsResponseSchema: z.ZodType<GetCatalogWorkspaceBindingsResponse> =
   z
     .object({
       workspaces: z
@@ -104,8 +99,7 @@ export const unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodTy
       workspaces: d.workspaces,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetWorkspaceBindingsRequest_Response> =
+export const unmarshalGetWorkspaceBindingsResponseSchema: z.ZodType<GetWorkspaceBindingsResponse> =
   z
     .object({
       bindings: z
@@ -118,8 +112,7 @@ export const unmarshalGetWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetW
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindingsRequest_Response> =
+export const unmarshalUpdateCatalogWorkspaceBindingsResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindingsResponse> =
   z
     .object({
       workspaces: z
@@ -130,8 +123,7 @@ export const unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema: z.Zo
       workspaces: d.workspaces,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema: z.ZodType<UpdateWorkspaceBindingsRequest_Response> =
+export const unmarshalUpdateWorkspaceBindingsResponseSchema: z.ZodType<UpdateWorkspaceBindingsResponse> =
   z
     .object({
       bindings: z

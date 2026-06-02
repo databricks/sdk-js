@@ -54,8 +54,8 @@ export interface InstallLibrariesRequest {
   libraries?: Library[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface InstallLibrariesRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface InstallLibrariesResponse {}
 
 export interface Library {
   lib?:
@@ -133,8 +133,7 @@ export interface LibraryFullStatus {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListAllClusterLibraryStatusesRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListAllClusterLibraryStatusesRequest_Response {
+export interface ListAllClusterLibraryStatusesResponse {
   /** A list of cluster statuses. */
   statuses?: ClusterLibraryStatuses[] | undefined;
 }
@@ -183,8 +182,8 @@ export interface UninstallLibrariesRequest {
   libraries?: Library[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UninstallLibrariesRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UninstallLibrariesResponse {}
 
 export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStatuses> =
   z
@@ -199,8 +198,7 @@ export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStat
       libraryStatuses: d.library_statuses,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalInstallLibrariesRequest_ResponseSchema: z.ZodType<InstallLibrariesRequest_Response> =
+export const unmarshalInstallLibrariesResponseSchema: z.ZodType<InstallLibrariesResponse> =
   z.object({});
 
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
@@ -249,8 +247,7 @@ export const unmarshalLibraryFullStatusSchema: z.ZodType<LibraryFullStatus> = z
     isLibraryForAllClusters: d.is_library_for_all_clusters,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema: z.ZodType<ListAllClusterLibraryStatusesRequest_Response> =
+export const unmarshalListAllClusterLibraryStatusesResponseSchema: z.ZodType<ListAllClusterLibraryStatusesResponse> =
   z
     .object({
       statuses: z
@@ -293,8 +290,7 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
     repo: d.repo,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUninstallLibrariesRequest_ResponseSchema: z.ZodType<UninstallLibrariesRequest_Response> =
+export const unmarshalUninstallLibrariesResponseSchema: z.ZodType<UninstallLibrariesResponse> =
   z.object({});
 
 export const marshalInstallLibrariesRequestSchema: z.ZodType = z

@@ -19,18 +19,18 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateRegisteredModelRequest,
   DeleteModelVersionRequest,
-  DeleteModelVersionRequest_Response,
+  DeleteModelVersionResponse,
   DeleteRegisteredModelAliasRequest,
-  DeleteRegisteredModelAliasRequest_Response,
+  DeleteRegisteredModelAliasResponse,
   DeleteRegisteredModelRequest,
-  DeleteRegisteredModelRequest_Response,
+  DeleteRegisteredModelResponse,
   GetModelVersionByAliasRequest,
   GetModelVersionRequest,
   GetRegisteredModelRequest,
   ListModelVersionsRequest,
-  ListModelVersionsRequest_Response,
+  ListModelVersionsResponse,
   ListRegisteredModelsRequest,
-  ListRegisteredModelsRequest_Response,
+  ListRegisteredModelsResponse,
   ModelVersionInfo,
   RegisteredModelAliasInfo,
   RegisteredModelInfo,
@@ -43,11 +43,11 @@ import {
   marshalSetRegisteredModelAliasRequestSchema,
   marshalUpdateModelVersionRequestSchema,
   marshalUpdateRegisteredModelRequestSchema,
-  unmarshalDeleteModelVersionRequest_ResponseSchema,
-  unmarshalDeleteRegisteredModelAliasRequest_ResponseSchema,
-  unmarshalDeleteRegisteredModelRequest_ResponseSchema,
-  unmarshalListModelVersionsRequest_ResponseSchema,
-  unmarshalListRegisteredModelsRequest_ResponseSchema,
+  unmarshalDeleteModelVersionResponseSchema,
+  unmarshalDeleteRegisteredModelAliasResponseSchema,
+  unmarshalDeleteRegisteredModelResponseSchema,
+  unmarshalListModelVersionsResponseSchema,
+  unmarshalListRegisteredModelsResponseSchema,
   unmarshalModelVersionInfoSchema,
   unmarshalRegisteredModelAliasInfoSchema,
   unmarshalRegisteredModelInfoSchema,
@@ -139,9 +139,9 @@ export class RegisteredModelsClient {
   async deleteModelVersion(
     req: DeleteModelVersionRequest,
     options?: CallOptions
-  ): Promise<DeleteModelVersionRequest_Response> {
+  ): Promise<DeleteModelVersionResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
-    let resp: DeleteModelVersionRequest_Response | undefined;
+    let resp: DeleteModelVersionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -154,10 +154,7 @@ export class RegisteredModelsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteModelVersionRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteModelVersionResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -176,9 +173,9 @@ export class RegisteredModelsClient {
   async deleteRegisteredModel(
     req: DeleteRegisteredModelRequest,
     options?: CallOptions
-  ): Promise<DeleteRegisteredModelRequest_Response> {
+  ): Promise<DeleteRegisteredModelResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
-    let resp: DeleteRegisteredModelRequest_Response | undefined;
+    let resp: DeleteRegisteredModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -193,7 +190,7 @@ export class RegisteredModelsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteRegisteredModelRequest_ResponseSchema
+        unmarshalDeleteRegisteredModelResponseSchema
       );
     };
     await executeCall(call, options);
@@ -213,9 +210,9 @@ export class RegisteredModelsClient {
   async deleteRegisteredModelAlias(
     req: DeleteRegisteredModelAliasRequest,
     options?: CallOptions
-  ): Promise<DeleteRegisteredModelAliasRequest_Response> {
+  ): Promise<DeleteRegisteredModelAliasResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
-    let resp: DeleteRegisteredModelAliasRequest_Response | undefined;
+    let resp: DeleteRegisteredModelAliasResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -230,7 +227,7 @@ export class RegisteredModelsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteRegisteredModelAliasRequest_ResponseSchema
+        unmarshalDeleteRegisteredModelAliasResponseSchema
       );
     };
     await executeCall(call, options);
@@ -389,7 +386,7 @@ export class RegisteredModelsClient {
   async listModelVersions(
     req: ListModelVersionsRequest,
     options?: CallOptions
-  ): Promise<ListModelVersionsRequest_Response> {
+  ): Promise<ListModelVersionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -403,7 +400,7 @@ export class RegisteredModelsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListModelVersionsRequest_Response | undefined;
+    let resp: ListModelVersionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -416,10 +413,7 @@ export class RegisteredModelsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListModelVersionsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListModelVersionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -464,7 +458,7 @@ export class RegisteredModelsClient {
   async listRegisteredModels(
     req: ListRegisteredModelsRequest,
     options?: CallOptions
-  ): Promise<ListRegisteredModelsRequest_Response> {
+  ): Promise<ListRegisteredModelsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/models`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -484,7 +478,7 @@ export class RegisteredModelsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListRegisteredModelsRequest_Response | undefined;
+    let resp: ListRegisteredModelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -499,7 +493,7 @@ export class RegisteredModelsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListRegisteredModelsRequest_ResponseSchema
+        unmarshalListRegisteredModelsResponseSchema
       );
     };
     await executeCall(call, options);

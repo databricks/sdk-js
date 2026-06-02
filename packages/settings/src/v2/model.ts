@@ -58,6 +58,15 @@ export enum ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency {
   EVERY_WEEK = 'EVERY_WEEK',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum CollaborationPlatformConnectivityMessage_Connectivity {
+  CONNECTIVITY_UNSPECIFIED = 'CONNECTIVITY_UNSPECIFIED',
+  ALLOW_ALL = 'ALLOW_ALL',
+  ALLOW_TEAMS = 'ALLOW_TEAMS',
+  ALLOW_SLACK = 'ALLOW_SLACK',
+  DENY_ALL = 'DENY_ALL',
+}
+
 /**
  * ON: Grants all users in all workspaces access to the Personal Compute default policy, allowing all users to create single-machine compute resources.
  * DELEGATE: Moves access control for the Personal Compute default policy to individual workspaces and requires a workspace’s users or groups to be added to the ACLs of that workspace’s Personal Compute default policy before they will be able to create compute resources through that policy.
@@ -151,6 +160,16 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedul
 export interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {
   hours?: number | undefined;
   minutes?: number | undefined;
+}
+
+/**
+ * Controls which external collaboration platforms (Slack, Microsoft Teams) can connect
+ * to a workspace. Defaults to ALLOW_ALL.
+ */
+export interface CollaborationPlatformConnectivityMessage {
+  connectivity?:
+    | CollaborationPlatformConnectivityMessage_Connectivity
+    | undefined;
 }
 
 export interface GetPublicAccountSettingRequest {
@@ -361,6 +380,11 @@ export interface Setting {
         /** Setting value for operational_email_custom_recipient setting. This is the setting value set by consumers, check effective_operational_email_custom_recipient for final setting value. */
         operationalEmailCustomRecipient: OperationalEmailCustomRecipientMessage;
       }
+    | {
+        $case: 'collaborationPlatformConnectivity';
+        /** Setting value for collaboration_platform_connectivity setting. This is the setting value set by consumers, check effective_collaboration_platform_connectivity for final setting value. */
+        collaborationPlatformConnectivity: CollaborationPlatformConnectivityMessage;
+      }
     | undefined;
   /**
    * New fields should be added before the oneof below - unless it's a new Setting value message,
@@ -417,6 +441,11 @@ export interface Setting {
         $case: 'effectiveOperationalEmailCustomRecipient';
         /** Effective setting value for operational_email_custom_recipient setting. This is the final effective value of setting. To set a value use operational_email_custom_recipient. */
         effectiveOperationalEmailCustomRecipient: OperationalEmailCustomRecipientMessage;
+      }
+    | {
+        $case: 'effectiveCollaborationPlatformConnectivity';
+        /** Effective setting value for collaboration_platform_connectivity setting. This is the final effective value of setting. To set a value use collaboration_platform_connectivity. */
+        effectiveCollaborationPlatformConnectivity: CollaborationPlatformConnectivityMessage;
       }
     | undefined;
 }
@@ -596,6 +625,17 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTim
       minutes: d.minutes,
     }));
 
+export const unmarshalCollaborationPlatformConnectivityMessageSchema: z.ZodType<CollaborationPlatformConnectivityMessage> =
+  z
+    .object({
+      connectivity: z
+        .enum(CollaborationPlatformConnectivityMessage_Connectivity)
+        .optional(),
+    })
+    .transform(d => ({
+      connectivity: d.connectivity,
+    }));
+
 export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
   .object({
     value: z.number().optional(),
@@ -701,6 +741,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     operational_email_custom_recipient: z
       .lazy(() => unmarshalOperationalEmailCustomRecipientMessageSchema)
       .optional(),
+    collaboration_platform_connectivity: z
+      .lazy(() => unmarshalCollaborationPlatformConnectivityMessageSchema)
+      .optional(),
     effective_boolean_val: z
       .lazy(() => unmarshalBooleanMessageSchema)
       .optional(),
@@ -728,6 +771,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
       .optional(),
     effective_operational_email_custom_recipient: z
       .lazy(() => unmarshalOperationalEmailCustomRecipientMessageSchema)
+      .optional(),
+    effective_collaboration_platform_connectivity: z
+      .lazy(() => unmarshalCollaborationPlatformConnectivityMessageSchema)
       .optional(),
   })
   .transform(d => ({
@@ -779,7 +825,14 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                               operationalEmailCustomRecipient:
                                 d.operational_email_custom_recipient,
                             }
-                          : undefined,
+                          : d.collaboration_platform_connectivity !== undefined
+                            ? {
+                                $case:
+                                  'collaborationPlatformConnectivity' as const,
+                                collaborationPlatformConnectivity:
+                                  d.collaboration_platform_connectivity,
+                              }
+                            : undefined,
     effectiveValue:
       d.effective_boolean_val !== undefined
         ? {
@@ -844,7 +897,15 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                               effectiveOperationalEmailCustomRecipient:
                                 d.effective_operational_email_custom_recipient,
                             }
-                          : undefined,
+                          : d.effective_collaboration_platform_connectivity !==
+                              undefined
+                            ? {
+                                $case:
+                                  'effectiveCollaborationPlatformConnectivity' as const,
+                                effectiveCollaborationPlatformConnectivity:
+                                  d.effective_collaboration_platform_connectivity,
+                              }
+                            : undefined,
   }));
 
 export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
@@ -1025,6 +1086,17 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeS
       minutes: d.minutes,
     }));
 
+export const marshalCollaborationPlatformConnectivityMessageSchema: z.ZodType =
+  z
+    .object({
+      connectivity: z
+        .enum(CollaborationPlatformConnectivityMessage_Connectivity)
+        .optional(),
+    })
+    .transform(d => ({
+      connectivity: d.connectivity,
+    }));
+
 export const marshalIntegerMessageSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
@@ -1116,6 +1188,12 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalOperationalEmailCustomRecipientMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('collaborationPlatformConnectivity'),
+          collaborationPlatformConnectivity: z.lazy(
+            () => marshalCollaborationPlatformConnectivityMessageSchema
+          ),
+        }),
       ])
       .optional(),
     effectiveValue: z
@@ -1174,6 +1252,12 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalOperationalEmailCustomRecipientMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('effectiveCollaborationPlatformConnectivity'),
+          effectiveCollaborationPlatformConnectivity: z.lazy(
+            () => marshalCollaborationPlatformConnectivityMessageSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -1206,6 +1290,10 @@ export const marshalSettingSchema: z.ZodType = z
     ...(d.value?.$case === 'operationalEmailCustomRecipient' && {
       operational_email_custom_recipient:
         d.value.operationalEmailCustomRecipient,
+    }),
+    ...(d.value?.$case === 'collaborationPlatformConnectivity' && {
+      collaboration_platform_connectivity:
+        d.value.collaborationPlatformConnectivity,
     }),
     ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
       effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
@@ -1246,6 +1334,11 @@ export const marshalSettingSchema: z.ZodType = z
       'effectiveOperationalEmailCustomRecipient' && {
       effective_operational_email_custom_recipient:
         d.effectiveValue.effectiveOperationalEmailCustomRecipient,
+    }),
+    ...(d.effectiveValue?.$case ===
+      'effectiveCollaborationPlatformConnectivity' && {
+      effective_collaboration_platform_connectivity:
+        d.effectiveValue.effectiveCollaborationPlatformConnectivity,
     }),
   }));
 

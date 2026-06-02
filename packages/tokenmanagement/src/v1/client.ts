@@ -19,23 +19,23 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AdminTokenInfo,
   CreateOnBehalfOfTokenRequest,
-  CreateOnBehalfOfTokenRequest_Response,
+  CreateOnBehalfOfTokenResponse,
   GetTokenRequest,
-  GetTokenRequest_Response,
+  GetTokenResponse,
   ListTokensRequest,
-  ListTokensRequest_Response,
+  ListTokensResponse,
   RevokeTokenRequest,
-  RevokeTokenRequest_Response,
+  RevokeTokenResponse,
   UpdateToken,
 } from './model';
 import {
   marshalCreateOnBehalfOfTokenRequestSchema,
   marshalUpdateTokenSchema,
   unmarshalAdminTokenInfoSchema,
-  unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema,
-  unmarshalGetTokenRequest_ResponseSchema,
-  unmarshalListTokensRequest_ResponseSchema,
-  unmarshalRevokeTokenRequest_ResponseSchema,
+  unmarshalCreateOnBehalfOfTokenResponseSchema,
+  unmarshalGetTokenResponseSchema,
+  unmarshalListTokensResponseSchema,
+  unmarshalRevokeTokenResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -76,10 +76,10 @@ export class TokenManagementClient {
   async createOnBehalfOfToken(
     req: CreateOnBehalfOfTokenRequest,
     options?: CallOptions
-  ): Promise<CreateOnBehalfOfTokenRequest_Response> {
+  ): Promise<CreateOnBehalfOfTokenResponse> {
     const url = `${this.host}/api/2.0/token-management/on-behalf-of/tokens`;
     const body = marshalRequest(req, marshalCreateOnBehalfOfTokenRequestSchema);
-    let resp: CreateOnBehalfOfTokenRequest_Response | undefined;
+    let resp: CreateOnBehalfOfTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -94,7 +94,7 @@ export class TokenManagementClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema
+        unmarshalCreateOnBehalfOfTokenResponseSchema
       );
     };
     await executeCall(call, options);
@@ -108,9 +108,9 @@ export class TokenManagementClient {
   async deleteToken(
     req: RevokeTokenRequest,
     options?: CallOptions
-  ): Promise<RevokeTokenRequest_Response> {
+  ): Promise<RevokeTokenResponse> {
     const url = `${this.host}/api/2.0/token-management/tokens/${req.tokenId ?? ''}`;
-    let resp: RevokeTokenRequest_Response | undefined;
+    let resp: RevokeTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -123,10 +123,7 @@ export class TokenManagementClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalRevokeTokenRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalRevokeTokenResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -139,9 +136,9 @@ export class TokenManagementClient {
   async getToken(
     req: GetTokenRequest,
     options?: CallOptions
-  ): Promise<GetTokenRequest_Response> {
+  ): Promise<GetTokenResponse> {
     const url = `${this.host}/api/2.0/token-management/tokens/${req.tokenId ?? ''}`;
-    let resp: GetTokenRequest_Response | undefined;
+    let resp: GetTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -154,7 +151,7 @@ export class TokenManagementClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetTokenRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetTokenResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -167,7 +164,7 @@ export class TokenManagementClient {
   async listTokens(
     req: ListTokensRequest,
     options?: CallOptions
-  ): Promise<ListTokensRequest_Response> {
+  ): Promise<ListTokensResponse> {
     const url = `${this.host}/api/2.0/token-management/tokens`;
     const params = new URLSearchParams();
     if (req.createdById !== undefined) {
@@ -178,7 +175,7 @@ export class TokenManagementClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListTokensRequest_Response | undefined;
+    let resp: ListTokensResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -191,7 +188,7 @@ export class TokenManagementClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListTokensRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListTokensResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

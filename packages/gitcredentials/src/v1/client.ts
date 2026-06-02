@@ -18,24 +18,24 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateCredentialsRequest,
-  CreateCredentialsRequest_Response,
+  CreateCredentialsResponse,
   DeleteCredentialsRequest,
-  DeleteCredentialsRequest_Response,
+  DeleteCredentialsResponse,
   GetCredentialsRequest,
-  GetCredentialsRequest_Response,
+  GetCredentialsResponse,
   ListCredentialsRequest,
-  ListCredentialsRequest_Response,
+  ListCredentialsResponse,
   UpdateCredentialsRequest,
-  UpdateCredentialsRequest_Response,
+  UpdateCredentialsResponse,
 } from './model';
 import {
   marshalCreateCredentialsRequestSchema,
   marshalUpdateCredentialsRequestSchema,
-  unmarshalCreateCredentialsRequest_ResponseSchema,
-  unmarshalDeleteCredentialsRequest_ResponseSchema,
-  unmarshalGetCredentialsRequest_ResponseSchema,
-  unmarshalListCredentialsRequest_ResponseSchema,
-  unmarshalUpdateCredentialsRequest_ResponseSchema,
+  unmarshalCreateCredentialsResponseSchema,
+  unmarshalDeleteCredentialsResponseSchema,
+  unmarshalGetCredentialsResponseSchema,
+  unmarshalListCredentialsResponseSchema,
+  unmarshalUpdateCredentialsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -80,10 +80,10 @@ export class GitCredentialsClient {
   async createCredentials(
     req: CreateCredentialsRequest,
     options?: CallOptions
-  ): Promise<CreateCredentialsRequest_Response> {
+  ): Promise<CreateCredentialsResponse> {
     const url = `${this.host}/api/2.0/git-credentials`;
     const body = marshalRequest(req, marshalCreateCredentialsRequestSchema);
-    let resp: CreateCredentialsRequest_Response | undefined;
+    let resp: CreateCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -96,10 +96,7 @@ export class GitCredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateCredentialsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateCredentialsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -112,7 +109,7 @@ export class GitCredentialsClient {
   async deleteCredentials(
     req: DeleteCredentialsRequest,
     options?: CallOptions
-  ): Promise<DeleteCredentialsRequest_Response> {
+  ): Promise<DeleteCredentialsResponse> {
     const url = `${this.host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
@@ -120,7 +117,7 @@ export class GitCredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteCredentialsRequest_Response | undefined;
+    let resp: DeleteCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -133,10 +130,7 @@ export class GitCredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCredentialsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteCredentialsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -149,7 +143,7 @@ export class GitCredentialsClient {
   async getCredentials(
     req: GetCredentialsRequest,
     options?: CallOptions
-  ): Promise<GetCredentialsRequest_Response> {
+  ): Promise<GetCredentialsResponse> {
     const url = `${this.host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
@@ -157,7 +151,7 @@ export class GitCredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetCredentialsRequest_Response | undefined;
+    let resp: GetCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -170,10 +164,7 @@ export class GitCredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetCredentialsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetCredentialsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -186,7 +177,7 @@ export class GitCredentialsClient {
   async listCredentials(
     req: ListCredentialsRequest,
     options?: CallOptions
-  ): Promise<ListCredentialsRequest_Response> {
+  ): Promise<ListCredentialsResponse> {
     const url = `${this.host}/api/2.0/git-credentials`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
@@ -194,7 +185,7 @@ export class GitCredentialsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListCredentialsRequest_Response | undefined;
+    let resp: ListCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -207,10 +198,7 @@ export class GitCredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCredentialsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListCredentialsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -223,10 +211,10 @@ export class GitCredentialsClient {
   async updateCredentials(
     req: UpdateCredentialsRequest,
     options?: CallOptions
-  ): Promise<UpdateCredentialsRequest_Response> {
+  ): Promise<UpdateCredentialsResponse> {
     const url = `${this.host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateCredentialsRequestSchema);
-    let resp: UpdateCredentialsRequest_Response | undefined;
+    let resp: UpdateCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -239,10 +227,7 @@ export class GitCredentialsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateCredentialsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateCredentialsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -9,8 +9,8 @@ export interface DisableSystemSchemaRequest {
   metastoreId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DisableSystemSchemaRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DisableSystemSchemaResponse {}
 
 export interface EnableSystemSchemaRequest {
   /** Full name of the system schema. */
@@ -21,8 +21,8 @@ export interface EnableSystemSchemaRequest {
   catalogName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EnableSystemSchemaRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EnableSystemSchemaResponse {}
 
 export interface ListSystemSchemasRequest {
   /** The ID for the metastore in which the system schema resides. */
@@ -39,8 +39,7 @@ export interface ListSystemSchemasRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSystemSchemasRequest_Response {
+export interface ListSystemSchemasResponse {
   /** An array of system schema information objects. */
   schemas?: SystemSchemaInfo[] | undefined;
   /**
@@ -60,16 +59,13 @@ export interface SystemSchemaInfo {
   state: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDisableSystemSchemaRequest_ResponseSchema: z.ZodType<DisableSystemSchemaRequest_Response> =
+export const unmarshalDisableSystemSchemaResponseSchema: z.ZodType<DisableSystemSchemaResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnableSystemSchemaRequest_ResponseSchema: z.ZodType<EnableSystemSchemaRequest_Response> =
+export const unmarshalEnableSystemSchemaResponseSchema: z.ZodType<EnableSystemSchemaResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSystemSchemasRequest_ResponseSchema: z.ZodType<ListSystemSchemasRequest_Response> =
+export const unmarshalListSystemSchemasResponseSchema: z.ZodType<ListSystemSchemasResponse> =
   z
     .object({
       schemas: z

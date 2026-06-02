@@ -12,13 +12,13 @@ export {
 export type {
   CreateLogDeliveryConfigurationParams,
   CreateLogDeliveryConfigurationRequest,
-  CreateLogDeliveryConfigurationRequest_Response,
+  CreateLogDeliveryConfigurationResponse,
   GetLogDeliveryConfigurationRequest,
-  GetLogDeliveryConfigurationRequest_Response,
+  GetLogDeliveryConfigurationResponse,
   ListLogDeliveryConfigurationRequest,
-  ListLogDeliveryConfigurationRequest_Response,
+  ListLogDeliveryConfigurationResponse,
   LogDeliveryConfiguration,
   LogDeliveryStatus,
   UpdateLogDeliveryConfigurationRequest,
-  UpdateLogDeliveryConfigurationRequest_Response,
+  UpdateLogDeliveryConfigurationResponse,
 } from './model';

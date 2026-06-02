@@ -20,19 +20,19 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AddBlockRequest,
-  AddBlockRequest_Response,
+  AddBlockResponse,
   CloseRequest,
-  CloseRequest_Response,
+  CloseResponse,
   CreateDirectoryRequest,
   CreateDirectoryResponse,
   CreateRequest,
-  CreateRequest_Response,
+  CreateResponse,
   DeleteDirectoryRequest,
   DeleteDirectoryResponse,
   DeleteFileRequest,
   DeleteFileResponse,
   DeleteRequest,
-  DeleteRequest_Response,
+  DeleteResponse,
   DirectoryEntry,
   DownloadFileRequest,
   DownloadFileResponse,
@@ -41,19 +41,19 @@ import type {
   GetFileMetadataRequest,
   GetFileMetadataResponse,
   GetStatusRequest,
-  GetStatusRequest_Response,
+  GetStatusResponse,
   ListDirectoryContentsRequest,
   ListDirectoryResponse,
   ListStatusRequest,
-  ListStatusRequest_Response,
+  ListStatusResponse,
   MkDirsRequest,
-  MkDirsRequest_Response,
+  MkDirsResponse,
   MoveRequest,
-  MoveRequest_Response,
+  MoveResponse,
   PutRequest,
-  PutRequest_Response,
+  PutResponse,
   ReadRequest,
-  ReadRequest_Response,
+  ReadResponse,
   UploadFileRequest,
   UploadFileResponse,
 } from './model';
@@ -65,22 +65,22 @@ import {
   marshalMkDirsRequestSchema,
   marshalMoveRequestSchema,
   marshalPutRequestSchema,
-  unmarshalAddBlockRequest_ResponseSchema,
-  unmarshalCloseRequest_ResponseSchema,
+  unmarshalAddBlockResponseSchema,
+  unmarshalCloseResponseSchema,
   unmarshalCreateDirectoryResponseSchema,
-  unmarshalCreateRequest_ResponseSchema,
+  unmarshalCreateResponseSchema,
   unmarshalDeleteDirectoryResponseSchema,
   unmarshalDeleteFileResponseSchema,
-  unmarshalDeleteRequest_ResponseSchema,
+  unmarshalDeleteResponseSchema,
   unmarshalGetDirectoryMetadataResponseSchema,
   unmarshalGetFileMetadataResponseSchema,
-  unmarshalGetStatusRequest_ResponseSchema,
+  unmarshalGetStatusResponseSchema,
   unmarshalListDirectoryResponseSchema,
-  unmarshalListStatusRequest_ResponseSchema,
-  unmarshalMkDirsRequest_ResponseSchema,
-  unmarshalMoveRequest_ResponseSchema,
-  unmarshalPutRequest_ResponseSchema,
-  unmarshalReadRequest_ResponseSchema,
+  unmarshalListStatusResponseSchema,
+  unmarshalMkDirsResponseSchema,
+  unmarshalMoveResponseSchema,
+  unmarshalPutResponseSchema,
+  unmarshalReadResponseSchema,
   unmarshalUploadFileResponseSchema,
 } from './model';
 
@@ -127,10 +127,10 @@ export class FilesClient {
   async addBlock(
     req: AddBlockRequest,
     options?: CallOptions
-  ): Promise<AddBlockRequest_Response> {
+  ): Promise<AddBlockResponse> {
     const url = `${this.host}/api/2.0/dbfs/add-block`;
     const body = marshalRequest(req, marshalAddBlockRequestSchema);
-    let resp: AddBlockRequest_Response | undefined;
+    let resp: AddBlockResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -143,7 +143,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalAddBlockRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalAddBlockResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -159,10 +159,10 @@ export class FilesClient {
   async close(
     req: CloseRequest,
     options?: CallOptions
-  ): Promise<CloseRequest_Response> {
+  ): Promise<CloseResponse> {
     const url = `${this.host}/api/2.0/dbfs/close`;
     const body = marshalRequest(req, marshalCloseRequestSchema);
-    let resp: CloseRequest_Response | undefined;
+    let resp: CloseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -175,7 +175,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCloseRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCloseResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -198,10 +198,10 @@ export class FilesClient {
   async create(
     req: CreateRequest,
     options?: CallOptions
-  ): Promise<CreateRequest_Response> {
+  ): Promise<CreateResponse> {
     const url = `${this.host}/api/2.0/dbfs/create`;
     const body = marshalRequest(req, marshalCreateRequestSchema);
-    let resp: CreateRequest_Response | undefined;
+    let resp: CreateResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -214,7 +214,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -242,10 +242,10 @@ export class FilesClient {
   async delete(
     req: DeleteRequest,
     options?: CallOptions
-  ): Promise<DeleteRequest_Response> {
+  ): Promise<DeleteResponse> {
     const url = `${this.host}/api/2.0/dbfs/delete`;
     const body = marshalRequest(req, marshalDeleteRequestSchema);
-    let resp: DeleteRequest_Response | undefined;
+    let resp: DeleteResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -258,7 +258,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -274,7 +274,7 @@ export class FilesClient {
   async getStatus(
     req: GetStatusRequest,
     options?: CallOptions
-  ): Promise<GetStatusRequest_Response> {
+  ): Promise<GetStatusResponse> {
     const url = `${this.host}/api/2.0/dbfs/get-status`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -282,7 +282,7 @@ export class FilesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetStatusRequest_Response | undefined;
+    let resp: GetStatusResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -295,7 +295,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetStatusRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetStatusResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -318,7 +318,7 @@ export class FilesClient {
   async list(
     req: ListStatusRequest,
     options?: CallOptions
-  ): Promise<ListStatusRequest_Response> {
+  ): Promise<ListStatusResponse> {
     const url = `${this.host}/api/2.0/dbfs/list`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -326,7 +326,7 @@ export class FilesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListStatusRequest_Response | undefined;
+    let resp: ListStatusResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -339,7 +339,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListStatusRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListStatusResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -356,10 +356,10 @@ export class FilesClient {
   async mkdirs(
     req: MkDirsRequest,
     options?: CallOptions
-  ): Promise<MkDirsRequest_Response> {
+  ): Promise<MkDirsResponse> {
     const url = `${this.host}/api/2.0/dbfs/mkdirs`;
     const body = marshalRequest(req, marshalMkDirsRequestSchema);
-    let resp: MkDirsRequest_Response | undefined;
+    let resp: MkDirsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -372,7 +372,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalMkDirsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalMkDirsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -387,13 +387,10 @@ export class FilesClient {
    * If a file already exists in the destination path, this call throws an exception with `RESOURCE_ALREADY_EXISTS`.
    * If the given source path is a directory, this call always recursively moves all files.
    */
-  async move(
-    req: MoveRequest,
-    options?: CallOptions
-  ): Promise<MoveRequest_Response> {
+  async move(req: MoveRequest, options?: CallOptions): Promise<MoveResponse> {
     const url = `${this.host}/api/2.0/dbfs/move`;
     const body = marshalRequest(req, marshalMoveRequestSchema);
-    let resp: MoveRequest_Response | undefined;
+    let resp: MoveResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -406,7 +403,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalMoveRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalMoveResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -427,13 +424,10 @@ export class FilesClient {
    * If you want to upload large files, use the streaming upload. For details, see :method:dbfs/create,
    * :method:dbfs/addBlock, :method:dbfs/close.
    */
-  async put(
-    req: PutRequest,
-    options?: CallOptions
-  ): Promise<PutRequest_Response> {
+  async put(req: PutRequest, options?: CallOptions): Promise<PutResponse> {
     const url = `${this.host}/api/2.0/dbfs/put`;
     const body = marshalRequest(req, marshalPutRequestSchema);
-    let resp: PutRequest_Response | undefined;
+    let resp: PutResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -446,7 +440,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPutRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPutResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -463,10 +457,7 @@ export class FilesClient {
    *
    * If `offset + length` exceeds the number of bytes in a file, it reads the contents until the end of file.
    */
-  async read(
-    req: ReadRequest,
-    options?: CallOptions
-  ): Promise<ReadRequest_Response> {
+  async read(req: ReadRequest, options?: CallOptions): Promise<ReadResponse> {
     const url = `${this.host}/api/2.0/dbfs/read`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -480,7 +471,7 @@ export class FilesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ReadRequest_Response | undefined;
+    let resp: ReadResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -493,7 +484,7 @@ export class FilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalReadRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalReadResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -86,8 +86,8 @@ export interface DeleteServicePrincipalSecretRequest {
   secretId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteServicePrincipalSecretRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteServicePrincipalSecretResponse {}
 
 export interface FederationPolicy {
   /**
@@ -169,8 +169,7 @@ export interface ListServicePrincipalSecretsRequest {
   pageSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListServicePrincipalSecretsRequest_Response {
+export interface ListServicePrincipalSecretsResponse {
   /** List of the secrets */
   secrets?: ServicePrincipalSecret[] | undefined;
   /** A token, which can be sent as `page_token` to retrieve the next page. */
@@ -296,8 +295,7 @@ export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<Crea
       expireTime: d.expire_time,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema: z.ZodType<DeleteServicePrincipalSecretRequest_Response> =
+export const unmarshalDeleteServicePrincipalSecretResponseSchema: z.ZodType<DeleteServicePrincipalSecretResponse> =
   z.object({});
 
 export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
@@ -347,8 +345,7 @@ export const unmarshalListFederationPoliciesResponseSchema: z.ZodType<ListFedera
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListServicePrincipalSecretsRequest_ResponseSchema: z.ZodType<ListServicePrincipalSecretsRequest_Response> =
+export const unmarshalListServicePrincipalSecretsResponseSchema: z.ZodType<ListServicePrincipalSecretsResponse> =
   z
     .object({
       secrets: z

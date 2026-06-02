@@ -18,11 +18,11 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateTokenRequest,
-  CreateTokenRequest_Response,
+  CreateTokenResponse,
   ListTokensRequest,
-  ListTokensRequest_Response,
+  ListTokensResponse,
   RevokeTokenRequest,
-  RevokeTokenRequest_Response,
+  RevokeTokenResponse,
   UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';
@@ -30,9 +30,9 @@ import {
   marshalCreateTokenRequestSchema,
   marshalRevokeTokenRequestSchema,
   marshalUpdateTokenRequestSchema,
-  unmarshalCreateTokenRequest_ResponseSchema,
-  unmarshalListTokensRequest_ResponseSchema,
-  unmarshalRevokeTokenRequest_ResponseSchema,
+  unmarshalCreateTokenResponseSchema,
+  unmarshalListTokensResponseSchema,
+  unmarshalRevokeTokenResponseSchema,
   unmarshalUpdateTokenResponseSchema,
 } from './model';
 
@@ -78,10 +78,10 @@ export class TokensClient {
   async createToken(
     req: CreateTokenRequest,
     options?: CallOptions
-  ): Promise<CreateTokenRequest_Response> {
+  ): Promise<CreateTokenResponse> {
     const url = `${this.host}/api/2.0/token/create`;
     const body = marshalRequest(req, marshalCreateTokenRequestSchema);
-    let resp: CreateTokenRequest_Response | undefined;
+    let resp: CreateTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -94,10 +94,7 @@ export class TokensClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateTokenRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateTokenResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -110,9 +107,9 @@ export class TokensClient {
   async listTokens(
     _req: ListTokensRequest,
     options?: CallOptions
-  ): Promise<ListTokensRequest_Response> {
+  ): Promise<ListTokensResponse> {
     const url = `${this.host}/api/2.0/token/list`;
-    let resp: ListTokensRequest_Response | undefined;
+    let resp: ListTokensResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -125,7 +122,7 @@ export class TokensClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListTokensRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListTokensResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -142,10 +139,10 @@ export class TokensClient {
   async revokeToken(
     req: RevokeTokenRequest,
     options?: CallOptions
-  ): Promise<RevokeTokenRequest_Response> {
+  ): Promise<RevokeTokenResponse> {
     const url = `${this.host}/api/2.0/token/delete`;
     const body = marshalRequest(req, marshalRevokeTokenRequestSchema);
-    let resp: RevokeTokenRequest_Response | undefined;
+    let resp: RevokeTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -158,10 +155,7 @@ export class TokensClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalRevokeTokenRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalRevokeTokenResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

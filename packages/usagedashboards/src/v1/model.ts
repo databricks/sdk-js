@@ -25,8 +25,7 @@ export interface CreateBillingUsageDashboardRequest {
   majorVersion?: UsageDashboardMajorVersion | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateBillingUsageDashboardRequest_Response {
+export interface CreateBillingUsageDashboardResponse {
   /** The unique id of the usage dashboard. */
   dashboardId?: string | undefined;
 }
@@ -40,16 +39,14 @@ export interface GetBillingUsageDashboardRequest {
   dashboardType?: UsageDashboardType | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetBillingUsageDashboardRequest_Response {
+export interface GetBillingUsageDashboardResponse {
   /** The unique id of the usage dashboard. */
   dashboardId?: string | undefined;
   /** The URL of the usage dashboard. */
   dashboardUrl?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateBillingUsageDashboardRequest_ResponseSchema: z.ZodType<CreateBillingUsageDashboardRequest_Response> =
+export const unmarshalCreateBillingUsageDashboardResponseSchema: z.ZodType<CreateBillingUsageDashboardResponse> =
   z
     .object({
       dashboard_id: z.string().optional(),
@@ -58,8 +55,7 @@ export const unmarshalCreateBillingUsageDashboardRequest_ResponseSchema: z.ZodTy
       dashboardId: d.dashboard_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetBillingUsageDashboardRequest_ResponseSchema: z.ZodType<GetBillingUsageDashboardRequest_Response> =
+export const unmarshalGetBillingUsageDashboardResponseSchema: z.ZodType<GetBillingUsageDashboardResponse> =
   z
     .object({
       dashboard_id: z.string().optional(),

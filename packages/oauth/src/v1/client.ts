@@ -19,44 +19,44 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateCustomOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationRequest,
-  CreatePublishedOAuthAppIntegrationRequest_Response,
+  CreatePublishedOAuthAppIntegrationResponse,
   CustomOAuthAppIntegration,
   CustomOAuthAppIntegrationSecret,
   DeleteCustomOAuthAppIntegrationRequest,
-  DeleteCustomOAuthAppIntegrationRequest_Response,
+  DeleteCustomOAuthAppIntegrationResponse,
   DeletePublishedOAuthAppIntegrationRequest,
-  DeletePublishedOAuthAppIntegrationRequest_Response,
+  DeletePublishedOAuthAppIntegrationResponse,
   GetCustomOAuthAppIntegrationRequest,
   GetPublishedOAuthAppIntegrationRequest,
   ListCustomOAuthAppIntegrationsRequest,
-  ListCustomOAuthAppIntegrationsRequest_Response,
+  ListCustomOAuthAppIntegrationsResponse,
   ListPublishedOAuthAppIntegrationsRequest,
-  ListPublishedOAuthAppIntegrationsRequest_Response,
+  ListPublishedOAuthAppIntegrationsResponse,
   ListPublishedOAuthAppsRequest,
-  ListPublishedOAuthAppsRequest_Response,
+  ListPublishedOAuthAppsResponse,
   PublishedOAuthApp,
   PublishedOAuthAppIntegration,
   UpdateCustomOAuthAppIntegrationRequest,
-  UpdateCustomOAuthAppIntegrationRequest_Response,
+  UpdateCustomOAuthAppIntegrationResponse,
   UpdatePublishedOAuthAppIntegrationRequest,
-  UpdatePublishedOAuthAppIntegrationRequest_Response,
+  UpdatePublishedOAuthAppIntegrationResponse,
 } from './model';
 import {
   marshalCreateCustomOAuthAppIntegrationRequestSchema,
   marshalCreatePublishedOAuthAppIntegrationRequestSchema,
   marshalUpdateCustomOAuthAppIntegrationRequestSchema,
   marshalUpdatePublishedOAuthAppIntegrationRequestSchema,
-  unmarshalCreatePublishedOAuthAppIntegrationRequest_ResponseSchema,
+  unmarshalCreatePublishedOAuthAppIntegrationResponseSchema,
   unmarshalCustomOAuthAppIntegrationSchema,
   unmarshalCustomOAuthAppIntegrationSecretSchema,
-  unmarshalDeleteCustomOAuthAppIntegrationRequest_ResponseSchema,
-  unmarshalDeletePublishedOAuthAppIntegrationRequest_ResponseSchema,
-  unmarshalListCustomOAuthAppIntegrationsRequest_ResponseSchema,
-  unmarshalListPublishedOAuthAppIntegrationsRequest_ResponseSchema,
-  unmarshalListPublishedOAuthAppsRequest_ResponseSchema,
+  unmarshalDeleteCustomOAuthAppIntegrationResponseSchema,
+  unmarshalDeletePublishedOAuthAppIntegrationResponseSchema,
+  unmarshalListCustomOAuthAppIntegrationsResponseSchema,
+  unmarshalListPublishedOAuthAppIntegrationsResponseSchema,
+  unmarshalListPublishedOAuthAppsResponseSchema,
   unmarshalPublishedOAuthAppIntegrationSchema,
-  unmarshalUpdateCustomOAuthAppIntegrationRequest_ResponseSchema,
-  unmarshalUpdatePublishedOAuthAppIntegrationRequest_ResponseSchema,
+  unmarshalUpdateCustomOAuthAppIntegrationResponseSchema,
+  unmarshalUpdatePublishedOAuthAppIntegrationResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -136,13 +136,13 @@ export class OAuthClient {
   async createPublishedOAuthAppIntegration(
     req: CreatePublishedOAuthAppIntegrationRequest,
     options?: CallOptions
-  ): Promise<CreatePublishedOAuthAppIntegrationRequest_Response> {
+  ): Promise<CreatePublishedOAuthAppIntegrationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations`;
     const body = marshalRequest(
       req,
       marshalCreatePublishedOAuthAppIntegrationRequestSchema
     );
-    let resp: CreatePublishedOAuthAppIntegrationRequest_Response | undefined;
+    let resp: CreatePublishedOAuthAppIntegrationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -154,7 +154,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreatePublishedOAuthAppIntegrationRequest_ResponseSchema
+        unmarshalCreatePublishedOAuthAppIntegrationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -171,9 +171,9 @@ export class OAuthClient {
   async deleteCustomOAuthAppIntegration(
     req: DeleteCustomOAuthAppIntegrationRequest,
     options?: CallOptions
-  ): Promise<DeleteCustomOAuthAppIntegrationRequest_Response> {
+  ): Promise<DeleteCustomOAuthAppIntegrationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
-    let resp: DeleteCustomOAuthAppIntegrationRequest_Response | undefined;
+    let resp: DeleteCustomOAuthAppIntegrationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -185,7 +185,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteCustomOAuthAppIntegrationRequest_ResponseSchema
+        unmarshalDeleteCustomOAuthAppIntegrationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -202,9 +202,9 @@ export class OAuthClient {
   async deletePublishedOAuthAppIntegration(
     req: DeletePublishedOAuthAppIntegrationRequest,
     options?: CallOptions
-  ): Promise<DeletePublishedOAuthAppIntegrationRequest_Response> {
+  ): Promise<DeletePublishedOAuthAppIntegrationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
-    let resp: DeletePublishedOAuthAppIntegrationRequest_Response | undefined;
+    let resp: DeletePublishedOAuthAppIntegrationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -216,7 +216,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeletePublishedOAuthAppIntegrationRequest_ResponseSchema
+        unmarshalDeletePublishedOAuthAppIntegrationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -283,7 +283,7 @@ export class OAuthClient {
   async listCustomOAuthAppIntegrations(
     req: ListCustomOAuthAppIntegrationsRequest,
     options?: CallOptions
-  ): Promise<ListCustomOAuthAppIntegrationsRequest_Response> {
+  ): Promise<ListCustomOAuthAppIntegrationsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -300,7 +300,7 @@ export class OAuthClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListCustomOAuthAppIntegrationsRequest_Response | undefined;
+    let resp: ListCustomOAuthAppIntegrationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -312,7 +312,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListCustomOAuthAppIntegrationsRequest_ResponseSchema
+        unmarshalListCustomOAuthAppIntegrationsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -343,7 +343,7 @@ export class OAuthClient {
   async listPublishedOAuthAppIntegrations(
     req: ListPublishedOAuthAppIntegrationsRequest,
     options?: CallOptions
-  ): Promise<ListPublishedOAuthAppIntegrationsRequest_Response> {
+  ): Promise<ListPublishedOAuthAppIntegrationsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -354,7 +354,7 @@ export class OAuthClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPublishedOAuthAppIntegrationsRequest_Response | undefined;
+    let resp: ListPublishedOAuthAppIntegrationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -366,7 +366,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPublishedOAuthAppIntegrationsRequest_ResponseSchema
+        unmarshalListPublishedOAuthAppIntegrationsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -400,7 +400,7 @@ export class OAuthClient {
   async listPublishedOAuthApps(
     req: ListPublishedOAuthAppsRequest,
     options?: CallOptions
-  ): Promise<ListPublishedOAuthAppsRequest_Response> {
+  ): Promise<ListPublishedOAuthAppsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-apps`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -411,7 +411,7 @@ export class OAuthClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPublishedOAuthAppsRequest_Response | undefined;
+    let resp: ListPublishedOAuthAppsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -423,7 +423,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPublishedOAuthAppsRequest_ResponseSchema
+        unmarshalListPublishedOAuthAppsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -457,13 +457,13 @@ export class OAuthClient {
   async updateCustomOAuthAppIntegration(
     req: UpdateCustomOAuthAppIntegrationRequest,
     options?: CallOptions
-  ): Promise<UpdateCustomOAuthAppIntegrationRequest_Response> {
+  ): Promise<UpdateCustomOAuthAppIntegrationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateCustomOAuthAppIntegrationRequestSchema
     );
-    let resp: UpdateCustomOAuthAppIntegrationRequest_Response | undefined;
+    let resp: UpdateCustomOAuthAppIntegrationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -475,7 +475,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateCustomOAuthAppIntegrationRequest_ResponseSchema
+        unmarshalUpdateCustomOAuthAppIntegrationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -492,13 +492,13 @@ export class OAuthClient {
   async updatePublishedOAuthAppIntegration(
     req: UpdatePublishedOAuthAppIntegrationRequest,
     options?: CallOptions
-  ): Promise<UpdatePublishedOAuthAppIntegrationRequest_Response> {
+  ): Promise<UpdatePublishedOAuthAppIntegrationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdatePublishedOAuthAppIntegrationRequestSchema
     );
-    let resp: UpdatePublishedOAuthAppIntegrationRequest_Response | undefined;
+    let resp: UpdatePublishedOAuthAppIntegrationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -510,7 +510,7 @@ export class OAuthClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdatePublishedOAuthAppIntegrationRequest_ResponseSchema
+        unmarshalUpdatePublishedOAuthAppIntegrationResponseSchema
       );
     };
     await executeCall(call, options);

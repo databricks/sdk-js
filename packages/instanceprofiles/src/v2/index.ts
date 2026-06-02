@@ -4,12 +4,12 @@ export {InstanceProfilesClient} from './client';
 
 export type {
   AddInstanceProfileRequest,
-  AddInstanceProfileRequest_Response,
+  AddInstanceProfileResponse,
   EditInstanceProfileRequest,
-  EditInstanceProfileRequest_Response,
+  EditInstanceProfileResponse,
   InstanceProfile,
   ListInstanceProfilesRequest,
-  ListInstanceProfilesRequest_Response,
+  ListInstanceProfilesResponse,
   RemoveInstanceProfileRequest,
-  RemoveInstanceProfileRequest_Response,
+  RemoveInstanceProfileResponse,
 } from './model';

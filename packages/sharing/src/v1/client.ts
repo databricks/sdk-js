@@ -23,45 +23,45 @@ import type {
   CreateShareRequest,
   DeleteFederationPolicyRequest,
   DeleteProviderRequest,
-  DeleteProviderRequest_Response,
+  DeleteProviderResponse,
   DeleteRecipientRequest,
-  DeleteRecipientRequest_Response,
+  DeleteRecipientResponse,
   DeleteShareRequest,
-  DeleteShareRequest_Response,
+  DeleteShareResponse,
   FederationPolicy,
   GetActivationUrlInfoRequest,
-  GetActivationUrlInfoRequest_Response,
+  GetActivationUrlInfoResponse,
   GetFederationPolicyRequest,
   GetProviderRequest,
   GetRecipientRequest,
+  GetRecipientSharePermissionsResponse,
+  GetSharePermissionsResponse,
   GetShareRequest,
   ListFederationPoliciesRequest,
   ListFederationPoliciesResponse,
   ListProviderShareAssetsRequest,
   ListProviderShareAssetsResponse,
   ListProviderSharesRequest,
-  ListProviderSharesRequest_Response,
+  ListProviderSharesResponse,
   ListProvidersRequest,
-  ListProvidersRequest_Response,
+  ListProvidersResponse,
   ListRecipientSharePermissionsRequest,
-  ListRecipientSharePermissionsRequest_Response,
   ListRecipientsRequest,
-  ListRecipientsRequest_Response,
+  ListRecipientsResponse,
   ListSharePermissionsRequest,
-  ListSharePermissionsRequest_Response,
   ListSharesRequest,
-  ListSharesRequest_Response,
+  ListSharesResponse,
   ProviderInfo,
   ProviderShare,
   RecipientInfo,
   RetrieveToken,
-  RetrieveToken_Response,
+  RetrieveTokenResponse,
   RotateRecipientTokenRequest,
   ShareInfo,
   UpdateProviderRequest,
   UpdateRecipientRequest,
   UpdateSharePermissionsRequest,
-  UpdateSharePermissionsRequest_Response,
+  UpdateSharePermissionsResponse,
   UpdateShareRequest,
 } from './model';
 import {
@@ -74,24 +74,24 @@ import {
   marshalUpdateRecipientRequestSchema,
   marshalUpdateSharePermissionsRequestSchema,
   marshalUpdateShareRequestSchema,
-  unmarshalDeleteProviderRequest_ResponseSchema,
-  unmarshalDeleteRecipientRequest_ResponseSchema,
-  unmarshalDeleteShareRequest_ResponseSchema,
+  unmarshalDeleteProviderResponseSchema,
+  unmarshalDeleteRecipientResponseSchema,
+  unmarshalDeleteShareResponseSchema,
   unmarshalFederationPolicySchema,
-  unmarshalGetActivationUrlInfoRequest_ResponseSchema,
+  unmarshalGetActivationUrlInfoResponseSchema,
+  unmarshalGetRecipientSharePermissionsResponseSchema,
+  unmarshalGetSharePermissionsResponseSchema,
   unmarshalListFederationPoliciesResponseSchema,
   unmarshalListProviderShareAssetsResponseSchema,
-  unmarshalListProviderSharesRequest_ResponseSchema,
-  unmarshalListProvidersRequest_ResponseSchema,
-  unmarshalListRecipientSharePermissionsRequest_ResponseSchema,
-  unmarshalListRecipientsRequest_ResponseSchema,
-  unmarshalListSharePermissionsRequest_ResponseSchema,
-  unmarshalListSharesRequest_ResponseSchema,
+  unmarshalListProviderSharesResponseSchema,
+  unmarshalListProvidersResponseSchema,
+  unmarshalListRecipientsResponseSchema,
+  unmarshalListSharesResponseSchema,
   unmarshalProviderInfoSchema,
   unmarshalRecipientInfoSchema,
-  unmarshalRetrieveToken_ResponseSchema,
+  unmarshalRetrieveTokenResponseSchema,
   unmarshalShareInfoSchema,
-  unmarshalUpdateSharePermissionsRequest_ResponseSchema,
+  unmarshalUpdateSharePermissionsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -302,9 +302,9 @@ export class SharingClient {
   async deleteProvider(
     req: DeleteProviderRequest,
     options?: CallOptions
-  ): Promise<DeleteProviderRequest_Response> {
+  ): Promise<DeleteProviderResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
-    let resp: DeleteProviderRequest_Response | undefined;
+    let resp: DeleteProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -317,10 +317,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteProviderRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteProviderResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -333,9 +330,9 @@ export class SharingClient {
   async deleteRecipient(
     req: DeleteRecipientRequest,
     options?: CallOptions
-  ): Promise<DeleteRecipientRequest_Response> {
+  ): Promise<DeleteRecipientResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
-    let resp: DeleteRecipientRequest_Response | undefined;
+    let resp: DeleteRecipientResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -348,10 +345,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteRecipientRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteRecipientResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -364,9 +358,9 @@ export class SharingClient {
   async deleteShare(
     req: DeleteShareRequest,
     options?: CallOptions
-  ): Promise<DeleteShareRequest_Response> {
+  ): Promise<DeleteShareResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
-    let resp: DeleteShareRequest_Response | undefined;
+    let resp: DeleteShareResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -379,10 +373,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteShareRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteShareResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -395,9 +386,9 @@ export class SharingClient {
   async getActivationUrlInfo(
     req: GetActivationUrlInfoRequest,
     options?: CallOptions
-  ): Promise<GetActivationUrlInfoRequest_Response> {
+  ): Promise<GetActivationUrlInfoResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/public/data_sharing_activation_info/${req.activationUrl ?? ''}`;
-    let resp: GetActivationUrlInfoRequest_Response | undefined;
+    let resp: GetActivationUrlInfoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -412,7 +403,7 @@ export class SharingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetActivationUrlInfoRequest_ResponseSchema
+        unmarshalGetActivationUrlInfoResponseSchema
       );
     };
     await executeCall(call, options);
@@ -669,7 +660,7 @@ export class SharingClient {
   async listProviderShares(
     req: ListProviderSharesRequest,
     options?: CallOptions
-  ): Promise<ListProviderSharesRequest_Response> {
+  ): Promise<ListProviderSharesResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/providers/${req.providerNameArg ?? ''}/shares`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -680,7 +671,7 @@ export class SharingClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListProviderSharesRequest_Response | undefined;
+    let resp: ListProviderSharesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -693,10 +684,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListProviderSharesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListProviderSharesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -732,7 +720,7 @@ export class SharingClient {
   async listProviders(
     req: ListProvidersRequest,
     options?: CallOptions
-  ): Promise<ListProvidersRequest_Response> {
+  ): Promise<ListProvidersResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/providers`;
     const params = new URLSearchParams();
     if (req.dataProviderGlobalMetastoreId !== undefined) {
@@ -749,7 +737,7 @@ export class SharingClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListProvidersRequest_Response | undefined;
+    let resp: ListProvidersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -762,10 +750,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListProvidersRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListProvidersResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -795,7 +780,7 @@ export class SharingClient {
   async listRecipientSharePermissions(
     req: ListRecipientSharePermissionsRequest,
     options?: CallOptions
-  ): Promise<ListRecipientSharePermissionsRequest_Response> {
+  ): Promise<GetRecipientSharePermissionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/share-permissions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -806,7 +791,7 @@ export class SharingClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListRecipientSharePermissionsRequest_Response | undefined;
+    let resp: GetRecipientSharePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -821,7 +806,7 @@ export class SharingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListRecipientSharePermissionsRequest_ResponseSchema
+        unmarshalGetRecipientSharePermissionsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -841,7 +826,7 @@ export class SharingClient {
   async listRecipients(
     req: ListRecipientsRequest,
     options?: CallOptions
-  ): Promise<ListRecipientsRequest_Response> {
+  ): Promise<ListRecipientsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/recipients`;
     const params = new URLSearchParams();
     if (req.dataRecipientGlobalMetastoreId !== undefined) {
@@ -858,7 +843,7 @@ export class SharingClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListRecipientsRequest_Response | undefined;
+    let resp: ListRecipientsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -871,10 +856,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListRecipientsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListRecipientsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -907,7 +889,7 @@ export class SharingClient {
   async listSharePermissions(
     req: ListSharePermissionsRequest,
     options?: CallOptions
-  ): Promise<ListSharePermissionsRequest_Response> {
+  ): Promise<GetSharePermissionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -918,7 +900,7 @@ export class SharingClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSharePermissionsRequest_Response | undefined;
+    let resp: GetSharePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -933,7 +915,7 @@ export class SharingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListSharePermissionsRequest_ResponseSchema
+        unmarshalGetSharePermissionsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -950,7 +932,7 @@ export class SharingClient {
   async listShares(
     req: ListSharesRequest,
     options?: CallOptions
-  ): Promise<ListSharesRequest_Response> {
+  ): Promise<ListSharesResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/shares`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -961,7 +943,7 @@ export class SharingClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSharesRequest_Response | undefined;
+    let resp: ListSharesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -974,7 +956,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListSharesRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListSharesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1007,9 +989,9 @@ export class SharingClient {
   async retrieveAccessToken(
     req: RetrieveToken,
     options?: CallOptions
-  ): Promise<RetrieveToken_Response> {
+  ): Promise<RetrieveTokenResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/public/data_sharing_activation/${req.activationUrl ?? ''}`;
-    let resp: RetrieveToken_Response | undefined;
+    let resp: RetrieveTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1022,7 +1004,7 @@ export class SharingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRetrieveToken_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalRetrieveTokenResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1183,13 +1165,13 @@ export class SharingClient {
   async updateSharePermissions(
     req: UpdateSharePermissionsRequest,
     options?: CallOptions
-  ): Promise<UpdateSharePermissionsRequest_Response> {
+  ): Promise<UpdateSharePermissionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
     const body = marshalRequest(
       req,
       marshalUpdateSharePermissionsRequestSchema
     );
-    let resp: UpdateSharePermissionsRequest_Response | undefined;
+    let resp: UpdateSharePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1204,7 +1186,7 @@ export class SharingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateSharePermissionsRequest_ResponseSchema
+        unmarshalUpdateSharePermissionsResponseSchema
       );
     };
     await executeCall(call, options);

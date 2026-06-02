@@ -68,8 +68,8 @@ export interface DeletePolicyRequest {
   name?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePolicyRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeletePolicyResponse {}
 
 export interface FunctionArgument {
   /** A positional argument pass to a row filter or column mask function. */
@@ -116,8 +116,7 @@ export interface ListPoliciesRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPoliciesRequest_Response {
+export interface ListPoliciesResponse {
   /** The list of retrieved policies. */
   policies?: PolicyInfo[] | undefined;
   /**
@@ -263,8 +262,7 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
     using: d.using,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePolicyRequest_ResponseSchema: z.ZodType<DeletePolicyRequest_Response> =
+export const unmarshalDeletePolicyResponseSchema: z.ZodType<DeletePolicyResponse> =
   z.object({});
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
@@ -281,8 +279,7 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
           : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPoliciesRequest_ResponseSchema: z.ZodType<ListPoliciesRequest_Response> =
+export const unmarshalListPoliciesResponseSchema: z.ZodType<ListPoliciesResponse> =
   z
     .object({
       policies: z.array(z.lazy(() => unmarshalPolicyInfoSchema)).optional(),

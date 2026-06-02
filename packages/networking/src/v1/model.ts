@@ -310,8 +310,7 @@ export interface CreateAccountIpAccessListRequest {
 }
 
 /** An IP access list was successfully created. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateAccountIpAccessListRequest_Response {
+export interface CreateAccountIpAccessListResponse {
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
@@ -333,8 +332,7 @@ export interface CreateIpAccessList {
 }
 
 /** An IP access list was successfully created. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateIpAccessList_Response {
+export interface CreateIpAccessListResponse {
   ipAccessList?: IpAccessList | undefined;
 }
 
@@ -769,6 +767,10 @@ export interface CustomerFacingIngressNetworkPolicy_RequestDestination {
   accountApi?:
     | CustomerFacingIngressNetworkPolicy_AccountApiDestination
     | undefined;
+  /**
+   * Account DatabricksOne destination is not supported.
+   * DO NOT change the stage of this destination past PRIVATE_PREVIEW.
+   */
   accountDatabricksOne?:
     | CustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestination
     | undefined;
@@ -1034,8 +1036,8 @@ export interface DeleteAccountIpAccessListRequest {
 }
 
 /** The IP access list was successfully deleted. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteAccountIpAccessListRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteAccountIpAccessListResponse {}
 
 export interface DeleteEndpointRequest {
   name?: string | undefined;
@@ -1047,8 +1049,8 @@ export interface DeleteIpAccessList {
 }
 
 /** The IP access list was successfully deleted. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteIpAccessList_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteIpAccessListResponse {}
 
 /**
  * Initiates deleting a private endpoint rule. If the connection state is PENDING or EXPIRED, the private endpoint is
@@ -1269,8 +1271,7 @@ export interface GetAccountIpAccessListRequest {
   listId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetAccountIpAccessListRequest_Response {
+export interface GetAccountIpAccessListResponse {
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
@@ -1284,8 +1285,7 @@ export interface GetIpAccessList {
 }
 
 /** An IP access list was successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetIpAccessList_Response {
+export interface GetIpAccessListResponse {
   ipAccessList?: IpAccessList | undefined;
 }
 
@@ -1365,8 +1365,7 @@ export interface ListAccountIpAccessListsRequest {
 }
 
 /** IP access lists were successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListAccountIpAccessListsRequest_Response {
+export interface ListAccountIpAccessListsResponse {
   ipAccessLists?: AccountIpAccessList[] | undefined;
 }
 
@@ -1389,8 +1388,7 @@ export interface ListEndpointsResponse {
 export interface ListIpAccessLists {}
 
 /** IP access lists were successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListIpAccessLists_Response {
+export interface ListIpAccessListsResponse {
   ipAccessLists?: IpAccessList[] | undefined;
 }
 
@@ -1638,8 +1636,7 @@ export interface ReplaceAccountIpAccessListRequest {
 }
 
 /** The IP access list was successfully replaced. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ReplaceAccountIpAccessListRequest_Response {
+export interface ReplaceAccountIpAccessListResponse {
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
@@ -1656,8 +1653,7 @@ export interface ReplaceIpAccessList {
 }
 
 /** The IP access list was successfully replaced. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ReplaceIpAccessList_Response {
+export interface ReplaceIpAccessListResponse {
   ipAccessList?: IpAccessList | undefined;
 }
 
@@ -1675,8 +1671,7 @@ export interface UpdateAccountIpAccessListRequest {
 }
 
 /** The IP access list was successfully updated. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateAccountIpAccessListRequest_Response {
+export interface UpdateAccountIpAccessListResponse {
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
@@ -1693,8 +1688,7 @@ export interface UpdateIpAccessList {
 }
 
 /** The IP access list was successfully updated. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateIpAccessList_Response {
+export interface UpdateIpAccessListResponse {
   ipAccessList?: IpAccessList | undefined;
 }
 
@@ -1897,8 +1891,7 @@ export const unmarshalAzurePrivateEndpointInfoSchema: z.ZodType<AzurePrivateEndp
       privateLinkServiceId: d.private_link_service_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateAccountIpAccessListRequest_ResponseSchema: z.ZodType<CreateAccountIpAccessListRequest_Response> =
+export const unmarshalCreateAccountIpAccessListResponseSchema: z.ZodType<CreateAccountIpAccessListResponse> =
   z
     .object({
       ip_access_list: z
@@ -1909,8 +1902,7 @@ export const unmarshalCreateAccountIpAccessListRequest_ResponseSchema: z.ZodType
       ipAccessList: d.ip_access_list,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateIpAccessList_ResponseSchema: z.ZodType<CreateIpAccessList_Response> =
+export const unmarshalCreateIpAccessListResponseSchema: z.ZodType<CreateIpAccessListResponse> =
   z
     .object({
       ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
@@ -2668,12 +2660,10 @@ export const unmarshalCustomerFacingVpcEndpointSchema: z.ZodType<CustomerFacingV
           : undefined,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteAccountIpAccessListRequest_ResponseSchema: z.ZodType<DeleteAccountIpAccessListRequest_Response> =
+export const unmarshalDeleteAccountIpAccessListResponseSchema: z.ZodType<DeleteAccountIpAccessListResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteIpAccessList_ResponseSchema: z.ZodType<DeleteIpAccessList_Response> =
+export const unmarshalDeleteIpAccessListResponseSchema: z.ZodType<DeleteIpAccessListResponse> =
   z.object({});
 
 export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> =
@@ -2862,8 +2852,7 @@ export const unmarshalGcpNetworkInfoSchema: z.ZodType<GcpNetworkInfo> = z
     serviceIpRangeName: d.service_ip_range_name,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetAccountIpAccessListRequest_ResponseSchema: z.ZodType<GetAccountIpAccessListRequest_Response> =
+export const unmarshalGetAccountIpAccessListResponseSchema: z.ZodType<GetAccountIpAccessListResponse> =
   z
     .object({
       ip_access_list: z
@@ -2874,8 +2863,7 @@ export const unmarshalGetAccountIpAccessListRequest_ResponseSchema: z.ZodType<Ge
       ipAccessList: d.ip_access_list,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetIpAccessList_ResponseSchema: z.ZodType<GetIpAccessList_Response> =
+export const unmarshalGetIpAccessListResponseSchema: z.ZodType<GetIpAccessListResponse> =
   z
     .object({
       ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
@@ -2922,8 +2910,7 @@ export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
     enabled: d.enabled,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAccountIpAccessListsRequest_ResponseSchema: z.ZodType<ListAccountIpAccessListsRequest_Response> =
+export const unmarshalListAccountIpAccessListsResponseSchema: z.ZodType<ListAccountIpAccessListsResponse> =
   z
     .object({
       ip_access_lists: z
@@ -2945,8 +2932,7 @@ export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsRespon
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListIpAccessLists_ResponseSchema: z.ZodType<ListIpAccessLists_Response> =
+export const unmarshalListIpAccessListsResponseSchema: z.ZodType<ListIpAccessListsResponse> =
   z
     .object({
       ip_access_lists: z
@@ -3177,8 +3163,7 @@ export const unmarshalNetworkWarningSchema: z.ZodType<NetworkWarning> = z
     warningMessage: d.warning_message,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalReplaceAccountIpAccessListRequest_ResponseSchema: z.ZodType<ReplaceAccountIpAccessListRequest_Response> =
+export const unmarshalReplaceAccountIpAccessListResponseSchema: z.ZodType<ReplaceAccountIpAccessListResponse> =
   z
     .object({
       ip_access_list: z
@@ -3189,8 +3174,7 @@ export const unmarshalReplaceAccountIpAccessListRequest_ResponseSchema: z.ZodTyp
       ipAccessList: d.ip_access_list,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalReplaceIpAccessList_ResponseSchema: z.ZodType<ReplaceIpAccessList_Response> =
+export const unmarshalReplaceIpAccessListResponseSchema: z.ZodType<ReplaceIpAccessListResponse> =
   z
     .object({
       ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
@@ -3199,8 +3183,7 @@ export const unmarshalReplaceIpAccessList_ResponseSchema: z.ZodType<ReplaceIpAcc
       ipAccessList: d.ip_access_list,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateAccountIpAccessListRequest_ResponseSchema: z.ZodType<UpdateAccountIpAccessListRequest_Response> =
+export const unmarshalUpdateAccountIpAccessListResponseSchema: z.ZodType<UpdateAccountIpAccessListResponse> =
   z
     .object({
       ip_access_list: z
@@ -3211,8 +3194,7 @@ export const unmarshalUpdateAccountIpAccessListRequest_ResponseSchema: z.ZodType
       ipAccessList: d.ip_access_list,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateIpAccessList_ResponseSchema: z.ZodType<UpdateIpAccessList_Response> =
+export const unmarshalUpdateIpAccessListResponseSchema: z.ZodType<UpdateIpAccessListResponse> =
   z
     .object({
       ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),

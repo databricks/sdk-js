@@ -147,8 +147,7 @@ export interface ListQueriesRequest {
   includeMetrics?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListQueriesRequest_Response {
+export interface ListQueriesResponse {
   /** A token that can be used to get the next page of results. */
   nextPageToken?: string | undefined;
   /** Whether there is another page of results. */
@@ -414,8 +413,7 @@ export const unmarshalExternalQuerySource_JobInfoSchema: z.ZodType<ExternalQuery
       jobTaskRunId: d.job_task_run_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListQueriesRequest_ResponseSchema: z.ZodType<ListQueriesRequest_Response> =
+export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> =
   z
     .object({
       next_page_token: z.string().optional(),
