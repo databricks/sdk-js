@@ -2,32 +2,25 @@
 
 **Path:** `packages/customllms/src/v1/`
 **Versions audited:** v1
-**Inferred domain:** "Custom LLM" CRUD plus an optimization run lifecycle — create/get/update/delete a `CustomLlm` resource (instructions, guidelines, datasets, optional UC artifact path), then start/cancel an optimization run that flips `optimizationState` through `CREATED → PENDING → RUNNING → COMPLETED|FAILED|CANCELLED`.
-**Total weird names flagged:** 10 (0 fixed, 10 still present after rescan on 2026-05-26 post regen #156)
+**Total weird names flagged:** 6 (0 fixed, 6 still present after rescan on 2026-06-02)
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 3 |
-| Medium | 3 |
+| High | 2 |
+| Medium | 1 |
 | Low | 2 |
-| Observation | 2 |
+| Observation | 1 |
 
 ## High severity
 
-### 1. `Llm` casing throughout — every file
-- **Why weird:** Every public type, field, method, and schema collapses the acronym `LLM` to title-case `Llm` (`CustomLlm`, `customLlm`, `createCustomLlm`, `customLlmFieldMask`, etc.). `LLM` is a well-known three-letter initialism, not a word. The Google TypeScript Style Guide (https://google.github.io/styleguide/tsguide.html#identifiers) explicitly says "treat abbreviations like acronyms in names as whole words" — that produces `LLM` if you choose the all-caps convention, or `Llm` if you choose the title-case convention. The package is internally consistent on `Llm` (and so are the sibling packages `accountsettings.LlmProxyPartnerPoweredAccount` and `workspacesettings.LlmProxyPartnerPoweredWorkspace`), so this is a *category* finding for the SDK rather than a local fix: `Llm` is harder to read than `LLM` because the human eye expects `Ll` to be a digraph rather than the start of an initialism. Microsoft's .NET guidelines (https://learn.microsoft.com/dotnet/standard/design-guidelines/capitalization-conventions) flip the other direction: capitalize all letters of two-letter acronyms (`IO`) and pascal-case three-or-more-letter acronyms (`Xml`, `Html`) — by that rule `Llm` *is* the consistent choice. There is no globally correct answer, but the SDK should pick *one* convention and apply it across all packages (`http` vs `Http`, `url` vs `Url`, `id` vs `Id` are already mixed — see Observation #10).
-- **Category:** 3 (acronym casing — the audit prompt singles this out).
-- **Suggested name:** Pick a project-wide policy in `typescript.mdc` and apply globally. If the SDK keeps `Llm`, document the choice; if it switches to `LLM`, every type and field in this package and the two sibling packages needs the rename.
-- **Rationale:** This is the highest-impact naming question in the package because it touches every single exported identifier. Currently the only consumer-facing precedent in the codebase is `Llm`, so flipping to `LLM` is a breaking change across at least three packages.
-
-### 2. `State` enum (top-level, ungrouped) — `src/v1/model.ts:9-17`
+### 1. `State` enum (top-level, ungrouped) — `src/v1/model.ts:9-17`
 - **Why weird:** The enum is named `State` — the most generic noun in any API. There is no qualifier to tell the reader *which* state (optimization run? custom LLM? endpoint?). The doc comment ("States of Custom LLM optimization lifecycle.") clarifies, but the name alone does not. Every other Databricks package has its own `State` (jobs, clusters, queries) and a user importing two of them will be forced to alias.
 - **Category:** 1 (vague/generic), 15 (generic field name).
 - **Suggested name:** `OptimizationRunState` (matches the `optimizationState` field on `CustomLlm` and the request types `StartCustomLlmOptimizationRunRequest`/`CancelCustomLlmOptimizationRunRequest`).
 - **Rationale:** Specific enum names make import lists self-documenting and avoid alias collisions when consumers combine multiple SDK packages.
 
-### 3. `CustomLlmFieldMask` only has 10 keys, missing 1 — `src/v1/model.ts:246-257`
+### 2. `CustomLlmFieldMask` only has 10 keys, missing 1 — `src/v1/model.ts:246-257`
 - **Why weird:** The `FieldMask` for `CustomLlm` enumerates 10 fields, but `CustomLlm` declares 10 fields too (`id`, `name`, `endpointName`, `instructions`, `datasets`, `guidelines`, `optimizationState`, `creator`, `creationTime`, `agentArtifactPath`). On a strict read this is exactly aligned, *but* `endpointName` is documented as a server-populated read-only field ("Name of the endpoint that will be used to serve the custom LLM"). Exposing it in the field-mask suggests it is updatable, which would be a server bug — but consistent with the field-mask being machine-generated rather than designed. Worth a sanity check with the upstream API team.
 - **Category:** Observation / 6 (misleading — field-mask implies updatable).
 - **Suggested name:** No rename; flag the entry `endpointName: {wire: 'endpoint_name'}` for review.
@@ -35,33 +28,21 @@
 
 ## Medium severity
 
-### 4. `agentArtifactPath` field with explicit "soon be deprecated!!" comment — `src/v1/model.ts:36-40,61`
-- **Why weird:** Field carries a self-deprecated marker in its doc ("This will soon be deprecated!!") but is not tagged `@deprecated` and lives on both `CreateCustomLlmRequest` and `CustomLlm`. SDK consumers will not see "soon to be deprecated" from IDE hover unless they read the body of the comment. Also the name conflates two ideas: it is an *output* artifact destination for the agent, framed as if it were an input — but actually the doc says "If you are using a dataset that you only have read permissions, please provide a destination path where you have write permissions." So this is a "destination" path, not an artifact-locating path.
-- **Category:** 6 (misleading), 1 (vague — "agent artifact" is a generic term).
-- **Suggested name:** Mark `@deprecated` and consider renaming to `outputDestinationPath` or `artifactWritePath`.
-- **Rationale:** The public surface should not silently carry a soft-deprecation note. Tag it properly.
-
-### 5. `cancelCustomLlmOptimizationRun` vs `startCustomLlmOptimizationRun` plural noun — `src/v1/client.ts:69,162`
+### 3. `cancelCustomLlmOptimizationRun` vs `startCustomLlmOptimizationRun` plural noun — `src/v1/client.ts:71,176`
 - **Why weird:** Both methods refer to "Optimization Run" (singular) — but a custom LLM has multiple optimization runs over its lifetime. The current API is `POST .../custom-llms/{id}/optimize/cancel` and `POST .../custom-llms/{id}/optimize` — so the URL has no run-id; the API operates on "the current run" implicitly. The method name `startOptimizationRun` is therefore not quite right; it should be `startOptimization` (the verb that starts a run) or `startCurrentOptimizationRun` (explicit). Same for `cancel`. As-is, the names imply a `runId` is being passed; it is not.
 - **Category:** 6 (misleading — name implies run-level addressing).
 - **Suggested name:** `startOptimization` / `cancelOptimization` (the singular "run" is implicit).
 - **Rationale:** Method names should reflect the resource the verb operates on. The URL operates on the LLM, not on a specific run.
 
-### 6. `STATE_UNSPECIFIED` enum sentinel — `src/v1/model.ts:10`
-- **Why weird:** The `State` enum's first member `STATE_UNSPECIFIED` is a proto-architectural leak. Proto3 requires every enum to declare a zero-value sentinel (typically `FOO_UNSPECIFIED`); that requirement does not exist in TypeScript. Exposing it on the public TS surface forces every consumer to handle a member that semantically means "the server forgot to set this field" — a proto wire-format concern, not a domain concern. The screaming-snake-case casing (`STATE_UNSPECIFIED`) also leaks proto's enum-value convention into a TS type system that conventionally uses PascalCase for enum members (https://google.github.io/styleguide/tsguide.html#enums).
-- **Category:** Proto-architectural leak (enum sentinel + screaming-snake casing).
-- **Suggested name:** Drop the `STATE_UNSPECIFIED` member entirely; if a "not yet set" value is needed, use `undefined` (the field is already `State | undefined`). If kept, rename to PascalCase `Unspecified` and document that it is a wire-format sentinel.
-- **Rationale:** Optional TS fields express "unset" via `undefined`; a redundant enum sentinel doubles the representation of "no value" and forces consumers to write `state !== undefined && state !== State.STATE_UNSPECIFIED`. The all-caps casing further signals that the value is a proto artifact rather than a designed TS API member.
-
 ## Low severity
 
-### 7. `Dataset[]` plural-singular consistency — `src/v1/model.ts:32,52`
+### 4. `Dataset[]` plural-singular consistency — `src/v1/model.ts:32,52`
 - **Why weird:** Field `datasets: Dataset[]` — type is singular `Dataset`, field is plural `datasets`. This is correct! Flagging as an *observation* of best practice (rule 9 reversed). Counter-examples appear in other packages where a `Datasets` type holds `dataset: Dataset[]`. This package gets it right.
 - **Category:** Observation / 9 (reversed — correctly singular).
 - **Suggested name:** No change.
 - **Rationale:** Note for consistency reviews.
 
-### 8. `customLlmFieldMask` function name — `src/v1/model.ts:259`
+### 5. `customLlmFieldMask` function name — `src/v1/model.ts:259`
 - **Why weird:** Function that builds a `FieldMask<CustomLlm>`. The name `customLlmFieldMask` reads as a field-mask *value* rather than a builder; sibling files in other packages name this `*FieldMaskBuilder` or expose it as a static method `FieldMask.forCustomLlm`.
 - **Category:** 17 (inconsistent verb convention in the SDK).
 - **Suggested name:** `buildCustomLlmFieldMask` or `customLlmFieldMaskFor` (with a static-method-like signature).
@@ -69,23 +50,6 @@
 
 ## Observations
 
-### 9. Action verbs in `Client` are consistent
+### 6. Action verbs in `Client` are consistent
 The client uses `cancel`/`create`/`delete`/`get`/`start`/`update` — no `fetch`/`retrieve`/`read`. This is good.
 - **Category:** 17 (reversed — explicit *consistency* note).
-
-### 10. Mixed acronym casing in core types
-The codebase imports `HttpClient`, `HttpRequest`, `HttpResponse`, `ApiError`, `URLSearchParams`, `userAgent`. The acronyms are cased every which way: `Http` (title), `Api` (title), `URL` (all-caps), `userAgent` (camel). This is consistent with the broader JS ecosystem (`fetch` returns a `Response`, `XMLHttpRequest` is its own caps, `URL` is all-caps in `URLSearchParams`), but it explains why `Llm` vs `LLM` feels arbitrary — the SDK has no single policy.
-- **Category:** 3 (acronym casing).
-
-## Domain glossary
-- `llm` — Large Language Model (every type, every field, every method; the canonical token).
-- `uc` — Unity Catalog (mentioned only in JSDoc on `agentArtifactPath` and `Table.tablePath`: "Full UC table path in catalog.schema.table_name format").
-- `wkt` — Well-Known Types (import path `@databricks/sdk-core/wkt`).
-- `pat`/`m2m`/`u2m`/`oidc` — not encountered in this package.
-- `iam` — not encountered.
-
-## File coverage
-- `src/v1/model.ts` (262 lines): read fully.
-- `src/v1/client.ts` (216 lines): read fully.
-- `src/v1/utils.ts` (151 lines): read fully.
-- `src/v1/index.ts` (18 lines): read fully.

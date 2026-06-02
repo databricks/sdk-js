@@ -8,28 +8,14 @@
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 0 |
 | Medium | 4 |
-| Low | 0 |
-| Observation | 0 |
-
-## File coverage
-- `src/v1/model.ts` — 4449 lines; interface, enum, and marshal/unmarshal schema definitions.
-- `src/v1/client.ts` — 1675 lines; `Client` class with the public RPC methods.
-- `src/v1/transport.ts` — 75 lines; HTTP transport wrapper.
-- `src/v1/utils.ts` — 150 lines; helpers.
-- `src/v1/index.ts` — 153 lines; barrel exports.
-
-## High severity
-
-_None._
 
 ## Medium severity
 
-### 1. `ListNetworkRequest` — `src/v1/model.ts:1442`
+### 1. `ListNetworkRequest` — `src/v1/model.ts:1440`
 - **Why weird:** The noun is singular (`Network`) where the sibling list
   request types in the package pluralise (`ListNetworkPoliciesRequest`
-  at line 1428, `ListNetworkConnectivityConfigsRequest` at line 1414).
+  at line 1426, `ListNetworkConnectivityConfigsRequest` at line 1412).
   The proto-tier `Public` infix was dropped in the 2026-05-22
   regeneration, leaving the residual singular/plural inconsistency.
 - **Category:** Singular/plural inconsistency.
@@ -37,17 +23,17 @@ _None._
 - **Rationale:** A list operation returns multiple items; pluralise the
   noun to align with the rest of the package's `List*Request` naming.
 
-### 2. `ListNetworkResponse` — `src/v1/model.ts:1446`
+### 2. `ListNetworkResponse` — `src/v1/model.ts:1444`
 - **Why weird:** Same singular/plural mismatch as #1. Sibling list
-  response types pluralise (`ListNetworkPoliciesResponse` at line 1435,
-  `ListNetworkConnectivityConfigsResponse` at line 1422). The proto-tier
+  response types pluralise (`ListNetworkPoliciesResponse` at line 1433,
+  `ListNetworkConnectivityConfigsResponse` at line 1420). The proto-tier
   `Public` infix was dropped in the 2026-05-22 regeneration, leaving
   the residual singular/plural inconsistency.
 - **Category:** Singular/plural inconsistency.
 - **Suggested name:** `ListNetworksResponse`.
 - **Rationale:** Same as #1.
 
-### 3. `ListVpcEndpointRequest` — `src/v1/model.ts:1458`
+### 3. `ListVpcEndpointRequest` — `src/v1/model.ts:1456`
 - **Why weird:** Same singular/plural mismatch as #1. The list request
   for VPC endpoints uses a singular noun. The proto-tier `Public` infix
   was dropped in the 2026-05-22 regeneration, leaving the residual
@@ -57,7 +43,7 @@ _None._
 - **Rationale:** Same as #1; pluralise the noun the way other list
   request types in the package do.
 
-### 4. `ListVpcEndpointResponse` — `src/v1/model.ts:1462`
+### 4. `ListVpcEndpointResponse` — `src/v1/model.ts:1460`
 - **Why weird:** Same singular/plural mismatch as #1. The list response
   for VPC endpoints uses a singular noun. The proto-tier `Public` infix
   was dropped in the 2026-05-22 regeneration, leaving the residual
@@ -65,11 +51,3 @@ _None._
 - **Category:** Singular/plural inconsistency.
 - **Suggested name:** `ListVpcEndpointsResponse`.
 - **Rationale:** Same as #1.
-
-## Low severity
-
-_None._
-
-## Observations
-
-_None._

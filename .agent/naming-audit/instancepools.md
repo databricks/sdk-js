@@ -5,15 +5,10 @@
 **Version audited:** `v2`
 **Files audited:**
 
-- `src/v2/model.ts` (1259 lines, read in full)
-- `src/v2/client.ts` (223 lines, read in full)
-- `src/v2/utils.ts` (150 lines, read in full)
+- `src/v2/model.ts` (1250 lines, read in full)
+- `src/v2/client.ts` (224 lines, read in full)
+- `src/v2/utils.ts` (156 lines, read in full)
 - `src/v2/index.ts` (43 lines, read in full)
-
-**Inferred domain:** Databricks instance-pool lifecycle (create / edit / get /
-delete / list) of pre-warmed cloud VMs that clusters can draw from. Carries
-per-cloud (AWS / Azure / GCP) attributes, disk specifications, Docker preload
-configuration, idle / used statistics, and pending-instance failure reporting.
 
 ---
 
@@ -21,172 +16,66 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 30    |
+| High         | 3     |
 | Medium       | 3     |
-| Low          | 28    |
-| Observation  | 3     |
-| **Total**    | **64**|
-
-### Top themes
-
-1. **Massive structural duplication.** `CreateInstancePoolRequest` (28 fields),
-   `EditInstancePoolRequest` (29 fields), `GetInstancePoolRequest_Response`
-   (30 fields), and `InstancePoolAndStats` (30 fields) are byte-identical
-   apart from one or two fields. They could share a single base type.
-2. **Cross-package shape duplication** — eleven types/enums are duplicated
-   verbatim between this package and `clusters`. A shared `compute` module
-   would eliminate the dual maintenance burden.
+| Low          | 25    |
+| Observation  | 2     |
+| **Total**    | **33**|
 
 ---
 
-## 1. Inventory
+## 1. Findings
 
-### 1.1 Enums (`model.ts`)
-
-| Name                  | Members                                            | Lines      |
-| --------------------- | -------------------------------------------------- | ---------- |
-| `AwsAvailability`     | `SPOT`, `ON_DEMAND`, `SPOT_WITH_FALLBACK`          | 10-20      |
-| `AzureAvailability`   | `SPOT_AZURE`, `ON_DEMAND_AZURE`, `SPOT_WITH_FALLBACK_AZURE` | 26-36 |
-| `AzureDiskVolumeType` | `PREMIUM_LRS`, `STANDARD_LRS`                      | 42-47      |
-| `EbsVolumeType`       | `GENERAL_PURPOSE_SSD`, `THROUGHPUT_OPTIMIZED_HDD`  | 53-58      |
-| `GcpAvailability`     | `PREEMPTIBLE_GCP`, `ON_DEMAND_GCP`, `PREEMPTIBLE_WITH_FALLBACK_GCP` | 64-68 |
-| `InstancePoolState`   | `ACTIVE`, `STOPPED`, `DELETED`                     | 78-88      |
-
-### 1.2 Interfaces (`model.ts`)
-
-| Name                                                | Lines    | Purpose                                            |
-| --------------------------------------------------- | -------- | -------------------------------------------------- |
-| `CreateInstancePoolRequest`                         | 90-165   | Request body for create — 28 fields.               |
-| `CreateInstancePoolRequest_CustomTagsEntry`         | 168-181  | Proto-nested tag entry, dead in TS.                |
-| `CreateInstancePoolRequest_Response`                | 184-187  | Response with single `instancePoolId`.             |
-| `DeleteInstancePoolRequest`                         | 189-192  | `{ instancePoolId?: string }`.                     |
-| `DeleteInstancePoolRequest_Response`                | 195      | Empty `{}`.                                        |
-| `DiskSpec`                                          | 203-241  | Disk-attachment spec.                              |
-| `DiskType`                                          | 244-249  | Disc-union wrapper for EBS or Azure disk types.    |
-| `DockerBasicAuth`                                   | 251-256  | `{ username, password }`.                          |
-| `DockerImage`                                       | 258-268  | `{ url, credsOneof }`.                             |
-| `EditInstancePoolRequest`                           | 270-347  | Request body for edit — 29 fields.                 |
-| `EditInstancePoolRequest_CustomTagsEntry`           | 350-363  | Same as the Create variant — duplicate.            |
-| `EditInstancePoolRequest_Response`                  | 366      | Empty `{}`.                                        |
-| `GetInstancePoolRequest`                            | 368-371  | `{ instancePoolId?: string }`.                     |
-| `GetInstancePoolRequest_Response`                   | 374-469  | 30 fields — superset of `CreateInstancePoolRequest` plus statistics. |
-| `GetInstancePoolRequest_Response_CustomTagsEntry`   | 472-485  | Third duplicate of the tag-entry shape.            |
-| `GetInstancePoolRequest_Response_DefaultTagsEntry`  | 488-501  | Fourth duplicate of the tag-entry shape.           |
-| `InstancePoolAndStats`                              | 503-598  | 30 fields — duplicate of `GetInstancePoolRequest_Response`. |
-| `InstancePoolAndStats_CustomTagsEntry`              | 601-614  | Fifth duplicate of the tag-entry shape.            |
-| `InstancePoolAndStats_DefaultTagsEntry`             | 617-630  | Sixth duplicate of the tag-entry shape.            |
-| `InstancePoolAwsAttributes`                         | 633-668  | AWS-specific config.                               |
-| `InstancePoolAzureAttributes`                       | 671-682  | Azure-specific config.                             |
-| `InstancePoolGcpAttributes`                         | 685-707  | GCP-specific config.                               |
-| `InstancePoolStats`                                 | 709-718  | Idle/used counters.                                |
-| `InstancePoolStatus`                                | 720-728  | Wraps `pendingInstanceErrors`.                     |
-| `ListInstancePoolsRequest`                          | 731      | Empty `{}`.                                        |
-| `ListInstancePoolsRequest_Response`                 | 734-736  | Wraps `instancePools` array.                       |
-| `NodeTypeFlexibility`                               | 739-742  | Wraps `alternateNodeTypeIds`.                      |
-| `PendingInstanceError`                              | 745-748  | `{ instanceId, message }`.                         |
-
-### 1.3 Methods (`client.ts`)
-
-| Method               | HTTP   | URL path                          | Returns                              |
-| -------------------- | ------ | --------------------------------- | ------------------------------------ |
-| `createInstancePool` | POST   | `/api/2.0/instance-pools/create`  | `CreateInstancePoolRequest_Response` |
-| `deleteInstancePool` | POST   | `/api/2.0/instance-pools/delete`  | `DeleteInstancePoolRequest_Response` |
-| `editInstancePool`   | POST   | `/api/2.0/instance-pools/edit`    | `EditInstancePoolRequest_Response`   |
-| `getInstancePool`    | GET    | `/api/2.0/instance-pools/get`     | `GetInstancePoolRequest_Response`    |
-| `listInstancePools`  | GET    | `/api/2.0/instance-pools/list`    | `ListInstancePoolsRequest_Response`  |
-
-### 1.4 Other identifiers
-
-- `client.ts`: `PACKAGE_SEGMENT` constant; `Client` class with private fields
-  `host`, `httpClient`, `logger`, `userAgent`.
-- `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
-  `readAll`, `executeHttpCall`, `buildHttpRequest`, `flattenQueryParams`.
-
----
-
-## 2. Findings
-
-### 2.1 Vague / generic names
+### 1.1 Cryptic abbreviations — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| V-01  | `DockerImage.credsOneof`            | High     | `credsOneof` is a Go/proto-codegen leak — TS readers do not know what "Oneof" means in this context (the wire field uses a protobuf `oneof`). The "creds" abbreviation is also generic. Should be `credentials` (and the union shape itself satisfies the discriminator). |
-| V-02  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
-| V-03  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
+| C-01  | `EbsVolumeType` (acronym in name)   | Low      | EBS = Elastic Block Store. Well-known among AWS users; OK. |
+| C-02  | `LRS` in `AzureDiskVolumeType.PREMIUM_LRS` / `STANDARD_LRS` | Low | "Locally Redundant Storage" — standard Azure term. JSDoc explains; OK. |
 
-### 2.2 Acronym casing inconsistencies — High
-
-| ID    | Symbol                                | Severity | Issue |
-| ----- | ------------------------------------- | -------- | ----- |
-| A-01  | `InstancePoolAwsAttributes`           | High     | Google TS style says acronyms ≥3 chars get only-first-letter capitalised ("AWS" → "Aws"). The repo follows this (Aws/Azure/Gcp). Acceptable, but contrasts with `EbsVolumeType` where `Ebs` is only 3 chars (same rule, applied consistently). No defect — listed for parity with related audits. |
-| A-02  | `InstancePoolAwsAttributes.instanceProfileArn` | Low | "Arn" applies Google TS style for ≥3-char acronyms. Compare with `EbsVolumeType` (same package) and consistent. OK. |
-| A-03  | `InstancePoolGcpAttributes.localSsdCount` | Low | "Ssd" is 3 letters; same casing rule. OK. |
-
-### 2.3 Cryptic abbreviations — Medium
-
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| C-01  | `DockerImage.credsOneof`            | High (also V-01) | `creds` and `Oneof` are both opaque outside Go/proto context. |
-| C-02  | `EbsVolumeType` (acronym in name)   | Low      | EBS = Elastic Block Store. Well-known among AWS users; OK. |
-| C-03  | `LRS` in `AzureDiskVolumeType.PREMIUM_LRS` / `STANDARD_LRS` | Low | "Locally Redundant Storage" — standard Azure term. JSDoc explains; OK. |
-
-### 2.4 Misleading names — High
+### 1.2 Misleading names — High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | M-01  | `editInstancePool()` / `EditInstancePoolRequest` | Medium | Conventional REST/CRUD verb in TS is **update**. `clusterpolicies` (audit #M-01) and `clusters` make the same choice for the wire path `/edit`. Across-package inconsistency: most newer Databricks APIs use `update*`. Flag for upstream alignment. |
 | M-02  | `InstancePoolStatus`                | High     | The type carries *only* `pendingInstanceErrors`. The name promises a general "status" but the shape exposes only errors. `InstancePoolPendingErrors` or `InstancePoolFailures` would be more truthful. (`InstancePoolState` is the actual lifecycle state, on the entity itself.) |
 | M-03  | `InstancePoolAndStats`              | High     | The "AndStats" suffix implies it carries the pool *plus* statistics, but the type also carries `status`, `state`, `defaultTags`, and all 28 configuration fields. The "And" naming pattern is a Go-style listing-result idiom — TS readers expect just a single entity name. Consider `InstancePoolSummary` or `InstancePoolListEntry`. |
-| M-04  | `preloadedSparkVersions: string[]` with JSDoc "A list containing at most one preloaded Spark image version" | High | Type is `string[]` but the JSDoc enforces a max length of 1. If only one value is allowed, the field should be `preloadedSparkVersion?: string` (singular). The array shape misleads callers into thinking they can pass several. |
 
-### 2.5 Overly verbose / Redundant suffixes — Low
+### 1.3 Overly verbose / Redundant suffixes — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | O-01  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
 
-### 2.6 Singular / plural mismatches — Low / High
+### 1.4 Singular / plural mismatches — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| P-01  | `preloadedSparkVersions: string[]`  | High (also M-04) | Plural array type but the JSDoc constrains it to at most one element. |
-| P-02  | `preloadedDockerImages: DockerImage[]` | Low | Plural array; JSDoc says "Custom Docker Image BYOC" but the field accepts multiple. OK. |
-| P-03  | `ListInstancePoolsRequest` (request) vs `listInstancePools()` (method) | Low | Consistent plural. |
-| P-04  | `ListInstancePoolsRequest_Response.instancePools: InstancePoolAndStats[]` | Low | Plural array — correct. |
+| P-01  | `preloadedDockerImages: DockerImage[]` | Low | Plural array; JSDoc says "Custom Docker Image BYOC" but the field accepts multiple. OK. |
+| P-02  | `ListInstancePoolsRequest` (request) vs `listInstancePools()` (method) | Low | Consistent plural. |
+| P-03  | `ListInstancePoolsResponse.instancePools: InstancePoolAndStats[]` | Low | Plural array — correct. |
 
-### 2.7 Reserved-word collisions — Medium
+### 1.5 Reserved-word collisions — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | R-01  | `DockerImage.credsOneof.$case === 'basicAuth'.basicAuth: DockerBasicAuth` | Low | `basicAuth` is not a reserved word but is duplicated across the `$case` discriminator and the embedded field — `library.lib.basicAuth.basicAuth` style access. |
 | R-02  | None of the type names collide with TS reserved words. | — | OK. |
 
-### 2.8 Duplicate concepts — Highest in repo
-
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| D-01  | `CreateInstancePoolRequest` (28 fields, lines 90-165) vs `EditInstancePoolRequest` (29 fields, lines 270-347) | High | Identical except `EditInstancePoolRequest` adds `instancePoolId`. Could share a base type. |
-| D-02  | `GetInstancePoolRequest_Response` (30 fields, lines 374-469) vs `InstancePoolAndStats` (30 fields, lines 503-598) | High | **Byte-identical** apart from the type name. Compare line-by-line: identical field set, identical order, identical JSDoc. Two names for the same shape. |
-| D-03  | `CreateInstancePoolRequest` vs the `Pool` body inside `InstancePoolAndStats` | High | All 28 config fields appear three times: once on Create, once on Edit (29), once on the entity. Codegen could project from a shared base. |
-| D-04  | `InstancePoolAwsAttributes` (this package) vs `AwsAttributes` (`clusters` package) | High | Same domain (AWS attributes for a compute pool / cluster). `clusters` calls them `AwsAttributes`; this package calls them `InstancePoolAwsAttributes`. Both share many fields (availability, zoneId, instanceProfileArn, spotBid…) but `clusters` has additional fields (`ebsVolumeCount`, etc.). Cross-package duplication; a shared `compute` module would fix both. |
-| D-05  | `InstancePoolAzureAttributes` / `InstancePoolGcpAttributes` vs `clusters.AzureAttributes` / `clusters.GcpAttributes` | High | Same as D-04 for Azure / GCP. |
-| D-06  | `EbsVolumeType`, `AzureDiskVolumeType`, `AwsAvailability`, `AzureAvailability`, `GcpAvailability`, `DockerImage`, `DockerBasicAuth`, `DiskSpec`, `DiskType`, `NodeTypeFlexibility`, `PendingInstanceError` | High | All eleven types/enums are duplicated verbatim in `clusters/src/v2/model.ts` (verified via `grep`). Two packages ship eleven identical shapes. |
-
-### 2.9 Verb-tense inconsistency — Low
+### 1.6 Verb-tense inconsistency — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | T-01  | `createInstancePool`, `deleteInstancePool`, `editInstancePool`, `getInstancePool`, `listInstancePools` | Low | All present-tense imperative — consistent. |
 | T-02  | `preloadedDockerImages`, `preloadedSparkVersions` (past participle) | Low | Standard for fields that describe a pre-applied state. OK. |
 
-### 2.10 Go / Java-style names — High
+### 1.7 Go / Java-style names — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| G-01  | `DockerImage.credsOneof`            | High     | `Oneof` is a literal proto-keyword leak. No TS reader expects this. See V-01. |
-| G-02  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
+| G-01  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
 
-### 2.11 Generic field names losing meaning — Low
+### 1.8 Generic field names losing meaning — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -195,13 +84,13 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | F-03  | `InstancePoolStatus.pendingInstanceErrors[]` | Low | OK. |
 | F-04  | `NodeTypeFlexibility.alternateNodeTypeIds` (outside the wrapper) | Low | Standalone, `alternateNodeTypeIds: string[]` is clear. OK. |
 
-### 2.12 Field contradicting type domain — Low
+### 1.9 Field contradicting type domain — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | K-01  | None observed. All fields are within their type's domain. | — | OK. |
 
-### 2.13 Inconsistent action verbs — Medium
+### 1.10 Inconsistent action verbs — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -209,14 +98,14 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | AV-02 | `getInstancePool()` (singular) vs `listInstancePools()` (plural) | Low | Correct REST convention. OK. |
 | AV-03 | `createInstancePool()` / `deleteInstancePool()` / `editInstancePool()` / `getInstancePool()` / `listInstancePools()` — only five verbs | Low | No `start`, `stop`, `pin`, etc. — instance pools are stateless from the API standpoint; the lifecycle is implicit via fewer endpoints than `clusters`. Consistent. |
 
-### 2.14 Long enum values — Low
+### 1.11 Long enum values — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | L-01  | `EbsVolumeType.THROUGHPUT_OPTIMIZED_HDD` (24 chars) | Low | Standard AWS terminology; OK. |
 | L-02  | `AzureDiskVolumeType.STANDARD_LRS` (12 chars) | Low | Short. OK. |
 
-### 2.15 Underspecified IDs — Medium
+### 1.12 Underspecified IDs — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -227,86 +116,24 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | I-05  | `NodeTypeFlexibility.alternateNodeTypeIds: string[]` | Low | Plural array of node-type IDs; scoped. OK. |
 | I-06  | `InstancePoolAwsAttributes.zoneId` / `InstancePoolGcpAttributes.zoneId` | Low | Both reuse `zoneId` for the AWS availability zone ("us-west-2a") and GCP availability zone ("us-west1-a"). Same name, two slightly different value formats. Acceptable cross-cloud abstraction. |
 
-### 2.16 Type-suffix tautology — Medium
+### 1.13 Type-suffix tautology — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| TS-01 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-02). Doubly off. |
+| TS-01 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-01). Doubly off. |
 | TS-02 | `NodeTypeFlexibility`               | Low      | "Flexibility" is the noun-form of a feature, not a type-suffix tautology. OK. |
 | TS-03 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix the type-name still echoes. |
 | TS-04 | `EbsVolumeType`, `AzureDiskVolumeType` | Low | `VolumeType` / `DiskVolumeType` — standard cloud-storage terminology. OK. |
 
-### 2.17 Other observations
+### 1.14 Other observations
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| X-01  | `client.ts:197` `_req: ListInstancePoolsRequest` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
+| X-01  | `client.ts:199` `_req: ListInstancePoolsRequest` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
 
-### 2.18 Proto-architectural leaks
+### 1.15 Proto-architectural leaks
 
-### 1. `DockerImage.credsOneof` — model.ts:261
-
-**Why:** `Oneof` is a literal protobuf-keyword suffix. The wire field uses
-a proto `oneof`; the TS reader has no business knowing this. TypeScript
-already encodes the union shape via the `$case` discriminator pattern,
-making the suffix doubly redundant.
-**Category:** Proto suffix/infix.
-**Suggested:** `credentials`.
-**Rationale:** Drop the proto-codegen idiom; the union type expresses the
-mutual-exclusion semantics on its own.
-
-### 2. `DockerImage.credsOneof.$case` / `DiskType.remoteVolumeType.$case` — model.ts:246, 247, 263
-
-**Why:** The `$case` discriminator key is a `ts-proto` codegen artefact
-(see `ts-proto`'s "oneof=unions" mode). Native TypeScript discriminated
-unions use a domain-named tag (e.g., `kind`, `type`).
-**Category:** Proto suffix/infix.
-**Suggested:** Replace `$case` with a domain tag such as `kind` or `type`
-(e.g., `{ kind: 'basicAuth'; basicAuth: DockerBasicAuth }`).
-**Rationale:** `$case` is unique to one TS-from-proto codegen tool; it
-leaks the generator into the public API.
-
-### 3. `CreateInstancePoolRequest_Response` — model.ts:184
-
-**Why:** The `_Response` underscore-nested name mirrors the proto-codegen
-convention `Outer.NestedMessage`, flattened to `Outer_Nested`. TypeScript
-has no nested-message concept; the underscore is purely an architectural
-leak from the protobuf compiler.
-**Category:** Proto suffix/infix.
-**Suggested:** `CreateInstancePoolResponse`.
-**Rationale:** Use a top-level response type that pairs with the request
-without echoing proto nesting.
-
-### 4. `DeleteInstancePoolRequest_Response` — model.ts:195
-
-**Why:** Same proto-nested underscore as finding #3.
-**Category:** Proto suffix/infix.
-**Suggested:** `DeleteInstancePoolResponse`.
-**Rationale:** Same as #3.
-
-### 5. `EditInstancePoolRequest_Response` — model.ts:366
-
-**Why:** Same proto-nested underscore as finding #3.
-**Category:** Proto suffix/infix.
-**Suggested:** `EditInstancePoolResponse`.
-**Rationale:** Same as #3.
-
-### 6. `GetInstancePoolRequest_Response` — model.ts:374
-
-**Why:** Same proto-nested underscore as finding #3.
-**Category:** Proto suffix/infix.
-**Suggested:** `GetInstancePoolResponse` (or fold into the entity type
-`InstancePool` since the shape is identical to `InstancePoolAndStats`).
-**Rationale:** Same as #3.
-
-### 7. `ListInstancePoolsRequest_Response` — model.ts:734
-
-**Why:** Same proto-nested underscore as finding #3.
-**Category:** Proto suffix/infix.
-**Suggested:** `ListInstancePoolsResponse`.
-**Rationale:** Same as #3.
-
-### 8. `CreateInstancePoolRequest_CustomTagsEntry` — model.ts:168
+### 1. `CreateInstancePoolRequest_CustomTagsEntry` — model.ts:168
 
 **Why:** Proto-nested map-entry type. Protobuf compiles `map<K,V>` fields
 into a synthetic `*_Entry` message; TypeScript expresses maps as
@@ -317,44 +144,44 @@ unused by the request, which uses `Record<string, string>` directly
 **Suggested:** Delete the type.
 **Rationale:** Dead proto-codegen artefact with no consumer in TS.
 
-### 9. `EditInstancePoolRequest_CustomTagsEntry` — model.ts:350
+### 2. `EditInstancePoolRequest_CustomTagsEntry` — model.ts:349
 
-**Why:** Same proto-map-entry artefact as #8.
+**Why:** Same proto-map-entry artefact as #1.
 **Category:** Proto suffix/infix.
 **Suggested:** Delete.
-**Rationale:** Same as #8.
+**Rationale:** Same as #1.
 
-### 10. `GetInstancePoolRequest_Response_CustomTagsEntry` — model.ts:472
+### 3. `GetInstancePoolResponse_CustomTagsEntry` — model.ts:470
 
-**Why:** Doubly-nested proto map-entry: `Get…Request → Response →
-CustomTagsEntry`. Two underscores in one identifier.
+**Why:** Same proto-map-entry artefact as #1 — Protobuf's synthetic
+`*_Entry` message for a `map<K,V>` field, which TypeScript expresses as
+`Record<K,V>`. The type is exported but has no TS consumer.
 **Category:** Proto suffix/infix.
 **Suggested:** Delete.
-**Rationale:** Same as #8; the double underscore makes the leak even more
-visible.
+**Rationale:** Same as #1.
 
-### 11. `GetInstancePoolRequest_Response_DefaultTagsEntry` — model.ts:488
+### 4. `GetInstancePoolResponse_DefaultTagsEntry` — model.ts:486
 
-**Why:** Same doubly-nested proto-map artefact as #10.
+**Why:** Same proto-map-entry artefact as #1.
 **Category:** Proto suffix/infix.
 **Suggested:** Delete.
-**Rationale:** Same as #10.
+**Rationale:** Same as #1.
 
-### 12. `InstancePoolAndStats_CustomTagsEntry` — model.ts:601
+### 5. `InstancePoolAndStats_CustomTagsEntry` — model.ts:599
 
-**Why:** Same proto-map-entry artefact as #8.
+**Why:** Same proto-map-entry artefact as #1.
 **Category:** Proto suffix/infix.
 **Suggested:** Delete.
-**Rationale:** Same as #8.
+**Rationale:** Same as #1.
 
-### 13. `InstancePoolAndStats_DefaultTagsEntry` — model.ts:617
+### 6. `InstancePoolAndStats_DefaultTagsEntry` — model.ts:615
 
-**Why:** Same proto-map-entry artefact as #8.
+**Why:** Same proto-map-entry artefact as #1.
 **Category:** Proto suffix/infix.
 **Suggested:** Delete.
-**Rationale:** Same as #8.
+**Rationale:** Same as #1.
 
-### 14. `unmarshalCreateInstancePoolRequest_ResponseSchema` / `marshalCreateInstancePoolRequestSchema` (and 14 sibling marshal/unmarshal exports) — model.ts:751, 761, 764, 780, 797, 807, 821, 825, 885, 945, 960, 971, 984, 998, 1010, 1021, 1030, 1041, 1089, 1097, 1113, 1137, 1147, 1166, 1216, 1230, 1240, 1252
+### 7. `marshalCreateInstancePoolRequestSchema` / `unmarshalCreateInstancePoolResponseSchema` (and 26 sibling marshal/unmarshal exports) — model.ts:747, 756, 759, 775, 792, 802, 815, 818, 878, 938, 953, 964, 977, 991, 1002, 1013, 1022, 1033, 1081, 1089, 1105, 1129, 1139, 1158, 1208, 1222, 1232, 1244
 
 **Why:** `marshal` / `unmarshal` are proto/Go-codegen verbs (cf. Go's
 `proto.Marshal` / `proto.Unmarshal`, `encoding/json.Marshal`). TypeScript
@@ -366,7 +193,7 @@ convention is `encode` / `decode`, `serialize` / `deserialize`, or
 **Rationale:** The verb pair betrays the Go-SDK ancestry; TS consumers
 will not recognise it as the standard name for JSON shape transformation.
 
-### 15. `_req: ListInstancePoolsRequest` parameter on `listInstancePools` — client.ts:197
+### 8. `_req: ListInstancePoolsRequest` parameter on `listInstancePools` — client.ts:199
 
 **Why:** Empty request type generated from a proto with no fields,
 threaded into the public method signature and leading-underscored to
@@ -380,33 +207,12 @@ artefact and the leading underscore at the same time.
 
 ---
 
-## 3. Severity totals (recap)
+## 2. Severity totals (recap)
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 30    |
+| High         | 3     |
 | Medium       | 3     |
-| Low          | 28    |
-| Observation  | 3     |
-| **Total**    | **64**|
-
-## 4. Cross-package consistency notes
-
-- **The eleven shared shapes** (`AwsAvailability`, `AzureAvailability`,
-  `GcpAvailability`, `AzureDiskVolumeType`, `EbsVolumeType`, `DiskSpec`,
-  `DiskType`, `DockerImage`, `DockerBasicAuth`, `NodeTypeFlexibility`,
-  `PendingInstanceError`) are duplicated verbatim between this package and
-  `clusters`. A shared `@databricks/sdk-compute-common` package — or codegen
-  emitting from a shared schema — would eliminate the dual maintenance burden.
-- The `*Attributes` types (`InstancePoolAwsAttributes` etc.) overlap heavily
-  with `clusters` `AwsAttributes` etc., but the field sets differ. A common
-  base + extension would still help.
-
-## 5. File coverage
-
-- `src/v2/model.ts` (1259 lines): read fully.
-- `src/v2/client.ts` (223 lines): read fully.
-- `src/v2/utils.ts` (150 lines): read fully.
-- `src/v2/index.ts` (43 lines): read fully.
-
----
+| Low          | 25    |
+| Observation  | 2     |
+| **Total**    | **33**|
