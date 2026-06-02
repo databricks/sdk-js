@@ -8,23 +8,28 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./credentials": {
       "types": "./dist/credentials/index.d.ts",
-      "import": "./dist/credentials/index.js"
+      "import": "./dist/credentials/index.js",
+      "default": "./dist/credentials/index.js"
     },
     "./credentials/browser": {
       "types": "./dist/credentials/index.browser.d.ts",
-      "import": "./dist/credentials/index.browser.js"
+      "import": "./dist/credentials/index.browser.js",
+      "default": "./dist/credentials/index.browser.js"
     },
     "./oidc": {
       "types": "./dist/oidc/index.d.ts",
-      "import": "./dist/oidc/index.js"
+      "import": "./dist/oidc/index.js",
+      "default": "./dist/oidc/index.js"
     },
     "./oidc/browser": {
       "types": "./dist/oidc/index.browser.d.ts",
-      "import": "./dist/oidc/index.browser.js"
+      "import": "./dist/oidc/index.browser.js",
+      "default": "./dist/oidc/index.browser.js"
     }
   },
   "files": [

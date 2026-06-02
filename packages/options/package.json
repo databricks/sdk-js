@@ -6,15 +6,18 @@
   "exports": {
     "./client": {
       "types": "./dist/client/index.d.ts",
-      "import": "./dist/client/index.js"
+      "import": "./dist/client/index.js",
+      "default": "./dist/client/index.js"
     },
     "./call": {
       "types": "./dist/call/index.d.ts",
-      "import": "./dist/call/index.js"
+      "import": "./dist/call/index.js",
+      "default": "./dist/call/index.js"
     },
     "./lro": {
       "types": "./dist/lro/index.d.ts",
-      "import": "./dist/lro/index.js"
+      "import": "./dist/lro/index.js",
+      "default": "./dist/lro/index.js"
     }
   },
   "files": [

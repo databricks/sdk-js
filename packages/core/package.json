@@ -8,53 +8,65 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./profiles": {
       "types": "./dist/profiles/index.d.ts",
-      "import": "./dist/profiles/index.js"
+      "import": "./dist/profiles/index.js",
+      "default": "./dist/profiles/index.js"
     },
     "./profiles/browser": {
       "types": "./dist/profiles/index.browser.d.ts",
-      "import": "./dist/profiles/index.browser.js"
+      "import": "./dist/profiles/index.browser.js",
+      "default": "./dist/profiles/index.browser.js"
     },
     "./wkt": {
       "types": "./dist/wkt/index.d.ts",
-      "import": "./dist/wkt/index.js"
+      "import": "./dist/wkt/index.js",
+      "default": "./dist/wkt/index.js"
     },
     "./clientinfo": {
       "browser": {
         "types": "./dist/clientinfo/index.browser.d.ts",
-        "import": "./dist/clientinfo/index.browser.js"
+        "import": "./dist/clientinfo/index.browser.js",
+        "default": "./dist/clientinfo/index.browser.js"
       },
       "default": {
         "types": "./dist/clientinfo/index.d.ts",
-        "import": "./dist/clientinfo/index.js"
+        "import": "./dist/clientinfo/index.js",
+        "default": "./dist/clientinfo/index.js"
       }
     },
     "./clientinfo/browser": {
       "types": "./dist/clientinfo/index.browser.d.ts",
-      "import": "./dist/clientinfo/index.browser.js"
+      "import": "./dist/clientinfo/index.browser.js",
+      "default": "./dist/clientinfo/index.browser.js"
     },
     "./http": {
       "types": "./dist/http/index.d.ts",
-      "import": "./dist/http/index.js"
+      "import": "./dist/http/index.js",
+      "default": "./dist/http/index.js"
     },
     "./logger": {
       "types": "./dist/logger/index.d.ts",
-      "import": "./dist/logger/index.js"
+      "import": "./dist/logger/index.js",
+      "default": "./dist/logger/index.js"
     },
     "./ops": {
       "types": "./dist/ops/index.d.ts",
-      "import": "./dist/ops/index.js"
+      "import": "./dist/ops/index.js",
+      "default": "./dist/ops/index.js"
     },
     "./apierror": {
       "types": "./dist/apierror/index.d.ts",
-      "import": "./dist/apierror/index.js"
+      "import": "./dist/apierror/index.js",
+      "default": "./dist/apierror/index.js"
     },
     "./apierror/codes": {
       "types": "./dist/apierror/codes/index.d.ts",
-      "import": "./dist/apierror/codes/index.js"
+      "import": "./dist/apierror/codes/index.js",
+      "default": "./dist/apierror/codes/index.js"
     }
   },
   "files": [
