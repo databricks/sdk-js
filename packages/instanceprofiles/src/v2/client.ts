@@ -18,22 +18,22 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AddInstanceProfileRequest,
-  AddInstanceProfileRequest_Response,
+  AddInstanceProfileResponse,
   EditInstanceProfileRequest,
-  EditInstanceProfileRequest_Response,
+  EditInstanceProfileResponse,
   ListInstanceProfilesRequest,
-  ListInstanceProfilesRequest_Response,
+  ListInstanceProfilesResponse,
   RemoveInstanceProfileRequest,
-  RemoveInstanceProfileRequest_Response,
+  RemoveInstanceProfileResponse,
 } from './model';
 import {
   marshalAddInstanceProfileRequestSchema,
   marshalEditInstanceProfileRequestSchema,
   marshalRemoveInstanceProfileRequestSchema,
-  unmarshalAddInstanceProfileRequest_ResponseSchema,
-  unmarshalEditInstanceProfileRequest_ResponseSchema,
-  unmarshalListInstanceProfilesRequest_ResponseSchema,
-  unmarshalRemoveInstanceProfileRequest_ResponseSchema,
+  unmarshalAddInstanceProfileResponseSchema,
+  unmarshalEditInstanceProfileResponseSchema,
+  unmarshalListInstanceProfilesResponseSchema,
+  unmarshalRemoveInstanceProfileResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -79,10 +79,10 @@ export class InstanceProfilesClient {
   async addInstanceProfile(
     req: AddInstanceProfileRequest,
     options?: CallOptions
-  ): Promise<AddInstanceProfileRequest_Response> {
+  ): Promise<AddInstanceProfileResponse> {
     const url = `${this.host}/api/2.0/instance-profiles/add`;
     const body = marshalRequest(req, marshalAddInstanceProfileRequestSchema);
-    let resp: AddInstanceProfileRequest_Response | undefined;
+    let resp: AddInstanceProfileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -95,10 +95,7 @@ export class InstanceProfilesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalAddInstanceProfileRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalAddInstanceProfileResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -124,10 +121,10 @@ export class InstanceProfilesClient {
   async editInstanceProfile(
     req: EditInstanceProfileRequest,
     options?: CallOptions
-  ): Promise<EditInstanceProfileRequest_Response> {
+  ): Promise<EditInstanceProfileResponse> {
     const url = `${this.host}/api/2.0/instance-profiles/edit`;
     const body = marshalRequest(req, marshalEditInstanceProfileRequestSchema);
-    let resp: EditInstanceProfileRequest_Response | undefined;
+    let resp: EditInstanceProfileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -142,7 +139,7 @@ export class InstanceProfilesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalEditInstanceProfileRequest_ResponseSchema
+        unmarshalEditInstanceProfileResponseSchema
       );
     };
     await executeCall(call, options);
@@ -160,9 +157,9 @@ export class InstanceProfilesClient {
   async listInstanceProfiles(
     _req: ListInstanceProfilesRequest,
     options?: CallOptions
-  ): Promise<ListInstanceProfilesRequest_Response> {
+  ): Promise<ListInstanceProfilesResponse> {
     const url = `${this.host}/api/2.0/instance-profiles/list`;
-    let resp: ListInstanceProfilesRequest_Response | undefined;
+    let resp: ListInstanceProfilesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -177,7 +174,7 @@ export class InstanceProfilesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListInstanceProfilesRequest_ResponseSchema
+        unmarshalListInstanceProfilesResponseSchema
       );
     };
     await executeCall(call, options);
@@ -196,10 +193,10 @@ export class InstanceProfilesClient {
   async removeInstanceProfile(
     req: RemoveInstanceProfileRequest,
     options?: CallOptions
-  ): Promise<RemoveInstanceProfileRequest_Response> {
+  ): Promise<RemoveInstanceProfileResponse> {
     const url = `${this.host}/api/2.0/instance-profiles/remove`;
     const body = marshalRequest(req, marshalRemoveInstanceProfileRequestSchema);
-    let resp: RemoveInstanceProfileRequest_Response | undefined;
+    let resp: RemoveInstanceProfileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -214,7 +211,7 @@ export class InstanceProfilesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalRemoveInstanceProfileRequest_ResponseSchema
+        unmarshalRemoveInstanceProfileResponseSchema
       );
     };
     await executeCall(call, options);

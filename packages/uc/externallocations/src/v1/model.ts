@@ -104,8 +104,8 @@ export interface DeleteExternalLocationRequest {
   force?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteExternalLocationRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteExternalLocationResponse {}
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
@@ -217,8 +217,7 @@ export interface ListExternalLocationsRequest {
   includeUnbound?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListExternalLocationsRequest_Response {
+export interface ListExternalLocationsResponse {
   /** An array of external locations. */
   externalLocations?: ExternalLocationInfo[] | undefined;
   /**
@@ -320,8 +319,7 @@ export const unmarshalAzureQueueStorageSchema: z.ZodType<AzureQueueStorage> = z
     managedResourceId: d.managed_resource_id,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteExternalLocationRequest_ResponseSchema: z.ZodType<DeleteExternalLocationRequest_Response> =
+export const unmarshalDeleteExternalLocationResponseSchema: z.ZodType<DeleteExternalLocationResponse> =
   z.object({});
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
@@ -438,8 +436,7 @@ export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
     managedResourceId: d.managed_resource_id,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListExternalLocationsRequest_ResponseSchema: z.ZodType<ListExternalLocationsRequest_Response> =
+export const unmarshalListExternalLocationsResponseSchema: z.ZodType<ListExternalLocationsResponse> =
   z
     .object({
       external_locations: z

@@ -18,17 +18,17 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetEffectivePermissionsRequest,
-  GetEffectivePermissionsRequest_Response,
+  GetEffectivePermissionsResponse,
   GetPermissionsRequest,
-  GetPermissionsRequest_Response,
+  GetPermissionsResponse,
   UpdatePermissionsRequest,
-  UpdatePermissionsRequest_Response,
+  UpdatePermissionsResponse,
 } from './model';
 import {
   marshalUpdatePermissionsRequestSchema,
-  unmarshalGetEffectivePermissionsRequest_ResponseSchema,
-  unmarshalGetPermissionsRequest_ResponseSchema,
-  unmarshalUpdatePermissionsRequest_ResponseSchema,
+  unmarshalGetEffectivePermissionsResponseSchema,
+  unmarshalGetPermissionsResponseSchema,
+  unmarshalUpdatePermissionsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -76,7 +76,7 @@ export class GrantsClient {
   async getEffectivePermissions(
     req: GetEffectivePermissionsRequest,
     options?: CallOptions
-  ): Promise<GetEffectivePermissionsRequest_Response> {
+  ): Promise<GetEffectivePermissionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/effective-permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
@@ -90,7 +90,7 @@ export class GrantsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetEffectivePermissionsRequest_Response | undefined;
+    let resp: GetEffectivePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -105,7 +105,7 @@ export class GrantsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetEffectivePermissionsRequest_ResponseSchema
+        unmarshalGetEffectivePermissionsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -126,7 +126,7 @@ export class GrantsClient {
   async getPermissions(
     req: GetPermissionsRequest,
     options?: CallOptions
-  ): Promise<GetPermissionsRequest_Response> {
+  ): Promise<GetPermissionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
@@ -140,7 +140,7 @@ export class GrantsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPermissionsRequest_Response | undefined;
+    let resp: GetPermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -153,10 +153,7 @@ export class GrantsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetPermissionsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetPermissionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -169,10 +166,10 @@ export class GrantsClient {
   async updatePermissions(
     req: UpdatePermissionsRequest,
     options?: CallOptions
-  ): Promise<UpdatePermissionsRequest_Response> {
+  ): Promise<UpdatePermissionsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const body = marshalRequest(req, marshalUpdatePermissionsRequestSchema);
-    let resp: UpdatePermissionsRequest_Response | undefined;
+    let resp: UpdatePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -185,10 +182,7 @@ export class GrantsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdatePermissionsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdatePermissionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -20,10 +20,10 @@ import {z} from 'zod';
 import type {
   AccountNetworkPolicy,
   CreateAccountIpAccessListRequest,
-  CreateAccountIpAccessListRequest_Response,
+  CreateAccountIpAccessListResponse,
   CreateEndpointRequest,
   CreateIpAccessList,
-  CreateIpAccessList_Response,
+  CreateIpAccessListResponse,
   CreateNccPrivateEndpointRuleRequest,
   CreateNetworkConnectivityConfigRequest,
   CreateNetworkPolicyRequest,
@@ -34,10 +34,10 @@ import type {
   CustomerFacingPrivateAccessSettings,
   CustomerFacingVpcEndpoint,
   DeleteAccountIpAccessListRequest,
-  DeleteAccountIpAccessListRequest_Response,
+  DeleteAccountIpAccessListResponse,
   DeleteEndpointRequest,
   DeleteIpAccessList,
-  DeleteIpAccessList_Response,
+  DeleteIpAccessListResponse,
   DeleteNccPrivateEndpointRuleRequest,
   DeleteNetworkConnectivityConfigRequest,
   DeleteNetworkPolicyRequest,
@@ -46,10 +46,10 @@ import type {
   DeleteVpcEndpointRequest,
   Endpoint,
   GetAccountIpAccessListRequest,
-  GetAccountIpAccessListRequest_Response,
+  GetAccountIpAccessListResponse,
   GetEndpointRequest,
   GetIpAccessList,
-  GetIpAccessList_Response,
+  GetIpAccessListResponse,
   GetNccPrivateEndpointRuleRequest,
   GetNetworkConnectivityConfigRequest,
   GetNetworkPolicyRequest,
@@ -58,11 +58,11 @@ import type {
   GetVpcEndpointRequest,
   GetWorkspaceNetworkOptionRequest,
   ListAccountIpAccessListsRequest,
-  ListAccountIpAccessListsRequest_Response,
+  ListAccountIpAccessListsResponse,
   ListEndpointsRequest,
   ListEndpointsResponse,
   ListIpAccessLists,
-  ListIpAccessLists_Response,
+  ListIpAccessListsResponse,
   ListNccPrivateEndpointRulesRequest,
   ListNccPrivateEndpointRulesResponse,
   ListNetworkConnectivityConfigsRequest,
@@ -78,13 +78,13 @@ import type {
   NccPrivateEndpointRule,
   Network,
   ReplaceAccountIpAccessListRequest,
-  ReplaceAccountIpAccessListRequest_Response,
+  ReplaceAccountIpAccessListResponse,
   ReplaceIpAccessList,
-  ReplaceIpAccessList_Response,
+  ReplaceIpAccessListResponse,
   UpdateAccountIpAccessListRequest,
-  UpdateAccountIpAccessListRequest_Response,
+  UpdateAccountIpAccessListResponse,
   UpdateIpAccessList,
-  UpdateIpAccessList_Response,
+  UpdateIpAccessListResponse,
   UpdateNccPrivateEndpointRuleRequest,
   UpdateNetworkPolicyRequest,
   UpdatePrivateAccessSettingsRequest,
@@ -109,28 +109,28 @@ import {
   marshalUpdatePrivateEndpointRuleSchema,
   marshalWorkspaceNetworkOptionSchema,
   unmarshalAccountNetworkPolicySchema,
-  unmarshalCreateAccountIpAccessListRequest_ResponseSchema,
-  unmarshalCreateIpAccessList_ResponseSchema,
+  unmarshalCreateAccountIpAccessListResponseSchema,
+  unmarshalCreateIpAccessListResponseSchema,
   unmarshalCustomerFacingNetworkConnectivityConfigSchema,
   unmarshalCustomerFacingPrivateAccessSettingsSchema,
   unmarshalCustomerFacingVpcEndpointSchema,
-  unmarshalDeleteAccountIpAccessListRequest_ResponseSchema,
-  unmarshalDeleteIpAccessList_ResponseSchema,
+  unmarshalDeleteAccountIpAccessListResponseSchema,
+  unmarshalDeleteIpAccessListResponseSchema,
   unmarshalEndpointSchema,
-  unmarshalGetAccountIpAccessListRequest_ResponseSchema,
-  unmarshalGetIpAccessList_ResponseSchema,
-  unmarshalListAccountIpAccessListsRequest_ResponseSchema,
+  unmarshalGetAccountIpAccessListResponseSchema,
+  unmarshalGetIpAccessListResponseSchema,
+  unmarshalListAccountIpAccessListsResponseSchema,
   unmarshalListEndpointsResponseSchema,
-  unmarshalListIpAccessLists_ResponseSchema,
+  unmarshalListIpAccessListsResponseSchema,
   unmarshalListNccPrivateEndpointRulesResponseSchema,
   unmarshalListNetworkConnectivityConfigsResponseSchema,
   unmarshalListNetworkPoliciesResponseSchema,
   unmarshalNccPrivateEndpointRuleSchema,
   unmarshalNetworkSchema,
-  unmarshalReplaceAccountIpAccessListRequest_ResponseSchema,
-  unmarshalReplaceIpAccessList_ResponseSchema,
-  unmarshalUpdateAccountIpAccessListRequest_ResponseSchema,
-  unmarshalUpdateIpAccessList_ResponseSchema,
+  unmarshalReplaceAccountIpAccessListResponseSchema,
+  unmarshalReplaceIpAccessListResponseSchema,
+  unmarshalUpdateAccountIpAccessListResponseSchema,
+  unmarshalUpdateIpAccessListResponseSchema,
   unmarshalWorkspaceNetworkOptionSchema,
 } from './model';
 
@@ -191,13 +191,13 @@ export class NetworkingClient {
   async createAccountIpAccessList(
     req: CreateAccountIpAccessListRequest,
     options?: CallOptions
-  ): Promise<CreateAccountIpAccessListRequest_Response> {
+  ): Promise<CreateAccountIpAccessListResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
     const body = marshalRequest(
       req,
       marshalCreateAccountIpAccessListRequestSchema
     );
-    let resp: CreateAccountIpAccessListRequest_Response | undefined;
+    let resp: CreateAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -209,7 +209,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateAccountIpAccessListRequest_ResponseSchema
+        unmarshalCreateAccountIpAccessListResponseSchema
       );
     };
     await executeCall(call, options);
@@ -223,9 +223,9 @@ export class NetworkingClient {
   async deleteAccountIpAccessList(
     req: DeleteAccountIpAccessListRequest,
     options?: CallOptions
-  ): Promise<DeleteAccountIpAccessListRequest_Response> {
+  ): Promise<DeleteAccountIpAccessListResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
-    let resp: DeleteAccountIpAccessListRequest_Response | undefined;
+    let resp: DeleteAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -237,7 +237,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteAccountIpAccessListRequest_ResponseSchema
+        unmarshalDeleteAccountIpAccessListResponseSchema
       );
     };
     await executeCall(call, options);
@@ -251,9 +251,9 @@ export class NetworkingClient {
   async getAccountIpAccessList(
     req: GetAccountIpAccessListRequest,
     options?: CallOptions
-  ): Promise<GetAccountIpAccessListRequest_Response> {
+  ): Promise<GetAccountIpAccessListResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
-    let resp: GetAccountIpAccessListRequest_Response | undefined;
+    let resp: GetAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -265,7 +265,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetAccountIpAccessListRequest_ResponseSchema
+        unmarshalGetAccountIpAccessListResponseSchema
       );
     };
     await executeCall(call, options);
@@ -279,9 +279,9 @@ export class NetworkingClient {
   async listAccountIpAccessLists(
     req: ListAccountIpAccessListsRequest,
     options?: CallOptions
-  ): Promise<ListAccountIpAccessListsRequest_Response> {
+  ): Promise<ListAccountIpAccessListsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
-    let resp: ListAccountIpAccessListsRequest_Response | undefined;
+    let resp: ListAccountIpAccessListsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -293,7 +293,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListAccountIpAccessListsRequest_ResponseSchema
+        unmarshalListAccountIpAccessListsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -319,13 +319,13 @@ export class NetworkingClient {
   async replaceAccountIpAccessList(
     req: ReplaceAccountIpAccessListRequest,
     options?: CallOptions
-  ): Promise<ReplaceAccountIpAccessListRequest_Response> {
+  ): Promise<ReplaceAccountIpAccessListResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalReplaceAccountIpAccessListRequestSchema
     );
-    let resp: ReplaceAccountIpAccessListRequest_Response | undefined;
+    let resp: ReplaceAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -337,7 +337,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalReplaceAccountIpAccessListRequest_ResponseSchema
+        unmarshalReplaceAccountIpAccessListResponseSchema
       );
     };
     await executeCall(call, options);
@@ -366,13 +366,13 @@ export class NetworkingClient {
   async updateAccountIpAccessList(
     req: UpdateAccountIpAccessListRequest,
     options?: CallOptions
-  ): Promise<UpdateAccountIpAccessListRequest_Response> {
+  ): Promise<UpdateAccountIpAccessListResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateAccountIpAccessListRequestSchema
     );
-    let resp: UpdateAccountIpAccessListRequest_Response | undefined;
+    let resp: UpdateAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -384,7 +384,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateAccountIpAccessListRequest_ResponseSchema
+        unmarshalUpdateAccountIpAccessListResponseSchema
       );
     };
     await executeCall(call, options);
@@ -557,10 +557,10 @@ export class NetworkingClient {
   async createIpAccessList(
     req: CreateIpAccessList,
     options?: CallOptions
-  ): Promise<CreateIpAccessList_Response> {
+  ): Promise<CreateIpAccessListResponse> {
     const url = `${this.host}/api/2.0/ip-access-lists`;
     const body = marshalRequest(req, marshalCreateIpAccessListSchema);
-    let resp: CreateIpAccessList_Response | undefined;
+    let resp: CreateIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -573,10 +573,7 @@ export class NetworkingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateIpAccessList_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateIpAccessListResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -589,9 +586,9 @@ export class NetworkingClient {
   async deleteIpAccessList(
     req: DeleteIpAccessList,
     options?: CallOptions
-  ): Promise<DeleteIpAccessList_Response> {
+  ): Promise<DeleteIpAccessListResponse> {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
-    let resp: DeleteIpAccessList_Response | undefined;
+    let resp: DeleteIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -604,10 +601,7 @@ export class NetworkingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteIpAccessList_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteIpAccessListResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -620,9 +614,9 @@ export class NetworkingClient {
   async getIpAccessList(
     req: GetIpAccessList,
     options?: CallOptions
-  ): Promise<GetIpAccessList_Response> {
+  ): Promise<GetIpAccessListResponse> {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
-    let resp: GetIpAccessList_Response | undefined;
+    let resp: GetIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -635,7 +629,7 @@ export class NetworkingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetIpAccessList_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetIpAccessListResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -648,9 +642,9 @@ export class NetworkingClient {
   async listIpAccessLists(
     _req: ListIpAccessLists,
     options?: CallOptions
-  ): Promise<ListIpAccessLists_Response> {
+  ): Promise<ListIpAccessListsResponse> {
     const url = `${this.host}/api/2.0/ip-access-lists`;
-    let resp: ListIpAccessLists_Response | undefined;
+    let resp: ListIpAccessListsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -663,7 +657,7 @@ export class NetworkingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListIpAccessLists_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListIpAccessListsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -689,10 +683,10 @@ export class NetworkingClient {
   async replaceIpAccessList(
     req: ReplaceIpAccessList,
     options?: CallOptions
-  ): Promise<ReplaceIpAccessList_Response> {
+  ): Promise<ReplaceIpAccessListResponse> {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(req, marshalReplaceIpAccessListSchema);
-    let resp: ReplaceIpAccessList_Response | undefined;
+    let resp: ReplaceIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -707,7 +701,7 @@ export class NetworkingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalReplaceIpAccessList_ResponseSchema
+        unmarshalReplaceIpAccessListResponseSchema
       );
     };
     await executeCall(call, options);
@@ -735,10 +729,10 @@ export class NetworkingClient {
   async updateIpAccessList(
     req: UpdateIpAccessList,
     options?: CallOptions
-  ): Promise<UpdateIpAccessList_Response> {
+  ): Promise<UpdateIpAccessListResponse> {
     const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateIpAccessListSchema);
-    let resp: UpdateIpAccessList_Response | undefined;
+    let resp: UpdateIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -751,10 +745,7 @@ export class NetworkingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateIpAccessList_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateIpAccessListResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

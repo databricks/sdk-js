@@ -14,7 +14,7 @@ export type {
   ExternalQuerySource,
   ExternalQuerySource_JobInfo,
   ListQueriesRequest,
-  ListQueriesRequest_Response,
+  ListQueriesResponse,
   QueryFilter,
   QueryInfo,
   QueryMetrics,

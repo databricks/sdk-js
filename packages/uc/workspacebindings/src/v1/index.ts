@@ -6,12 +6,12 @@ export {BindingType} from './model';
 
 export type {
   GetCatalogWorkspaceBindingsRequest,
-  GetCatalogWorkspaceBindingsRequest_Response,
+  GetCatalogWorkspaceBindingsResponse,
   GetWorkspaceBindingsRequest,
-  GetWorkspaceBindingsRequest_Response,
+  GetWorkspaceBindingsResponse,
   UpdateCatalogWorkspaceBindingsRequest,
-  UpdateCatalogWorkspaceBindingsRequest_Response,
+  UpdateCatalogWorkspaceBindingsResponse,
   UpdateWorkspaceBindingsRequest,
-  UpdateWorkspaceBindingsRequest_Response,
+  UpdateWorkspaceBindingsResponse,
   WorkspaceBindingInfo,
 } from './model';

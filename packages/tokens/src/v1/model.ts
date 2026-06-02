@@ -38,8 +38,7 @@ export interface CreateTokenRequest {
   autoscopeEnabled?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateTokenRequest_Response {
+export interface CreateTokenResponse {
   /** The value of the new token. */
   tokenValue?: string | undefined;
   /** The information for the new token. */
@@ -49,8 +48,7 @@ export interface CreateTokenRequest_Response {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListTokensRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTokensRequest_Response {
+export interface ListTokensResponse {
   /** The information for each token. */
   tokenInfos?: PublicTokenInfo[] | undefined;
 }
@@ -79,8 +77,8 @@ export interface RevokeTokenRequest {
   tokenId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RevokeTokenRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RevokeTokenResponse {}
 
 /**
  * For the list of supported token scopes, see
@@ -97,8 +95,7 @@ export interface UpdateTokenRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UpdateTokenResponse {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateTokenRequest_ResponseSchema: z.ZodType<CreateTokenRequest_Response> =
+export const unmarshalCreateTokenResponseSchema: z.ZodType<CreateTokenResponse> =
   z
     .object({
       token_value: z.string().optional(),
@@ -109,8 +106,7 @@ export const unmarshalCreateTokenRequest_ResponseSchema: z.ZodType<CreateTokenRe
       tokenInfo: d.token_info,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequest_Response> =
+export const unmarshalListTokensResponseSchema: z.ZodType<ListTokensResponse> =
   z
     .object({
       token_infos: z
@@ -149,8 +145,7 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
     backfillScopes: d.backfill_scopes,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRevokeTokenRequest_ResponseSchema: z.ZodType<RevokeTokenRequest_Response> =
+export const unmarshalRevokeTokenResponseSchema: z.ZodType<RevokeTokenResponse> =
   z.object({});
 
 export const unmarshalUpdateTokenResponseSchema: z.ZodType<UpdateTokenResponse> =

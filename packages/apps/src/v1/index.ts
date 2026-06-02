@@ -43,6 +43,7 @@ export {
 } from './model';
 
 export type {
+  ApiError,
   App,
   AppDeployment,
   AppDeploymentArtifacts,
@@ -77,7 +78,6 @@ export type {
   CreateCustomTemplateRequest,
   CreateSpaceRequest,
   CustomTemplate,
-  DatabricksServiceExceptionWithDetailsProto,
   DeleteAppRequest,
   DeleteAppThumbnailRequest,
   DeleteCustomTemplateRequest,

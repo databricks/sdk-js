@@ -6,8 +6,8 @@ export {SecurableType} from './model';
 
 export type {
   GetQuotaRequest,
-  GetQuotaRequest_Response,
+  GetQuotaResponse,
   ListQuotasRequest,
-  ListQuotasRequest_Response,
+  ListQuotasResponse,
   QuotaInfo,
 } from './model';

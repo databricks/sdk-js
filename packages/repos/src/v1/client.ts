@@ -18,25 +18,25 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateRepoRequest,
-  CreateRepoRequest_Response,
+  CreateRepoResponse,
   DeleteProjectRequest,
-  DeleteProjectRequest_Response,
+  DeleteProjectResponse,
   GetRepoRequest,
-  GetRepoRequest_Response,
+  GetRepoResponse,
   ListReposRequest,
-  ListReposRequest_Response,
+  ListReposResponse,
   RepoInfo,
   UpdateRepoRequest,
-  UpdateRepoRequest_Response,
+  UpdateRepoResponse,
 } from './model';
 import {
   marshalCreateRepoRequestSchema,
   marshalUpdateRepoRequestSchema,
-  unmarshalCreateRepoRequest_ResponseSchema,
-  unmarshalDeleteProjectRequest_ResponseSchema,
-  unmarshalGetRepoRequest_ResponseSchema,
-  unmarshalListReposRequest_ResponseSchema,
-  unmarshalUpdateRepoRequest_ResponseSchema,
+  unmarshalCreateRepoResponseSchema,
+  unmarshalDeleteProjectResponseSchema,
+  unmarshalGetRepoResponseSchema,
+  unmarshalListReposResponseSchema,
+  unmarshalUpdateRepoResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -81,10 +81,10 @@ export class ReposClient {
   async createRepo(
     req: CreateRepoRequest,
     options?: CallOptions
-  ): Promise<CreateRepoRequest_Response> {
+  ): Promise<CreateRepoResponse> {
     const url = `${this.host}/api/2.0/repos`;
     const body = marshalRequest(req, marshalCreateRepoRequestSchema);
-    let resp: CreateRepoRequest_Response | undefined;
+    let resp: CreateRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -97,7 +97,7 @@ export class ReposClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateRepoRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateRepoResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -110,9 +110,9 @@ export class ReposClient {
   async deleteProject(
     req: DeleteProjectRequest,
     options?: CallOptions
-  ): Promise<DeleteProjectRequest_Response> {
+  ): Promise<DeleteProjectResponse> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
-    let resp: DeleteProjectRequest_Response | undefined;
+    let resp: DeleteProjectResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -125,10 +125,7 @@ export class ReposClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteProjectRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteProjectResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -141,9 +138,9 @@ export class ReposClient {
   async getRepo(
     req: GetRepoRequest,
     options?: CallOptions
-  ): Promise<GetRepoRequest_Response> {
+  ): Promise<GetRepoResponse> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
-    let resp: GetRepoRequest_Response | undefined;
+    let resp: GetRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -156,7 +153,7 @@ export class ReposClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetRepoRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetRepoResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -172,7 +169,7 @@ export class ReposClient {
   async listRepos(
     req: ListReposRequest,
     options?: CallOptions
-  ): Promise<ListReposRequest_Response> {
+  ): Promise<ListReposResponse> {
     const url = `${this.host}/api/2.0/repos`;
     const params = new URLSearchParams();
     if (req.pathPrefix !== undefined) {
@@ -183,7 +180,7 @@ export class ReposClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListReposRequest_Response | undefined;
+    let resp: ListReposResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -196,7 +193,7 @@ export class ReposClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListReposRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListReposResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -229,10 +226,10 @@ export class ReposClient {
   async updateRepo(
     req: UpdateRepoRequest,
     options?: CallOptions
-  ): Promise<UpdateRepoRequest_Response> {
+  ): Promise<UpdateRepoResponse> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateRepoRequestSchema);
-    let resp: UpdateRepoRequest_Response | undefined;
+    let resp: UpdateRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -245,7 +242,7 @@ export class ReposClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdateRepoRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalUpdateRepoResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

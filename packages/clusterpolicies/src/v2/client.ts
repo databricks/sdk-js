@@ -18,24 +18,24 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreatePolicyRequest,
-  CreatePolicyRequest_Response,
+  CreatePolicyResponse,
   DeletePolicyRequest,
-  DeletePolicyRequest_Response,
+  DeletePolicyResponse,
   EditPolicyRequest,
-  EditPolicyRequest_Response,
+  EditPolicyResponse,
   GetPolicyRequest,
   ListPoliciesRequest,
-  ListPoliciesRequest_Response,
+  ListPoliciesResponse,
   Policy,
 } from './model';
 import {
   marshalCreatePolicyRequestSchema,
   marshalDeletePolicyRequestSchema,
   marshalEditPolicyRequestSchema,
-  unmarshalCreatePolicyRequest_ResponseSchema,
-  unmarshalDeletePolicyRequest_ResponseSchema,
-  unmarshalEditPolicyRequest_ResponseSchema,
-  unmarshalListPoliciesRequest_ResponseSchema,
+  unmarshalCreatePolicyResponseSchema,
+  unmarshalDeletePolicyResponseSchema,
+  unmarshalEditPolicyResponseSchema,
+  unmarshalListPoliciesResponseSchema,
   unmarshalPolicySchema,
 } from './model';
 
@@ -77,10 +77,10 @@ export class ClusterPoliciesClient {
   async createPolicy(
     req: CreatePolicyRequest,
     options?: CallOptions
-  ): Promise<CreatePolicyRequest_Response> {
+  ): Promise<CreatePolicyResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/create`;
     const body = marshalRequest(req, marshalCreatePolicyRequestSchema);
-    let resp: CreatePolicyRequest_Response | undefined;
+    let resp: CreatePolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -93,10 +93,7 @@ export class ClusterPoliciesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreatePolicyRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreatePolicyResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -109,10 +106,10 @@ export class ClusterPoliciesClient {
   async deletePolicy(
     req: DeletePolicyRequest,
     options?: CallOptions
-  ): Promise<DeletePolicyRequest_Response> {
+  ): Promise<DeletePolicyResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/delete`;
     const body = marshalRequest(req, marshalDeletePolicyRequestSchema);
-    let resp: DeletePolicyRequest_Response | undefined;
+    let resp: DeletePolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -125,10 +122,7 @@ export class ClusterPoliciesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeletePolicyRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeletePolicyResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -141,10 +135,10 @@ export class ClusterPoliciesClient {
   async editPolicy(
     req: EditPolicyRequest,
     options?: CallOptions
-  ): Promise<EditPolicyRequest_Response> {
+  ): Promise<EditPolicyResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/edit`;
     const body = marshalRequest(req, marshalEditPolicyRequestSchema);
-    let resp: EditPolicyRequest_Response | undefined;
+    let resp: EditPolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -157,7 +151,7 @@ export class ClusterPoliciesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalEditPolicyRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalEditPolicyResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -204,7 +198,7 @@ export class ClusterPoliciesClient {
   async listPolicies(
     req: ListPoliciesRequest,
     options?: CallOptions
-  ): Promise<ListPoliciesRequest_Response> {
+  ): Promise<ListPoliciesResponse> {
     const url = `${this.host}/api/2.0/policies/clusters/list`;
     const params = new URLSearchParams();
     if (req.sortOrder !== undefined) {
@@ -215,7 +209,7 @@ export class ClusterPoliciesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPoliciesRequest_Response | undefined;
+    let resp: ListPoliciesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -228,10 +222,7 @@ export class ClusterPoliciesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPoliciesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListPoliciesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

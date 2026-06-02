@@ -33,8 +33,8 @@ export interface AddInstanceProfileRequest {
   iamRoleArn?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AddInstanceProfileRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AddInstanceProfileResponse {}
 
 export interface EditInstanceProfileRequest {
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
@@ -58,8 +58,8 @@ export interface EditInstanceProfileRequest {
   iamRoleArn?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditInstanceProfileRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EditInstanceProfileResponse {}
 
 export interface InstanceProfile {
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
@@ -86,8 +86,7 @@ export interface InstanceProfile {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListInstanceProfilesRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListInstanceProfilesRequest_Response {
+export interface ListInstanceProfilesResponse {
   /** A list of instance profiles that the user can access. */
   instanceProfiles?: InstanceProfile[] | undefined;
 }
@@ -97,15 +96,13 @@ export interface RemoveInstanceProfileRequest {
   instanceProfileArn?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RemoveInstanceProfileRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RemoveInstanceProfileResponse {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAddInstanceProfileRequest_ResponseSchema: z.ZodType<AddInstanceProfileRequest_Response> =
+export const unmarshalAddInstanceProfileResponseSchema: z.ZodType<AddInstanceProfileResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditInstanceProfileRequest_ResponseSchema: z.ZodType<EditInstanceProfileRequest_Response> =
+export const unmarshalEditInstanceProfileResponseSchema: z.ZodType<EditInstanceProfileResponse> =
   z.object({});
 
 export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
@@ -120,8 +117,7 @@ export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
     iamRoleArn: d.iam_role_arn,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInstanceProfilesRequest_ResponseSchema: z.ZodType<ListInstanceProfilesRequest_Response> =
+export const unmarshalListInstanceProfilesResponseSchema: z.ZodType<ListInstanceProfilesResponse> =
   z
     .object({
       instance_profiles: z
@@ -132,8 +128,7 @@ export const unmarshalListInstanceProfilesRequest_ResponseSchema: z.ZodType<List
       instanceProfiles: d.instance_profiles,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRemoveInstanceProfileRequest_ResponseSchema: z.ZodType<RemoveInstanceProfileRequest_Response> =
+export const unmarshalRemoveInstanceProfileResponseSchema: z.ZodType<RemoveInstanceProfileResponse> =
   z.object({});
 
 export const marshalAddInstanceProfileRequestSchema: z.ZodType = z

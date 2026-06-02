@@ -24,7 +24,7 @@ import type {
   CreateInferenceEndpointRequest,
   CreatePtEndpointRequest,
   DeleteInferenceEndpointRequest,
-  DeleteInferenceEndpointRequest_Response,
+  DeleteInferenceEndpointResponse,
   ExportMetricsResponse,
   ExternalFunctionRequest,
   ExternalFunctionResponse,
@@ -33,22 +33,22 @@ import type {
   GetInferenceEndpointSchemaRequest,
   GetOpenApiResponse,
   GetServedModelBuildLogsRequest,
-  GetServedModelBuildLogsRequest_Response,
+  GetServedModelBuildLogsResponse,
   GetServedModelLogsRequest,
-  GetServedModelLogsRequest_Response,
+  GetServedModelLogsResponse,
   InferenceEndpointDetailed,
   ListInferenceEndpointsRequest,
-  ListInferenceEndpointsRequest_Response,
+  ListInferenceEndpointsResponse,
   PatchInferenceEndpointTagsRequest,
-  PatchInferenceEndpointTagsRequest_Response,
+  PatchInferenceEndpointTagsResponse,
   PutInferenceEndpointAiGatewayRequest,
-  PutInferenceEndpointAiGatewayRequest_Response,
+  PutInferenceEndpointAiGatewayResponse,
   PutInferenceEndpointConfigRequest,
   PutInferenceEndpointRateLimitsRequest,
-  PutInferenceEndpointRateLimitsRequest_Response,
+  PutInferenceEndpointRateLimitsResponse,
   PutPtEndpointConfigRequest,
   UpdateInferenceEndpointNotificationsRequest,
-  UpdateInferenceEndpointNotificationsRequest_Response,
+  UpdateInferenceEndpointNotificationsResponse,
 } from './model';
 import {
   InferenceEndpointState_ConfigUpdateState,
@@ -61,15 +61,15 @@ import {
   marshalPutInferenceEndpointRateLimitsRequestSchema,
   marshalPutPtEndpointConfigRequestSchema,
   marshalUpdateInferenceEndpointNotificationsRequestSchema,
-  unmarshalDeleteInferenceEndpointRequest_ResponseSchema,
-  unmarshalGetServedModelBuildLogsRequest_ResponseSchema,
-  unmarshalGetServedModelLogsRequest_ResponseSchema,
+  unmarshalDeleteInferenceEndpointResponseSchema,
+  unmarshalGetServedModelBuildLogsResponseSchema,
+  unmarshalGetServedModelLogsResponseSchema,
   unmarshalInferenceEndpointDetailedSchema,
-  unmarshalListInferenceEndpointsRequest_ResponseSchema,
-  unmarshalPatchInferenceEndpointTagsRequest_ResponseSchema,
-  unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema,
-  unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema,
-  unmarshalUpdateInferenceEndpointNotificationsRequest_ResponseSchema,
+  unmarshalListInferenceEndpointsResponseSchema,
+  unmarshalPatchInferenceEndpointTagsResponseSchema,
+  unmarshalPutInferenceEndpointAiGatewayResponseSchema,
+  unmarshalPutInferenceEndpointRateLimitsResponseSchema,
+  unmarshalUpdateInferenceEndpointNotificationsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -196,9 +196,9 @@ export class ModelServingClient {
   async deleteInferenceEndpoint(
     req: DeleteInferenceEndpointRequest,
     options?: CallOptions
-  ): Promise<DeleteInferenceEndpointRequest_Response> {
+  ): Promise<DeleteInferenceEndpointResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
-    let resp: DeleteInferenceEndpointRequest_Response | undefined;
+    let resp: DeleteInferenceEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -213,7 +213,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteInferenceEndpointRequest_ResponseSchema
+        unmarshalDeleteInferenceEndpointResponseSchema
       );
     };
     await executeCall(call, options);
@@ -315,9 +315,9 @@ export class ModelServingClient {
   async getServedModelBuildLogs(
     req: GetServedModelBuildLogsRequest,
     options?: CallOptions
-  ): Promise<GetServedModelBuildLogsRequest_Response> {
+  ): Promise<GetServedModelBuildLogsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/build-logs`;
-    let resp: GetServedModelBuildLogsRequest_Response | undefined;
+    let resp: GetServedModelBuildLogsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -332,7 +332,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetServedModelBuildLogsRequest_ResponseSchema
+        unmarshalGetServedModelBuildLogsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -346,9 +346,9 @@ export class ModelServingClient {
   async getServedModelLogs(
     req: GetServedModelLogsRequest,
     options?: CallOptions
-  ): Promise<GetServedModelLogsRequest_Response> {
+  ): Promise<GetServedModelLogsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/logs`;
-    let resp: GetServedModelLogsRequest_Response | undefined;
+    let resp: GetServedModelLogsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -361,10 +361,7 @@ export class ModelServingClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetServedModelLogsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetServedModelLogsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -377,9 +374,9 @@ export class ModelServingClient {
   async listInferenceEndpoints(
     _req: ListInferenceEndpointsRequest,
     options?: CallOptions
-  ): Promise<ListInferenceEndpointsRequest_Response> {
+  ): Promise<ListInferenceEndpointsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints`;
-    let resp: ListInferenceEndpointsRequest_Response | undefined;
+    let resp: ListInferenceEndpointsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -394,7 +391,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListInferenceEndpointsRequest_ResponseSchema
+        unmarshalListInferenceEndpointsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -408,13 +405,13 @@ export class ModelServingClient {
   async patchInferenceEndpointTags(
     req: PatchInferenceEndpointTagsRequest,
     options?: CallOptions
-  ): Promise<PatchInferenceEndpointTagsRequest_Response> {
+  ): Promise<PatchInferenceEndpointTagsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/tags`;
     const body = marshalRequest(
       req,
       marshalPatchInferenceEndpointTagsRequestSchema
     );
-    let resp: PatchInferenceEndpointTagsRequest_Response | undefined;
+    let resp: PatchInferenceEndpointTagsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -429,7 +426,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalPatchInferenceEndpointTagsRequest_ResponseSchema
+        unmarshalPatchInferenceEndpointTagsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -443,13 +440,13 @@ export class ModelServingClient {
   async putInferenceEndpointAiGateway(
     req: PutInferenceEndpointAiGatewayRequest,
     options?: CallOptions
-  ): Promise<PutInferenceEndpointAiGatewayRequest_Response> {
+  ): Promise<PutInferenceEndpointAiGatewayResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/ai-gateway`;
     const body = marshalRequest(
       req,
       marshalPutInferenceEndpointAiGatewayRequestSchema
     );
-    let resp: PutInferenceEndpointAiGatewayRequest_Response | undefined;
+    let resp: PutInferenceEndpointAiGatewayResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -464,7 +461,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema
+        unmarshalPutInferenceEndpointAiGatewayResponseSchema
       );
     };
     await executeCall(call, options);
@@ -521,13 +518,13 @@ export class ModelServingClient {
   async putInferenceEndpointRateLimits(
     req: PutInferenceEndpointRateLimitsRequest,
     options?: CallOptions
-  ): Promise<PutInferenceEndpointRateLimitsRequest_Response> {
+  ): Promise<PutInferenceEndpointRateLimitsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/rate-limits`;
     const body = marshalRequest(
       req,
       marshalPutInferenceEndpointRateLimitsRequestSchema
     );
-    let resp: PutInferenceEndpointRateLimitsRequest_Response | undefined;
+    let resp: PutInferenceEndpointRateLimitsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -542,7 +539,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema
+        unmarshalPutInferenceEndpointRateLimitsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -599,13 +596,13 @@ export class ModelServingClient {
   async updateInferenceEndpointNotifications(
     req: UpdateInferenceEndpointNotificationsRequest,
     options?: CallOptions
-  ): Promise<UpdateInferenceEndpointNotificationsRequest_Response> {
+  ): Promise<UpdateInferenceEndpointNotificationsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/notifications`;
     const body = marshalRequest(
       req,
       marshalUpdateInferenceEndpointNotificationsRequestSchema
     );
-    let resp: UpdateInferenceEndpointNotificationsRequest_Response | undefined;
+    let resp: UpdateInferenceEndpointNotificationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -620,7 +617,7 @@ export class ModelServingClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateInferenceEndpointNotificationsRequest_ResponseSchema
+        unmarshalUpdateInferenceEndpointNotificationsResponseSchema
       );
     };
     await executeCall(call, options);

@@ -18,24 +18,24 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateGlobalInitScriptRequest,
-  CreateGlobalInitScriptRequest_Response,
+  CreateGlobalInitScriptResponse,
   DeleteGlobalInitScriptRequest,
-  DeleteGlobalInitScriptRequest_Response,
+  DeleteGlobalInitScriptResponse,
   GetGlobalInitScriptRequest,
   GlobalInitScriptDetails,
   ListGlobalInitScriptsRequest,
-  ListGlobalInitScriptsRequest_Response,
+  ListGlobalInitScriptsResponse,
   UpdateGlobalInitScriptRequest,
-  UpdateGlobalInitScriptRequest_Response,
+  UpdateGlobalInitScriptResponse,
 } from './model';
 import {
   marshalCreateGlobalInitScriptRequestSchema,
   marshalUpdateGlobalInitScriptRequestSchema,
-  unmarshalCreateGlobalInitScriptRequest_ResponseSchema,
-  unmarshalDeleteGlobalInitScriptRequest_ResponseSchema,
+  unmarshalCreateGlobalInitScriptResponseSchema,
+  unmarshalDeleteGlobalInitScriptResponseSchema,
   unmarshalGlobalInitScriptDetailsSchema,
-  unmarshalListGlobalInitScriptsRequest_ResponseSchema,
-  unmarshalUpdateGlobalInitScriptRequest_ResponseSchema,
+  unmarshalListGlobalInitScriptsResponseSchema,
+  unmarshalUpdateGlobalInitScriptResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -76,13 +76,13 @@ export class GlobalInitScriptsClient {
   async createGlobalInitScript(
     req: CreateGlobalInitScriptRequest,
     options?: CallOptions
-  ): Promise<CreateGlobalInitScriptRequest_Response> {
+  ): Promise<CreateGlobalInitScriptResponse> {
     const url = `${this.host}/api/2.0/global-init-scripts`;
     const body = marshalRequest(
       req,
       marshalCreateGlobalInitScriptRequestSchema
     );
-    let resp: CreateGlobalInitScriptRequest_Response | undefined;
+    let resp: CreateGlobalInitScriptResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -97,7 +97,7 @@ export class GlobalInitScriptsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateGlobalInitScriptRequest_ResponseSchema
+        unmarshalCreateGlobalInitScriptResponseSchema
       );
     };
     await executeCall(call, options);
@@ -111,9 +111,9 @@ export class GlobalInitScriptsClient {
   async deleteGlobalInitScript(
     req: DeleteGlobalInitScriptRequest,
     options?: CallOptions
-  ): Promise<DeleteGlobalInitScriptRequest_Response> {
+  ): Promise<DeleteGlobalInitScriptResponse> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
-    let resp: DeleteGlobalInitScriptRequest_Response | undefined;
+    let resp: DeleteGlobalInitScriptResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -128,7 +128,7 @@ export class GlobalInitScriptsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteGlobalInitScriptRequest_ResponseSchema
+        unmarshalDeleteGlobalInitScriptResponseSchema
       );
     };
     await executeCall(call, options);
@@ -173,9 +173,9 @@ export class GlobalInitScriptsClient {
   async listGlobalInitScripts(
     _req: ListGlobalInitScriptsRequest,
     options?: CallOptions
-  ): Promise<ListGlobalInitScriptsRequest_Response> {
+  ): Promise<ListGlobalInitScriptsResponse> {
     const url = `${this.host}/api/2.0/global-init-scripts`;
-    let resp: ListGlobalInitScriptsRequest_Response | undefined;
+    let resp: ListGlobalInitScriptsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -190,7 +190,7 @@ export class GlobalInitScriptsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListGlobalInitScriptsRequest_ResponseSchema
+        unmarshalListGlobalInitScriptsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -207,13 +207,13 @@ export class GlobalInitScriptsClient {
   async updateGlobalInitScript(
     req: UpdateGlobalInitScriptRequest,
     options?: CallOptions
-  ): Promise<UpdateGlobalInitScriptRequest_Response> {
+  ): Promise<UpdateGlobalInitScriptResponse> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateGlobalInitScriptRequestSchema
     );
-    let resp: UpdateGlobalInitScriptRequest_Response | undefined;
+    let resp: UpdateGlobalInitScriptResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -228,7 +228,7 @@ export class GlobalInitScriptsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateGlobalInitScriptRequest_ResponseSchema
+        unmarshalUpdateGlobalInitScriptResponseSchema
       );
     };
     await executeCall(call, options);

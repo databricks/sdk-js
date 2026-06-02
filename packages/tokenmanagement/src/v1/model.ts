@@ -63,8 +63,7 @@ export interface CreateOnBehalfOfTokenRequest {
 }
 
 /** An on-behalf token was successfully created for the service principal. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateOnBehalfOfTokenRequest_Response {
+export interface CreateOnBehalfOfTokenResponse {
   /** Value of the token. */
   tokenValue?: string | undefined;
   tokenInfo?: AdminTokenInfo | undefined;
@@ -83,8 +82,7 @@ export interface GetTokenRequest {
 }
 
 /** Token with specified Token ID was successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetTokenRequest_Response {
+export interface GetTokenResponse {
   tokenInfo?: AdminTokenInfo | undefined;
 }
 
@@ -104,8 +102,7 @@ export interface ListTokensRequest {
 }
 
 /** Tokens were successfully returned. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTokensRequest_Response {
+export interface ListTokensResponse {
   /** Token metadata of each user-created token in the workspace */
   tokenInfos?: AdminTokenInfo[] | undefined;
 }
@@ -116,8 +113,8 @@ export interface RevokeTokenRequest {
 }
 
 /** The token was successfully deleted. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RevokeTokenRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RevokeTokenResponse {}
 
 /**
  * For the list of supported token scopes, see
@@ -179,8 +176,7 @@ export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
     backfillScopes: d.backfill_scopes,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema: z.ZodType<CreateOnBehalfOfTokenRequest_Response> =
+export const unmarshalCreateOnBehalfOfTokenResponseSchema: z.ZodType<CreateOnBehalfOfTokenResponse> =
   z
     .object({
       token_value: z.string().optional(),
@@ -191,18 +187,15 @@ export const unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema: z.ZodType<Cre
       tokenInfo: d.token_info,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetTokenRequest_ResponseSchema: z.ZodType<GetTokenRequest_Response> =
-  z
-    .object({
-      token_info: z.lazy(() => unmarshalAdminTokenInfoSchema).optional(),
-    })
-    .transform(d => ({
-      tokenInfo: d.token_info,
-    }));
+export const unmarshalGetTokenResponseSchema: z.ZodType<GetTokenResponse> = z
+  .object({
+    token_info: z.lazy(() => unmarshalAdminTokenInfoSchema).optional(),
+  })
+  .transform(d => ({
+    tokenInfo: d.token_info,
+  }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequest_Response> =
+export const unmarshalListTokensResponseSchema: z.ZodType<ListTokensResponse> =
   z
     .object({
       token_infos: z
@@ -213,8 +206,7 @@ export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequ
       tokenInfos: d.token_infos,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRevokeTokenRequest_ResponseSchema: z.ZodType<RevokeTokenRequest_Response> =
+export const unmarshalRevokeTokenResponseSchema: z.ZodType<RevokeTokenResponse> =
   z.object({});
 
 export const marshalAdminTokenInfoSchema: z.ZodType = z

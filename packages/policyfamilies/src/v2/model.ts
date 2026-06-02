@@ -18,8 +18,7 @@ export interface ListPolicyFamiliesRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPolicyFamiliesRequest_Response {
+export interface ListPolicyFamiliesResponse {
   /** List of policy families. */
   policyFamilies?: PolicyFamily[] | undefined;
   /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
@@ -37,8 +36,7 @@ export interface PolicyFamily {
   definition?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPolicyFamiliesRequest_ResponseSchema: z.ZodType<ListPolicyFamiliesRequest_Response> =
+export const unmarshalListPolicyFamiliesResponseSchema: z.ZodType<ListPolicyFamiliesResponse> =
   z
     .object({
       policy_families: z

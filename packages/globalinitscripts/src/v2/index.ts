@@ -4,13 +4,13 @@ export {GlobalInitScriptsClient} from './client';
 
 export type {
   CreateGlobalInitScriptRequest,
-  CreateGlobalInitScriptRequest_Response,
+  CreateGlobalInitScriptResponse,
   DeleteGlobalInitScriptRequest,
-  DeleteGlobalInitScriptRequest_Response,
+  DeleteGlobalInitScriptResponse,
   GetGlobalInitScriptRequest,
   GlobalInitScriptDetails,
   ListGlobalInitScriptsRequest,
-  ListGlobalInitScriptsRequest_Response,
+  ListGlobalInitScriptsResponse,
   UpdateGlobalInitScriptRequest,
-  UpdateGlobalInitScriptRequest_Response,
+  UpdateGlobalInitScriptResponse,
 } from './model';

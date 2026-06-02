@@ -19,19 +19,19 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExternalLocationRequest,
   DeleteExternalLocationRequest,
-  DeleteExternalLocationRequest_Response,
+  DeleteExternalLocationResponse,
   ExternalLocationInfo,
   GetExternalLocationRequest,
   ListExternalLocationsRequest,
-  ListExternalLocationsRequest_Response,
+  ListExternalLocationsResponse,
   UpdateExternalLocationRequest,
 } from './model';
 import {
   marshalCreateExternalLocationRequestSchema,
   marshalUpdateExternalLocationRequestSchema,
-  unmarshalDeleteExternalLocationRequest_ResponseSchema,
+  unmarshalDeleteExternalLocationResponseSchema,
   unmarshalExternalLocationInfoSchema,
-  unmarshalListExternalLocationsRequest_ResponseSchema,
+  unmarshalListExternalLocationsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -107,7 +107,7 @@ export class ExternalLocationsClient {
   async deleteExternalLocation(
     req: DeleteExternalLocationRequest,
     options?: CallOptions
-  ): Promise<DeleteExternalLocationRequest_Response> {
+  ): Promise<DeleteExternalLocationResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -115,7 +115,7 @@ export class ExternalLocationsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteExternalLocationRequest_Response | undefined;
+    let resp: DeleteExternalLocationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -130,7 +130,7 @@ export class ExternalLocationsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteExternalLocationRequest_ResponseSchema
+        unmarshalDeleteExternalLocationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -190,7 +190,7 @@ export class ExternalLocationsClient {
   async listExternalLocations(
     req: ListExternalLocationsRequest,
     options?: CallOptions
-  ): Promise<ListExternalLocationsRequest_Response> {
+  ): Promise<ListExternalLocationsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -207,7 +207,7 @@ export class ExternalLocationsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListExternalLocationsRequest_Response | undefined;
+    let resp: ListExternalLocationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -222,7 +222,7 @@ export class ExternalLocationsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListExternalLocationsRequest_ResponseSchema
+        unmarshalListExternalLocationsResponseSchema
       );
     };
     await executeCall(call, options);

@@ -73,8 +73,8 @@ export interface DeleteSchemaRequest {
   force?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteSchemaRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteSchemaResponse {}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
@@ -109,8 +109,7 @@ export interface ListSchemasRequest {
   includeBrowse?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSchemasRequest_Response {
+export interface ListSchemasResponse {
   /** An array of schema information objects. */
   schemas?: SchemaInfo[] | undefined;
   /**
@@ -233,8 +232,7 @@ export interface UpdateSchemaRequest_PropertiesEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteSchemaRequest_ResponseSchema: z.ZodType<DeleteSchemaRequest_Response> =
+export const unmarshalDeleteSchemaResponseSchema: z.ZodType<DeleteSchemaResponse> =
   z.object({});
 
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
@@ -250,8 +248,7 @@ export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<Effec
       inheritedFromName: d.inherited_from_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSchemasRequest_ResponseSchema: z.ZodType<ListSchemasRequest_Response> =
+export const unmarshalListSchemasResponseSchema: z.ZodType<ListSchemasResponse> =
   z
     .object({
       schemas: z.array(z.lazy(() => unmarshalSchemaInfoSchema)).optional(),

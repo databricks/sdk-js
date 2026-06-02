@@ -230,24 +230,24 @@ export interface DeleteProviderRequest {
   nameArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteProviderRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteProviderResponse {}
 
 export interface DeleteRecipientRequest {
   /** Name of the recipient. */
   name?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRecipientRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteRecipientResponse {}
 
 export interface DeleteShareRequest {
   /** The name of the share. */
   name?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteShareRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteShareResponse {}
 
 /** Represents a UC dependency. */
 export interface Dependency {
@@ -365,8 +365,8 @@ export interface GetActivationUrlInfoRequest {
   activationUrl?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface GetActivationUrlInfoRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface GetActivationUrlInfoResponse {}
 
 export interface GetFederationPolicyRequest {
   /** Name of the recipient. This is the name of the recipient for which the policy is being retrieved. */
@@ -383,6 +383,26 @@ export interface GetProviderRequest {
 export interface GetRecipientRequest {
   /** Name of the recipient. */
   name?: string | undefined;
+}
+
+export interface GetRecipientSharePermissionsResponse {
+  /** An array of data share permissions for a recipient. */
+  permissionsOut?: ShareToPrivilegeAssignment[] | undefined;
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * __page_token__ should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+}
+
+export interface GetSharePermissionsResponse {
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * __page_token__ should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+  /** The privileges assigned to each principal */
+  privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
 
 export interface GetShareRequest {
@@ -456,8 +476,7 @@ export interface ListProviderSharesRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListProviderSharesRequest_Response {
+export interface ListProviderSharesResponse {
   /** An array of provider shares. */
   shares?: ProviderShare[] | undefined;
   /**
@@ -487,8 +506,7 @@ export interface ListProvidersRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListProvidersRequest_Response {
+export interface ListProvidersResponse {
   /** An array of provider information objects. */
   providers?: ProviderInfo[] | undefined;
   /**
@@ -515,17 +533,6 @@ export interface ListRecipientSharePermissionsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRecipientSharePermissionsRequest_Response {
-  /** An array of data share permissions for a recipient. */
-  permissionsOut?: ShareToPrivilegeAssignment[] | undefined;
-  /**
-   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
-   * __page_token__ should be set to this value for the next request (for the next page of results).
-   */
-  nextPageToken?: string | undefined;
-}
-
 export interface ListRecipientsRequest {
   /**
    * If not provided, all recipients will be returned.
@@ -546,8 +553,7 @@ export interface ListRecipientsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRecipientsRequest_Response {
+export interface ListRecipientsResponse {
   /** An array of recipient information objects. */
   recipients?: RecipientInfo[] | undefined;
   /**
@@ -574,17 +580,6 @@ export interface ListSharePermissionsRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSharePermissionsRequest_Response {
-  /**
-   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
-   * __page_token__ should be set to this value for the next request (for the next page of results).
-   */
-  nextPageToken?: string | undefined;
-  /** The privileges assigned to each principal */
-  privilegeAssignments?: PrivilegeAssignment[] | undefined;
-}
-
 export interface ListSharesRequest {
   /**
    * Maximum number of shares to return.
@@ -600,8 +595,7 @@ export interface ListSharesRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSharesRequest_Response {
+export interface ListSharesResponse {
   /** An array of data share information objects. */
   shares?: ShareInfo[] | undefined;
   /**
@@ -871,8 +865,7 @@ export interface RetrieveToken {
   activationUrl?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RetrieveToken_Response {
+export interface RetrieveTokenResponse {
   /** These field names must follow the delta sharing protocol. */
   shareCredentialsVersion?: number | undefined;
   /** The token used to authorize the recipient. */
@@ -1176,8 +1169,7 @@ export interface UpdateSharePermissionsRequest {
   changes?: PermissionsChange[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateSharePermissionsRequest_Response {
+export interface UpdateSharePermissionsResponse {
   /** The privileges assigned to each principal */
   privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
@@ -1240,16 +1232,13 @@ export interface Volume {
   tags?: TagKeyValue[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteProviderRequest_ResponseSchema: z.ZodType<DeleteProviderRequest_Response> =
+export const unmarshalDeleteProviderResponseSchema: z.ZodType<DeleteProviderResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRecipientRequest_ResponseSchema: z.ZodType<DeleteRecipientRequest_Response> =
+export const unmarshalDeleteRecipientResponseSchema: z.ZodType<DeleteRecipientResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteShareRequest_ResponseSchema: z.ZodType<DeleteShareRequest_Response> =
+export const unmarshalDeleteShareResponseSchema: z.ZodType<DeleteShareResponse> =
   z.object({});
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
@@ -1396,9 +1385,34 @@ export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterI
       parameters: d.parameters,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetActivationUrlInfoRequest_ResponseSchema: z.ZodType<GetActivationUrlInfoRequest_Response> =
+export const unmarshalGetActivationUrlInfoResponseSchema: z.ZodType<GetActivationUrlInfoResponse> =
   z.object({});
+
+export const unmarshalGetRecipientSharePermissionsResponseSchema: z.ZodType<GetRecipientSharePermissionsResponse> =
+  z
+    .object({
+      permissions_out: z
+        .array(z.lazy(() => unmarshalShareToPrivilegeAssignmentSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      permissionsOut: d.permissions_out,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalGetSharePermissionsResponseSchema: z.ZodType<GetSharePermissionsResponse> =
+  z
+    .object({
+      next_page_token: z.string().optional(),
+      privilege_assignments: z
+        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      nextPageToken: d.next_page_token,
+      privilegeAssignments: d.privilege_assignments,
+    }));
 
 export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
   .object({
@@ -1438,8 +1452,7 @@ export const unmarshalListProviderShareAssetsResponseSchema: z.ZodType<ListProvi
       share: d.share,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListProviderSharesRequest_ResponseSchema: z.ZodType<ListProviderSharesRequest_Response> =
+export const unmarshalListProviderSharesResponseSchema: z.ZodType<ListProviderSharesResponse> =
   z
     .object({
       shares: z.array(z.lazy(() => unmarshalProviderShareSchema)).optional(),
@@ -1450,8 +1463,7 @@ export const unmarshalListProviderSharesRequest_ResponseSchema: z.ZodType<ListPr
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvidersRequest_Response> =
+export const unmarshalListProvidersResponseSchema: z.ZodType<ListProvidersResponse> =
   z
     .object({
       providers: z.array(z.lazy(() => unmarshalProviderInfoSchema)).optional(),
@@ -1462,22 +1474,7 @@ export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvide
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRecipientSharePermissionsRequest_ResponseSchema: z.ZodType<ListRecipientSharePermissionsRequest_Response> =
-  z
-    .object({
-      permissions_out: z
-        .array(z.lazy(() => unmarshalShareToPrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionsOut: d.permissions_out,
-      nextPageToken: d.next_page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRecipientsRequest_ResponseSchema: z.ZodType<ListRecipientsRequest_Response> =
+export const unmarshalListRecipientsResponseSchema: z.ZodType<ListRecipientsResponse> =
   z
     .object({
       recipients: z
@@ -1490,22 +1487,7 @@ export const unmarshalListRecipientsRequest_ResponseSchema: z.ZodType<ListRecipi
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSharePermissionsRequest_ResponseSchema: z.ZodType<ListSharePermissionsRequest_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSharesRequest_ResponseSchema: z.ZodType<ListSharesRequest_Response> =
+export const unmarshalListSharesResponseSchema: z.ZodType<ListSharesResponse> =
   z
     .object({
       shares: z.array(z.lazy(() => unmarshalShareInfoSchema)).optional(),
@@ -1763,8 +1745,7 @@ export const unmarshalRegisteredModelAliasSchema: z.ZodType<RegisteredModelAlias
       versionNum: d.version_num,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRetrieveToken_ResponseSchema: z.ZodType<RetrieveToken_Response> =
+export const unmarshalRetrieveTokenResponseSchema: z.ZodType<RetrieveTokenResponse> =
   z
     .object({
       shareCredentialsVersion: z.number().optional(),
@@ -1920,8 +1901,7 @@ export const unmarshalTagKeyValueSchema: z.ZodType<TagKeyValue> = z
     value: d.value,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateSharePermissionsRequest_ResponseSchema: z.ZodType<UpdateSharePermissionsRequest_Response> =
+export const unmarshalUpdateSharePermissionsResponseSchema: z.ZodType<UpdateSharePermissionsResponse> =
   z
     .object({
       privilege_assignments: z

@@ -20,34 +20,34 @@ import type {
   CreateTableConstraintRequest,
   CreateTableRequest,
   DeleteTableConstraintRequest,
-  DeleteTableConstraintRequest_Response,
+  DeleteTableConstraintResponse,
   DeleteTableRequest,
-  DeleteTableRequest_Response,
+  DeleteTableResponse,
   GetTableRequest,
   ListTableSummariesRequest,
-  ListTableSummariesRequest_Response,
+  ListTableSummariesResponse,
   ListTablesRequest,
-  ListTablesRequest_Response,
+  ListTablesResponse,
   TableConstraint,
   TableExistsRequest,
-  TableExistsRequest_Response,
+  TableExistsResponse,
   TableInfo,
   TableSummary,
   UpdateTableRequest,
-  UpdateTableRequest_Response,
+  UpdateTableResponse,
 } from './model';
 import {
   marshalCreateTableConstraintRequestSchema,
   marshalCreateTableRequestSchema,
   marshalUpdateTableRequestSchema,
-  unmarshalDeleteTableConstraintRequest_ResponseSchema,
-  unmarshalDeleteTableRequest_ResponseSchema,
-  unmarshalListTableSummariesRequest_ResponseSchema,
-  unmarshalListTablesRequest_ResponseSchema,
+  unmarshalDeleteTableConstraintResponseSchema,
+  unmarshalDeleteTableResponseSchema,
+  unmarshalListTableSummariesResponseSchema,
+  unmarshalListTablesResponseSchema,
   unmarshalTableConstraintSchema,
-  unmarshalTableExistsRequest_ResponseSchema,
+  unmarshalTableExistsResponseSchema,
   unmarshalTableInfoSchema,
-  unmarshalUpdateTableRequest_ResponseSchema,
+  unmarshalUpdateTableResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -185,9 +185,9 @@ export class TablesClient {
   async deleteTable(
     req: DeleteTableRequest,
     options?: CallOptions
-  ): Promise<DeleteTableRequest_Response> {
+  ): Promise<DeleteTableResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
-    let resp: DeleteTableRequest_Response | undefined;
+    let resp: DeleteTableResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -200,10 +200,7 @@ export class TablesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteTableRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteTableResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -226,7 +223,7 @@ export class TablesClient {
   async deleteTableConstraint(
     req: DeleteTableConstraintRequest,
     options?: CallOptions
-  ): Promise<DeleteTableConstraintRequest_Response> {
+  ): Promise<DeleteTableConstraintResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/constraints/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.constraintName !== undefined) {
@@ -237,7 +234,7 @@ export class TablesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteTableConstraintRequest_Response | undefined;
+    let resp: DeleteTableConstraintResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -252,7 +249,7 @@ export class TablesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteTableConstraintRequest_ResponseSchema
+        unmarshalDeleteTableConstraintResponseSchema
       );
     };
     await executeCall(call, options);
@@ -329,7 +326,7 @@ export class TablesClient {
   async listTableSummaries(
     req: ListTableSummariesRequest,
     options?: CallOptions
-  ): Promise<ListTableSummariesRequest_Response> {
+  ): Promise<ListTableSummariesResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/table-summaries`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -355,7 +352,7 @@ export class TablesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListTableSummariesRequest_Response | undefined;
+    let resp: ListTableSummariesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -368,10 +365,7 @@ export class TablesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListTableSummariesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListTableSummariesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -413,7 +407,7 @@ export class TablesClient {
   async listTables(
     req: ListTablesRequest,
     options?: CallOptions
-  ): Promise<ListTablesRequest_Response> {
+  ): Promise<ListTablesResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/tables`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -448,7 +442,7 @@ export class TablesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListTablesRequest_Response | undefined;
+    let resp: ListTablesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -461,7 +455,7 @@ export class TablesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListTablesRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListTablesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -501,9 +495,9 @@ export class TablesClient {
   async tableExists(
     req: TableExistsRequest,
     options?: CallOptions
-  ): Promise<TableExistsRequest_Response> {
+  ): Promise<TableExistsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}/exists`;
-    let resp: TableExistsRequest_Response | undefined;
+    let resp: TableExistsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -516,10 +510,7 @@ export class TablesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalTableExistsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalTableExistsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -536,10 +527,10 @@ export class TablesClient {
   async updateTable(
     req: UpdateTableRequest,
     options?: CallOptions
-  ): Promise<UpdateTableRequest_Response> {
+  ): Promise<UpdateTableResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateTableRequestSchema);
-    let resp: UpdateTableRequest_Response | undefined;
+    let resp: UpdateTableResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -552,10 +543,7 @@ export class TablesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateTableRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateTableResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

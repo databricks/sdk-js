@@ -19,24 +19,24 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   BudgetConfiguration,
   CreateBudgetConfigurationRequest,
-  CreateBudgetConfigurationRequest_Response,
+  CreateBudgetConfigurationResponse,
   DeleteBudgetConfigurationRequest,
-  DeleteBudgetConfigurationRequest_Response,
+  DeleteBudgetConfigurationResponse,
   GetBudgetConfigurationRequest,
-  GetBudgetConfigurationRequest_Response,
+  GetBudgetConfigurationResponse,
   ListBudgetConfigurationsRequest,
-  ListBudgetConfigurationsRequest_Response,
+  ListBudgetConfigurationsResponse,
   UpdateBudgetConfigurationRequest,
-  UpdateBudgetConfigurationRequest_Response,
+  UpdateBudgetConfigurationResponse,
 } from './model';
 import {
   marshalCreateBudgetConfigurationRequestSchema,
   marshalUpdateBudgetConfigurationRequestSchema,
-  unmarshalCreateBudgetConfigurationRequest_ResponseSchema,
-  unmarshalDeleteBudgetConfigurationRequest_ResponseSchema,
-  unmarshalGetBudgetConfigurationRequest_ResponseSchema,
-  unmarshalListBudgetConfigurationsRequest_ResponseSchema,
-  unmarshalUpdateBudgetConfigurationRequest_ResponseSchema,
+  unmarshalCreateBudgetConfigurationResponseSchema,
+  unmarshalDeleteBudgetConfigurationResponseSchema,
+  unmarshalGetBudgetConfigurationResponseSchema,
+  unmarshalListBudgetConfigurationsResponseSchema,
+  unmarshalUpdateBudgetConfigurationResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -76,13 +76,13 @@ export class BudgetsClient {
   async createBudgetConfiguration(
     req: CreateBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<CreateBudgetConfigurationRequest_Response> {
+  ): Promise<CreateBudgetConfigurationResponse> {
     const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? this.accountId ?? ''}/budgets`;
     const body = marshalRequest(
       req,
       marshalCreateBudgetConfigurationRequestSchema
     );
-    let resp: CreateBudgetConfigurationRequest_Response | undefined;
+    let resp: CreateBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -94,7 +94,7 @@ export class BudgetsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateBudgetConfigurationRequest_ResponseSchema
+        unmarshalCreateBudgetConfigurationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -108,9 +108,9 @@ export class BudgetsClient {
   async deleteBudgetConfiguration(
     req: DeleteBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<DeleteBudgetConfigurationRequest_Response> {
+  ): Promise<DeleteBudgetConfigurationResponse> {
     const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
-    let resp: DeleteBudgetConfigurationRequest_Response | undefined;
+    let resp: DeleteBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -122,7 +122,7 @@ export class BudgetsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteBudgetConfigurationRequest_ResponseSchema
+        unmarshalDeleteBudgetConfigurationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -136,7 +136,7 @@ export class BudgetsClient {
   async getBudgetConfiguration(
     req: GetBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<GetBudgetConfigurationRequest_Response> {
+  ): Promise<GetBudgetConfigurationResponse> {
     const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeSpendStatus !== undefined) {
@@ -144,7 +144,7 @@ export class BudgetsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetBudgetConfigurationRequest_Response | undefined;
+    let resp: GetBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -156,7 +156,7 @@ export class BudgetsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetBudgetConfigurationRequest_ResponseSchema
+        unmarshalGetBudgetConfigurationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -170,7 +170,7 @@ export class BudgetsClient {
   async listBudgetConfigurations(
     req: ListBudgetConfigurationsRequest,
     options?: CallOptions
-  ): Promise<ListBudgetConfigurationsRequest_Response> {
+  ): Promise<ListBudgetConfigurationsResponse> {
     const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/budgets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -187,7 +187,7 @@ export class BudgetsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListBudgetConfigurationsRequest_Response | undefined;
+    let resp: ListBudgetConfigurationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -199,7 +199,7 @@ export class BudgetsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListBudgetConfigurationsRequest_ResponseSchema
+        unmarshalListBudgetConfigurationsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -230,13 +230,13 @@ export class BudgetsClient {
   async updateBudgetConfiguration(
     req: UpdateBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<UpdateBudgetConfigurationRequest_Response> {
+  ): Promise<UpdateBudgetConfigurationResponse> {
     const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? this.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateBudgetConfigurationRequestSchema
     );
-    let resp: UpdateBudgetConfigurationRequest_Response | undefined;
+    let resp: UpdateBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -248,7 +248,7 @@ export class BudgetsClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateBudgetConfigurationRequest_ResponseSchema
+        unmarshalUpdateBudgetConfigurationResponseSchema
       );
     };
     await executeCall(call, options);

@@ -20,18 +20,18 @@ import type {
   CatalogInfo,
   CreateCatalogRequest,
   DeleteCatalogRequest,
-  DeleteCatalogRequest_Response,
+  DeleteCatalogResponse,
   GetCatalogRequest,
   ListCatalogsRequest,
-  ListCatalogsRequest_Response,
+  ListCatalogsResponse,
   UpdateCatalogRequest,
 } from './model';
 import {
   marshalCreateCatalogRequestSchema,
   marshalUpdateCatalogRequestSchema,
   unmarshalCatalogInfoSchema,
-  unmarshalDeleteCatalogRequest_ResponseSchema,
-  unmarshalListCatalogsRequest_ResponseSchema,
+  unmarshalDeleteCatalogResponseSchema,
+  unmarshalListCatalogsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -101,7 +101,7 @@ export class CatalogsClient {
   async deleteCatalog(
     req: DeleteCatalogRequest,
     options?: CallOptions
-  ): Promise<DeleteCatalogRequest_Response> {
+  ): Promise<DeleteCatalogResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -109,7 +109,7 @@ export class CatalogsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteCatalogRequest_Response | undefined;
+    let resp: DeleteCatalogResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -122,10 +122,7 @@ export class CatalogsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCatalogRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteCatalogResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -185,7 +182,7 @@ export class CatalogsClient {
   async listCatalogs(
     req: ListCatalogsRequest,
     options?: CallOptions
-  ): Promise<ListCatalogsRequest_Response> {
+  ): Promise<ListCatalogsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -202,7 +199,7 @@ export class CatalogsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListCatalogsRequest_Response | undefined;
+    let resp: ListCatalogsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -215,10 +212,7 @@ export class CatalogsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCatalogsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListCatalogsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

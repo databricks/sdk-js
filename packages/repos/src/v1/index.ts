@@ -4,16 +4,16 @@ export {ReposClient} from './client';
 
 export type {
   CreateRepoRequest,
-  CreateRepoRequest_Response,
+  CreateRepoResponse,
   DeleteProjectRequest,
-  DeleteProjectRequest_Response,
+  DeleteProjectResponse,
   GetRepoRequest,
-  GetRepoRequest_Response,
+  GetRepoResponse,
   ListReposRequest,
-  ListReposRequest_Response,
+  ListReposResponse,
   RepoInfo,
   SparseCheckout,
   SparseCheckoutUpdate,
   UpdateRepoRequest,
-  UpdateRepoRequest_Response,
+  UpdateRepoResponse,
 } from './model';

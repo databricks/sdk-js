@@ -709,6 +709,14 @@ export enum SpaceStatus_SpaceState {
   SPACE_UPDATING = 'SPACE_UPDATING',
 }
 
+/** Databricks Error that is returned by all Databricks APIs. */
+export interface ApiError {
+  errorCode?: ErrorCode | undefined;
+  message?: string | undefined;
+  stackTrace?: string | undefined;
+  details?: Record<string, unknown>[] | undefined;
+}
+
 export interface App {
   /**
    * The name of the app. The name must contain only lowercase alphanumeric characters and hyphens.
@@ -1085,14 +1093,6 @@ export interface CustomTemplate {
   creator?: string | undefined;
 }
 
-/** Databricks Error that is returned by all Databricks APIs. */
-export interface DatabricksServiceExceptionWithDetailsProto {
-  errorCode?: ErrorCode | undefined;
-  message?: string | undefined;
-  stackTrace?: string | undefined;
-  details?: Record<string, unknown>[] | undefined;
-}
-
 export interface DeleteAppRequest {
   /** The name of the app. */
   name?: string | undefined;
@@ -1301,7 +1301,7 @@ export interface Operation {
     | {
         $case: 'error';
         /** The error result of the operation in case of failure or cancellation. */
-        error: DatabricksServiceExceptionWithDetailsProto;
+        error: ApiError;
       }
     | {
         $case: 'response';
@@ -1416,6 +1416,20 @@ export interface UpdateSpaceRequest {
   space?: Space | undefined;
   updateMask?: FieldMask<Space> | undefined;
 }
+
+export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
 
 export const unmarshalAppSchema: z.ZodType<App> = z
   .object({
@@ -1971,21 +1985,6 @@ export const unmarshalCustomTemplateSchema: z.ZodType<CustomTemplate> = z
     creator: d.creator,
   }));
 
-export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-      details: d.details,
-    }));
-
 export const unmarshalEnvVarSchema: z.ZodType<EnvVar> = z
   .object({
     name: z.string().optional(),
@@ -2087,9 +2086,7 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     done: z.boolean().optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
   .transform(d => ({

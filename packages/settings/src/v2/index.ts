@@ -7,6 +7,7 @@ export {
   AibiDashboardEmbeddingAccessPolicy_AccessPolicyType,
   ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek,
   ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency,
+  CollaborationPlatformConnectivityMessage_Connectivity,
   PersonalComputeMessage_PersonalComputeMessageEnum,
   RestrictWorkspaceAdminsMessage_Status,
 } from './model';
@@ -21,6 +22,7 @@ export type {
   ClusterAutoRestartMessage_MaintenanceWindow,
   ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule,
   ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime,
+  CollaborationPlatformConnectivityMessage,
   GetPublicAccountSettingRequest,
   GetPublicAccountUserPreferenceRequest,
   GetPublicWorkspaceSettingRequest,

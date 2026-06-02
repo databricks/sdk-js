@@ -7,11 +7,11 @@ export {SseEncryptionAlgorithm, VolumeType} from './model';
 export type {
   CreateVolumeRequest,
   DeleteVolumeRequest,
-  DeleteVolumeRequest_Response,
+  DeleteVolumeResponse,
   EncryptionDetails,
   GetVolumeRequest,
   ListVolumesRequest,
-  ListVolumesRequest_Response,
+  ListVolumesResponse,
   SseEncryptionDetails,
   UpdateVolumeRequest,
   VolumeInfo,

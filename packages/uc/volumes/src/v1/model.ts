@@ -56,8 +56,8 @@ export interface DeleteVolumeRequest {
   fullNameArg?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteVolumeRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteVolumeResponse {}
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
@@ -100,8 +100,7 @@ export interface ListVolumesRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListVolumesRequest_Response {
+export interface ListVolumesResponse {
   volumes?: VolumeInfo[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
@@ -201,8 +200,7 @@ export interface VolumeInfo {
   browseOnly?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteVolumeRequest_ResponseSchema: z.ZodType<DeleteVolumeRequest_Response> =
+export const unmarshalDeleteVolumeResponseSchema: z.ZodType<DeleteVolumeResponse> =
   z.object({});
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
@@ -221,8 +219,7 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
         : undefined,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListVolumesRequest_ResponseSchema: z.ZodType<ListVolumesRequest_Response> =
+export const unmarshalListVolumesResponseSchema: z.ZodType<ListVolumesResponse> =
   z
     .object({
       volumes: z.array(z.lazy(() => unmarshalVolumeInfoSchema)).optional(),

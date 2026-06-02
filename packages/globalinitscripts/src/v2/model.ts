@@ -19,8 +19,7 @@ export interface CreateGlobalInitScriptRequest {
   enabled?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateGlobalInitScriptRequest_Response {
+export interface CreateGlobalInitScriptResponse {
   /** The global init script ID. */
   scriptId?: string | undefined;
 }
@@ -30,8 +29,8 @@ export interface DeleteGlobalInitScriptRequest {
   scriptId?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteGlobalInitScriptRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteGlobalInitScriptResponse {}
 
 export interface GetGlobalInitScriptRequest {
   /** The ID of the global init script. */
@@ -60,8 +59,7 @@ export interface GlobalInitScriptDetails {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListGlobalInitScriptsRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListGlobalInitScriptsRequest_Response {
+export interface ListGlobalInitScriptsResponse {
   scripts?: GlobalInitScriptDetails[] | undefined;
 }
 
@@ -91,11 +89,10 @@ export interface UpdateGlobalInitScriptRequest {
   enabled?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateGlobalInitScriptRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateGlobalInitScriptResponse {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateGlobalInitScriptRequest_ResponseSchema: z.ZodType<CreateGlobalInitScriptRequest_Response> =
+export const unmarshalCreateGlobalInitScriptResponseSchema: z.ZodType<CreateGlobalInitScriptResponse> =
   z
     .object({
       script_id: z.string().optional(),
@@ -104,8 +101,7 @@ export const unmarshalCreateGlobalInitScriptRequest_ResponseSchema: z.ZodType<Cr
       scriptId: d.script_id,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteGlobalInitScriptRequest_ResponseSchema: z.ZodType<DeleteGlobalInitScriptRequest_Response> =
+export const unmarshalDeleteGlobalInitScriptResponseSchema: z.ZodType<DeleteGlobalInitScriptResponse> =
   z.object({});
 
 export const unmarshalGlobalInitScriptDetailsSchema: z.ZodType<GlobalInitScriptDetails> =
@@ -137,8 +133,7 @@ export const unmarshalGlobalInitScriptDetailsSchema: z.ZodType<GlobalInitScriptD
       updatedAt: d.updated_at,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListGlobalInitScriptsRequest_ResponseSchema: z.ZodType<ListGlobalInitScriptsRequest_Response> =
+export const unmarshalListGlobalInitScriptsResponseSchema: z.ZodType<ListGlobalInitScriptsResponse> =
   z
     .object({
       scripts: z
@@ -149,8 +144,7 @@ export const unmarshalListGlobalInitScriptsRequest_ResponseSchema: z.ZodType<Lis
       scripts: d.scripts,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateGlobalInitScriptRequest_ResponseSchema: z.ZodType<UpdateGlobalInitScriptRequest_Response> =
+export const unmarshalUpdateGlobalInitScriptResponseSchema: z.ZodType<UpdateGlobalInitScriptResponse> =
   z.object({});
 
 export const marshalCreateGlobalInitScriptRequestSchema: z.ZodType = z

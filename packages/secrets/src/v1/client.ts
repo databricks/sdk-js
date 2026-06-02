@@ -19,26 +19,26 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AclItem,
   CreateScopeRequest,
-  CreateScopeRequest_Response,
+  CreateScopeResponse,
   DeleteAclRequest,
-  DeleteAclRequest_Response,
+  DeleteAclResponse,
   DeleteScopeRequest,
-  DeleteScopeRequest_Response,
+  DeleteScopeResponse,
   DeleteSecretRequest,
-  DeleteSecretRequest_Response,
+  DeleteSecretResponse,
   GetAclRequest,
   GetSecretRequest,
-  GetSecretRequest_Response,
+  GetSecretResponse,
   ListAclsRequest,
-  ListAclsRequest_Response,
+  ListAclsResponse,
   ListScopesRequest,
-  ListScopesRequest_Response,
+  ListScopesResponse,
   ListSecretsRequest,
-  ListSecretsRequest_Response,
+  ListSecretsResponse,
   PutAclRequest,
-  PutAclRequest_Response,
+  PutAclResponse,
   PutSecretRequest,
-  PutSecretRequest_Response,
+  PutSecretResponse,
 } from './model';
 import {
   marshalCreateScopeRequestSchema,
@@ -48,16 +48,16 @@ import {
   marshalPutAclRequestSchema,
   marshalPutSecretRequestSchema,
   unmarshalAclItemSchema,
-  unmarshalCreateScopeRequest_ResponseSchema,
-  unmarshalDeleteAclRequest_ResponseSchema,
-  unmarshalDeleteScopeRequest_ResponseSchema,
-  unmarshalDeleteSecretRequest_ResponseSchema,
-  unmarshalGetSecretRequest_ResponseSchema,
-  unmarshalListAclsRequest_ResponseSchema,
-  unmarshalListScopesRequest_ResponseSchema,
-  unmarshalListSecretsRequest_ResponseSchema,
-  unmarshalPutAclRequest_ResponseSchema,
-  unmarshalPutSecretRequest_ResponseSchema,
+  unmarshalCreateScopeResponseSchema,
+  unmarshalDeleteAclResponseSchema,
+  unmarshalDeleteScopeResponseSchema,
+  unmarshalDeleteSecretResponseSchema,
+  unmarshalGetSecretResponseSchema,
+  unmarshalListAclsResponseSchema,
+  unmarshalListScopesResponseSchema,
+  unmarshalListSecretsResponseSchema,
+  unmarshalPutAclResponseSchema,
+  unmarshalPutSecretResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -139,10 +139,10 @@ export class SecretsClient {
   async createScope(
     req: CreateScopeRequest,
     options?: CallOptions
-  ): Promise<CreateScopeRequest_Response> {
+  ): Promise<CreateScopeResponse> {
     const url = `${this.host}/api/2.0/secrets/scopes/create`;
     const body = marshalRequest(req, marshalCreateScopeRequestSchema);
-    let resp: CreateScopeRequest_Response | undefined;
+    let resp: CreateScopeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -155,10 +155,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateScopeRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateScopeResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -188,10 +185,10 @@ export class SecretsClient {
   async deleteAcl(
     req: DeleteAclRequest,
     options?: CallOptions
-  ): Promise<DeleteAclRequest_Response> {
+  ): Promise<DeleteAclResponse> {
     const url = `${this.host}/api/2.0/secrets/acls/delete`;
     const body = marshalRequest(req, marshalDeleteAclRequestSchema);
-    let resp: DeleteAclRequest_Response | undefined;
+    let resp: DeleteAclResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -204,7 +201,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteAclRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteAclResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -231,10 +228,10 @@ export class SecretsClient {
   async deleteScope(
     req: DeleteScopeRequest,
     options?: CallOptions
-  ): Promise<DeleteScopeRequest_Response> {
+  ): Promise<DeleteScopeResponse> {
     const url = `${this.host}/api/2.0/secrets/scopes/delete`;
     const body = marshalRequest(req, marshalDeleteScopeRequestSchema);
-    let resp: DeleteScopeRequest_Response | undefined;
+    let resp: DeleteScopeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -247,10 +244,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteScopeRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteScopeResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -279,10 +273,10 @@ export class SecretsClient {
   async deleteSecret(
     req: DeleteSecretRequest,
     options?: CallOptions
-  ): Promise<DeleteSecretRequest_Response> {
+  ): Promise<DeleteSecretResponse> {
     const url = `${this.host}/api/2.0/secrets/delete`;
     const body = marshalRequest(req, marshalDeleteSecretRequestSchema);
-    let resp: DeleteSecretRequest_Response | undefined;
+    let resp: DeleteSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -295,10 +289,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteSecretRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteSecretResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -391,7 +382,7 @@ export class SecretsClient {
   async getSecret(
     req: GetSecretRequest,
     options?: CallOptions
-  ): Promise<GetSecretRequest_Response> {
+  ): Promise<GetSecretResponse> {
     const url = `${this.host}/api/2.0/secrets/get`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -402,7 +393,7 @@ export class SecretsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetSecretRequest_Response | undefined;
+    let resp: GetSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -415,7 +406,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetSecretRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetSecretResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -449,7 +440,7 @@ export class SecretsClient {
   async listAcls(
     req: ListAclsRequest,
     options?: CallOptions
-  ): Promise<ListAclsRequest_Response> {
+  ): Promise<ListAclsResponse> {
     const url = `${this.host}/api/2.0/secrets/acls/list`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -457,7 +448,7 @@ export class SecretsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListAclsRequest_Response | undefined;
+    let resp: ListAclsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -470,7 +461,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListAclsRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListAclsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -501,9 +492,9 @@ export class SecretsClient {
   async listScopes(
     _req: ListScopesRequest,
     options?: CallOptions
-  ): Promise<ListScopesRequest_Response> {
+  ): Promise<ListScopesResponse> {
     const url = `${this.host}/api/2.0/secrets/scopes/list`;
-    let resp: ListScopesRequest_Response | undefined;
+    let resp: ListScopesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -516,7 +507,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListScopesRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListScopesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -555,7 +546,7 @@ export class SecretsClient {
   async listSecrets(
     req: ListSecretsRequest,
     options?: CallOptions
-  ): Promise<ListSecretsRequest_Response> {
+  ): Promise<ListSecretsResponse> {
     const url = `${this.host}/api/2.0/secrets/list`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -563,7 +554,7 @@ export class SecretsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSecretsRequest_Response | undefined;
+    let resp: ListSecretsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -576,10 +567,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSecretsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListSecretsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -625,10 +613,10 @@ export class SecretsClient {
   async putAcl(
     req: PutAclRequest,
     options?: CallOptions
-  ): Promise<PutAclRequest_Response> {
+  ): Promise<PutAclResponse> {
     const url = `${this.host}/api/2.0/secrets/acls/put`;
     const body = marshalRequest(req, marshalPutAclRequestSchema);
-    let resp: PutAclRequest_Response | undefined;
+    let resp: PutAclResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -641,7 +629,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPutAclRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPutAclResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -685,10 +673,10 @@ export class SecretsClient {
   async putSecret(
     req: PutSecretRequest,
     options?: CallOptions
-  ): Promise<PutSecretRequest_Response> {
+  ): Promise<PutSecretResponse> {
     const url = `${this.host}/api/2.0/secrets/put`;
     const body = marshalRequest(req, marshalPutSecretRequestSchema);
-    let resp: PutSecretRequest_Response | undefined;
+    let resp: PutSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -701,7 +689,7 @@ export class SecretsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPutSecretRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPutSecretResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

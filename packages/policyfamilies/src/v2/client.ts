@@ -18,11 +18,11 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetPolicyFamilyRequest,
   ListPolicyFamiliesRequest,
-  ListPolicyFamiliesRequest_Response,
+  ListPolicyFamiliesResponse,
   PolicyFamily,
 } from './model';
 import {
-  unmarshalListPolicyFamiliesRequest_ResponseSchema,
+  unmarshalListPolicyFamiliesResponseSchema,
   unmarshalPolicyFamilySchema,
 } from './model';
 
@@ -98,7 +98,7 @@ export class PolicyFamiliesClient {
   async listPolicyFamilies(
     req: ListPolicyFamiliesRequest,
     options?: CallOptions
-  ): Promise<ListPolicyFamiliesRequest_Response> {
+  ): Promise<ListPolicyFamiliesResponse> {
     const url = `${this.host}/api/2.0/policy-families`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -109,7 +109,7 @@ export class PolicyFamiliesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPolicyFamiliesRequest_Response | undefined;
+    let resp: ListPolicyFamiliesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -122,10 +122,7 @@ export class PolicyFamiliesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPolicyFamiliesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListPolicyFamiliesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

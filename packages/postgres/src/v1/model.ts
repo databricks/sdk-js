@@ -685,6 +685,14 @@ export enum SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy {
   SNAPSHOT = 'SNAPSHOT',
 }
 
+/** Databricks Error that is returned by all Databricks APIs. */
+export interface ApiError {
+  errorCode?: ErrorCode | undefined;
+  message?: string | undefined;
+  stackTrace?: string | undefined;
+  details?: Record<string, unknown>[] | undefined;
+}
+
 export interface Branch {
   /**
    * Output only. The full resource path of the branch.
@@ -1060,14 +1068,6 @@ export interface DatabaseCredential {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DatabaseOperationMetadata {}
-
-/** Databricks Error that is returned by all Databricks APIs. */
-export interface DatabricksServiceExceptionWithDetailsProto {
-  errorCode?: ErrorCode | undefined;
-  message?: string | undefined;
-  stackTrace?: string | undefined;
-  details?: Record<string, unknown>[] | undefined;
-}
 
 export interface DeleteBranchRequest {
   /**
@@ -1555,7 +1555,7 @@ export interface Operation {
     | {
         $case: 'error';
         /** The error result of the operation in case of failure or cancellation. */
-        error: DatabricksServiceExceptionWithDetailsProto;
+        error: ApiError;
       }
     | {
         $case: 'response';
@@ -2058,6 +2058,20 @@ export interface UpdateRoleRequest {
   updateMask?: FieldMask<Role> | undefined;
 }
 
+export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
+
 export const unmarshalBranchSchema: z.ZodType<Branch> = z
   .object({
     name: z.string().optional(),
@@ -2293,21 +2307,6 @@ export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> =
 export const unmarshalDatabaseOperationMetadataSchema: z.ZodType<DatabaseOperationMetadata> =
   z.object({});
 
-export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-      details: d.details,
-    }));
-
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
     .object({
@@ -2540,9 +2539,7 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     done: z.boolean().optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
   .transform(d => ({

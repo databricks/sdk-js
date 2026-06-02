@@ -59,8 +59,8 @@ export interface CreateScopeRequest {
   backendAzureKeyvault?: AzureKeyVaultSecretScopeMetadata | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CreateScopeRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateScopeResponse {}
 
 export interface DeleteAclRequest {
   /** The name of the scope to remove permissions from. */
@@ -69,16 +69,16 @@ export interface DeleteAclRequest {
   principal?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteAclRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteAclResponse {}
 
 export interface DeleteScopeRequest {
   /** Name of the scope to delete. */
   scope?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteScopeRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteScopeResponse {}
 
 export interface DeleteSecretRequest {
   /** The name of the scope that contains the secret to delete. */
@@ -87,8 +87,8 @@ export interface DeleteSecretRequest {
   key?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteSecretRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteSecretResponse {}
 
 export interface GetAclRequest {
   /** The name of the scope to fetch ACL information from. */
@@ -104,8 +104,7 @@ export interface GetSecretRequest {
   key?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetSecretRequest_Response {
+export interface GetSecretResponse {
   /** A unique name to identify the secret. */
   key?: string | undefined;
   /** The value of the secret in its byte representation. */
@@ -117,8 +116,7 @@ export interface ListAclsRequest {
   scope?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListAclsRequest_Response {
+export interface ListAclsResponse {
   /** The associated ACLs rule applied to principals in the given scope. */
   items?: AclItem[] | undefined;
 }
@@ -126,8 +124,7 @@ export interface ListAclsRequest_Response {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListScopesRequest {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListScopesRequest_Response {
+export interface ListScopesResponse {
   /** The available secret scopes. */
   scopes?: SecretScope[] | undefined;
 }
@@ -137,8 +134,7 @@ export interface ListSecretsRequest {
   scope?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSecretsRequest_Response {
+export interface ListSecretsResponse {
   /** Metadata information of all secrets contained within the given scope. */
   secrets?: SecretMetadata[] | undefined;
 }
@@ -152,8 +148,8 @@ export interface PutAclRequest {
   permission?: AclPermission | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PutAclRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PutAclResponse {}
 
 export interface PutSecretRequest {
   /** The name of the scope to which the secret will be associated with. */
@@ -174,8 +170,8 @@ export interface PutSecretRequest {
     | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PutSecretRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PutSecretResponse {}
 
 /**
  * The metadata about a secret. Returned when listing secrets. Does not contain the
@@ -223,49 +219,40 @@ export const unmarshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType<AzureKey
       dnsName: d.dns_name,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateScopeRequest_ResponseSchema: z.ZodType<CreateScopeRequest_Response> =
+export const unmarshalCreateScopeResponseSchema: z.ZodType<CreateScopeResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteAclRequest_ResponseSchema: z.ZodType<DeleteAclRequest_Response> =
+export const unmarshalDeleteAclResponseSchema: z.ZodType<DeleteAclResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteScopeRequest_ResponseSchema: z.ZodType<DeleteScopeRequest_Response> =
+export const unmarshalDeleteScopeResponseSchema: z.ZodType<DeleteScopeResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteSecretRequest_ResponseSchema: z.ZodType<DeleteSecretRequest_Response> =
+export const unmarshalDeleteSecretResponseSchema: z.ZodType<DeleteSecretResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetSecretRequest_ResponseSchema: z.ZodType<GetSecretRequest_Response> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z
-        .string()
-        .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-        .optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalGetSecretResponseSchema: z.ZodType<GetSecretResponse> = z
+  .object({
+    key: z.string().optional(),
+    value: z
+      .string()
+      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
+      .optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAclsRequest_ResponseSchema: z.ZodType<ListAclsRequest_Response> =
-  z
-    .object({
-      items: z.array(z.lazy(() => unmarshalAclItemSchema)).optional(),
-    })
-    .transform(d => ({
-      items: d.items,
-    }));
+export const unmarshalListAclsResponseSchema: z.ZodType<ListAclsResponse> = z
+  .object({
+    items: z.array(z.lazy(() => unmarshalAclItemSchema)).optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+  }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListScopesRequest_ResponseSchema: z.ZodType<ListScopesRequest_Response> =
+export const unmarshalListScopesResponseSchema: z.ZodType<ListScopesResponse> =
   z
     .object({
       scopes: z.array(z.lazy(() => unmarshalSecretScopeSchema)).optional(),
@@ -274,8 +261,7 @@ export const unmarshalListScopesRequest_ResponseSchema: z.ZodType<ListScopesRequ
       scopes: d.scopes,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSecretsRequest_ResponseSchema: z.ZodType<ListSecretsRequest_Response> =
+export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> =
   z
     .object({
       secrets: z.array(z.lazy(() => unmarshalSecretMetadataSchema)).optional(),
@@ -284,12 +270,10 @@ export const unmarshalListSecretsRequest_ResponseSchema: z.ZodType<ListSecretsRe
       secrets: d.secrets,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutAclRequest_ResponseSchema: z.ZodType<PutAclRequest_Response> =
+export const unmarshalPutAclResponseSchema: z.ZodType<PutAclResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutSecretRequest_ResponseSchema: z.ZodType<PutSecretRequest_Response> =
+export const unmarshalPutSecretResponseSchema: z.ZodType<PutSecretResponse> =
   z.object({});
 
 export const unmarshalSecretMetadataSchema: z.ZodType<SecretMetadata> = z

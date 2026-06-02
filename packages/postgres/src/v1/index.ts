@@ -41,6 +41,7 @@ export {
 } from './model';
 
 export type {
+  ApiError,
   Branch,
   BranchOperationMetadata,
   BranchSpec,
@@ -61,7 +62,6 @@ export type {
   Database_DatabaseStatus,
   DatabaseCredential,
   DatabaseOperationMetadata,
-  DatabricksServiceExceptionWithDetailsProto,
   DeleteBranchRequest,
   DeleteCatalogRequest,
   DeleteDatabaseRequest,

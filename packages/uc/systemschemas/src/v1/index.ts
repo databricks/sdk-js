@@ -4,10 +4,10 @@ export {SystemSchemasClient} from './client';
 
 export type {
   DisableSystemSchemaRequest,
-  DisableSystemSchemaRequest_Response,
+  DisableSystemSchemaResponse,
   EnableSystemSchemaRequest,
-  EnableSystemSchemaRequest_Response,
+  EnableSystemSchemaResponse,
   ListSystemSchemasRequest,
-  ListSystemSchemasRequest_Response,
+  ListSystemSchemasResponse,
   SystemSchemaInfo,
 } from './model';

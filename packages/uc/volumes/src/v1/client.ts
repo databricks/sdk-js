@@ -19,18 +19,18 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateVolumeRequest,
   DeleteVolumeRequest,
-  DeleteVolumeRequest_Response,
+  DeleteVolumeResponse,
   GetVolumeRequest,
   ListVolumesRequest,
-  ListVolumesRequest_Response,
+  ListVolumesResponse,
   UpdateVolumeRequest,
   VolumeInfo,
 } from './model';
 import {
   marshalCreateVolumeRequestSchema,
   marshalUpdateVolumeRequestSchema,
-  unmarshalDeleteVolumeRequest_ResponseSchema,
-  unmarshalListVolumesRequest_ResponseSchema,
+  unmarshalDeleteVolumeResponseSchema,
+  unmarshalListVolumesResponseSchema,
   unmarshalVolumeInfoSchema,
 } from './model';
 
@@ -126,9 +126,9 @@ export class VolumesClient {
   async deleteVolume(
     req: DeleteVolumeRequest,
     options?: CallOptions
-  ): Promise<DeleteVolumeRequest_Response> {
+  ): Promise<DeleteVolumeResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
-    let resp: DeleteVolumeRequest_Response | undefined;
+    let resp: DeleteVolumeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -141,10 +141,7 @@ export class VolumesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteVolumeRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteVolumeResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -213,7 +210,7 @@ export class VolumesClient {
   async listVolumes(
     req: ListVolumesRequest,
     options?: CallOptions
-  ): Promise<ListVolumesRequest_Response> {
+  ): Promise<ListVolumesResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -233,7 +230,7 @@ export class VolumesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListVolumesRequest_Response | undefined;
+    let resp: ListVolumesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -246,10 +243,7 @@ export class VolumesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListVolumesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListVolumesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

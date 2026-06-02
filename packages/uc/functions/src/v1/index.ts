@@ -18,7 +18,7 @@ export type {
   CreateFunctionRequest,
   CredentialDependency,
   DeleteFunctionRequest,
-  DeleteFunctionRequest_Response,
+  DeleteFunctionResponse,
   Dependency,
   DependencyList,
   FunctionDependency,
@@ -27,7 +27,7 @@ export type {
   FunctionParameterInfos,
   GetFunctionRequest,
   ListFunctionsRequest,
-  ListFunctionsRequest_Response,
+  ListFunctionsResponse,
   TableDependency,
   UpdateFunctionRequest,
 } from './model';

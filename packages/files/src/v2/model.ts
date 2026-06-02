@@ -9,16 +9,16 @@ export interface AddBlockRequest {
   data?: Uint8Array | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AddBlockRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AddBlockResponse {}
 
 export interface CloseRequest {
   /** The handle on an open stream. */
   handle?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CloseRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CloseResponse {}
 
 /** Create a directory */
 export interface CreateDirectoryRequest {
@@ -36,8 +36,7 @@ export interface CreateRequest {
   overwrite?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRequest_Response {
+export interface CreateResponse {
   /** Handle which should subsequently be passed into the AddBlock and Close calls when writing to a file through a stream. */
   handle?: bigint | undefined;
 }
@@ -67,8 +66,8 @@ export interface DeleteRequest {
   recursive?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteResponse {}
 
 export interface DirectoryEntry {
   /** The length of the file in bytes. This field is omitted for directories. */
@@ -162,8 +161,7 @@ export interface GetStatusRequest {
   path?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetStatusRequest_Response {
+export interface GetStatusResponse {
   /** The absolute path of the file or directory. */
   path?: string | undefined;
   /** True if the path is a directory. */
@@ -215,8 +213,7 @@ export interface ListStatusRequest {
   path?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListStatusRequest_Response {
+export interface ListStatusResponse {
   /** A list of FileInfo's that describe contents of directory or file. See example above. */
   files?: FileInfo[] | undefined;
 }
@@ -226,8 +223,8 @@ export interface MkDirsRequest {
   path?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface MkDirsRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface MkDirsResponse {}
 
 export interface MoveRequest {
   /** The source path of the file or directory. The path should be the absolute DBFS path. */
@@ -236,8 +233,8 @@ export interface MoveRequest {
   destinationPath?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface MoveRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface MoveResponse {}
 
 export interface PutRequest {
   /** The path of the new file. The path should be the absolute DBFS path. */
@@ -248,8 +245,8 @@ export interface PutRequest {
   overwrite?: boolean | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PutRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PutResponse {}
 
 export interface ReadRequest {
   /** The path of the file to read. The path should be the absolute DBFS path. */
@@ -263,8 +260,7 @@ export interface ReadRequest {
   length?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ReadRequest_Response {
+export interface ReadResponse {
   /**
    * The number of bytes read (could be less than ``length`` if we hit end of file). This refers to
    * number of bytes read in unencoded version (response data is base64-encoded).
@@ -286,29 +282,26 @@ export interface UploadFileRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UploadFileResponse {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAddBlockRequest_ResponseSchema: z.ZodType<AddBlockRequest_Response> =
+export const unmarshalAddBlockResponseSchema: z.ZodType<AddBlockResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCloseRequest_ResponseSchema: z.ZodType<CloseRequest_Response> =
-  z.object({});
+export const unmarshalCloseResponseSchema: z.ZodType<CloseResponse> = z.object(
+  {}
+);
 
 export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRequest_ResponseSchema: z.ZodType<CreateRequest_Response> =
-  z
-    .object({
-      handle: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-    })
-    .transform(d => ({
-      handle: d.handle,
-    }));
+export const unmarshalCreateResponseSchema: z.ZodType<CreateResponse> = z
+  .object({
+    handle: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    handle: d.handle,
+  }));
 
 export const unmarshalDeleteDirectoryResponseSchema: z.ZodType<DeleteDirectoryResponse> =
   z.object({});
@@ -316,8 +309,7 @@ export const unmarshalDeleteDirectoryResponseSchema: z.ZodType<DeleteDirectoryRe
 export const unmarshalDeleteFileResponseSchema: z.ZodType<DeleteFileResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> =
+export const unmarshalDeleteResponseSchema: z.ZodType<DeleteResponse> =
   z.object({});
 
 export const unmarshalDirectoryEntrySchema: z.ZodType<DirectoryEntry> = z
@@ -375,27 +367,25 @@ export const unmarshalGetFileMetadataResponseSchema: z.ZodType<GetFileMetadataRe
       lastModified: d['last-modified'],
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetStatusRequest_ResponseSchema: z.ZodType<GetStatusRequest_Response> =
-  z
-    .object({
-      path: z.string().optional(),
-      is_dir: z.boolean().optional(),
-      file_size: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-      modification_time: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-    })
-    .transform(d => ({
-      path: d.path,
-      isDir: d.is_dir,
-      fileSize: d.file_size,
-      modificationTime: d.modification_time,
-    }));
+export const unmarshalGetStatusResponseSchema: z.ZodType<GetStatusResponse> = z
+  .object({
+    path: z.string().optional(),
+    is_dir: z.boolean().optional(),
+    file_size: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    modification_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    isDir: d.is_dir,
+    fileSize: d.file_size,
+    modificationTime: d.modification_time,
+  }));
 
 export const unmarshalListDirectoryResponseSchema: z.ZodType<ListDirectoryResponse> =
   z
@@ -408,8 +398,7 @@ export const unmarshalListDirectoryResponseSchema: z.ZodType<ListDirectoryRespon
       nextPageToken: d.next_page_token,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListStatusRequest_ResponseSchema: z.ZodType<ListStatusRequest_Response> =
+export const unmarshalListStatusResponseSchema: z.ZodType<ListStatusResponse> =
   z
     .object({
       files: z.array(z.lazy(() => unmarshalFileInfoSchema)).optional(),
@@ -418,35 +407,30 @@ export const unmarshalListStatusRequest_ResponseSchema: z.ZodType<ListStatusRequ
       files: d.files,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalMkDirsRequest_ResponseSchema: z.ZodType<MkDirsRequest_Response> =
+export const unmarshalMkDirsResponseSchema: z.ZodType<MkDirsResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalMoveRequest_ResponseSchema: z.ZodType<MoveRequest_Response> =
-  z.object({});
+export const unmarshalMoveResponseSchema: z.ZodType<MoveResponse> = z.object(
+  {}
+);
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutRequest_ResponseSchema: z.ZodType<PutRequest_Response> =
-  z.object({});
+export const unmarshalPutResponseSchema: z.ZodType<PutResponse> = z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalReadRequest_ResponseSchema: z.ZodType<ReadRequest_Response> =
-  z
-    .object({
-      bytes_read: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-      data: z
-        .string()
-        .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-        .optional(),
-    })
-    .transform(d => ({
-      bytesRead: d.bytes_read,
-      data: d.data,
-    }));
+export const unmarshalReadResponseSchema: z.ZodType<ReadResponse> = z
+  .object({
+    bytes_read: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    data: z
+      .string()
+      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
+      .optional(),
+  })
+  .transform(d => ({
+    bytesRead: d.bytes_read,
+    data: d.data,
+  }));
 
 export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
   z.object({});

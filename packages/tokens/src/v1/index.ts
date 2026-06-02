@@ -6,12 +6,12 @@ export {AutoscopeState} from './model';
 
 export type {
   CreateTokenRequest,
-  CreateTokenRequest_Response,
+  CreateTokenResponse,
   ListTokensRequest,
-  ListTokensRequest_Response,
+  ListTokensResponse,
   PublicTokenInfo,
   RevokeTokenRequest,
-  RevokeTokenRequest_Response,
+  RevokeTokenResponse,
   UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';

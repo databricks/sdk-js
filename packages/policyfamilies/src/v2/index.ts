@@ -5,6 +5,6 @@ export {PolicyFamiliesClient} from './client';
 export type {
   GetPolicyFamilyRequest,
   ListPolicyFamiliesRequest,
-  ListPolicyFamiliesRequest_Response,
+  ListPolicyFamiliesResponse,
   PolicyFamily,
 } from './model';

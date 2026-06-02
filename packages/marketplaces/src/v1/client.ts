@@ -29,54 +29,58 @@ import type {
   CreateExchangeRequest,
   CreateExchangeResponse,
   CreateFileRequest,
-  CreateFileRequest_Response,
+  CreateFileResponse,
+  CreateInstallationResponse,
   CreateListingRequest,
-  CreateListingRequest_Response,
+  CreateListingResponse,
   CreatePersonalizationRequest,
-  CreatePersonalizationRequest_Response,
+  CreatePersonalizationResponse,
   CreateProviderAnalyticsDashboardRequest,
-  CreateProviderAnalyticsDashboardRequest_Response,
+  CreateProviderAnalyticsDashboardResponse,
   CreateProviderRequest,
-  CreateProviderRequest_Response,
+  CreateProviderResponse,
   DeleteExchangeFilterRequest,
   DeleteExchangeFilterResponse,
   DeleteExchangeRequest,
   DeleteExchangeResponse,
   DeleteFileRequest,
-  DeleteFileRequest_Response,
+  DeleteFileResponse,
+  DeleteInstallationResponse,
   DeleteListingRequest,
-  DeleteListingRequest_Response,
+  DeleteListingResponse,
   DeleteProviderRequest,
-  DeleteProviderRequest_Response,
+  DeleteProviderResponse,
   Exchange,
   ExchangeFilter,
   ExchangeListing,
   FileInfo,
+  GetAllPersonalizationRequestsForConsumerResponse,
   GetExchangeRequest,
   GetExchangeResponse,
   GetFileRequest,
-  GetFileRequest_Response,
+  GetFileResponse,
   GetInstallationDetails,
-  GetInstallationDetails_Response,
   GetLatestVersionProviderAnalyticsDashboardRequest,
-  GetLatestVersionProviderAnalyticsDashboardRequest_Response,
+  GetLatestVersionProviderAnalyticsDashboardResponse,
   GetListingContent,
-  GetListingContent_Response,
+  GetListingContentMetadataResponse,
   GetListingRequest,
-  GetListingRequest_Response,
+  GetListingResponse,
+  GetListingsResponse,
   GetPersonalizationRequestsForConsumer,
-  GetPersonalizationRequestsForConsumer_Response,
+  GetPersonalizationRequestsForConsumerResponse,
   GetPersonalizationRequestsForProviderRequest,
-  GetPersonalizationRequestsForProviderRequest_Response,
+  GetPersonalizationRequestsForProviderResponse,
   GetProviderRequest,
-  GetProviderRequest_Response,
+  GetProviderResponse,
   GetPublishedListingForConsumer,
-  GetPublishedListingForConsumer_Response,
+  GetPublishedListingForConsumerResponse,
+  GetPublishedListingsForConsumerResponse,
   GetPublishedProviderForConsumer,
-  GetPublishedProviderForConsumer_Response,
+  GetPublishedProviderForConsumerResponse,
   InstallListing,
-  InstallListing_Response,
   InstallationDetail,
+  ListAllInstallationsResponse,
   ListExchangeFiltersRequest,
   ListExchangeFiltersResponse,
   ListExchangesForListingRequest,
@@ -84,25 +88,22 @@ import type {
   ListExchangesRequest,
   ListExchangesResponse,
   ListFilesRequest,
-  ListFilesRequest_Response,
+  ListFilesResponse,
+  ListFulfillmentsResponse,
   ListInstallationsRequest,
-  ListInstallationsRequest_Response,
+  ListInstallationsResponse,
   ListListingFulfillmentsRequest,
-  ListListingFulfillmentsRequest_Response,
   ListListingsForExchangeRequest,
   ListListingsForExchangeResponse,
   ListListingsRequest,
-  ListListingsRequest_Response,
   ListPersonalizationRequestsForConsumerRequest,
-  ListPersonalizationRequestsForConsumerRequest_Response,
   ListProviderAnalyticsDashboardRequest,
-  ListProviderAnalyticsDashboardRequest_Response,
+  ListProviderAnalyticsDashboardResponse,
   ListProvidersRequest,
-  ListProvidersRequest_Response,
+  ListProvidersResponse,
   ListPublishedListingsForConsumerRequest,
-  ListPublishedListingsForConsumerRequest_Response,
   ListPublishedProvidersForConsumer,
-  ListPublishedProvidersForConsumer_Response,
+  ListPublishedProvidersForConsumerResponse,
   Listing,
   ListingFulfillment,
   PersonalizationRequest,
@@ -110,24 +111,23 @@ import type {
   RemoveExchangeForListingRequest,
   RemoveExchangeForListingResponse,
   SearchPublishedListingsForConsumer,
-  SearchPublishedListingsForConsumer_Response,
+  SearchPublishedListingsForConsumerResponse,
   SharedDataObject,
   UninstallListing,
-  UninstallListing_Response,
   UpdateExchangeFilterRequest,
   UpdateExchangeFilterResponse,
   UpdateExchangeRequest,
   UpdateExchangeResponse,
   UpdateInstallationDetail,
-  UpdateInstallationDetail_Response,
+  UpdateInstallationResponse,
   UpdateListingRequest,
-  UpdateListingRequest_Response,
+  UpdateListingResponse,
   UpdatePersonalizationRequestStatusRequest,
-  UpdatePersonalizationRequestStatusRequest_Response,
+  UpdatePersonalizationRequestStatusResponse,
   UpdateProviderAnalyticsDashboardRequest,
-  UpdateProviderAnalyticsDashboardRequest_Response,
+  UpdateProviderAnalyticsDashboardResponse,
   UpdateProviderRequest,
-  UpdateProviderRequest_Response,
+  UpdateProviderResponse,
 } from './model';
 import {
   marshalAddExchangeForListingRequestSchema,
@@ -153,51 +153,51 @@ import {
   unmarshalBatchGetProvidersResponseSchema,
   unmarshalCreateExchangeFilterResponseSchema,
   unmarshalCreateExchangeResponseSchema,
-  unmarshalCreateFileRequest_ResponseSchema,
-  unmarshalCreateListingRequest_ResponseSchema,
-  unmarshalCreatePersonalizationRequest_ResponseSchema,
-  unmarshalCreateProviderAnalyticsDashboardRequest_ResponseSchema,
-  unmarshalCreateProviderRequest_ResponseSchema,
+  unmarshalCreateFileResponseSchema,
+  unmarshalCreateInstallationResponseSchema,
+  unmarshalCreateListingResponseSchema,
+  unmarshalCreatePersonalizationResponseSchema,
+  unmarshalCreateProviderAnalyticsDashboardResponseSchema,
+  unmarshalCreateProviderResponseSchema,
   unmarshalDeleteExchangeFilterResponseSchema,
   unmarshalDeleteExchangeResponseSchema,
-  unmarshalDeleteFileRequest_ResponseSchema,
-  unmarshalDeleteListingRequest_ResponseSchema,
-  unmarshalDeleteProviderRequest_ResponseSchema,
+  unmarshalDeleteFileResponseSchema,
+  unmarshalDeleteInstallationResponseSchema,
+  unmarshalDeleteListingResponseSchema,
+  unmarshalDeleteProviderResponseSchema,
+  unmarshalGetAllPersonalizationRequestsForConsumerResponseSchema,
   unmarshalGetExchangeResponseSchema,
-  unmarshalGetFileRequest_ResponseSchema,
-  unmarshalGetInstallationDetails_ResponseSchema,
-  unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema,
-  unmarshalGetListingContent_ResponseSchema,
-  unmarshalGetListingRequest_ResponseSchema,
-  unmarshalGetPersonalizationRequestsForConsumer_ResponseSchema,
-  unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema,
-  unmarshalGetProviderRequest_ResponseSchema,
-  unmarshalGetPublishedListingForConsumer_ResponseSchema,
-  unmarshalGetPublishedProviderForConsumer_ResponseSchema,
-  unmarshalInstallListing_ResponseSchema,
+  unmarshalGetFileResponseSchema,
+  unmarshalGetLatestVersionProviderAnalyticsDashboardResponseSchema,
+  unmarshalGetListingContentMetadataResponseSchema,
+  unmarshalGetListingResponseSchema,
+  unmarshalGetListingsResponseSchema,
+  unmarshalGetPersonalizationRequestsForConsumerResponseSchema,
+  unmarshalGetPersonalizationRequestsForProviderResponseSchema,
+  unmarshalGetProviderResponseSchema,
+  unmarshalGetPublishedListingForConsumerResponseSchema,
+  unmarshalGetPublishedListingsForConsumerResponseSchema,
+  unmarshalGetPublishedProviderForConsumerResponseSchema,
+  unmarshalListAllInstallationsResponseSchema,
   unmarshalListExchangeFiltersResponseSchema,
   unmarshalListExchangesForListingResponseSchema,
   unmarshalListExchangesResponseSchema,
-  unmarshalListFilesRequest_ResponseSchema,
-  unmarshalListInstallationsRequest_ResponseSchema,
-  unmarshalListListingFulfillmentsRequest_ResponseSchema,
+  unmarshalListFilesResponseSchema,
+  unmarshalListFulfillmentsResponseSchema,
+  unmarshalListInstallationsResponseSchema,
   unmarshalListListingsForExchangeResponseSchema,
-  unmarshalListListingsRequest_ResponseSchema,
-  unmarshalListPersonalizationRequestsForConsumerRequest_ResponseSchema,
-  unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema,
-  unmarshalListProvidersRequest_ResponseSchema,
-  unmarshalListPublishedListingsForConsumerRequest_ResponseSchema,
-  unmarshalListPublishedProvidersForConsumer_ResponseSchema,
+  unmarshalListProviderAnalyticsDashboardResponseSchema,
+  unmarshalListProvidersResponseSchema,
+  unmarshalListPublishedProvidersForConsumerResponseSchema,
   unmarshalRemoveExchangeForListingResponseSchema,
-  unmarshalSearchPublishedListingsForConsumer_ResponseSchema,
-  unmarshalUninstallListing_ResponseSchema,
+  unmarshalSearchPublishedListingsForConsumerResponseSchema,
   unmarshalUpdateExchangeFilterResponseSchema,
   unmarshalUpdateExchangeResponseSchema,
-  unmarshalUpdateInstallationDetail_ResponseSchema,
-  unmarshalUpdateListingRequest_ResponseSchema,
-  unmarshalUpdatePersonalizationRequestStatusRequest_ResponseSchema,
-  unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema,
-  unmarshalUpdateProviderRequest_ResponseSchema,
+  unmarshalUpdateInstallationResponseSchema,
+  unmarshalUpdateListingResponseSchema,
+  unmarshalUpdatePersonalizationRequestStatusResponseSchema,
+  unmarshalUpdateProviderAnalyticsDashboardResponseSchema,
+  unmarshalUpdateProviderResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -306,10 +306,10 @@ export class MarketplacesClient {
   async createPersonalizationRequest(
     req: CreatePersonalizationRequest,
     options?: CallOptions
-  ): Promise<CreatePersonalizationRequest_Response> {
+  ): Promise<CreatePersonalizationResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     const body = marshalRequest(req, marshalCreatePersonalizationRequestSchema);
-    let resp: CreatePersonalizationRequest_Response | undefined;
+    let resp: CreatePersonalizationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -324,7 +324,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreatePersonalizationRequest_ResponseSchema
+        unmarshalCreatePersonalizationResponseSchema
       );
     };
     await executeCall(call, options);
@@ -338,7 +338,7 @@ export class MarketplacesClient {
   async getInstallationDetails(
     req: GetInstallationDetails,
     options?: CallOptions
-  ): Promise<GetInstallationDetails_Response> {
+  ): Promise<ListInstallationsResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -349,7 +349,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetInstallationDetails_Response | undefined;
+    let resp: ListInstallationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -362,10 +362,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetInstallationDetails_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListInstallationsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -395,7 +392,7 @@ export class MarketplacesClient {
   async getListingContent(
     req: GetListingContent,
     options?: CallOptions
-  ): Promise<GetListingContent_Response> {
+  ): Promise<GetListingContentMetadataResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -406,7 +403,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetListingContent_Response | undefined;
+    let resp: GetListingContentMetadataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -419,7 +416,10 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetListingContent_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetListingContentMetadataResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -449,9 +449,9 @@ export class MarketplacesClient {
   async getPersonalizationRequestsForConsumer(
     req: GetPersonalizationRequestsForConsumer,
     options?: CallOptions
-  ): Promise<GetPersonalizationRequestsForConsumer_Response> {
+  ): Promise<GetPersonalizationRequestsForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
-    let resp: GetPersonalizationRequestsForConsumer_Response | undefined;
+    let resp: GetPersonalizationRequestsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -466,7 +466,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPersonalizationRequestsForConsumer_ResponseSchema
+        unmarshalGetPersonalizationRequestsForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -480,9 +480,9 @@ export class MarketplacesClient {
   async getPublishedListingForConsumer(
     req: GetPublishedListingForConsumer,
     options?: CallOptions
-  ): Promise<GetPublishedListingForConsumer_Response> {
+  ): Promise<GetPublishedListingForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.id ?? ''}`;
-    let resp: GetPublishedListingForConsumer_Response | undefined;
+    let resp: GetPublishedListingForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -497,7 +497,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPublishedListingForConsumer_ResponseSchema
+        unmarshalGetPublishedListingForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -511,9 +511,9 @@ export class MarketplacesClient {
   async getPublishedProviderForConsumer(
     req: GetPublishedProviderForConsumer,
     options?: CallOptions
-  ): Promise<GetPublishedProviderForConsumer_Response> {
+  ): Promise<GetPublishedProviderForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/providers/${req.id ?? ''}`;
-    let resp: GetPublishedProviderForConsumer_Response | undefined;
+    let resp: GetPublishedProviderForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -528,7 +528,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPublishedProviderForConsumer_ResponseSchema
+        unmarshalGetPublishedProviderForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -542,10 +542,10 @@ export class MarketplacesClient {
   async installListing(
     req: InstallListing,
     options?: CallOptions
-  ): Promise<InstallListing_Response> {
+  ): Promise<CreateInstallationResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const body = marshalRequest(req, marshalInstallListingSchema);
-    let resp: InstallListing_Response | undefined;
+    let resp: CreateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -558,7 +558,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalInstallListing_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateInstallationResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -571,7 +571,7 @@ export class MarketplacesClient {
   async listInstallations(
     req: ListInstallationsRequest,
     options?: CallOptions
-  ): Promise<ListInstallationsRequest_Response> {
+  ): Promise<ListAllInstallationsResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -582,7 +582,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListInstallationsRequest_Response | undefined;
+    let resp: ListAllInstallationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -597,7 +597,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListInstallationsRequest_ResponseSchema
+        unmarshalListAllInstallationsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -632,7 +632,7 @@ export class MarketplacesClient {
   async listListingFulfillments(
     req: ListListingFulfillmentsRequest,
     options?: CallOptions
-  ): Promise<ListListingFulfillmentsRequest_Response> {
+  ): Promise<ListFulfillmentsResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -643,7 +643,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListListingFulfillmentsRequest_Response | undefined;
+    let resp: ListFulfillmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -656,10 +656,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListListingFulfillmentsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListFulfillmentsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -689,7 +686,7 @@ export class MarketplacesClient {
   async listPersonalizationRequestsForConsumer(
     req: ListPersonalizationRequestsForConsumerRequest,
     options?: CallOptions
-  ): Promise<ListPersonalizationRequestsForConsumerRequest_Response> {
+  ): Promise<GetAllPersonalizationRequestsForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -700,9 +697,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp:
-      | ListPersonalizationRequestsForConsumerRequest_Response
-      | undefined;
+    let resp: GetAllPersonalizationRequestsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -717,7 +712,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPersonalizationRequestsForConsumerRequest_ResponseSchema
+        unmarshalGetAllPersonalizationRequestsForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -751,7 +746,7 @@ export class MarketplacesClient {
   async listPublishedListingsForConsumer(
     req: ListPublishedListingsForConsumerRequest,
     options?: CallOptions
-  ): Promise<ListPublishedListingsForConsumerRequest_Response> {
+  ): Promise<GetPublishedListingsForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -787,7 +782,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPublishedListingsForConsumerRequest_Response | undefined;
+    let resp: GetPublishedListingsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -802,7 +797,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPublishedListingsForConsumerRequest_ResponseSchema
+        unmarshalGetPublishedListingsForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -836,7 +831,7 @@ export class MarketplacesClient {
   async listPublishedProvidersForConsumer(
     req: ListPublishedProvidersForConsumer,
     options?: CallOptions
-  ): Promise<ListPublishedProvidersForConsumer_Response> {
+  ): Promise<ListPublishedProvidersForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -850,7 +845,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPublishedProvidersForConsumer_Response | undefined;
+    let resp: ListPublishedProvidersForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -865,7 +860,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPublishedProvidersForConsumer_ResponseSchema
+        unmarshalListPublishedProvidersForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -902,7 +897,7 @@ export class MarketplacesClient {
   async searchPublishedListingsForConsumer(
     req: SearchPublishedListingsForConsumer,
     options?: CallOptions
-  ): Promise<SearchPublishedListingsForConsumer_Response> {
+  ): Promise<SearchPublishedListingsForConsumerResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/search-listings`;
     const params = new URLSearchParams();
     if (req.query !== undefined) {
@@ -931,7 +926,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: SearchPublishedListingsForConsumer_Response | undefined;
+    let resp: SearchPublishedListingsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -946,7 +941,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalSearchPublishedListingsForConsumer_ResponseSchema
+        unmarshalSearchPublishedListingsForConsumerResponseSchema
       );
     };
     await executeCall(call, options);
@@ -980,9 +975,9 @@ export class MarketplacesClient {
   async uninstallListing(
     req: UninstallListing,
     options?: CallOptions
-  ): Promise<UninstallListing_Response> {
+  ): Promise<DeleteInstallationResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
-    let resp: UninstallListing_Response | undefined;
+    let resp: DeleteInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -995,7 +990,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUninstallListing_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteInstallationResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1013,10 +1008,10 @@ export class MarketplacesClient {
   async updateInstallationDetail(
     req: UpdateInstallationDetail,
     options?: CallOptions
-  ): Promise<UpdateInstallationDetail_Response> {
+  ): Promise<UpdateInstallationResponse> {
     const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateInstallationDetailSchema);
-    let resp: UpdateInstallationDetail_Response | undefined;
+    let resp: UpdateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1029,10 +1024,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateInstallationDetail_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateInstallationResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1138,10 +1130,10 @@ export class MarketplacesClient {
   async createFile(
     req: CreateFileRequest,
     options?: CallOptions
-  ): Promise<CreateFileRequest_Response> {
+  ): Promise<CreateFileResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/files`;
     const body = marshalRequest(req, marshalCreateFileRequestSchema);
-    let resp: CreateFileRequest_Response | undefined;
+    let resp: CreateFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1154,7 +1146,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateFileRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateFileResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1167,10 +1159,10 @@ export class MarketplacesClient {
   async createListing(
     req: CreateListingRequest,
     options?: CallOptions
-  ): Promise<CreateListingRequest_Response> {
+  ): Promise<CreateListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/listing`;
     const body = marshalRequest(req, marshalCreateListingRequestSchema);
-    let resp: CreateListingRequest_Response | undefined;
+    let resp: CreateListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1183,10 +1175,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateListingRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateListingResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1199,10 +1188,10 @@ export class MarketplacesClient {
   async createProvider(
     req: CreateProviderRequest,
     options?: CallOptions
-  ): Promise<CreateProviderRequest_Response> {
+  ): Promise<CreateProviderResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/provider`;
     const body = marshalRequest(req, marshalCreateProviderRequestSchema);
-    let resp: CreateProviderRequest_Response | undefined;
+    let resp: CreateProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1215,10 +1204,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateProviderRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateProviderResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1231,13 +1217,13 @@ export class MarketplacesClient {
   async createProviderAnalyticsDashboard(
     req: CreateProviderAnalyticsDashboardRequest,
     options?: CallOptions
-  ): Promise<CreateProviderAnalyticsDashboardRequest_Response> {
+  ): Promise<CreateProviderAnalyticsDashboardResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
     const body = marshalRequest(
       req,
       marshalCreateProviderAnalyticsDashboardRequestSchema
     );
-    let resp: CreateProviderAnalyticsDashboardRequest_Response | undefined;
+    let resp: CreateProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -1252,7 +1238,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateProviderAnalyticsDashboardRequest_ResponseSchema
+        unmarshalCreateProviderAnalyticsDashboardResponseSchema
       );
     };
     await executeCall(call, options);
@@ -1325,9 +1311,9 @@ export class MarketplacesClient {
   async deleteFile(
     req: DeleteFileRequest,
     options?: CallOptions
-  ): Promise<DeleteFileRequest_Response> {
+  ): Promise<DeleteFileResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
-    let resp: DeleteFileRequest_Response | undefined;
+    let resp: DeleteFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1340,7 +1326,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteFileRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteFileResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1353,9 +1339,9 @@ export class MarketplacesClient {
   async deleteListing(
     req: DeleteListingRequest,
     options?: CallOptions
-  ): Promise<DeleteListingRequest_Response> {
+  ): Promise<DeleteListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
-    let resp: DeleteListingRequest_Response | undefined;
+    let resp: DeleteListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1368,10 +1354,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteListingRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteListingResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1384,9 +1367,9 @@ export class MarketplacesClient {
   async deleteProvider(
     req: DeleteProviderRequest,
     options?: CallOptions
-  ): Promise<DeleteProviderRequest_Response> {
+  ): Promise<DeleteProviderResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
-    let resp: DeleteProviderRequest_Response | undefined;
+    let resp: DeleteProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1399,10 +1382,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteProviderRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteProviderResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1443,9 +1423,9 @@ export class MarketplacesClient {
   async getFile(
     req: GetFileRequest,
     options?: CallOptions
-  ): Promise<GetFileRequest_Response> {
+  ): Promise<GetFileResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
-    let resp: GetFileRequest_Response | undefined;
+    let resp: GetFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1458,7 +1438,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetFileRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetFileResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1471,11 +1451,9 @@ export class MarketplacesClient {
   async getLatestVersionProviderAnalyticsDashboard(
     _req: GetLatestVersionProviderAnalyticsDashboardRequest,
     options?: CallOptions
-  ): Promise<GetLatestVersionProviderAnalyticsDashboardRequest_Response> {
+  ): Promise<GetLatestVersionProviderAnalyticsDashboardResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/latest`;
-    let resp:
-      | GetLatestVersionProviderAnalyticsDashboardRequest_Response
-      | undefined;
+    let resp: GetLatestVersionProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1490,7 +1468,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema
+        unmarshalGetLatestVersionProviderAnalyticsDashboardResponseSchema
       );
     };
     await executeCall(call, options);
@@ -1504,9 +1482,9 @@ export class MarketplacesClient {
   async getListing(
     req: GetListingRequest,
     options?: CallOptions
-  ): Promise<GetListingRequest_Response> {
+  ): Promise<GetListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
-    let resp: GetListingRequest_Response | undefined;
+    let resp: GetListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1519,7 +1497,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetListingRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetListingResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1535,7 +1513,7 @@ export class MarketplacesClient {
   async getPersonalizationRequestsForProvider(
     req: GetPersonalizationRequestsForProviderRequest,
     options?: CallOptions
-  ): Promise<GetPersonalizationRequestsForProviderRequest_Response> {
+  ): Promise<GetPersonalizationRequestsForProviderResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -1546,7 +1524,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPersonalizationRequestsForProviderRequest_Response | undefined;
+    let resp: GetPersonalizationRequestsForProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1561,7 +1539,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema
+        unmarshalGetPersonalizationRequestsForProviderResponseSchema
       );
     };
     await executeCall(call, options);
@@ -1595,9 +1573,9 @@ export class MarketplacesClient {
   async getProvider(
     req: GetProviderRequest,
     options?: CallOptions
-  ): Promise<GetProviderRequest_Response> {
+  ): Promise<GetProviderResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
-    let resp: GetProviderRequest_Response | undefined;
+    let resp: GetProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1610,10 +1588,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetProviderRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetProviderResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1800,7 +1775,7 @@ export class MarketplacesClient {
   async listFiles(
     req: ListFilesRequest,
     options?: CallOptions
-  ): Promise<ListFilesRequest_Response> {
+  ): Promise<ListFilesResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/files`;
     const params = new URLSearchParams();
     if (req.fileParent !== undefined) {
@@ -1818,7 +1793,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListFilesRequest_Response | undefined;
+    let resp: ListFilesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1831,7 +1806,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListFilesRequest_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListFilesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1861,7 +1836,7 @@ export class MarketplacesClient {
   async listListings(
     req: ListListingsRequest,
     options?: CallOptions
-  ): Promise<ListListingsRequest_Response> {
+  ): Promise<GetListingsResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -1872,7 +1847,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListListingsRequest_Response | undefined;
+    let resp: GetListingsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1885,10 +1860,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListListingsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetListingsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1978,9 +1950,9 @@ export class MarketplacesClient {
   async listProviderAnalyticsDashboard(
     _req: ListProviderAnalyticsDashboardRequest,
     options?: CallOptions
-  ): Promise<ListProviderAnalyticsDashboardRequest_Response> {
+  ): Promise<ListProviderAnalyticsDashboardResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
-    let resp: ListProviderAnalyticsDashboardRequest_Response | undefined;
+    let resp: ListProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -1995,7 +1967,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema
+        unmarshalListProviderAnalyticsDashboardResponseSchema
       );
     };
     await executeCall(call, options);
@@ -2009,7 +1981,7 @@ export class MarketplacesClient {
   async listProviders(
     req: ListProvidersRequest,
     options?: CallOptions
-  ): Promise<ListProvidersRequest_Response> {
+  ): Promise<ListProvidersResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -2020,7 +1992,7 @@ export class MarketplacesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListProvidersRequest_Response | undefined;
+    let resp: ListProvidersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -2033,10 +2005,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListProvidersRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListProvidersResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -2158,10 +2127,10 @@ export class MarketplacesClient {
   async updateListing(
     req: UpdateListingRequest,
     options?: CallOptions
-  ): Promise<UpdateListingRequest_Response> {
+  ): Promise<UpdateListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateListingRequestSchema);
-    let resp: UpdateListingRequest_Response | undefined;
+    let resp: UpdateListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -2174,10 +2143,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateListingRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateListingResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -2190,13 +2156,13 @@ export class MarketplacesClient {
   async updatePersonalizationRequestStatus(
     req: UpdatePersonalizationRequestStatusRequest,
     options?: CallOptions
-  ): Promise<UpdatePersonalizationRequestStatusRequest_Response> {
+  ): Promise<UpdatePersonalizationRequestStatusResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
     const body = marshalRequest(
       req,
       marshalUpdatePersonalizationRequestStatusRequestSchema
     );
-    let resp: UpdatePersonalizationRequestStatusRequest_Response | undefined;
+    let resp: UpdatePersonalizationRequestStatusResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -2211,7 +2177,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdatePersonalizationRequestStatusRequest_ResponseSchema
+        unmarshalUpdatePersonalizationRequestStatusResponseSchema
       );
     };
     await executeCall(call, options);
@@ -2225,10 +2191,10 @@ export class MarketplacesClient {
   async updateProvider(
     req: UpdateProviderRequest,
     options?: CallOptions
-  ): Promise<UpdateProviderRequest_Response> {
+  ): Promise<UpdateProviderResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateProviderRequestSchema);
-    let resp: UpdateProviderRequest_Response | undefined;
+    let resp: UpdateProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -2241,10 +2207,7 @@ export class MarketplacesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateProviderRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUpdateProviderResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -2257,13 +2220,13 @@ export class MarketplacesClient {
   async updateProviderAnalyticsDashboard(
     req: UpdateProviderAnalyticsDashboardRequest,
     options?: CallOptions
-  ): Promise<UpdateProviderAnalyticsDashboardRequest_Response> {
+  ): Promise<UpdateProviderAnalyticsDashboardResponse> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateProviderAnalyticsDashboardRequestSchema
     );
-    let resp: UpdateProviderAnalyticsDashboardRequest_Response | undefined;
+    let resp: UpdateProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -2278,7 +2241,7 @@ export class MarketplacesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema
+        unmarshalUpdateProviderAnalyticsDashboardResponseSchema
       );
     };
     await executeCall(call, options);

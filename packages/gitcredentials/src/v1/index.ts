@@ -4,14 +4,14 @@ export {GitCredentialsClient} from './client';
 
 export type {
   CreateCredentialsRequest,
-  CreateCredentialsRequest_Response,
+  CreateCredentialsResponse,
   Credential,
   DeleteCredentialsRequest,
-  DeleteCredentialsRequest_Response,
+  DeleteCredentialsResponse,
   GetCredentialsRequest,
-  GetCredentialsRequest_Response,
+  GetCredentialsResponse,
   ListCredentialsRequest,
-  ListCredentialsRequest_Response,
+  ListCredentialsResponse,
   UpdateCredentialsRequest,
-  UpdateCredentialsRequest_Response,
+  UpdateCredentialsResponse,
 } from './model';

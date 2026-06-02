@@ -18,25 +18,25 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateInstancePoolRequest,
-  CreateInstancePoolRequest_Response,
+  CreateInstancePoolResponse,
   DeleteInstancePoolRequest,
-  DeleteInstancePoolRequest_Response,
+  DeleteInstancePoolResponse,
   EditInstancePoolRequest,
-  EditInstancePoolRequest_Response,
+  EditInstancePoolResponse,
   GetInstancePoolRequest,
-  GetInstancePoolRequest_Response,
+  GetInstancePoolResponse,
   ListInstancePoolsRequest,
-  ListInstancePoolsRequest_Response,
+  ListInstancePoolsResponse,
 } from './model';
 import {
   marshalCreateInstancePoolRequestSchema,
   marshalDeleteInstancePoolRequestSchema,
   marshalEditInstancePoolRequestSchema,
-  unmarshalCreateInstancePoolRequest_ResponseSchema,
-  unmarshalDeleteInstancePoolRequest_ResponseSchema,
-  unmarshalEditInstancePoolRequest_ResponseSchema,
-  unmarshalGetInstancePoolRequest_ResponseSchema,
-  unmarshalListInstancePoolsRequest_ResponseSchema,
+  unmarshalCreateInstancePoolResponseSchema,
+  unmarshalDeleteInstancePoolResponseSchema,
+  unmarshalEditInstancePoolResponseSchema,
+  unmarshalGetInstancePoolResponseSchema,
+  unmarshalListInstancePoolsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -77,10 +77,10 @@ export class InstancePoolsClient {
   async createInstancePool(
     req: CreateInstancePoolRequest,
     options?: CallOptions
-  ): Promise<CreateInstancePoolRequest_Response> {
+  ): Promise<CreateInstancePoolResponse> {
     const url = `${this.host}/api/2.0/instance-pools/create`;
     const body = marshalRequest(req, marshalCreateInstancePoolRequestSchema);
-    let resp: CreateInstancePoolRequest_Response | undefined;
+    let resp: CreateInstancePoolResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -93,10 +93,7 @@ export class InstancePoolsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateInstancePoolRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalCreateInstancePoolResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -109,10 +106,10 @@ export class InstancePoolsClient {
   async deleteInstancePool(
     req: DeleteInstancePoolRequest,
     options?: CallOptions
-  ): Promise<DeleteInstancePoolRequest_Response> {
+  ): Promise<DeleteInstancePoolResponse> {
     const url = `${this.host}/api/2.0/instance-pools/delete`;
     const body = marshalRequest(req, marshalDeleteInstancePoolRequestSchema);
-    let resp: DeleteInstancePoolRequest_Response | undefined;
+    let resp: DeleteInstancePoolResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -125,10 +122,7 @@ export class InstancePoolsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteInstancePoolRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalDeleteInstancePoolResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -141,10 +135,10 @@ export class InstancePoolsClient {
   async editInstancePool(
     req: EditInstancePoolRequest,
     options?: CallOptions
-  ): Promise<EditInstancePoolRequest_Response> {
+  ): Promise<EditInstancePoolResponse> {
     const url = `${this.host}/api/2.0/instance-pools/edit`;
     const body = marshalRequest(req, marshalEditInstancePoolRequestSchema);
-    let resp: EditInstancePoolRequest_Response | undefined;
+    let resp: EditInstancePoolResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -157,10 +151,7 @@ export class InstancePoolsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalEditInstancePoolRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalEditInstancePoolResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -173,7 +164,7 @@ export class InstancePoolsClient {
   async getInstancePool(
     req: GetInstancePoolRequest,
     options?: CallOptions
-  ): Promise<GetInstancePoolRequest_Response> {
+  ): Promise<GetInstancePoolResponse> {
     const url = `${this.host}/api/2.0/instance-pools/get`;
     const params = new URLSearchParams();
     if (req.instancePoolId !== undefined) {
@@ -181,7 +172,7 @@ export class InstancePoolsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetInstancePoolRequest_Response | undefined;
+    let resp: GetInstancePoolResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -194,10 +185,7 @@ export class InstancePoolsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetInstancePoolRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalGetInstancePoolResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -210,9 +198,9 @@ export class InstancePoolsClient {
   async listInstancePools(
     _req: ListInstancePoolsRequest,
     options?: CallOptions
-  ): Promise<ListInstancePoolsRequest_Response> {
+  ): Promise<ListInstancePoolsResponse> {
     const url = `${this.host}/api/2.0/instance-pools/list`;
-    let resp: ListInstancePoolsRequest_Response | undefined;
+    let resp: ListInstancePoolsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -225,10 +213,7 @@ export class InstancePoolsClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListInstancePoolsRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListInstancePoolsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

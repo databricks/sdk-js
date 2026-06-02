@@ -33,8 +33,7 @@ export interface GetQuotaRequest {
   quotaName?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetQuotaRequest_Response {
+export interface GetQuotaResponse {
   /** The returned QuotaInfo. */
   quotaInfo?: QuotaInfo | undefined;
 }
@@ -46,8 +45,7 @@ export interface ListQuotasRequest {
   pageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListQuotasRequest_Response {
+export interface ListQuotasResponse {
   /** An array of returned QuotaInfos. */
   quotas?: QuotaInfo[] | undefined;
   /**
@@ -72,18 +70,15 @@ export interface QuotaInfo {
   lastRefreshedAt?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetQuotaRequest_ResponseSchema: z.ZodType<GetQuotaRequest_Response> =
-  z
-    .object({
-      quota_info: z.lazy(() => unmarshalQuotaInfoSchema).optional(),
-    })
-    .transform(d => ({
-      quotaInfo: d.quota_info,
-    }));
+export const unmarshalGetQuotaResponseSchema: z.ZodType<GetQuotaResponse> = z
+  .object({
+    quota_info: z.lazy(() => unmarshalQuotaInfoSchema).optional(),
+  })
+  .transform(d => ({
+    quotaInfo: d.quota_info,
+  }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListQuotasRequest_ResponseSchema: z.ZodType<ListQuotasRequest_Response> =
+export const unmarshalListQuotasResponseSchema: z.ZodType<ListQuotasResponse> =
   z
     .object({
       quotas: z.array(z.lazy(() => unmarshalQuotaInfoSchema)).optional(),

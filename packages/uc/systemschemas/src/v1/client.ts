@@ -18,18 +18,18 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   DisableSystemSchemaRequest,
-  DisableSystemSchemaRequest_Response,
+  DisableSystemSchemaResponse,
   EnableSystemSchemaRequest,
-  EnableSystemSchemaRequest_Response,
+  EnableSystemSchemaResponse,
   ListSystemSchemasRequest,
-  ListSystemSchemasRequest_Response,
+  ListSystemSchemasResponse,
   SystemSchemaInfo,
 } from './model';
 import {
   marshalEnableSystemSchemaRequestSchema,
-  unmarshalDisableSystemSchemaRequest_ResponseSchema,
-  unmarshalEnableSystemSchemaRequest_ResponseSchema,
-  unmarshalListSystemSchemasRequest_ResponseSchema,
+  unmarshalDisableSystemSchemaResponseSchema,
+  unmarshalEnableSystemSchemaResponseSchema,
+  unmarshalListSystemSchemasResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -73,9 +73,9 @@ export class SystemSchemasClient {
   async disableSystemSchema(
     req: DisableSystemSchemaRequest,
     options?: CallOptions
-  ): Promise<DisableSystemSchemaRequest_Response> {
+  ): Promise<DisableSystemSchemaResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
-    let resp: DisableSystemSchemaRequest_Response | undefined;
+    let resp: DisableSystemSchemaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -90,7 +90,7 @@ export class SystemSchemasClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDisableSystemSchemaRequest_ResponseSchema
+        unmarshalDisableSystemSchemaResponseSchema
       );
     };
     await executeCall(call, options);
@@ -107,10 +107,10 @@ export class SystemSchemasClient {
   async enableSystemSchema(
     req: EnableSystemSchemaRequest,
     options?: CallOptions
-  ): Promise<EnableSystemSchemaRequest_Response> {
+  ): Promise<EnableSystemSchemaResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
     const body = marshalRequest(req, marshalEnableSystemSchemaRequestSchema);
-    let resp: EnableSystemSchemaRequest_Response | undefined;
+    let resp: EnableSystemSchemaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -123,10 +123,7 @@ export class SystemSchemasClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalEnableSystemSchemaRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalEnableSystemSchemaResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -147,7 +144,7 @@ export class SystemSchemasClient {
   async listSystemSchemas(
     req: ListSystemSchemasRequest,
     options?: CallOptions
-  ): Promise<ListSystemSchemasRequest_Response> {
+  ): Promise<ListSystemSchemasResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -158,7 +155,7 @@ export class SystemSchemasClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSystemSchemasRequest_Response | undefined;
+    let resp: ListSystemSchemasResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -171,10 +168,7 @@ export class SystemSchemasClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSystemSchemasRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalListSystemSchemasResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

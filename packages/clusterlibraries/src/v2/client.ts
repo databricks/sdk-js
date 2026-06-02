@@ -20,19 +20,19 @@ import type {
   ClusterLibraryStatuses,
   ClusterStatusRequest,
   InstallLibrariesRequest,
-  InstallLibrariesRequest_Response,
+  InstallLibrariesResponse,
   ListAllClusterLibraryStatusesRequest,
-  ListAllClusterLibraryStatusesRequest_Response,
+  ListAllClusterLibraryStatusesResponse,
   UninstallLibrariesRequest,
-  UninstallLibrariesRequest_Response,
+  UninstallLibrariesResponse,
 } from './model';
 import {
   marshalInstallLibrariesRequestSchema,
   marshalUninstallLibrariesRequestSchema,
   unmarshalClusterLibraryStatusesSchema,
-  unmarshalInstallLibrariesRequest_ResponseSchema,
-  unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema,
-  unmarshalUninstallLibrariesRequest_ResponseSchema,
+  unmarshalInstallLibrariesResponseSchema,
+  unmarshalListAllClusterLibraryStatusesResponseSchema,
+  unmarshalUninstallLibrariesResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -76,9 +76,9 @@ export class ClusterLibrariesClient {
   async allClusterStatuses(
     _req: ListAllClusterLibraryStatusesRequest,
     options?: CallOptions
-  ): Promise<ListAllClusterLibraryStatusesRequest_Response> {
+  ): Promise<ListAllClusterLibraryStatusesResponse> {
     const url = `${this.host}/api/2.0/libraries/all-cluster-statuses`;
-    let resp: ListAllClusterLibraryStatusesRequest_Response | undefined;
+    let resp: ListAllClusterLibraryStatusesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (this.workspaceId !== undefined) {
@@ -93,7 +93,7 @@ export class ClusterLibrariesClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema
+        unmarshalListAllClusterLibraryStatusesResponseSchema
       );
     };
     await executeCall(call, options);
@@ -152,10 +152,10 @@ export class ClusterLibrariesClient {
   async installLibraries(
     req: InstallLibrariesRequest,
     options?: CallOptions
-  ): Promise<InstallLibrariesRequest_Response> {
+  ): Promise<InstallLibrariesResponse> {
     const url = `${this.host}/api/2.0/libraries/install`;
     const body = marshalRequest(req, marshalInstallLibrariesRequestSchema);
-    let resp: InstallLibrariesRequest_Response | undefined;
+    let resp: InstallLibrariesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -168,10 +168,7 @@ export class ClusterLibrariesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalInstallLibrariesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalInstallLibrariesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -187,10 +184,10 @@ export class ClusterLibrariesClient {
   async uninstallLibraries(
     req: UninstallLibrariesRequest,
     options?: CallOptions
-  ): Promise<UninstallLibrariesRequest_Response> {
+  ): Promise<UninstallLibrariesResponse> {
     const url = `${this.host}/api/2.0/libraries/uninstall`;
     const body = marshalRequest(req, marshalUninstallLibrariesRequestSchema);
-    let resp: UninstallLibrariesRequest_Response | undefined;
+    let resp: UninstallLibrariesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (this.workspaceId !== undefined) {
@@ -203,10 +200,7 @@ export class ClusterLibrariesClient {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalUninstallLibrariesRequest_ResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalUninstallLibrariesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

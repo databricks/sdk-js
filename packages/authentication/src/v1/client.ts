@@ -24,7 +24,7 @@ import type {
   DeleteAccountFederationPolicyRequest,
   DeleteServicePrincipalFederationPolicyRequest,
   DeleteServicePrincipalSecretRequest,
-  DeleteServicePrincipalSecretRequest_Response,
+  DeleteServicePrincipalSecretResponse,
   FederationPolicy,
   GetAccountFederationPolicyRequest,
   GetServicePrincipalFederationPolicyRequest,
@@ -32,7 +32,7 @@ import type {
   ListFederationPoliciesResponse,
   ListServicePrincipalFederationPoliciesRequest,
   ListServicePrincipalSecretsRequest,
-  ListServicePrincipalSecretsRequest_Response,
+  ListServicePrincipalSecretsResponse,
   ServicePrincipalSecret,
   UpdateAccountFederationPolicyRequest,
   UpdateServicePrincipalFederationPolicyRequest,
@@ -41,10 +41,10 @@ import {
   marshalCreateServicePrincipalSecretRequestSchema,
   marshalFederationPolicySchema,
   unmarshalCreateServicePrincipalSecretResponseSchema,
-  unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema,
+  unmarshalDeleteServicePrincipalSecretResponseSchema,
   unmarshalFederationPolicySchema,
   unmarshalListFederationPoliciesResponseSchema,
-  unmarshalListServicePrincipalSecretsRequest_ResponseSchema,
+  unmarshalListServicePrincipalSecretsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -520,9 +520,9 @@ export class AuthenticationClient {
   async deleteServicePrincipalSecret(
     req: DeleteServicePrincipalSecretRequest,
     options?: CallOptions
-  ): Promise<DeleteServicePrincipalSecretRequest_Response> {
+  ): Promise<DeleteServicePrincipalSecretResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
-    let resp: DeleteServicePrincipalSecretRequest_Response | undefined;
+    let resp: DeleteServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -534,7 +534,7 @@ export class AuthenticationClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema
+        unmarshalDeleteServicePrincipalSecretResponseSchema
       );
     };
     await executeCall(call, options);
@@ -548,9 +548,9 @@ export class AuthenticationClient {
   async deleteServicePrincipalSecretProxy(
     req: DeleteServicePrincipalSecretRequest,
     options?: CallOptions
-  ): Promise<DeleteServicePrincipalSecretRequest_Response> {
+  ): Promise<DeleteServicePrincipalSecretResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
-    let resp: DeleteServicePrincipalSecretRequest_Response | undefined;
+    let resp: DeleteServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -562,7 +562,7 @@ export class AuthenticationClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema
+        unmarshalDeleteServicePrincipalSecretResponseSchema
       );
     };
     await executeCall(call, options);
@@ -576,7 +576,7 @@ export class AuthenticationClient {
   async listServicePrincipalSecrets(
     req: ListServicePrincipalSecretsRequest,
     options?: CallOptions
-  ): Promise<ListServicePrincipalSecretsRequest_Response> {
+  ): Promise<ListServicePrincipalSecretsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -587,7 +587,7 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListServicePrincipalSecretsRequest_Response | undefined;
+    let resp: ListServicePrincipalSecretsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -599,7 +599,7 @@ export class AuthenticationClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListServicePrincipalSecretsRequest_ResponseSchema
+        unmarshalListServicePrincipalSecretsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -630,7 +630,7 @@ export class AuthenticationClient {
   async listServicePrincipalSecretsProxy(
     req: ListServicePrincipalSecretsRequest,
     options?: CallOptions
-  ): Promise<ListServicePrincipalSecretsRequest_Response> {
+  ): Promise<ListServicePrincipalSecretsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -641,7 +641,7 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListServicePrincipalSecretsRequest_Response | undefined;
+    let resp: ListServicePrincipalSecretsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -653,7 +653,7 @@ export class AuthenticationClient {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListServicePrincipalSecretsRequest_ResponseSchema
+        unmarshalListServicePrincipalSecretsResponseSchema
       );
     };
     await executeCall(call, options);

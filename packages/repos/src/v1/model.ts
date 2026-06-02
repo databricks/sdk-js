@@ -25,8 +25,7 @@ export interface CreateRepoRequest {
   sparseCheckout?: SparseCheckout | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRepoRequest_Response {
+export interface CreateRepoResponse {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: bigint | undefined;
   /** Path of the Git folder (repo) in the workspace. */
@@ -52,16 +51,15 @@ export interface DeleteProjectRequest {
   id?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteProjectRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteProjectResponse {}
 
 export interface GetRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRepoRequest_Response {
+export interface GetRepoResponse {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: bigint | undefined;
   /** Path of the Git folder (repo) in the workspace. */
@@ -96,8 +94,7 @@ export interface ListReposRequest {
   nextPageToken?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListReposRequest_Response {
+export interface ListReposResponse {
   /** List of Git folders (repos). */
   repos?: RepoInfo[] | undefined;
   /**
@@ -167,11 +164,10 @@ export interface UpdateRepoRequest {
   sparseCheckout?: SparseCheckoutUpdate | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateRepoRequest_Response {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateRepoResponse {}
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRepoRequest_ResponseSchema: z.ZodType<CreateRepoRequest_Response> =
+export const unmarshalCreateRepoResponseSchema: z.ZodType<CreateRepoResponse> =
   z
     .object({
       id: z
@@ -195,46 +191,41 @@ export const unmarshalCreateRepoRequest_ResponseSchema: z.ZodType<CreateRepoRequ
       sparseCheckout: d.sparse_checkout,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteProjectRequest_ResponseSchema: z.ZodType<DeleteProjectRequest_Response> =
+export const unmarshalDeleteProjectResponseSchema: z.ZodType<DeleteProjectResponse> =
   z.object({});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRepoRequest_ResponseSchema: z.ZodType<GetRepoRequest_Response> =
-  z
-    .object({
-      id: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
-      path: z.string().optional(),
-      url: z.string().optional(),
-      provider: z.string().optional(),
-      branch: z.string().optional(),
-      head_commit_id: z.string().optional(),
-      sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      path: d.path,
-      url: d.url,
-      provider: d.provider,
-      branch: d.branch,
-      headCommitId: d.head_commit_id,
-      sparseCheckout: d.sparse_checkout,
-    }));
+export const unmarshalGetRepoResponseSchema: z.ZodType<GetRepoResponse> = z
+  .object({
+    id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    provider: z.string().optional(),
+    branch: z.string().optional(),
+    head_commit_id: z.string().optional(),
+    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    path: d.path,
+    url: d.url,
+    provider: d.provider,
+    branch: d.branch,
+    headCommitId: d.head_commit_id,
+    sparseCheckout: d.sparse_checkout,
+  }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListReposRequest_ResponseSchema: z.ZodType<ListReposRequest_Response> =
-  z
-    .object({
-      repos: z.array(z.lazy(() => unmarshalRepoInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      repos: d.repos,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListReposResponseSchema: z.ZodType<ListReposResponse> = z
+  .object({
+    repos: z.array(z.lazy(() => unmarshalRepoInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    repos: d.repos,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalRepoInfoSchema: z.ZodType<RepoInfo> = z
   .object({
@@ -267,8 +258,7 @@ export const unmarshalSparseCheckoutSchema: z.ZodType<SparseCheckout> = z
     patterns: d.patterns,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRepoRequest_ResponseSchema: z.ZodType<UpdateRepoRequest_Response> =
+export const unmarshalUpdateRepoResponseSchema: z.ZodType<UpdateRepoResponse> =
   z.object({});
 
 export const marshalCreateRepoRequestSchema: z.ZodType = z
