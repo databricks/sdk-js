@@ -2,7 +2,7 @@
  * Example: Authentication and Error Handling
  *
  * Demonstrates PAT authentication against a Databricks workspace and
- * structured error handling with the APIError and ErrorDetails types.
+ * structured error handling with the ApiError and ErrorDetails types.
  *
  * Prerequisites:
  *   export DATABRICKS_HOST="https://<workspace>.cloud.databricks.com"
@@ -13,7 +13,7 @@
  */
 
 import {newPatCredentials} from '@databricks/sdk-auth/credentials';
-import {APIError} from '@databricks/sdk-core/apierror';
+import {ApiError} from '@databricks/sdk-core/apierror';
 import {codeToString} from '@databricks/sdk-core/apierror/codes';
 import {LogLevel} from '@databricks/sdk-core/logger';
 
@@ -34,10 +34,10 @@ async function authHeaders(): Promise<Record<string, string>> {
   return Object.fromEntries(headers.map(h => [h.key, h.value]));
 }
 
-// Helper: parse a fetch Response into an APIError (returns undefined on 2xx).
-async function toAPIError(resp: Response): Promise<APIError | undefined> {
+// Helper: parse a fetch Response into an ApiError (returns undefined on 2xx).
+async function toApiError(resp: Response): Promise<ApiError | undefined> {
   const body = new Uint8Array(await resp.arrayBuffer());
-  return APIError.fromHttpError(resp.status, resp.headers, body);
+  return ApiError.fromHttpError(resp.status, resp.headers, body);
 }
 
 // ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ async function runAuth(): Promise<void> {
 
   // Read the body once — it can only be consumed a single time.
   const body = new Uint8Array(await resp.arrayBuffer());
-  const err = APIError.fromHttpError(resp.status, resp.headers, body);
+  const err = ApiError.fromHttpError(resp.status, resp.headers, body);
 
   if (err) {
     log.error('Request failed:', err.message);
@@ -84,7 +84,7 @@ async function runErrorHandling(): Promise<void> {
     `${host}/api/2.0/postgres/projects/does-not-exist`,
     {headers}
   );
-  const err404 = await toAPIError(resp404);
+  const err404 = await toApiError(resp404);
   if (err404) {
     log.info('  Code:       ', codeToString(err404.code));
     log.info('  HTTP Status:', err404.httpStatusCode);
@@ -106,18 +106,18 @@ async function runErrorHandling(): Promise<void> {
   const resp401 = await fetch(`${host}/api/2.0/postgres/projects`, {
     headers: {Authorization: 'Bearer invalid-token-value'},
   });
-  const err401 = await toAPIError(resp401);
+  const err401 = await toApiError(resp401);
   if (err401) {
     log.info('  Code:       ', codeToString(err401.code));
     log.info('  HTTP Status:', err401.httpStatusCode);
     log.info('  Message:    ', err401.message);
   }
 
-  // 2c: Show that 2xx responses produce no APIError.
+  // 2c: Show that 2xx responses produce no ApiError.
   log.info('--- 2c: Successful request returns no error ---');
   const respOk = await fetch(`${host}/api/2.0/postgres/projects`, {headers});
-  const errOk = await toAPIError(respOk);
-  log.info('  APIError:', errOk ?? 'undefined (success)');
+  const errOk = await toApiError(respOk);
+  log.info('  ApiError:', errOk ?? 'undefined (success)');
 }
 
 // ---------------------------------------------------------------------------

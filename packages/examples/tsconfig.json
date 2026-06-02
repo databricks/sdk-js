@@ -1,16 +1,33 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
     "noEmit": true
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src", "tests"],
   "references": [
     {
+      "path": "../auth"
+    },
+    {
       "path": "../core"
+    },
+    {
+      "path": "../files"
+    },
+    {
+      "path": "../options"
+    },
+    {
+      "path": "../postgres"
+    },
+    {
+      "path": "../statementexecution"
+    },
+    {
+      "path": "../uc/catalogs"
+    },
+    {
+      "path": "../warehouses"
     }
   ]
 }
