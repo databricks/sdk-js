@@ -187,6 +187,7 @@ describe('fromHttpError', () => {
       ),
       want: new ApiError({
         code: Code.NOT_FOUND,
+        errorCode: 'NOT_FOUND',
         message: 'Job 123 not found',
         details: emptyDetails,
       }),
@@ -209,6 +210,7 @@ describe('fromHttpError', () => {
       ),
       want: new ApiError({
         code: Code.NOT_FOUND,
+        errorCode: 'NOT_FOUND',
         message: 'Job 123 not found',
         details: {
           errorInfo: {
@@ -221,14 +223,15 @@ describe('fromHttpError', () => {
       }),
     },
     {
-      desc: 'standard error with unknown error_code',
-      statusCode: 400,
+      desc: 'Databricks-specific error_code falls back to status code',
+      statusCode: 404,
       body: encode(
-        '{"error_code": "SOME_UNKNOWN_CODE", "message": "Something went wrong"}'
+        '{"error_code": "CATALOG_DOES_NOT_EXIST", "message": "Catalog not found"}'
       ),
       want: new ApiError({
-        code: Code.UNKNOWN,
-        message: 'Something went wrong',
+        code: Code.NOT_FOUND,
+        errorCode: 'CATALOG_DOES_NOT_EXIST',
+        message: 'Catalog not found',
         details: emptyDetails,
       }),
     },
@@ -317,6 +320,7 @@ describe('fromHttpError', () => {
     }
 
     expect(got.code).toBe(tc.want.code);
+    expect(got.errorCode).toBe(tc.want.errorCode);
     expect(got.message).toBe(tc.want.message);
     expect(got.details).toStrictEqual(tc.want.details);
     expect(got.httpStatusCode).toBe(tc.statusCode);

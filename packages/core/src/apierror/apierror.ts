@@ -33,6 +33,7 @@ const errorResponseSchema = z.object({
 // Constructor options for ApiError.
 interface ApiErrorOptions {
   code: Code;
+  errorCode?: string | undefined;
   message: string;
   details: ErrorDetails;
   httpStatusCode?: number | undefined;
@@ -45,6 +46,14 @@ interface ApiErrorOptions {
 export class ApiError extends Error {
   /** The canonical error code of the error. */
   readonly code: Code;
+
+  /**
+   * The raw, Databricks-specific error code string from the error response
+   * (e.g. "CATALOG_DOES_NOT_EXIST"). This is empty when the error response did
+   * not carry a string error code. Use this to match on Databricks-specific
+   * codes that do not have a canonical {@link Code} equivalent.
+   */
+  readonly errorCode: string;
 
   /**
    * The structured error details of the error. This is left empty if the
@@ -70,6 +79,7 @@ export class ApiError extends Error {
     super(options.message, {cause: options.cause});
     this.name = 'ApiError';
     this.code = options.code;
+    this.errorCode = options.errorCode ?? '';
     this.details = options.details;
     if (options.httpStatusCode !== undefined) {
       this.httpErr = {
@@ -175,12 +185,15 @@ export class ApiError extends Error {
 
     // Error codes may be missing or be an integer (legacy APIs). In such
     // cases, defer to the HTTP status code to infer the closest canonical
-    // error code.
-    let errorCode: Code;
-    if (typeof errResp.error_code === 'string') {
-      errorCode = codeFromString(errResp.error_code);
-    } else {
-      errorCode = toCode(statusCode);
+    // error code. Databricks-specific string codes (e.g.
+    // "CATALOG_DOES_NOT_EXIST") have no canonical mapping and resolve to
+    // UNKNOWN, so fall back to the HTTP status code for those as well. The
+    // raw string is preserved separately so callers can match on it directly.
+    const rawErrorCode =
+      typeof errResp.error_code === 'string' ? errResp.error_code : '';
+    let code = codeFromString(rawErrorCode);
+    if (code === Code.UNKNOWN) {
+      code = toCode(statusCode);
     }
 
     // Determine the error message from available fields.
@@ -196,7 +209,8 @@ export class ApiError extends Error {
     }
 
     return new ApiError({
-      code: errorCode,
+      code,
+      errorCode: rawErrorCode,
       message: errorMessage,
       details: parseErrorDetails(errResp.details),
       httpStatusCode: statusCode,
