@@ -130,13 +130,20 @@ export interface ResolveOptions {
    */
   profile?: string;
 
-  /** Whether to read from the config file. Default: true. */
+  /**
+   * Whether to read from the config file. The default is context-dependent: a
+   * bare {@link resolve} call with no options reads the config file, but once
+   * any option is supplied this defaults to false unless explicitly set to
+   * true. Setting filePath or profile implies withFile: true.
+   */
   withFile?: boolean;
 
   /**
    * Whether to overlay environment variables on top of config file values.
-   * When enabled, environment variables take precedence over file values.
-   * Default: true.
+   * When enabled, environment variables take precedence over file values. The
+   * default is context-dependent: a bare {@link resolve} call with no options
+   * overlays environment variables, but once any option is supplied this
+   * defaults to false unless explicitly set to true.
    */
   withEnv?: boolean;
 }
