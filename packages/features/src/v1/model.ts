@@ -247,6 +247,11 @@ export interface DataSource {
         /** A request-time data source. */
         requestSource: RequestSource;
       }
+    | {
+        $case: 'streamSource';
+        /** A Stream data source. */
+        streamSource: StreamSource;
+      }
     | undefined;
 }
 
@@ -552,6 +557,11 @@ export interface KafkaConfig {
    * The schema for this source must match exactly that of the key and value schemas specified for this Kafka config.
    */
   backfillSource?: BackfillSource | undefined;
+  /**
+   * Configuration for ingesting Kafka data into a <Databricks>-managed
+   * Delta table.
+   */
+  ingestionConfig?: IngestionConfig | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -997,6 +1007,12 @@ export interface StreamSchemaConfig {
     | undefined;
 }
 
+/** A Stream entity used as a data source for a feature. */
+export interface StreamSource {
+  /** Three-part full name of the Stream (catalog.schema.stream). */
+  fullName?: string | undefined;
+}
+
 /** Source-specific configuration. Determines the streaming platform source. */
 export interface StreamSourceConfig {
   sourceConfig?:
@@ -1333,6 +1349,7 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
       .optional(),
     kafka_source: z.lazy(() => unmarshalKafkaSourceSchema).optional(),
     request_source: z.lazy(() => unmarshalRequestSourceSchema).optional(),
+    stream_source: z.lazy(() => unmarshalStreamSourceSchema).optional(),
   })
   .transform(d => ({
     dataSource:
@@ -1345,7 +1362,9 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
           ? {$case: 'kafkaSource' as const, kafkaSource: d.kafka_source}
           : d.request_source !== undefined
             ? {$case: 'requestSource' as const, requestSource: d.request_source}
-            : undefined,
+            : d.stream_source !== undefined
+              ? {$case: 'streamSource' as const, streamSource: d.stream_source}
+              : undefined,
   }));
 
 export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
@@ -1566,6 +1585,7 @@ export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
     value_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
     extra_options: z.record(z.string(), z.string()).optional(),
     backfill_source: z.lazy(() => unmarshalBackfillSourceSchema).optional(),
+    ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1576,6 +1596,7 @@ export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
     valueSchema: d.value_schema,
     extraOptions: d.extra_options,
     backfillSource: d.backfill_source,
+    ingestionConfig: d.ingestion_config,
   }));
 
 export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
@@ -1981,6 +2002,14 @@ export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
           : undefined,
     }));
 
+export const unmarshalStreamSourceSchema: z.ZodType<StreamSource> = z
+  .object({
+    full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    fullName: d.full_name,
+  }));
+
 export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
   z
     .object({
@@ -2344,6 +2373,10 @@ export const marshalDataSourceSchema: z.ZodType = z
           $case: z.literal('requestSource'),
           requestSource: z.lazy(() => marshalRequestSourceSchema),
         }),
+        z.object({
+          $case: z.literal('streamSource'),
+          streamSource: z.lazy(() => marshalStreamSourceSchema),
+        }),
       ])
       .optional(),
   })
@@ -2356,6 +2389,9 @@ export const marshalDataSourceSchema: z.ZodType = z
     }),
     ...(d.dataSource?.$case === 'requestSource' && {
       request_source: d.dataSource.requestSource,
+    }),
+    ...(d.dataSource?.$case === 'streamSource' && {
+      stream_source: d.dataSource.streamSource,
     }),
   }));
 
@@ -2568,6 +2604,7 @@ export const marshalKafkaConfigSchema: z.ZodType = z
     valueSchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
     extraOptions: z.record(z.string(), z.string()).optional(),
     backfillSource: z.lazy(() => marshalBackfillSourceSchema).optional(),
+    ingestionConfig: z.lazy(() => marshalIngestionConfigSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2578,6 +2615,7 @@ export const marshalKafkaConfigSchema: z.ZodType = z
     value_schema: d.valueSchema,
     extra_options: d.extraOptions,
     backfill_source: d.backfillSource,
+    ingestion_config: d.ingestionConfig,
   }));
 
 export const marshalKafkaSourceSchema: z.ZodType = z
@@ -2947,6 +2985,14 @@ export const marshalStreamSchemaConfigSchema: z.ZodType = z
     }),
   }));
 
+export const marshalStreamSourceSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+  }));
+
 export const marshalStreamSourceConfigSchema: z.ZodType = z
   .object({
     sourceConfig: z
@@ -3170,6 +3216,10 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'request_source',
     children: () => requestSourceFieldMaskSchema,
   },
+  streamSource: {
+    wire: 'stream_source',
+    children: () => streamSourceFieldMaskSchema,
+  },
 };
 
 const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
@@ -3275,6 +3325,10 @@ const kafkaConfigFieldMaskSchema: FieldMaskSchema = {
   },
   bootstrapServers: {wire: 'bootstrap_servers'},
   extraOptions: {wire: 'extra_options'},
+  ingestionConfig: {
+    wire: 'ingestion_config',
+    children: () => ingestionConfigFieldMaskSchema,
+  },
   keySchema: {wire: 'key_schema', children: () => schemaConfigFieldMaskSchema},
   name: {wire: 'name'},
   subscriptionMode: {
@@ -3478,6 +3532,10 @@ const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
     wire: 'direct_schemas',
     children: () => directSchemasFieldMaskSchema,
   },
+};
+
+const streamSourceFieldMaskSchema: FieldMaskSchema = {
+  fullName: {wire: 'full_name'},
 };
 
 const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {

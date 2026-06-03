@@ -101,6 +101,8 @@ export interface CatalogInfo {
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
+  /** Custom maximum retention period in hours for the catalog */
+  customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -166,6 +168,8 @@ export interface CreateCatalogRequest {
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
+  /** Custom maximum retention period in hours for the catalog */
+  customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -312,6 +316,8 @@ export interface UpdateCatalogRequest {
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
+  /** Custom maximum retention period in hours for the catalog */
+  customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -376,6 +382,10 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     full_name: z.string().optional(),
     securable_type: z.enum(SecurableType).optional(),
+    custom_max_retention_hours: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     managed_encryption_settings: z
       .lazy(() => unmarshalEncryptionSettingsSchema)
       .optional(),
@@ -405,6 +415,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     provisioningInfo: d.provisioning_info,
     fullName: d.full_name,
     securableType: d.securable_type,
+    customMaxRetentionHours: d.custom_max_retention_hours,
     managedEncryptionSettings: d.managed_encryption_settings,
     properties: d.properties,
     options: d.options,
@@ -497,6 +508,7 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
+    customMaxRetentionHours: z.bigint().optional(),
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
       .optional(),
@@ -526,6 +538,7 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,
     securable_type: d.securableType,
+    custom_max_retention_hours: d.customMaxRetentionHours,
     managed_encryption_settings: d.managedEncryptionSettings,
     properties: d.properties,
     options: d.options,
@@ -592,6 +605,7 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
+    customMaxRetentionHours: z.bigint().optional(),
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
       .optional(),
@@ -623,6 +637,7 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,
     securable_type: d.securableType,
+    custom_max_retention_hours: d.customMaxRetentionHours,
     managed_encryption_settings: d.managedEncryptionSettings,
     properties: d.properties,
     options: d.options,

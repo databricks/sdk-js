@@ -89,6 +89,7 @@ export type {
   DeleteVpcEndpointRequest,
   EgressNetworkPolicy,
   EgressNetworkPolicy_NetworkAccessPolicy,
+  EgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestination,
   EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination,
   EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement,
   EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination,
