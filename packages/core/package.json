@@ -21,6 +21,11 @@
       "import": "./dist/profiles/index.browser.js",
       "default": "./dist/profiles/index.browser.js"
     },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js",
+      "default": "./dist/config/index.js"
+    },
     "./wkt": {
       "types": "./dist/wkt/index.d.ts",
       "import": "./dist/wkt/index.js",

@@ -2,6 +2,7 @@
 
 import type {Credentials} from '@databricks/sdk-auth';
 import {defaultCredentials} from '@databricks/sdk-auth/credentials';
+import {resolveClientConfig} from '@databricks/sdk-core/config';
 import type {
   HttpClient,
   HttpRequest,
@@ -25,7 +26,12 @@ export function newHttpClient(options?: ClientOptions): HttpClient {
     return opts.httpClient;
   }
 
-  const credentials = opts.credentials ?? defaultCredentials();
+  // Default credentials must authenticate against the same profile and host
+  // the client resolved, never an independently loaded default profile.
+  const config = resolveClientConfig(opts);
+  const credentials =
+    opts.credentials ??
+    defaultCredentials({profileName: config.profile, host: config.host});
 
   const base = newFetchHttpClient();
   let client: HttpClient = new AuthHttpClient(base, credentials);

@@ -8,6 +8,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {HttpClient} from '@databricks/sdk-core/http';
+import {resolveClientConfig} from '@databricks/sdk-core/config';
 import {newHttpClient} from './transport';
 import {
   buildHttpRequest,
@@ -95,11 +96,10 @@ export class DatabaseClient {
   private readonly userAgent: string;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    // Resolve host and credentials from one source so they share a profile.
+    const config = resolveClientConfig(options);
+    this.host = (config.host ?? '').replace(/\/$/, '');
+    this.workspaceId = config.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)

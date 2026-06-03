@@ -14,6 +14,13 @@ export interface ClientOptions {
   host?: string;
 
   /**
+   * Config profile to resolve. When omitted, the default profile is used.
+   * The same profile is threaded to credentials so the host and credentials
+   * cannot reference different profiles.
+   */
+  profile?: string;
+
+  /**
    * Default Databricks account ID for account-level API paths that contain
    * an `{account_id}` segment. The request's own `accountId` field takes
    * precedence; this option is only consulted when the request leaves it

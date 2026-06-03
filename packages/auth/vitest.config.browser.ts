@@ -10,6 +10,7 @@ export default defineConfig({
     },
     include: ['tests/**/*.test.ts'],
     exclude: [
+      'tests/credentials/default/default-credentials.test.ts',
       'tests/credentials/u2m.test.ts',
       'tests/oidc/env.test.ts',
       'tests/oidc/file.test.ts',
