@@ -48,6 +48,7 @@ export class M2mCredentialsError extends Error {
 /** Discriminant codes for {@link U2mCredentialsError}. */
 export type U2mCredentialsErrorCode =
   | 'PROFILE_REQUIRED'
+  | 'PROFILE_NOT_FOUND'
   | 'CLI_NOT_FOUND'
   | 'LEGACY_CLI_DETECTED'
   | 'TOKEN_FETCH_FAILED'
