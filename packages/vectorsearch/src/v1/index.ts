@@ -31,6 +31,7 @@ export type {
   Endpoint,
   EndpointScalingInfo,
   EndpointStatus,
+  FacetResultData,
   GetEndpointRequest,
   GetVectorIndexRequest,
   ListEndpointRequest,

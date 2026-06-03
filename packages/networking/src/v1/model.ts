@@ -1135,6 +1135,19 @@ export interface EgressNetworkPolicy_NetworkAccessPolicy {
   blockedInternetDestinations?:
     | EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination[]
     | undefined;
+  /**
+   * List of <Databricks> workspace destinations that serverless workloads are
+   * allowed to access when in RESTRICTED_ACCESS mode.
+   */
+  allowedDatabricksDestinations?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestination[]
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestination {
+  /** The workspace IDs to allow egress traffic to. */
+  workspaceIds?: bigint[] | undefined;
 }
 
 /**
@@ -2714,6 +2727,14 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType<E
           )
         )
         .optional(),
+      allowed_databricks_destinations: z
+        .array(
+          z.lazy(
+            () =>
+              unmarshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinationSchema
+          )
+        )
+        .optional(),
     })
     .transform(d => ({
       restrictionMode: d.restriction_mode,
@@ -2721,6 +2742,19 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType<E
       allowedStorageDestinations: d.allowed_storage_destinations,
       policyEnforcement: d.policy_enforcement,
       blockedInternetDestinations: d.blocked_internet_destinations,
+      allowedDatabricksDestinations: d.allowed_databricks_destinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinationSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestination> =
+  z
+    .object({
+      workspace_ids: z
+        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .optional(),
+    })
+    .transform(d => ({
+      workspaceIds: d.workspace_ids,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4131,6 +4165,14 @@ export const marshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType = z
         )
       )
       .optional(),
+    allowedDatabricksDestinations: z
+      .array(
+        z.lazy(
+          () =>
+            marshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinationSchema
+        )
+      )
+      .optional(),
   })
   .transform(d => ({
     restriction_mode: d.restrictionMode,
@@ -4138,7 +4180,18 @@ export const marshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType = z
     allowed_storage_destinations: d.allowedStorageDestinations,
     policy_enforcement: d.policyEnforcement,
     blocked_internet_destinations: d.blockedInternetDestinations,
+    allowed_databricks_destinations: d.allowedDatabricksDestinations,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinationSchema: z.ZodType =
+  z
+    .object({
+      workspaceIds: z.array(z.bigint()).optional(),
+    })
+    .transform(d => ({
+      workspace_ids: d.workspaceIds,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema: z.ZodType =

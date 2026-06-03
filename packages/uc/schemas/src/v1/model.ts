@@ -48,6 +48,8 @@ export interface CreateSchemaRequest {
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+  /** Custom maximum retention period in hours for the schema. */
+  customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -156,6 +158,8 @@ export interface SchemaInfo {
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+  /** Custom maximum retention period in hours for the schema. */
+  customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -214,6 +218,8 @@ export interface UpdateSchemaRequest {
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+  /** Custom maximum retention period in hours for the schema. */
+  customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -286,6 +292,10 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
       .optional(),
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
+    custom_max_retention_hours: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -308,6 +318,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
       d.effective_predictive_optimization_flag,
     schemaId: d.schema_id,
     browseOnly: d.browse_only,
+    customMaxRetentionHours: d.custom_max_retention_hours,
     properties: d.properties,
     options: d.options,
   }));
@@ -333,6 +344,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
       .optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
+    customMaxRetentionHours: z.bigint().optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -355,6 +367,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
       d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
+    custom_max_retention_hours: d.customMaxRetentionHours,
     properties: d.properties,
     options: d.options,
   }));
@@ -394,6 +407,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
       .optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
+    customMaxRetentionHours: z.bigint().optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -418,6 +432,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
       d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
+    custom_max_retention_hours: d.customMaxRetentionHours,
     properties: d.properties,
     options: d.options,
   }));

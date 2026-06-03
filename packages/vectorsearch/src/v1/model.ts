@@ -319,6 +319,14 @@ export interface EndpointStatus {
   message?: string | undefined;
 }
 
+/** Facet aggregation rows returned by a query. */
+export interface FacetResultData {
+  /** Number of facet rows returned. */
+  facetRowCount?: number | undefined;
+  /** Facet rows. Each row is `[facet_column_name, value_or_range, count]`. */
+  facetArray?: JsonValue[][] | undefined;
+}
+
 export interface GetEndpointRequest {
   /** Name of the endpoint */
   name?: string | undefined;
@@ -501,6 +509,22 @@ export interface QueryVectorIndexRequest {
    * being sent to the reranking model. See https://docs.databricks.com/aws/en/vector-search/query-vector-search#rerank for more information.
    */
   reranker?: RerankerConfig | undefined;
+  /** Text columns to search for `query_text`. When empty, all text columns are searched. */
+  queryColumns?: string[] | undefined;
+  /**
+   * Sort results by column values instead of the default relevance ordering.
+   * Each clause has the form `"<column> ASC"` or `"<column> DESC"`, for example
+   * `["rating DESC", "price ASC"]`.
+   */
+  sortColumns?: string[] | undefined;
+  /**
+   * Facets to compute over the matched results. Each entry has one of these forms:
+   * `"<column>"`                         - top 10 distinct values by count
+   * `"<column> TOP <n>"`                 - top n distinct values, where n > 0
+   * `"<column> BUCKETS [[from,to],...]"` - inclusive numeric ranges
+   * `TOP` and `BUCKETS` are case-insensitive. A column may appear at most once.
+   */
+  facets?: string[] | undefined;
 }
 
 export interface QueryVectorIndexResponse {
@@ -514,6 +538,8 @@ export interface QueryVectorIndexResponse {
    * Empty value means no more results. The maximum number of results that can be returned is 10,000.
    */
   nextPageToken?: string | undefined;
+  /** Facet aggregation rows returned by a query. */
+  facetResult?: FacetResultData | undefined;
 }
 
 export interface RerankerConfig {
@@ -546,6 +572,10 @@ export interface ResultManifest {
   columnCount?: number | undefined;
   /** Information about each column in the result set. */
   columns?: ColumnInfo[] | undefined;
+  /** Number of columns in `facet_result`. */
+  facetColumnCount?: number | undefined;
+  /** Information about each column in `facet_result`. */
+  facetColumns?: ColumnInfo[] | undefined;
 }
 
 /** Request to retrieve user-visible metrics */
@@ -857,6 +887,16 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     message: d.message,
   }));
 
+export const unmarshalFacetResultDataSchema: z.ZodType<FacetResultData> = z
+  .object({
+    facet_row_count: z.number().optional(),
+    facet_array: z.array(z.array(jsonValueSchema)).optional(),
+  })
+  .transform(d => ({
+    facetRowCount: d.facet_row_count,
+    facetArray: d.facet_array,
+  }));
+
 export const unmarshalListEndpointResponseSchema: z.ZodType<ListEndpointResponse> =
   z
     .object({
@@ -1000,11 +1040,13 @@ export const unmarshalQueryVectorIndexResponseSchema: z.ZodType<QueryVectorIndex
       manifest: z.lazy(() => unmarshalResultManifestSchema).optional(),
       result: z.lazy(() => unmarshalResultDataSchema).optional(),
       next_page_token: z.string().optional(),
+      facet_result: z.lazy(() => unmarshalFacetResultDataSchema).optional(),
     })
     .transform(d => ({
       manifest: d.manifest,
       result: d.result,
       nextPageToken: d.next_page_token,
+      facetResult: d.facet_result,
     }));
 
 export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
@@ -1021,10 +1063,14 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
   .object({
     column_count: z.number().optional(),
     columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
+    facet_column_count: z.number().optional(),
+    facet_columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
   })
   .transform(d => ({
     columnCount: d.column_count,
     columns: d.columns,
+    facetColumnCount: d.facet_column_count,
+    facetColumns: d.facet_columns,
   }));
 
 export const unmarshalRetrieveUserVisibleMetricsResponseSchema: z.ZodType<RetrieveUserVisibleMetricsResponse> =
@@ -1382,6 +1428,9 @@ export const marshalQueryVectorIndexRequestSchema: z.ZodType = z
     queryType: z.string().optional(),
     columnsToRerank: z.array(z.string()).optional(),
     reranker: z.lazy(() => marshalRerankerConfigSchema).optional(),
+    queryColumns: z.array(z.string()).optional(),
+    sortColumns: z.array(z.string()).optional(),
+    facets: z.array(z.string()).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1394,6 +1443,9 @@ export const marshalQueryVectorIndexRequestSchema: z.ZodType = z
     query_type: d.queryType,
     columns_to_rerank: d.columnsToRerank,
     reranker: d.reranker,
+    query_columns: d.queryColumns,
+    sort_columns: d.sortColumns,
+    facets: d.facets,
   }));
 
 export const marshalRerankerConfigSchema: z.ZodType = z

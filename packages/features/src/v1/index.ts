@@ -81,6 +81,7 @@ export type {
   Stream,
   StreamConnectionConfig,
   StreamSchemaConfig,
+  StreamSource,
   StreamSourceConfig,
   StreamingMode,
   SubscriptionMode,

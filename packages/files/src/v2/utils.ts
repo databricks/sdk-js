@@ -118,7 +118,7 @@ export function buildHttpRequest(
 
 export function parseResponse<T>(body: Uint8Array, schema: z.ZodType<T>): T {
   const text = new TextDecoder().decode(body);
-  // 204 responses (e.g. uploadFile) return an empty body; treat as `{}`.
+  // 204 responses return an empty body; treat as `{}`.
   const parsed: unknown = text === '' ? {} : jsonBigint.parse(text);
   return schema.parse(parsed);
 }
