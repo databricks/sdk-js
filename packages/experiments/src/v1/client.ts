@@ -4,6 +4,7 @@ import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
+import {DEFAULT_DEBUG_TRUNCATE_BYTES} from '@databricks/sdk-core/logger/debug';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
@@ -170,6 +171,9 @@ export class ExperimentsClient {
   private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
+  // Resolved debug-logging toggles passed into each HTTP call.
+  private readonly debugHeaders: boolean;
+  private readonly debugTruncateBytes: number;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
@@ -182,6 +186,9 @@ export class ExperimentsClient {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
+    this.debugHeaders = options.debugHeaders ?? false;
+    this.debugTruncateBytes =
+      options.debugTruncateBytes ?? DEFAULT_DEBUG_TRUNCATE_BYTES;
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
@@ -218,6 +225,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateExperimentResponseSchema);
     };
@@ -247,6 +256,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateLoggedModelResponseSchema);
     };
@@ -280,6 +291,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateRunResponseSchema);
     };
@@ -312,6 +325,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteExperimentResponseSchema);
     };
@@ -340,6 +355,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteLoggedModelResponseSchema);
     };
@@ -368,6 +385,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -400,6 +419,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteRunResponseSchema);
     };
@@ -432,6 +453,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteRunsResponseSchema);
     };
@@ -464,6 +487,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteTagResponseSchema);
     };
@@ -493,6 +518,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -530,6 +557,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetExperimentResponseSchema);
     };
@@ -572,6 +601,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -603,6 +634,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetLoggedModelResponseSchema);
     };
@@ -645,6 +678,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetRunResponseSchema);
     };
@@ -694,6 +729,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListArtifactsResponseSchema);
     };
@@ -751,6 +788,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListExperimentsResponseSchema);
     };
@@ -814,6 +853,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetMetricHistoryResponseSchema);
     };
@@ -901,6 +942,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalLogBatchResponseSchema);
     };
@@ -930,6 +973,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalLogInputsResponseSchema);
     };
@@ -963,6 +1008,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -999,6 +1046,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalLogMetricResponseSchema);
     };
@@ -1032,6 +1081,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalLogModelResponseSchema);
     };
@@ -1061,6 +1112,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalLogOutputsResponseSchema);
     };
@@ -1094,6 +1147,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalLogParamResponseSchema);
     };
@@ -1129,6 +1184,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalRestoreExperimentResponseSchema);
     };
@@ -1162,6 +1219,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalRestoreRunResponseSchema);
     };
@@ -1194,6 +1253,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalRestoreRunsResponseSchema);
     };
@@ -1223,6 +1284,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSearchExperimentsResponseSchema);
     };
@@ -1269,6 +1332,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSearchLoggedModelsResponseSchema);
     };
@@ -1302,6 +1367,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSearchRunsResponseSchema);
     };
@@ -1348,6 +1415,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSetExperimentTagResponseSchema);
     };
@@ -1377,6 +1446,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSetLoggedModelTagsResponseSchema);
     };
@@ -1409,6 +1480,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSetTagResponseSchema);
     };
@@ -1438,6 +1511,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateExperimentResponseSchema);
     };
@@ -1467,6 +1542,8 @@ export class ExperimentsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateRunResponseSchema);
     };

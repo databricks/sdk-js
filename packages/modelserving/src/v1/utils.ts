@@ -9,6 +9,10 @@ import type {
   HttpResponse,
 } from '@databricks/sdk-core/http';
 import type {Logger} from '@databricks/sdk-core/logger';
+import {
+  redactedDumpBody,
+  redactHeaders,
+} from '@databricks/sdk-core/logger/debug';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {LroOptions} from '@databricks/sdk-options/lro';
 import JSONBig from 'json-bigint';
@@ -23,6 +27,10 @@ export interface HttpCallOptions {
   readonly request: HttpRequest;
   readonly httpClient: HttpClient;
   readonly logger: Logger;
+  // When true, redacted request/response headers are logged at debug level.
+  readonly debugHeaders: boolean;
+  // Per-value byte budget for debug-level body and header logs.
+  readonly debugTruncateBytes: number;
 }
 
 /**
@@ -95,10 +103,27 @@ async function readAll(
 export async function executeHttpCall(
   opts: HttpCallOptions
 ): Promise<Uint8Array> {
-  opts.logger.debug('HTTP request', {
+  const requestLog: Record<string, unknown> = {
     method: opts.request.method,
     url: opts.request.url,
-  });
+  };
+  // Bodies are logged independent of debugHeaders, matching the Go SDK.
+  if (typeof opts.request.body === 'string') {
+    requestLog.requestBody = redactedDumpBody(
+      opts.request.body,
+      opts.debugTruncateBytes
+    );
+  } else if (opts.request.body !== undefined && opts.request.body !== null) {
+    // A streaming body is not drained, matching the Go SDK's <io.Reader>.
+    requestLog.requestBody = '<stream>';
+  }
+  if (opts.debugHeaders) {
+    requestLog.headers = redactHeaders(
+      opts.request.headers,
+      opts.debugTruncateBytes
+    );
+  }
+  opts.logger.debug('HTTP request', requestLog);
 
   let resp: HttpResponse;
   try {
@@ -110,10 +135,19 @@ export async function executeHttpCall(
 
   const body = await readAll(resp.body);
 
-  opts.logger.debug('HTTP response', {
+  // Secret-bearing fields are redacted by key and every value is truncated, so
+  // the body is safe to log; matches the Go SDK.
+  const responseLog: Record<string, unknown> = {
     statusCode: resp.statusCode,
-    body: new TextDecoder().decode(body),
-  });
+    body: redactedDumpBody(
+      new TextDecoder().decode(body),
+      opts.debugTruncateBytes
+    ),
+  };
+  if (opts.debugHeaders) {
+    responseLog.headers = redactHeaders(resp.headers, opts.debugTruncateBytes);
+  }
+  opts.logger.debug('HTTP response', responseLog);
 
   const apiErr = ApiError.fromHttpError(resp.statusCode, resp.headers, body);
   if (apiErr !== undefined) {
@@ -188,10 +222,21 @@ export function flattenQueryParams(
 export async function sendAndCheckError(
   opts: HttpCallOptions
 ): Promise<HttpResponse> {
-  opts.logger.debug('HTTP request', {
+  const requestLog: Record<string, unknown> = {
     method: opts.request.method,
     url: opts.request.url,
-  });
+  };
+  // These methods stream the request body, so it is never drained for logging.
+  if (opts.request.body !== undefined && opts.request.body !== null) {
+    requestLog.requestBody = '<stream>';
+  }
+  if (opts.debugHeaders) {
+    requestLog.headers = redactHeaders(
+      opts.request.headers,
+      opts.debugTruncateBytes
+    );
+  }
+  opts.logger.debug('HTTP request', requestLog);
 
   let resp: HttpResponse;
   try {
@@ -201,16 +246,38 @@ export async function sendAndCheckError(
     throw e;
   }
 
-  opts.logger.debug('HTTP response', {statusCode: resp.statusCode});
-
   if (resp.statusCode < 200 || resp.statusCode >= 300) {
     const body = await readAll(resp.body);
+    const responseLog: Record<string, unknown> = {
+      statusCode: resp.statusCode,
+      body: redactedDumpBody(
+        new TextDecoder().decode(body),
+        opts.debugTruncateBytes
+      ),
+    };
+    if (opts.debugHeaders) {
+      responseLog.headers = redactHeaders(
+        resp.headers,
+        opts.debugTruncateBytes
+      );
+    }
+    opts.logger.debug('HTTP response', responseLog);
     const apiErr = ApiError.fromHttpError(resp.statusCode, resp.headers, body);
     if (apiErr !== undefined) {
       throw apiErr;
     }
     throw new Error(`unexpected HTTP status ${String(resp.statusCode)}`);
   }
+
+  // The success body is a stream returned to the caller, so it is not drained.
+  const responseLog: Record<string, unknown> = {
+    statusCode: resp.statusCode,
+    body: '<stream>',
+  };
+  if (opts.debugHeaders) {
+    responseLog.headers = redactHeaders(resp.headers, opts.debugTruncateBytes);
+  }
+  opts.logger.debug('HTTP response', responseLog);
 
   return resp;
 }

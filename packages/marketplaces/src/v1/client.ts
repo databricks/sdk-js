@@ -4,6 +4,7 @@ import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
+import {DEFAULT_DEBUG_TRUNCATE_BYTES} from '@databricks/sdk-core/logger/debug';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
@@ -214,6 +215,9 @@ export class MarketplacesClient {
   private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
+  // Resolved debug-logging toggles passed into each HTTP call.
+  private readonly debugHeaders: boolean;
+  private readonly debugTruncateBytes: number;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
@@ -226,6 +230,9 @@ export class MarketplacesClient {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
+    this.debugHeaders = options.debugHeaders ?? false;
+    this.debugTruncateBytes =
+      options.debugTruncateBytes ?? DEFAULT_DEBUG_TRUNCATE_BYTES;
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
@@ -258,6 +265,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalBatchGetListingsResponseSchema);
     };
@@ -292,6 +301,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalBatchGetProvidersResponseSchema);
     };
@@ -321,6 +332,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -361,6 +374,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListInstallationsResponseSchema);
     };
@@ -415,6 +430,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -463,6 +480,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -494,6 +513,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -525,6 +546,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -557,6 +580,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateInstallationResponseSchema);
     };
@@ -594,6 +619,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -655,6 +682,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListFulfillmentsResponseSchema);
     };
@@ -709,6 +738,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -794,6 +825,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -857,6 +890,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -938,6 +973,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -989,6 +1026,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteInstallationResponseSchema);
     };
@@ -1023,6 +1062,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateInstallationResponseSchema);
     };
@@ -1052,6 +1093,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1084,6 +1127,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateExchangeResponseSchema);
     };
@@ -1113,6 +1158,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1145,6 +1192,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateFileResponseSchema);
     };
@@ -1174,6 +1223,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateListingResponseSchema);
     };
@@ -1203,6 +1254,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateProviderResponseSchema);
     };
@@ -1235,6 +1288,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1266,6 +1321,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteExchangeResponseSchema);
     };
@@ -1294,6 +1351,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1325,6 +1384,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteFileResponseSchema);
     };
@@ -1353,6 +1414,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteListingResponseSchema);
     };
@@ -1381,6 +1444,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteProviderResponseSchema);
     };
@@ -1409,6 +1474,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetExchangeResponseSchema);
     };
@@ -1437,6 +1504,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetFileResponseSchema);
     };
@@ -1465,6 +1534,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1496,6 +1567,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetListingResponseSchema);
     };
@@ -1536,6 +1609,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1587,6 +1662,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetProviderResponseSchema);
     };
@@ -1627,6 +1704,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1684,6 +1763,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListExchangesResponseSchema);
     };
@@ -1741,6 +1822,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1805,6 +1888,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListFilesResponseSchema);
     };
@@ -1859,6 +1944,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetListingsResponseSchema);
     };
@@ -1916,6 +2003,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -1964,6 +2053,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -2004,6 +2095,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListProvidersResponseSchema);
     };
@@ -2049,6 +2142,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -2081,6 +2176,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateExchangeResponseSchema);
     };
@@ -2110,6 +2207,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -2142,6 +2241,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateListingResponseSchema);
     };
@@ -2174,6 +2275,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -2206,6 +2309,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateProviderResponseSchema);
     };
@@ -2238,6 +2343,8 @@ export class MarketplacesClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,

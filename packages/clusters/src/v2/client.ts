@@ -4,6 +4,7 @@ import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
+import {DEFAULT_DEBUG_TRUNCATE_BYTES} from '@databricks/sdk-core/logger/debug';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
@@ -114,6 +115,9 @@ export class ClustersClient {
   private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
+  // Resolved debug-logging toggles passed into each HTTP call.
+  private readonly debugHeaders: boolean;
+  private readonly debugTruncateBytes: number;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
@@ -126,6 +130,9 @@ export class ClustersClient {
     this.host = options.host.replace(/\/$/, '');
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
+    this.debugHeaders = options.debugHeaders ?? false;
+    this.debugTruncateBytes =
+      options.debugTruncateBytes ?? DEFAULT_DEBUG_TRUNCATE_BYTES;
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
@@ -157,6 +164,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetEventsResponseSchema);
     };
@@ -203,6 +212,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalChangeClusterOwnerResponseSchema);
     };
@@ -245,6 +256,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalCreateClusterResponseSchema);
     };
@@ -291,6 +304,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalDeleteClusterResponseSchema);
     };
@@ -344,6 +359,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalEditClusterResponseSchema);
     };
@@ -394,6 +411,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalClusterInfoSchema);
     };
@@ -425,6 +444,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListAvailableZonesResponseSchema);
     };
@@ -462,6 +483,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListClustersResponseSchema);
     };
@@ -507,6 +530,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalListNodeTypesResponseSchema);
     };
@@ -535,6 +560,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalGetSparkVersionsResponseSchema);
     };
@@ -572,6 +599,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -608,6 +637,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalPinClusterResponseSchema);
     };
@@ -637,6 +668,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalResizeClusterResponseSchema);
     };
@@ -679,6 +712,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalRestartClusterResponseSchema);
     };
@@ -729,6 +764,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalStartClusterResponseSchema);
     };
@@ -775,6 +812,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUnpinClusterResponseSchema);
     };
@@ -813,6 +852,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUpdateClusterResponseSchema);
     };
@@ -869,6 +910,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -909,6 +952,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -956,6 +1001,8 @@ export class ClustersClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,

@@ -47,4 +47,16 @@ export interface ClientOptions {
 
   /** Logger used to record diagnostic messages. */
   logger?: Logger;
+
+  /**
+   * When true, request and response headers are included in debug-level HTTP
+   * logs. Authorization-family headers are always redacted. Defaults to false.
+   */
+  debugHeaders?: boolean;
+
+  /**
+   * Maximum number of bytes logged per string value and header value in
+   * debug-level HTTP logs. Defaults to 96.
+   */
+  debugTruncateBytes?: number;
 }

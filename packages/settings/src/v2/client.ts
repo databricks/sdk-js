@@ -4,6 +4,7 @@ import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
+import {DEFAULT_DEBUG_TRUNCATE_BYTES} from '@databricks/sdk-core/logger/debug';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
@@ -60,6 +61,9 @@ export class SettingsClient {
   private readonly workspaceId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
+  // Resolved debug-logging toggles passed into each HTTP call.
+  private readonly debugHeaders: boolean;
+  private readonly debugTruncateBytes: number;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
@@ -73,6 +77,9 @@ export class SettingsClient {
     this.accountId = options.accountId;
     this.workspaceId = options.workspaceId;
     this.logger = options.logger ?? new NoOpLogger();
+    this.debugHeaders = options.debugHeaders ?? false;
+    this.debugTruncateBytes =
+      options.debugTruncateBytes ?? DEFAULT_DEBUG_TRUNCATE_BYTES;
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
@@ -96,6 +103,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
@@ -125,6 +134,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUserPreferenceSchema);
     };
@@ -153,6 +164,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
@@ -191,6 +204,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -251,6 +266,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -315,6 +332,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(
         respBody,
@@ -366,6 +385,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
@@ -398,6 +419,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalUserPreferenceSchema);
     };
@@ -432,6 +455,8 @@ export class SettingsClient {
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
+        debugHeaders: this.debugHeaders,
+        debugTruncateBytes: this.debugTruncateBytes,
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };

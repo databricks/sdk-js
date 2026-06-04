@@ -53,6 +53,11 @@
       "import": "./dist/logger/index.js",
       "default": "./dist/logger/index.js"
     },
+    "./logger/debug": {
+      "types": "./dist/logger/debug.d.ts",
+      "import": "./dist/logger/debug.js",
+      "default": "./dist/logger/debug.js"
+    },
     "./ops": {
       "types": "./dist/ops/index.d.ts",
       "import": "./dist/ops/index.js",
