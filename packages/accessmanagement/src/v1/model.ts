@@ -3,45 +3,58 @@
 import {z} from 'zod';
 
 /** Permission level */
-export enum PermissionLevel {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_RESTART = 'CAN_RESTART',
-  CAN_ATTACH_TO = 'CAN_ATTACH_TO',
-  IS_OWNER = 'IS_OWNER',
-  CAN_MANAGE_RUN = 'CAN_MANAGE_RUN',
-  CAN_VIEW = 'CAN_VIEW',
-  CAN_READ = 'CAN_READ',
-  CAN_RUN = 'CAN_RUN',
-  CAN_EDIT = 'CAN_EDIT',
-  CAN_USE = 'CAN_USE',
-  CAN_MANAGE_STAGING_VERSIONS = 'CAN_MANAGE_STAGING_VERSIONS',
-  CAN_MANAGE_PRODUCTION_VERSIONS = 'CAN_MANAGE_PRODUCTION_VERSIONS',
-  CAN_EDIT_METADATA = 'CAN_EDIT_METADATA',
-  CAN_VIEW_METADATA = 'CAN_VIEW_METADATA',
-  CAN_BIND = 'CAN_BIND',
-  CAN_QUERY = 'CAN_QUERY',
-  CAN_MONITOR = 'CAN_MONITOR',
-  CAN_CREATE = 'CAN_CREATE',
-  CAN_MONITOR_ONLY = 'CAN_MONITOR_ONLY',
-  CAN_CREATE_APP = 'CAN_CREATE_APP',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PermissionLevel = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_RESTART: 'CAN_RESTART',
+  CAN_ATTACH_TO: 'CAN_ATTACH_TO',
+  IS_OWNER: 'IS_OWNER',
+  CAN_MANAGE_RUN: 'CAN_MANAGE_RUN',
+  CAN_VIEW: 'CAN_VIEW',
+  CAN_READ: 'CAN_READ',
+  CAN_RUN: 'CAN_RUN',
+  CAN_EDIT: 'CAN_EDIT',
+  CAN_USE: 'CAN_USE',
+  CAN_MANAGE_STAGING_VERSIONS: 'CAN_MANAGE_STAGING_VERSIONS',
+  CAN_MANAGE_PRODUCTION_VERSIONS: 'CAN_MANAGE_PRODUCTION_VERSIONS',
+  CAN_EDIT_METADATA: 'CAN_EDIT_METADATA',
+  CAN_VIEW_METADATA: 'CAN_VIEW_METADATA',
+  CAN_BIND: 'CAN_BIND',
+  CAN_QUERY: 'CAN_QUERY',
+  CAN_MONITOR: 'CAN_MONITOR',
+  CAN_CREATE: 'CAN_CREATE',
+  CAN_MONITOR_ONLY: 'CAN_MONITOR_ONLY',
+  CAN_CREATE_APP: 'CAN_CREATE_APP',
+} as const;
+export type PermissionLevel =
+  | (typeof PermissionLevel)[keyof typeof PermissionLevel]
+  | (string & {});
 
 /**
  * Defines the identity to be used for authZ of the request on the server side. See one pager for
  * for more information: http://go/acl/service-identity
  */
-export enum RequestAuthzIdentity {
-  REQUEST_AUTHZ_IDENTITY_UNSPECIFIED = 'REQUEST_AUTHZ_IDENTITY_UNSPECIFIED',
-  REQUEST_AUTHZ_IDENTITY_USER_CONTEXT = 'REQUEST_AUTHZ_IDENTITY_USER_CONTEXT',
-  REQUEST_AUTHZ_IDENTITY_SERVICE_IDENTITY = 'REQUEST_AUTHZ_IDENTITY_SERVICE_IDENTITY',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RequestAuthzIdentity = {
+  REQUEST_AUTHZ_IDENTITY_UNSPECIFIED: 'REQUEST_AUTHZ_IDENTITY_UNSPECIFIED',
+  REQUEST_AUTHZ_IDENTITY_USER_CONTEXT: 'REQUEST_AUTHZ_IDENTITY_USER_CONTEXT',
+  REQUEST_AUTHZ_IDENTITY_SERVICE_IDENTITY:
+    'REQUEST_AUTHZ_IDENTITY_SERVICE_IDENTITY',
+} as const;
+export type RequestAuthzIdentity =
+  | (typeof RequestAuthzIdentity)[keyof typeof RequestAuthzIdentity]
+  | (string & {});
 
-export enum WorkspacePermission {
-  UNKNOWN = 'UNKNOWN',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const WorkspacePermission = {
+  UNKNOWN: 'UNKNOWN',
   /** The most basic workspace permission */
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
+export type WorkspacePermission =
+  | (typeof WorkspacePermission)[keyof typeof WorkspacePermission]
+  | (string & {});
 
 export interface AccessControlRequest {
   principalName?:
@@ -491,7 +504,7 @@ export const unmarshalListWorkspacePermissionsResponseSchema: z.ZodType<ListWork
 
 export const unmarshalPermissionSchema: z.ZodType<Permission> = z
   .object({
-    permission_level: z.enum(PermissionLevel).optional(),
+    permission_level: z.string().optional(),
     inherited: z.boolean().optional(),
     inherited_from_object: z.array(z.string()).optional(),
   })
@@ -503,7 +516,7 @@ export const unmarshalPermissionSchema: z.ZodType<Permission> = z
 
 export const unmarshalPermissionOutputSchema: z.ZodType<PermissionOutput> = z
   .object({
-    permission_level: z.enum(WorkspacePermission).optional(),
+    permission_level: z.string().optional(),
     description: z.string().optional(),
   })
   .transform(d => ({
@@ -514,7 +527,7 @@ export const unmarshalPermissionOutputSchema: z.ZodType<PermissionOutput> = z
 export const unmarshalPermissionsDescriptionSchema: z.ZodType<PermissionsDescription> =
   z
     .object({
-      permission_level: z.enum(PermissionLevel).optional(),
+      permission_level: z.string().optional(),
       description: z.string().optional(),
     })
     .transform(d => ({
@@ -588,7 +601,7 @@ export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<Works
   z
     .object({
       principal: z.lazy(() => unmarshalPrincipalOutputSchema).optional(),
-      permissions: z.array(z.enum(WorkspacePermission)).optional(),
+      permissions: z.array(z.string()).optional(),
       error: z.string().optional(),
     })
     .transform(d => ({
@@ -609,7 +622,7 @@ export const marshalAccessControlRequestSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    permissionLevel: z.enum(PermissionLevel).optional(),
+    permissionLevel: z.string().optional(),
   })
   .transform(d => ({
     ...(d.principalName?.$case === 'userName' && {
@@ -724,7 +737,7 @@ export const marshalUpdateWorkspacePermissionAssignmentRequestSchema: z.ZodType 
       accountId: z.string().optional(),
       workspaceId: z.bigint().optional(),
       principalId: z.bigint().optional(),
-      permissions: z.array(z.enum(WorkspacePermission)).optional(),
+      permissions: z.array(z.string()).optional(),
     })
     .transform(d => ({
       account_id: d.accountId,

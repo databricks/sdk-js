@@ -3,37 +3,41 @@
 import {z} from 'zod';
 
 /** The status of a library on a specific cluster. */
-export enum LibraryInstallStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LibraryInstallStatus = {
   /** No action has yet been taken to install the library. This state should be very short lived. */
-  PENDING = 'PENDING',
+  PENDING: 'PENDING',
   /**
    * Metadata necessary to install the library is being retrieved from the provided repository.
    *
    * For jar and egg libraries, this step is a no-op.
    */
-  RESOLVING = 'RESOLVING',
+  RESOLVING: 'RESOLVING',
   /**
    * The library is actively being installed, either by adding resources to Spark or executing
    * system commands inside the Spark nodes.
    */
-  INSTALLING = 'INSTALLING',
+  INSTALLING: 'INSTALLING',
   /** The library has been successfully installed and can now be used. */
-  INSTALLED = 'INSTALLED',
+  INSTALLED: 'INSTALLED',
   /** Some step in installation failed. More information can be found in the `messages` field. */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /**
    * The library has been marked for removal. Currently, libraries can only be removed when clusters
    * are restarted, so libraries that enter this state will remain until the cluster is restarted.
    */
-  UNINSTALL_ON_RESTART = 'UNINSTALL_ON_RESTART',
+  UNINSTALL_ON_RESTART: 'UNINSTALL_ON_RESTART',
   /**
    * Indicates that Library Manager decided to skip installation for this library.
    * For example, shared libraries on DBR 7+ are skipped.
    */
-  SKIPPED = 'SKIPPED',
+  SKIPPED: 'SKIPPED',
   /** Library installation is restored and can be used. */
-  RESTORED = 'RESTORED',
-}
+  RESTORED: 'RESTORED',
+} as const;
+export type LibraryInstallStatus =
+  | (typeof LibraryInstallStatus)[keyof typeof LibraryInstallStatus]
+  | (string & {});
 
 export interface ClusterLibraryStatuses {
   /** Unique identifier for the cluster. */
@@ -236,7 +240,7 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
 export const unmarshalLibraryFullStatusSchema: z.ZodType<LibraryFullStatus> = z
   .object({
     library: z.lazy(() => unmarshalLibrarySchema).optional(),
-    status: z.enum(LibraryInstallStatus).optional(),
+    status: z.string().optional(),
     messages: z.array(z.string()).optional(),
     is_library_for_all_clusters: z.boolean().optional(),
   })

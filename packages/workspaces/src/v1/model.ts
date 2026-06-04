@@ -8,12 +8,16 @@ import {z} from 'zod';
  * Corresponds to compute mode defined here:
  * https://src.dev.databricks.com/databricks/universe@9076536b18479afd639d1c1f9dd5a59f72215e69/-/blob/central/api/common.proto?L872
  */
-export enum ComputeMode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComputeMode = {
   /** Classic + Serverless */
-  HYBRID = 'HYBRID',
+  HYBRID: 'HYBRID',
   /** Serverless-only. */
-  SERVERLESS = 'SERVERLESS',
-}
+  SERVERLESS: 'SERVERLESS',
+} as const;
+export type ComputeMode =
+  | (typeof ComputeMode)[keyof typeof ComputeMode]
+  | (string & {});
 
 /**
  * Specifies the network connectivity types for the GKE nodes and the GKE master network.
@@ -24,37 +28,49 @@ export enum ComputeMode {
  * Set to `PUBLIC_NODE_PUBLIC_MASTER` for a public GKE cluster.
  * The nodes of a public GKE cluster have public IP addresses.
  */
-export enum GkeConnectivityType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GkeConnectivityType = {
   /**
    * The nodes of the GKE cluster will have private IP only. GKE master will still have a public
    * IP.
    */
-  PRIVATE_NODE_PUBLIC_MASTER = 'PRIVATE_NODE_PUBLIC_MASTER',
+  PRIVATE_NODE_PUBLIC_MASTER: 'PRIVATE_NODE_PUBLIC_MASTER',
   /** The GKE cluster will have public IPs for both its nodes and GKE master. */
-  PUBLIC_NODE_PUBLIC_MASTER = 'PUBLIC_NODE_PUBLIC_MASTER',
-}
+  PUBLIC_NODE_PUBLIC_MASTER: 'PUBLIC_NODE_PUBLIC_MASTER',
+} as const;
+export type GkeConnectivityType =
+  | (typeof GkeConnectivityType)[keyof typeof GkeConnectivityType]
+  | (string & {});
 
-export enum PricingTier {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PricingTier = {
   /** unknown tier that signifies invalid tier values */
-  UNKNOWN = 'UNKNOWN',
+  UNKNOWN: 'UNKNOWN',
   /** Tier for CE workspaces */
-  COMMUNITY_EDITION = 'COMMUNITY_EDITION',
+  COMMUNITY_EDITION: 'COMMUNITY_EDITION',
   /** Standard pricing tier that maps to STANDARD_TIER feature tier */
-  STANDARD = 'STANDARD',
+  STANDARD: 'STANDARD',
   /** Premium pricing tier that maps to STANDARD_W_SEC_TIER feature tier */
-  PREMIUM = 'PREMIUM',
+  PREMIUM: 'PREMIUM',
   /** Enterprise pricing tier that maps to ENTERPRISE_TIER_V2 feature tier */
-  ENTERPRISE = 'ENTERPRISE',
+  ENTERPRISE: 'ENTERPRISE',
   /** Dedicated pricing tier that maps to the DEDICATED feature tier */
-  DEDICATED = 'DEDICATED',
-}
+  DEDICATED: 'DEDICATED',
+} as const;
+export type PricingTier =
+  | (typeof PricingTier)[keyof typeof PricingTier]
+  | (string & {});
 
-export enum StorageMode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const StorageMode = {
   /** The storage resources of the workspace are hosted by customers. */
-  CUSTOMER_HOSTED = 'CUSTOMER_HOSTED',
+  CUSTOMER_HOSTED: 'CUSTOMER_HOSTED',
   /** The storage resources of the workspace are hosted by Databricks. */
-  DEFAULT_STORAGE = 'DEFAULT_STORAGE',
-}
+  DEFAULT_STORAGE: 'DEFAULT_STORAGE',
+} as const;
+export type StorageMode =
+  | (typeof StorageMode)[keyof typeof StorageMode]
+  | (string & {});
 
 /**
  * The different statuses of a workspace. The following represents the current set of valid
@@ -79,32 +95,36 @@ export enum StorageMode {
  * Note that a transition from any state to itself is also valid.
  * TODO(PLAT-5867): add a transition from CANCELLED to some other value (e.g. RECOVERING)
  */
-export enum WorkspaceStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const WorkspaceStatus = {
   /**
    * Status for workspaces that have been created but not provisioned yet. It is technically
    * possible for an Azure workspace to be in this state, but only for less than a second in almost
    * all cases, as it will almost immediately transition to PROVISIONING. AWS workspaces may be in
    * NOT_PROVISIONED state for much longer.
    */
-  NOT_PROVISIONED = 'NOT_PROVISIONED',
+  NOT_PROVISIONED: 'NOT_PROVISIONED',
   /** Status for workspaces being provisioned. */
-  PROVISIONING = 'PROVISIONING',
+  PROVISIONING: 'PROVISIONING',
   /** Status for running workspaces. */
-  RUNNING = 'RUNNING',
+  RUNNING: 'RUNNING',
   /**
    * Status for workspaces that have failed to be provisioned. This is currently an AWS-only state
    * since an Azure customer can easily retry to launch a workspace that failed to launch, whereas
    * this process is different in AWS.
    */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /**
    * Status for banned workspaces. This is intended for use with CE workspaces, although there is no
    * code to enforce this restriction. These workspaces can be unbanned at a later time.
    */
-  BANNED = 'BANNED',
+  BANNED: 'BANNED',
   /** Status for cancelling workspaces. This state always comes before the CANCELLED status. */
-  CANCELLING = 'CANCELLING',
-}
+  CANCELLING: 'CANCELLING',
+} as const;
+export type WorkspaceStatus =
+  | (typeof WorkspaceStatus)[keyof typeof WorkspaceStatus]
+  | (string & {});
 
 export interface AzureWorkspaceInfo {
   /** Azure Resource Group name */
@@ -394,7 +414,7 @@ export const unmarshalGcpCloudResourceContainerSchema: z.ZodType<GcpCloudResourc
 export const unmarshalGcpCommonNetworkConfigSchema: z.ZodType<GcpCommonNetworkConfig> =
   z
     .object({
-      gke_connectivity_type: z.enum(GkeConnectivityType).optional(),
+      gke_connectivity_type: z.string().optional(),
       gke_cluster_master_ip_range: z.string().optional(),
     })
     .transform(d => ({
@@ -417,7 +437,7 @@ export const unmarshalGcpManagedNetworkConfigSchema: z.ZodType<GcpManagedNetwork
 
 export const unmarshalGkeConfigSchema: z.ZodType<GkeConfig> = z
   .object({
-    connectivity_type: z.enum(GkeConnectivityType).optional(),
+    connectivity_type: z.string().optional(),
     master_ip_range: z.string().optional(),
   })
   .transform(d => ({
@@ -438,7 +458,7 @@ export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
       .transform(v => BigInt(v))
       .optional(),
     deployment_name: z.string().optional(),
-    workspace_status: z.enum(WorkspaceStatus).optional(),
+    workspace_status: z.string().optional(),
     account_id: z.string().optional(),
     credentials_id: z.string().optional(),
     storage_configuration_id: z.string().optional(),
@@ -447,7 +467,7 @@ export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
     gcp_managed_network_config: z
       .lazy(() => unmarshalGcpManagedNetworkConfigSchema)
       .optional(),
-    pricing_tier: z.enum(PricingTier).optional(),
+    pricing_tier: z.string().optional(),
     private_access_settings_id: z.string().optional(),
     managed_services_customer_managed_key_id: z.string().optional(),
     storage_customer_managed_key_id: z.string().optional(),
@@ -463,9 +483,9 @@ export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
       .optional(),
     custom_tags: z.record(z.string(), z.string()).optional(),
     network_connectivity_config_id: z.string().optional(),
-    storage_mode: z.enum(StorageMode).optional(),
-    compute_mode: z.enum(ComputeMode).optional(),
-    expected_workspace_status: z.enum(WorkspaceStatus).optional(),
+    storage_mode: z.string().optional(),
+    compute_mode: z.string().optional(),
+    expected_workspace_status: z.string().optional(),
   })
   .transform(d => ({
     workspaceId: d.workspace_id,
@@ -563,7 +583,7 @@ export const marshalCreateWorkspaceRequestSchema: z.ZodType = z
     awsRegion: z.string().optional(),
     location: z.string().optional(),
     cloud: z.string().optional(),
-    pricingTier: z.enum(PricingTier).optional(),
+    pricingTier: z.string().optional(),
     cloudResourceContainer: z
       .lazy(() => marshalCloudResourceContainerSchema)
       .optional(),
@@ -578,7 +598,7 @@ export const marshalCreateWorkspaceRequestSchema: z.ZodType = z
     managedServicesCustomerManagedKeyId: z.string().optional(),
     storageCustomerManagedKeyId: z.string().optional(),
     customTags: z.record(z.string(), z.string()).optional(),
-    computeMode: z.enum(ComputeMode).optional(),
+    computeMode: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
   })
   .transform(d => ({
@@ -614,7 +634,7 @@ export const marshalGcpCloudResourceContainerSchema: z.ZodType = z
 
 export const marshalGcpCommonNetworkConfigSchema: z.ZodType = z
   .object({
-    gkeConnectivityType: z.enum(GkeConnectivityType).optional(),
+    gkeConnectivityType: z.string().optional(),
     gkeClusterMasterIpRange: z.string().optional(),
   })
   .transform(d => ({
@@ -636,7 +656,7 @@ export const marshalGcpManagedNetworkConfigSchema: z.ZodType = z
 
 export const marshalGkeConfigSchema: z.ZodType = z
   .object({
-    connectivityType: z.enum(GkeConnectivityType).optional(),
+    connectivityType: z.string().optional(),
     masterIpRange: z.string().optional(),
   })
   .transform(d => ({
@@ -651,7 +671,7 @@ export const marshalWorkspaceSchema: z.ZodType = z
     awsRegion: z.string().optional(),
     creationTime: z.bigint().optional(),
     deploymentName: z.string().optional(),
-    workspaceStatus: z.enum(WorkspaceStatus).optional(),
+    workspaceStatus: z.string().optional(),
     accountId: z.string().optional(),
     credentialsId: z.string().optional(),
     storageConfigurationId: z.string().optional(),
@@ -667,7 +687,7 @@ export const marshalWorkspaceSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    pricingTier: z.enum(PricingTier).optional(),
+    pricingTier: z.string().optional(),
     privateAccessSettingsId: z.string().optional(),
     managedServicesCustomerManagedKeyId: z.string().optional(),
     storageCustomerManagedKeyId: z.string().optional(),
@@ -683,9 +703,9 @@ export const marshalWorkspaceSchema: z.ZodType = z
       .optional(),
     customTags: z.record(z.string(), z.string()).optional(),
     networkConnectivityConfigId: z.string().optional(),
-    storageMode: z.enum(StorageMode).optional(),
-    computeMode: z.enum(ComputeMode).optional(),
-    expectedWorkspaceStatus: z.enum(WorkspaceStatus).optional(),
+    storageMode: z.string().optional(),
+    computeMode: z.string().optional(),
+    expectedWorkspaceStatus: z.string().optional(),
   })
   .transform(d => ({
     workspace_id: d.workspaceId,

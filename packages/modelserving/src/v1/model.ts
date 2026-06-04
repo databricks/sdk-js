@@ -2,54 +2,76 @@
 
 import {z} from 'zod';
 
-export enum Behavior {
-  BEHAVIOR_UNSPECIFIED = 'BEHAVIOR_UNSPECIFIED',
-  NONE = 'NONE',
-  BLOCK = 'BLOCK',
-  MASK = 'MASK',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Behavior = {
+  BEHAVIOR_UNSPECIFIED: 'BEHAVIOR_UNSPECIFIED',
+  NONE: 'NONE',
+  BLOCK: 'BLOCK',
+  MASK: 'MASK',
+} as const;
+export type Behavior = (typeof Behavior)[keyof typeof Behavior] | (string & {});
 
-export enum ServedModelDeploymentState {
-  DEPLOYMENT_UNKNOWN = 'DEPLOYMENT_UNKNOWN',
-  DEPLOYMENT_CREATING = 'DEPLOYMENT_CREATING',
-  DEPLOYMENT_RECOVERING = 'DEPLOYMENT_RECOVERING',
-  DEPLOYMENT_READY = 'DEPLOYMENT_READY',
-  DEPLOYMENT_FAILED = 'DEPLOYMENT_FAILED',
-  DEPLOYMENT_ABORTED = 'DEPLOYMENT_ABORTED',
-  DEPLOYMENT_STOPPED = 'DEPLOYMENT_STOPPED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ServedModelDeploymentState = {
+  DEPLOYMENT_UNKNOWN: 'DEPLOYMENT_UNKNOWN',
+  DEPLOYMENT_CREATING: 'DEPLOYMENT_CREATING',
+  DEPLOYMENT_RECOVERING: 'DEPLOYMENT_RECOVERING',
+  DEPLOYMENT_READY: 'DEPLOYMENT_READY',
+  DEPLOYMENT_FAILED: 'DEPLOYMENT_FAILED',
+  DEPLOYMENT_ABORTED: 'DEPLOYMENT_ABORTED',
+  DEPLOYMENT_STOPPED: 'DEPLOYMENT_STOPPED',
+} as const;
+export type ServedModelDeploymentState =
+  | (typeof ServedModelDeploymentState)[keyof typeof ServedModelDeploymentState]
+  | (string & {});
 
-export enum ServingEndpointDetailedPermissionLevel {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_QUERY = 'CAN_QUERY',
-  CAN_VIEW = 'CAN_VIEW',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ServingEndpointDetailedPermissionLevel = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_QUERY: 'CAN_QUERY',
+  CAN_VIEW: 'CAN_VIEW',
+} as const;
+export type ServingEndpointDetailedPermissionLevel =
+  | (typeof ServingEndpointDetailedPermissionLevel)[keyof typeof ServingEndpointDetailedPermissionLevel]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ExternalFunctionRequest_HttpMethod = {
+  HTTP_METHOD_UNSPECIFIED: 'HTTP_METHOD_UNSPECIFIED',
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+  PATCH: 'PATCH',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ExternalFunctionRequest_HttpMethod {
-  HTTP_METHOD_UNSPECIFIED = 'HTTP_METHOD_UNSPECIFIED',
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE',
-  PATCH = 'PATCH',
-}
+export type ExternalFunctionRequest_HttpMethod =
+  | (typeof ExternalFunctionRequest_HttpMethod)[keyof typeof ExternalFunctionRequest_HttpMethod]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const InferenceEndpointState_ConfigUpdateState = {
+  CONFIG_UPDATE_STATE_UNSPECIFIED: 'CONFIG_UPDATE_STATE_UNSPECIFIED',
+  NOT_UPDATING: 'NOT_UPDATING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  UPDATE_FAILED: 'UPDATE_FAILED',
+  UPDATE_CANCELED: 'UPDATE_CANCELED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum InferenceEndpointState_ConfigUpdateState {
-  CONFIG_UPDATE_STATE_UNSPECIFIED = 'CONFIG_UPDATE_STATE_UNSPECIFIED',
-  NOT_UPDATING = 'NOT_UPDATING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  UPDATE_FAILED = 'UPDATE_FAILED',
-  UPDATE_CANCELED = 'UPDATE_CANCELED',
-}
+export type InferenceEndpointState_ConfigUpdateState =
+  | (typeof InferenceEndpointState_ConfigUpdateState)[keyof typeof InferenceEndpointState_ConfigUpdateState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const InferenceEndpointState_ReadyState = {
+  READY_STATE_UNSPECIFIED: 'READY_STATE_UNSPECIFIED',
+  READY: 'READY',
+  NOT_READY: 'NOT_READY',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum InferenceEndpointState_ReadyState {
-  READY_STATE_UNSPECIFIED = 'READY_STATE_UNSPECIFIED',
-  READY = 'READY',
-  NOT_READY = 'NOT_READY',
-}
+export type InferenceEndpointState_ReadyState =
+  | (typeof InferenceEndpointState_ReadyState)[keyof typeof InferenceEndpointState_ReadyState]
+  | (string & {});
 
 export interface Ai21LabsConfig {
   /**
@@ -1540,9 +1562,7 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
       config: z.lazy(() => unmarshalEndpointCoreConfigOutputSchema).optional(),
       pending_config: z.lazy(() => unmarshalPendingConfigSchema).optional(),
       id: z.string().optional(),
-      permission_level: z
-        .enum(ServingEndpointDetailedPermissionLevel)
-        .optional(),
+      permission_level: z.string().optional(),
       tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
       task: z.string().optional(),
       route_optimized: z.boolean().optional(),
@@ -1581,10 +1601,8 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
 export const unmarshalInferenceEndpointStateSchema: z.ZodType<InferenceEndpointState> =
   z
     .object({
-      ready: z.enum(InferenceEndpointState_ReadyState).optional(),
-      config_update: z
-        .enum(InferenceEndpointState_ConfigUpdateState)
-        .optional(),
+      ready: z.string().optional(),
+      config_update: z.string().optional(),
     })
     .transform(d => ({
       ready: d.ready,
@@ -1713,7 +1731,7 @@ export const unmarshalPendingConfigSchema: z.ZodType<PendingConfig> = z
 
 export const unmarshalPiiSettingsSchema: z.ZodType<PiiSettings> = z
   .object({
-    behavior: z.enum(Behavior).optional(),
+    behavior: z.string().optional(),
   })
   .transform(d => ({
     behavior: d.behavior,
@@ -1852,7 +1870,7 @@ export const unmarshalServedModelLiteSchema: z.ZodType<ServedModelLite> = z
 
 export const unmarshalServedModelStateSchema: z.ZodType<ServedModelState> = z
   .object({
-    deployment: z.enum(ServedModelDeploymentState).optional(),
+    deployment: z.string().optional(),
     deployment_state_message: z.string().optional(),
   })
   .transform(d => ({
@@ -2157,7 +2175,7 @@ export const marshalEndpointTagSchema: z.ZodType = z
 export const marshalExternalFunctionRequestSchema: z.ZodType = z
   .object({
     connectionName: z.string().optional(),
-    method: z.enum(ExternalFunctionRequest_HttpMethod).optional(),
+    method: z.string().optional(),
     path: z.string().optional(),
     json: z.string().optional(),
     headers: z.string().optional(),
@@ -2370,7 +2388,7 @@ export const marshalPayloadTableSchema: z.ZodType = z
 
 export const marshalPiiSettingsSchema: z.ZodType = z
   .object({
-    behavior: z.enum(Behavior).optional(),
+    behavior: z.string().optional(),
   })
   .transform(d => ({
     behavior: d.behavior,
@@ -2536,7 +2554,7 @@ export const marshalServedModelSchema: z.ZodType = z
 
 export const marshalServedModelStateSchema: z.ZodType = z
   .object({
-    deployment: z.enum(ServedModelDeploymentState).optional(),
+    deployment: z.string().optional(),
     deploymentStateMessage: z.string().optional(),
   })
   .transform(d => ({

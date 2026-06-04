@@ -2,15 +2,19 @@
 
 import {z} from 'zod';
 
-export enum ModelVersionStatus {
-  MODEL_VERSION_STATUS_UNKNOWN = 'MODEL_VERSION_STATUS_UNKNOWN',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ModelVersionStatus = {
+  MODEL_VERSION_STATUS_UNKNOWN: 'MODEL_VERSION_STATUS_UNKNOWN',
   /** Request to register a new model version is pending as client uploads model files. */
-  PENDING_REGISTRATION = 'PENDING_REGISTRATION',
+  PENDING_REGISTRATION: 'PENDING_REGISTRATION',
   /** Request to register a new model version has failed. */
-  FAILED_REGISTRATION = 'FAILED_REGISTRATION',
+  FAILED_REGISTRATION: 'FAILED_REGISTRATION',
   /** Model version is ready for use. */
-  READY = 'READY',
-}
+  READY: 'READY',
+} as const;
+export type ModelVersionStatus =
+  | (typeof ModelVersionStatus)[keyof typeof ModelVersionStatus]
+  | (string & {});
 
 /** A connection that is dependent on a SQL object. */
 export interface ConnectionDependency {
@@ -506,7 +510,7 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
     model_version_dependencies: z
       .lazy(() => unmarshalDependencyListSchema)
       .optional(),
-    status: z.enum(ModelVersionStatus).optional(),
+    status: z.string().optional(),
     version: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -772,7 +776,7 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     modelVersionDependencies: z
       .lazy(() => marshalDependencyListSchema)
       .optional(),
-    status: z.enum(ModelVersionStatus).optional(),
+    status: z.string().optional(),
     version: z.bigint().optional(),
     storageLocation: z.string().optional(),
     metastoreId: z.string().optional(),

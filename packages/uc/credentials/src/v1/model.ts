@@ -2,56 +2,84 @@
 
 import {z} from 'zod';
 
-export enum IsolationMode {
-  ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
-  ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
-  ISOLATION_MODE_ISOLATED = 'ISOLATION_MODE_ISOLATED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IsolationMode = {
+  ISOLATION_MODE_UNSPECIFIED: 'ISOLATION_MODE_UNSPECIFIED',
+  ISOLATION_MODE_OPEN: 'ISOLATION_MODE_OPEN',
+  ISOLATION_MODE_ISOLATED: 'ISOLATION_MODE_ISOLATED',
+} as const;
+export type IsolationMode =
+  | (typeof IsolationMode)[keyof typeof IsolationMode]
+  | (string & {});
 
-export enum PathOperation {
-  PATH_READ = 'PATH_READ',
-  PATH_READ_WRITE = 'PATH_READ_WRITE',
-  PATH_CREATE_TABLE = 'PATH_CREATE_TABLE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PathOperation = {
+  PATH_READ: 'PATH_READ',
+  PATH_READ_WRITE: 'PATH_READ_WRITE',
+  PATH_CREATE_TABLE: 'PATH_CREATE_TABLE',
+} as const;
+export type PathOperation =
+  | (typeof PathOperation)[keyof typeof PathOperation]
+  | (string & {});
 
-export enum TableOperation {
-  READ = 'READ',
-  READ_WRITE = 'READ_WRITE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TableOperation = {
+  READ: 'READ',
+  READ_WRITE: 'READ_WRITE',
+} as const;
+export type TableOperation =
+  | (typeof TableOperation)[keyof typeof TableOperation]
+  | (string & {});
 
-export enum VolumeOperation {
-  READ_VOLUME = 'READ_VOLUME',
-  WRITE_VOLUME = 'WRITE_VOLUME',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const VolumeOperation = {
+  READ_VOLUME: 'READ_VOLUME',
+  WRITE_VOLUME: 'WRITE_VOLUME',
+} as const;
+export type VolumeOperation =
+  | (typeof VolumeOperation)[keyof typeof VolumeOperation]
+  | (string & {});
 
 /** A enum represents the result of the file operation */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ValidateCredentialRequest_Result = {
+  PASS: 'PASS',
+  FAIL: 'FAIL',
+  SKIP: 'SKIP',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ValidateCredentialRequest_Result {
-  PASS = 'PASS',
-  FAIL = 'FAIL',
-  SKIP = 'SKIP',
-}
+export type ValidateCredentialRequest_Result =
+  | (typeof ValidateCredentialRequest_Result)[keyof typeof ValidateCredentialRequest_Result]
+  | (string & {});
 
 /**
  * A enum represents the file operation performed on the external location
  * with the storage credential
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ValidateStorageCredentialRequest_FileOperation = {
+  LIST: 'LIST',
+  READ: 'READ',
+  WRITE: 'WRITE',
+  DELETE: 'DELETE',
+  PATH_EXISTS: 'PATH_EXISTS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ValidateStorageCredentialRequest_FileOperation {
-  LIST = 'LIST',
-  READ = 'READ',
-  WRITE = 'WRITE',
-  DELETE = 'DELETE',
-  PATH_EXISTS = 'PATH_EXISTS',
-}
+export type ValidateStorageCredentialRequest_FileOperation =
+  | (typeof ValidateStorageCredentialRequest_FileOperation)[keyof typeof ValidateStorageCredentialRequest_FileOperation]
+  | (string & {});
 
 /** A enum represents the result of the file operation */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ValidateStorageCredentialRequest_Result = {
+  PASS: 'PASS',
+  FAIL: 'FAIL',
+  SKIP: 'SKIP',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ValidateStorageCredentialRequest_Result {
-  PASS = 'PASS',
-  FAIL = 'FAIL',
-  SKIP = 'SKIP',
-}
+export type ValidateStorageCredentialRequest_Result =
+  | (typeof ValidateStorageCredentialRequest_Result)[keyof typeof ValidateStorageCredentialRequest_Result]
+  | (string & {});
 
 export interface AccountsCreateStorageCredentialRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
@@ -1505,7 +1533,7 @@ export const unmarshalCredentialInfoSchema: z.ZodType<CredentialInfo> = z
     updated_by: z.string().optional(),
     used_for_managed_storage: z.boolean().optional(),
     full_name: z.string().optional(),
-    isolation_mode: z.enum(IsolationMode).optional(),
+    isolation_mode: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1844,7 +1872,7 @@ export const unmarshalStorageCredentialInfoSchema: z.ZodType<StorageCredentialIn
       updated_by: z.string().optional(),
       used_for_managed_storage: z.boolean().optional(),
       full_name: z.string().optional(),
-      isolation_mode: z.enum(IsolationMode).optional(),
+      isolation_mode: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1962,7 +1990,7 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
 export const unmarshalValidateCredentialRequest_ValidationResultSchema: z.ZodType<ValidateCredentialRequest_ValidationResult> =
   z
     .object({
-      result: z.enum(ValidateCredentialRequest_Result).optional(),
+      result: z.string().optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -1991,10 +2019,8 @@ export const unmarshalValidateCredentialResponseSchema: z.ZodType<ValidateCreden
 export const unmarshalValidateStorageCredentialRequest_ValidationResultSchema: z.ZodType<ValidateStorageCredentialRequest_ValidationResult> =
   z
     .object({
-      operation: z
-        .enum(ValidateStorageCredentialRequest_FileOperation)
-        .optional(),
-      result: z.enum(ValidateStorageCredentialRequest_Result).optional(),
+      operation: z.string().optional(),
+      result: z.string().optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -2158,7 +2184,7 @@ export const marshalCreateAccountsStorageCredentialSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2256,7 +2282,7 @@ export const marshalCreateCredentialRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
   })
   .transform(d => ({
     skip_validation: d.skipValidation,
@@ -2363,7 +2389,7 @@ export const marshalCreateStorageCredentialRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
   })
   .transform(d => ({
     skip_validation: d.skipValidation,
@@ -2427,7 +2453,7 @@ export const marshalGcpServiceAccountKeySchema: z.ZodType = z
 export const marshalGenerateTemporaryPathCredentialRequestSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
-    operation: z.enum(PathOperation).optional(),
+    operation: z.string().optional(),
     dryRun: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2492,7 +2518,7 @@ export const marshalGenerateTemporaryServiceCredentialRequest_GcpOptionsSchema: 
 export const marshalGenerateTemporaryTableCredentialRequestSchema: z.ZodType = z
   .object({
     tableId: z.string().optional(),
-    operation: z.enum(TableOperation).optional(),
+    operation: z.string().optional(),
   })
   .transform(d => ({
     table_id: d.tableId,
@@ -2503,7 +2529,7 @@ export const marshalGenerateTemporaryVolumeCredentialRequestSchema: z.ZodType =
   z
     .object({
       volumeId: z.string().optional(),
-      operation: z.enum(VolumeOperation).optional(),
+      operation: z.string().optional(),
     })
     .transform(d => ({
       volume_id: d.volumeId,
@@ -2556,7 +2582,7 @@ export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2642,7 +2668,7 @@ export const marshalUpdateCredentialRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
   })
   .transform(d => ({
     name_arg: d.nameArg,
@@ -2732,7 +2758,7 @@ export const marshalUpdateStorageCredentialRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     usedForManagedStorage: z.boolean().optional(),
     fullName: z.string().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
   })
   .transform(d => ({
     name_arg: d.nameArg,

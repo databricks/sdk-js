@@ -3,88 +3,104 @@
 import {z} from 'zod';
 
 /** Next Id: 126 */
-export enum ConnectionType {
-  UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
-  MYSQL = 'MYSQL',
-  POSTGRESQL = 'POSTGRESQL',
-  SNOWFLAKE = 'SNOWFLAKE',
-  REDSHIFT = 'REDSHIFT',
-  SQLDW = 'SQLDW',
-  SQLSERVER = 'SQLSERVER',
-  DATABRICKS = 'DATABRICKS',
-  SALESFORCE = 'SALESFORCE',
-  BIGQUERY = 'BIGQUERY',
-  WORKDAY_RAAS = 'WORKDAY_RAAS',
-  HIVE_METASTORE = 'HIVE_METASTORE',
-  GA4_RAW_DATA = 'GA4_RAW_DATA',
-  SERVICENOW = 'SERVICENOW',
-  SALESFORCE_DATA_CLOUD = 'SALESFORCE_DATA_CLOUD',
-  GLUE = 'GLUE',
-  ORACLE = 'ORACLE',
-  TERADATA = 'TERADATA',
-  HTTP = 'HTTP',
-  POWER_BI = 'POWER_BI',
-  CONFLUENCE = 'CONFLUENCE',
-  META_MARKETING = 'META_MARKETING',
-  HUBSPOT = 'HUBSPOT',
-  ZENDESK = 'ZENDESK',
-  GITHUB = 'GITHUB',
-  OUTLOOK = 'OUTLOOK',
-  SMARTSHEET = 'SMARTSHEET',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ConnectionType = {
+  UNKNOWN_CONNECTION_TYPE: 'UNKNOWN_CONNECTION_TYPE',
+  MYSQL: 'MYSQL',
+  POSTGRESQL: 'POSTGRESQL',
+  SNOWFLAKE: 'SNOWFLAKE',
+  REDSHIFT: 'REDSHIFT',
+  SQLDW: 'SQLDW',
+  SQLSERVER: 'SQLSERVER',
+  DATABRICKS: 'DATABRICKS',
+  SALESFORCE: 'SALESFORCE',
+  BIGQUERY: 'BIGQUERY',
+  WORKDAY_RAAS: 'WORKDAY_RAAS',
+  HIVE_METASTORE: 'HIVE_METASTORE',
+  GA4_RAW_DATA: 'GA4_RAW_DATA',
+  SERVICENOW: 'SERVICENOW',
+  SALESFORCE_DATA_CLOUD: 'SALESFORCE_DATA_CLOUD',
+  GLUE: 'GLUE',
+  ORACLE: 'ORACLE',
+  TERADATA: 'TERADATA',
+  HTTP: 'HTTP',
+  POWER_BI: 'POWER_BI',
+  CONFLUENCE: 'CONFLUENCE',
+  META_MARKETING: 'META_MARKETING',
+  HUBSPOT: 'HUBSPOT',
+  ZENDESK: 'ZENDESK',
+  GITHUB: 'GITHUB',
+  OUTLOOK: 'OUTLOOK',
+  SMARTSHEET: 'SMARTSHEET',
+} as const;
+export type ConnectionType =
+  | (typeof ConnectionType)[keyof typeof ConnectionType]
+  | (string & {});
 
 /** Next Id: 19 */
-export enum CredentialType {
-  UNKNOWN_CREDENTIAL_TYPE = 'UNKNOWN_CREDENTIAL_TYPE',
-  USERNAME_PASSWORD = 'USERNAME_PASSWORD',
-  OAUTH_U2M = 'OAUTH_U2M',
-  OAUTH_M2M = 'OAUTH_M2M',
-  OAUTH_REFRESH_TOKEN = 'OAUTH_REFRESH_TOKEN',
-  OAUTH_ACCESS_TOKEN = 'OAUTH_ACCESS_TOKEN',
-  OAUTH_RESOURCE_OWNER_PASSWORD = 'OAUTH_RESOURCE_OWNER_PASSWORD',
-  SERVICE_CREDENTIAL = 'SERVICE_CREDENTIAL',
-  BEARER_TOKEN = 'BEARER_TOKEN',
-  OIDC_TOKEN = 'OIDC_TOKEN',
-  PEM_PRIVATE_KEY = 'PEM_PRIVATE_KEY',
-  OAUTH_U2M_MAPPING = 'OAUTH_U2M_MAPPING',
-  ANY_STATIC_CREDENTIAL = 'ANY_STATIC_CREDENTIAL',
-  OAUTH_MTLS = 'OAUTH_MTLS',
-  SSWS_TOKEN = 'SSWS_TOKEN',
-  EDGEGRID_AKAMAI = 'EDGEGRID_AKAMAI',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CredentialType = {
+  UNKNOWN_CREDENTIAL_TYPE: 'UNKNOWN_CREDENTIAL_TYPE',
+  USERNAME_PASSWORD: 'USERNAME_PASSWORD',
+  OAUTH_U2M: 'OAUTH_U2M',
+  OAUTH_M2M: 'OAUTH_M2M',
+  OAUTH_REFRESH_TOKEN: 'OAUTH_REFRESH_TOKEN',
+  OAUTH_ACCESS_TOKEN: 'OAUTH_ACCESS_TOKEN',
+  OAUTH_RESOURCE_OWNER_PASSWORD: 'OAUTH_RESOURCE_OWNER_PASSWORD',
+  SERVICE_CREDENTIAL: 'SERVICE_CREDENTIAL',
+  BEARER_TOKEN: 'BEARER_TOKEN',
+  OIDC_TOKEN: 'OIDC_TOKEN',
+  PEM_PRIVATE_KEY: 'PEM_PRIVATE_KEY',
+  OAUTH_U2M_MAPPING: 'OAUTH_U2M_MAPPING',
+  ANY_STATIC_CREDENTIAL: 'ANY_STATIC_CREDENTIAL',
+  OAUTH_MTLS: 'OAUTH_MTLS',
+  SSWS_TOKEN: 'SSWS_TOKEN',
+  EDGEGRID_AKAMAI: 'EDGEGRID_AKAMAI',
+} as const;
+export type CredentialType =
+  | (typeof CredentialType)[keyof typeof CredentialType]
+  | (string & {});
 
 /** The type of Unity Catalog securable. */
-export enum SecurableType {
-  CATALOG = 'CATALOG',
-  SCHEMA = 'SCHEMA',
-  TABLE = 'TABLE',
-  STORAGE_CREDENTIAL = 'STORAGE_CREDENTIAL',
-  EXTERNAL_LOCATION = 'EXTERNAL_LOCATION',
-  FUNCTION = 'FUNCTION',
-  SHARE = 'SHARE',
-  PROVIDER = 'PROVIDER',
-  RECIPIENT = 'RECIPIENT',
-  CLEAN_ROOM = 'CLEAN_ROOM',
-  METASTORE = 'METASTORE',
-  PIPELINE = 'PIPELINE',
-  VOLUME = 'VOLUME',
-  CONNECTION = 'CONNECTION',
-  CREDENTIAL = 'CREDENTIAL',
-  EXTERNAL_METADATA = 'EXTERNAL_METADATA',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableType = {
+  CATALOG: 'CATALOG',
+  SCHEMA: 'SCHEMA',
+  TABLE: 'TABLE',
+  STORAGE_CREDENTIAL: 'STORAGE_CREDENTIAL',
+  EXTERNAL_LOCATION: 'EXTERNAL_LOCATION',
+  FUNCTION: 'FUNCTION',
+  SHARE: 'SHARE',
+  PROVIDER: 'PROVIDER',
+  RECIPIENT: 'RECIPIENT',
+  CLEAN_ROOM: 'CLEAN_ROOM',
+  METASTORE: 'METASTORE',
+  PIPELINE: 'PIPELINE',
+  VOLUME: 'VOLUME',
+  CONNECTION: 'CONNECTION',
+  CREDENTIAL: 'CREDENTIAL',
+  EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
-  STAGING_TABLE = 'STAGING_TABLE',
-}
+  STAGING_TABLE: 'STAGING_TABLE',
+} as const;
+export type SecurableType =
+  | (typeof SecurableType)[keyof typeof SecurableType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningInfo_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PROVISIONING: 'PROVISIONING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DELETING: 'DELETING',
+  UPDATING: 'UPDATING',
+  DEGRADED: 'DEGRADED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ProvisioningInfo_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PROVISIONING = 'PROVISIONING',
-  ACTIVE = 'ACTIVE',
-  FAILED = 'FAILED',
-  DELETING = 'DELETING',
-  UPDATING = 'UPDATING',
-  DEGRADED = 'DEGRADED',
-}
+export type ProvisioningInfo_State =
+  | (typeof ProvisioningInfo_State)[keyof typeof ProvisioningInfo_State]
+  | (string & {});
 
 export interface ConnectionInfo {
   /** Name of the connection. */
@@ -282,13 +298,13 @@ export interface UpdateConnectionRequest_PropertiesEntry {
 export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
   .object({
     name: z.string().optional(),
-    connection_type: z.enum(ConnectionType).optional(),
+    connection_type: z.string().optional(),
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
-    credential_type: z.enum(CredentialType).optional(),
+    credential_type: z.string().optional(),
     connection_id: z.string().optional(),
     metastore_id: z.string().optional(),
     created_at: z
@@ -301,7 +317,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
-    securable_type: z.enum(SecurableType).optional(),
+    securable_type: z.string().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -345,7 +361,7 @@ export const unmarshalListConnectionsResponseSchema: z.ZodType<ListConnectionsRe
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
   .object({
-    state: z.enum(ProvisioningInfo_State).optional(),
+    state: z.string().optional(),
   })
   .transform(d => ({
     state: d.state,
@@ -354,20 +370,20 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
 export const marshalCreateConnectionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    connectionType: z.enum(ConnectionType).optional(),
+    connectionType: z.string().optional(),
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
-    credentialType: z.enum(CredentialType).optional(),
+    credentialType: z.string().optional(),
     connectionId: z.string().optional(),
     metastoreId: z.string().optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    securableType: z.enum(SecurableType).optional(),
+    securableType: z.string().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -395,7 +411,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
 
 export const marshalProvisioningInfoSchema: z.ZodType = z
   .object({
-    state: z.enum(ProvisioningInfo_State).optional(),
+    state: z.string().optional(),
   })
   .transform(d => ({
     state: d.state,
@@ -406,20 +422,20 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     nameArg: z.string().optional(),
     newName: z.string().optional(),
     name: z.string().optional(),
-    connectionType: z.enum(ConnectionType).optional(),
+    connectionType: z.string().optional(),
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
-    credentialType: z.enum(CredentialType).optional(),
+    credentialType: z.string().optional(),
     connectionId: z.string().optional(),
     metastoreId: z.string().optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    securableType: z.enum(SecurableType).optional(),
+    securableType: z.string().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),

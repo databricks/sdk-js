@@ -7,94 +7,131 @@ import {z} from 'zod';
  * UC supported column types
  * Copied from https://src.dev.databricks.com/databricks/universe@23a85902bb58695ab9293adc9f327b0714b55e72/-/blob/managed-catalog/api/messages/table.proto?L68
  */
-export enum ColumnTypeName {
-  COLUMN_TYPE_NAME_UNSPECIFIED = 'COLUMN_TYPE_NAME_UNSPECIFIED',
-  BOOLEAN = 'BOOLEAN',
-  BYTE = 'BYTE',
-  SHORT = 'SHORT',
-  INT = 'INT',
-  LONG = 'LONG',
-  FLOAT = 'FLOAT',
-  DOUBLE = 'DOUBLE',
-  DATE = 'DATE',
-  TIMESTAMP = 'TIMESTAMP',
-  STRING = 'STRING',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-  INTERVAL = 'INTERVAL',
-  ARRAY = 'ARRAY',
-  STRUCT = 'STRUCT',
-  MAP = 'MAP',
-  CHAR = 'CHAR',
-  NULL = 'NULL',
-  USER_DEFINED_TYPE = 'USER_DEFINED_TYPE',
-  TIMESTAMP_NTZ = 'TIMESTAMP_NTZ',
-  VARIANT = 'VARIANT',
-  TABLE_TYPE = 'TABLE_TYPE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ColumnTypeName = {
+  COLUMN_TYPE_NAME_UNSPECIFIED: 'COLUMN_TYPE_NAME_UNSPECIFIED',
+  BOOLEAN: 'BOOLEAN',
+  BYTE: 'BYTE',
+  SHORT: 'SHORT',
+  INT: 'INT',
+  LONG: 'LONG',
+  FLOAT: 'FLOAT',
+  DOUBLE: 'DOUBLE',
+  DATE: 'DATE',
+  TIMESTAMP: 'TIMESTAMP',
+  STRING: 'STRING',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+  INTERVAL: 'INTERVAL',
+  ARRAY: 'ARRAY',
+  STRUCT: 'STRUCT',
+  MAP: 'MAP',
+  CHAR: 'CHAR',
+  NULL: 'NULL',
+  USER_DEFINED_TYPE: 'USER_DEFINED_TYPE',
+  TIMESTAMP_NTZ: 'TIMESTAMP_NTZ',
+  VARIANT: 'VARIANT',
+  TABLE_TYPE: 'TABLE_TYPE',
+} as const;
+export type ColumnTypeName =
+  | (typeof ColumnTypeName)[keyof typeof ColumnTypeName]
+  | (string & {});
 
 /** The delta sharing authentication type. */
-export enum DeltaSharingAuthenticationType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DeltaSharingAuthenticationType = {
   /** Token-based authentication. */
-  TOKEN = 'TOKEN',
+  TOKEN: 'TOKEN',
   /** Databricks-managed authentication. */
-  DATABRICKS = 'DATABRICKS',
+  DATABRICKS: 'DATABRICKS',
   /** OIDC Federation authentication */
-  OIDC_FEDERATION = 'OIDC_FEDERATION',
+  OIDC_FEDERATION: 'OIDC_FEDERATION',
   /** OAuth Client Credentials Grant based authentication. This option is for provider imports only. */
-  OAUTH_CLIENT_CREDENTIALS = 'OAUTH_CLIENT_CREDENTIALS',
-}
+  OAUTH_CLIENT_CREDENTIALS: 'OAUTH_CLIENT_CREDENTIALS',
+} as const;
+export type DeltaSharingAuthenticationType =
+  | (typeof DeltaSharingAuthenticationType)[keyof typeof DeltaSharingAuthenticationType]
+  | (string & {});
 
-export enum FunctionParameterMode {
-  FUNCTION_PARAMETER_MODE_UNSPECIFIED = 'FUNCTION_PARAMETER_MODE_UNSPECIFIED',
-  IN = 'IN',
-  OUT = 'OUT',
-  INOUT = 'INOUT',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionParameterMode = {
+  FUNCTION_PARAMETER_MODE_UNSPECIFIED: 'FUNCTION_PARAMETER_MODE_UNSPECIFIED',
+  IN: 'IN',
+  OUT: 'OUT',
+  INOUT: 'INOUT',
+} as const;
+export type FunctionParameterMode =
+  | (typeof FunctionParameterMode)[keyof typeof FunctionParameterMode]
+  | (string & {});
 
-export enum FunctionParameterType {
-  FUNCTION_PARAMETER_TYPE_UNSPECIFIED = 'FUNCTION_PARAMETER_TYPE_UNSPECIFIED',
-  PARAM = 'PARAM',
-  COLUMN = 'COLUMN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionParameterType = {
+  FUNCTION_PARAMETER_TYPE_UNSPECIFIED: 'FUNCTION_PARAMETER_TYPE_UNSPECIFIED',
+  PARAM: 'PARAM',
+  COLUMN: 'COLUMN',
+} as const;
+export type FunctionParameterType =
+  | (typeof FunctionParameterType)[keyof typeof FunctionParameterType]
+  | (string & {});
 
 /** The SecurableKind of a delta-shared object. */
-export enum SharedSecurableKind {
-  SHARED_SECURABLE_KIND_UNSPECIFIED = 'SHARED_SECURABLE_KIND_UNSPECIFIED',
-  FUNCTION_STANDARD = 'FUNCTION_STANDARD',
-  FUNCTION_REGISTERED_MODEL = 'FUNCTION_REGISTERED_MODEL',
-  FUNCTION_FEATURE_SPEC = 'FUNCTION_FEATURE_SPEC',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SharedSecurableKind = {
+  SHARED_SECURABLE_KIND_UNSPECIFIED: 'SHARED_SECURABLE_KIND_UNSPECIFIED',
+  FUNCTION_STANDARD: 'FUNCTION_STANDARD',
+  FUNCTION_REGISTERED_MODEL: 'FUNCTION_REGISTERED_MODEL',
+  FUNCTION_FEATURE_SPEC: 'FUNCTION_FEATURE_SPEC',
+} as const;
+export type SharedSecurableKind =
+  | (typeof SharedSecurableKind)[keyof typeof SharedSecurableKind]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PartitionSpecification_Partition_PartitionValue_PartitionValueOp =
+  {
+    EQUAL: 'EQUAL',
+    LIKE: 'LIKE',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PartitionSpecification_Partition_PartitionValue_PartitionValueOp {
-  EQUAL = 'EQUAL',
-  LIKE = 'LIKE',
-}
+export type PartitionSpecification_Partition_PartitionValue_PartitionValueOp =
+  | (typeof PartitionSpecification_Partition_PartitionValue_PartitionValueOp)[keyof typeof PartitionSpecification_Partition_PartitionValue_PartitionValueOp]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SharedDataObject_HistoryDataSharingStatus_Enum = {
+  DISABLED: 'DISABLED',
+  ENABLED: 'ENABLED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SharedDataObject_HistoryDataSharingStatus_Enum {
-  DISABLED = 'DISABLED',
-  ENABLED = 'ENABLED',
-}
+export type SharedDataObject_HistoryDataSharingStatus_Enum =
+  | (typeof SharedDataObject_HistoryDataSharingStatus_Enum)[keyof typeof SharedDataObject_HistoryDataSharingStatus_Enum]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SharedDataObject_Status_Enum {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SharedDataObject_Status_Enum = {
   /** Object is being shared with recipients without any issues. */
-  ACTIVE = 'ACTIVE',
+  ACTIVE: 'ACTIVE',
   /**
    * For securables, the share owner has lost access to the securable,
    * so the securable is not being shared with the recipient.
    */
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
-}
-
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum UpdateShareRequest_SharedDataObjectUpdate_Action {
-  ADD = 'ADD',
-  REMOVE = 'REMOVE',
-  UPDATE = 'UPDATE',
-}
+export type SharedDataObject_Status_Enum =
+  | (typeof SharedDataObject_Status_Enum)[keyof typeof SharedDataObject_Status_Enum]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UpdateShareRequest_SharedDataObjectUpdate_Action = {
+  ADD: 'ADD',
+  REMOVE: 'REMOVE',
+  UPDATE: 'UPDATE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type UpdateShareRequest_SharedDataObjectUpdate_Action =
+  | (typeof UpdateShareRequest_SharedDataObjectUpdate_Action)[keyof typeof UpdateShareRequest_SharedDataObjectUpdate_Action]
+  | (string & {});
 
 export interface CreateFederationPolicyRequest {
   /** Name of the recipient. This is the name of the recipient for which the policy is being created. */
@@ -1303,9 +1340,9 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
       .array(z.lazy(() => unmarshalRegisteredModelAliasSchema))
       .optional(),
     tags: z.array(z.lazy(() => unmarshalTagKeyValueSchema)).optional(),
-    securable_kind: z.enum(SharedSecurableKind).optional(),
+    securable_kind: z.string().optional(),
     full_data_type: z.string().optional(),
-    data_type: z.enum(ColumnTypeName).optional(),
+    data_type: z.string().optional(),
     routine_definition: z.string().optional(),
     input_params: z
       .lazy(() => unmarshalFunctionParameterInfosSchema)
@@ -1349,13 +1386,13 @@ export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterIn
       name: z.string().optional(),
       type_text: z.string().optional(),
       type_json: z.string().optional(),
-      type_name: z.enum(ColumnTypeName).optional(),
+      type_name: z.string().optional(),
       type_precision: z.number().optional(),
       type_scale: z.number().optional(),
       type_interval_type: z.string().optional(),
       position: z.number().optional(),
-      parameter_mode: z.enum(FunctionParameterMode).optional(),
-      parameter_type: z.enum(FunctionParameterType).optional(),
+      parameter_mode: z.string().optional(),
+      parameter_type: z.string().optional(),
       parameter_default: z.string().optional(),
       comment: z.string().optional(),
     })
@@ -1554,9 +1591,7 @@ export const unmarshalPartitionSpecification_Partition_PartitionValueSchema: z.Z
       name: z.string().optional(),
       value: z.string().optional(),
       recipient_property_key: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
+      op: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1587,7 +1622,7 @@ export const unmarshalPropertiesKvPairsSchema: z.ZodType<PropertiesKvPairs> = z
 export const unmarshalProviderInfoSchema: z.ZodType<ProviderInfo> = z
   .object({
     name: z.string().optional(),
-    authentication_type: z.enum(DeltaSharingAuthenticationType).optional(),
+    authentication_type: z.string().optional(),
     recipient_profile_str: z.string().optional(),
     comment: z.string().optional(),
     owner: z.string().optional(),
@@ -1635,7 +1670,7 @@ export const unmarshalProviderShareSchema: z.ZodType<ProviderShare> = z
 export const unmarshalRecipientInfoSchema: z.ZodType<RecipientInfo> = z
   .object({
     name: z.string().optional(),
-    authentication_type: z.enum(DeltaSharingAuthenticationType).optional(),
+    authentication_type: z.string().optional(),
     sharing_code: z.string().optional(),
     data_recipient_global_metastore_id: z.string().optional(),
     owner: z.string().optional(),
@@ -1827,14 +1862,12 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
     comment: z.string().optional(),
     shared_as: z.string().optional(),
     cdf_enabled: z.boolean().optional(),
-    history_data_sharing_status: z
-      .enum(SharedDataObject_HistoryDataSharingStatus_Enum)
-      .optional(),
+    history_data_sharing_status: z.string().optional(),
     start_version: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    status: z.enum(SharedDataObject_Status_Enum).optional(),
+    status: z.string().optional(),
     content: z.string().optional(),
     string_shared_as: z.string().optional(),
     partitions: z
@@ -1935,7 +1968,7 @@ export const unmarshalVolumeSchema: z.ZodType<Volume> = z
 export const marshalCreateProviderRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    authenticationType: z.enum(DeltaSharingAuthenticationType).optional(),
+    authenticationType: z.string().optional(),
     recipientProfileStr: z.string().optional(),
     comment: z.string().optional(),
     owner: z.string().optional(),
@@ -1969,7 +2002,7 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
 export const marshalCreateRecipientRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    authenticationType: z.enum(DeltaSharingAuthenticationType).optional(),
+    authenticationType: z.string().optional(),
     sharingCode: z.string().optional(),
     dataRecipientGlobalMetastoreId: z.string().optional(),
     owner: z.string().optional(),
@@ -2113,9 +2146,7 @@ export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.Zod
       name: z.string().optional(),
       value: z.string().optional(),
       recipientPropertyKey: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
+      op: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -2195,11 +2226,9 @@ export const marshalSharedDataObjectSchema: z.ZodType = z
     comment: z.string().optional(),
     sharedAs: z.string().optional(),
     cdfEnabled: z.boolean().optional(),
-    historyDataSharingStatus: z
-      .enum(SharedDataObject_HistoryDataSharingStatus_Enum)
-      .optional(),
+    historyDataSharingStatus: z.string().optional(),
     startVersion: z.bigint().optional(),
-    status: z.enum(SharedDataObject_Status_Enum).optional(),
+    status: z.string().optional(),
     content: z.string().optional(),
     stringSharedAs: z.string().optional(),
     partitions: z
@@ -2227,7 +2256,7 @@ export const marshalUpdateProviderRequestSchema: z.ZodType = z
     nameArg: z.string().optional(),
     newName: z.string().optional(),
     name: z.string().optional(),
-    authenticationType: z.enum(DeltaSharingAuthenticationType).optional(),
+    authenticationType: z.string().optional(),
     recipientProfileStr: z.string().optional(),
     comment: z.string().optional(),
     owner: z.string().optional(),
@@ -2265,7 +2294,7 @@ export const marshalUpdateRecipientRequestSchema: z.ZodType = z
     nameArg: z.string().optional(),
     newName: z.string().optional(),
     name: z.string().optional(),
-    authenticationType: z.enum(DeltaSharingAuthenticationType).optional(),
+    authenticationType: z.string().optional(),
     sharingCode: z.string().optional(),
     dataRecipientGlobalMetastoreId: z.string().optional(),
     owner: z.string().optional(),
@@ -2362,9 +2391,7 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
 export const marshalUpdateShareRequest_SharedDataObjectUpdateSchema: z.ZodType =
   z
     .object({
-      action: z
-        .enum(UpdateShareRequest_SharedDataObjectUpdate_Action)
-        .optional(),
+      action: z.string().optional(),
       dataObject: z.lazy(() => marshalSharedDataObjectSchema).optional(),
     })
     .transform(d => ({

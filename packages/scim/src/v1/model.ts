@@ -14,88 +14,145 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
   ])
 );
 
-export enum GetSortOrder {
-  GET_SORT_ORDER_UNSPECIFIED = 'GET_SORT_ORDER_UNSPECIFIED',
-  ASCENDING = 'ascending',
-  DESCENDING = 'descending',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GetSortOrder = {
+  GET_SORT_ORDER_UNSPECIFIED: 'GET_SORT_ORDER_UNSPECIFIED',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending',
+} as const;
+export type GetSortOrder =
+  | (typeof GetSortOrder)[keyof typeof GetSortOrder]
+  | (string & {});
 
-export enum GroupSchema {
-  GROUP_SCHEMA_UNSPECIFIED = 'GROUP_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_GROUP = 'urn:ietf:params:scim:schemas:core:2.0:Group',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GroupSchema = {
+  GROUP_SCHEMA_UNSPECIFIED: 'GROUP_SCHEMA_UNSPECIFIED',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_GROUP:
+    'urn:ietf:params:scim:schemas:core:2.0:Group',
+} as const;
+export type GroupSchema =
+  | (typeof GroupSchema)[keyof typeof GroupSchema]
+  | (string & {});
 
-export enum ListResponseSchema {
-  LIST_RESPONSE_SCHEMA_UNSPECIFIED = 'LIST_RESPONSE_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_LIST_RESPONSE = 'urn:ietf:params:scim:api:messages:2.0:ListResponse',
-}
-
-/** Type of patch operation. */
-export enum PatchOp {
-  PATCH_OP_UNSPECIFIED = 'PATCH_OP_UNSPECIFIED',
-  ADD = 'add',
-  REMOVE = 'remove',
-  REPLACE = 'replace',
-}
-
-export enum PatchSchema {
-  PATCH_SCHEMA_UNSPECIFIED = 'PATCH_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP = 'urn:ietf:params:scim:api:messages:2.0:PatchOp',
-}
-
-export enum ServicePrincipalSchema {
-  SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED = 'SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_SERVICE_PRINCIPAL = 'urn:ietf:params:scim:schemas:core:2.0:ServicePrincipal',
-}
-
-export enum UserSchema {
-  USER_SCHEMA_UNSPECIFIED = 'USER_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_USER = 'urn:ietf:params:scim:schemas:core:2.0:User',
-  URN_IETF_PARAMS_SCIM_SCHEMAS_EXTENSION_WORKSPACE_2_0_USER = 'urn:ietf:params:scim:schemas:extension:workspace:2.0:User',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AccountGetSortOrder_GetSortOrder {
-  GET_SORT_ORDER_UNSPECIFIED = 'GET_SORT_ORDER_UNSPECIFIED',
-  ASCENDING = 'ascending',
-  DESCENDING = 'descending',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AccountListSort_Order {
-  ORDER_UNSPECIFIED = 'ORDER_UNSPECIFIED',
-  ASCENDING = 'ascending',
-  DESCENDING = 'descending',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListResponseSchema = {
+  LIST_RESPONSE_SCHEMA_UNSPECIFIED: 'LIST_RESPONSE_SCHEMA_UNSPECIFIED',
+  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_LIST_RESPONSE:
+    'urn:ietf:params:scim:api:messages:2.0:ListResponse',
+} as const;
+export type ListResponseSchema =
+  | (typeof ListResponseSchema)[keyof typeof ListResponseSchema]
+  | (string & {});
 
 /** Type of patch operation. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AccountPatchOp_PatchOp {
-  PATCH_OP_UNSPECIFIED = 'PATCH_OP_UNSPECIFIED',
-  ADD = 'add',
-  REMOVE = 'remove',
-  REPLACE = 'replace',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PatchOp = {
+  PATCH_OP_UNSPECIFIED: 'PATCH_OP_UNSPECIFIED',
+  ADD: 'add',
+  REMOVE: 'remove',
+  REPLACE: 'replace',
+} as const;
+export type PatchOp = (typeof PatchOp)[keyof typeof PatchOp] | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AccountPatchSchema_PatchSchema {
-  PATCH_SCHEMA_UNSPECIFIED = 'PATCH_SCHEMA_UNSPECIFIED',
-  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP = 'urn:ietf:params:scim:api:messages:2.0:PatchOp',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PatchSchema = {
+  PATCH_SCHEMA_UNSPECIFIED: 'PATCH_SCHEMA_UNSPECIFIED',
+  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP:
+    'urn:ietf:params:scim:api:messages:2.0:PatchOp',
+} as const;
+export type PatchSchema =
+  | (typeof PatchSchema)[keyof typeof PatchSchema]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ServicePrincipalSchema = {
+  SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED: 'SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_SERVICE_PRINCIPAL:
+    'urn:ietf:params:scim:schemas:core:2.0:ServicePrincipal',
+} as const;
+export type ServicePrincipalSchema =
+  | (typeof ServicePrincipalSchema)[keyof typeof ServicePrincipalSchema]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UserSchema = {
+  USER_SCHEMA_UNSPECIFIED: 'USER_SCHEMA_UNSPECIFIED',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_USER:
+    'urn:ietf:params:scim:schemas:core:2.0:User',
+  URN_IETF_PARAMS_SCIM_SCHEMAS_EXTENSION_WORKSPACE_2_0_USER:
+    'urn:ietf:params:scim:schemas:extension:workspace:2.0:User',
+} as const;
+export type UserSchema =
+  | (typeof UserSchema)[keyof typeof UserSchema]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AccountGetSortOrder_GetSortOrder = {
+  GET_SORT_ORDER_UNSPECIFIED: 'GET_SORT_ORDER_UNSPECIFIED',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ListSort_Order {
-  ORDER_UNSPECIFIED = 'ORDER_UNSPECIFIED',
-  ASCENDING = 'ascending',
-  DESCENDING = 'descending',
-}
+export type AccountGetSortOrder_GetSortOrder =
+  | (typeof AccountGetSortOrder_GetSortOrder)[keyof typeof AccountGetSortOrder_GetSortOrder]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AccountListSort_Order = {
+  ORDER_UNSPECIFIED: 'ORDER_UNSPECIFIED',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AccountListSort_Order =
+  | (typeof AccountListSort_Order)[keyof typeof AccountListSort_Order]
+  | (string & {});
+
+/** Type of patch operation. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AccountPatchOp_PatchOp = {
+  PATCH_OP_UNSPECIFIED: 'PATCH_OP_UNSPECIFIED',
+  ADD: 'add',
+  REMOVE: 'remove',
+  REPLACE: 'replace',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AccountPatchOp_PatchOp =
+  | (typeof AccountPatchOp_PatchOp)[keyof typeof AccountPatchOp_PatchOp]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AccountPatchSchema_PatchSchema = {
+  PATCH_SCHEMA_UNSPECIFIED: 'PATCH_SCHEMA_UNSPECIFIED',
+  URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP:
+    'urn:ietf:params:scim:api:messages:2.0:PatchOp',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AccountPatchSchema_PatchSchema =
+  | (typeof AccountPatchSchema_PatchSchema)[keyof typeof AccountPatchSchema_PatchSchema]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListSort_Order = {
+  ORDER_UNSPECIFIED: 'ORDER_UNSPECIFIED',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type ListSort_Order =
+  | (typeof ListSort_Order)[keyof typeof ListSort_Order]
+  | (string & {});
 
 /** Permission level */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PasswordPermission_Level = {
+  LEVEL_UNSPECIFIED: 'LEVEL_UNSPECIFIED',
+  CAN_USE: 'CAN_USE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PasswordPermission_Level {
-  LEVEL_UNSPECIFIED = 'LEVEL_UNSPECIFIED',
-  CAN_USE = 'CAN_USE',
-}
+export type PasswordPermission_Level =
+  | (typeof PasswordPermission_Level)[keyof typeof PasswordPermission_Level]
+  | (string & {});
 
 export interface AccountComplexValue {
   display?: string | undefined;
@@ -1075,7 +1132,7 @@ export const unmarshalGroupSchema: z.ZodType<Group> = z
     members: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
     meta: z.lazy(() => unmarshalResourceMetaSchema).optional(),
     roles: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(GroupSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     displayName: d.displayName,
@@ -1150,7 +1207,7 @@ export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> =
     .object({
       itemsPerPage: z.number().optional(),
       Resources: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
-      schemas: z.array(z.enum(ListResponseSchema)).optional(),
+      schemas: z.array(z.string()).optional(),
       startIndex: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -1172,7 +1229,7 @@ export const unmarshalListServicePrincipalResponseSchema: z.ZodType<ListServiceP
       Resources: z
         .array(z.lazy(() => unmarshalServicePrincipalSchema))
         .optional(),
-      schemas: z.array(z.enum(ListResponseSchema)).optional(),
+      schemas: z.array(z.string()).optional(),
       startIndex: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -1191,7 +1248,7 @@ export const unmarshalListUsersResponseSchema: z.ZodType<ListUsersResponse> = z
   .object({
     itemsPerPage: z.number().optional(),
     Resources: z.array(z.lazy(() => unmarshalUserSchema)).optional(),
-    schemas: z.array(z.enum(ListResponseSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     startIndex: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -1240,7 +1297,7 @@ export const unmarshalPasswordPermissionSchema: z.ZodType<PasswordPermission> =
     .object({
       inherited: z.boolean().optional(),
       inherited_from_object: z.array(z.string()).optional(),
-      permission_level: z.enum(PasswordPermission_Level).optional(),
+      permission_level: z.string().optional(),
     })
     .transform(d => ({
       inherited: d.inherited,
@@ -1267,7 +1324,7 @@ export const unmarshalPasswordPermissionsDescriptionSchema: z.ZodType<PasswordPe
   z
     .object({
       description: z.string().optional(),
-      permission_level: z.enum(PasswordPermission_Level).optional(),
+      permission_level: z.string().optional(),
     })
     .transform(d => ({
       description: d.description,
@@ -1292,7 +1349,7 @@ export const unmarshalServicePrincipalSchema: z.ZodType<ServicePrincipal> = z
     groups: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
     id: z.string().optional(),
     roles: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(ServicePrincipalSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     active: d.active,
@@ -1317,7 +1374,7 @@ export const unmarshalUserSchema: z.ZodType<User> = z
     id: z.string().optional(),
     name: z.lazy(() => unmarshalNameSchema).optional(),
     roles: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(UserSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     userName: z.string().optional(),
   })
   .transform(d => ({
@@ -1362,7 +1419,7 @@ export const marshalAccountNameSchema: z.ZodType = z
 
 export const marshalAccountPatchSchema: z.ZodType = z
   .object({
-    op: z.enum(AccountPatchOp_PatchOp).optional(),
+    op: z.string().optional(),
     path: z.string().optional(),
     value: jsonValueSchema.optional(),
   })
@@ -1470,7 +1527,7 @@ export const marshalCreateGroupRequestSchema: z.ZodType = z
     members: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
     meta: z.lazy(() => marshalResourceMetaSchema).optional(),
     roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(GroupSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     displayName: d.displayName,
@@ -1494,7 +1551,7 @@ export const marshalCreateServicePrincipalRequestSchema: z.ZodType = z
     groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
     id: z.string().optional(),
     roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(ServicePrincipalSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     active: d.active,
@@ -1519,7 +1576,7 @@ export const marshalCreateUserRequestSchema: z.ZodType = z
     id: z.string().optional(),
     name: z.lazy(() => marshalNameSchema).optional(),
     roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(UserSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     userName: z.string().optional(),
   })
   .transform(d => ({
@@ -1549,7 +1606,7 @@ export const marshalNameSchema: z.ZodType = z
 export const marshalPasswordAccessControlRequestSchema: z.ZodType = z
   .object({
     groupName: z.string().optional(),
-    permissionLevel: z.enum(PasswordPermission_Level).optional(),
+    permissionLevel: z.string().optional(),
     servicePrincipalName: z.string().optional(),
     userName: z.string().optional(),
   })
@@ -1572,7 +1629,7 @@ export const marshalPasswordPermissionsRequestSchema: z.ZodType = z
 
 export const marshalPatchSchema: z.ZodType = z
   .object({
-    op: z.enum(PatchOp).optional(),
+    op: z.string().optional(),
     path: z.string().optional(),
     value: jsonValueSchema.optional(),
   })
@@ -1586,7 +1643,7 @@ export const marshalPatchAccountGroupRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     operations: z.array(z.lazy(() => marshalAccountPatchSchema)).optional(),
-    schemas: z.array(z.enum(AccountPatchSchema_PatchSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1600,7 +1657,7 @@ export const marshalPatchAccountServicePrincipalRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     operations: z.array(z.lazy(() => marshalAccountPatchSchema)).optional(),
-    schemas: z.array(z.enum(AccountPatchSchema_PatchSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1614,7 +1671,7 @@ export const marshalPatchAccountUserRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     operations: z.array(z.lazy(() => marshalAccountPatchSchema)).optional(),
-    schemas: z.array(z.enum(AccountPatchSchema_PatchSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1628,7 +1685,7 @@ export const marshalPatchGroupRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     operations: z.array(z.lazy(() => marshalPatchSchema)).optional(),
-    schemas: z.array(z.enum(PatchSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1640,7 +1697,7 @@ export const marshalPatchServicePrincipalRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     operations: z.array(z.lazy(() => marshalPatchSchema)).optional(),
-    schemas: z.array(z.enum(PatchSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1652,7 +1709,7 @@ export const marshalPatchUserRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     operations: z.array(z.lazy(() => marshalPatchSchema)).optional(),
-    schemas: z.array(z.enum(PatchSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1742,7 +1799,7 @@ export const marshalUpdateGroupRequestSchema: z.ZodType = z
     members: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
     meta: z.lazy(() => marshalResourceMetaSchema).optional(),
     roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(GroupSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     displayName: d.displayName,
@@ -1766,7 +1823,7 @@ export const marshalUpdateServicePrincipalRequestSchema: z.ZodType = z
     groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
     id: z.string().optional(),
     roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(ServicePrincipalSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
     active: d.active,
@@ -1791,7 +1848,7 @@ export const marshalUpdateUserRequestSchema: z.ZodType = z
     id: z.string().optional(),
     name: z.lazy(() => marshalNameSchema).optional(),
     roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    schemas: z.array(z.enum(UserSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
     userName: z.string().optional(),
   })
   .transform(d => ({

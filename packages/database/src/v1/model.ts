@@ -5,145 +5,183 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum ProvisioningPhase {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningPhase = {
   /** The default phase. It should not be reported by any synced tables. */
-  PROVISIONING_PHASE_UNSPECIFIED = 'PROVISIONING_PHASE_UNSPECIFIED',
+  PROVISIONING_PHASE_UNSPECIFIED: 'PROVISIONING_PHASE_UNSPECIFIED',
   /** Ingestion phase of the synced table. This is when the synced table is ingesting data from the delta table. */
-  PROVISIONING_PHASE_MAIN = 'PROVISIONING_PHASE_MAIN',
+  PROVISIONING_PHASE_MAIN: 'PROVISIONING_PHASE_MAIN',
   /** Index scan phase of the synced table. This is when the synced table is creating indexes on the ingested data. */
-  PROVISIONING_PHASE_INDEX_SCAN = 'PROVISIONING_PHASE_INDEX_SCAN',
+  PROVISIONING_PHASE_INDEX_SCAN: 'PROVISIONING_PHASE_INDEX_SCAN',
   /** Index sort phase of the synced table. This is when the synced table is creating indexes on the ingested data. */
-  PROVISIONING_PHASE_INDEX_SORT = 'PROVISIONING_PHASE_INDEX_SORT',
-}
+  PROVISIONING_PHASE_INDEX_SORT: 'PROVISIONING_PHASE_INDEX_SORT',
+} as const;
+export type ProvisioningPhase =
+  | (typeof ProvisioningPhase)[keyof typeof ProvisioningPhase]
+  | (string & {});
 
-export enum SyncedTableSchedulingPolicy {
-  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED = 'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTableSchedulingPolicy = {
+  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED:
+    'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
   /**
    * Pipeline runs continuously after generating the initial data.
    * Requires the source table to have Change Data Feed (CDF) enabled.
    */
-  CONTINUOUS = 'CONTINUOUS',
+  CONTINUOUS: 'CONTINUOUS',
   /**
    * Pipeline stops after generating the initial data and can be triggered later (manually, through a cron job or through data triggers).
    * Requires the source table to have Change Data Feed (CDF) enabled.
    */
-  TRIGGERED = 'TRIGGERED',
+  TRIGGERED: 'TRIGGERED',
   /**
    * Pipeline stops after generating the initial data and can be triggered later (manually, through a cron job or through data triggers).
    * Successive updates always perform a full copy of the source table data (no incremental updates).
    * Does not require the source table to have Change Data Feed (CDF) enabled.
    */
-  SNAPSHOT = 'SNAPSHOT',
-}
+  SNAPSHOT: 'SNAPSHOT',
+} as const;
+export type SyncedTableSchedulingPolicy =
+  | (typeof SyncedTableSchedulingPolicy)[keyof typeof SyncedTableSchedulingPolicy]
+  | (string & {});
 
 /** The state of a synced table. */
-export enum SyncedTableState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTableState = {
   /** The default state. It should not be reported by any synced tables. */
-  SYNCED_TABLE_STATE_UNSPECIFIED = 'SYNCED_TABLE_STATE_UNSPECIFIED',
+  SYNCED_TABLE_STATE_UNSPECIFIED: 'SYNCED_TABLE_STATE_UNSPECIFIED',
   /**
    * The synced table has just been created and resources are being provisioned. This is also the
    * catch-all state if there is not a more suitable state to report for the synced table.
    */
-  SYNCED_TABLE_PROVISIONING = 'SYNCED_TABLE_PROVISIONING',
+  SYNCED_TABLE_PROVISIONING: 'SYNCED_TABLE_PROVISIONING',
   /** The synced table is provisioning resources for the data synchronization pipeline. */
-  SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES = 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES',
+  SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES:
+    'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES',
   /** The synced table is executing the initial data synchronization. */
-  SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT = 'SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT',
+  SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT:
+    'SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT',
   /** The synced table is ready to serve data. */
-  SYNCED_TABLE_ONLINE = 'SYNCED_TABLE_ONLINE',
+  SYNCED_TABLE_ONLINE: 'SYNCED_TABLE_ONLINE',
   /**
    * The synced table is ready to serve data and is continuously updating. Only shown for synced
    * tables using the "Continuous" sync mode.
    */
-  SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE = 'SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE',
+  SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE:
+    'SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE',
   /**
    * The synced table is ready to serve data and an active update is in progress. Only shown for
    * synced tables using the "Triggered" sync mode.
    */
-  SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE = 'SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE',
+  SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE: 'SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE',
   /**
    * The synced table is ready to serve data and there are no active updates. Only shown for synced
    * tables using the "Triggered" sync mode.
    */
-  SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE = 'SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE',
+  SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE:
+    'SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE',
   /** The synced table has encountered an internal error and is not available for serving. */
-  SYNCED_TABLED_OFFLINE = 'SYNCED_TABLED_OFFLINE',
+  SYNCED_TABLED_OFFLINE: 'SYNCED_TABLED_OFFLINE',
   /**
    * The synced table is not available for serving because the data synchronization pipeline has
    * failed. Please review the pipeline event logs to troubleshoot.
    */
-  SYNCED_TABLE_OFFLINE_FAILED = 'SYNCED_TABLE_OFFLINE_FAILED',
+  SYNCED_TABLE_OFFLINE_FAILED: 'SYNCED_TABLE_OFFLINE_FAILED',
   /**
    * The data synchronization pipeline has encountered an error but the synced table is still
    * available for serving (potentially stale) data. Please review the pipeline event logs to
    * troubleshoot.
    */
-  SYNCED_TABLE_ONLINE_PIPELINE_FAILED = 'SYNCED_TABLE_ONLINE_PIPELINE_FAILED',
+  SYNCED_TABLE_ONLINE_PIPELINE_FAILED: 'SYNCED_TABLE_ONLINE_PIPELINE_FAILED',
   /**
    * The synced table is available for serving, and is provisioning resources for a newly started
    * data synchronization pipeline.
    */
-  SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES = 'SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES',
-}
+  SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES:
+    'SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES',
+} as const;
+export type SyncedTableState =
+  | (typeof SyncedTableState)[keyof typeof SyncedTableState]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum DatabaseInstance_State {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DatabaseInstance_State = {
   /** Default value, not used */
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   /** The instance is being brought online. */
-  STARTING = 'STARTING',
+  STARTING: 'STARTING',
   /** The instance is active and ready to use. */
-  AVAILABLE = 'AVAILABLE',
+  AVAILABLE: 'AVAILABLE',
   /** The instance is being deleted. */
-  DELETING = 'DELETING',
+  DELETING: 'DELETING',
   /** The instance is stopped. */
-  STOPPED = 'STOPPED',
+  STOPPED: 'STOPPED',
   /** The instance is being updated. */
-  UPDATING = 'UPDATING',
+  UPDATING: 'UPDATING',
   /** The instance is failing over. */
-  FAILING_OVER = 'FAILING_OVER',
-}
-
+  FAILING_OVER: 'FAILING_OVER',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum DatabaseInstanceRole_IdentityType {
+export type DatabaseInstance_State =
+  | (typeof DatabaseInstance_State)[keyof typeof DatabaseInstance_State]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DatabaseInstanceRole_IdentityType = {
   /** Default value, not used */
-  IDENTITY_TYPE_UNSPECIFIED = 'IDENTITY_TYPE_UNSPECIFIED',
+  IDENTITY_TYPE_UNSPECIFIED: 'IDENTITY_TYPE_UNSPECIFIED',
   /** A role without a Databricks identity. */
-  PG_ONLY = 'PG_ONLY',
+  PG_ONLY: 'PG_ONLY',
   /** A user in a Databricks workspace. */
-  USER = 'USER',
+  USER: 'USER',
   /** A service principal in a Databricks workspace. */
-  SERVICE_PRINCIPAL = 'SERVICE_PRINCIPAL',
+  SERVICE_PRINCIPAL: 'SERVICE_PRINCIPAL',
   /** A group in a Databricks workspace. */
-  GROUP = 'GROUP',
-}
+  GROUP: 'GROUP',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DatabaseInstanceRole_IdentityType =
+  | (typeof DatabaseInstanceRole_IdentityType)[keyof typeof DatabaseInstanceRole_IdentityType]
+  | (string & {});
 
 /** Roles that the DatabaseInstanceRole can be a member of. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum DatabaseInstanceRole_MembershipRole {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DatabaseInstanceRole_MembershipRole = {
   /** Indicates that the DatabaseInstanceRole is not a member of any standard, managed roles. */
-  MEMBERSHIP_ROLE_UNSPECIFIED = 'MEMBERSHIP_ROLE_UNSPECIFIED',
+  MEMBERSHIP_ROLE_UNSPECIFIED: 'MEMBERSHIP_ROLE_UNSPECIFIED',
   /** Indicates membership in DATABRICKS_SUPERUSER, the highest set of privileges exposed to customers. */
-  DATABRICKS_SUPERUSER = 'DATABRICKS_SUPERUSER',
-}
-
+  DATABRICKS_SUPERUSER: 'DATABRICKS_SUPERUSER',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ProvisioningInfo_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PROVISIONING = 'PROVISIONING',
-  ACTIVE = 'ACTIVE',
-  FAILED = 'FAILED',
-  DELETING = 'DELETING',
-  UPDATING = 'UPDATING',
-  DEGRADED = 'DEGRADED',
-}
+export type DatabaseInstanceRole_MembershipRole =
+  | (typeof DatabaseInstanceRole_MembershipRole)[keyof typeof DatabaseInstanceRole_MembershipRole]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningInfo_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PROVISIONING: 'PROVISIONING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DELETING: 'DELETING',
+  UPDATING: 'UPDATING',
+  DEGRADED: 'DEGRADED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type ProvisioningInfo_State =
+  | (typeof ProvisioningInfo_State)[keyof typeof ProvisioningInfo_State]
+  | (string & {});
 
 /** Might add WRITE in the future */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RequestedClaims_PermissionSet = {
+  PERMISSION_SET_UNSPECIFIED: 'PERMISSION_SET_UNSPECIFIED',
+  READ_ONLY: 'READ_ONLY',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum RequestedClaims_PermissionSet {
-  PERMISSION_SET_UNSPECIFIED = 'PERMISSION_SET_UNSPECIFIED',
-  READ_ONLY = 'READ_ONLY',
-}
+export type RequestedClaims_PermissionSet =
+  | (typeof RequestedClaims_PermissionSet)[keyof typeof RequestedClaims_PermissionSet]
+  | (string & {});
 
 export interface CreateDatabaseCatalogRequest {
   catalog?: DatabaseCatalog | undefined;
@@ -884,7 +922,7 @@ export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    state: z.enum(DatabaseInstance_State).optional(),
+    state: z.string().optional(),
     pg_version: z.string().optional(),
     capacity: z.string().optional(),
     effective_capacity: z.string().optional(),
@@ -965,8 +1003,8 @@ export const unmarshalDatabaseInstanceRoleSchema: z.ZodType<DatabaseInstanceRole
   z
     .object({
       name: z.string().optional(),
-      identity_type: z.enum(DatabaseInstanceRole_IdentityType).optional(),
-      membership_role: z.enum(DatabaseInstanceRole_MembershipRole).optional(),
+      identity_type: z.string().optional(),
+      membership_role: z.string().optional(),
       attributes: z
         .lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema)
         .optional(),
@@ -1100,9 +1138,7 @@ export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> 
       logical_database_name: z.string().optional(),
       effective_logical_database_name: z.string().optional(),
       spec: z.lazy(() => unmarshalSyncedTableSpecSchema).optional(),
-      unity_catalog_provisioning_state: z
-        .enum(ProvisioningInfo_State)
-        .optional(),
+      unity_catalog_provisioning_state: z.string().optional(),
       data_synchronization_status: z
         .lazy(() => unmarshalSyncedTableStatusSchema)
         .optional(),
@@ -1173,7 +1209,7 @@ export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePi
         .optional(),
       sync_progress_completion: z.number().optional(),
       estimated_completion_time_seconds: z.number().optional(),
-      provisioning_phase: z.enum(ProvisioningPhase).optional(),
+      provisioning_phase: z.string().optional(),
     })
     .transform(d => ({
       latestVersionCurrentlyProcessing: d.latest_version_currently_processing,
@@ -1224,7 +1260,7 @@ export const unmarshalSyncedTableProvisioningStatusSchema: z.ZodType<SyncedTable
 
 export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
   .object({
-    scheduling_policy: z.enum(SyncedTableSchedulingPolicy).optional(),
+    scheduling_policy: z.string().optional(),
     source_table_full_name: z.string().optional(),
     primary_key_columns: z.array(z.string()).optional(),
     timeseries_key: z.string().optional(),
@@ -1244,7 +1280,7 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
 
 export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
   .object({
-    detailed_state: z.enum(SyncedTableState).optional(),
+    detailed_state: z.string().optional(),
     message: z.string().optional(),
     provisioning_status: z
       .lazy(() => unmarshalSyncedTableProvisioningStatusSchema)
@@ -1344,7 +1380,7 @@ export const marshalDatabaseInstanceSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    state: z.enum(DatabaseInstance_State).optional(),
+    state: z.string().optional(),
     pgVersion: z.string().optional(),
     capacity: z.string().optional(),
     effectiveCapacity: z.string().optional(),
@@ -1423,8 +1459,8 @@ export const marshalDatabaseInstanceRefSchema: z.ZodType = z
 export const marshalDatabaseInstanceRoleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    identityType: z.enum(DatabaseInstanceRole_IdentityType).optional(),
-    membershipRole: z.enum(DatabaseInstanceRole_MembershipRole).optional(),
+    identityType: z.string().optional(),
+    membershipRole: z.string().optional(),
     attributes: z
       .lazy(() => marshalDatabaseInstanceRole_AttributesSchema)
       .optional(),
@@ -1506,7 +1542,7 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
   .object({
-    permissionSet: z.enum(RequestedClaims_PermissionSet).optional(),
+    permissionSet: z.string().optional(),
     resources: z.array(z.lazy(() => marshalRequestedResourceSchema)).optional(),
   })
   .transform(d => ({
@@ -1543,7 +1579,7 @@ export const marshalSyncedDatabaseTableSchema: z.ZodType = z
     logicalDatabaseName: z.string().optional(),
     effectiveLogicalDatabaseName: z.string().optional(),
     spec: z.lazy(() => marshalSyncedTableSpecSchema).optional(),
-    unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
+    unityCatalogProvisioningState: z.string().optional(),
     dataSynchronizationStatus: z
       .lazy(() => marshalSyncedTableStatusSchema)
       .optional(),
@@ -1596,7 +1632,7 @@ export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
     totalRowCount: z.bigint().optional(),
     syncProgressCompletion: z.number().optional(),
     estimatedCompletionTimeSeconds: z.number().optional(),
-    provisioningPhase: z.enum(ProvisioningPhase).optional(),
+    provisioningPhase: z.string().optional(),
   })
   .transform(d => ({
     latest_version_currently_processing: d.latestVersionCurrentlyProcessing,
@@ -1646,7 +1682,7 @@ export const marshalSyncedTableProvisioningStatusSchema: z.ZodType = z
 
 export const marshalSyncedTableSpecSchema: z.ZodType = z
   .object({
-    schedulingPolicy: z.enum(SyncedTableSchedulingPolicy).optional(),
+    schedulingPolicy: z.string().optional(),
     sourceTableFullName: z.string().optional(),
     primaryKeyColumns: z.array(z.string()).optional(),
     timeseriesKey: z.string().optional(),
@@ -1666,7 +1702,7 @@ export const marshalSyncedTableSpecSchema: z.ZodType = z
 
 export const marshalSyncedTableStatusSchema: z.ZodType = z
   .object({
-    detailedState: z.enum(SyncedTableState).optional(),
+    detailedState: z.string().optional(),
     message: z.string().optional(),
     detailedStatus: z
       .discriminatedUnion('$case', [

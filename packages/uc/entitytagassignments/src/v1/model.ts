@@ -6,12 +6,18 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Enum representing the source type of a tag assignment */
-export enum TagAssignmentSourceType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TagAssignmentSourceType = {
   /** Includes (but not limited to) tags manually assigned by users */
-  TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED = 'TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED',
+  TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED:
+    'TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED',
   /** Automatically assigned by Data Classification */
-  TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION = 'TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION',
-}
+  TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION:
+    'TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION',
+} as const;
+export type TagAssignmentSourceType =
+  | (typeof TagAssignmentSourceType)[keyof typeof TagAssignmentSourceType]
+  | (string & {});
 
 /** Request to create a new entity tag assignment */
 export interface CreateEntityTagAssignmentRequest {
@@ -93,7 +99,7 @@ export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> 
         .transform(s => Temporal.Instant.from(s))
         .optional(),
       updated_by: z.string().optional(),
-      source_type: z.enum(TagAssignmentSourceType).optional(),
+      source_type: z.string().optional(),
     })
     .transform(d => ({
       entityName: d.entity_name,
@@ -129,7 +135,7 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     updatedBy: z.string().optional(),
-    sourceType: z.enum(TagAssignmentSourceType).optional(),
+    sourceType: z.string().optional(),
   })
   .transform(d => ({
     entity_name: d.entityName,

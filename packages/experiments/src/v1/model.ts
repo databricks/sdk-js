@@ -6,45 +6,55 @@ import {z} from 'zod';
  * A LoggedModelStatus enum value represents the status of a logged
  * model.
  */
-export enum LoggedModelStatus {
-  LOGGED_MODEL_STATUS_UNSPECIFIED = 'LOGGED_MODEL_STATUS_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LoggedModelStatus = {
+  LOGGED_MODEL_STATUS_UNSPECIFIED: 'LOGGED_MODEL_STATUS_UNSPECIFIED',
   /**
    * The LoggedModel has been created, but the LoggedModel files are not
    * completely uploaded.
    */
-  LOGGED_MODEL_PENDING = 'LOGGED_MODEL_PENDING',
+  LOGGED_MODEL_PENDING: 'LOGGED_MODEL_PENDING',
   /** The LoggedModel is created, and the LoggedModel files are completely uploaded. */
-  LOGGED_MODEL_READY = 'LOGGED_MODEL_READY',
+  LOGGED_MODEL_READY: 'LOGGED_MODEL_READY',
   /**
    * The LoggedModel is created, but an error occurred when uploading the
    * LoggedModel files such as model weights / agent code.
    */
-  LOGGED_MODEL_UPLOAD_FAILED = 'LOGGED_MODEL_UPLOAD_FAILED',
-}
+  LOGGED_MODEL_UPLOAD_FAILED: 'LOGGED_MODEL_UPLOAD_FAILED',
+} as const;
+export type LoggedModelStatus =
+  | (typeof LoggedModelStatus)[keyof typeof LoggedModelStatus]
+  | (string & {});
 
 /** Status of a run. */
-export enum RunStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RunStatus = {
   /** Run has been initiated. */
-  RUNNING = 'RUNNING',
+  RUNNING: 'RUNNING',
   /** Run is scheduled to run at a later time. */
-  SCHEDULED = 'SCHEDULED',
+  SCHEDULED: 'SCHEDULED',
   /** Run has completed. */
-  FINISHED = 'FINISHED',
+  FINISHED: 'FINISHED',
   /** Run execution failed. */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** Run killed by user. */
-  KILLED = 'KILLED',
-}
+  KILLED: 'KILLED',
+} as const;
+export type RunStatus =
+  | (typeof RunStatus)[keyof typeof RunStatus]
+  | (string & {});
 
 /** Qualifier for the view type. */
-export enum ViewType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ViewType = {
   /** Default. Return only active. */
-  ACTIVE_ONLY = 'ACTIVE_ONLY',
+  ACTIVE_ONLY: 'ACTIVE_ONLY',
   /** Return only deleted. */
-  DELETED_ONLY = 'DELETED_ONLY',
+  DELETED_ONLY: 'DELETED_ONLY',
   /** Get all. */
-  ALL = 'ALL',
-}
+  ALL: 'ALL',
+} as const;
+export type ViewType = (typeof ViewType)[keyof typeof ViewType] | (string & {});
 
 export interface CreateExperimentRequest {
   /** Experiment name. */
@@ -1237,7 +1247,7 @@ export const unmarshalLoggedModelInfoSchema: z.ZodType<LoggedModelInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     artifact_uri: z.string().optional(),
-    status: z.enum(LoggedModelStatus).optional(),
+    status: z.string().optional(),
     creator_id: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -1375,7 +1385,7 @@ export const unmarshalRunInfoSchema: z.ZodType<RunInfo> = z
     experiment_id: z.string().optional(),
     run_name: z.string().optional(),
     user_id: z.string().optional(),
-    status: z.enum(RunStatus).optional(),
+    status: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -1600,7 +1610,7 @@ export const marshalExperimentTagSchema: z.ZodType = z
 export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
-    status: z.enum(LoggedModelStatus).optional(),
+    status: z.string().optional(),
   })
   .transform(d => ({
     model_id: d.modelId,
@@ -1825,7 +1835,7 @@ export const marshalSearchExperimentsRequestSchema: z.ZodType = z
     pageToken: z.string().optional(),
     filter: z.string().optional(),
     orderBy: z.array(z.string()).optional(),
-    viewType: z.enum(ViewType).optional(),
+    viewType: z.string().optional(),
   })
   .transform(d => ({
     max_results: d.maxResults,
@@ -1887,7 +1897,7 @@ export const marshalSearchRunsRequestSchema: z.ZodType = z
   .object({
     experimentIds: z.array(z.string()).optional(),
     filter: z.string().optional(),
-    runViewType: z.enum(ViewType).optional(),
+    runViewType: z.string().optional(),
     maxResults: z.number().optional(),
     orderBy: z.array(z.string()).optional(),
     pageToken: z.string().optional(),
@@ -1951,7 +1961,7 @@ export const marshalUpdateRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     runUuid: z.string().optional(),
-    status: z.enum(RunStatus).optional(),
+    status: z.string().optional(),
     endTime: z.bigint().optional(),
     runName: z.string().optional(),
   })

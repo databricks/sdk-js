@@ -4,52 +4,69 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum DestinationType {
-  DESTINATION_TYPE_UNSPECIFIED = 'DESTINATION_TYPE_UNSPECIFIED',
-  EMAIL = 'EMAIL',
-  SLACK = 'SLACK',
-  GENERIC_WEBHOOK = 'GENERIC_WEBHOOK',
-  MICROSOFT_TEAMS = 'MICROSOFT_TEAMS',
-  URL = 'URL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DestinationType = {
+  DESTINATION_TYPE_UNSPECIFIED: 'DESTINATION_TYPE_UNSPECIFIED',
+  EMAIL: 'EMAIL',
+  SLACK: 'SLACK',
+  GENERIC_WEBHOOK: 'GENERIC_WEBHOOK',
+  MICROSOFT_TEAMS: 'MICROSOFT_TEAMS',
+  URL: 'URL',
+} as const;
+export type DestinationType =
+  | (typeof DestinationType)[keyof typeof DestinationType]
+  | (string & {});
 
-export enum PrincipalType {
-  PRINCIPAL_TYPE_UNSPECIFIED = 'PRINCIPAL_TYPE_UNSPECIFIED',
-  USER_PRINCIPAL = 'USER_PRINCIPAL',
-  GROUP_PRINCIPAL = 'GROUP_PRINCIPAL',
-  SERVICE_PRINCIPAL = 'SERVICE_PRINCIPAL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrincipalType = {
+  PRINCIPAL_TYPE_UNSPECIFIED: 'PRINCIPAL_TYPE_UNSPECIFIED',
+  USER_PRINCIPAL: 'USER_PRINCIPAL',
+  GROUP_PRINCIPAL: 'GROUP_PRINCIPAL',
+  SERVICE_PRINCIPAL: 'SERVICE_PRINCIPAL',
+} as const;
+export type PrincipalType =
+  | (typeof PrincipalType)[keyof typeof PrincipalType]
+  | (string & {});
 
 /** The type of Unity Catalog securable. */
-export enum SecurableType {
-  CATALOG = 'CATALOG',
-  SCHEMA = 'SCHEMA',
-  TABLE = 'TABLE',
-  STORAGE_CREDENTIAL = 'STORAGE_CREDENTIAL',
-  EXTERNAL_LOCATION = 'EXTERNAL_LOCATION',
-  FUNCTION = 'FUNCTION',
-  SHARE = 'SHARE',
-  PROVIDER = 'PROVIDER',
-  RECIPIENT = 'RECIPIENT',
-  CLEAN_ROOM = 'CLEAN_ROOM',
-  METASTORE = 'METASTORE',
-  PIPELINE = 'PIPELINE',
-  VOLUME = 'VOLUME',
-  CONNECTION = 'CONNECTION',
-  CREDENTIAL = 'CREDENTIAL',
-  EXTERNAL_METADATA = 'EXTERNAL_METADATA',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableType = {
+  CATALOG: 'CATALOG',
+  SCHEMA: 'SCHEMA',
+  TABLE: 'TABLE',
+  STORAGE_CREDENTIAL: 'STORAGE_CREDENTIAL',
+  EXTERNAL_LOCATION: 'EXTERNAL_LOCATION',
+  FUNCTION: 'FUNCTION',
+  SHARE: 'SHARE',
+  PROVIDER: 'PROVIDER',
+  RECIPIENT: 'RECIPIENT',
+  CLEAN_ROOM: 'CLEAN_ROOM',
+  METASTORE: 'METASTORE',
+  PIPELINE: 'PIPELINE',
+  VOLUME: 'VOLUME',
+  CONNECTION: 'CONNECTION',
+  CREDENTIAL: 'CREDENTIAL',
+  EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
-  STAGING_TABLE = 'STAGING_TABLE',
-}
+  STAGING_TABLE: 'STAGING_TABLE',
+} as const;
+export type SecurableType =
+  | (typeof SecurableType)[keyof typeof SecurableType]
+  | (string & {});
 
-export enum SpecialDestination {
-  SPECIAL_DESTINATION_UNSPECIFIED = 'SPECIAL_DESTINATION_UNSPECIFIED',
-  SPECIAL_DESTINATION_CATALOG_OWNER = 'SPECIAL_DESTINATION_CATALOG_OWNER',
-  SPECIAL_DESTINATION_EXTERNAL_LOCATION_OWNER = 'SPECIAL_DESTINATION_EXTERNAL_LOCATION_OWNER',
-  SPECIAL_DESTINATION_CONNECTION_OWNER = 'SPECIAL_DESTINATION_CONNECTION_OWNER',
-  SPECIAL_DESTINATION_CREDENTIAL_OWNER = 'SPECIAL_DESTINATION_CREDENTIAL_OWNER',
-  SPECIAL_DESTINATION_METASTORE_OWNER = 'SPECIAL_DESTINATION_METASTORE_OWNER',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SpecialDestination = {
+  SPECIAL_DESTINATION_UNSPECIFIED: 'SPECIAL_DESTINATION_UNSPECIFIED',
+  SPECIAL_DESTINATION_CATALOG_OWNER: 'SPECIAL_DESTINATION_CATALOG_OWNER',
+  SPECIAL_DESTINATION_EXTERNAL_LOCATION_OWNER:
+    'SPECIAL_DESTINATION_EXTERNAL_LOCATION_OWNER',
+  SPECIAL_DESTINATION_CONNECTION_OWNER: 'SPECIAL_DESTINATION_CONNECTION_OWNER',
+  SPECIAL_DESTINATION_CREDENTIAL_OWNER: 'SPECIAL_DESTINATION_CREDENTIAL_OWNER',
+  SPECIAL_DESTINATION_METASTORE_OWNER: 'SPECIAL_DESTINATION_METASTORE_OWNER',
+} as const;
+export type SpecialDestination =
+  | (typeof SpecialDestination)[keyof typeof SpecialDestination]
+  | (string & {});
 
 export interface AccessRequestDestinations {
   /** The access request destinations for the securable. */
@@ -237,8 +254,8 @@ export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDesti
   z
     .object({
       destination_id: z.string().optional(),
-      destination_type: z.enum(DestinationType).optional(),
-      special_destination: z.enum(SpecialDestination).optional(),
+      destination_type: z.string().optional(),
+      special_destination: z.string().optional(),
     })
     .transform(d => ({
       destinationId: d.destination_id,
@@ -249,7 +266,7 @@ export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDesti
 export const unmarshalPrincipalSchema: z.ZodType<Principal> = z
   .object({
     id: z.string().optional(),
-    principal_type: z.enum(PrincipalType).optional(),
+    principal_type: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -258,7 +275,7 @@ export const unmarshalPrincipalSchema: z.ZodType<Principal> = z
 
 export const unmarshalSecurableSchema: z.ZodType<Securable> = z
   .object({
-    type: z.enum(SecurableType).optional(),
+    type: z.string().optional(),
     full_name: z.string().optional(),
     provider_share: z.string().optional(),
   })
@@ -315,8 +332,8 @@ export const marshalCreateAccessRequestSchema: z.ZodType = z
 export const marshalNotificationDestinationSchema: z.ZodType = z
   .object({
     destinationId: z.string().optional(),
-    destinationType: z.enum(DestinationType).optional(),
-    specialDestination: z.enum(SpecialDestination).optional(),
+    destinationType: z.string().optional(),
+    specialDestination: z.string().optional(),
   })
   .transform(d => ({
     destination_id: d.destinationId,
@@ -327,7 +344,7 @@ export const marshalNotificationDestinationSchema: z.ZodType = z
 export const marshalPrincipalSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    principalType: z.enum(PrincipalType).optional(),
+    principalType: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -336,7 +353,7 @@ export const marshalPrincipalSchema: z.ZodType = z
 
 export const marshalSecurableSchema: z.ZodType = z
   .object({
-    type: z.enum(SecurableType).optional(),
+    type: z.string().optional(),
     fullName: z.string().optional(),
     providerShare: z.string().optional(),
   })

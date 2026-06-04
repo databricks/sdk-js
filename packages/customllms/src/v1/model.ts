@@ -6,15 +6,17 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** States of Custom LLM optimization lifecycle. */
-export enum State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  CREATED = 'CREATED',
-  RUNNING = 'RUNNING',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
-  PENDING = 'PENDING',
-  CANCELLED = 'CANCELLED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  CREATED: 'CREATED',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  PENDING: 'PENDING',
+  CANCELLED: 'CANCELLED',
+} as const;
+export type State = (typeof State)[keyof typeof State] | (string & {});
 
 export interface CancelCustomLlmOptimizationRunRequest {
   id?: string | undefined;
@@ -106,7 +108,7 @@ export const unmarshalCustomLlmSchema: z.ZodType<CustomLlm> = z
     instructions: z.string().optional(),
     datasets: z.array(z.lazy(() => unmarshalDatasetSchema)).optional(),
     guidelines: z.array(z.string()).optional(),
-    optimization_state: z.enum(State).optional(),
+    optimization_state: z.string().optional(),
     creator: z.string().optional(),
     creation_time: z
       .string()
@@ -179,7 +181,7 @@ export const marshalCustomLlmSchema: z.ZodType = z
     instructions: z.string().optional(),
     datasets: z.array(z.lazy(() => marshalDatasetSchema)).optional(),
     guidelines: z.array(z.string()).optional(),
-    optimizationState: z.enum(State).optional(),
+    optimizationState: z.string().optional(),
     creator: z.string().optional(),
     creationTime: z
       .any()

@@ -3,14 +3,18 @@
 import {z} from 'zod';
 
 /** The type of the catalog. */
-export enum CatalogType {
-  MANAGED_CATALOG = 'MANAGED_CATALOG',
-  DELTASHARING_CATALOG = 'DELTASHARING_CATALOG',
-  SYSTEM_CATALOG = 'SYSTEM_CATALOG',
-  INTERNAL_CATALOG = 'INTERNAL_CATALOG',
-  FOREIGN_CATALOG = 'FOREIGN_CATALOG',
-  MANAGED_ONLINE_CATALOG = 'MANAGED_ONLINE_CATALOG',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CatalogType = {
+  MANAGED_CATALOG: 'MANAGED_CATALOG',
+  DELTASHARING_CATALOG: 'DELTASHARING_CATALOG',
+  SYSTEM_CATALOG: 'SYSTEM_CATALOG',
+  INTERNAL_CATALOG: 'INTERNAL_CATALOG',
+  FOREIGN_CATALOG: 'FOREIGN_CATALOG',
+  MANAGED_ONLINE_CATALOG: 'MANAGED_ONLINE_CATALOG',
+} as const;
+export type CatalogType =
+  | (typeof CatalogType)[keyof typeof CatalogType]
+  | (string & {});
 
 export interface CreateSchemaRequest {
   /** Name of schema, relative to parent catalog. */
@@ -285,7 +289,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
-    catalog_type: z.enum(CatalogType).optional(),
+    catalog_type: z.string().optional(),
     storage_location: z.string().optional(),
     effective_predictive_optimization_flag: z
       .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
@@ -337,7 +341,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    catalogType: z.enum(CatalogType).optional(),
+    catalogType: z.string().optional(),
     storageLocation: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
       .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
@@ -400,7 +404,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    catalogType: z.enum(CatalogType).optional(),
+    catalogType: z.string().optional(),
     storageLocation: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
       .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)

@@ -4,65 +4,73 @@ import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 /** The state of an online table. */
-export enum OnlineTableState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OnlineTableState = {
   /** The default state. It should not be reported by any online tables. */
-  ONLINE_TABLE_STATE_UNSPECIFIED = 'ONLINE_TABLE_STATE_UNSPECIFIED',
+  ONLINE_TABLE_STATE_UNSPECIFIED: 'ONLINE_TABLE_STATE_UNSPECIFIED',
   /**
    * The online table has just been created and resources are being provisioned. This is also the
    * catch-all state if there is not a more suitable state to report for the online table.
    */
-  PROVISIONING = 'PROVISIONING',
+  PROVISIONING: 'PROVISIONING',
   /** The online table is provisioning resources for the data synchronization pipeline. */
-  PROVISIONING_PIPELINE_RESOURCES = 'PROVISIONING_PIPELINE_RESOURCES',
+  PROVISIONING_PIPELINE_RESOURCES: 'PROVISIONING_PIPELINE_RESOURCES',
   /** The online table is executing the initial data synchronization. */
-  PROVISIONING_INITIAL_SNAPSHOT = 'PROVISIONING_INITIAL_SNAPSHOT',
+  PROVISIONING_INITIAL_SNAPSHOT: 'PROVISIONING_INITIAL_SNAPSHOT',
   /** The online table is ready to serve data. */
-  ONLINE = 'ONLINE',
+  ONLINE: 'ONLINE',
   /**
    * The online table is ready to serve data and is continuously updating. Only shown for online
    * tables using the "Continuous" sync mode.
    */
-  ONLINE_CONTINUOUS_UPDATE = 'ONLINE_CONTINUOUS_UPDATE',
+  ONLINE_CONTINUOUS_UPDATE: 'ONLINE_CONTINUOUS_UPDATE',
   /**
    * The online table is ready to serve data and an active update is in progress. Only shown for
    * online tables using the "Triggered" sync mode.
    */
-  ONLINE_TRIGGERED_UPDATE = 'ONLINE_TRIGGERED_UPDATE',
+  ONLINE_TRIGGERED_UPDATE: 'ONLINE_TRIGGERED_UPDATE',
   /**
    * The online table is ready to serve data and there are no active updates. Only shown for online
    * tables using the "Triggered" sync mode.
    */
-  ONLINE_NO_PENDING_UPDATE = 'ONLINE_NO_PENDING_UPDATE',
+  ONLINE_NO_PENDING_UPDATE: 'ONLINE_NO_PENDING_UPDATE',
   /** The online table has encountered an internal error and is not available for serving. */
-  OFFLINE = 'OFFLINE',
+  OFFLINE: 'OFFLINE',
   /**
    * The online table is not available for serving because the data synchronization pipeline has
    * failed. Please review the pipeline event logs to troubleshoot.
    */
-  OFFLINE_FAILED = 'OFFLINE_FAILED',
+  OFFLINE_FAILED: 'OFFLINE_FAILED',
   /**
    * The data synchronization pipeline has encountered an error but the online table is still
    * available for serving (potentially stale) data. Please review the pipeline event logs to
    * troubleshoot.
    */
-  ONLINE_PIPELINE_FAILED = 'ONLINE_PIPELINE_FAILED',
+  ONLINE_PIPELINE_FAILED: 'ONLINE_PIPELINE_FAILED',
   /**
    * The online table is available for serving, and is provisioning resources for a newly started
    * data synchronization pipeline.
    */
-  ONLINE_UPDATING_PIPELINE_RESOURCES = 'ONLINE_UPDATING_PIPELINE_RESOURCES',
-}
+  ONLINE_UPDATING_PIPELINE_RESOURCES: 'ONLINE_UPDATING_PIPELINE_RESOURCES',
+} as const;
+export type OnlineTableState =
+  | (typeof OnlineTableState)[keyof typeof OnlineTableState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningInfo_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PROVISIONING: 'PROVISIONING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DELETING: 'DELETING',
+  UPDATING: 'UPDATING',
+  DEGRADED: 'DEGRADED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ProvisioningInfo_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PROVISIONING = 'PROVISIONING',
-  ACTIVE = 'ACTIVE',
-  FAILED = 'FAILED',
-  DELETING = 'DELETING',
-  UPDATING = 'UPDATING',
-  DEGRADED = 'DEGRADED',
-}
+export type ProvisioningInfo_State =
+  | (typeof ProvisioningInfo_State)[keyof typeof ProvisioningInfo_State]
+  | (string & {});
 
 /**
  * Detailed status of an online table. Shown if the online table is in the ONLINE_CONTINUOUS_UPDATE
@@ -293,7 +301,7 @@ export const unmarshalOnlineTableSchema: z.ZodType<OnlineTable> = z
     spec: z.lazy(() => unmarshalOnlineTableSpecSchema).optional(),
     status: z.lazy(() => unmarshalOnlineTableStatusSchema).optional(),
     table_serving_url: z.string().optional(),
-    unity_catalog_provisioning_state: z.enum(ProvisioningInfo_State).optional(),
+    unity_catalog_provisioning_state: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -344,7 +352,7 @@ export const unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema: z.ZodType
 
 export const unmarshalOnlineTableStatusSchema: z.ZodType<OnlineTableStatus> = z
   .object({
-    detailed_state: z.enum(OnlineTableState).optional(),
+    detailed_state: z.string().optional(),
     message: z.string().optional(),
     provisioning_status: z
       .lazy(() => unmarshalProvisioningStatusSchema)
@@ -474,7 +482,7 @@ export const marshalOnlineTableSchema: z.ZodType = z
     spec: z.lazy(() => marshalOnlineTableSpecSchema).optional(),
     status: z.lazy(() => marshalOnlineTableStatusSchema).optional(),
     tableServingUrl: z.string().optional(),
-    unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
+    unityCatalogProvisioningState: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -532,7 +540,7 @@ export const marshalOnlineTableSpec_TriggeredSchedulingPolicySchema: z.ZodType =
 
 export const marshalOnlineTableStatusSchema: z.ZodType = z
   .object({
-    detailedState: z.enum(OnlineTableState).optional(),
+    detailedState: z.string().optional(),
     message: z.string().optional(),
     detailedStatus: z
       .discriminatedUnion('$case', [

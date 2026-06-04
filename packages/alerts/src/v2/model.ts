@@ -5,16 +5,20 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum Aggregation {
-  SUM = 'SUM',
-  COUNT = 'COUNT',
-  COUNT_DISTINCT = 'COUNT_DISTINCT',
-  AVG = 'AVG',
-  MEDIAN = 'MEDIAN',
-  MIN = 'MIN',
-  MAX = 'MAX',
-  STDDEV = 'STDDEV',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Aggregation = {
+  SUM: 'SUM',
+  COUNT: 'COUNT',
+  COUNT_DISTINCT: 'COUNT_DISTINCT',
+  AVG: 'AVG',
+  MEDIAN: 'MEDIAN',
+  MIN: 'MIN',
+  MAX: 'MAX',
+  STDDEV: 'STDDEV',
+} as const;
+export type Aggregation =
+  | (typeof Aggregation)[keyof typeof Aggregation]
+  | (string & {});
 
 /**
  * UNSPECIFIED - default unspecify value for proto enum, do not use it in the code
@@ -23,34 +27,50 @@ export enum Aggregation {
  * OK - alert is not triggered
  * ERROR - alert evaluation failed
  */
-export enum AlertEvaluationState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertEvaluationState = {
   /** Deprecated. Please avoid using `UNKNOWN` as empty_result_state. */
-  UNKNOWN = 'UNKNOWN',
-  TRIGGERED = 'TRIGGERED',
-  OK = 'OK',
-  ERROR = 'ERROR',
-}
+  UNKNOWN: 'UNKNOWN',
+  TRIGGERED: 'TRIGGERED',
+  OK: 'OK',
+  ERROR: 'ERROR',
+} as const;
+export type AlertEvaluationState =
+  | (typeof AlertEvaluationState)[keyof typeof AlertEvaluationState]
+  | (string & {});
 
-export enum AlertLifecycleState {
-  ACTIVE = 'ACTIVE',
-  DELETED = 'DELETED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertLifecycleState = {
+  ACTIVE: 'ACTIVE',
+  DELETED: 'DELETED',
+} as const;
+export type AlertLifecycleState =
+  | (typeof AlertLifecycleState)[keyof typeof AlertLifecycleState]
+  | (string & {});
 
-export enum ComparisonOperator {
-  LESS_THAN = 'LESS_THAN',
-  GREATER_THAN = 'GREATER_THAN',
-  EQUAL = 'EQUAL',
-  NOT_EQUAL = 'NOT_EQUAL',
-  GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL',
-  LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL',
-  IS_NULL = 'IS_NULL',
-  IS_NOT_NULL = 'IS_NOT_NULL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComparisonOperator = {
+  LESS_THAN: 'LESS_THAN',
+  GREATER_THAN: 'GREATER_THAN',
+  EQUAL: 'EQUAL',
+  NOT_EQUAL: 'NOT_EQUAL',
+  GREATER_THAN_OR_EQUAL: 'GREATER_THAN_OR_EQUAL',
+  LESS_THAN_OR_EQUAL: 'LESS_THAN_OR_EQUAL',
+  IS_NULL: 'IS_NULL',
+  IS_NOT_NULL: 'IS_NOT_NULL',
+} as const;
+export type ComparisonOperator =
+  | (typeof ComparisonOperator)[keyof typeof ComparisonOperator]
+  | (string & {});
 
-export enum SchedulePauseStatus {
-  UNPAUSED = 'UNPAUSED',
-  PAUSED = 'PAUSED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SchedulePauseStatus = {
+  UNPAUSED: 'UNPAUSED',
+  PAUSED: 'PAUSED',
+} as const;
+export type SchedulePauseStatus =
+  | (typeof SchedulePauseStatus)[keyof typeof SchedulePauseStatus]
+  | (string & {});
 
 export interface Alert {
   /** UUID identifying the alert. */
@@ -245,7 +265,7 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     run_as_user_name: z.string().optional(),
     evaluation: z.lazy(() => unmarshalAlertEvaluationSchema).optional(),
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    lifecycle_state: z.enum(AlertLifecycleState).optional(),
+    lifecycle_state: z.string().optional(),
     custom_summary: z.string().optional(),
     custom_description: z.string().optional(),
     run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
@@ -273,15 +293,15 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
 export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
   .object({
     source: z.lazy(() => unmarshalAlertOperandColumnSchema).optional(),
-    comparison_operator: z.enum(ComparisonOperator).optional(),
+    comparison_operator: z.string().optional(),
     threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
     notification: z.lazy(() => unmarshalAlertNotificationSchema).optional(),
-    state: z.enum(AlertEvaluationState).optional(),
+    state: z.string().optional(),
     last_evaluated_at: z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    empty_result_state: z.enum(AlertEvaluationState).optional(),
+    empty_result_state: z.string().optional(),
   })
   .transform(d => ({
     source: d.source,
@@ -326,7 +346,7 @@ export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
     .object({
       name: z.string().optional(),
       display: z.string().optional(),
-      aggregation: z.enum(Aggregation).optional(),
+      aggregation: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -386,7 +406,7 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     quartz_cron_schedule: z.string().optional(),
     timezone_id: z.string().optional(),
-    pause_status: z.enum(SchedulePauseStatus).optional(),
+    pause_status: z.string().optional(),
   })
   .transform(d => ({
     quartzCronSchedule: d.quartz_cron_schedule,
@@ -426,7 +446,7 @@ export const marshalAlertSchema: z.ZodType = z
     runAsUserName: z.string().optional(),
     evaluation: z.lazy(() => marshalAlertEvaluationSchema).optional(),
     schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
-    lifecycleState: z.enum(AlertLifecycleState).optional(),
+    lifecycleState: z.string().optional(),
     customSummary: z.string().optional(),
     customDescription: z.string().optional(),
     runAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
@@ -454,15 +474,15 @@ export const marshalAlertSchema: z.ZodType = z
 export const marshalAlertEvaluationSchema: z.ZodType = z
   .object({
     source: z.lazy(() => marshalAlertOperandColumnSchema).optional(),
-    comparisonOperator: z.enum(ComparisonOperator).optional(),
+    comparisonOperator: z.string().optional(),
     threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
     notification: z.lazy(() => marshalAlertNotificationSchema).optional(),
-    state: z.enum(AlertEvaluationState).optional(),
+    state: z.string().optional(),
     lastEvaluatedAt: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    emptyResultState: z.enum(AlertEvaluationState).optional(),
+    emptyResultState: z.string().optional(),
   })
   .transform(d => ({
     source: d.source,
@@ -512,7 +532,7 @@ export const marshalAlertOperandColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     display: z.string().optional(),
-    aggregation: z.enum(Aggregation).optional(),
+    aggregation: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -584,7 +604,7 @@ export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronSchedule: z.string().optional(),
     timezoneId: z.string().optional(),
-    pauseStatus: z.enum(SchedulePauseStatus).optional(),
+    pauseStatus: z.string().optional(),
   })
   .transform(d => ({
     quartz_cron_schedule: d.quartzCronSchedule,

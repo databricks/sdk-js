@@ -3,26 +3,46 @@
 import {z} from 'zod';
 
 /** Type of action that a budget alert executes when its threshold is crossed. */
-export enum ActionConfigurationType {
-  EMAIL_NOTIFICATION = 'EMAIL_NOTIFICATION',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ActionConfigurationType = {
+  EMAIL_NOTIFICATION: 'EMAIL_NOTIFICATION',
+} as const;
+export type ActionConfigurationType =
+  | (typeof ActionConfigurationType)[keyof typeof ActionConfigurationType]
+  | (string & {});
 
-export enum AlertConfigurationQuantityType {
-  LIST_PRICE_DOLLARS_USD = 'LIST_PRICE_DOLLARS_USD',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertConfigurationQuantityType = {
+  LIST_PRICE_DOLLARS_USD: 'LIST_PRICE_DOLLARS_USD',
+} as const;
+export type AlertConfigurationQuantityType =
+  | (typeof AlertConfigurationQuantityType)[keyof typeof AlertConfigurationQuantityType]
+  | (string & {});
 
-export enum AlertConfigurationTimePeriod {
-  MONTH = 'MONTH',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertConfigurationTimePeriod = {
+  MONTH: 'MONTH',
+} as const;
+export type AlertConfigurationTimePeriod =
+  | (typeof AlertConfigurationTimePeriod)[keyof typeof AlertConfigurationTimePeriod]
+  | (string & {});
 
-export enum AlertConfigurationTriggerType {
-  CUMULATIVE_SPENDING_EXCEEDED = 'CUMULATIVE_SPENDING_EXCEEDED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertConfigurationTriggerType = {
+  CUMULATIVE_SPENDING_EXCEEDED: 'CUMULATIVE_SPENDING_EXCEEDED',
+} as const;
+export type AlertConfigurationTriggerType =
+  | (typeof AlertConfigurationTriggerType)[keyof typeof AlertConfigurationTriggerType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BudgetConfigurationFilter_Operator = {
+  IN: 'IN',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum BudgetConfigurationFilter_Operator {
-  IN = 'IN',
-}
+export type BudgetConfigurationFilter_Operator =
+  | (typeof BudgetConfigurationFilter_Operator)[keyof typeof BudgetConfigurationFilter_Operator]
+  | (string & {});
 
 export interface ActionConfiguration {
   /** <Databricks> action configuration ID. */
@@ -206,7 +226,7 @@ export const unmarshalActionConfigurationSchema: z.ZodType<ActionConfiguration> 
   z
     .object({
       action_configuration_id: z.string().optional(),
-      action_type: z.enum(ActionConfigurationType).optional(),
+      action_type: z.string().optional(),
       target: z.string().optional(),
     })
     .transform(d => ({
@@ -219,9 +239,9 @@ export const unmarshalAlertConfigurationSchema: z.ZodType<AlertConfiguration> =
   z
     .object({
       alert_configuration_id: z.string().optional(),
-      time_period: z.enum(AlertConfigurationTimePeriod).optional(),
-      trigger_type: z.enum(AlertConfigurationTriggerType).optional(),
-      quantity_type: z.enum(AlertConfigurationQuantityType).optional(),
+      time_period: z.string().optional(),
+      trigger_type: z.string().optional(),
+      quantity_type: z.string().optional(),
       quantity_threshold: z.string().optional(),
       action_configurations: z
         .array(z.lazy(() => unmarshalActionConfigurationSchema))
@@ -284,7 +304,7 @@ export const unmarshalBudgetConfigurationFilterSchema: z.ZodType<BudgetConfigura
 export const unmarshalBudgetConfigurationFilter_ClauseSchema: z.ZodType<BudgetConfigurationFilter_Clause> =
   z
     .object({
-      operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+      operator: z.string().optional(),
       values: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -310,7 +330,7 @@ export const unmarshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType<Budge
 export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType<BudgetConfigurationFilter_WorkspaceIdClause> =
   z
     .object({
-      operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+      operator: z.string().optional(),
       values: z
         .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
         .optional(),
@@ -366,7 +386,7 @@ export const unmarshalUpdateBudgetConfigurationResponseSchema: z.ZodType<UpdateB
 export const marshalActionConfigurationSchema: z.ZodType = z
   .object({
     actionConfigurationId: z.string().optional(),
-    actionType: z.enum(ActionConfigurationType).optional(),
+    actionType: z.string().optional(),
     target: z.string().optional(),
   })
   .transform(d => ({
@@ -378,9 +398,9 @@ export const marshalActionConfigurationSchema: z.ZodType = z
 export const marshalAlertConfigurationSchema: z.ZodType = z
   .object({
     alertConfigurationId: z.string().optional(),
-    timePeriod: z.enum(AlertConfigurationTimePeriod).optional(),
-    triggerType: z.enum(AlertConfigurationTriggerType).optional(),
-    quantityType: z.enum(AlertConfigurationQuantityType).optional(),
+    timePeriod: z.string().optional(),
+    triggerType: z.string().optional(),
+    quantityType: z.string().optional(),
     quantityThreshold: z.string().optional(),
     actionConfigurations: z
       .array(z.lazy(() => marshalActionConfigurationSchema))
@@ -412,7 +432,7 @@ export const marshalBudgetConfigurationFilterSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalBudgetConfigurationFilter_ClauseSchema: z.ZodType = z
   .object({
-    operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+    operator: z.string().optional(),
     values: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -437,7 +457,7 @@ export const marshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType = z
 export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType =
   z
     .object({
-      operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+      operator: z.string().optional(),
       values: z.array(z.bigint()).optional(),
     })
     .transform(d => ({

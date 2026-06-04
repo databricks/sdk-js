@@ -2,17 +2,25 @@
 
 import {z} from 'zod';
 
-export enum IsolationMode {
-  ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
-  ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
-  ISOLATION_MODE_ISOLATED = 'ISOLATION_MODE_ISOLATED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IsolationMode = {
+  ISOLATION_MODE_UNSPECIFIED: 'ISOLATION_MODE_UNSPECIFIED',
+  ISOLATION_MODE_OPEN: 'ISOLATION_MODE_OPEN',
+  ISOLATION_MODE_ISOLATED: 'ISOLATION_MODE_ISOLATED',
+} as const;
+export type IsolationMode =
+  | (typeof IsolationMode)[keyof typeof IsolationMode]
+  | (string & {});
 
-export enum SseEncryptionAlgorithm {
-  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED = 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
-  AWS_SSE_S3 = 'AWS_SSE_S3',
-  AWS_SSE_KMS = 'AWS_SSE_KMS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SseEncryptionAlgorithm = {
+  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
+  AWS_SSE_S3: 'AWS_SSE_S3',
+  AWS_SSE_KMS: 'AWS_SSE_KMS',
+} as const;
+export type SseEncryptionAlgorithm =
+  | (typeof SseEncryptionAlgorithm)[keyof typeof SseEncryptionAlgorithm]
+  | (string & {});
 
 export interface AwsSqsQueue {
   /**
@@ -365,7 +373,7 @@ export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo
         .optional(),
       updated_by: z.string().optional(),
       browse_only: z.boolean().optional(),
-      isolation_mode: z.enum(IsolationMode).optional(),
+      isolation_mode: z.string().optional(),
       fallback: z.boolean().optional(),
       effective_enable_file_events: z.boolean().optional(),
       effective_file_event_queue: z
@@ -452,7 +460,7 @@ export const unmarshalListExternalLocationsResponseSchema: z.ZodType<ListExterna
 export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
   z
     .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+      algorithm: z.string().optional(),
       aws_kms_key_arn: z.string().optional(),
     })
     .transform(d => ({
@@ -503,7 +511,7 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     browseOnly: z.boolean().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
     effectiveFileEventQueue: z
@@ -619,7 +627,7 @@ export const marshalGcpPubsubSchema: z.ZodType = z
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z
   .object({
-    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    algorithm: z.string().optional(),
     awsKmsKeyArn: z.string().optional(),
   })
   .transform(d => ({
@@ -649,7 +657,7 @@ export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     browseOnly: z.boolean().optional(),
-    isolationMode: z.enum(IsolationMode).optional(),
+    isolationMode: z.string().optional(),
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
     effectiveFileEventQueue: z

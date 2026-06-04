@@ -7,65 +7,85 @@ import {z} from 'zod';
  *
  * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
  */
-export enum AwsAvailability {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AwsAvailability = {
   /** Use spot instances. */
-  SPOT = 'SPOT',
+  SPOT: 'SPOT',
   /** Use on-demand instances. */
-  ON_DEMAND = 'ON_DEMAND',
+  ON_DEMAND: 'ON_DEMAND',
   /**
    * Preferably use spot instances, but fall back to on-demand instances if spot instances cannot
    * be acquired (e.g., if AWS spot prices are too high).
    */
-  SPOT_WITH_FALLBACK = 'SPOT_WITH_FALLBACK',
-}
+  SPOT_WITH_FALLBACK: 'SPOT_WITH_FALLBACK',
+} as const;
+export type AwsAvailability =
+  | (typeof AwsAvailability)[keyof typeof AwsAvailability]
+  | (string & {});
 
 /**
  * Availability type used for all subsequent nodes past the `first_on_demand` ones.
  * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
  */
-export enum AzureAvailability {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AzureAvailability = {
   /** Use spot instances. */
-  SPOT_AZURE = 'SPOT_AZURE',
+  SPOT_AZURE: 'SPOT_AZURE',
   /** Use on-demand instances. */
-  ON_DEMAND_AZURE = 'ON_DEMAND_AZURE',
+  ON_DEMAND_AZURE: 'ON_DEMAND_AZURE',
   /**
    * Preferably use spot instances, but fall back to on-demand instances if spot instances cannot
    * be acquired (e.g., if Azure is out of Quota).
    */
-  SPOT_WITH_FALLBACK_AZURE = 'SPOT_WITH_FALLBACK_AZURE',
-}
+  SPOT_WITH_FALLBACK_AZURE: 'SPOT_WITH_FALLBACK_AZURE',
+} as const;
+export type AzureAvailability =
+  | (typeof AzureAvailability)[keyof typeof AzureAvailability]
+  | (string & {});
 
 /**
  * All Azure Disk types that <Databricks> supports.
  * See https://docs.microsoft.com/en-us/azure/storage/storage-about-disks-and-vhds-linux#types-of-disks
  */
-export enum AzureDiskVolumeType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AzureDiskVolumeType = {
   /** Premium storage tier, backed by SSDs. */
-  PREMIUM_LRS = 'PREMIUM_LRS',
+  PREMIUM_LRS: 'PREMIUM_LRS',
   /** Standard storage tier, backed by HDDs. */
-  STANDARD_LRS = 'STANDARD_LRS',
-}
+  STANDARD_LRS: 'STANDARD_LRS',
+} as const;
+export type AzureDiskVolumeType =
+  | (typeof AzureDiskVolumeType)[keyof typeof AzureDiskVolumeType]
+  | (string & {});
 
 /**
  * All EBS volume types that <Databricks> supports.
  * See https://aws.amazon.com/ebs/details/ for details.
  */
-export enum EbsVolumeType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EbsVolumeType = {
   /** Provision extra storage using AWS gp2 EBS volumes. */
-  GENERAL_PURPOSE_SSD = 'GENERAL_PURPOSE_SSD',
+  GENERAL_PURPOSE_SSD: 'GENERAL_PURPOSE_SSD',
   /** Provision extra storage using AWS st1 volumes. */
-  THROUGHPUT_OPTIMIZED_HDD = 'THROUGHPUT_OPTIMIZED_HDD',
-}
+  THROUGHPUT_OPTIMIZED_HDD: 'THROUGHPUT_OPTIMIZED_HDD',
+} as const;
+export type EbsVolumeType =
+  | (typeof EbsVolumeType)[keyof typeof EbsVolumeType]
+  | (string & {});
 
 /**
  * This field determines whether the instance pool will contain preemptible
  * VMs, on-demand VMs, or preemptible VMs with a fallback to on-demand VMs if the former is unavailable.
  */
-export enum GcpAvailability {
-  PREEMPTIBLE_GCP = 'PREEMPTIBLE_GCP',
-  ON_DEMAND_GCP = 'ON_DEMAND_GCP',
-  PREEMPTIBLE_WITH_FALLBACK_GCP = 'PREEMPTIBLE_WITH_FALLBACK_GCP',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GcpAvailability = {
+  PREEMPTIBLE_GCP: 'PREEMPTIBLE_GCP',
+  ON_DEMAND_GCP: 'ON_DEMAND_GCP',
+  PREEMPTIBLE_WITH_FALLBACK_GCP: 'PREEMPTIBLE_WITH_FALLBACK_GCP',
+} as const;
+export type GcpAvailability =
+  | (typeof GcpAvailability)[keyof typeof GcpAvailability]
+  | (string & {});
 
 /**
  * The state of a Cluster. The current allowable state transitions are as follows:
@@ -75,17 +95,21 @@ export enum GcpAvailability {
  * - ``STOPPED`` -> ``ACTIVE``
  * - ``STOPPED`` -> ``DELETED``
  */
-export enum InstancePoolState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const InstancePoolState = {
   /** Indicates an instance pool is active for use. */
-  ACTIVE = 'ACTIVE',
+  ACTIVE: 'ACTIVE',
   /**
    * Indicates an instance pool has been stopped so no more clusters should be able to get instances
    * from the pool.
    */
-  STOPPED = 'STOPPED',
+  STOPPED: 'STOPPED',
   /** Indicates the instance pool has been deleted and should no longer exist. */
-  DELETED = 'DELETED',
-}
+  DELETED: 'DELETED',
+} as const;
+export type InstancePoolState =
+  | (typeof InstancePoolState)[keyof typeof InstancePoolState]
+  | (string & {});
 
 export interface CreateInstancePoolRequest {
   /**
@@ -774,8 +798,8 @@ export const unmarshalDiskSpecSchema: z.ZodType<DiskSpec> = z
 
 export const unmarshalDiskTypeSchema: z.ZodType<DiskType> = z
   .object({
-    ebs_volume_type: z.enum(EbsVolumeType).optional(),
-    azure_disk_volume_type: z.enum(AzureDiskVolumeType).optional(),
+    ebs_volume_type: z.string().optional(),
+    azure_disk_volume_type: z.string().optional(),
   })
   .transform(d => ({
     remoteVolumeType:
@@ -822,7 +846,7 @@ export const unmarshalGetInstancePoolResponseSchema: z.ZodType<GetInstancePoolRe
       status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
       instance_pool_id: z.string().optional(),
       default_tags: z.record(z.string(), z.string()).optional(),
-      state: z.enum(InstancePoolState).optional(),
+      state: z.string().optional(),
       instance_pool_name: z.string().optional(),
       min_idle_instances: z.number().optional(),
       max_capacity: z.number().optional(),
@@ -882,7 +906,7 @@ export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats
       status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
       instance_pool_id: z.string().optional(),
       default_tags: z.record(z.string(), z.string()).optional(),
-      state: z.enum(InstancePoolState).optional(),
+      state: z.string().optional(),
       instance_pool_name: z.string().optional(),
       min_idle_instances: z.number().optional(),
       max_capacity: z.number().optional(),
@@ -938,7 +962,7 @@ export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats
 export const unmarshalInstancePoolAwsAttributesSchema: z.ZodType<InstancePoolAwsAttributes> =
   z
     .object({
-      availability: z.enum(AwsAvailability).optional(),
+      availability: z.string().optional(),
       zone_id: z.string().optional(),
       spot_bid_price_percent: z.number().optional(),
       instance_profile_arn: z.string().optional(),
@@ -953,7 +977,7 @@ export const unmarshalInstancePoolAwsAttributesSchema: z.ZodType<InstancePoolAws
 export const unmarshalInstancePoolAzureAttributesSchema: z.ZodType<InstancePoolAzureAttributes> =
   z
     .object({
-      availability: z.enum(AzureAvailability).optional(),
+      availability: z.string().optional(),
       spot_bid_max_price: z.number().optional(),
     })
     .transform(d => ({
@@ -964,7 +988,7 @@ export const unmarshalInstancePoolAzureAttributesSchema: z.ZodType<InstancePoolA
 export const unmarshalInstancePoolGcpAttributesSchema: z.ZodType<InstancePoolGcpAttributes> =
   z
     .object({
-      gcp_availability: z.enum(GcpAvailability).optional(),
+      gcp_availability: z.string().optional(),
       local_ssd_count: z.number().optional(),
       zone_id: z.string().optional(),
     })
@@ -1108,11 +1132,11 @@ export const marshalDiskTypeSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('ebsVolumeType'),
-          ebsVolumeType: z.enum(EbsVolumeType),
+          ebsVolumeType: z.string(),
         }),
         z.object({
           $case: z.literal('azureDiskVolumeType'),
-          azureDiskVolumeType: z.enum(AzureDiskVolumeType),
+          azureDiskVolumeType: z.string(),
         }),
       ])
       .optional(),
@@ -1207,7 +1231,7 @@ export const marshalEditInstancePoolRequestSchema: z.ZodType = z
 
 export const marshalInstancePoolAwsAttributesSchema: z.ZodType = z
   .object({
-    availability: z.enum(AwsAvailability).optional(),
+    availability: z.string().optional(),
     zoneId: z.string().optional(),
     spotBidPricePercent: z.number().optional(),
     instanceProfileArn: z.string().optional(),
@@ -1221,7 +1245,7 @@ export const marshalInstancePoolAwsAttributesSchema: z.ZodType = z
 
 export const marshalInstancePoolAzureAttributesSchema: z.ZodType = z
   .object({
-    availability: z.enum(AzureAvailability).optional(),
+    availability: z.string().optional(),
     spotBidMaxPrice: z.number().optional(),
   })
   .transform(d => ({
@@ -1231,7 +1255,7 @@ export const marshalInstancePoolAzureAttributesSchema: z.ZodType = z
 
 export const marshalInstancePoolGcpAttributesSchema: z.ZodType = z
   .object({
-    gcpAvailability: z.enum(GcpAvailability).optional(),
+    gcpAvailability: z.string().optional(),
     localSsdCount: z.number().optional(),
     zoneId: z.string().optional(),
   })

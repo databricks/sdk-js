@@ -15,57 +15,71 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 );
 
 /** The name of the base data type. This doesn't include details for complex types such as STRUCT, MAP or ARRAY. */
-export enum ColumnTypeName {
-  BOOLEAN = 'BOOLEAN',
-  BYTE = 'BYTE',
-  SHORT = 'SHORT',
-  INT = 'INT',
-  LONG = 'LONG',
-  FLOAT = 'FLOAT',
-  DOUBLE = 'DOUBLE',
-  DATE = 'DATE',
-  TIMESTAMP = 'TIMESTAMP',
-  STRING = 'STRING',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-  INTERVAL = 'INTERVAL',
-  ARRAY = 'ARRAY',
-  STRUCT = 'STRUCT',
-  MAP = 'MAP',
-  CHAR = 'CHAR',
-  NULL = 'NULL',
-  USER_DEFINED_TYPE = 'USER_DEFINED_TYPE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ColumnTypeName = {
+  BOOLEAN: 'BOOLEAN',
+  BYTE: 'BYTE',
+  SHORT: 'SHORT',
+  INT: 'INT',
+  LONG: 'LONG',
+  FLOAT: 'FLOAT',
+  DOUBLE: 'DOUBLE',
+  DATE: 'DATE',
+  TIMESTAMP: 'TIMESTAMP',
+  STRING: 'STRING',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+  INTERVAL: 'INTERVAL',
+  ARRAY: 'ARRAY',
+  STRUCT: 'STRUCT',
+  MAP: 'MAP',
+  CHAR: 'CHAR',
+  NULL: 'NULL',
+  USER_DEFINED_TYPE: 'USER_DEFINED_TYPE',
+} as const;
+export type ColumnTypeName =
+  | (typeof ColumnTypeName)[keyof typeof ColumnTypeName]
+  | (string & {});
 
-export enum Disposition {
-  FETCH_DISPOSITION_UNSPECIFIED = 'FETCH_DISPOSITION_UNSPECIFIED',
-  INLINE = 'INLINE',
-  EXTERNAL_LINKS = 'EXTERNAL_LINKS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Disposition = {
+  FETCH_DISPOSITION_UNSPECIFIED: 'FETCH_DISPOSITION_UNSPECIFIED',
+  INLINE: 'INLINE',
+  EXTERNAL_LINKS: 'EXTERNAL_LINKS',
+} as const;
+export type Disposition =
+  | (typeof Disposition)[keyof typeof Disposition]
+  | (string & {});
 
-export enum Format {
-  FORMAT_UNSPECIFIED = 'FORMAT_UNSPECIFIED',
-  JSON_ARRAY = 'JSON_ARRAY',
-  ARROW_STREAM = 'ARROW_STREAM',
-  CSV = 'CSV',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Format = {
+  FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
+  JSON_ARRAY: 'JSON_ARRAY',
+  ARROW_STREAM: 'ARROW_STREAM',
+  CSV: 'CSV',
+} as const;
+export type Format = (typeof Format)[keyof typeof Format] | (string & {});
 
-export enum ServiceErrorCode {
-  UNKNOWN = 'UNKNOWN',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  TEMPORARILY_UNAVAILABLE = 'TEMPORARILY_UNAVAILABLE',
-  IO_ERROR = 'IO_ERROR',
-  BAD_REQUEST = 'BAD_REQUEST',
-  SERVICE_UNDER_MAINTENANCE = 'SERVICE_UNDER_MAINTENANCE',
-  WORKSPACE_TEMPORARILY_UNAVAILABLE = 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
-  DEADLINE_EXCEEDED = 'DEADLINE_EXCEEDED',
-  CANCELLED = 'CANCELLED',
-  RESOURCE_EXHAUSTED = 'RESOURCE_EXHAUSTED',
-  ABORTED = 'ABORTED',
-  NOT_FOUND = 'NOT_FOUND',
-  ALREADY_EXISTS = 'ALREADY_EXISTS',
-  UNAUTHENTICATED = 'UNAUTHENTICATED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ServiceErrorCode = {
+  UNKNOWN: 'UNKNOWN',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
+  IO_ERROR: 'IO_ERROR',
+  BAD_REQUEST: 'BAD_REQUEST',
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
+  CANCELLED: 'CANCELLED',
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
+  ABORTED: 'ABORTED',
+  NOT_FOUND: 'NOT_FOUND',
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
+} as const;
+export type ServiceErrorCode =
+  | (typeof ServiceErrorCode)[keyof typeof ServiceErrorCode]
+  | (string & {});
 
 /**
  * When `wait_timeout > 0s`, the call will block up to the specified time. If the statement execution doesn't
@@ -74,22 +88,30 @@ export enum ServiceErrorCode {
  * which can be used for polling with :method:statementexecution/getStatement. When set to `CANCEL`,
  * the statement execution is canceled and the call returns with a `CANCELED` state.
  */
-export enum TimeoutAction {
-  TIMEOUT_ACTION_UNSPECIFIED = 'TIMEOUT_ACTION_UNSPECIFIED',
-  CONTINUE = 'CONTINUE',
-  CANCEL = 'CANCEL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TimeoutAction = {
+  TIMEOUT_ACTION_UNSPECIFIED: 'TIMEOUT_ACTION_UNSPECIFIED',
+  CONTINUE: 'CONTINUE',
+  CANCEL: 'CANCEL',
+} as const;
+export type TimeoutAction =
+  | (typeof TimeoutAction)[keyof typeof TimeoutAction]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const StatementStatus_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+  CLOSED: 'CLOSED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum StatementStatus_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED',
-  CANCELED = 'CANCELED',
-  CLOSED = 'CLOSED',
-}
+export type StatementStatus_State =
+  | (typeof StatementStatus_State)[keyof typeof StatementStatus_State]
+  | (string & {});
 
 export interface CancelStatementRequest {
   /**
@@ -556,7 +578,7 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
     name: z.string().optional(),
     type_text: z.string().optional(),
-    type_name: z.enum(ColumnTypeName).optional(),
+    type_name: z.string().optional(),
     position: z.number().optional(),
     type_precision: z.number().optional(),
     type_scale: z.number().optional(),
@@ -640,7 +662,7 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
 
 export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
   .object({
-    format: z.enum(Format).optional(),
+    format: z.string().optional(),
     schema: z.lazy(() => unmarshalSchemaSchema).optional(),
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
@@ -676,7 +698,7 @@ export const unmarshalSchemaSchema: z.ZodType<Schema> = z
 
 export const unmarshalServiceErrorSchema: z.ZodType<ServiceError> = z
   .object({
-    error_code: z.enum(ServiceErrorCode).optional(),
+    error_code: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -700,7 +722,7 @@ export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
 
 export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
   .object({
-    state: z.enum(StatementStatus_State).optional(),
+    state: z.string().optional(),
     error: z.lazy(() => unmarshalServiceErrorSchema).optional(),
     sql_state: z.string().optional(),
   })
@@ -726,10 +748,10 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     schema: z.string().optional(),
     rowLimit: z.bigint().optional(),
     byteLimit: z.bigint().optional(),
-    format: z.enum(Format).optional(),
-    disposition: z.enum(Disposition).optional(),
+    format: z.string().optional(),
+    disposition: z.string().optional(),
     waitTimeout: z.string().optional(),
-    onWaitTimeout: z.enum(TimeoutAction).optional(),
+    onWaitTimeout: z.string().optional(),
     parameters: z
       .array(z.lazy(() => marshalStatementParameterSchema))
       .optional(),

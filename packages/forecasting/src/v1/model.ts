@@ -2,19 +2,23 @@
 
 import {z} from 'zod';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ForecastingExperiment_State {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ForecastingExperiment_State = {
   /** The forecasting experiment is pending and has not started yet. */
-  PENDING = 'PENDING',
+  PENDING: 'PENDING',
   /** The forecasting experiment is currently running. */
-  RUNNING = 'RUNNING',
+  RUNNING: 'RUNNING',
   /** The forecasting experiment has completed successfully. */
-  SUCCEEDED = 'SUCCEEDED',
+  SUCCEEDED: 'SUCCEEDED',
   /** The forecasting experiment has failed. */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** The forecasting experiment has been cancelled. */
-  CANCELLED = 'CANCELLED',
-}
+  CANCELLED: 'CANCELLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type ForecastingExperiment_State =
+  | (typeof ForecastingExperiment_State)[keyof typeof ForecastingExperiment_State]
+  | (string & {});
 
 export interface CreateForecastingExperimentRequest {
   /** The fully qualified path of a Unity Catalog table, formatted as catalog_name.schema_name.table_name, used as training data for the forecasting model. */
@@ -97,7 +101,7 @@ export const unmarshalForecastingExperimentSchema: z.ZodType<ForecastingExperime
     .object({
       experiment_id: z.string().optional(),
       experiment_page_url: z.string().optional(),
-      state: z.enum(ForecastingExperiment_State).optional(),
+      state: z.string().optional(),
     })
     .transform(d => ({
       experimentId: d.experiment_id,

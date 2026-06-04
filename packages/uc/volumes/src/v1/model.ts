@@ -2,16 +2,24 @@
 
 import {z} from 'zod';
 
-export enum SseEncryptionAlgorithm {
-  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED = 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
-  AWS_SSE_S3 = 'AWS_SSE_S3',
-  AWS_SSE_KMS = 'AWS_SSE_KMS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SseEncryptionAlgorithm = {
+  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
+  AWS_SSE_S3: 'AWS_SSE_S3',
+  AWS_SSE_KMS: 'AWS_SSE_KMS',
+} as const;
+export type SseEncryptionAlgorithm =
+  | (typeof SseEncryptionAlgorithm)[keyof typeof SseEncryptionAlgorithm]
+  | (string & {});
 
-export enum VolumeType {
-  MANAGED = 'MANAGED',
-  EXTERNAL = 'EXTERNAL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const VolumeType = {
+  MANAGED: 'MANAGED',
+  EXTERNAL: 'EXTERNAL',
+} as const;
+export type VolumeType =
+  | (typeof VolumeType)[keyof typeof VolumeType]
+  | (string & {});
 
 export interface CreateVolumeRequest {
   /** The name of the volume */
@@ -233,7 +241,7 @@ export const unmarshalListVolumesResponseSchema: z.ZodType<ListVolumesResponse> 
 export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
   z
     .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+      algorithm: z.string().optional(),
       aws_kms_key_arn: z.string().optional(),
     })
     .transform(d => ({
@@ -246,7 +254,7 @@ export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
     name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    volume_type: z.enum(VolumeType).optional(),
+    volume_type: z.string().optional(),
     storage_location: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
@@ -294,7 +302,7 @@ export const marshalCreateVolumeRequestSchema: z.ZodType = z
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
-    volumeType: z.enum(VolumeType).optional(),
+    volumeType: z.string().optional(),
     storageLocation: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
@@ -348,7 +356,7 @@ export const marshalEncryptionDetailsSchema: z.ZodType = z
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z
   .object({
-    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    algorithm: z.string().optional(),
     awsKmsKeyArn: z.string().optional(),
   })
   .transform(d => ({
@@ -363,7 +371,7 @@ export const marshalUpdateVolumeRequestSchema: z.ZodType = z
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
-    volumeType: z.enum(VolumeType).optional(),
+    volumeType: z.string().optional(),
     storageLocation: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),

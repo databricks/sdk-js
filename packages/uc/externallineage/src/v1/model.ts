@@ -5,39 +5,47 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum SystemType {
-  SYSTEM_TYPE_UNSPECIFIED = 'SYSTEM_TYPE_UNSPECIFIED',
-  OTHER = 'OTHER',
-  TABLEAU = 'TABLEAU',
-  POWER_BI = 'POWER_BI',
-  LOOKER = 'LOOKER',
-  KAFKA = 'KAFKA',
-  SAP = 'SAP',
-  ORACLE = 'ORACLE',
-  SALESFORCE = 'SALESFORCE',
-  WORKDAY = 'WORKDAY',
-  MYSQL = 'MYSQL',
-  POSTGRESQL = 'POSTGRESQL',
-  MICROSOFT_SQL_SERVER = 'MICROSOFT_SQL_SERVER',
-  SERVICENOW = 'SERVICENOW',
-  AMAZON_REDSHIFT = 'AMAZON_REDSHIFT',
-  AZURE_SYNAPSE = 'AZURE_SYNAPSE',
-  SNOWFLAKE = 'SNOWFLAKE',
-  GOOGLE_BIGQUERY = 'GOOGLE_BIGQUERY',
-  MICROSOFT_FABRIC = 'MICROSOFT_FABRIC',
-  MONGODB = 'MONGODB',
-  TERADATA = 'TERADATA',
-  CONFLUENT = 'CONFLUENT',
-  DATABRICKS = 'DATABRICKS',
-  STREAM_NATIVE = 'STREAM_NATIVE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SystemType = {
+  SYSTEM_TYPE_UNSPECIFIED: 'SYSTEM_TYPE_UNSPECIFIED',
+  OTHER: 'OTHER',
+  TABLEAU: 'TABLEAU',
+  POWER_BI: 'POWER_BI',
+  LOOKER: 'LOOKER',
+  KAFKA: 'KAFKA',
+  SAP: 'SAP',
+  ORACLE: 'ORACLE',
+  SALESFORCE: 'SALESFORCE',
+  WORKDAY: 'WORKDAY',
+  MYSQL: 'MYSQL',
+  POSTGRESQL: 'POSTGRESQL',
+  MICROSOFT_SQL_SERVER: 'MICROSOFT_SQL_SERVER',
+  SERVICENOW: 'SERVICENOW',
+  AMAZON_REDSHIFT: 'AMAZON_REDSHIFT',
+  AZURE_SYNAPSE: 'AZURE_SYNAPSE',
+  SNOWFLAKE: 'SNOWFLAKE',
+  GOOGLE_BIGQUERY: 'GOOGLE_BIGQUERY',
+  MICROSOFT_FABRIC: 'MICROSOFT_FABRIC',
+  MONGODB: 'MONGODB',
+  TERADATA: 'TERADATA',
+  CONFLUENT: 'CONFLUENT',
+  DATABRICKS: 'DATABRICKS',
+  STREAM_NATIVE: 'STREAM_NATIVE',
+} as const;
+export type SystemType =
+  | (typeof SystemType)[keyof typeof SystemType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Direction_LineageDirection = {
+  LINEAGE_DIRECTION_UNSPECIFIED: 'LINEAGE_DIRECTION_UNSPECIFIED',
+  UPSTREAM: 'UPSTREAM',
+  DOWNSTREAM: 'DOWNSTREAM',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum Direction_LineageDirection {
-  LINEAGE_DIRECTION_UNSPECIFIED = 'LINEAGE_DIRECTION_UNSPECIFIED',
-  UPSTREAM = 'UPSTREAM',
-  DOWNSTREAM = 'DOWNSTREAM',
-}
+export type Direction_LineageDirection =
+  | (typeof Direction_LineageDirection)[keyof typeof Direction_LineageDirection]
+  | (string & {});
 
 export interface ColumnRelationship {
   source?: string | undefined;
@@ -385,7 +393,7 @@ export const unmarshalLineageExternalMetadataInfoSchema: z.ZodType<LineageExtern
   z
     .object({
       name: z.string().optional(),
-      system_type: z.enum(SystemType).optional(),
+      system_type: z.string().optional(),
       entity_type: z.string().optional(),
       event_time: z
         .string()

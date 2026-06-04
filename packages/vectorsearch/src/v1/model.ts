@@ -16,10 +16,14 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 );
 
 /** Type of endpoint. */
-export enum EndpointType {
-  STORAGE_OPTIMIZED = 'STORAGE_OPTIMIZED',
-  STANDARD = 'STANDARD',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointType = {
+  STORAGE_OPTIMIZED: 'STORAGE_OPTIMIZED',
+  STANDARD: 'STANDARD',
+} as const;
+export type EndpointType =
+  | (typeof EndpointType)[keyof typeof EndpointType]
+  | (string & {});
 
 /**
  * The subtype of the AI Search index, determining the indexing and retrieval strategy.
@@ -27,65 +31,89 @@ export enum EndpointType {
  * - `FULL_TEXT`: An index that uses full-text search without vector embeddings.
  * - `HYBRID`: An index that uses vector embeddings for similarity search and hybrid search.
  */
-export enum IndexSubtype {
-  VECTOR = 'VECTOR',
-  FULL_TEXT = 'FULL_TEXT',
-  HYBRID = 'HYBRID',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IndexSubtype = {
+  VECTOR: 'VECTOR',
+  FULL_TEXT: 'FULL_TEXT',
+  HYBRID: 'HYBRID',
+} as const;
+export type IndexSubtype =
+  | (typeof IndexSubtype)[keyof typeof IndexSubtype]
+  | (string & {});
 
 /**
  * Pipeline execution mode.
  * - `TRIGGERED`: If the pipeline uses the triggered execution mode, the system stops processing after successfully refreshing the source table in the pipeline once, ensuring the table is updated based on the data available when the update started.
  * - `CONTINUOUS`: If the pipeline uses continuous execution, the pipeline processes new data as it arrives in the source table to keep vector index fresh.
  */
-export enum PipelineType {
-  TRIGGERED = 'TRIGGERED',
-  CONTINUOUS = 'CONTINUOUS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelineType = {
+  TRIGGERED: 'TRIGGERED',
+  CONTINUOUS: 'CONTINUOUS',
+} as const;
+export type PipelineType =
+  | (typeof PipelineType)[keyof typeof PipelineType]
+  | (string & {});
 
-export enum ScalingChangeState {
-  SCALING_CHANGE_UNSPECIFIED = 'SCALING_CHANGE_UNSPECIFIED',
-  SCALING_CHANGE_APPLIED = 'SCALING_CHANGE_APPLIED',
-  SCALING_CHANGE_IN_PROGRESS = 'SCALING_CHANGE_IN_PROGRESS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScalingChangeState = {
+  SCALING_CHANGE_UNSPECIFIED: 'SCALING_CHANGE_UNSPECIFIED',
+  SCALING_CHANGE_APPLIED: 'SCALING_CHANGE_APPLIED',
+  SCALING_CHANGE_IN_PROGRESS: 'SCALING_CHANGE_IN_PROGRESS',
+} as const;
+export type ScalingChangeState =
+  | (typeof ScalingChangeState)[keyof typeof ScalingChangeState]
+  | (string & {});
 
-export enum UpsertDeleteDataStatus {
-  SUCCESS = 'SUCCESS',
-  PARTIAL_SUCCESS = 'PARTIAL_SUCCESS',
-  FAILURE = 'FAILURE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UpsertDeleteDataStatus = {
+  SUCCESS: 'SUCCESS',
+  PARTIAL_SUCCESS: 'PARTIAL_SUCCESS',
+  FAILURE: 'FAILURE',
+} as const;
+export type UpsertDeleteDataStatus =
+  | (typeof UpsertDeleteDataStatus)[keyof typeof UpsertDeleteDataStatus]
+  | (string & {});
 
 /**
  * There are 2 types of AI Search indexes:
  * - `DELTA_SYNC`: An index that automatically syncs with a source Delta Table, automatically and incrementally updating the index as the underlying data in the Delta Table changes.
  * - `DIRECT_ACCESS`: An index that supports direct read and write of vectors and metadata through our REST and SDK APIs. With this model, the user manages index updates.
  */
-export enum VectorIndexType {
-  DELTA_SYNC = 'DELTA_SYNC',
-  DIRECT_ACCESS = 'DIRECT_ACCESS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const VectorIndexType = {
+  DELTA_SYNC: 'DELTA_SYNC',
+  DIRECT_ACCESS: 'DIRECT_ACCESS',
+} as const;
+export type VectorIndexType =
+  | (typeof VectorIndexType)[keyof typeof VectorIndexType]
+  | (string & {});
 
 /** Current state of the endpoint */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EndpointStatus_State {
-  PROVISIONING = 'PROVISIONING',
-  ONLINE = 'ONLINE',
-  OFFLINE = 'OFFLINE',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointStatus_State = {
+  PROVISIONING: 'PROVISIONING',
+  ONLINE: 'ONLINE',
+  OFFLINE: 'OFFLINE',
   /**
    * After the endpoint is ready, it can be in one of the following states:
    * - RED_STATE: The endpoint is unhealthy and needs to be investigated.
    * - YELLOW_STATE: The endpoint is healthy but needs to be monitored.
    * - ONLINE: The endpoint is healthy and ready to serve traffic.
    */
-  RED_STATE = 'RED_STATE',
-  YELLOW_STATE = 'YELLOW_STATE',
+  RED_STATE: 'RED_STATE',
+  YELLOW_STATE: 'YELLOW_STATE',
   /**
    * The endpoint is being deleted or has been deleted. Associated resources
    * are being cleaned up; once cleanup completes the endpoint will no longer
    * be retrievable.
    */
-  DELETED = 'DELETED',
-}
+  DELETED: 'DELETED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EndpointStatus_State =
+  | (typeof EndpointStatus_State)[keyof typeof EndpointStatus_State]
+  | (string & {});
 
 export interface ColumnInfo {
   /** Name of the column. */
@@ -737,7 +765,7 @@ export const unmarshalCustomTagSchema: z.ZodType<CustomTag> = z
 export const unmarshalDeleteDataVectorIndexResponseSchema: z.ZodType<DeleteDataVectorIndexResponse> =
   z
     .object({
-      status: z.enum(UpsertDeleteDataStatus).optional(),
+      status: z.string().optional(),
       result: z.lazy(() => unmarshalUpsertDeleteDataResultSchema).optional(),
     })
     .transform(d => ({
@@ -761,7 +789,7 @@ export const unmarshalDeltaSyncVectorIndexSpecSchema: z.ZodType<DeltaSyncVectorI
       embedding_vector_columns: z
         .array(z.lazy(() => unmarshalEmbeddingVectorColumnSchema))
         .optional(),
-      pipeline_type: z.enum(PipelineType).optional(),
+      pipeline_type: z.string().optional(),
       pipeline_id: z.string().optional(),
       embedding_writeback_table: z.string().optional(),
       columns_to_sync: z.array(z.string()).optional(),
@@ -837,7 +865,7 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    endpoint_type: z.enum(EndpointType).optional(),
+    endpoint_type: z.string().optional(),
     last_updated_user: z.string().optional(),
     id: z.string().optional(),
     endpoint_status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
@@ -866,7 +894,7 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
 export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> =
   z
     .object({
-      state: z.enum(ScalingChangeState).optional(),
+      state: z.string().optional(),
       requested_target_qps: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -879,7 +907,7 @@ export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> 
 
 export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
-    state: z.enum(EndpointStatus_State).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -990,7 +1018,7 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     name: z.string().optional(),
     endpoint_name: z.string().optional(),
     primary_key: z.string().optional(),
-    index_type: z.enum(VectorIndexType).optional(),
+    index_type: z.string().optional(),
     direct_access_index_spec: z
       .lazy(() => unmarshalDirectAccessVectorIndexSpecSchema)
       .optional(),
@@ -999,7 +1027,7 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
       .optional(),
     status: z.lazy(() => unmarshalVectorIndexStatusSchema).optional(),
     creator: z.string().optional(),
-    index_subtype: z.enum(IndexSubtype).optional(),
+    index_subtype: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1124,7 +1152,7 @@ export const unmarshalUpdateEndpointCustomTagsResponseSchema: z.ZodType<UpdateEn
 export const unmarshalUpsertDataVectorIndexResponseSchema: z.ZodType<UpsertDataVectorIndexResponse> =
   z
     .object({
-      status: z.enum(UpsertDeleteDataStatus).optional(),
+      status: z.string().optional(),
       result: z.lazy(() => unmarshalUpsertDeleteDataResultSchema).optional(),
     })
     .transform(d => ({
@@ -1174,7 +1202,7 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     name: z.string().optional(),
     endpoint_name: z.string().optional(),
     primary_key: z.string().optional(),
-    index_type: z.enum(VectorIndexType).optional(),
+    index_type: z.string().optional(),
     direct_access_index_spec: z
       .lazy(() => unmarshalDirectAccessVectorIndexSpecSchema)
       .optional(),
@@ -1183,7 +1211,7 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
       .optional(),
     status: z.lazy(() => unmarshalVectorIndexStatusSchema).optional(),
     creator: z.string().optional(),
-    index_subtype: z.enum(IndexSubtype).optional(),
+    index_subtype: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1227,7 +1255,7 @@ export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
 export const marshalCreateEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    endpointType: z.enum(EndpointType).optional(),
+    endpointType: z.string().optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     targetQps: z.bigint().optional(),
@@ -1245,7 +1273,7 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     name: z.string().optional(),
     endpointName: z.string().optional(),
     primaryKey: z.string().optional(),
-    indexType: z.enum(VectorIndexType).optional(),
+    indexType: z.string().optional(),
     indexSpec: z
       .discriminatedUnion('$case', [
         z.object({
@@ -1262,7 +1290,7 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    indexSubtype: z.enum(IndexSubtype).optional(),
+    indexSubtype: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1297,7 +1325,7 @@ export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
     embeddingVectorColumns: z
       .array(z.lazy(() => marshalEmbeddingVectorColumnSchema))
       .optional(),
-    pipelineType: z.enum(PipelineType).optional(),
+    pipelineType: z.string().optional(),
     pipelineId: z.string().optional(),
     embeddingWritebackTable: z.string().optional(),
     columnsToSync: z.array(z.string()).optional(),

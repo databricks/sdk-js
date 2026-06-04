@@ -2,12 +2,16 @@
 
 import {z} from 'zod';
 
-export enum CmkUseCase {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CmkUseCase = {
   /** Encryption for the control plane resources. */
-  MANAGED_SERVICES = 'MANAGED_SERVICES',
+  MANAGED_SERVICES: 'MANAGED_SERVICES',
   /** Encryption for the customer cloud resources. */
-  STORAGE = 'STORAGE',
-}
+  STORAGE: 'STORAGE',
+} as const;
+export type CmkUseCase =
+  | (typeof CmkUseCase)[keyof typeof CmkUseCase]
+  | (string & {});
 
 export interface AwsKeyInfo {
   /** The AWS KMS key's Amazon Resource Name (ARN). */
@@ -227,7 +231,7 @@ export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
       aws_key_info: z.lazy(() => unmarshalAwsKeyInfoSchema).optional(),
       azure_key_info: z.lazy(() => unmarshalAzureKeyInfoSchema).optional(),
       gcp_key_info: z.lazy(() => unmarshalGcpKeyInfoSchema).optional(),
-      use_cases: z.array(z.enum(CmkUseCase)).optional(),
+      use_cases: z.array(z.string()).optional(),
     })
     .transform(d => ({
       customerManagedKeyId: d.customer_managed_key_id,
@@ -328,7 +332,7 @@ export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    useCases: z.array(z.enum(CmkUseCase)).optional(),
+    useCases: z.array(z.string()).optional(),
   })
   .transform(d => ({
     account_id: d.accountId,

@@ -2,17 +2,26 @@
 
 import {z} from 'zod';
 
-export enum UsageDashboardMajorVersion {
-  USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED = 'USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED',
-  USAGE_DASHBOARD_MAJOR_VERSION_1 = 'USAGE_DASHBOARD_MAJOR_VERSION_1',
-  USAGE_DASHBOARD_MAJOR_VERSION_2 = 'USAGE_DASHBOARD_MAJOR_VERSION_2',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UsageDashboardMajorVersion = {
+  USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED:
+    'USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED',
+  USAGE_DASHBOARD_MAJOR_VERSION_1: 'USAGE_DASHBOARD_MAJOR_VERSION_1',
+  USAGE_DASHBOARD_MAJOR_VERSION_2: 'USAGE_DASHBOARD_MAJOR_VERSION_2',
+} as const;
+export type UsageDashboardMajorVersion =
+  | (typeof UsageDashboardMajorVersion)[keyof typeof UsageDashboardMajorVersion]
+  | (string & {});
 
-export enum UsageDashboardType {
-  USAGE_DASHBOARD_TYPE_UNSPECIFIED = 'USAGE_DASHBOARD_TYPE_UNSPECIFIED',
-  USAGE_DASHBOARD_TYPE_WORKSPACE = 'USAGE_DASHBOARD_TYPE_WORKSPACE',
-  USAGE_DASHBOARD_TYPE_GLOBAL = 'USAGE_DASHBOARD_TYPE_GLOBAL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UsageDashboardType = {
+  USAGE_DASHBOARD_TYPE_UNSPECIFIED: 'USAGE_DASHBOARD_TYPE_UNSPECIFIED',
+  USAGE_DASHBOARD_TYPE_WORKSPACE: 'USAGE_DASHBOARD_TYPE_WORKSPACE',
+  USAGE_DASHBOARD_TYPE_GLOBAL: 'USAGE_DASHBOARD_TYPE_GLOBAL',
+} as const;
+export type UsageDashboardType =
+  | (typeof UsageDashboardType)[keyof typeof UsageDashboardType]
+  | (string & {});
 
 export interface CreateBillingUsageDashboardRequest {
   /** The workspace ID of the workspace in which the usage dashboard is created. */
@@ -70,8 +79,8 @@ export const marshalCreateBillingUsageDashboardRequestSchema: z.ZodType = z
   .object({
     workspaceId: z.bigint().optional(),
     accountId: z.string().optional(),
-    dashboardType: z.enum(UsageDashboardType).optional(),
-    majorVersion: z.enum(UsageDashboardMajorVersion).optional(),
+    dashboardType: z.string().optional(),
+    majorVersion: z.string().optional(),
   })
   .transform(d => ({
     workspace_id: d.workspaceId,

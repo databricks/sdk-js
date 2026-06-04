@@ -3,31 +3,39 @@
 import {z} from 'zod';
 
 /** The ACL permission levels for Secret ACLs applied to secret scopes. */
-export enum AclPermission {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AclPermission = {
   /** Allowed to perform read operations (get, list) on secrets in this scope. */
-  READ = 'READ',
+  READ: 'READ',
   /** Allowed to read and write secrets to this secret scope. */
-  WRITE = 'WRITE',
+  WRITE: 'WRITE',
   /** Allowed to read/write ACLs, and read/write secrets to this secret scope. */
-  MANAGE = 'MANAGE',
-}
+  MANAGE: 'MANAGE',
+} as const;
+export type AclPermission =
+  | (typeof AclPermission)[keyof typeof AclPermission]
+  | (string & {});
 
 /**
  * The types of secret scope backends in the Secret Manager. Azure KeyVault backed secret scopes
  * will be supported in a later release.
  */
-export enum ScopeBackendType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScopeBackendType = {
   /**
    * A secret scope in which secrets are stored in Databrick managed storage
    * and encrypted with a cloud-based specific encryption key.
    */
-  DATABRICKS = 'DATABRICKS',
+  DATABRICKS: 'DATABRICKS',
   /**
    * A customer Azure KeyVault backed secret scope. Reading secrets from this scope will directly
    * read secrets from the customer vault. Only scope and secret ACL metadata are stored in Databricks.
    */
-  AZURE_KEYVAULT = 'AZURE_KEYVAULT',
-}
+  AZURE_KEYVAULT: 'AZURE_KEYVAULT',
+} as const;
+export type ScopeBackendType =
+  | (typeof ScopeBackendType)[keyof typeof ScopeBackendType]
+  | (string & {});
 
 /**
  * An item representing an ACL rule applied to the given principal (user or group)
@@ -201,7 +209,7 @@ export interface SecretScope {
 export const unmarshalAclItemSchema: z.ZodType<AclItem> = z
   .object({
     principal: z.string().optional(),
-    permission: z.enum(AclPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     principal: d.principal,
@@ -292,7 +300,7 @@ export const unmarshalSecretMetadataSchema: z.ZodType<SecretMetadata> = z
 export const unmarshalSecretScopeSchema: z.ZodType<SecretScope> = z
   .object({
     name: z.string().optional(),
-    backend_type: z.enum(ScopeBackendType).optional(),
+    backend_type: z.string().optional(),
     keyvault_metadata: z
       .lazy(() => unmarshalAzureKeyVaultSecretScopeMetadataSchema)
       .optional(),
@@ -317,7 +325,7 @@ export const marshalCreateScopeRequestSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
     initialManagePrincipal: z.string().optional(),
-    scopeBackendType: z.enum(ScopeBackendType).optional(),
+    scopeBackendType: z.string().optional(),
     backendAzureKeyvault: z
       .lazy(() => marshalAzureKeyVaultSecretScopeMetadataSchema)
       .optional(),
@@ -361,7 +369,7 @@ export const marshalPutAclRequestSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
     principal: z.string().optional(),
-    permission: z.enum(AclPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     scope: d.scope,

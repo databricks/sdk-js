@@ -5,44 +5,52 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum OnlineStore_State {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OnlineStore_State = {
   /** Default value, not used */
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   /** The online store is being brought online. */
-  STARTING = 'STARTING',
+  STARTING: 'STARTING',
   /** The online store is active and ready to use. */
-  AVAILABLE = 'AVAILABLE',
+  AVAILABLE: 'AVAILABLE',
   /** The online store is being deleted. */
-  DELETING = 'DELETING',
+  DELETING: 'DELETING',
   /** The online store is stopped. */
-  STOPPED = 'STOPPED',
+  STOPPED: 'STOPPED',
   /** The online store is being updated. */
-  UPDATING = 'UPDATING',
+  UPDATING: 'UPDATING',
   /** The online store is failing over. */
-  FAILING_OVER = 'FAILING_OVER',
-}
-
+  FAILING_OVER: 'FAILING_OVER',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PublishSpec_PublishMode {
-  PUBLISH_MODE_UNSPECIFIED = 'PUBLISH_MODE_UNSPECIFIED',
+export type OnlineStore_State =
+  | (typeof OnlineStore_State)[keyof typeof OnlineStore_State]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PublishSpec_PublishMode = {
+  PUBLISH_MODE_UNSPECIFIED: 'PUBLISH_MODE_UNSPECIFIED',
   /**
    * Pipeline runs continuously after syncing the initial data.
    * Requires the source table to have Change Data Feed (CDF) enabled.
    */
-  CONTINUOUS = 'CONTINUOUS',
+  CONTINUOUS: 'CONTINUOUS',
   /**
    * Pipeline stops after syncing the initial data and can be triggered later (manually, through a cron job or through data triggers).
    * Requires the source table to have Change Data Feed (CDF) enabled.
    */
-  TRIGGERED = 'TRIGGERED',
+  TRIGGERED: 'TRIGGERED',
   /**
    * Pipeline stops after syncing the initial data and can be triggered later (manually, through a cron job or through data triggers).
    * Successive updates always perform a full copy of the source table data (no incremental updates).
    * Does not require the source table to have Change Data Feed (CDF) enabled.
    */
-  SNAPSHOT = 'SNAPSHOT',
-}
+  SNAPSHOT: 'SNAPSHOT',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PublishSpec_PublishMode =
+  | (typeof PublishSpec_PublishMode)[keyof typeof PublishSpec_PublishMode]
+  | (string & {});
 
 export interface CreateOnlineStoreRequest {
   /** Online store to create. */
@@ -147,7 +155,7 @@ export const unmarshalOnlineStoreSchema: z.ZodType<OnlineStore> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    state: z.enum(OnlineStore_State).optional(),
+    state: z.string().optional(),
     capacity: z.string().optional(),
     read_replica_count: z.number().optional(),
     usage_policy_id: z.string().optional(),
@@ -181,7 +189,7 @@ export const marshalOnlineStoreSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    state: z.enum(OnlineStore_State).optional(),
+    state: z.string().optional(),
     capacity: z.string().optional(),
     readReplicaCount: z.number().optional(),
     usagePolicyId: z.string().optional(),
@@ -200,7 +208,7 @@ export const marshalPublishSpecSchema: z.ZodType = z
   .object({
     onlineStore: z.string().optional(),
     onlineTableName: z.string().optional(),
-    publishMode: z.enum(PublishSpec_PublishMode).optional(),
+    publishMode: z.string().optional(),
   })
   .transform(d => ({
     online_store: d.onlineStore,

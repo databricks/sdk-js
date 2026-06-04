@@ -3,26 +3,30 @@
 import {z} from 'zod';
 
 /** The type of Unity Catalog securable. */
-export enum SecurableType {
-  CATALOG = 'CATALOG',
-  SCHEMA = 'SCHEMA',
-  TABLE = 'TABLE',
-  STORAGE_CREDENTIAL = 'STORAGE_CREDENTIAL',
-  EXTERNAL_LOCATION = 'EXTERNAL_LOCATION',
-  FUNCTION = 'FUNCTION',
-  SHARE = 'SHARE',
-  PROVIDER = 'PROVIDER',
-  RECIPIENT = 'RECIPIENT',
-  CLEAN_ROOM = 'CLEAN_ROOM',
-  METASTORE = 'METASTORE',
-  PIPELINE = 'PIPELINE',
-  VOLUME = 'VOLUME',
-  CONNECTION = 'CONNECTION',
-  CREDENTIAL = 'CREDENTIAL',
-  EXTERNAL_METADATA = 'EXTERNAL_METADATA',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableType = {
+  CATALOG: 'CATALOG',
+  SCHEMA: 'SCHEMA',
+  TABLE: 'TABLE',
+  STORAGE_CREDENTIAL: 'STORAGE_CREDENTIAL',
+  EXTERNAL_LOCATION: 'EXTERNAL_LOCATION',
+  FUNCTION: 'FUNCTION',
+  SHARE: 'SHARE',
+  PROVIDER: 'PROVIDER',
+  RECIPIENT: 'RECIPIENT',
+  CLEAN_ROOM: 'CLEAN_ROOM',
+  METASTORE: 'METASTORE',
+  PIPELINE: 'PIPELINE',
+  VOLUME: 'VOLUME',
+  CONNECTION: 'CONNECTION',
+  CREDENTIAL: 'CREDENTIAL',
+  EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
-  STAGING_TABLE = 'STAGING_TABLE',
-}
+  STAGING_TABLE: 'STAGING_TABLE',
+} as const;
+export type SecurableType =
+  | (typeof SecurableType)[keyof typeof SecurableType]
+  | (string & {});
 
 export interface GetQuotaRequest {
   /** Securable type of the quota parent. */
@@ -91,7 +95,7 @@ export const unmarshalListQuotasResponseSchema: z.ZodType<ListQuotasResponse> =
 
 export const unmarshalQuotaInfoSchema: z.ZodType<QuotaInfo> = z
   .object({
-    parent_securable_type: z.enum(SecurableType).optional(),
+    parent_securable_type: z.string().optional(),
     parent_full_name: z.string().optional(),
     quota_name: z.string().optional(),
     quota_count: z.number().optional(),

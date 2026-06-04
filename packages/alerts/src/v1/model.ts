@@ -5,26 +5,38 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum AlertOperator {
-  GREATER_THAN = 'GREATER_THAN',
-  GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL',
-  LESS_THAN = 'LESS_THAN',
-  LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL',
-  EQUAL = 'EQUAL',
-  NOT_EQUAL = 'NOT_EQUAL',
-  IS_NULL = 'IS_NULL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertOperator = {
+  GREATER_THAN: 'GREATER_THAN',
+  GREATER_THAN_OR_EQUAL: 'GREATER_THAN_OR_EQUAL',
+  LESS_THAN: 'LESS_THAN',
+  LESS_THAN_OR_EQUAL: 'LESS_THAN_OR_EQUAL',
+  EQUAL: 'EQUAL',
+  NOT_EQUAL: 'NOT_EQUAL',
+  IS_NULL: 'IS_NULL',
+} as const;
+export type AlertOperator =
+  | (typeof AlertOperator)[keyof typeof AlertOperator]
+  | (string & {});
 
-export enum AlertState {
-  UNKNOWN = 'UNKNOWN',
-  OK = 'OK',
-  TRIGGERED = 'TRIGGERED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertState = {
+  UNKNOWN: 'UNKNOWN',
+  OK: 'OK',
+  TRIGGERED: 'TRIGGERED',
+} as const;
+export type AlertState =
+  | (typeof AlertState)[keyof typeof AlertState]
+  | (string & {});
 
-export enum LifecycleState {
-  ACTIVE = 'ACTIVE',
-  TRASHED = 'TRASHED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LifecycleState = {
+  ACTIVE: 'ACTIVE',
+  TRASHED: 'TRASHED',
+} as const;
+export type LifecycleState =
+  | (typeof LifecycleState)[keyof typeof LifecycleState]
+  | (string & {});
 
 export interface Alert {
   /** UUID identifying the alert. */
@@ -234,9 +246,9 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     id: z.string().optional(),
     display_name: z.string().optional(),
     query_id: z.string().optional(),
-    state: z.enum(AlertState).optional(),
+    state: z.string().optional(),
     seconds_to_retrigger: z.number().optional(),
-    lifecycle_state: z.enum(LifecycleState).optional(),
+    lifecycle_state: z.string().optional(),
     trigger_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -276,10 +288,10 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
 
 export const unmarshalAlertConditionSchema: z.ZodType<AlertCondition> = z
   .object({
-    op: z.enum(AlertOperator).optional(),
+    op: z.string().optional(),
     operand: z.lazy(() => unmarshalAlertOperandSchema).optional(),
     threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
-    empty_result_state: z.enum(AlertState).optional(),
+    empty_result_state: z.string().optional(),
   })
   .transform(d => ({
     op: d.op,
@@ -349,9 +361,9 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       id: z.string().optional(),
       display_name: z.string().optional(),
       query_id: z.string().optional(),
-      state: z.enum(AlertState).optional(),
+      state: z.string().optional(),
       seconds_to_retrigger: z.number().optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
+      lifecycle_state: z.string().optional(),
       trigger_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -391,10 +403,10 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
 
 export const marshalAlertConditionSchema: z.ZodType = z
   .object({
-    op: z.enum(AlertOperator).optional(),
+    op: z.string().optional(),
     operand: z.lazy(() => marshalAlertOperandSchema).optional(),
     threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
-    emptyResultState: z.enum(AlertState).optional(),
+    emptyResultState: z.string().optional(),
   })
   .transform(d => ({
     op: d.op,
@@ -468,9 +480,9 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
     id: z.string().optional(),
     displayName: z.string().optional(),
     queryId: z.string().optional(),
-    state: z.enum(AlertState).optional(),
+    state: z.string().optional(),
     secondsToRetrigger: z.number().optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
+    lifecycleState: z.string().optional(),
     triggerTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -530,9 +542,9 @@ export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
     id: z.string().optional(),
     displayName: z.string().optional(),
     queryId: z.string().optional(),
-    state: z.enum(AlertState).optional(),
+    state: z.string().optional(),
     secondsToRetrigger: z.number().optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
+    lifecycleState: z.string().optional(),
     triggerTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())

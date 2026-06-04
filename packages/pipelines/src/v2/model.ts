@@ -3,316 +3,420 @@
 import {z} from 'zod';
 
 /** Enum to specify which mode of clone to execute */
-export enum CloneMode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CloneMode = {
   /** Data and metadata are copied */
-  MIGRATE_TO_UC = 'MIGRATE_TO_UC',
-}
+  MIGRATE_TO_UC: 'MIGRATE_TO_UC',
+} as const;
+export type CloneMode =
+  | (typeof CloneMode)[keyof typeof CloneMode]
+  | (string & {});
 
 /**
  * For certain database sources LakeFlow Connect offers both query based and cdc
  * ingestion, ConnectorType can bse used to convey the type of ingestion.
  * If connection_name is provided for database sources, we default to Query Based ingestion
  */
-export enum ConnectorType {
-  CONNECTOR_TYPE_UNSPECIFIED = 'CONNECTOR_TYPE_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ConnectorType = {
+  CONNECTOR_TYPE_UNSPECIFIED: 'CONNECTOR_TYPE_UNSPECIFIED',
   /**
    * If connector_type = CDC and ingestion_gateway_id is provided then we use Ingestion Gateway pipeline with
    * Cdc Managed Ingestion Pipeline for ingestion, if connector_type = CDC and connection_name is provided
    * then we use Combined Cdc Managed Ingestion Pipeline.
    */
-  CDC = 'CDC',
-  QUERY_BASED = 'QUERY_BASED',
-}
+  CDC: 'CDC',
+  QUERY_BASED: 'QUERY_BASED',
+} as const;
+export type ConnectorType =
+  | (typeof ConnectorType)[keyof typeof ConnectorType]
+  | (string & {});
 
 /**
  * Days of week in which the window is allowed to happen.
  * If not specified all days of the week will be used.
  */
-export enum DayOfWeek {
-  DAY_OF_WEEK_UNSPECIFIED = 'DAY_OF_WEEK_UNSPECIFIED',
-  MONDAY = 'MONDAY',
-  TUESDAY = 'TUESDAY',
-  WEDNESDAY = 'WEDNESDAY',
-  THURSDAY = 'THURSDAY',
-  FRIDAY = 'FRIDAY',
-  SATURDAY = 'SATURDAY',
-  SUNDAY = 'SUNDAY',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DayOfWeek = {
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  MONDAY: 'MONDAY',
+  TUESDAY: 'TUESDAY',
+  WEDNESDAY: 'WEDNESDAY',
+  THURSDAY: 'THURSDAY',
+  FRIDAY: 'FRIDAY',
+  SATURDAY: 'SATURDAY',
+  SUNDAY: 'SUNDAY',
+} as const;
+export type DayOfWeek =
+  | (typeof DayOfWeek)[keyof typeof DayOfWeek]
+  | (string & {});
 
 /**
  * The deployment method that manages the pipeline:
  * - BUNDLE: The pipeline is managed by a Databricks Asset Bundle.
  */
-export enum DeploymentKind {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DeploymentKind = {
   /** Databricks Asset Bundle (DAB) */
-  BUNDLE = 'BUNDLE',
-}
+  BUNDLE: 'BUNDLE',
+} as const;
+export type DeploymentKind =
+  | (typeof DeploymentKind)[keyof typeof DeploymentKind]
+  | (string & {});
 
 /** The severity level of the event. */
-export enum EventLevel {
-  INFO = 'INFO',
-  WARN = 'WARN',
-  ERROR = 'ERROR',
-  METRICS = 'METRICS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EventLevel = {
+  INFO: 'INFO',
+  WARN: 'WARN',
+  ERROR: 'ERROR',
+  METRICS: 'METRICS',
+} as const;
+export type EventLevel =
+  | (typeof EventLevel)[keyof typeof EventLevel]
+  | (string & {});
 
-export enum IngestionSourceType {
-  INGESTION_SOURCE_TYPE_UNSPECIFIED = 'INGESTION_SOURCE_TYPE_UNSPECIFIED',
-  MYSQL = 'MYSQL',
-  POSTGRESQL = 'POSTGRESQL',
-  SQLSERVER = 'SQLSERVER',
-  SALESFORCE = 'SALESFORCE',
-  BIGQUERY = 'BIGQUERY',
-  NETSUITE = 'NETSUITE',
-  WORKDAY_RAAS = 'WORKDAY_RAAS',
-  GA4_RAW_DATA = 'GA4_RAW_DATA',
-  SERVICENOW = 'SERVICENOW',
-  MANAGED_POSTGRESQL = 'MANAGED_POSTGRESQL',
-  ORACLE = 'ORACLE',
-  TERADATA = 'TERADATA',
-  SHAREPOINT = 'SHAREPOINT',
-  DYNAMICS365 = 'DYNAMICS365',
-  GOOGLE_DRIVE = 'GOOGLE_DRIVE',
-  JIRA = 'JIRA',
-  CONFLUENCE = 'CONFLUENCE',
-  META_MARKETING = 'META_MARKETING',
-  ZENDESK = 'ZENDESK',
-  FOREIGN_CATALOG = 'FOREIGN_CATALOG',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IngestionSourceType = {
+  INGESTION_SOURCE_TYPE_UNSPECIFIED: 'INGESTION_SOURCE_TYPE_UNSPECIFIED',
+  MYSQL: 'MYSQL',
+  POSTGRESQL: 'POSTGRESQL',
+  SQLSERVER: 'SQLSERVER',
+  SALESFORCE: 'SALESFORCE',
+  BIGQUERY: 'BIGQUERY',
+  NETSUITE: 'NETSUITE',
+  WORKDAY_RAAS: 'WORKDAY_RAAS',
+  GA4_RAW_DATA: 'GA4_RAW_DATA',
+  SERVICENOW: 'SERVICENOW',
+  MANAGED_POSTGRESQL: 'MANAGED_POSTGRESQL',
+  ORACLE: 'ORACLE',
+  TERADATA: 'TERADATA',
+  SHAREPOINT: 'SHAREPOINT',
+  DYNAMICS365: 'DYNAMICS365',
+  GOOGLE_DRIVE: 'GOOGLE_DRIVE',
+  JIRA: 'JIRA',
+  CONFLUENCE: 'CONFLUENCE',
+  META_MARKETING: 'META_MARKETING',
+  ZENDESK: 'ZENDESK',
+  FOREIGN_CATALOG: 'FOREIGN_CATALOG',
+} as const;
+export type IngestionSourceType =
+  | (typeof IngestionSourceType)[keyof typeof IngestionSourceType]
+  | (string & {});
 
 /** Maturity level for EventDetails. */
-export enum MaturityLevel {
-  STABLE = 'STABLE',
-  EVOLVING = 'EVOLVING',
-  DEPRECATED = 'DEPRECATED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MaturityLevel = {
+  STABLE: 'STABLE',
+  EVOLVING: 'EVOLVING',
+  DEPRECATED: 'DEPRECATED',
+} as const;
+export type MaturityLevel =
+  | (typeof MaturityLevel)[keyof typeof MaturityLevel]
+  | (string & {});
 
 /** Attachment behavior mode for Outlook ingestion */
-export enum OutlookAttachmentMode {
-  OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED = 'OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OutlookAttachmentMode = {
+  OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED: 'OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED',
   /** Ingest all attachments (both inline and non-inline) */
-  ALL = 'ALL',
+  ALL: 'ALL',
   /** Ingest only non-inline attachments (recommended to avoid corporate signature images) */
-  NON_INLINE_ONLY = 'NON_INLINE_ONLY',
+  NON_INLINE_ONLY: 'NON_INLINE_ONLY',
   /** Ingest only inline attachments */
-  INLINE_ONLY = 'INLINE_ONLY',
+  INLINE_ONLY: 'INLINE_ONLY',
   /** Do not ingest any attachments */
-  NONE = 'NONE',
-}
+  NONE: 'NONE',
+} as const;
+export type OutlookAttachmentMode =
+  | (typeof OutlookAttachmentMode)[keyof typeof OutlookAttachmentMode]
+  | (string & {});
 
 /** Body format for Outlook email content */
-export enum OutlookBodyFormat {
-  OUTLOOK_BODY_FORMAT_UNSPECIFIED = 'OUTLOOK_BODY_FORMAT_UNSPECIFIED',
-  TEXT_HTML = 'TEXT_HTML',
-  TEXT_PLAIN = 'TEXT_PLAIN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OutlookBodyFormat = {
+  OUTLOOK_BODY_FORMAT_UNSPECIFIED: 'OUTLOOK_BODY_FORMAT_UNSPECIFIED',
+  TEXT_HTML: 'TEXT_HTML',
+  TEXT_PLAIN: 'TEXT_PLAIN',
+} as const;
+export type OutlookBodyFormat =
+  | (typeof OutlookBodyFormat)[keyof typeof OutlookBodyFormat]
+  | (string & {});
 
 /** The health of a pipeline. */
-export enum PipelineHealthStatus {
-  HEALTHY = 'HEALTHY',
-  UNHEALTHY = 'UNHEALTHY',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelineHealthStatus = {
+  HEALTHY: 'HEALTHY',
+  UNHEALTHY: 'UNHEALTHY',
+} as const;
+export type PipelineHealthStatus =
+  | (typeof PipelineHealthStatus)[keyof typeof PipelineHealthStatus]
+  | (string & {});
 
 /** The set of AWS availability types supported when setting up nodes for a cluster. */
-export enum PipelinesAwsAvailability {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelinesAwsAvailability = {
   /** Use spot instances. */
-  SPOT = 'SPOT',
+  SPOT: 'SPOT',
   /** Use on-demand instances. */
-  ON_DEMAND = 'ON_DEMAND',
+  ON_DEMAND: 'ON_DEMAND',
   /**
    * Preferably use spot instances, but fall back to on-demand instances if spot instances cannot
    * be acquired (e.g., if AWS spot prices are too high).
    */
-  SPOT_WITH_FALLBACK = 'SPOT_WITH_FALLBACK',
-}
+  SPOT_WITH_FALLBACK: 'SPOT_WITH_FALLBACK',
+} as const;
+export type PipelinesAwsAvailability =
+  | (typeof PipelinesAwsAvailability)[keyof typeof PipelinesAwsAvailability]
+  | (string & {});
 
 /** The set of Azure availability types supported when setting up nodes for a cluster. */
-export enum PipelinesAzureAvailability {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelinesAzureAvailability = {
   /** Use spot instances. */
-  SPOT_AZURE = 'SPOT_AZURE',
+  SPOT_AZURE: 'SPOT_AZURE',
   /** Use on-demand instances. */
-  ON_DEMAND_AZURE = 'ON_DEMAND_AZURE',
+  ON_DEMAND_AZURE: 'ON_DEMAND_AZURE',
   /**
    * Preferably use spot instances, but fall back to on-demand instances if spot instances cannot
    * be acquired (e.g., if Azure is out of Quota).
    */
-  SPOT_WITH_FALLBACK_AZURE = 'SPOT_WITH_FALLBACK_AZURE',
-}
+  SPOT_WITH_FALLBACK_AZURE: 'SPOT_WITH_FALLBACK_AZURE',
+} as const;
+export type PipelinesAzureAvailability =
+  | (typeof PipelinesAzureAvailability)[keyof typeof PipelinesAzureAvailability]
+  | (string & {});
 
 /**
  * All EBS volume types that <Databricks> supports.
  * See https://aws.amazon.com/ebs/details/ for details.
  */
-export enum PipelinesEbsVolumeType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelinesEbsVolumeType = {
   /** Provision extra storage using AWS gp2 EBS volumes. */
-  GENERAL_PURPOSE_SSD = 'GENERAL_PURPOSE_SSD',
+  GENERAL_PURPOSE_SSD: 'GENERAL_PURPOSE_SSD',
   /** Provision extra storage using AWS st1 volumes. */
-  THROUGHPUT_OPTIMIZED_HDD = 'THROUGHPUT_OPTIMIZED_HDD',
-}
+  THROUGHPUT_OPTIMIZED_HDD: 'THROUGHPUT_OPTIMIZED_HDD',
+} as const;
+export type PipelinesEbsVolumeType =
+  | (typeof PipelinesEbsVolumeType)[keyof typeof PipelinesEbsVolumeType]
+  | (string & {});
 
 /** The set of GCP availability types supported when setting up nodes for a cluster (configurable only for executors). */
-export enum PipelinesGcpAvailability {
-  PREEMPTIBLE_GCP = 'PREEMPTIBLE_GCP',
-  ON_DEMAND_GCP = 'ON_DEMAND_GCP',
-  PREEMPTIBLE_WITH_FALLBACK_GCP = 'PREEMPTIBLE_WITH_FALLBACK_GCP',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelinesGcpAvailability = {
+  PREEMPTIBLE_GCP: 'PREEMPTIBLE_GCP',
+  ON_DEMAND_GCP: 'ON_DEMAND_GCP',
+  PREEMPTIBLE_WITH_FALLBACK_GCP: 'PREEMPTIBLE_WITH_FALLBACK_GCP',
+} as const;
+export type PipelinesGcpAvailability =
+  | (typeof PipelinesGcpAvailability)[keyof typeof PipelinesGcpAvailability]
+  | (string & {});
 
 /** Enum representing the publishing mode of a pipeline. */
-export enum PublishingMode {
-  PUBLISHING_MODE_UNSPECIFIED = 'PUBLISHING_MODE_UNSPECIFIED',
-  LEGACY_PUBLISHING_MODE = 'LEGACY_PUBLISHING_MODE',
-  DEFAULT_PUBLISHING_MODE = 'DEFAULT_PUBLISHING_MODE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PublishingMode = {
+  PUBLISHING_MODE_UNSPECIFIED: 'PUBLISHING_MODE_UNSPECIFIED',
+  LEGACY_PUBLISHING_MODE: 'LEGACY_PUBLISHING_MODE',
+  DEFAULT_PUBLISHING_MODE: 'DEFAULT_PUBLISHING_MODE',
+} as const;
+export type PublishingMode =
+  | (typeof PublishingMode)[keyof typeof PublishingMode]
+  | (string & {});
 
 /** What triggered this update. */
-export enum UpdateCause {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UpdateCause = {
   /** Started through an API call. */
-  API_CALL = 'API_CALL',
+  API_CALL: 'API_CALL',
   /** Started as a retry for a failed update. */
-  RETRY_ON_FAILURE = 'RETRY_ON_FAILURE',
+  RETRY_ON_FAILURE: 'RETRY_ON_FAILURE',
   /** Started as a result of a service upgrade. */
-  SERVICE_UPGRADE = 'SERVICE_UPGRADE',
+  SERVICE_UPGRADE: 'SERVICE_UPGRADE',
   /** Started as a result of a schema change. */
-  SCHEMA_CHANGE = 'SCHEMA_CHANGE',
+  SCHEMA_CHANGE: 'SCHEMA_CHANGE',
   /** Started by the Jobs service. */
-  JOB_TASK = 'JOB_TASK',
+  JOB_TASK: 'JOB_TASK',
   /** Started by an action a user performed. */
-  USER_ACTION = 'USER_ACTION',
+  USER_ACTION: 'USER_ACTION',
   /** Started for infrastructure maintenance reason. */
-  INFRASTRUCTURE_MAINTENANCE = 'INFRASTRUCTURE_MAINTENANCE',
-}
+  INFRASTRUCTURE_MAINTENANCE: 'INFRASTRUCTURE_MAINTENANCE',
+} as const;
+export type UpdateCause =
+  | (typeof UpdateCause)[keyof typeof UpdateCause]
+  | (string & {});
 
 /** The update state. */
-export enum UpdateState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UpdateState = {
   /** Update is waiting for previous update to finish. */
-  QUEUED = 'QUEUED',
+  QUEUED: 'QUEUED',
   /** Initial state of an update. */
-  CREATED = 'CREATED',
+  CREATED: 'CREATED',
   /** Update is waiting for clusters, jobs, or other resources. */
-  WAITING_FOR_RESOURCES = 'WAITING_FOR_RESOURCES',
+  WAITING_FOR_RESOURCES: 'WAITING_FOR_RESOURCES',
   /** Update is creating the dataflow graph. */
-  INITIALIZING = 'INITIALIZING',
+  INITIALIZING: 'INITIALIZING',
   /** Update is resetting datasets and checkpoints to the beginning. */
-  RESETTING = 'RESETTING',
+  RESETTING: 'RESETTING',
   /** If necessary, Update is creating tables or updating their schemas. */
-  SETTING_UP_TABLES = 'SETTING_UP_TABLES',
+  SETTING_UP_TABLES: 'SETTING_UP_TABLES',
   /** Update is currently executing queries. */
-  RUNNING = 'RUNNING',
+  RUNNING: 'RUNNING',
   /** Update is waiting for queries to shut down. */
-  STOPPING = 'STOPPING',
+  STOPPING: 'STOPPING',
   /** Update is complete and all necessary resources are cleaned up. */
-  COMPLETED = 'COMPLETED',
+  COMPLETED: 'COMPLETED',
   /** Update has run into an error that could not be recovered from. */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** Update was canceled while it was running or queued. */
-  CANCELED = 'CANCELED',
-}
+  CANCELED: 'CANCELED',
+} as const;
+export type UpdateState =
+  | (typeof UpdateState)[keyof typeof UpdateState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FileIngestionOptions_FileFormat = {
+  FILE_FORMAT_UNSPECIFIED: 'FILE_FORMAT_UNSPECIFIED',
+  BINARYFILE: 'BINARYFILE',
+  JSON: 'JSON',
+  CSV: 'CSV',
+  XML: 'XML',
+  EXCEL: 'EXCEL',
+  PARQUET: 'PARQUET',
+  AVRO: 'AVRO',
+  ORC: 'ORC',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FileIngestionOptions_FileFormat {
-  FILE_FORMAT_UNSPECIFIED = 'FILE_FORMAT_UNSPECIFIED',
-  BINARYFILE = 'BINARYFILE',
-  JSON = 'JSON',
-  CSV = 'CSV',
-  XML = 'XML',
-  EXCEL = 'EXCEL',
-  PARQUET = 'PARQUET',
-  AVRO = 'AVRO',
-  ORC = 'ORC',
-}
+export type FileIngestionOptions_FileFormat =
+  | (typeof FileIngestionOptions_FileFormat)[keyof typeof FileIngestionOptions_FileFormat]
+  | (string & {});
 
 /** Based on https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#how-does-auto-loader-schema-evolution-work */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FileIngestionOptions_SchemaEvolutionMode = {
+  SCHEMA_EVOLUTION_MODE_UNSPECIFIED: 'SCHEMA_EVOLUTION_MODE_UNSPECIFIED',
+  ADD_NEW_COLUMNS_WITH_TYPE_WIDENING: 'ADD_NEW_COLUMNS_WITH_TYPE_WIDENING',
+  ADD_NEW_COLUMNS: 'ADD_NEW_COLUMNS',
+  RESCUE: 'RESCUE',
+  FAIL_ON_NEW_COLUMNS: 'FAIL_ON_NEW_COLUMNS',
+  NONE: 'NONE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FileIngestionOptions_SchemaEvolutionMode {
-  SCHEMA_EVOLUTION_MODE_UNSPECIFIED = 'SCHEMA_EVOLUTION_MODE_UNSPECIFIED',
-  ADD_NEW_COLUMNS_WITH_TYPE_WIDENING = 'ADD_NEW_COLUMNS_WITH_TYPE_WIDENING',
-  ADD_NEW_COLUMNS = 'ADD_NEW_COLUMNS',
-  RESCUE = 'RESCUE',
-  FAIL_ON_NEW_COLUMNS = 'FAIL_ON_NEW_COLUMNS',
-  NONE = 'NONE',
-}
+export type FileIngestionOptions_SchemaEvolutionMode =
+  | (typeof FileIngestionOptions_SchemaEvolutionMode)[keyof typeof FileIngestionOptions_SchemaEvolutionMode]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GoogleDriveOptions_GoogleDriveEntityType = {
+  GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED: 'GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED',
+  FILE: 'FILE',
+  FILE_METADATA: 'FILE_METADATA',
+  PERMISSION: 'PERMISSION',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum GoogleDriveOptions_GoogleDriveEntityType {
-  GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED = 'GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED',
-  FILE = 'FILE',
-  FILE_METADATA = 'FILE_METADATA',
-  PERMISSION = 'PERMISSION',
-}
+export type GoogleDriveOptions_GoogleDriveEntityType =
+  | (typeof GoogleDriveOptions_GoogleDriveEntityType)[keyof typeof GoogleDriveOptions_GoogleDriveEntityType]
+  | (string & {});
 
 /** The pipeline state. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PipelineState_PipelineState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PipelineState_PipelineState = {
   /** Pipeline is being deployed and waiting for clusters, jobs, or other resources */
-  DEPLOYING = 'DEPLOYING',
+  DEPLOYING: 'DEPLOYING',
   /** Pipeline is deployed but waiting for streams to start and make progress */
-  STARTING = 'STARTING',
+  STARTING: 'STARTING',
   /** Pipeline is currently executing */
-  RUNNING = 'RUNNING',
+  RUNNING: 'RUNNING',
   /** Pipeline is waiting for streams to shut down */
-  STOPPING = 'STOPPING',
+  STOPPING: 'STOPPING',
   /** All clusters, jobs, and other resources associated with the pipeline have been cleaned up */
-  DELETED = 'DELETED',
+  DELETED: 'DELETED',
   /** Pipeline has run into an error, but the daemon is attempting to fix it */
-  RECOVERING = 'RECOVERING',
+  RECOVERING: 'RECOVERING',
   /** Pipeline has run into an error that could not be recovered from */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** Pipeline is currently being reset */
-  RESETTING = 'RESETTING',
+  RESETTING: 'RESETTING',
   /** Pipeline is stopped and is not processing data. Can be resumed by calling `run` */
-  IDLE = 'IDLE',
-}
+  IDLE: 'IDLE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PipelineState_PipelineState =
+  | (typeof PipelineState_PipelineState)[keyof typeof PipelineState_PipelineState]
+  | (string & {});
 
 /** The SCD type to use to ingest the table. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ScdType_ScdType {
-  SCD_TYPE_UNSPECIFIED = 'SCD_TYPE_UNSPECIFIED',
-  SCD_TYPE_1 = 'SCD_TYPE_1',
-  SCD_TYPE_2 = 'SCD_TYPE_2',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScdType_ScdType = {
+  SCD_TYPE_UNSPECIFIED: 'SCD_TYPE_UNSPECIFIED',
+  SCD_TYPE_1: 'SCD_TYPE_1',
+  SCD_TYPE_2: 'SCD_TYPE_2',
   /**
    * Source data will be appended to destination table rather than merged in
    * the absence of row key.
    */
-  APPEND_ONLY = 'APPEND_ONLY',
-}
-
+  APPEND_ONLY: 'APPEND_ONLY',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SharepointOptions_SharepointEntityType {
-  SHAREPOINT_ENTITY_TYPE_UNSPECIFIED = 'SHAREPOINT_ENTITY_TYPE_UNSPECIFIED',
-  FILE = 'FILE',
-  FILE_METADATA = 'FILE_METADATA',
-  PERMISSION = 'PERMISSION',
-  LIST = 'LIST',
-}
+export type ScdType_ScdType =
+  | (typeof ScdType_ScdType)[keyof typeof ScdType_ScdType]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SharepointOptions_SharepointEntityType = {
+  SHAREPOINT_ENTITY_TYPE_UNSPECIFIED: 'SHAREPOINT_ENTITY_TYPE_UNSPECIFIED',
+  FILE: 'FILE',
+  FILE_METADATA: 'FILE_METADATA',
+  PERMISSION: 'PERMISSION',
+  LIST: 'LIST',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type SharepointOptions_SharepointEntityType =
+  | (typeof SharepointOptions_SharepointEntityType)[keyof typeof SharepointOptions_SharepointEntityType]
+  | (string & {});
 
 /** Data level for TikTok Ads report aggregation. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TikTokAdsOptions_TikTokDataLevel = {
+  TIK_TOK_DATA_LEVEL_UNSPECIFIED: 'TIK_TOK_DATA_LEVEL_UNSPECIFIED',
+  AUCTION_ADVERTISER: 'AUCTION_ADVERTISER',
+  AUCTION_CAMPAIGN: 'AUCTION_CAMPAIGN',
+  AUCTION_ADGROUP: 'AUCTION_ADGROUP',
+  AUCTION_AD: 'AUCTION_AD',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum TikTokAdsOptions_TikTokDataLevel {
-  TIK_TOK_DATA_LEVEL_UNSPECIFIED = 'TIK_TOK_DATA_LEVEL_UNSPECIFIED',
-  AUCTION_ADVERTISER = 'AUCTION_ADVERTISER',
-  AUCTION_CAMPAIGN = 'AUCTION_CAMPAIGN',
-  AUCTION_ADGROUP = 'AUCTION_ADGROUP',
-  AUCTION_AD = 'AUCTION_AD',
-}
+export type TikTokAdsOptions_TikTokDataLevel =
+  | (typeof TikTokAdsOptions_TikTokDataLevel)[keyof typeof TikTokAdsOptions_TikTokDataLevel]
+  | (string & {});
 
 /** Report type for TikTok Ads API. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TikTokAdsOptions_TikTokReportType = {
+  TIK_TOK_REPORT_TYPE_UNSPECIFIED: 'TIK_TOK_REPORT_TYPE_UNSPECIFIED',
+  BASIC: 'BASIC',
+  AUDIENCE: 'AUDIENCE',
+  PLAYABLE_AD: 'PLAYABLE_AD',
+  DSA: 'DSA',
+  BUSINESS_CENTER: 'BUSINESS_CENTER',
+  GMV_MAX: 'GMV_MAX',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum TikTokAdsOptions_TikTokReportType {
-  TIK_TOK_REPORT_TYPE_UNSPECIFIED = 'TIK_TOK_REPORT_TYPE_UNSPECIFIED',
-  BASIC = 'BASIC',
-  AUDIENCE = 'AUDIENCE',
-  PLAYABLE_AD = 'PLAYABLE_AD',
-  DSA = 'DSA',
-  BUSINESS_CENTER = 'BUSINESS_CENTER',
-  GMV_MAX = 'GMV_MAX',
-}
+export type TikTokAdsOptions_TikTokReportType =
+  | (typeof TikTokAdsOptions_TikTokReportType)[keyof typeof TikTokAdsOptions_TikTokReportType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Transformer_Format = {
+  FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
+  STRING: 'STRING',
+  JSON: 'JSON',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum Transformer_Format {
-  FORMAT_UNSPECIFIED = 'FORMAT_UNSPECIFIED',
-  STRING = 'STRING',
-  JSON = 'JSON',
-}
+export type Transformer_Format =
+  | (typeof Transformer_Format)[keyof typeof Transformer_Format]
+  | (string & {});
 
 export interface ApplyEnvironmentRequest {
   pipelineId?: string | undefined;
@@ -2853,12 +2957,10 @@ export const unmarshalFileFilterSchema: z.ZodType<FileFilter> = z
 export const unmarshalFileIngestionOptionsSchema: z.ZodType<FileIngestionOptions> =
   z
     .object({
-      format: z.enum(FileIngestionOptions_FileFormat).optional(),
+      format: z.string().optional(),
       file_filters: z.array(z.lazy(() => unmarshalFileFilterSchema)).optional(),
       infer_column_types: z.boolean().optional(),
-      schema_evolution_mode: z
-        .enum(FileIngestionOptions_SchemaEvolutionMode)
-        .optional(),
+      schema_evolution_mode: z.string().optional(),
       schema_hints: z.string().optional(),
       ignore_corrupt_files: z.boolean().optional(),
       corrupt_record_column: z.string().optional(),
@@ -2896,11 +2998,11 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
     .object({
       pipeline_id: z.string().optional(),
       spec: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
-      state: z.enum(PipelineState_PipelineState).optional(),
+      state: z.string().optional(),
       cause: z.string().optional(),
       cluster_id: z.string().optional(),
       name: z.string().optional(),
-      health: z.enum(PipelineHealthStatus).optional(),
+      health: z.string().optional(),
       creator_user_name: z.string().optional(),
       latest_updates: z
         .array(z.lazy(() => unmarshalUpdateStateInfoSchema))
@@ -2911,7 +3013,7 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
         .optional(),
       run_as_user_name: z.string().optional(),
       effective_budget_policy_id: z.string().optional(),
-      effective_publishing_mode: z.enum(PublishingMode).optional(),
+      effective_publishing_mode: z.string().optional(),
       run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
       parameters: z.record(z.string(), z.string()).optional(),
     })
@@ -2965,7 +3067,7 @@ export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> =
   z
     .object({
       url: z.string().optional(),
-      entity_type: z.enum(GoogleDriveOptions_GoogleDriveEntityType).optional(),
+      entity_type: z.string().optional(),
       file_ingestion_options: z
         .lazy(() => unmarshalFileIngestionOptionsSchema)
         .optional(),
@@ -3010,7 +3112,7 @@ export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipe
           )
         )
         .optional(),
-      source_type: z.enum(IngestionSourceType).optional(),
+      source_type: z.string().optional(),
       table_configuration: z
         .lazy(
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
@@ -3023,7 +3125,7 @@ export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipe
       full_refresh_window: z
         .lazy(() => unmarshalOperationTimeWindowSchema)
         .optional(),
-      connector_type: z.enum(ConnectorType).optional(),
+      connector_type: z.string().optional(),
       data_staging_options: z
         .lazy(() => unmarshalDataStagingOptionsSchema)
         .optional(),
@@ -3163,7 +3265,7 @@ export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<Ing
 export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType<IngestionPipelineDefinition_TableSpecificConfig> =
   z
     .object({
-      scd_type: z.enum(ScdType_ScdType).optional(),
+      scd_type: z.string().optional(),
       primary_keys: z.array(z.string()).optional(),
       sequence_by: z.array(z.string()).optional(),
       include_columns: z.array(z.string()).optional(),
@@ -3271,9 +3373,7 @@ export const unmarshalJsonTransformerOptionsSchema: z.ZodType<JsonTransformerOpt
       as_variant: z.boolean().optional(),
       schema: z.string().optional(),
       schema_file_path: z.string().optional(),
-      schema_evolution_mode: z
-        .enum(FileIngestionOptions_SchemaEvolutionMode)
-        .optional(),
+      schema_evolution_mode: z.string().optional(),
       schema_hints: z.string().optional(),
     })
     .transform(d => ({
@@ -3395,7 +3495,7 @@ export const unmarshalOperationTimeWindowSchema: z.ZodType<OperationTimeWindow> 
   z
     .object({
       start_hour: z.number().optional(),
-      days_of_week: z.array(z.enum(DayOfWeek)).optional(),
+      days_of_week: z.array(z.string()).optional(),
       time_zone_id: z.string().optional(),
     })
     .transform(d => ({
@@ -3466,8 +3566,8 @@ export const unmarshalOutlookOptionsSchema: z.ZodType<OutlookOptions> = z
     sender_filter: z.array(z.string()).optional(),
     subject_filter: z.array(z.string()).optional(),
     start_date: z.string().optional(),
-    body_format: z.enum(OutlookBodyFormat).optional(),
-    attachment_mode: z.enum(OutlookAttachmentMode).optional(),
+    body_format: z.string().optional(),
+    attachment_mode: z.string().optional(),
     include_mailboxes: z.array(z.string()).optional(),
     include_folders: z.array(z.string()).optional(),
     include_senders: z.array(z.string()).optional(),
@@ -3555,7 +3655,7 @@ export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
 export const unmarshalPipelineDeploymentSchema: z.ZodType<PipelineDeployment> =
   z
     .object({
-      kind: z.enum(DeploymentKind).optional(),
+      kind: z.string().optional(),
       metadata_file_path: z.string().optional(),
       deployment_id: z.string().optional(),
       version_id: z.string().optional(),
@@ -3574,10 +3674,10 @@ export const unmarshalPipelineEventSchema: z.ZodType<PipelineEvent> = z
     origin: z.lazy(() => unmarshalOriginSchema).optional(),
     timestamp: z.string().optional(),
     message: z.string().optional(),
-    level: z.enum(EventLevel).optional(),
+    level: z.string().optional(),
     error: z.lazy(() => unmarshalErrorDetailSchema).optional(),
     event_type: z.string().optional(),
-    maturity_level: z.enum(MaturityLevel).optional(),
+    maturity_level: z.string().optional(),
     truncation: z.lazy(() => unmarshalTruncationSchema).optional(),
   })
   .transform(d => ({
@@ -3690,7 +3790,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
 export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
   .object({
     pipeline_id: z.string().optional(),
-    state: z.enum(PipelineState_PipelineState).optional(),
+    state: z.string().optional(),
     cluster_id: z.string().optional(),
     name: z.string().optional(),
     latest_updates: z
@@ -3698,7 +3798,7 @@ export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
       .optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
-    health: z.enum(PipelineHealthStatus).optional(),
+    health: z.string().optional(),
   })
   .transform(d => ({
     pipelineId: d.pipeline_id,
@@ -3742,11 +3842,11 @@ export const unmarshalPipelinesAwsAttributesSchema: z.ZodType<PipelinesAwsAttrib
   z
     .object({
       first_on_demand: z.number().optional(),
-      availability: z.enum(PipelinesAwsAvailability).optional(),
+      availability: z.string().optional(),
       zone_id: z.string().optional(),
       instance_profile_arn: z.string().optional(),
       spot_bid_price_percent: z.number().optional(),
-      ebs_volume_type: z.enum(PipelinesEbsVolumeType).optional(),
+      ebs_volume_type: z.string().optional(),
       ebs_volume_count: z.number().optional(),
       ebs_volume_size: z.number().optional(),
       ebs_volume_iops: z.number().optional(),
@@ -3769,7 +3869,7 @@ export const unmarshalPipelinesAzureAttributesSchema: z.ZodType<PipelinesAzureAt
   z
     .object({
       first_on_demand: z.number().optional(),
-      availability: z.enum(PipelinesAzureAvailability).optional(),
+      availability: z.string().optional(),
       spot_bid_max_price: z.number().optional(),
     })
     .transform(d => ({
@@ -3815,7 +3915,7 @@ export const unmarshalPipelinesGcpAttributesSchema: z.ZodType<PipelinesGcpAttrib
     .object({
       google_service_account: z.string().optional(),
       boot_disk_size: z.number().optional(),
-      availability: z.enum(PipelinesGcpAvailability).optional(),
+      availability: z.string().optional(),
       zone_id: z.string().optional(),
       local_ssd_count: z.number().optional(),
     })
@@ -3916,7 +4016,7 @@ export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
 export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
   .object({
     start_hour: z.number().optional(),
-    days_of_week: z.array(z.enum(DayOfWeek)).optional(),
+    days_of_week: z.array(z.string()).optional(),
     time_zone_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3954,7 +4054,7 @@ export const unmarshalSerializedExceptionSchema: z.ZodType<SerializedException> 
 export const unmarshalSharepointOptionsSchema: z.ZodType<SharepointOptions> = z
   .object({
     url: z.string().optional(),
-    entity_type: z.enum(SharepointOptions_SharepointEntityType).optional(),
+    entity_type: z.string().optional(),
     file_ingestion_options: z
       .lazy(() => unmarshalFileIngestionOptionsSchema)
       .optional(),
@@ -4035,8 +4135,8 @@ export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
     sync_start_date: z.string().optional(),
     dimensions: z.array(z.string()).optional(),
     metrics: z.array(z.string()).optional(),
-    report_type: z.enum(TikTokAdsOptions_TikTokReportType).optional(),
-    data_level: z.enum(TikTokAdsOptions_TikTokDataLevel).optional(),
+    report_type: z.string().optional(),
+    data_level: z.string().optional(),
     query_lifetime: z.boolean().optional(),
   })
   .transform(d => ({
@@ -4051,7 +4151,7 @@ export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
 
 export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
   .object({
-    format: z.enum(Transformer_Format).optional(),
+    format: z.string().optional(),
     json_options: z
       .lazy(() => unmarshalJsonTransformerOptionsSchema)
       .optional(),
@@ -4089,8 +4189,8 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     pipeline_id: z.string().optional(),
     update_id: z.string().optional(),
     config: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
-    cause: z.enum(UpdateCause).optional(),
-    state: z.enum(UpdateState).optional(),
+    cause: z.string().optional(),
+    state: z.string().optional(),
     cluster_id: z.string().optional(),
     creation_time: z
       .union([z.number(), z.bigint()])
@@ -4120,7 +4220,7 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
 export const unmarshalUpdateStateInfoSchema: z.ZodType<UpdateStateInfo> = z
   .object({
     update_id: z.string().optional(),
-    state: z.enum(UpdateState).optional(),
+    state: z.string().optional(),
     creation_time: z.string().optional(),
   })
   .transform(d => ({
@@ -4193,7 +4293,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
-    cloneMode: z.enum(CloneMode).optional(),
+    cloneMode: z.string().optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
@@ -4549,12 +4649,10 @@ export const marshalFileFilterSchema: z.ZodType = z
 
 export const marshalFileIngestionOptionsSchema: z.ZodType = z
   .object({
-    format: z.enum(FileIngestionOptions_FileFormat).optional(),
+    format: z.string().optional(),
     fileFilters: z.array(z.lazy(() => marshalFileFilterSchema)).optional(),
     inferColumnTypes: z.boolean().optional(),
-    schemaEvolutionMode: z
-      .enum(FileIngestionOptions_SchemaEvolutionMode)
-      .optional(),
+    schemaEvolutionMode: z.string().optional(),
     schemaHints: z.string().optional(),
     ignoreCorruptFiles: z.boolean().optional(),
     corruptRecordColumn: z.string().optional(),
@@ -4610,7 +4708,7 @@ export const marshalGoogleAdsOptionsSchema: z.ZodType = z
 export const marshalGoogleDriveOptionsSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
-    entityType: z.enum(GoogleDriveOptions_GoogleDriveEntityType).optional(),
+    entityType: z.string().optional(),
     fileIngestionOptions: z
       .lazy(() => marshalFileIngestionOptionsSchema)
       .optional(),
@@ -4664,7 +4762,7 @@ export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
         z.lazy(() => marshalIngestionPipelineDefinition_IngestionConfigSchema)
       )
       .optional(),
-    sourceType: z.enum(IngestionSourceType).optional(),
+    sourceType: z.string().optional(),
     tableConfiguration: z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
       .optional(),
@@ -4675,7 +4773,7 @@ export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
     fullRefreshWindow: z
       .lazy(() => marshalOperationTimeWindowSchema)
       .optional(),
-    connectorType: z.enum(ConnectorType).optional(),
+    connectorType: z.string().optional(),
     dataStagingOptions: z
       .lazy(() => marshalDataStagingOptionsSchema)
       .optional(),
@@ -4806,7 +4904,7 @@ export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
 export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType =
   z
     .object({
-      scdType: z.enum(ScdType_ScdType).optional(),
+      scdType: z.string().optional(),
       primaryKeys: z.array(z.string()).optional(),
       sequenceBy: z.array(z.string()).optional(),
       includeColumns: z.array(z.string()).optional(),
@@ -4908,9 +5006,7 @@ export const marshalJsonTransformerOptionsSchema: z.ZodType = z
     asVariant: z.boolean().optional(),
     schema: z.string().optional(),
     schemaFilePath: z.string().optional(),
-    schemaEvolutionMode: z
-      .enum(FileIngestionOptions_SchemaEvolutionMode)
-      .optional(),
+    schemaEvolutionMode: z.string().optional(),
     schemaHints: z.string().optional(),
   })
   .transform(d => ({
@@ -4986,7 +5082,7 @@ export const marshalNotificationsSchema: z.ZodType = z
 export const marshalOperationTimeWindowSchema: z.ZodType = z
   .object({
     startHour: z.number().optional(),
-    daysOfWeek: z.array(z.enum(DayOfWeek)).optional(),
+    daysOfWeek: z.array(z.string()).optional(),
     timeZoneId: z.string().optional(),
   })
   .transform(d => ({
@@ -5001,8 +5097,8 @@ export const marshalOutlookOptionsSchema: z.ZodType = z
     senderFilter: z.array(z.string()).optional(),
     subjectFilter: z.array(z.string()).optional(),
     startDate: z.string().optional(),
-    bodyFormat: z.enum(OutlookBodyFormat).optional(),
-    attachmentMode: z.enum(OutlookAttachmentMode).optional(),
+    bodyFormat: z.string().optional(),
+    attachmentMode: z.string().optional(),
     includeMailboxes: z.array(z.string()).optional(),
     includeFolders: z.array(z.string()).optional(),
     includeSenders: z.array(z.string()).optional(),
@@ -5088,7 +5184,7 @@ export const marshalPipelineClusterSchema: z.ZodType = z
 
 export const marshalPipelineDeploymentSchema: z.ZodType = z
   .object({
-    kind: z.enum(DeploymentKind).optional(),
+    kind: z.string().optional(),
     metadataFilePath: z.string().optional(),
     deploymentId: z.string().optional(),
     versionId: z.string().optional(),
@@ -5169,11 +5265,11 @@ export const marshalPipelinesAutoScaleSchema: z.ZodType = z
 export const marshalPipelinesAwsAttributesSchema: z.ZodType = z
   .object({
     firstOnDemand: z.number().optional(),
-    availability: z.enum(PipelinesAwsAvailability).optional(),
+    availability: z.string().optional(),
     zoneId: z.string().optional(),
     instanceProfileArn: z.string().optional(),
     spotBidPricePercent: z.number().optional(),
-    ebsVolumeType: z.enum(PipelinesEbsVolumeType).optional(),
+    ebsVolumeType: z.string().optional(),
     ebsVolumeCount: z.number().optional(),
     ebsVolumeSize: z.number().optional(),
     ebsVolumeIops: z.number().optional(),
@@ -5195,7 +5291,7 @@ export const marshalPipelinesAwsAttributesSchema: z.ZodType = z
 export const marshalPipelinesAzureAttributesSchema: z.ZodType = z
   .object({
     firstOnDemand: z.number().optional(),
-    availability: z.enum(PipelinesAzureAvailability).optional(),
+    availability: z.string().optional(),
     spotBidMaxPrice: z.number().optional(),
   })
   .transform(d => ({
@@ -5241,7 +5337,7 @@ export const marshalPipelinesGcpAttributesSchema: z.ZodType = z
   .object({
     googleServiceAccount: z.string().optional(),
     bootDiskSize: z.number().optional(),
-    availability: z.enum(PipelinesGcpAvailability).optional(),
+    availability: z.string().optional(),
     zoneId: z.string().optional(),
     localSsdCount: z.number().optional(),
   })
@@ -5355,7 +5451,7 @@ export const marshalReplaceWhereOverrideSchema: z.ZodType = z
 export const marshalRestartWindowSchema: z.ZodType = z
   .object({
     startHour: z.number().optional(),
-    daysOfWeek: z.array(z.enum(DayOfWeek)).optional(),
+    daysOfWeek: z.array(z.string()).optional(),
     timeZoneId: z.string().optional(),
   })
   .transform(d => ({
@@ -5391,7 +5487,7 @@ export const marshalRewindSpecSchema: z.ZodType = z
 export const marshalSharepointOptionsSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
-    entityType: z.enum(SharepointOptions_SharepointEntityType).optional(),
+    entityType: z.string().optional(),
     fileIngestionOptions: z
       .lazy(() => marshalFileIngestionOptionsSchema)
       .optional(),
@@ -5450,7 +5546,7 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     fullRefresh: z.boolean().optional(),
-    cause: z.enum(UpdateCause).optional(),
+    cause: z.string().optional(),
     refreshSelection: z.array(z.string()).optional(),
     fullRefreshSelection: z.array(z.string()).optional(),
     resetCheckpointSelection: z.array(z.string()).optional(),
@@ -5488,8 +5584,8 @@ export const marshalTikTokAdsOptionsSchema: z.ZodType = z
     syncStartDate: z.string().optional(),
     dimensions: z.array(z.string()).optional(),
     metrics: z.array(z.string()).optional(),
-    reportType: z.enum(TikTokAdsOptions_TikTokReportType).optional(),
-    dataLevel: z.enum(TikTokAdsOptions_TikTokDataLevel).optional(),
+    reportType: z.string().optional(),
+    dataLevel: z.string().optional(),
     queryLifetime: z.boolean().optional(),
   })
   .transform(d => ({
@@ -5504,7 +5600,7 @@ export const marshalTikTokAdsOptionsSchema: z.ZodType = z
 
 export const marshalTransformerSchema: z.ZodType = z
   .object({
-    format: z.enum(Transformer_Format).optional(),
+    format: z.string().optional(),
     config: z
       .discriminatedUnion('$case', [
         z.object({

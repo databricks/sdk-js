@@ -2,141 +2,164 @@
 
 import {z} from 'zod';
 
-export enum ColumnTypeName {
-  BOOLEAN = 'BOOLEAN',
-  BYTE = 'BYTE',
-  SHORT = 'SHORT',
-  INT = 'INT',
-  LONG = 'LONG',
-  FLOAT = 'FLOAT',
-  DOUBLE = 'DOUBLE',
-  DATE = 'DATE',
-  TIMESTAMP = 'TIMESTAMP',
-  STRING = 'STRING',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-  INTERVAL = 'INTERVAL',
-  ARRAY = 'ARRAY',
-  STRUCT = 'STRUCT',
-  MAP = 'MAP',
-  CHAR = 'CHAR',
-  NULL = 'NULL',
-  USER_DEFINED_TYPE = 'USER_DEFINED_TYPE',
-  TIMESTAMP_NTZ = 'TIMESTAMP_NTZ',
-  VARIANT = 'VARIANT',
-  GEOMETRY = 'GEOMETRY',
-  GEOGRAPHY = 'GEOGRAPHY',
-  TABLE_TYPE = 'TABLE_TYPE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ColumnTypeName = {
+  BOOLEAN: 'BOOLEAN',
+  BYTE: 'BYTE',
+  SHORT: 'SHORT',
+  INT: 'INT',
+  LONG: 'LONG',
+  FLOAT: 'FLOAT',
+  DOUBLE: 'DOUBLE',
+  DATE: 'DATE',
+  TIMESTAMP: 'TIMESTAMP',
+  STRING: 'STRING',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+  INTERVAL: 'INTERVAL',
+  ARRAY: 'ARRAY',
+  STRUCT: 'STRUCT',
+  MAP: 'MAP',
+  CHAR: 'CHAR',
+  NULL: 'NULL',
+  USER_DEFINED_TYPE: 'USER_DEFINED_TYPE',
+  TIMESTAMP_NTZ: 'TIMESTAMP_NTZ',
+  VARIANT: 'VARIANT',
+  GEOMETRY: 'GEOMETRY',
+  GEOGRAPHY: 'GEOGRAPHY',
+  TABLE_TYPE: 'TABLE_TYPE',
+} as const;
+export type ColumnTypeName =
+  | (typeof ColumnTypeName)[keyof typeof ColumnTypeName]
+  | (string & {});
 
 /** Data source format */
-export enum DataSourceFormat {
-  DELTA = 'DELTA',
-  CSV = 'CSV',
-  JSON = 'JSON',
-  AVRO = 'AVRO',
-  PARQUET = 'PARQUET',
-  ORC = 'ORC',
-  TEXT = 'TEXT',
-  UNITY_CATALOG = 'UNITY_CATALOG',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DataSourceFormat = {
+  DELTA: 'DELTA',
+  CSV: 'CSV',
+  JSON: 'JSON',
+  AVRO: 'AVRO',
+  PARQUET: 'PARQUET',
+  ORC: 'ORC',
+  TEXT: 'TEXT',
+  UNITY_CATALOG: 'UNITY_CATALOG',
   /** A table shared through Delta Sharing protocol. */
-  DELTASHARING = 'DELTASHARING',
+  DELTASHARING: 'DELTASHARING',
   /** BEGIN - Query federation data source formats. */
-  DATABRICKS_FORMAT = 'DATABRICKS_FORMAT',
-  MYSQL_FORMAT = 'MYSQL_FORMAT',
-  ORACLE_FORMAT = 'ORACLE_FORMAT',
-  POSTGRESQL_FORMAT = 'POSTGRESQL_FORMAT',
-  REDSHIFT_FORMAT = 'REDSHIFT_FORMAT',
-  SNOWFLAKE_FORMAT = 'SNOWFLAKE_FORMAT',
-  SQLDW_FORMAT = 'SQLDW_FORMAT',
-  SQLSERVER_FORMAT = 'SQLSERVER_FORMAT',
-  SALESFORCE_FORMAT = 'SALESFORCE_FORMAT',
-  SALESFORCE_DATA_CLOUD_FORMAT = 'SALESFORCE_DATA_CLOUD_FORMAT',
-  TERADATA_FORMAT = 'TERADATA_FORMAT',
-  BIGQUERY_FORMAT = 'BIGQUERY_FORMAT',
-  NETSUITE_FORMAT = 'NETSUITE_FORMAT',
-  WORKDAY_RAAS_FORMAT = 'WORKDAY_RAAS_FORMAT',
-  MONGODB_FORMAT = 'MONGODB_FORMAT',
+  DATABRICKS_FORMAT: 'DATABRICKS_FORMAT',
+  MYSQL_FORMAT: 'MYSQL_FORMAT',
+  ORACLE_FORMAT: 'ORACLE_FORMAT',
+  POSTGRESQL_FORMAT: 'POSTGRESQL_FORMAT',
+  REDSHIFT_FORMAT: 'REDSHIFT_FORMAT',
+  SNOWFLAKE_FORMAT: 'SNOWFLAKE_FORMAT',
+  SQLDW_FORMAT: 'SQLDW_FORMAT',
+  SQLSERVER_FORMAT: 'SQLSERVER_FORMAT',
+  SALESFORCE_FORMAT: 'SALESFORCE_FORMAT',
+  SALESFORCE_DATA_CLOUD_FORMAT: 'SALESFORCE_DATA_CLOUD_FORMAT',
+  TERADATA_FORMAT: 'TERADATA_FORMAT',
+  BIGQUERY_FORMAT: 'BIGQUERY_FORMAT',
+  NETSUITE_FORMAT: 'NETSUITE_FORMAT',
+  WORKDAY_RAAS_FORMAT: 'WORKDAY_RAAS_FORMAT',
+  MONGODB_FORMAT: 'MONGODB_FORMAT',
   /** datasource format used for hive tables. */
-  HIVE = 'HIVE',
+  HIVE: 'HIVE',
   /**
    * END - Query federation data source formats.
    * Vector search managed index format
    */
-  VECTOR_INDEX_FORMAT = 'VECTOR_INDEX_FORMAT',
+  VECTOR_INDEX_FORMAT: 'VECTOR_INDEX_FORMAT',
   /** Brickstore managed online row-oriented storage format. */
-  DATABRICKS_ROW_STORE_FORMAT = 'DATABRICKS_ROW_STORE_FORMAT',
+  DATABRICKS_ROW_STORE_FORMAT: 'DATABRICKS_ROW_STORE_FORMAT',
   /** Uniform storage format for Hudi */
-  DELTA_UNIFORM_HUDI = 'DELTA_UNIFORM_HUDI',
+  DELTA_UNIFORM_HUDI: 'DELTA_UNIFORM_HUDI',
   /** Uniform storage format for Iceberg */
-  DELTA_UNIFORM_ICEBERG = 'DELTA_UNIFORM_ICEBERG',
+  DELTA_UNIFORM_ICEBERG: 'DELTA_UNIFORM_ICEBERG',
   /** Apache Iceberg DataFormat */
-  ICEBERG = 'ICEBERG',
-}
+  ICEBERG: 'ICEBERG',
+} as const;
+export type DataSourceFormat =
+  | (typeof DataSourceFormat)[keyof typeof DataSourceFormat]
+  | (string & {});
 
 /**
  * Latest kind: PIPELINE_FEATURE_STORE_INGESTION = 343; Next id: 344.
  * Reserved numbers: 316, 317, 327, 330, 341 (former ENDPOINT_LLM_*,
  * MODEL_SERVICE_STANDARD, MODEL_SERVICE_SYSTEM_DELTASHARING, MCP_SERVICE_STANDARD).
  */
-export enum SecurableKind {
-  TABLE_STANDARD = 'TABLE_STANDARD',
-  TABLE_EXTERNAL = 'TABLE_EXTERNAL',
-  TABLE_DELTA = 'TABLE_DELTA',
-  TABLE_DELTA_EXTERNAL = 'TABLE_DELTA_EXTERNAL',
-  TABLE_VIEW = 'TABLE_VIEW',
-  TABLE_METRIC_VIEW = 'TABLE_METRIC_VIEW',
-  TABLE_DELTASHARING = 'TABLE_DELTASHARING',
-  TABLE_DELTASHARING_MUTABLE = 'TABLE_DELTASHARING_MUTABLE',
-  TABLE_VIEW_DELTASHARING = 'TABLE_VIEW_DELTASHARING',
-  TABLE_METRIC_VIEW_DELTASHARING = 'TABLE_METRIC_VIEW_DELTASHARING',
-  TABLE_MATERIALIZED_VIEW_DELTASHARING = 'TABLE_MATERIALIZED_VIEW_DELTASHARING',
-  TABLE_STREAMING_LIVE_TABLE_DELTASHARING = 'TABLE_STREAMING_LIVE_TABLE_DELTASHARING',
-  TABLE_FOREIGN_DELTASHARING = 'TABLE_FOREIGN_DELTASHARING',
-  TABLE_DELTA_ICEBERG_DELTASHARING = 'TABLE_DELTA_ICEBERG_DELTASHARING',
-  TABLE_DELTASHARING_OPEN_DIR_BASED = 'TABLE_DELTASHARING_OPEN_DIR_BASED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableKind = {
+  TABLE_STANDARD: 'TABLE_STANDARD',
+  TABLE_EXTERNAL: 'TABLE_EXTERNAL',
+  TABLE_DELTA: 'TABLE_DELTA',
+  TABLE_DELTA_EXTERNAL: 'TABLE_DELTA_EXTERNAL',
+  TABLE_VIEW: 'TABLE_VIEW',
+  TABLE_METRIC_VIEW: 'TABLE_METRIC_VIEW',
+  TABLE_DELTASHARING: 'TABLE_DELTASHARING',
+  TABLE_DELTASHARING_MUTABLE: 'TABLE_DELTASHARING_MUTABLE',
+  TABLE_VIEW_DELTASHARING: 'TABLE_VIEW_DELTASHARING',
+  TABLE_METRIC_VIEW_DELTASHARING: 'TABLE_METRIC_VIEW_DELTASHARING',
+  TABLE_MATERIALIZED_VIEW_DELTASHARING: 'TABLE_MATERIALIZED_VIEW_DELTASHARING',
+  TABLE_STREAMING_LIVE_TABLE_DELTASHARING:
+    'TABLE_STREAMING_LIVE_TABLE_DELTASHARING',
+  TABLE_FOREIGN_DELTASHARING: 'TABLE_FOREIGN_DELTASHARING',
+  TABLE_DELTA_ICEBERG_DELTASHARING: 'TABLE_DELTA_ICEBERG_DELTASHARING',
+  TABLE_DELTASHARING_OPEN_DIR_BASED: 'TABLE_DELTASHARING_OPEN_DIR_BASED',
   /** TABLE_FEATURE_STORE and TABLE_FEATURE_STORE_EXTERNAL are deprecated. */
-  TABLE_FEATURE_STORE = 'TABLE_FEATURE_STORE',
-  TABLE_FEATURE_STORE_EXTERNAL = 'TABLE_FEATURE_STORE_EXTERNAL',
-  TABLE_STREAMING_LIVE_TABLE = 'TABLE_STREAMING_LIVE_TABLE',
-  TABLE_SYSTEM = 'TABLE_SYSTEM',
-  TABLE_SYSTEM_DELTASHARING = 'TABLE_SYSTEM_DELTASHARING',
-  TABLE_MATERIALIZED_VIEW = 'TABLE_MATERIALIZED_VIEW',
-  TABLE_INTERNAL = 'TABLE_INTERNAL',
-  TABLE_FOREIGN_BIGQUERY = 'TABLE_FOREIGN_BIGQUERY',
-  TABLE_FOREIGN_MYSQL = 'TABLE_FOREIGN_MYSQL',
-  TABLE_FOREIGN_ORACLE = 'TABLE_FOREIGN_ORACLE',
-  TABLE_FOREIGN_POSTGRESQL = 'TABLE_FOREIGN_POSTGRESQL',
-  TABLE_FOREIGN_SQLDW = 'TABLE_FOREIGN_SQLDW',
-  TABLE_FOREIGN_REDSHIFT = 'TABLE_FOREIGN_REDSHIFT',
-  TABLE_FOREIGN_SNOWFLAKE = 'TABLE_FOREIGN_SNOWFLAKE',
-  TABLE_FOREIGN_SQLSERVER = 'TABLE_FOREIGN_SQLSERVER',
-  TABLE_FOREIGN_SALESFORCE = 'TABLE_FOREIGN_SALESFORCE',
-  TABLE_FOREIGN_SALESFORCE_DATA_CLOUD = 'TABLE_FOREIGN_SALESFORCE_DATA_CLOUD',
-  TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING = 'TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING',
-  TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING_VIEW = 'TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING_VIEW',
-  TABLE_FOREIGN_TERADATA = 'TABLE_FOREIGN_TERADATA',
-  TABLE_FOREIGN_NETSUITE = 'TABLE_FOREIGN_NETSUITE',
-  TABLE_FOREIGN_DATABRICKS = 'TABLE_FOREIGN_DATABRICKS',
-  TABLE_FOREIGN_WORKDAY_RAAS = 'TABLE_FOREIGN_WORKDAY_RAAS',
+  TABLE_FEATURE_STORE: 'TABLE_FEATURE_STORE',
+  TABLE_FEATURE_STORE_EXTERNAL: 'TABLE_FEATURE_STORE_EXTERNAL',
+  TABLE_STREAMING_LIVE_TABLE: 'TABLE_STREAMING_LIVE_TABLE',
+  TABLE_SYSTEM: 'TABLE_SYSTEM',
+  TABLE_SYSTEM_DELTASHARING: 'TABLE_SYSTEM_DELTASHARING',
+  TABLE_MATERIALIZED_VIEW: 'TABLE_MATERIALIZED_VIEW',
+  TABLE_INTERNAL: 'TABLE_INTERNAL',
+  TABLE_FOREIGN_BIGQUERY: 'TABLE_FOREIGN_BIGQUERY',
+  TABLE_FOREIGN_MYSQL: 'TABLE_FOREIGN_MYSQL',
+  TABLE_FOREIGN_ORACLE: 'TABLE_FOREIGN_ORACLE',
+  TABLE_FOREIGN_POSTGRESQL: 'TABLE_FOREIGN_POSTGRESQL',
+  TABLE_FOREIGN_SQLDW: 'TABLE_FOREIGN_SQLDW',
+  TABLE_FOREIGN_REDSHIFT: 'TABLE_FOREIGN_REDSHIFT',
+  TABLE_FOREIGN_SNOWFLAKE: 'TABLE_FOREIGN_SNOWFLAKE',
+  TABLE_FOREIGN_SQLSERVER: 'TABLE_FOREIGN_SQLSERVER',
+  TABLE_FOREIGN_SALESFORCE: 'TABLE_FOREIGN_SALESFORCE',
+  TABLE_FOREIGN_SALESFORCE_DATA_CLOUD: 'TABLE_FOREIGN_SALESFORCE_DATA_CLOUD',
+  TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING:
+    'TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING',
+  TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING_VIEW:
+    'TABLE_FOREIGN_SALESFORCE_DATA_CLOUD_FILE_SHARING_VIEW',
+  TABLE_FOREIGN_TERADATA: 'TABLE_FOREIGN_TERADATA',
+  TABLE_FOREIGN_NETSUITE: 'TABLE_FOREIGN_NETSUITE',
+  TABLE_FOREIGN_DATABRICKS: 'TABLE_FOREIGN_DATABRICKS',
+  TABLE_FOREIGN_WORKDAY_RAAS: 'TABLE_FOREIGN_WORKDAY_RAAS',
   /** Deprecated in favor of more specific types below */
-  TABLE_FOREIGN_HIVE_METASTORE = 'TABLE_FOREIGN_HIVE_METASTORE',
-  TABLE_FOREIGN_HIVE_METASTORE_MANAGED = 'TABLE_FOREIGN_HIVE_METASTORE_MANAGED',
-  TABLE_FOREIGN_HIVE_METASTORE_DBFS_MANAGED = 'TABLE_FOREIGN_HIVE_METASTORE_DBFS_MANAGED',
-  TABLE_FOREIGN_HIVE_METASTORE_EXTERNAL = 'TABLE_FOREIGN_HIVE_METASTORE_EXTERNAL',
-  TABLE_FOREIGN_HIVE_METASTORE_DBFS_EXTERNAL = 'TABLE_FOREIGN_HIVE_METASTORE_DBFS_EXTERNAL',
-  TABLE_FOREIGN_HIVE_METASTORE_VIEW = 'TABLE_FOREIGN_HIVE_METASTORE_VIEW',
-  TABLE_FOREIGN_HIVE_METASTORE_DBFS_VIEW = 'TABLE_FOREIGN_HIVE_METASTORE_DBFS_VIEW',
-  TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_MANAGED = 'TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_MANAGED',
-  TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_MANAGED = 'TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_MANAGED',
-  TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_EXTERNAL = 'TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_EXTERNAL',
-  TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_EXTERNAL = 'TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_EXTERNAL',
-  TABLE_FOREIGN_MONGODB = 'TABLE_FOREIGN_MONGODB',
-  TABLE_DELTA_UNIFORM_HUDI_EXTERNAL = 'TABLE_DELTA_UNIFORM_HUDI_EXTERNAL',
-  TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL = 'TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL',
-  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_EXTERNAL = 'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_EXTERNAL',
-  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_MANAGED = 'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_MANAGED',
-  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_SNOWFLAKE = 'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_SNOWFLAKE',
+  TABLE_FOREIGN_HIVE_METASTORE: 'TABLE_FOREIGN_HIVE_METASTORE',
+  TABLE_FOREIGN_HIVE_METASTORE_MANAGED: 'TABLE_FOREIGN_HIVE_METASTORE_MANAGED',
+  TABLE_FOREIGN_HIVE_METASTORE_DBFS_MANAGED:
+    'TABLE_FOREIGN_HIVE_METASTORE_DBFS_MANAGED',
+  TABLE_FOREIGN_HIVE_METASTORE_EXTERNAL:
+    'TABLE_FOREIGN_HIVE_METASTORE_EXTERNAL',
+  TABLE_FOREIGN_HIVE_METASTORE_DBFS_EXTERNAL:
+    'TABLE_FOREIGN_HIVE_METASTORE_DBFS_EXTERNAL',
+  TABLE_FOREIGN_HIVE_METASTORE_VIEW: 'TABLE_FOREIGN_HIVE_METASTORE_VIEW',
+  TABLE_FOREIGN_HIVE_METASTORE_DBFS_VIEW:
+    'TABLE_FOREIGN_HIVE_METASTORE_DBFS_VIEW',
+  TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_MANAGED:
+    'TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_MANAGED',
+  TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_MANAGED:
+    'TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_MANAGED',
+  TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_EXTERNAL:
+    'TABLE_FOREIGN_HIVE_METASTORE_SHALLOW_CLONE_EXTERNAL',
+  TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_EXTERNAL:
+    'TABLE_FOREIGN_HIVE_METASTORE_DBFS_SHALLOW_CLONE_EXTERNAL',
+  TABLE_FOREIGN_MONGODB: 'TABLE_FOREIGN_MONGODB',
+  TABLE_DELTA_UNIFORM_HUDI_EXTERNAL: 'TABLE_DELTA_UNIFORM_HUDI_EXTERNAL',
+  TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL: 'TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL',
+  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_EXTERNAL:
+    'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_EXTERNAL',
+  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_MANAGED:
+    'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_HIVE_METASTORE_MANAGED',
+  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_SNOWFLAKE:
+    'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_SNOWFLAKE',
   /**
    * The above uniform securableKinds come from different data sources,
    * each creating a foreign catalog in Databricks with its own capabilities.
@@ -145,62 +168,79 @@ export enum SecurableKind {
    * with the same capabilities, so the recipient UC does not need to connect
    * to the remote source.
    */
-  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_DELTASHARING = 'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_DELTASHARING',
+  TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_DELTASHARING:
+    'TABLE_DELTA_UNIFORM_ICEBERG_FOREIGN_DELTASHARING',
   /**
    * This is the delta sharing version of TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL.
    * Unlike the above foreign iceberg kinds which originate from external catalogs,
    * this represents an external uniform iceberg table shared via Delta Sharing.
    */
-  TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL_DELTASHARING = 'TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL_DELTASHARING',
+  TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL_DELTASHARING:
+    'TABLE_DELTA_UNIFORM_ICEBERG_EXTERNAL_DELTASHARING',
   /** These represent 2 variations of Managed Iceberg tables. See ManagedIcebergTableUtils.scala for more details. */
-  TABLE_ICEBERG_UNIFORM_MANAGED = 'TABLE_ICEBERG_UNIFORM_MANAGED',
-  TABLE_DELTA_ICEBERG_MANAGED = 'TABLE_DELTA_ICEBERG_MANAGED',
-  TABLE_ONLINE_VECTOR_INDEX_REPLICA = 'TABLE_ONLINE_VECTOR_INDEX_REPLICA',
-  TABLE_ONLINE_VECTOR_INDEX_DIRECT = 'TABLE_ONLINE_VECTOR_INDEX_DIRECT',
-  TABLE_ONLINE_VIEW = 'TABLE_ONLINE_VIEW',
-  TABLE_DB_STORAGE = 'TABLE_DB_STORAGE',
-  TABLE_MANAGED_POSTGRESQL = 'TABLE_MANAGED_POSTGRESQL',
-}
+  TABLE_ICEBERG_UNIFORM_MANAGED: 'TABLE_ICEBERG_UNIFORM_MANAGED',
+  TABLE_DELTA_ICEBERG_MANAGED: 'TABLE_DELTA_ICEBERG_MANAGED',
+  TABLE_ONLINE_VECTOR_INDEX_REPLICA: 'TABLE_ONLINE_VECTOR_INDEX_REPLICA',
+  TABLE_ONLINE_VECTOR_INDEX_DIRECT: 'TABLE_ONLINE_VECTOR_INDEX_DIRECT',
+  TABLE_ONLINE_VIEW: 'TABLE_ONLINE_VIEW',
+  TABLE_DB_STORAGE: 'TABLE_DB_STORAGE',
+  TABLE_MANAGED_POSTGRESQL: 'TABLE_MANAGED_POSTGRESQL',
+} as const;
+export type SecurableKind =
+  | (typeof SecurableKind)[keyof typeof SecurableKind]
+  | (string & {});
 
 /** The type of Unity Catalog securable. */
-export enum SecurableType {
-  CATALOG = 'CATALOG',
-  SCHEMA = 'SCHEMA',
-  TABLE = 'TABLE',
-  STORAGE_CREDENTIAL = 'STORAGE_CREDENTIAL',
-  EXTERNAL_LOCATION = 'EXTERNAL_LOCATION',
-  FUNCTION = 'FUNCTION',
-  SHARE = 'SHARE',
-  PROVIDER = 'PROVIDER',
-  RECIPIENT = 'RECIPIENT',
-  CLEAN_ROOM = 'CLEAN_ROOM',
-  METASTORE = 'METASTORE',
-  PIPELINE = 'PIPELINE',
-  VOLUME = 'VOLUME',
-  CONNECTION = 'CONNECTION',
-  CREDENTIAL = 'CREDENTIAL',
-  EXTERNAL_METADATA = 'EXTERNAL_METADATA',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableType = {
+  CATALOG: 'CATALOG',
+  SCHEMA: 'SCHEMA',
+  TABLE: 'TABLE',
+  STORAGE_CREDENTIAL: 'STORAGE_CREDENTIAL',
+  EXTERNAL_LOCATION: 'EXTERNAL_LOCATION',
+  FUNCTION: 'FUNCTION',
+  SHARE: 'SHARE',
+  PROVIDER: 'PROVIDER',
+  RECIPIENT: 'RECIPIENT',
+  CLEAN_ROOM: 'CLEAN_ROOM',
+  METASTORE: 'METASTORE',
+  PIPELINE: 'PIPELINE',
+  VOLUME: 'VOLUME',
+  CONNECTION: 'CONNECTION',
+  CREDENTIAL: 'CREDENTIAL',
+  EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
-  STAGING_TABLE = 'STAGING_TABLE',
-}
+  STAGING_TABLE: 'STAGING_TABLE',
+} as const;
+export type SecurableType =
+  | (typeof SecurableType)[keyof typeof SecurableType]
+  | (string & {});
 
-export enum SseEncryptionAlgorithm {
-  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED = 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
-  AWS_SSE_S3 = 'AWS_SSE_S3',
-  AWS_SSE_KMS = 'AWS_SSE_KMS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SseEncryptionAlgorithm = {
+  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
+  AWS_SSE_S3: 'AWS_SSE_S3',
+  AWS_SSE_KMS: 'AWS_SSE_KMS',
+} as const;
+export type SseEncryptionAlgorithm =
+  | (typeof SseEncryptionAlgorithm)[keyof typeof SseEncryptionAlgorithm]
+  | (string & {});
 
-export enum TableType {
-  MANAGED = 'MANAGED',
-  EXTERNAL = 'EXTERNAL',
-  VIEW = 'VIEW',
-  MATERIALIZED_VIEW = 'MATERIALIZED_VIEW',
-  STREAMING_TABLE = 'STREAMING_TABLE',
-  MANAGED_SHALLOW_CLONE = 'MANAGED_SHALLOW_CLONE',
-  FOREIGN = 'FOREIGN',
-  EXTERNAL_SHALLOW_CLONE = 'EXTERNAL_SHALLOW_CLONE',
-  METRIC_VIEW = 'METRIC_VIEW',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TableType = {
+  MANAGED: 'MANAGED',
+  EXTERNAL: 'EXTERNAL',
+  VIEW: 'VIEW',
+  MATERIALIZED_VIEW: 'MATERIALIZED_VIEW',
+  STREAMING_TABLE: 'STREAMING_TABLE',
+  MANAGED_SHALLOW_CLONE: 'MANAGED_SHALLOW_CLONE',
+  FOREIGN: 'FOREIGN',
+  EXTERNAL_SHALLOW_CLONE: 'EXTERNAL_SHALLOW_CLONE',
+  METRIC_VIEW: 'METRIC_VIEW',
+} as const;
+export type TableType =
+  | (typeof TableType)[keyof typeof TableType]
+  | (string & {});
 
 /**
  * During the OAuth flow, specifies which stage the option should be displayed in the UI.
@@ -209,12 +249,16 @@ export enum TableType {
  * BEFORE_ACCESS_TOKEN corresponds to options that are necessary to create a foreign connection,
  * but that should be displayed after the authorization code has already been received.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OptionSpec_OauthStage = {
+  OAUTH_STAGE_UNSPECIFIED: 'OAUTH_STAGE_UNSPECIFIED',
+  BEFORE_AUTHORIZATION_CODE: 'BEFORE_AUTHORIZATION_CODE',
+  BEFORE_ACCESS_TOKEN: 'BEFORE_ACCESS_TOKEN',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum OptionSpec_OauthStage {
-  OAUTH_STAGE_UNSPECIFIED = 'OAUTH_STAGE_UNSPECIFIED',
-  BEFORE_AUTHORIZATION_CODE = 'BEFORE_AUTHORIZATION_CODE',
-  BEFORE_ACCESS_TOKEN = 'BEFORE_ACCESS_TOKEN',
-}
+export type OptionSpec_OauthStage =
+  | (typeof OptionSpec_OauthStage)[keyof typeof OptionSpec_OauthStage]
+  | (string & {});
 
 /**
  * Type of the option, we purposely follow JavaScript types so that
@@ -222,17 +266,21 @@ export enum OptionSpec_OauthStage {
  * https://www.w3schools.com/js/js_datatypes.asp
  * Enum is a special case that it's just string with selections.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OptionSpec_OptionType = {
+  OPTION_TYPE_UNSPECIFIED: 'OPTION_TYPE_UNSPECIFIED',
+  OPTION_BOOLEAN: 'OPTION_BOOLEAN',
+  OPTION_NUMBER: 'OPTION_NUMBER',
+  OPTION_BIGINT: 'OPTION_BIGINT',
+  OPTION_STRING: 'OPTION_STRING',
+  OPTION_ENUM: 'OPTION_ENUM',
+  OPTION_SERVICE_CREDENTIAL: 'OPTION_SERVICE_CREDENTIAL',
+  OPTION_MULTILINE_STRING: 'OPTION_MULTILINE_STRING',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum OptionSpec_OptionType {
-  OPTION_TYPE_UNSPECIFIED = 'OPTION_TYPE_UNSPECIFIED',
-  OPTION_BOOLEAN = 'OPTION_BOOLEAN',
-  OPTION_NUMBER = 'OPTION_NUMBER',
-  OPTION_BIGINT = 'OPTION_BIGINT',
-  OPTION_STRING = 'OPTION_STRING',
-  OPTION_ENUM = 'OPTION_ENUM',
-  OPTION_SERVICE_CREDENTIAL = 'OPTION_SERVICE_CREDENTIAL',
-  OPTION_MULTILINE_STRING = 'OPTION_MULTILINE_STRING',
-}
+export type OptionSpec_OptionType =
+  | (typeof OptionSpec_OptionType)[keyof typeof OptionSpec_OptionType]
+  | (string & {});
 
 export interface ColumnInfo {
   /** Name of Column. */
@@ -879,7 +927,7 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
     name: z.string().optional(),
     type_text: z.string().optional(),
-    type_name: z.enum(ColumnTypeName).optional(),
+    type_name: z.string().optional(),
     position: z.number().optional(),
     type_precision: z.number().optional(),
     type_scale: z.number().optional(),
@@ -1069,7 +1117,7 @@ export const unmarshalNamedTableConstraintSchema: z.ZodType<NamedTableConstraint
 export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
   .object({
     name: z.string().optional(),
-    type: z.enum(OptionSpec_OptionType).optional(),
+    type: z.string().optional(),
     default_value: z.string().optional(),
     allowed_values: z.array(z.string()).optional(),
     hint: z.string().optional(),
@@ -1078,7 +1126,7 @@ export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
     is_secret: z.boolean().optional(),
     is_hidden: z.boolean().optional(),
     is_updatable: z.boolean().optional(),
-    oauth_stage: z.enum(OptionSpec_OauthStage).optional(),
+    oauth_stage: z.string().optional(),
     is_loggable: z.boolean().optional(),
     is_creatable: z.boolean().optional(),
     is_copiable: z.boolean().optional(),
@@ -1147,8 +1195,8 @@ export const unmarshalRowFilterSchema: z.ZodType<RowFilter> = z
 export const unmarshalSecurableKindManifestSchema: z.ZodType<SecurableKindManifest> =
   z
     .object({
-      securable_type: z.enum(SecurableType).optional(),
-      securable_kind: z.enum(SecurableKind).optional(),
+      securable_type: z.string().optional(),
+      securable_kind: z.string().optional(),
       assignable_privileges: z.array(z.string()).optional(),
       options: z.array(z.lazy(() => unmarshalOptionSpecSchema)).optional(),
       capabilities: z.array(z.string()).optional(),
@@ -1164,7 +1212,7 @@ export const unmarshalSecurableKindManifestSchema: z.ZodType<SecurableKindManife
 export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
   z
     .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+      algorithm: z.string().optional(),
       aws_kms_key_arn: z.string().optional(),
     })
     .transform(d => ({
@@ -1226,8 +1274,8 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    table_type: z.enum(TableType).optional(),
-    data_source_format: z.enum(DataSourceFormat).optional(),
+    table_type: z.string().optional(),
+    data_source_format: z.string().optional(),
     storage_location: z.string().optional(),
     view_definition: z.string().optional(),
     view_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
@@ -1316,7 +1364,7 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
 export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
   .object({
     full_name: z.string().optional(),
-    table_type: z.enum(TableType).optional(),
+    table_type: z.string().optional(),
     securable_kind_manifest: z
       .lazy(() => unmarshalSecurableKindManifestSchema)
       .optional(),
@@ -1334,7 +1382,7 @@ export const marshalColumnInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     typeText: z.string().optional(),
-    typeName: z.enum(ColumnTypeName).optional(),
+    typeName: z.string().optional(),
     position: z.number().optional(),
     typePrecision: z.number().optional(),
     typeScale: z.number().optional(),
@@ -1397,8 +1445,8 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
-    tableType: z.enum(TableType).optional(),
-    dataSourceFormat: z.enum(DataSourceFormat).optional(),
+    tableType: z.string().optional(),
+    dataSourceFormat: z.string().optional(),
     storageLocation: z.string().optional(),
     viewDefinition: z.string().optional(),
     viewDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
@@ -1591,7 +1639,7 @@ export const marshalNamedTableConstraintSchema: z.ZodType = z
 export const marshalOptionSpecSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    type: z.enum(OptionSpec_OptionType).optional(),
+    type: z.string().optional(),
     defaultValue: z.string().optional(),
     allowedValues: z.array(z.string()).optional(),
     hint: z.string().optional(),
@@ -1600,7 +1648,7 @@ export const marshalOptionSpecSchema: z.ZodType = z
     isSecret: z.boolean().optional(),
     isHidden: z.boolean().optional(),
     isUpdatable: z.boolean().optional(),
-    oauthStage: z.enum(OptionSpec_OauthStage).optional(),
+    oauthStage: z.string().optional(),
     isLoggable: z.boolean().optional(),
     isCreatable: z.boolean().optional(),
     isCopiable: z.boolean().optional(),
@@ -1666,8 +1714,8 @@ export const marshalRowFilterSchema: z.ZodType = z
 
 export const marshalSecurableKindManifestSchema: z.ZodType = z
   .object({
-    securableType: z.enum(SecurableType).optional(),
-    securableKind: z.enum(SecurableKind).optional(),
+    securableType: z.string().optional(),
+    securableKind: z.string().optional(),
     assignablePrivileges: z.array(z.string()).optional(),
     options: z.array(z.lazy(() => marshalOptionSpecSchema)).optional(),
     capabilities: z.array(z.string()).optional(),
@@ -1682,7 +1730,7 @@ export const marshalSecurableKindManifestSchema: z.ZodType = z
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z
   .object({
-    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    algorithm: z.string().optional(),
     awsKmsKeyArn: z.string().optional(),
   })
   .transform(d => ({
@@ -1735,8 +1783,8 @@ export const marshalUpdateTableRequestSchema: z.ZodType = z
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
-    tableType: z.enum(TableType).optional(),
-    dataSourceFormat: z.enum(DataSourceFormat).optional(),
+    tableType: z.string().optional(),
+    dataSourceFormat: z.string().optional(),
     storageLocation: z.string().optional(),
     viewDefinition: z.string().optional(),
     viewDependencies: z.lazy(() => marshalDependencyListSchema).optional(),

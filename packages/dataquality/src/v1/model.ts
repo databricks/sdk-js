@@ -5,94 +5,128 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The granularity for aggregating data into time windows based on their timestamp. */
-export enum AggregationGranularity {
-  AGGREGATION_GRANULARITY_UNSPECIFIED = 'AGGREGATION_GRANULARITY_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AggregationGranularity = {
+  AGGREGATION_GRANULARITY_UNSPECIFIED: 'AGGREGATION_GRANULARITY_UNSPECIFIED',
   /** 5 minutes. */
-  AGGREGATION_GRANULARITY_5_MINUTES = 'AGGREGATION_GRANULARITY_5_MINUTES',
+  AGGREGATION_GRANULARITY_5_MINUTES: 'AGGREGATION_GRANULARITY_5_MINUTES',
   /** 30 minutes. */
-  AGGREGATION_GRANULARITY_30_MINUTES = 'AGGREGATION_GRANULARITY_30_MINUTES',
+  AGGREGATION_GRANULARITY_30_MINUTES: 'AGGREGATION_GRANULARITY_30_MINUTES',
   /** 1 hour. */
-  AGGREGATION_GRANULARITY_1_HOUR = 'AGGREGATION_GRANULARITY_1_HOUR',
+  AGGREGATION_GRANULARITY_1_HOUR: 'AGGREGATION_GRANULARITY_1_HOUR',
   /** 1 day. */
-  AGGREGATION_GRANULARITY_1_DAY = 'AGGREGATION_GRANULARITY_1_DAY',
+  AGGREGATION_GRANULARITY_1_DAY: 'AGGREGATION_GRANULARITY_1_DAY',
   /** 1 week. */
-  AGGREGATION_GRANULARITY_1_WEEK = 'AGGREGATION_GRANULARITY_1_WEEK',
+  AGGREGATION_GRANULARITY_1_WEEK: 'AGGREGATION_GRANULARITY_1_WEEK',
   /** 2 weeks. */
-  AGGREGATION_GRANULARITY_2_WEEKS = 'AGGREGATION_GRANULARITY_2_WEEKS',
+  AGGREGATION_GRANULARITY_2_WEEKS: 'AGGREGATION_GRANULARITY_2_WEEKS',
   /** 3 weeks. */
-  AGGREGATION_GRANULARITY_3_WEEKS = 'AGGREGATION_GRANULARITY_3_WEEKS',
+  AGGREGATION_GRANULARITY_3_WEEKS: 'AGGREGATION_GRANULARITY_3_WEEKS',
   /** 4 weeks. */
-  AGGREGATION_GRANULARITY_4_WEEKS = 'AGGREGATION_GRANULARITY_4_WEEKS',
+  AGGREGATION_GRANULARITY_4_WEEKS: 'AGGREGATION_GRANULARITY_4_WEEKS',
   /** 1 month. */
-  AGGREGATION_GRANULARITY_1_MONTH = 'AGGREGATION_GRANULARITY_1_MONTH',
+  AGGREGATION_GRANULARITY_1_MONTH: 'AGGREGATION_GRANULARITY_1_MONTH',
   /** 1 year. */
-  AGGREGATION_GRANULARITY_1_YEAR = 'AGGREGATION_GRANULARITY_1_YEAR',
-}
+  AGGREGATION_GRANULARITY_1_YEAR: 'AGGREGATION_GRANULARITY_1_YEAR',
+} as const;
+export type AggregationGranularity =
+  | (typeof AggregationGranularity)[keyof typeof AggregationGranularity]
+  | (string & {});
 
 /** The data quality monitoring workflow cron schedule pause status. */
-export enum CronSchedulePauseStatus {
-  CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED = 'CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CronSchedulePauseStatus = {
+  CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED:
+    'CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED',
   /** The cron schedule is not paused. */
-  CRON_SCHEDULE_PAUSE_STATUS_UNPAUSED = 'CRON_SCHEDULE_PAUSE_STATUS_UNPAUSED',
+  CRON_SCHEDULE_PAUSE_STATUS_UNPAUSED: 'CRON_SCHEDULE_PAUSE_STATUS_UNPAUSED',
   /** The cron schedule is paused. */
-  CRON_SCHEDULE_PAUSE_STATUS_PAUSED = 'CRON_SCHEDULE_PAUSE_STATUS_PAUSED',
-}
+  CRON_SCHEDULE_PAUSE_STATUS_PAUSED: 'CRON_SCHEDULE_PAUSE_STATUS_PAUSED',
+} as const;
+export type CronSchedulePauseStatus =
+  | (typeof CronSchedulePauseStatus)[keyof typeof CronSchedulePauseStatus]
+  | (string & {});
 
 /** The custom metric type. */
-export enum DataProfilingCustomMetricType {
-  DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED = 'DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DataProfilingCustomMetricType = {
+  DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED:
+    'DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED',
   /** Only depend on the existing columns in the table. */
-  DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE = 'DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE',
+  DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE:
+    'DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE',
   /** Only depend on previously computed aggregate metrics. */
-  DATA_PROFILING_CUSTOM_METRIC_TYPE_DERIVED = 'DATA_PROFILING_CUSTOM_METRIC_TYPE_DERIVED',
+  DATA_PROFILING_CUSTOM_METRIC_TYPE_DERIVED:
+    'DATA_PROFILING_CUSTOM_METRIC_TYPE_DERIVED',
   /** Depend on previously computed aggregate or derived metrics. */
-  DATA_PROFILING_CUSTOM_METRIC_TYPE_DRIFT = 'DATA_PROFILING_CUSTOM_METRIC_TYPE_DRIFT',
-}
+  DATA_PROFILING_CUSTOM_METRIC_TYPE_DRIFT:
+    'DATA_PROFILING_CUSTOM_METRIC_TYPE_DRIFT',
+} as const;
+export type DataProfilingCustomMetricType =
+  | (typeof DataProfilingCustomMetricType)[keyof typeof DataProfilingCustomMetricType]
+  | (string & {});
 
 /** The status of the data profiling monitor. */
-export enum DataProfilingStatus {
-  DATA_PROFILING_STATUS_UNSPECIFIED = 'DATA_PROFILING_STATUS_UNSPECIFIED',
-  DATA_PROFILING_STATUS_ACTIVE = 'DATA_PROFILING_STATUS_ACTIVE',
-  DATA_PROFILING_STATUS_PENDING = 'DATA_PROFILING_STATUS_PENDING',
-  DATA_PROFILING_STATUS_DELETE_PENDING = 'DATA_PROFILING_STATUS_DELETE_PENDING',
-  DATA_PROFILING_STATUS_ERROR = 'DATA_PROFILING_STATUS_ERROR',
-  DATA_PROFILING_STATUS_FAILED = 'DATA_PROFILING_STATUS_FAILED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DataProfilingStatus = {
+  DATA_PROFILING_STATUS_UNSPECIFIED: 'DATA_PROFILING_STATUS_UNSPECIFIED',
+  DATA_PROFILING_STATUS_ACTIVE: 'DATA_PROFILING_STATUS_ACTIVE',
+  DATA_PROFILING_STATUS_PENDING: 'DATA_PROFILING_STATUS_PENDING',
+  DATA_PROFILING_STATUS_DELETE_PENDING: 'DATA_PROFILING_STATUS_DELETE_PENDING',
+  DATA_PROFILING_STATUS_ERROR: 'DATA_PROFILING_STATUS_ERROR',
+  DATA_PROFILING_STATUS_FAILED: 'DATA_PROFILING_STATUS_FAILED',
+} as const;
+export type DataProfilingStatus =
+  | (typeof DataProfilingStatus)[keyof typeof DataProfilingStatus]
+  | (string & {});
 
 /** Inference problem type the model aims to solve. */
-export enum InferenceProblemType {
-  INFERENCE_PROBLEM_TYPE_UNSPECIFIED = 'INFERENCE_PROBLEM_TYPE_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const InferenceProblemType = {
+  INFERENCE_PROBLEM_TYPE_UNSPECIFIED: 'INFERENCE_PROBLEM_TYPE_UNSPECIFIED',
   /** Classification inference problem. */
-  INFERENCE_PROBLEM_TYPE_CLASSIFICATION = 'INFERENCE_PROBLEM_TYPE_CLASSIFICATION',
+  INFERENCE_PROBLEM_TYPE_CLASSIFICATION:
+    'INFERENCE_PROBLEM_TYPE_CLASSIFICATION',
   /** Regression inference problem. */
-  INFERENCE_PROBLEM_TYPE_REGRESSION = 'INFERENCE_PROBLEM_TYPE_REGRESSION',
-}
+  INFERENCE_PROBLEM_TYPE_REGRESSION: 'INFERENCE_PROBLEM_TYPE_REGRESSION',
+} as const;
+export type InferenceProblemType =
+  | (typeof InferenceProblemType)[keyof typeof InferenceProblemType]
+  | (string & {});
 
 /** The state of the refresh. */
-export enum RefreshState {
-  MONITOR_REFRESH_STATE_UNKNOWN = 'MONITOR_REFRESH_STATE_UNKNOWN',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RefreshState = {
+  MONITOR_REFRESH_STATE_UNKNOWN: 'MONITOR_REFRESH_STATE_UNKNOWN',
   /** The refresh is pending. */
-  MONITOR_REFRESH_STATE_PENDING = 'MONITOR_REFRESH_STATE_PENDING',
+  MONITOR_REFRESH_STATE_PENDING: 'MONITOR_REFRESH_STATE_PENDING',
   /** The refresh is running. */
-  MONITOR_REFRESH_STATE_RUNNING = 'MONITOR_REFRESH_STATE_RUNNING',
+  MONITOR_REFRESH_STATE_RUNNING: 'MONITOR_REFRESH_STATE_RUNNING',
   /** The refresh is successful. */
-  MONITOR_REFRESH_STATE_SUCCESS = 'MONITOR_REFRESH_STATE_SUCCESS',
+  MONITOR_REFRESH_STATE_SUCCESS: 'MONITOR_REFRESH_STATE_SUCCESS',
   /** The refresh has failed. */
-  MONITOR_REFRESH_STATE_FAILED = 'MONITOR_REFRESH_STATE_FAILED',
+  MONITOR_REFRESH_STATE_FAILED: 'MONITOR_REFRESH_STATE_FAILED',
   /** The refresh is cancelled. */
-  MONITOR_REFRESH_STATE_CANCELED = 'MONITOR_REFRESH_STATE_CANCELED',
-}
+  MONITOR_REFRESH_STATE_CANCELED: 'MONITOR_REFRESH_STATE_CANCELED',
+} as const;
+export type RefreshState =
+  | (typeof RefreshState)[keyof typeof RefreshState]
+  | (string & {});
 
 /** The trigger of the refresh. */
-export enum RefreshTrigger {
-  MONITOR_REFRESH_TRIGGER_UNKNOWN = 'MONITOR_REFRESH_TRIGGER_UNKNOWN',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RefreshTrigger = {
+  MONITOR_REFRESH_TRIGGER_UNKNOWN: 'MONITOR_REFRESH_TRIGGER_UNKNOWN',
   /** The refresh has been triggered manually. */
-  MONITOR_REFRESH_TRIGGER_MANUAL = 'MONITOR_REFRESH_TRIGGER_MANUAL',
+  MONITOR_REFRESH_TRIGGER_MANUAL: 'MONITOR_REFRESH_TRIGGER_MANUAL',
   /** The refresh has been triggered from a schedule. */
-  MONITOR_REFRESH_TRIGGER_SCHEDULE = 'MONITOR_REFRESH_TRIGGER_SCHEDULE',
+  MONITOR_REFRESH_TRIGGER_SCHEDULE: 'MONITOR_REFRESH_TRIGGER_SCHEDULE',
   /** The refresh has been triggered from a data change. */
-  MONITOR_REFRESH_TRIGGER_DATA_CHANGE = 'MONITOR_REFRESH_TRIGGER_DATA_CHANGE',
-}
+  MONITOR_REFRESH_TRIGGER_DATA_CHANGE: 'MONITOR_REFRESH_TRIGGER_DATA_CHANGE',
+} as const;
+export type RefreshTrigger =
+  | (typeof RefreshTrigger)[keyof typeof RefreshTrigger]
+  | (string & {});
 
 /** Anomaly Detection Configurations. */
 export interface AnomalyDetectionConfig {
@@ -529,7 +563,7 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     quartz_cron_expression: z.string().optional(),
     timezone_id: z.string().optional(),
-    pause_status: z.enum(CronSchedulePauseStatus).optional(),
+    pause_status: z.string().optional(),
   })
   .transform(d => ({
     quartzCronExpression: d.quartz_cron_expression,
@@ -557,7 +591,7 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
       skip_builtin_dashboard: z.boolean().optional(),
       warehouse_id: z.string().optional(),
       monitored_table_name: z.string().optional(),
-      status: z.enum(DataProfilingStatus).optional(),
+      status: z.string().optional(),
       latest_monitor_failure_message: z.string().optional(),
       profile_metrics_table_name: z.string().optional(),
       drift_metrics_table_name: z.string().optional(),
@@ -603,7 +637,7 @@ export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCu
       definition: z.string().optional(),
       input_columns: z.array(z.string()).optional(),
       output_data_type: z.string().optional(),
-      type: z.enum(DataProfilingCustomMetricType).optional(),
+      type: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -616,9 +650,9 @@ export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCu
 export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
   z
     .object({
-      problem_type: z.enum(InferenceProblemType).optional(),
+      problem_type: z.string().optional(),
       timestamp_column: z.string().optional(),
-      granularities: z.array(z.enum(AggregationGranularity)).optional(),
+      granularities: z.array(z.string()).optional(),
       prediction_column: z.string().optional(),
       label_column: z.string().optional(),
       model_id_column: z.string().optional(),
@@ -700,7 +734,7 @@ export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.enum(RefreshState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
     start_time_ms: z
       .union([z.number(), z.bigint()])
@@ -710,7 +744,7 @@ export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    trigger: z.enum(RefreshTrigger).optional(),
+    trigger: z.string().optional(),
   })
   .transform(d => ({
     objectType: d.object_type,
@@ -729,7 +763,7 @@ export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> =
 export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
   .object({
     timestamp_column: z.string().optional(),
-    granularities: z.array(z.enum(AggregationGranularity)).optional(),
+    granularities: z.array(z.string()).optional(),
   })
   .transform(d => ({
     timestampColumn: d.timestamp_column,
@@ -760,7 +794,7 @@ export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
     timezoneId: z.string().optional(),
-    pauseStatus: z.enum(CronSchedulePauseStatus).optional(),
+    pauseStatus: z.string().optional(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
@@ -800,7 +834,7 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
     skipBuiltinDashboard: z.boolean().optional(),
     warehouseId: z.string().optional(),
     monitoredTableName: z.string().optional(),
-    status: z.enum(DataProfilingStatus).optional(),
+    status: z.string().optional(),
     latestMonitorFailureMessage: z.string().optional(),
     profileMetricsTableName: z.string().optional(),
     driftMetricsTableName: z.string().optional(),
@@ -843,7 +877,7 @@ export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
     definition: z.string().optional(),
     inputColumns: z.array(z.string()).optional(),
     outputDataType: z.string().optional(),
-    type: z.enum(DataProfilingCustomMetricType).optional(),
+    type: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -855,9 +889,9 @@ export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
 
 export const marshalInferenceLogConfigSchema: z.ZodType = z
   .object({
-    problemType: z.enum(InferenceProblemType).optional(),
+    problemType: z.string().optional(),
     timestampColumn: z.string().optional(),
-    granularities: z.array(z.enum(AggregationGranularity)).optional(),
+    granularities: z.array(z.string()).optional(),
     predictionColumn: z.string().optional(),
     labelColumn: z.string().optional(),
     modelIdColumn: z.string().optional(),
@@ -910,11 +944,11 @@ export const marshalRefreshSchema: z.ZodType = z
     objectType: z.string().optional(),
     objectId: z.string().optional(),
     refreshId: z.bigint().optional(),
-    state: z.enum(RefreshState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
     startTimeMs: z.bigint().optional(),
     endTimeMs: z.bigint().optional(),
-    trigger: z.enum(RefreshTrigger).optional(),
+    trigger: z.string().optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -932,7 +966,7 @@ export const marshalSnapshotConfigSchema: z.ZodType = z.object({});
 export const marshalTimeSeriesConfigSchema: z.ZodType = z
   .object({
     timestampColumn: z.string().optional(),
-    granularities: z.array(z.enum(AggregationGranularity)).optional(),
+    granularities: z.array(z.string()).optional(),
   })
   .transform(d => ({
     timestamp_column: d.timestampColumn,

@@ -2,70 +2,98 @@
 
 import {z} from 'zod';
 
-export enum ColumnTypeName {
-  BOOLEAN = 'BOOLEAN',
-  BYTE = 'BYTE',
-  SHORT = 'SHORT',
-  INT = 'INT',
-  LONG = 'LONG',
-  FLOAT = 'FLOAT',
-  DOUBLE = 'DOUBLE',
-  DATE = 'DATE',
-  TIMESTAMP = 'TIMESTAMP',
-  STRING = 'STRING',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-  INTERVAL = 'INTERVAL',
-  ARRAY = 'ARRAY',
-  STRUCT = 'STRUCT',
-  MAP = 'MAP',
-  CHAR = 'CHAR',
-  NULL = 'NULL',
-  USER_DEFINED_TYPE = 'USER_DEFINED_TYPE',
-  TIMESTAMP_NTZ = 'TIMESTAMP_NTZ',
-  VARIANT = 'VARIANT',
-  GEOMETRY = 'GEOMETRY',
-  GEOGRAPHY = 'GEOGRAPHY',
-  TABLE_TYPE = 'TABLE_TYPE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ColumnTypeName = {
+  BOOLEAN: 'BOOLEAN',
+  BYTE: 'BYTE',
+  SHORT: 'SHORT',
+  INT: 'INT',
+  LONG: 'LONG',
+  FLOAT: 'FLOAT',
+  DOUBLE: 'DOUBLE',
+  DATE: 'DATE',
+  TIMESTAMP: 'TIMESTAMP',
+  STRING: 'STRING',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+  INTERVAL: 'INTERVAL',
+  ARRAY: 'ARRAY',
+  STRUCT: 'STRUCT',
+  MAP: 'MAP',
+  CHAR: 'CHAR',
+  NULL: 'NULL',
+  USER_DEFINED_TYPE: 'USER_DEFINED_TYPE',
+  TIMESTAMP_NTZ: 'TIMESTAMP_NTZ',
+  VARIANT: 'VARIANT',
+  GEOMETRY: 'GEOMETRY',
+  GEOGRAPHY: 'GEOGRAPHY',
+  TABLE_TYPE: 'TABLE_TYPE',
+} as const;
+export type ColumnTypeName =
+  | (typeof ColumnTypeName)[keyof typeof ColumnTypeName]
+  | (string & {});
 
-export enum FunctionParameterMode {
-  IN = 'IN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionParameterMode = {
+  IN: 'IN',
+} as const;
+export type FunctionParameterMode =
+  | (typeof FunctionParameterMode)[keyof typeof FunctionParameterMode]
+  | (string & {});
 
-export enum FunctionParameterType {
-  PARAM = 'PARAM',
-  COLUMN = 'COLUMN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionParameterType = {
+  PARAM: 'PARAM',
+  COLUMN: 'COLUMN',
+} as const;
+export type FunctionParameterType =
+  | (typeof FunctionParameterType)[keyof typeof FunctionParameterType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionInfo_ParameterStyle = {
+  S: 'S',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FunctionInfo_ParameterStyle {
-  S = 'S',
-}
+export type FunctionInfo_ParameterStyle =
+  | (typeof FunctionInfo_ParameterStyle)[keyof typeof FunctionInfo_ParameterStyle]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FunctionInfo_RoutineBody {
-  SQL = 'SQL',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionInfo_RoutineBody = {
+  SQL: 'SQL',
   /**
    * When `EXTERNAL` is used,
    * * The language of the routine function should be specified in the `external_language` field.
    * * The returnParams of the function cannot be used as TABLE return type is not supported.
    * * The getSqlDataAccess must be NO_SQL.
    */
-  EXTERNAL = 'EXTERNAL',
-}
-
+  EXTERNAL: 'EXTERNAL',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FunctionInfo_SecurityType {
-  DEFINER = 'DEFINER',
-}
+export type FunctionInfo_RoutineBody =
+  | (typeof FunctionInfo_RoutineBody)[keyof typeof FunctionInfo_RoutineBody]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionInfo_SecurityType = {
+  DEFINER: 'DEFINER',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FunctionInfo_SqlDataAccess {
-  CONTAINS_SQL = 'CONTAINS_SQL',
-  READS_SQL_DATA = 'READS_SQL_DATA',
-  NO_SQL = 'NO_SQL',
-}
+export type FunctionInfo_SecurityType =
+  | (typeof FunctionInfo_SecurityType)[keyof typeof FunctionInfo_SecurityType]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FunctionInfo_SqlDataAccess = {
+  CONTAINS_SQL: 'CONTAINS_SQL',
+  READS_SQL_DATA: 'READS_SQL_DATA',
+  NO_SQL: 'NO_SQL',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type FunctionInfo_SqlDataAccess =
+  | (typeof FunctionInfo_SqlDataAccess)[keyof typeof FunctionInfo_SqlDataAccess]
+  | (string & {});
 
 /** A connection that is dependent on a SQL object. */
 export interface ConnectionDependency {
@@ -449,15 +477,15 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     input_params: z
       .lazy(() => unmarshalFunctionParameterInfosSchema)
       .optional(),
-    data_type: z.enum(ColumnTypeName).optional(),
+    data_type: z.string().optional(),
     full_data_type: z.string().optional(),
-    routine_body: z.enum(FunctionInfo_RoutineBody).optional(),
+    routine_body: z.string().optional(),
     routine_definition: z.string().optional(),
-    parameter_style: z.enum(FunctionInfo_ParameterStyle).optional(),
+    parameter_style: z.string().optional(),
     is_deterministic: z.boolean().optional(),
-    sql_data_access: z.enum(FunctionInfo_SqlDataAccess).optional(),
+    sql_data_access: z.string().optional(),
     is_null_call: z.boolean().optional(),
-    security_type: z.enum(FunctionInfo_SecurityType).optional(),
+    security_type: z.string().optional(),
     specific_name: z.string().optional(),
     return_params: z
       .lazy(() => unmarshalFunctionParameterInfosSchema)
@@ -525,13 +553,13 @@ export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterIn
       name: z.string().optional(),
       type_text: z.string().optional(),
       type_json: z.string().optional(),
-      type_name: z.enum(ColumnTypeName).optional(),
+      type_name: z.string().optional(),
       type_precision: z.number().optional(),
       type_scale: z.number().optional(),
       type_interval_type: z.string().optional(),
       position: z.number().optional(),
-      parameter_mode: z.enum(FunctionParameterMode).optional(),
-      parameter_type: z.enum(FunctionParameterType).optional(),
+      parameter_mode: z.string().optional(),
+      parameter_type: z.string().optional(),
       parameter_default: z.string().optional(),
       comment: z.string().optional(),
     })
@@ -594,15 +622,15 @@ export const marshalCreateFunctionSchema: z.ZodType = z
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
     inputParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
-    dataType: z.enum(ColumnTypeName).optional(),
+    dataType: z.string().optional(),
     fullDataType: z.string().optional(),
-    routineBody: z.enum(FunctionInfo_RoutineBody).optional(),
+    routineBody: z.string().optional(),
     routineDefinition: z.string().optional(),
-    parameterStyle: z.enum(FunctionInfo_ParameterStyle).optional(),
+    parameterStyle: z.string().optional(),
     isDeterministic: z.boolean().optional(),
-    sqlDataAccess: z.enum(FunctionInfo_SqlDataAccess).optional(),
+    sqlDataAccess: z.string().optional(),
     isNullCall: z.boolean().optional(),
-    securityType: z.enum(FunctionInfo_SecurityType).optional(),
+    securityType: z.string().optional(),
     specificName: z.string().optional(),
     returnParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
     externalName: z.string().optional(),
@@ -721,13 +749,13 @@ export const marshalFunctionParameterInfoSchema: z.ZodType = z
     name: z.string().optional(),
     typeText: z.string().optional(),
     typeJson: z.string().optional(),
-    typeName: z.enum(ColumnTypeName).optional(),
+    typeName: z.string().optional(),
     typePrecision: z.number().optional(),
     typeScale: z.number().optional(),
     typeIntervalType: z.string().optional(),
     position: z.number().optional(),
-    parameterMode: z.enum(FunctionParameterMode).optional(),
-    parameterType: z.enum(FunctionParameterType).optional(),
+    parameterMode: z.string().optional(),
+    parameterType: z.string().optional(),
     parameterDefault: z.string().optional(),
     comment: z.string().optional(),
   })
@@ -771,15 +799,15 @@ export const marshalUpdateFunctionRequestSchema: z.ZodType = z
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
     inputParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
-    dataType: z.enum(ColumnTypeName).optional(),
+    dataType: z.string().optional(),
     fullDataType: z.string().optional(),
-    routineBody: z.enum(FunctionInfo_RoutineBody).optional(),
+    routineBody: z.string().optional(),
     routineDefinition: z.string().optional(),
-    parameterStyle: z.enum(FunctionInfo_ParameterStyle).optional(),
+    parameterStyle: z.string().optional(),
     isDeterministic: z.boolean().optional(),
-    sqlDataAccess: z.enum(FunctionInfo_SqlDataAccess).optional(),
+    sqlDataAccess: z.string().optional(),
     isNullCall: z.boolean().optional(),
-    securityType: z.enum(FunctionInfo_SecurityType).optional(),
+    securityType: z.string().optional(),
     specificName: z.string().optional(),
     returnParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
     externalName: z.string().optional(),

@@ -2,43 +2,55 @@
 
 import {z} from 'zod';
 
-export enum AuthenticationMethod {
-  OAUTH = 'OAUTH',
-  PAT = 'PAT',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AuthenticationMethod = {
+  OAUTH: 'OAUTH',
+  PAT: 'PAT',
+} as const;
+export type AuthenticationMethod =
+  | (typeof AuthenticationMethod)[keyof typeof AuthenticationMethod]
+  | (string & {});
 
 /**
  * Availability type used for all subsequent nodes past the `first_on_demand` ones.
  *
  * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
  */
-export enum AwsAvailability {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AwsAvailability = {
   /** Use spot instances. */
-  SPOT = 'SPOT',
+  SPOT: 'SPOT',
   /** Use on-demand instances. */
-  ON_DEMAND = 'ON_DEMAND',
+  ON_DEMAND: 'ON_DEMAND',
   /**
    * Preferably use spot instances, but fall back to on-demand instances if spot instances cannot
    * be acquired (e.g., if AWS spot prices are too high).
    */
-  SPOT_WITH_FALLBACK = 'SPOT_WITH_FALLBACK',
-}
+  SPOT_WITH_FALLBACK: 'SPOT_WITH_FALLBACK',
+} as const;
+export type AwsAvailability =
+  | (typeof AwsAvailability)[keyof typeof AwsAvailability]
+  | (string & {});
 
 /**
  * Availability type used for all subsequent nodes past the `first_on_demand` ones.
  * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
  */
-export enum AzureAvailability {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AzureAvailability = {
   /** Use spot instances. */
-  SPOT_AZURE = 'SPOT_AZURE',
+  SPOT_AZURE: 'SPOT_AZURE',
   /** Use on-demand instances. */
-  ON_DEMAND_AZURE = 'ON_DEMAND_AZURE',
+  ON_DEMAND_AZURE: 'ON_DEMAND_AZURE',
   /**
    * Preferably use spot instances, but fall back to on-demand instances if spot instances cannot
    * be acquired (e.g., if Azure is out of Quota).
    */
-  SPOT_WITH_FALLBACK_AZURE = 'SPOT_WITH_FALLBACK_AZURE',
-}
+  SPOT_WITH_FALLBACK_AZURE: 'SPOT_WITH_FALLBACK_AZURE',
+} as const;
+export type AzureAvailability =
+  | (typeof AzureAvailability)[keyof typeof AzureAvailability]
+  | (string & {});
 
 /**
  * The kind of compute described by this compute specification.
@@ -51,10 +63,14 @@ export enum AzureAvailability {
  *
  * By using the [simple form](https://docs.databricks.com/compute/simple-form.html), your clusters are automatically using `kind = CLASSIC_PREVIEW`.
  */
-export enum ComputeKind {
-  COMPUTE_KIND_UNSPECIFIED = 'COMPUTE_KIND_UNSPECIFIED',
-  CLASSIC_PREVIEW = 'CLASSIC_PREVIEW',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComputeKind = {
+  COMPUTE_KIND_UNSPECIFIED: 'COMPUTE_KIND_UNSPECIFIED',
+  CLASSIC_PREVIEW: 'CLASSIC_PREVIEW',
+} as const;
+export type ComputeKind =
+  | (typeof ComputeKind)[keyof typeof ComputeKind]
+  | (string & {});
 
 /**
  * Confidential computing technology for GCP instances.
@@ -62,11 +78,16 @@ export enum ComputeKind {
  * confidentialInstanceConfig.confidentialInstanceType field.
  * See: https://cloud.google.com/confidential-computing/confidential-vm/docs/create-a-confidential-vm-instance
  */
-export enum ConfidentialComputeType {
-  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED = 'CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED',
-  CONFIDENTIAL_COMPUTE_TYPE_NONE = 'CONFIDENTIAL_COMPUTE_TYPE_NONE',
-  SEV_SNP = 'SEV_SNP',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ConfidentialComputeType = {
+  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED:
+    'CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED',
+  CONFIDENTIAL_COMPUTE_TYPE_NONE: 'CONFIDENTIAL_COMPUTE_TYPE_NONE',
+  SEV_SNP: 'SEV_SNP',
+} as const;
+export type ConfidentialComputeType =
+  | (typeof ConfidentialComputeType)[keyof typeof ConfidentialComputeType]
+  | (string & {});
 
 /**
  * Data security mode decides what data governance model to use when accessing data
@@ -89,91 +110,113 @@ export enum ConfidentialComputeType {
  * * `LEGACY_SINGLE_USER`: This mode is for users migrating from legacy Passthrough on standard clusters.
  * * `LEGACY_SINGLE_USER_STANDARD`: This mode provides a way that doesn’t have UC nor passthrough enabled.
  */
-export enum DataSecurityMode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DataSecurityMode = {
   /**
    * No security isolation for multiple users sharing the cluster. Data governance features
    * are not available in this mode.
    */
-  NONE = 'NONE',
+  NONE: 'NONE',
   /** Legacy alias for `DATA_SECURITY_MODE_DEDICATED`. */
-  SINGLE_USER = 'SINGLE_USER',
+  SINGLE_USER: 'SINGLE_USER',
   /** Legacy alias for `DATA_SECURITY_MODE_STANDARD`. */
-  USER_ISOLATION = 'USER_ISOLATION',
+  USER_ISOLATION: 'USER_ISOLATION',
   /** This mode is for users migrating from legacy Table ACL clusters. */
-  LEGACY_TABLE_ACL = 'LEGACY_TABLE_ACL',
+  LEGACY_TABLE_ACL: 'LEGACY_TABLE_ACL',
   /** This mode is for users migrating from legacy Passthrough on high concurrency clusters. */
-  LEGACY_PASSTHROUGH = 'LEGACY_PASSTHROUGH',
+  LEGACY_PASSTHROUGH: 'LEGACY_PASSTHROUGH',
   /** This mode is for users migrating from legacy Passthrough on standard clusters. */
-  LEGACY_SINGLE_USER = 'LEGACY_SINGLE_USER',
+  LEGACY_SINGLE_USER: 'LEGACY_SINGLE_USER',
   /** This is mode where single user is enforced but no actual security feature enabled. */
-  LEGACY_SINGLE_USER_STANDARD = 'LEGACY_SINGLE_USER_STANDARD',
+  LEGACY_SINGLE_USER_STANDARD: 'LEGACY_SINGLE_USER_STANDARD',
   /**
    * A secure cluster that can be shared by multiple users. Cluster users are fully isolated
    * so that they cannot see each other's data and credentials. Most data governance features
    * are supported in this mode. But programming languages and cluster features might be limited.
    */
-  DATA_SECURITY_MODE_STANDARD = 'DATA_SECURITY_MODE_STANDARD',
+  DATA_SECURITY_MODE_STANDARD: 'DATA_SECURITY_MODE_STANDARD',
   /**
    * A secure cluster that can only be exclusively used by a single user specified in
    * `single_user_name`. Most programming languages, cluster features and data governance
    * features are available in this mode.
    */
-  DATA_SECURITY_MODE_DEDICATED = 'DATA_SECURITY_MODE_DEDICATED',
+  DATA_SECURITY_MODE_DEDICATED: 'DATA_SECURITY_MODE_DEDICATED',
   /**
    * Databricks will choose `DATA_SECURITY_MODE_STANDARD` or `DATA_SECURITY_MODE_DEDICATED`
    * depending on the compute configuration.
    */
-  DATA_SECURITY_MODE_AUTO = 'DATA_SECURITY_MODE_AUTO',
-}
+  DATA_SECURITY_MODE_AUTO: 'DATA_SECURITY_MODE_AUTO',
+} as const;
+export type DataSecurityMode =
+  | (typeof DataSecurityMode)[keyof typeof DataSecurityMode]
+  | (string & {});
 
 /** Response enumeration from calling the dbt platform API, for inclusion in output */
-export enum DbtPlatformRunStatus {
-  DBT_PLATFORM_RUN_STATUS_UNSPECIFIED = 'DBT_PLATFORM_RUN_STATUS_UNSPECIFIED',
-  QUEUED = 'QUEUED',
-  STARTING = 'STARTING',
-  RUNNING = 'RUNNING',
-  SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR',
-  CANCELLED = 'CANCELLED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DbtPlatformRunStatus = {
+  DBT_PLATFORM_RUN_STATUS_UNSPECIFIED: 'DBT_PLATFORM_RUN_STATUS_UNSPECIFIED',
+  QUEUED: 'QUEUED',
+  STARTING: 'STARTING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  CANCELLED: 'CANCELLED',
+} as const;
+export type DbtPlatformRunStatus =
+  | (typeof DbtPlatformRunStatus)[keyof typeof DbtPlatformRunStatus]
+  | (string & {});
 
 /**
  * All EBS volume types that <Databricks> supports.
  * See https://aws.amazon.com/ebs/details/ for details.
  */
-export enum EbsVolumeType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EbsVolumeType = {
   /** Provision extra storage using AWS gp2 EBS volumes. */
-  GENERAL_PURPOSE_SSD = 'GENERAL_PURPOSE_SSD',
+  GENERAL_PURPOSE_SSD: 'GENERAL_PURPOSE_SSD',
   /** Provision extra storage using AWS st1 volumes. */
-  THROUGHPUT_OPTIMIZED_HDD = 'THROUGHPUT_OPTIMIZED_HDD',
-}
+  THROUGHPUT_OPTIMIZED_HDD: 'THROUGHPUT_OPTIMIZED_HDD',
+} as const;
+export type EbsVolumeType =
+  | (typeof EbsVolumeType)[keyof typeof EbsVolumeType]
+  | (string & {});
 
-export enum Format {
-  SINGLE_TASK = 'SINGLE_TASK',
-  MULTI_TASK = 'MULTI_TASK',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Format = {
+  SINGLE_TASK: 'SINGLE_TASK',
+  MULTI_TASK: 'MULTI_TASK',
+} as const;
+export type Format = (typeof Format)[keyof typeof Format] | (string & {});
 
 /**
  * This field determines whether the instance pool will contain preemptible
  * VMs, on-demand VMs, or preemptible VMs with a fallback to on-demand VMs if the former is unavailable.
  */
-export enum GcpAvailability {
-  PREEMPTIBLE_GCP = 'PREEMPTIBLE_GCP',
-  ON_DEMAND_GCP = 'ON_DEMAND_GCP',
-  PREEMPTIBLE_WITH_FALLBACK_GCP = 'PREEMPTIBLE_WITH_FALLBACK_GCP',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GcpAvailability = {
+  PREEMPTIBLE_GCP: 'PREEMPTIBLE_GCP',
+  ON_DEMAND_GCP: 'ON_DEMAND_GCP',
+  PREEMPTIBLE_WITH_FALLBACK_GCP: 'PREEMPTIBLE_WITH_FALLBACK_GCP',
+} as const;
+export type GcpAvailability =
+  | (typeof GcpAvailability)[keyof typeof GcpAvailability]
+  | (string & {});
 
 /**
  * HardwareAcceleratorType: The type of hardware accelerator to use for compute workloads.
  * NOTE: This enum is referenced and is intended to be used by other <Databricks> services
  * that need to specify hardware accelerator requirements for AI compute workloads.
  */
-export enum HardwareAcceleratorType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const HardwareAcceleratorType = {
   /** GPU_1xA10: Single A10 GPU configuration. */
-  GPU_1X_A10 = 'GPU_1xA10',
+  GPU_1X_A10: 'GPU_1xA10',
   /** GPU_8xH100: 8x H100 GPU configuration. */
-  GPU_8X_H100 = 'GPU_8xH100',
-}
+  GPU_8X_H100: 'GPU_8xH100',
+} as const;
+export type HardwareAcceleratorType =
+  | (typeof HardwareAcceleratorType)[keyof typeof HardwareAcceleratorType]
+  | (string & {});
 
 /**
  * Edit mode of the job.
@@ -181,10 +224,14 @@ export enum HardwareAcceleratorType {
  * * `UI_LOCKED`: The job is in a locked UI state and cannot be modified.
  * * `EDITABLE`: The job is in an editable state and can be modified.
  */
-export enum JobEditMode {
-  UI_LOCKED = 'UI_LOCKED',
-  EDITABLE = 'EDITABLE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const JobEditMode = {
+  UI_LOCKED: 'UI_LOCKED',
+  EDITABLE: 'EDITABLE',
+} as const;
+export type JobEditMode =
+  | (typeof JobEditMode)[keyof typeof JobEditMode]
+  | (string & {});
 
 /**
  * Specifies the health metric that is being evaluated for a particular health rule.
@@ -195,27 +242,39 @@ export enum JobEditMode {
  * * `STREAMING_BACKLOG_SECONDS`: An estimate of the maximum consumer delay across all streams. This metric is in Public Preview.
  * * `STREAMING_BACKLOG_FILES`: An estimate of the maximum number of outstanding files across all streams. This metric is in Public Preview.
  */
-export enum JobsHealthMetric {
-  RUN_DURATION_SECONDS = 'RUN_DURATION_SECONDS',
-  STREAMING_BACKLOG_BYTES = 'STREAMING_BACKLOG_BYTES',
-  STREAMING_BACKLOG_RECORDS = 'STREAMING_BACKLOG_RECORDS',
-  STREAMING_BACKLOG_SECONDS = 'STREAMING_BACKLOG_SECONDS',
-  STREAMING_BACKLOG_FILES = 'STREAMING_BACKLOG_FILES',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const JobsHealthMetric = {
+  RUN_DURATION_SECONDS: 'RUN_DURATION_SECONDS',
+  STREAMING_BACKLOG_BYTES: 'STREAMING_BACKLOG_BYTES',
+  STREAMING_BACKLOG_RECORDS: 'STREAMING_BACKLOG_RECORDS',
+  STREAMING_BACKLOG_SECONDS: 'STREAMING_BACKLOG_SECONDS',
+  STREAMING_BACKLOG_FILES: 'STREAMING_BACKLOG_FILES',
+} as const;
+export type JobsHealthMetric =
+  | (typeof JobsHealthMetric)[keyof typeof JobsHealthMetric]
+  | (string & {});
 
 /** Specifies the operator used to compare the health metric value with the specified threshold. */
-export enum JobsHealthOperator {
-  GREATER_THAN = 'GREATER_THAN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const JobsHealthOperator = {
+  GREATER_THAN: 'GREATER_THAN',
+} as const;
+export type JobsHealthOperator =
+  | (typeof JobsHealthOperator)[keyof typeof JobsHealthOperator]
+  | (string & {});
 
 /**
  * The repair history item type. Indicates whether a run is the original run or
  * a repair run.
  */
-export enum RepairType {
-  ORIGINAL = 'ORIGINAL',
-  REPAIR = 'REPAIR',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RepairType = {
+  ORIGINAL: 'ORIGINAL',
+  REPAIR: 'REPAIR',
+} as const;
+export type RepairType =
+  | (typeof RepairType)[keyof typeof RepairType]
+  | (string & {});
 
 /**
  * The type of a run.
@@ -223,28 +282,38 @@ export enum RepairType {
  * * `WORKFLOW_RUN`: Workflow run. A run created with [dbutils.notebook.run](/dev-tools/databricks-utils.html#dbutils-workflow).
  * * `SUBMIT_RUN`: Submit run. A run created with :method:jobs/submit.
  */
-export enum RunType {
-  JOB_RUN = 'JOB_RUN',
-  WORKFLOW_RUN = 'WORKFLOW_RUN',
-  SUBMIT_RUN = 'SUBMIT_RUN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RunType = {
+  JOB_RUN: 'JOB_RUN',
+  WORKFLOW_RUN: 'WORKFLOW_RUN',
+  SUBMIT_RUN: 'SUBMIT_RUN',
+} as const;
+export type RunType = (typeof RunType)[keyof typeof RunType] | (string & {});
 
-export enum RuntimeEngine {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RuntimeEngine = {
   /**
    * Default value. In this case, ignore the RUNTIME_ENGINE
    * parameter and do a spark version lookup entirely on the sparkVersion string.
    */
-  NULL = 'NULL',
+  NULL: 'NULL',
   /** Use standard engine */
-  STANDARD = 'STANDARD',
+  STANDARD: 'STANDARD',
   /** Use Photon engine */
-  PHOTON = 'PHOTON',
-}
+  PHOTON: 'PHOTON',
+} as const;
+export type RuntimeEngine =
+  | (typeof RuntimeEngine)[keyof typeof RuntimeEngine]
+  | (string & {});
 
-export enum SchedulePauseStatus {
-  UNPAUSED = 'UNPAUSED',
-  PAUSED = 'PAUSED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SchedulePauseStatus = {
+  UNPAUSED: 'UNPAUSED',
+  PAUSED: 'PAUSED',
+} as const;
+export type SchedulePauseStatus =
+  | (typeof SchedulePauseStatus)[keyof typeof SchedulePauseStatus]
+  | (string & {});
 
 /**
  * Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved\
@@ -254,16 +323,22 @@ export enum SchedulePauseStatus {
  * * `WORKSPACE`: SQL file is located in <Databricks> workspace.
  * * `GIT`: SQL file is located in cloud Git provider.
  */
-export enum Source {
-  WORKSPACE = 'WORKSPACE',
-  GIT = 'GIT',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Source = {
+  WORKSPACE: 'WORKSPACE',
+  GIT: 'GIT',
+} as const;
+export type Source = (typeof Source)[keyof typeof Source] | (string & {});
 
-export enum StorageMode {
-  DIRECT_QUERY = 'DIRECT_QUERY',
-  IMPORT = 'IMPORT',
-  DUAL = 'DUAL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const StorageMode = {
+  DIRECT_QUERY: 'DIRECT_QUERY',
+  IMPORT: 'IMPORT',
+  DUAL: 'DUAL',
+} as const;
+export type StorageMode =
+  | (typeof StorageMode)[keyof typeof StorageMode]
+  | (string & {});
 
 /**
  * An optional value indicating the condition that determines whether the task should be run once its dependencies have been completed. When omitted, defaults to `ALL_SUCCESS`.
@@ -276,14 +351,18 @@ export enum StorageMode {
  * * `AT_LEAST_ONE_FAILED`: At least one dependency failed
  * * `ALL_FAILED`: ALl dependencies have failed
  */
-export enum TaskDependencyType {
-  ALL_SUCCESS = 'ALL_SUCCESS',
-  ALL_DONE = 'ALL_DONE',
-  NONE_FAILED = 'NONE_FAILED',
-  AT_LEAST_ONE_SUCCESS = 'AT_LEAST_ONE_SUCCESS',
-  ALL_FAILED = 'ALL_FAILED',
-  AT_LEAST_ONE_FAILED = 'AT_LEAST_ONE_FAILED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TaskDependencyType = {
+  ALL_SUCCESS: 'ALL_SUCCESS',
+  ALL_DONE: 'ALL_DONE',
+  NONE_FAILED: 'NONE_FAILED',
+  AT_LEAST_ONE_SUCCESS: 'AT_LEAST_ONE_SUCCESS',
+  ALL_FAILED: 'ALL_FAILED',
+  AT_LEAST_ONE_FAILED: 'AT_LEAST_ONE_FAILED',
+} as const;
+export type TaskDependencyType =
+  | (typeof TaskDependencyType)[keyof typeof TaskDependencyType]
+  | (string & {});
 
 /**
  * task retry mode of the continuous job
@@ -291,10 +370,14 @@ export enum TaskDependencyType {
  * * ON_FAILURE: Retry a failed task if at least one other task in the job is still running its first attempt.
  * When this condition is no longer met or the retry limit is reached, the job run is cancelled and a new run is started.
  */
-export enum TaskRetryMode {
-  NEVER = 'NEVER',
-  ON_FAILURE = 'ON_FAILURE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TaskRetryMode = {
+  NEVER: 'NEVER',
+  ON_FAILURE: 'ON_FAILURE',
+} as const;
+export type TaskRetryMode =
+  | (typeof TaskRetryMode)[keyof typeof TaskRetryMode]
+  | (string & {});
 
 /**
  * The type of trigger that fired this run.
@@ -309,94 +392,120 @@ export enum TaskRetryMode {
  * * `CONTINUOUS_RESTART`: Indicates a run created by user to manually restart a continuous job run.
  * * `MODEL`: Indicates a run that is triggered by a model update.
  */
-export enum TriggerType {
-  PERIODIC = 'PERIODIC',
-  ONE_TIME = 'ONE_TIME',
-  RETRY = 'RETRY',
-  RUN_JOB_TASK = 'RUN_JOB_TASK',
-  FILE_ARRIVAL = 'FILE_ARRIVAL',
-  CONTINUOUS = 'CONTINUOUS',
-  TABLE = 'TABLE',
-  CONTINUOUS_RESTART = 'CONTINUOUS_RESTART',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TriggerType = {
+  PERIODIC: 'PERIODIC',
+  ONE_TIME: 'ONE_TIME',
+  RETRY: 'RETRY',
+  RUN_JOB_TASK: 'RUN_JOB_TASK',
+  FILE_ARRIVAL: 'FILE_ARRIVAL',
+  CONTINUOUS: 'CONTINUOUS',
+  TABLE: 'TABLE',
+  CONTINUOUS_RESTART: 'CONTINUOUS_RESTART',
+} as const;
+export type TriggerType =
+  | (typeof TriggerType)[keyof typeof TriggerType]
+  | (string & {});
 
 /**
  * * `NOTEBOOK`: Notebook view item.
  * * `DASHBOARD`: Dashboard view item.
  */
-export enum ViewType {
-  NOTEBOOK = 'NOTEBOOK',
-  DASHBOARD = 'DASHBOARD',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ViewType = {
+  NOTEBOOK: 'NOTEBOOK',
+  DASHBOARD: 'DASHBOARD',
+} as const;
+export type ViewType = (typeof ViewType)[keyof typeof ViewType] | (string & {});
 
 /**
  * * `CODE`: Code view of the notebook.
  * * `DASHBOARDS`: All dashboard views of the notebook.
  * * `ALL`: All views of the notebook.
  */
-export enum ViewsToExport {
-  CODE = 'CODE',
-  DASHBOARDS = 'DASHBOARDS',
-  ALL = 'ALL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ViewsToExport = {
+  CODE: 'CODE',
+  DASHBOARDS: 'DASHBOARDS',
+  ALL: 'ALL',
+} as const;
+export type ViewsToExport =
+  | (typeof ViewsToExport)[keyof typeof ViewsToExport]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AccessControlRequest_JobPermission = {
+  CAN_VIEW: 'CAN_VIEW',
+  CAN_MANAGE_RUN: 'CAN_MANAGE_RUN',
+  IS_OWNER: 'IS_OWNER',
+  CAN_MANAGE: 'CAN_MANAGE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AccessControlRequest_JobPermission {
-  CAN_VIEW = 'CAN_VIEW',
-  CAN_MANAGE_RUN = 'CAN_MANAGE_RUN',
-  IS_OWNER = 'IS_OWNER',
-  CAN_MANAGE = 'CAN_MANAGE',
-}
+export type AccessControlRequest_JobPermission =
+  | (typeof AccessControlRequest_JobPermission)[keyof typeof AccessControlRequest_JobPermission]
+  | (string & {});
 
 /** Same alert evaluation state as in redash-v2/api/proto/alertsv2/alerts.proto */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertEvaluationState_AlertEvaluationState = {
+  ALERT_EVALUATION_STATE_UNSPECIFIED: 'ALERT_EVALUATION_STATE_UNSPECIFIED',
+  UNKNOWN: 'UNKNOWN',
+  TRIGGERED: 'TRIGGERED',
+  OK: 'OK',
+  ERROR: 'ERROR',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AlertEvaluationState_AlertEvaluationState {
-  ALERT_EVALUATION_STATE_UNSPECIFIED = 'ALERT_EVALUATION_STATE_UNSPECIFIED',
-  UNKNOWN = 'UNKNOWN',
-  TRIGGERED = 'TRIGGERED',
-  OK = 'OK',
-  ERROR = 'ERROR',
-}
+export type AlertEvaluationState_AlertEvaluationState =
+  | (typeof AlertEvaluationState_AlertEvaluationState)[keyof typeof AlertEvaluationState_AlertEvaluationState]
+  | (string & {});
 
 /**
  * Copied from elastic-spark-common/api/messages/runs.proto.
  * Using the original definition to remove coupling with jobs API definition
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState = {
+  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  TERMINATING: 'TERMINATING',
+  TERMINATED: 'TERMINATED',
+  SKIPPED: 'SKIPPED',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  BLOCKED: 'BLOCKED',
+  WAITING_FOR_RETRY: 'WAITING_FOR_RETRY',
+  QUEUED: 'QUEUED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState {
-  RUN_LIFE_CYCLE_STATE_UNSPECIFIED = 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
-  PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  TERMINATING = 'TERMINATING',
-  TERMINATED = 'TERMINATED',
-  SKIPPED = 'SKIPPED',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  BLOCKED = 'BLOCKED',
-  WAITING_FOR_RETRY = 'WAITING_FOR_RETRY',
-  QUEUED = 'QUEUED',
-}
+export type CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState =
+  | (typeof CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState)[keyof typeof CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState]
+  | (string & {});
 
 /**
  * Copied from elastic-spark-common/api/messages/runs.proto.
  * Using the original definition to avoid cyclic dependency.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomTaskRunResultState_CleanRoomTaskRunResultState {
-  RUN_RESULT_STATE_UNSPECIFIED = 'RUN_RESULT_STATE_UNSPECIFIED',
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
-  TIMEDOUT = 'TIMEDOUT',
-  CANCELED = 'CANCELED',
-  MAXIMUM_CONCURRENT_RUNS_REACHED = 'MAXIMUM_CONCURRENT_RUNS_REACHED',
-  UPSTREAM_CANCELED = 'UPSTREAM_CANCELED',
-  UPSTREAM_FAILED = 'UPSTREAM_FAILED',
-  EXCLUDED = 'EXCLUDED',
-  EVICTED = 'EVICTED',
-  SUCCESS_WITH_FAILURES = 'SUCCESS_WITH_FAILURES',
-  UPSTREAM_EVICTED = 'UPSTREAM_EVICTED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomTaskRunResultState_CleanRoomTaskRunResultState = {
+  RUN_RESULT_STATE_UNSPECIFIED: 'RUN_RESULT_STATE_UNSPECIFIED',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  TIMEDOUT: 'TIMEDOUT',
+  CANCELED: 'CANCELED',
+  MAXIMUM_CONCURRENT_RUNS_REACHED: 'MAXIMUM_CONCURRENT_RUNS_REACHED',
+  UPSTREAM_CANCELED: 'UPSTREAM_CANCELED',
+  UPSTREAM_FAILED: 'UPSTREAM_FAILED',
+  EXCLUDED: 'EXCLUDED',
+  EVICTED: 'EVICTED',
+  SUCCESS_WITH_FAILURES: 'SUCCESS_WITH_FAILURES',
+  UPSTREAM_EVICTED: 'UPSTREAM_EVICTED',
   /** 12 is reserved for previously used SUCCESS_WITH_SKIPPED_CELLS */
-  DISABLED = 'DISABLED',
-}
+  DISABLED: 'DISABLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CleanRoomTaskRunResultState_CleanRoomTaskRunResultState =
+  | (typeof CleanRoomTaskRunResultState_CleanRoomTaskRunResultState)[keyof typeof CleanRoomTaskRunResultState_CleanRoomTaskRunResultState]
+  | (string & {});
 
 /**
  * * `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.
@@ -404,25 +513,33 @@ export enum CleanRoomTaskRunResultState_CleanRoomTaskRunResultState {
  *
  * The boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ConditionTask_ConditionTaskOperator = {
+  EQUAL_TO: 'EQUAL_TO',
+  GREATER_THAN: 'GREATER_THAN',
+  GREATER_THAN_OR_EQUAL: 'GREATER_THAN_OR_EQUAL',
+  LESS_THAN: 'LESS_THAN',
+  LESS_THAN_OR_EQUAL: 'LESS_THAN_OR_EQUAL',
+  NOT_EQUAL: 'NOT_EQUAL',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ConditionTask_ConditionTaskOperator {
-  EQUAL_TO = 'EQUAL_TO',
-  GREATER_THAN = 'GREATER_THAN',
-  GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL',
-  LESS_THAN = 'LESS_THAN',
-  LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL',
-  NOT_EQUAL = 'NOT_EQUAL',
-}
+export type ConditionTask_ConditionTaskOperator =
+  | (typeof ConditionTask_ConditionTaskOperator)[keyof typeof ConditionTask_ConditionTaskOperator]
+  | (string & {});
 
 /**
  * * `BUNDLE`: The job is managed by Databricks Asset Bundle.
  * * `SYSTEM_MANAGED`: The job is managed by <Databricks> and is read-only.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const JobDeployment_DeploymentKind = {
+  BUNDLE: 'BUNDLE',
+  SYSTEM_MANAGED: 'SYSTEM_MANAGED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum JobDeployment_DeploymentKind {
-  BUNDLE = 'BUNDLE',
-  SYSTEM_MANAGED = 'SYSTEM_MANAGED',
-}
+export type JobDeployment_DeploymentKind =
+  | (typeof JobDeployment_DeploymentKind)[keyof typeof JobDeployment_DeploymentKind]
+  | (string & {});
 
 /**
  * Dirty state indicates the job is not fully synced with the job specification
@@ -432,39 +549,55 @@ export enum JobDeployment_DeploymentKind {
  * * `NOT_SYNCED`: The job is not yet synced with the remote job specification. Import the remote job specification from UI to make the job fully synced.
  * * `DISCONNECTED`: The job is temporary disconnected from the remote job specification and is allowed for live edit. Import the remote job specification again from UI to make the job fully synced.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const JobSource_DirtyState = {
+  NOT_SYNCED: 'NOT_SYNCED',
+  DISCONNECTED: 'DISCONNECTED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum JobSource_DirtyState {
-  NOT_SYNCED = 'NOT_SYNCED',
-  DISCONNECTED = 'DISCONNECTED',
-}
+export type JobSource_DirtyState =
+  | (typeof JobSource_DirtyState)[keyof typeof JobSource_DirtyState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ModelTriggerConfiguration_ModelTriggerCondition = {
+  CONDITION_UNSPECIFIED: 'CONDITION_UNSPECIFIED',
+  MODEL_CREATED: 'MODEL_CREATED',
+  MODEL_VERSION_READY: 'MODEL_VERSION_READY',
+  MODEL_ALIAS_SET: 'MODEL_ALIAS_SET',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ModelTriggerConfiguration_ModelTriggerCondition {
-  CONDITION_UNSPECIFIED = 'CONDITION_UNSPECIFIED',
-  MODEL_CREATED = 'MODEL_CREATED',
-  MODEL_VERSION_READY = 'MODEL_VERSION_READY',
-  MODEL_ALIAS_SET = 'MODEL_ALIAS_SET',
-}
+export type ModelTriggerConfiguration_ModelTriggerCondition =
+  | (typeof ModelTriggerConfiguration_ModelTriggerCondition)[keyof typeof ModelTriggerConfiguration_ModelTriggerCondition]
+  | (string & {});
 
 /**
  * PerformanceTarget defines how performant (lower latency) or cost efficient the execution of run on serverless compute should be.
  * The performance mode on the job or pipeline should map to a performance setting that is passed to Cluster Manager
  * (see cluster-common PerformanceTarget).
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PerformanceTarget_PerformanceTarget = {
+  PERFORMANCE_TARGET_UNSPECIFIED: 'PERFORMANCE_TARGET_UNSPECIFIED',
+  PERFORMANCE_OPTIMIZED: 'PERFORMANCE_OPTIMIZED',
+  STANDARD: 'STANDARD',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PerformanceTarget_PerformanceTarget {
-  PERFORMANCE_TARGET_UNSPECIFIED = 'PERFORMANCE_TARGET_UNSPECIFIED',
-  PERFORMANCE_OPTIMIZED = 'PERFORMANCE_OPTIMIZED',
-  STANDARD = 'STANDARD',
-}
+export type PerformanceTarget_PerformanceTarget =
+  | (typeof PerformanceTarget_PerformanceTarget)[keyof typeof PerformanceTarget_PerformanceTarget]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PeriodicTriggerConfiguration_TimeUnit = {
+  TIME_UNIT_UNSPECIFIED: 'TIME_UNIT_UNSPECIFIED',
+  HOURS: 'HOURS',
+  DAYS: 'DAYS',
+  WEEKS: 'WEEKS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PeriodicTriggerConfiguration_TimeUnit {
-  TIME_UNIT_UNSPECIFIED = 'TIME_UNIT_UNSPECIFIED',
-  HOURS = 'HOURS',
-  DAYS = 'DAYS',
-  WEEKS = 'WEEKS',
-}
+export type PeriodicTriggerConfiguration_TimeUnit =
+  | (typeof PeriodicTriggerConfiguration_TimeUnit)[keyof typeof PeriodicTriggerConfiguration_TimeUnit]
+  | (string & {});
 
 /**
  * The reason for queuing the run.
@@ -472,12 +605,16 @@ export enum PeriodicTriggerConfiguration_TimeUnit {
  * * `MAX_CONCURRENT_RUNS_REACHED`: The run was queued due to reaching the per-job limit of concurrent job runs.
  * * `ACTIVE_RUN_JOB_TASKS_LIMIT_REACHED`: The run was queued due to reaching the workspace limit of active run job tasks.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const QueueDetailsCode_Code = {
+  ACTIVE_RUNS_LIMIT_REACHED: 'ACTIVE_RUNS_LIMIT_REACHED',
+  MAX_CONCURRENT_RUNS_REACHED: 'MAX_CONCURRENT_RUNS_REACHED',
+  ACTIVE_RUN_JOB_TASKS_LIMIT_REACHED: 'ACTIVE_RUN_JOB_TASKS_LIMIT_REACHED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum QueueDetailsCode_Code {
-  ACTIVE_RUNS_LIMIT_REACHED = 'ACTIVE_RUNS_LIMIT_REACHED',
-  MAX_CONCURRENT_RUNS_REACHED = 'MAX_CONCURRENT_RUNS_REACHED',
-  ACTIVE_RUN_JOB_TASKS_LIMIT_REACHED = 'ACTIVE_RUN_JOB_TASKS_LIMIT_REACHED',
-}
+export type QueueDetailsCode_Code =
+  | (typeof QueueDetailsCode_Code)[keyof typeof QueueDetailsCode_Code]
+  | (string & {});
 
 /**
  * A value indicating the run's lifecycle state. The possible values are:
@@ -491,34 +628,42 @@ export enum QueueDetailsCode_Code {
  * * `BLOCKED`: The run is blocked on an upstream dependency.
  * * `WAITING_FOR_RETRY`: The run is waiting for a retry.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RunLifeCycleState_RunLifeCycleState = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  TERMINATING: 'TERMINATING',
+  TERMINATED: 'TERMINATED',
+  SKIPPED: 'SKIPPED',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  BLOCKED: 'BLOCKED',
+  WAITING_FOR_RETRY: 'WAITING_FOR_RETRY',
+  QUEUED: 'QUEUED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum RunLifeCycleState_RunLifeCycleState {
-  PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  TERMINATING = 'TERMINATING',
-  TERMINATED = 'TERMINATED',
-  SKIPPED = 'SKIPPED',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  BLOCKED = 'BLOCKED',
-  WAITING_FOR_RETRY = 'WAITING_FOR_RETRY',
-  QUEUED = 'QUEUED',
-}
+export type RunLifeCycleState_RunLifeCycleState =
+  | (typeof RunLifeCycleState_RunLifeCycleState)[keyof typeof RunLifeCycleState_RunLifeCycleState]
+  | (string & {});
 
 /** The current state of the run. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum RunLifecycleStateV2_State {
-  BLOCKED = 'BLOCKED',
-  PENDING = 'PENDING',
-  QUEUED = 'QUEUED',
-  RUNNING = 'RUNNING',
-  TERMINATING = 'TERMINATING',
-  TERMINATED = 'TERMINATED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RunLifecycleStateV2_State = {
+  BLOCKED: 'BLOCKED',
+  PENDING: 'PENDING',
+  QUEUED: 'QUEUED',
+  RUNNING: 'RUNNING',
+  TERMINATING: 'TERMINATING',
+  TERMINATED: 'TERMINATED',
   /**
    * Runs in the Waiting state (e.g. cost-optimized runs) are intentionally delayed until an
    * optimal compute scheduling time
    */
-  WAITING = 'WAITING',
-}
+  WAITING: 'WAITING',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type RunLifecycleStateV2_State =
+  | (typeof RunLifecycleStateV2_State)[keyof typeof RunLifecycleStateV2_State]
+  | (string & {});
 
 /**
  * A value indicating the run's result. The possible values are:
@@ -533,19 +678,23 @@ export enum RunLifecycleStateV2_State {
  * * `UPSTREAM_CANCELED`: The run was skipped because an upstream task was canceled.
  * * `DISABLED`: The run was skipped because it was disabled explicitly by the user.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RunResultState_RunResultState = {
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  TIMEDOUT: 'TIMEDOUT',
+  CANCELED: 'CANCELED',
+  MAXIMUM_CONCURRENT_RUNS_REACHED: 'MAXIMUM_CONCURRENT_RUNS_REACHED',
+  UPSTREAM_CANCELED: 'UPSTREAM_CANCELED',
+  UPSTREAM_FAILED: 'UPSTREAM_FAILED',
+  EXCLUDED: 'EXCLUDED',
+  SUCCESS_WITH_FAILURES: 'SUCCESS_WITH_FAILURES',
+  DISABLED: 'DISABLED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum RunResultState_RunResultState {
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
-  TIMEDOUT = 'TIMEDOUT',
-  CANCELED = 'CANCELED',
-  MAXIMUM_CONCURRENT_RUNS_REACHED = 'MAXIMUM_CONCURRENT_RUNS_REACHED',
-  UPSTREAM_CANCELED = 'UPSTREAM_CANCELED',
-  UPSTREAM_FAILED = 'UPSTREAM_FAILED',
-  EXCLUDED = 'EXCLUDED',
-  SUCCESS_WITH_FAILURES = 'SUCCESS_WITH_FAILURES',
-  DISABLED = 'DISABLED',
-}
+export type RunResultState_RunResultState =
+  | (typeof RunResultState_RunResultState)[keyof typeof RunResultState_RunResultState]
+  | (string & {});
 
 /**
  * The state of the SQL alert.
@@ -554,27 +703,39 @@ export enum RunResultState_RunResultState {
  * * OK: alert evaluated and did not fulfill trigger conditions
  * * TRIGGERED: alert evaluated and fulfilled trigger conditions
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SqlAlertState_SqlAlertState = {
+  UNKNOWN: 'UNKNOWN',
+  OK: 'OK',
+  TRIGGERED: 'TRIGGERED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SqlAlertState_SqlAlertState {
-  UNKNOWN = 'UNKNOWN',
-  OK = 'OK',
-  TRIGGERED = 'TRIGGERED',
-}
+export type SqlAlertState_SqlAlertState =
+  | (typeof SqlAlertState_SqlAlertState)[keyof typeof SqlAlertState_SqlAlertState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SqlTask_SqlTaskQueryStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SqlTask_SqlTaskQueryStatus {
-  PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED',
-}
+export type SqlTask_SqlTaskQueryStatus =
+  | (typeof SqlTask_SqlTaskQueryStatus)[keyof typeof SqlTask_SqlTaskQueryStatus]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TableTriggerConfiguration_Condition = {
+  ANY_UPDATED: 'ANY_UPDATED',
+  ALL_UPDATED: 'ALL_UPDATED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum TableTriggerConfiguration_Condition {
-  ANY_UPDATED = 'ANY_UPDATED',
-  ALL_UPDATED = 'ALL_UPDATED',
-}
+export type TableTriggerConfiguration_Condition =
+  | (typeof TableTriggerConfiguration_Condition)[keyof typeof TableTriggerConfiguration_Condition]
+  | (string & {});
 
 /**
  * The code indicates why the run was terminated. Additional codes might be introduced in future releases.
@@ -605,26 +766,26 @@ export enum TableTriggerConfiguration_Condition {
  * * `BREAKING_CHANGE`: Run failed because of an intentional breaking change in Spark, but it will be retried with a mitigation config.
  * * `CLUSTER_TERMINATED_BY_USER`: The run failed because the externally managed cluster entered an unusable state, likely due to the user terminating or restarting it outside the jobs service.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum TerminationCode_Code {
-  SUCCESS = 'SUCCESS',
-  CANCELED = 'CANCELED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TerminationCode_Code = {
+  SUCCESS: 'SUCCESS',
+  CANCELED: 'CANCELED',
   /** DriverError represents failures when the driver restarted, or became unhealthy or unreachable during the run. */
-  DRIVER_ERROR = 'DRIVER_ERROR',
+  DRIVER_ERROR: 'DRIVER_ERROR',
   /**
    * ClusterError represents failures due to cluster issues. These include the failures that occur during
    * creation of a new cluster / starting up an existing cluster, cluster issues and timeouts during the job run
    */
-  CLUSTER_ERROR = 'CLUSTER_ERROR',
+  CLUSTER_ERROR: 'CLUSTER_ERROR',
   /** Returned if [[ProjectCheckoutInternalRepo]] RPC fails */
-  REPOSITORY_CHECKOUT_FAILED = 'REPOSITORY_CHECKOUT_FAILED',
+  REPOSITORY_CHECKOUT_FAILED: 'REPOSITORY_CHECKOUT_FAILED',
   /**
    * *
    * InvalidClusterRequest represents failures when the user provides invalid input for a cluster
    * configuration for the run. For example, providing invalid parameter Values in the request/
    * providing a bad request etc
    */
-  INVALID_CLUSTER_REQUEST = 'INVALID_CLUSTER_REQUEST',
+  INVALID_CLUSTER_REQUEST: 'INVALID_CLUSTER_REQUEST',
   /**
    * *
    * Returned if an org set a limit for number of their concurrent active runs and the run couldn't start
@@ -633,24 +794,24 @@ export enum TerminationCode_Code {
    * It should be looked into how we're handling the scenario where a given job exceeds its own internal concurrency
    * limits.
    */
-  WORKSPACE_RUN_LIMIT_EXCEEDED = 'WORKSPACE_RUN_LIMIT_EXCEEDED',
-  FEATURE_DISABLED = 'FEATURE_DISABLED',
+  WORKSPACE_RUN_LIMIT_EXCEEDED: 'WORKSPACE_RUN_LIMIT_EXCEEDED',
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
   /**
    * *
    * ClusterRequestLimitExceeded represents failures when cluster
    * creation, start, and upsize requests for a workspace exceeded the rate limit of
    * [[com.databricks.backend.cluster.ClusterSizeConf.upsizeRefillRatePerMinPerOrg]] nodes per min.
    */
-  CLUSTER_REQUEST_LIMIT_EXCEEDED = 'CLUSTER_REQUEST_LIMIT_EXCEEDED',
+  CLUSTER_REQUEST_LIMIT_EXCEEDED: 'CLUSTER_REQUEST_LIMIT_EXCEEDED',
   /**
    * *
    * StorageAccessError represents failures when the access to user's <Databricks> file system fails.
    * For example, misconfiguration on user's side like deleting AWS S3 bucket without cancelling the workspace,
    * their Azure account being disabled, the storage buckets not being found etc.
    */
-  STORAGE_ACCESS_ERROR = 'STORAGE_ACCESS_ERROR',
-  RUN_EXECUTION_ERROR = 'RUN_EXECUTION_ERROR',
-  UNAUTHORIZED_ERROR = 'UNAUTHORIZED_ERROR',
+  STORAGE_ACCESS_ERROR: 'STORAGE_ACCESS_ERROR',
+  RUN_EXECUTION_ERROR: 'RUN_EXECUTION_ERROR',
+  UNAUTHORIZED_ERROR: 'UNAUTHORIZED_ERROR',
   /**
    * *
    * LibraryInstallationError represents failures due to issues related library installation.
@@ -658,26 +819,30 @@ export enum TerminationCode_Code {
    * enough permissions to install the library or any cloud dependency/ infrastructure failures during
    * library installation etc
    */
-  LIBRARY_INSTALLATION_ERROR = 'LIBRARY_INSTALLATION_ERROR',
-  MAX_CONCURRENT_RUNS_EXCEEDED = 'MAX_CONCURRENT_RUNS_EXCEEDED',
-  MAX_SPARK_CONTEXTS_EXCEEDED = 'MAX_SPARK_CONTEXTS_EXCEEDED',
-  RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
-  INVALID_RUN_CONFIGURATION = 'INVALID_RUN_CONFIGURATION',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  CLOUD_FAILURE = 'CLOUD_FAILURE',
-  MAX_JOB_QUEUE_SIZE_EXCEEDED = 'MAX_JOB_QUEUE_SIZE_EXCEEDED',
-  SKIPPED = 'SKIPPED',
-  USER_CANCELED = 'USER_CANCELED',
-  BUDGET_POLICY_LIMIT_EXCEEDED = 'BUDGET_POLICY_LIMIT_EXCEEDED',
-  DISABLED = 'DISABLED',
+  LIBRARY_INSTALLATION_ERROR: 'LIBRARY_INSTALLATION_ERROR',
+  MAX_CONCURRENT_RUNS_EXCEEDED: 'MAX_CONCURRENT_RUNS_EXCEEDED',
+  MAX_SPARK_CONTEXTS_EXCEEDED: 'MAX_SPARK_CONTEXTS_EXCEEDED',
+  RESOURCE_NOT_FOUND: 'RESOURCE_NOT_FOUND',
+  INVALID_RUN_CONFIGURATION: 'INVALID_RUN_CONFIGURATION',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  CLOUD_FAILURE: 'CLOUD_FAILURE',
+  MAX_JOB_QUEUE_SIZE_EXCEEDED: 'MAX_JOB_QUEUE_SIZE_EXCEEDED',
+  SKIPPED: 'SKIPPED',
+  USER_CANCELED: 'USER_CANCELED',
+  BUDGET_POLICY_LIMIT_EXCEEDED: 'BUDGET_POLICY_LIMIT_EXCEEDED',
+  DISABLED: 'DISABLED',
   /**
    * SuccessWithFailures represents that some child runs failed
    * but the run was ultimately successful.
    */
-  SUCCESS_WITH_FAILURES = 'SUCCESS_WITH_FAILURES',
+  SUCCESS_WITH_FAILURES: 'SUCCESS_WITH_FAILURES',
   /** Run failed because of an intentional breaking change in Spark, but it will be retried with a mitigation config. */
-  BREAKING_CHANGE = 'BREAKING_CHANGE',
-}
+  BREAKING_CHANGE: 'BREAKING_CHANGE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type TerminationCode_Code =
+  | (typeof TerminationCode_Code)[keyof typeof TerminationCode_Code]
+  | (string & {});
 
 /**
  * * `SUCCESS`: The run terminated without any issues
@@ -685,13 +850,17 @@ export enum TerminationCode_Code {
  * * `CLIENT_ERROR`: The run was terminated because of an error caused by user input or the job configuration.
  * * `CLOUD_FAILURE`: The run was terminated because of an issue with your cloud provider.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TerminationType_Type = {
+  SUCCESS: 'SUCCESS',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  CLIENT_ERROR: 'CLIENT_ERROR',
+  CLOUD_FAILURE: 'CLOUD_FAILURE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum TerminationType_Type {
-  SUCCESS = 'SUCCESS',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  CLIENT_ERROR = 'CLIENT_ERROR',
-  CLOUD_FAILURE = 'CLOUD_FAILURE',
-}
+export type TerminationType_Type =
+  | (typeof TerminationType_Type)[keyof typeof TerminationType_Type]
+  | (string & {});
 
 export interface AccessControlRequest {
   principalName?:
@@ -5015,7 +5184,7 @@ export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
 
 export const unmarshalAlertTaskOutputSchema: z.ZodType<AlertTaskOutput> = z
   .object({
-    alert_state: z.enum(AlertEvaluationState_AlertEvaluationState).optional(),
+    alert_state: z.string().optional(),
   })
   .transform(d => ({
     alertState: d.alert_state,
@@ -5049,11 +5218,11 @@ export const unmarshalAutoScaleSchema: z.ZodType<AutoScale> = z
 export const unmarshalAwsAttributesSchema: z.ZodType<AwsAttributes> = z
   .object({
     first_on_demand: z.number().optional(),
-    availability: z.enum(AwsAvailability).optional(),
+    availability: z.string().optional(),
     zone_id: z.string().optional(),
     instance_profile_arn: z.string().optional(),
     spot_bid_price_percent: z.number().optional(),
-    ebs_volume_type: z.enum(EbsVolumeType).optional(),
+    ebs_volume_type: z.string().optional(),
     ebs_volume_count: z.number().optional(),
     ebs_volume_size: z.number().optional(),
     ebs_volume_iops: z.number().optional(),
@@ -5078,7 +5247,7 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
       .lazy(() => unmarshalLogAnalyticsInfoSchema)
       .optional(),
     first_on_demand: z.number().optional(),
-    availability: z.enum(AzureAvailability).optional(),
+    availability: z.string().optional(),
     spot_bid_max_price: z.number().optional(),
   })
   .transform(d => ({
@@ -5147,11 +5316,11 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     overriding_parameters: z
       .lazy(() => unmarshalRunParametersSchema)
       .optional(),
-    trigger: z.enum(TriggerType).optional(),
+    trigger: z.string().optional(),
     trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
     run_name: z.string().optional(),
     run_page_url: z.string().optional(),
-    run_type: z.enum(RunType).optional(),
+    run_type: z.string().optional(),
     tasks: z.array(z.lazy(() => unmarshalRunTaskSchema)).optional(),
     description: z.string().optional(),
     attempt_number: z.number().optional(),
@@ -5164,9 +5333,7 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
       .transform(v => BigInt(v))
       .optional(),
     has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
@@ -5243,12 +5410,8 @@ export const unmarshalCancelRunResponseSchema: z.ZodType<CancelRunResponse> =
 export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
   z
     .object({
-      life_cycle_state: z
-        .enum(CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState)
-        .optional(),
-      result_state: z
-        .enum(CleanRoomTaskRunResultState_CleanRoomTaskRunResultState)
-        .optional(),
+      life_cycle_state: z.string().optional(),
+      result_state: z.string().optional(),
     })
     .transform(d => ({
       lifeCycleState: d.life_cycle_state,
@@ -5377,9 +5540,9 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       enable_local_disk_encryption: z.boolean().optional(),
       driver_instance_pool_id: z.string().optional(),
       workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
-      data_security_mode: z.enum(DataSecurityMode).optional(),
-      runtime_engine: z.enum(RuntimeEngine).optional(),
-      kind: z.enum(ComputeKind).optional(),
+      data_security_mode: z.string().optional(),
+      runtime_engine: z.string().optional(),
+      kind: z.string().optional(),
       use_ml_runtime: z.boolean().optional(),
       is_single_node: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
@@ -5430,7 +5593,7 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
 
 export const unmarshalComputeSchema: z.ZodType<Compute> = z
   .object({
-    hardware_accelerator: z.enum(HardwareAcceleratorType).optional(),
+    hardware_accelerator: z.string().optional(),
   })
   .transform(d => ({
     hardwareAccelerator: d.hardware_accelerator,
@@ -5450,7 +5613,7 @@ export const unmarshalComputeConfigSchema: z.ZodType<ComputeConfig> = z
 
 export const unmarshalConditionTaskSchema: z.ZodType<ConditionTask> = z
   .object({
-    op: z.enum(ConditionTask_ConditionTaskOperator).optional(),
+    op: z.string().optional(),
     left: z.string().optional(),
     right: z.string().optional(),
     outcome: z.string().optional(),
@@ -5465,8 +5628,8 @@ export const unmarshalConditionTaskSchema: z.ZodType<ConditionTask> = z
 export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
   z
     .object({
-      pause_status: z.enum(SchedulePauseStatus).optional(),
-      task_retry_mode: z.enum(TaskRetryMode).optional(),
+      pause_status: z.string().optional(),
+      task_retry_mode: z.string().optional(),
     })
     .transform(d => ({
       pauseStatus: d.pause_status,
@@ -5488,7 +5651,7 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     quartz_cron_expression: z.string().optional(),
     timezone_id: z.string().optional(),
-    pause_status: z.enum(SchedulePauseStatus).optional(),
+    pause_status: z.string().optional(),
   })
   .transform(d => ({
     quartzCronExpression: d.quartz_cron_expression,
@@ -5547,7 +5710,7 @@ export const unmarshalDbtCloudJobRunStepSchema: z.ZodType<DbtCloudJobRunStep> =
     .object({
       index: z.number().optional(),
       name: z.string().optional(),
-      status: z.enum(DbtPlatformRunStatus).optional(),
+      status: z.string().optional(),
       logs: z.string().optional(),
     })
     .transform(d => ({
@@ -5593,7 +5756,7 @@ export const unmarshalDbtPlatformJobRunStepSchema: z.ZodType<DbtPlatformJobRunSt
     .object({
       index: z.number().optional(),
       name: z.string().optional(),
-      status: z.enum(DbtPlatformRunStatus).optional(),
+      status: z.string().optional(),
       logs: z.string().optional(),
       name_truncated: z.boolean().optional(),
       logs_truncated: z.boolean().optional(),
@@ -5642,7 +5805,7 @@ export const unmarshalDbtTaskSchema: z.ZodType<DbtTask> = z
     warehouse_id: z.string().optional(),
     profiles_directory: z.string().optional(),
     catalog: z.string().optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
   })
   .transform(d => ({
     projectDirectory: d.project_directory,
@@ -5792,11 +5955,11 @@ export const unmarshalGcpAttributesSchema: z.ZodType<GcpAttributes> = z
     use_preemptible_executors: z.boolean().optional(),
     google_service_account: z.string().optional(),
     boot_disk_size: z.number().optional(),
-    availability: z.enum(GcpAvailability).optional(),
+    availability: z.string().optional(),
     zone_id: z.string().optional(),
     local_ssd_count: z.number().optional(),
     first_on_demand: z.number().optional(),
-    confidential_compute_type: z.enum(ConfidentialComputeType).optional(),
+    confidential_compute_type: z.string().optional(),
   })
   .transform(d => ({
     usePreemptibleExecutors: d.use_preemptible_executors,
@@ -5822,7 +5985,7 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
     dl_runtime_image: z.string().optional(),
     compute: z.lazy(() => unmarshalComputeConfigSchema).optional(),
     command: z.string().optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
     training_script_path: z.string().optional(),
     yaml_parameters_file_path: z.string().optional(),
     yaml_parameters: z.string().optional(),
@@ -5996,11 +6159,11 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     overriding_parameters: z
       .lazy(() => unmarshalRunParametersSchema)
       .optional(),
-    trigger: z.enum(TriggerType).optional(),
+    trigger: z.string().optional(),
     trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
     run_name: z.string().optional(),
     run_page_url: z.string().optional(),
-    run_type: z.enum(RunType).optional(),
+    run_type: z.string().optional(),
     tasks: z.array(z.lazy(() => unmarshalRunTaskSchema)).optional(),
     description: z.string().optional(),
     attempt_number: z.number().optional(),
@@ -6013,9 +6176,7 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
       .transform(v => BigInt(v))
       .optional(),
     has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
@@ -6161,7 +6322,7 @@ export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
 
 export const unmarshalJobDeploymentSchema: z.ZodType<JobDeployment> = z
   .object({
-    kind: z.enum(JobDeployment_DeploymentKind).optional(),
+    kind: z.string().optional(),
     metadata_file_path: z.string().optional(),
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
@@ -6256,20 +6417,20 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    format: z.enum(Format).optional(),
+    format: z.string().optional(),
     queue: z.lazy(() => unmarshalQueueSettingsSchema).optional(),
     parameters: z
       .array(z.lazy(() => unmarshalJobLevelParameterSchema))
       .optional(),
     run_as: z.lazy(() => unmarshalJobRunAsSchema).optional(),
-    edit_mode: z.enum(JobEditMode).optional(),
+    edit_mode: z.string().optional(),
     deployment: z.lazy(() => unmarshalJobDeploymentSchema).optional(),
     environments: z
       .array(z.lazy(() => unmarshalJobEnvironmentSchema))
       .optional(),
     budget_policy_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
-    performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
+    performance_target: z.string().optional(),
     max_retries: z.number().optional(),
     min_retry_interval_millis: z.number().optional(),
     retry_on_timeout: z.boolean().optional(),
@@ -6311,7 +6472,7 @@ export const unmarshalJobSourceSchema: z.ZodType<JobSource> = z
   .object({
     job_config_path: z.string().optional(),
     import_from_git_branch: z.string().optional(),
-    dirty_state: z.enum(JobSource_DirtyState).optional(),
+    dirty_state: z.string().optional(),
   })
   .transform(d => ({
     jobConfigPath: d.job_config_path,
@@ -6327,8 +6488,8 @@ export const unmarshalJobSourceSchema: z.ZodType<JobSource> = z
 
 export const unmarshalJobsHealthRuleSchema: z.ZodType<JobsHealthRule> = z
   .object({
-    metric: z.enum(JobsHealthMetric).optional(),
-    op: z.enum(JobsHealthOperator).optional(),
+    metric: z.string().optional(),
+    op: z.string().optional(),
     value: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -6477,9 +6638,7 @@ export const unmarshalModelTriggerConfigurationSchema: z.ZodType<ModelTriggerCon
     .object({
       securable_name: z.string().optional(),
       aliases: z.array(z.string()).optional(),
-      condition: z
-        .enum(ModelTriggerConfiguration_ModelTriggerCondition)
-        .optional(),
+      condition: z.string().optional(),
       min_time_between_triggers_seconds: z.number().optional(),
       wait_after_last_change_seconds: z.number().optional(),
     })
@@ -6504,7 +6663,7 @@ export const unmarshalNotebookTaskSchema: z.ZodType<NotebookTask> = z
   .object({
     notebook_path: z.string().optional(),
     base_parameters: z.record(z.string(), z.string()).optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
     warehouse_id: z.string().optional(),
   })
   .transform(d => ({
@@ -6558,7 +6717,7 @@ export const unmarshalPeriodicTriggerConfigurationSchema: z.ZodType<PeriodicTrig
   z
     .object({
       interval: z.number().optional(),
-      unit: z.enum(PeriodicTriggerConfiguration_TimeUnit).optional(),
+      unit: z.string().optional(),
     })
     .transform(d => ({
       interval: d.interval,
@@ -6606,8 +6765,8 @@ export const unmarshalPowerBiModelSchema: z.ZodType<PowerBiModel> = z
   .object({
     workspace_name: z.string().optional(),
     model_name: z.string().optional(),
-    storage_mode: z.enum(StorageMode).optional(),
-    authentication_method: z.enum(AuthenticationMethod).optional(),
+    storage_mode: z.string().optional(),
+    authentication_method: z.string().optional(),
     overwrite_existing: z.boolean().optional(),
   })
   .transform(d => ({
@@ -6623,7 +6782,7 @@ export const unmarshalPowerBiTableSchema: z.ZodType<PowerBiTable> = z
     name: z.string().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
-    storage_mode: z.enum(StorageMode).optional(),
+    storage_mode: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -6699,7 +6858,7 @@ export const unmarshalPythonWheelTaskSchema: z.ZodType<PythonWheelTask> = z
 
 export const unmarshalQueueDetailsSchema: z.ZodType<QueueDetails> = z
   .object({
-    code: z.enum(QueueDetailsCode_Code).optional(),
+    code: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -6727,7 +6886,7 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
 
 export const unmarshalRepairSchema: z.ZodType<Repair> = z
   .object({
-    type: z.enum(RepairType).optional(),
+    type: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -6745,9 +6904,7 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
       .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
       .optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.string().optional(),
   })
   .transform(d => ({
     type: d.type,
@@ -6991,11 +7148,11 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     overriding_parameters: z
       .lazy(() => unmarshalRunParametersSchema)
       .optional(),
-    trigger: z.enum(TriggerType).optional(),
+    trigger: z.string().optional(),
     trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
     run_name: z.string().optional(),
     run_page_url: z.string().optional(),
-    run_type: z.enum(RunType).optional(),
+    run_type: z.string().optional(),
     tasks: z.array(z.lazy(() => unmarshalRunTaskSchema)).optional(),
     description: z.string().optional(),
     attempt_number: z.number().optional(),
@@ -7008,9 +7165,7 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
       .transform(v => BigInt(v))
       .optional(),
     has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
@@ -7174,8 +7329,8 @@ export const unmarshalRunParametersSchema: z.ZodType<RunParameters> = z
 
 export const unmarshalRunStateSchema: z.ZodType<RunState> = z
   .object({
-    life_cycle_state: z.enum(RunLifeCycleState_RunLifeCycleState).optional(),
-    result_state: z.enum(RunResultState_RunResultState).optional(),
+    life_cycle_state: z.string().optional(),
+    result_state: z.string().optional(),
     state_message: z.string().optional(),
     user_cancelled_or_timedout: z.boolean().optional(),
     queue_reason: z.string().optional(),
@@ -7190,7 +7345,7 @@ export const unmarshalRunStateSchema: z.ZodType<RunState> = z
 
 export const unmarshalRunStatusSchema: z.ZodType<RunStatus> = z
   .object({
-    state: z.enum(RunLifecycleStateV2_State).optional(),
+    state: z.string().optional(),
     termination_details: z
       .lazy(() => unmarshalTerminationDetailsSchema)
       .optional(),
@@ -7215,13 +7370,11 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     resolved_values: z.lazy(() => unmarshalResolvedValuesSchema).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.string().optional(),
     task_key: z.string().optional(),
     description: z.string().optional(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
-    run_if: z.enum(TaskDependencyType).optional(),
+    run_if: z.string().optional(),
     timeout_seconds: z.number().optional(),
     email_notifications: z
       .lazy(() => unmarshalJobEmailNotificationsSchema)
@@ -7489,7 +7642,7 @@ export const unmarshalSparkPythonTaskSchema: z.ZodType<SparkPythonTask> = z
   .object({
     python_file: z.string().optional(),
     parameters: z.array(z.string()).optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
   })
   .transform(d => ({
     pythonFile: d.python_file,
@@ -7547,7 +7700,7 @@ export const unmarshalSqlTask_SqlAlertOutputSchema: z.ZodType<SqlTask_SqlAlertOu
         .optional(),
       output_link: z.string().optional(),
       warehouse_id: z.string().optional(),
-      alert_state: z.enum(SqlAlertState_SqlAlertState).optional(),
+      alert_state: z.string().optional(),
     })
     .transform(d => ({
       queryText: d.query_text,
@@ -7578,7 +7731,7 @@ export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_
       widget_id: z.string().optional(),
       widget_title: z.string().optional(),
       output_link: z.string().optional(),
-      status: z.enum(SqlTask_SqlTaskQueryStatus).optional(),
+      status: z.string().optional(),
       error: z.lazy(() => unmarshalSqlTask_SqlOutputErrorSchema).optional(),
       start_time: z
         .union([z.number(), z.bigint()])
@@ -7699,7 +7852,7 @@ export const unmarshalSqlTaskDashboardSchema: z.ZodType<SqlTaskDashboard> = z
 export const unmarshalSqlTaskFileSchema: z.ZodType<SqlTaskFile> = z
   .object({
     path: z.string().optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
   })
   .transform(d => ({
     path: d.path,
@@ -7789,7 +7942,7 @@ export const unmarshalTableTriggerConfigurationSchema: z.ZodType<TableTriggerCon
       table_names: z.array(z.string()).optional(),
       min_time_between_triggers_seconds: z.number().optional(),
       wait_after_last_change_seconds: z.number().optional(),
-      condition: z.enum(TableTriggerConfiguration_Condition).optional(),
+      condition: z.string().optional(),
     })
     .transform(d => ({
       tableNames: d.table_names,
@@ -7824,7 +7977,7 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
   .object({
     task_key: z.string().optional(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
-    run_if: z.enum(TaskDependencyType).optional(),
+    run_if: z.string().optional(),
     timeout_seconds: z.number().optional(),
     health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
     email_notifications: z
@@ -8003,8 +8156,8 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
 export const unmarshalTerminationDetailsSchema: z.ZodType<TerminationDetails> =
   z
     .object({
-      code: z.enum(TerminationCode_Code).optional(),
-      type: z.enum(TerminationType_Type).optional(),
+      code: z.string().optional(),
+      type: z.string().optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -8015,7 +8168,7 @@ export const unmarshalTerminationDetailsSchema: z.ZodType<TerminationDetails> =
 
 export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
   .object({
-    pause_status: z.enum(SchedulePauseStatus).optional(),
+    pause_status: z.string().optional(),
     file_arrival: z
       .lazy(() => unmarshalFileArrivalTriggerConfigurationSchema)
       .optional(),
@@ -8064,7 +8217,7 @@ export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
   .object({
     content: z.string().optional(),
     name: z.string().optional(),
-    type: z.enum(ViewType).optional(),
+    type: z.string().optional(),
   })
   .transform(d => ({
     content: d.content,
@@ -8160,7 +8313,7 @@ export const marshalAccessControlRequestSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    permissionLevel: z.enum(AccessControlRequest_JobPermission).optional(),
+    permissionLevel: z.string().optional(),
   })
   .transform(d => ({
     ...(d.principalName?.$case === 'userName' && {
@@ -8233,11 +8386,11 @@ export const marshalAutoScaleSchema: z.ZodType = z
 export const marshalAwsAttributesSchema: z.ZodType = z
   .object({
     firstOnDemand: z.number().optional(),
-    availability: z.enum(AwsAvailability).optional(),
+    availability: z.string().optional(),
     zoneId: z.string().optional(),
     instanceProfileArn: z.string().optional(),
     spotBidPricePercent: z.number().optional(),
-    ebsVolumeType: z.enum(EbsVolumeType).optional(),
+    ebsVolumeType: z.string().optional(),
     ebsVolumeCount: z.number().optional(),
     ebsVolumeSize: z.number().optional(),
     ebsVolumeIops: z.number().optional(),
@@ -8260,7 +8413,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
   .object({
     logAnalyticsInfo: z.lazy(() => marshalLogAnalyticsInfoSchema).optional(),
     firstOnDemand: z.number().optional(),
-    availability: z.enum(AzureAvailability).optional(),
+    availability: z.string().optional(),
     spotBidMaxPrice: z.number().optional(),
   })
   .transform(d => ({
@@ -8359,9 +8512,9 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     enableLocalDiskEncryption: z.boolean().optional(),
     driverInstancePoolId: z.string().optional(),
     workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
-    dataSecurityMode: z.enum(DataSecurityMode).optional(),
-    runtimeEngine: z.enum(RuntimeEngine).optional(),
-    kind: z.enum(ComputeKind).optional(),
+    dataSecurityMode: z.string().optional(),
+    runtimeEngine: z.string().optional(),
+    kind: z.string().optional(),
     useMlRuntime: z.boolean().optional(),
     isSingleNode: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
@@ -8415,7 +8568,7 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
 
 export const marshalComputeSchema: z.ZodType = z
   .object({
-    hardwareAccelerator: z.enum(HardwareAcceleratorType).optional(),
+    hardwareAccelerator: z.string().optional(),
   })
   .transform(d => ({
     hardware_accelerator: d.hardwareAccelerator,
@@ -8435,7 +8588,7 @@ export const marshalComputeConfigSchema: z.ZodType = z
 
 export const marshalConditionTaskSchema: z.ZodType = z
   .object({
-    op: z.enum(ConditionTask_ConditionTaskOperator).optional(),
+    op: z.string().optional(),
     left: z.string().optional(),
     right: z.string().optional(),
     outcome: z.string().optional(),
@@ -8449,8 +8602,8 @@ export const marshalConditionTaskSchema: z.ZodType = z
 
 export const marshalContinuousSettingsSchema: z.ZodType = z
   .object({
-    pauseStatus: z.enum(SchedulePauseStatus).optional(),
-    taskRetryMode: z.enum(TaskRetryMode).optional(),
+    pauseStatus: z.string().optional(),
+    taskRetryMode: z.string().optional(),
   })
   .transform(d => ({
     pause_status: d.pauseStatus,
@@ -8483,18 +8636,18 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     jobClusters: z.array(z.lazy(() => marshalJobClusterSchema)).optional(),
     gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    format: z.enum(Format).optional(),
+    format: z.string().optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
     parameters: z
       .array(z.lazy(() => marshalJobLevelParameterSchema))
       .optional(),
     runAs: z.lazy(() => marshalJobRunAsSchema).optional(),
-    editMode: z.enum(JobEditMode).optional(),
+    editMode: z.string().optional(),
     deployment: z.lazy(() => marshalJobDeploymentSchema).optional(),
     environments: z.array(z.lazy(() => marshalJobEnvironmentSchema)).optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
-    performanceTarget: z.enum(PerformanceTarget_PerformanceTarget).optional(),
+    performanceTarget: z.string().optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -8537,7 +8690,7 @@ export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
     timezoneId: z.string().optional(),
-    pauseStatus: z.enum(SchedulePauseStatus).optional(),
+    pauseStatus: z.string().optional(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
@@ -8595,7 +8748,7 @@ export const marshalDbtTaskSchema: z.ZodType = z
     warehouseId: z.string().optional(),
     profilesDirectory: z.string().optional(),
     catalog: z.string().optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
   })
   .transform(d => ({
     project_directory: d.projectDirectory,
@@ -8707,11 +8860,11 @@ export const marshalGcpAttributesSchema: z.ZodType = z
     usePreemptibleExecutors: z.boolean().optional(),
     googleServiceAccount: z.string().optional(),
     bootDiskSize: z.number().optional(),
-    availability: z.enum(GcpAvailability).optional(),
+    availability: z.string().optional(),
     zoneId: z.string().optional(),
     localSsdCount: z.number().optional(),
     firstOnDemand: z.number().optional(),
-    confidentialComputeType: z.enum(ConfidentialComputeType).optional(),
+    confidentialComputeType: z.string().optional(),
   })
   .transform(d => ({
     use_preemptible_executors: d.usePreemptibleExecutors,
@@ -8737,7 +8890,7 @@ export const marshalGenAiComputeTaskSchema: z.ZodType = z
     dlRuntimeImage: z.string().optional(),
     compute: z.lazy(() => marshalComputeConfigSchema).optional(),
     command: z.string().optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
     trainingScriptPath: z.string().optional(),
     yamlParametersFilePath: z.string().optional(),
     yamlParameters: z.string().optional(),
@@ -8851,7 +9004,7 @@ export const marshalJobClusterSchema: z.ZodType = z
 
 export const marshalJobDeploymentSchema: z.ZodType = z
   .object({
-    kind: z.enum(JobDeployment_DeploymentKind).optional(),
+    kind: z.string().optional(),
     metadataFilePath: z.string().optional(),
     deploymentId: z.string().optional(),
     versionId: z.string().optional(),
@@ -8948,18 +9101,18 @@ export const marshalJobSettingsSchema: z.ZodType = z
     jobClusters: z.array(z.lazy(() => marshalJobClusterSchema)).optional(),
     gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    format: z.enum(Format).optional(),
+    format: z.string().optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
     parameters: z
       .array(z.lazy(() => marshalJobLevelParameterSchema))
       .optional(),
     runAs: z.lazy(() => marshalJobRunAsSchema).optional(),
-    editMode: z.enum(JobEditMode).optional(),
+    editMode: z.string().optional(),
     deployment: z.lazy(() => marshalJobDeploymentSchema).optional(),
     environments: z.array(z.lazy(() => marshalJobEnvironmentSchema)).optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
-    performanceTarget: z.enum(PerformanceTarget_PerformanceTarget).optional(),
+    performanceTarget: z.string().optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -9008,7 +9161,7 @@ export const marshalJobSourceSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    dirtyState: z.enum(JobSource_DirtyState).optional(),
+    dirtyState: z.string().optional(),
   })
   .transform(d => ({
     job_config_path: d.jobConfigPath,
@@ -9020,8 +9173,8 @@ export const marshalJobSourceSchema: z.ZodType = z
 
 export const marshalJobsHealthRuleSchema: z.ZodType = z
   .object({
-    metric: z.enum(JobsHealthMetric).optional(),
-    op: z.enum(JobsHealthOperator).optional(),
+    metric: z.string().optional(),
+    op: z.string().optional(),
     value: z.bigint().optional(),
   })
   .transform(d => ({
@@ -9105,9 +9258,7 @@ export const marshalModelTriggerConfigurationSchema: z.ZodType = z
   .object({
     securableName: z.string().optional(),
     aliases: z.array(z.string()).optional(),
-    condition: z
-      .enum(ModelTriggerConfiguration_ModelTriggerCondition)
-      .optional(),
+    condition: z.string().optional(),
     minTimeBetweenTriggersSeconds: z.number().optional(),
     waitAfterLastChangeSeconds: z.number().optional(),
   })
@@ -9131,7 +9282,7 @@ export const marshalNotebookTaskSchema: z.ZodType = z
   .object({
     notebookPath: z.string().optional(),
     baseParameters: z.record(z.string(), z.string()).optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
     warehouseId: z.string().optional(),
   })
   .transform(d => ({
@@ -9156,7 +9307,7 @@ export const marshalNotificationSettingsSchema: z.ZodType = z
 export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
   .object({
     interval: z.number().optional(),
-    unit: z.enum(PeriodicTriggerConfiguration_TimeUnit).optional(),
+    unit: z.string().optional(),
   })
   .transform(d => ({
     interval: d.interval,
@@ -9203,8 +9354,8 @@ export const marshalPowerBiModelSchema: z.ZodType = z
   .object({
     workspaceName: z.string().optional(),
     modelName: z.string().optional(),
-    storageMode: z.enum(StorageMode).optional(),
-    authenticationMethod: z.enum(AuthenticationMethod).optional(),
+    storageMode: z.string().optional(),
+    authenticationMethod: z.string().optional(),
     overwriteExisting: z.boolean().optional(),
   })
   .transform(d => ({
@@ -9220,7 +9371,7 @@ export const marshalPowerBiTableSchema: z.ZodType = z
     name: z.string().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
-    storageMode: z.enum(StorageMode).optional(),
+    storageMode: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -9318,7 +9469,7 @@ export const marshalRepairRunRequestSchema: z.ZodType = z
     jobParameters: z.record(z.string(), z.string()).optional(),
     rerunAllFailedTasks: z.boolean().optional(),
     rerunDependentTasks: z.boolean().optional(),
-    performanceTarget: z.enum(PerformanceTarget_PerformanceTarget).optional(),
+    performanceTarget: z.string().optional(),
     pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
     jarParams: z.array(z.string()).optional(),
     notebookParams: z.record(z.string(), z.string()).optional(),
@@ -9389,7 +9540,7 @@ export const marshalRunNowRequestSchema: z.ZodType = z
     idempotencyToken: z.string().optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
     only: z.array(z.string()).optional(),
-    performanceTarget: z.enum(PerformanceTarget_PerformanceTarget).optional(),
+    performanceTarget: z.string().optional(),
     pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
     jarParams: z.array(z.string()).optional(),
     notebookParams: z.record(z.string(), z.string()).optional(),
@@ -9421,7 +9572,7 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     taskKey: z.string().optional(),
     description: z.string().optional(),
     dependsOn: z.array(z.lazy(() => marshalTaskDependencySchema)).optional(),
-    runIf: z.enum(TaskDependencyType).optional(),
+    runIf: z.string().optional(),
     timeoutSeconds: z.number().optional(),
     emailNotifications: z
       .lazy(() => marshalJobEmailNotificationsSchema)
@@ -9659,7 +9810,7 @@ export const marshalSparkPythonTaskSchema: z.ZodType = z
   .object({
     pythonFile: z.string().optional(),
     parameters: z.array(z.string()).optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
   })
   .transform(d => ({
     python_file: d.pythonFile,
@@ -9752,7 +9903,7 @@ export const marshalSqlTaskDashboardSchema: z.ZodType = z
 export const marshalSqlTaskFileSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
-    source: z.enum(Source).optional(),
+    source: z.string().optional(),
   })
   .transform(d => ({
     path: d.path,
@@ -9877,7 +10028,7 @@ export const marshalTableTriggerConfigurationSchema: z.ZodType = z
     tableNames: z.array(z.string()).optional(),
     minTimeBetweenTriggersSeconds: z.number().optional(),
     waitAfterLastChangeSeconds: z.number().optional(),
-    condition: z.enum(TableTriggerConfiguration_Condition).optional(),
+    condition: z.string().optional(),
   })
   .transform(d => ({
     table_names: d.tableNames,
@@ -9900,7 +10051,7 @@ export const marshalTaskSettingsSchema: z.ZodType = z
   .object({
     taskKey: z.string().optional(),
     dependsOn: z.array(z.lazy(() => marshalTaskDependencySchema)).optional(),
-    runIf: z.enum(TaskDependencyType).optional(),
+    runIf: z.string().optional(),
     timeoutSeconds: z.number().optional(),
     health: z.lazy(() => marshalJobsHealthRulesSchema).optional(),
     emailNotifications: z
@@ -10103,7 +10254,7 @@ export const marshalTaskSettingsSchema: z.ZodType = z
 
 export const marshalTriggerSettingsSchema: z.ZodType = z
   .object({
-    pauseStatus: z.enum(SchedulePauseStatus).optional(),
+    pauseStatus: z.string().optional(),
     configuration: z
       .discriminatedUnion('$case', [
         z.object({

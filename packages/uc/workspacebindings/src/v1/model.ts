@@ -3,11 +3,15 @@
 import {z} from 'zod';
 
 /** Using `BINDING_TYPE_` prefix here to avoid conflict with `TableOperation` enum in `credentials_common.proto`. */
-export enum BindingType {
-  BINDING_TYPE_UNSPECIFIED = 'BINDING_TYPE_UNSPECIFIED',
-  BINDING_TYPE_READ_WRITE = 'BINDING_TYPE_READ_WRITE',
-  BINDING_TYPE_READ_ONLY = 'BINDING_TYPE_READ_ONLY',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BindingType = {
+  BINDING_TYPE_UNSPECIFIED: 'BINDING_TYPE_UNSPECIFIED',
+  BINDING_TYPE_READ_WRITE: 'BINDING_TYPE_READ_WRITE',
+  BINDING_TYPE_READ_ONLY: 'BINDING_TYPE_READ_ONLY',
+} as const;
+export type BindingType =
+  | (typeof BindingType)[keyof typeof BindingType]
+  | (string & {});
 
 export interface GetCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
@@ -141,7 +145,7 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
         .optional(),
-      binding_type: z.enum(BindingType).optional(),
+      binding_type: z.string().optional(),
     })
     .transform(d => ({
       workspaceId: d.workspace_id,
@@ -177,7 +181,7 @@ export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
 export const marshalWorkspaceBindingInfoSchema: z.ZodType = z
   .object({
     workspaceId: z.bigint().optional(),
-    bindingType: z.enum(BindingType).optional(),
+    bindingType: z.string().optional(),
   })
   .transform(d => ({
     workspace_id: d.workspaceId,

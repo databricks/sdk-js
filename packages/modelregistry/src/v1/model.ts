@@ -17,18 +17,22 @@ import {z} from 'zod';
  *
  * * `DELETE_COMMENT`: Delete the comment
  */
-export enum ActivityAction {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ActivityAction = {
   /** Approve a transition request. Available to users with sufficient permissions. */
-  APPROVE_TRANSITION_REQUEST = 'APPROVE_TRANSITION_REQUEST',
+  APPROVE_TRANSITION_REQUEST: 'APPROVE_TRANSITION_REQUEST',
   /** Reject a transition request. Available to users with sufficient permissions. */
-  REJECT_TRANSITION_REQUEST = 'REJECT_TRANSITION_REQUEST',
+  REJECT_TRANSITION_REQUEST: 'REJECT_TRANSITION_REQUEST',
   /** Cancel a transition request. Available to the user who created the request. */
-  CANCEL_TRANSITION_REQUEST = 'CANCEL_TRANSITION_REQUEST',
+  CANCEL_TRANSITION_REQUEST: 'CANCEL_TRANSITION_REQUEST',
   /** Edit the comment */
-  EDIT_COMMENT = 'EDIT_COMMENT',
+  EDIT_COMMENT: 'EDIT_COMMENT',
   /** Delete the comment */
-  DELETE_COMMENT = 'DELETE_COMMENT',
-}
+  DELETE_COMMENT: 'DELETE_COMMENT',
+} as const;
+export type ActivityAction =
+  | (typeof ActivityAction)[keyof typeof ActivityAction]
+  | (string & {});
 
 /**
  * Type of activity. Valid values are:
@@ -44,22 +48,26 @@ export enum ActivityAction {
  *
  * * `SYSTEM_TRANSITION`: For events performed as a side effect, such as archiving existing model versions in a stage.
  */
-export enum ActivityType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ActivityType = {
   /** Indicates that the corresponding stage transition was applied by user. */
-  APPLIED_TRANSITION = 'APPLIED_TRANSITION',
+  APPLIED_TRANSITION: 'APPLIED_TRANSITION',
   /** Corresponding stage transition was requested by user. */
-  REQUESTED_TRANSITION = 'REQUESTED_TRANSITION',
+  REQUESTED_TRANSITION: 'REQUESTED_TRANSITION',
   /** User cancelled an existing request. */
-  CANCELLED_REQUEST = 'CANCELLED_REQUEST',
+  CANCELLED_REQUEST: 'CANCELLED_REQUEST',
   /** Corresponding transition request was approved by user. */
-  APPROVED_REQUEST = 'APPROVED_REQUEST',
+  APPROVED_REQUEST: 'APPROVED_REQUEST',
   /** Corresponding transition request was rejected by user. */
-  REJECTED_REQUEST = 'REJECTED_REQUEST',
+  REJECTED_REQUEST: 'REJECTED_REQUEST',
   /** User posted a new comment */
-  NEW_COMMENT = 'NEW_COMMENT',
+  NEW_COMMENT: 'NEW_COMMENT',
   /** Corresponding transition for events such as archiving existing model versions */
-  SYSTEM_TRANSITION = 'SYSTEM_TRANSITION',
-}
+  SYSTEM_TRANSITION: 'SYSTEM_TRANSITION',
+} as const;
+export type ActivityType =
+  | (typeof ActivityType)[keyof typeof ActivityType]
+  | (string & {});
 
 /**
  * The status of the model version. Valid values are:
@@ -69,30 +77,38 @@ export enum ActivityType {
  *
  * * `READY`: Model version is ready for use.
  */
-export enum ModelVersionStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ModelVersionStatus = {
   /** Request to register a new model version is pending as server performs background tasks. */
-  PENDING_REGISTRATION = 'PENDING_REGISTRATION',
+  PENDING_REGISTRATION: 'PENDING_REGISTRATION',
   /** Request to register a new model version has failed. */
-  FAILED_REGISTRATION = 'FAILED_REGISTRATION',
+  FAILED_REGISTRATION: 'FAILED_REGISTRATION',
   /** Model version is ready for use. */
-  READY = 'READY',
-}
+  READY: 'READY',
+} as const;
+export type ModelVersionStatus =
+  | (typeof ModelVersionStatus)[keyof typeof ModelVersionStatus]
+  | (string & {});
 
 /** Permission level of the requesting user on the object. For what is allowed at each level, see [MLflow Model permissions](..). */
-export enum PermissionLevel {
-  CAN_MANAGE = 'CAN_MANAGE',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PermissionLevel = {
+  CAN_MANAGE: 'CAN_MANAGE',
   /** reserved 1;  // IS_OWNER = 1; was DEPRECATED */
-  CAN_EDIT = 'CAN_EDIT',
-  CAN_READ = 'CAN_READ',
-  CAN_MANAGE_STAGING_VERSIONS = 'CAN_MANAGE_STAGING_VERSIONS',
-  CAN_MANAGE_PRODUCTION_VERSIONS = 'CAN_MANAGE_PRODUCTION_VERSIONS',
+  CAN_EDIT: 'CAN_EDIT',
+  CAN_READ: 'CAN_READ',
+  CAN_MANAGE_STAGING_VERSIONS: 'CAN_MANAGE_STAGING_VERSIONS',
+  CAN_MANAGE_PRODUCTION_VERSIONS: 'CAN_MANAGE_PRODUCTION_VERSIONS',
   /**
    * Only applicable to the root ACL path, for which it is the default value if no permissions are
    * set explicitly for the user. It is the default set by the MLflow service and The ACL database
    * does not understand this value.
    */
-  CAN_CREATE_REGISTERED_MODEL = 'CAN_CREATE_REGISTERED_MODEL',
-}
+  CAN_CREATE_REGISTERED_MODEL: 'CAN_CREATE_REGISTERED_MODEL',
+} as const;
+export type PermissionLevel =
+  | (typeof PermissionLevel)[keyof typeof PermissionLevel]
+  | (string & {});
 
 /**
  * .. note::
@@ -103,27 +119,41 @@ export enum PermissionLevel {
  * - `SUBSCRIBED`: Subscribed to notifications.
  * - `UNSUBSCRIBED`: Not subscribed to notifications.
  */
-export enum RegistryEmailSubscriptionType {
-  ALL_EVENTS = 'ALL_EVENTS',
-  DEFAULT = 'DEFAULT',
-  SUBSCRIBED = 'SUBSCRIBED',
-  UNSUBSCRIBED = 'UNSUBSCRIBED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RegistryEmailSubscriptionType = {
+  ALL_EVENTS: 'ALL_EVENTS',
+  DEFAULT: 'DEFAULT',
+  SUBSCRIBED: 'SUBSCRIBED',
+  UNSUBSCRIBED: 'UNSUBSCRIBED',
+} as const;
+export type RegistryEmailSubscriptionType =
+  | (typeof RegistryEmailSubscriptionType)[keyof typeof RegistryEmailSubscriptionType]
+  | (string & {});
 
-export enum RegistryWebhookEvent {
-  MODEL_VERSION_CREATED = 'MODEL_VERSION_CREATED',
-  MODEL_VERSION_TRANSITIONED_STAGE = 'MODEL_VERSION_TRANSITIONED_STAGE',
-  TRANSITION_REQUEST_CREATED = 'TRANSITION_REQUEST_CREATED',
-  COMMENT_CREATED = 'COMMENT_CREATED',
-  REGISTERED_MODEL_CREATED = 'REGISTERED_MODEL_CREATED',
-  MODEL_VERSION_TAG_SET = 'MODEL_VERSION_TAG_SET',
-  MODEL_VERSION_TRANSITIONED_TO_STAGING = 'MODEL_VERSION_TRANSITIONED_TO_STAGING',
-  MODEL_VERSION_TRANSITIONED_TO_PRODUCTION = 'MODEL_VERSION_TRANSITIONED_TO_PRODUCTION',
-  MODEL_VERSION_TRANSITIONED_TO_ARCHIVED = 'MODEL_VERSION_TRANSITIONED_TO_ARCHIVED',
-  TRANSITION_REQUEST_TO_STAGING_CREATED = 'TRANSITION_REQUEST_TO_STAGING_CREATED',
-  TRANSITION_REQUEST_TO_PRODUCTION_CREATED = 'TRANSITION_REQUEST_TO_PRODUCTION_CREATED',
-  TRANSITION_REQUEST_TO_ARCHIVED_CREATED = 'TRANSITION_REQUEST_TO_ARCHIVED_CREATED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RegistryWebhookEvent = {
+  MODEL_VERSION_CREATED: 'MODEL_VERSION_CREATED',
+  MODEL_VERSION_TRANSITIONED_STAGE: 'MODEL_VERSION_TRANSITIONED_STAGE',
+  TRANSITION_REQUEST_CREATED: 'TRANSITION_REQUEST_CREATED',
+  COMMENT_CREATED: 'COMMENT_CREATED',
+  REGISTERED_MODEL_CREATED: 'REGISTERED_MODEL_CREATED',
+  MODEL_VERSION_TAG_SET: 'MODEL_VERSION_TAG_SET',
+  MODEL_VERSION_TRANSITIONED_TO_STAGING:
+    'MODEL_VERSION_TRANSITIONED_TO_STAGING',
+  MODEL_VERSION_TRANSITIONED_TO_PRODUCTION:
+    'MODEL_VERSION_TRANSITIONED_TO_PRODUCTION',
+  MODEL_VERSION_TRANSITIONED_TO_ARCHIVED:
+    'MODEL_VERSION_TRANSITIONED_TO_ARCHIVED',
+  TRANSITION_REQUEST_TO_STAGING_CREATED:
+    'TRANSITION_REQUEST_TO_STAGING_CREATED',
+  TRANSITION_REQUEST_TO_PRODUCTION_CREATED:
+    'TRANSITION_REQUEST_TO_PRODUCTION_CREATED',
+  TRANSITION_REQUEST_TO_ARCHIVED_CREATED:
+    'TRANSITION_REQUEST_TO_ARCHIVED_CREATED',
+} as const;
+export type RegistryWebhookEvent =
+  | (typeof RegistryWebhookEvent)[keyof typeof RegistryWebhookEvent]
+  | (string & {});
 
 /**
  * Enable or disable triggering the webhook, or put the webhook into test mode. The default is `ACTIVE`:
@@ -133,14 +163,18 @@ export enum RegistryWebhookEvent {
  *
  * * `TEST_MODE`: Webhook can be triggered through the test endpoint, but is not triggered on a real event.
  */
-export enum RegistryWebhookStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RegistryWebhookStatus = {
   /** Event and test triggers will be sent. */
-  ACTIVE = 'ACTIVE',
+  ACTIVE: 'ACTIVE',
   /** No triggers will be sent. */
-  DISABLED = 'DISABLED',
+  DISABLED: 'DISABLED',
   /** Test triggers will be sent, but not actual events. */
-  TEST_MODE = 'TEST_MODE',
-}
+  TEST_MODE: 'TEST_MODE',
+} as const;
+export type RegistryWebhookStatus =
+  | (typeof RegistryWebhookStatus)[keyof typeof RegistryWebhookStatus]
+  | (string & {});
 
 /**
  * For activities, this contains the activity recorded for the action.
@@ -1121,7 +1155,7 @@ export const unmarshalActivitySchema: z.ZodType<Activity> = z
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
-    activity_type: z.enum(ActivityType).optional(),
+    activity_type: z.string().optional(),
     comment: z.string().optional(),
     last_updated_timestamp: z
       .union([z.number(), z.bigint()])
@@ -1130,7 +1164,7 @@ export const unmarshalActivitySchema: z.ZodType<Activity> = z
     from_stage: z.string().optional(),
     to_stage: z.string().optional(),
     system_comment: z.string().optional(),
-    available_actions: z.array(z.enum(ActivityAction)).optional(),
+    available_actions: z.array(z.string()).optional(),
     id: z.string().optional(),
   })
   .transform(d => ({
@@ -1162,7 +1196,7 @@ export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
-    activity_type: z.enum(ActivityType).optional(),
+    activity_type: z.string().optional(),
     comment: z.string().optional(),
     last_updated_timestamp: z
       .union([z.number(), z.bigint()])
@@ -1171,7 +1205,7 @@ export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
     from_stage: z.string().optional(),
     to_stage: z.string().optional(),
     system_comment: z.string().optional(),
-    available_actions: z.array(z.enum(ActivityAction)).optional(),
+    available_actions: z.array(z.string()).optional(),
     id: z.string().optional(),
   })
   .transform(d => ({
@@ -1397,7 +1431,7 @@ export const unmarshalModelVersionSchema: z.ZodType<ModelVersion> = z
     description: z.string().optional(),
     source: z.string().optional(),
     run_id: z.string().optional(),
-    status: z.enum(ModelVersionStatus).optional(),
+    status: z.string().optional(),
     status_message: z.string().optional(),
     tags: z.array(z.lazy(() => unmarshalModelVersionTagSchema)).optional(),
     run_link: z.string().optional(),
@@ -1436,15 +1470,13 @@ export const unmarshalModelVersionDatabricksSchema: z.ZodType<ModelVersionDatabr
       description: z.string().optional(),
       source: z.string().optional(),
       run_id: z.string().optional(),
-      status: z.enum(ModelVersionStatus).optional(),
+      status: z.string().optional(),
       status_message: z.string().optional(),
       open_requests: z.array(z.lazy(() => unmarshalActivitySchema)).optional(),
-      permission_level: z.enum(PermissionLevel).optional(),
+      permission_level: z.string().optional(),
       tags: z.array(z.lazy(() => unmarshalModelVersionTagSchema)).optional(),
       run_link: z.string().optional(),
-      email_subscription_status: z
-        .enum(RegistryEmailSubscriptionType)
-        .optional(),
+      email_subscription_status: z.string().optional(),
       feature_list: z.lazy(() => unmarshalFeatureListSchema).optional(),
     })
     .transform(d => ({
@@ -1523,7 +1555,7 @@ export const unmarshalRegisteredModelDatabricksSchema: z.ZodType<RegisteredModel
         .array(z.lazy(() => unmarshalModelVersionSchema))
         .optional(),
       id: z.string().optional(),
-      permission_level: z.enum(PermissionLevel).optional(),
+      permission_level: z.string().optional(),
       tags: z.array(z.lazy(() => unmarshalRegisteredModelTagSchema)).optional(),
     })
     .transform(d => ({
@@ -1552,7 +1584,7 @@ export const unmarshalRegisteredModelTagSchema: z.ZodType<RegisteredModelTag> =
 export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
   .object({
     id: z.string().optional(),
-    events: z.array(z.enum(RegistryWebhookEvent)).optional(),
+    events: z.array(z.string()).optional(),
     creation_timestamp: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -1562,7 +1594,7 @@ export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
       .transform(v => BigInt(v))
       .optional(),
     description: z.string().optional(),
-    status: z.enum(RegistryWebhookStatus).optional(),
+    status: z.string().optional(),
     http_url_spec: z.lazy(() => unmarshalHttpUrlSpecSchema).optional(),
     job_spec: z.lazy(() => unmarshalJobSpecSchema).optional(),
     model_name: z.string().optional(),
@@ -1658,7 +1690,7 @@ export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
-    activity_type: z.enum(ActivityType).optional(),
+    activity_type: z.string().optional(),
     comment: z.string().optional(),
     last_updated_timestamp: z
       .union([z.number(), z.bigint()])
@@ -1667,7 +1699,7 @@ export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
     from_stage: z.string().optional(),
     to_stage: z.string().optional(),
     system_comment: z.string().optional(),
-    available_actions: z.array(z.enum(ActivityAction)).optional(),
+    available_actions: z.array(z.string()).optional(),
     id: z.string().optional(),
   })
   .transform(d => ({
@@ -1780,9 +1812,9 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
 export const marshalCreateRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     modelName: z.string().optional(),
-    events: z.array(z.enum(RegistryWebhookEvent)).optional(),
+    events: z.array(z.string()).optional(),
     description: z.string().optional(),
-    status: z.enum(RegistryWebhookStatus).optional(),
+    status: z.string().optional(),
     httpUrlSpec: z.lazy(() => marshalHttpUrlSpecSchema).optional(),
     jobSpec: z.lazy(() => marshalJobSpecSchema).optional(),
   })
@@ -1918,7 +1950,7 @@ export const marshalSetRegisteredModelTagRequestSchema: z.ZodType = z
 export const marshalTestRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    event: z.enum(RegistryWebhookEvent).optional(),
+    event: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1977,9 +2009,9 @@ export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
 export const marshalUpdateRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    events: z.array(z.enum(RegistryWebhookEvent)).optional(),
+    events: z.array(z.string()).optional(),
     description: z.string().optional(),
-    status: z.enum(RegistryWebhookStatus).optional(),
+    status: z.string().optional(),
     httpUrlSpec: z.lazy(() => marshalHttpUrlSpecSchema).optional(),
     jobSpec: z.lazy(() => marshalJobSpecSchema).optional(),
   })
