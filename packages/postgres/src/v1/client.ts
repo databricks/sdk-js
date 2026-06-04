@@ -195,7 +195,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateBranchOperation> {
     const op = await this.createBranch(req, options);
-    return new CreateBranchOperation(this, op);
+    return new CreateBranchOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Register a Postgres database in the Unity Catalog. */
@@ -244,7 +246,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateCatalogOperation> {
     const op = await this.createCatalog(req, options);
-    return new CreateCatalogOperation(this, op);
+    return new CreateCatalogOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /**
@@ -297,7 +301,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateDatabaseOperation> {
     const op = await this.createDatabase(req, options);
-    return new CreateDatabaseOperation(this, op);
+    return new CreateDatabaseOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Creates a new compute endpoint in the branch. */
@@ -349,7 +355,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateEndpointOperation> {
     const op = await this.createEndpoint(req, options);
-    return new CreateEndpointOperation(this, op);
+    return new CreateEndpointOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
@@ -398,7 +406,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateProjectOperation> {
     const op = await this.createProject(req, options);
-    return new CreateProjectOperation(this, op);
+    return new CreateProjectOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Creates a new Postgres role in the branch. */
@@ -447,7 +457,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateRoleOperation> {
     const op = await this.createRole(req, options);
-    return new CreateRoleOperation(this, op);
+    return new CreateRoleOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Create a Synced Table. */
@@ -496,7 +508,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateSyncedTableOperation> {
     const op = await this.createSyncedTable(req, options);
-    return new CreateSyncedTableOperation(this, op);
+    return new CreateSyncedTableOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Deletes the specified database branch. */
@@ -538,7 +552,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteBranchOperation> {
     const op = await this.deleteBranch(req, options);
-    return new DeleteBranchOperation(this, op);
+    return new DeleteBranchOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Delete a Database Catalog. */
@@ -574,7 +590,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteCatalogOperation> {
     const op = await this.deleteCatalog(req, options);
-    return new DeleteCatalogOperation(this, op);
+    return new DeleteCatalogOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Delete a Database. */
@@ -610,7 +628,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteDatabaseOperation> {
     const op = await this.deleteDatabase(req, options);
-    return new DeleteDatabaseOperation(this, op);
+    return new DeleteDatabaseOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Deletes the specified compute endpoint. */
@@ -646,7 +666,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteEndpointOperation> {
     const op = await this.deleteEndpoint(req, options);
-    return new DeleteEndpointOperation(this, op);
+    return new DeleteEndpointOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Deletes the specified database project. */
@@ -688,7 +710,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteProjectOperation> {
     const op = await this.deleteProject(req, options);
-    return new DeleteProjectOperation(this, op);
+    return new DeleteProjectOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Deletes the specified Postgres role. */
@@ -730,7 +754,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteRoleOperation> {
     const op = await this.deleteRole(req, options);
-    return new DeleteRoleOperation(this, op);
+    return new DeleteRoleOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Delete a Synced Table. */
@@ -766,7 +792,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteSyncedTableOperation> {
     const op = await this.deleteSyncedTable(req, options);
-    return new DeleteSyncedTableOperation(this, op);
+    return new DeleteSyncedTableOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Generate OAuth credentials for a Postgres database. */
@@ -914,7 +942,7 @@ export class PostgresClient {
   }
 
   /** Retrieves the status of a long-running operation. */
-  async getOperation(
+  private async getOperation(
     req: GetOperationRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1332,7 +1360,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UndeleteBranchOperation> {
     const op = await this.undeleteBranch(req, options);
-    return new UndeleteBranchOperation(this, op);
+    return new UndeleteBranchOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Undeletes a soft-deleted project. */
@@ -1369,7 +1399,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UndeleteProjectOperation> {
     const op = await this.undeleteProject(req, options);
-    return new UndeleteProjectOperation(this, op);
+    return new UndeleteProjectOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Updates the specified database branch. You can set this branch as the project's default branch, or protect/unprotect it. */
@@ -1418,7 +1450,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateBranchOperation> {
     const op = await this.updateBranch(req, options);
-    return new UpdateBranchOperation(this, op);
+    return new UpdateBranchOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Update a Database. */
@@ -1467,7 +1501,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateDatabaseOperation> {
     const op = await this.updateDatabase(req, options);
-    return new UpdateDatabaseOperation(this, op);
+    return new UpdateDatabaseOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
@@ -1516,7 +1552,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateEndpointOperation> {
     const op = await this.updateEndpoint(req, options);
-    return new UpdateEndpointOperation(this, op);
+    return new UpdateEndpointOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Updates the specified database project. */
@@ -1565,7 +1603,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateProjectOperation> {
     const op = await this.updateProject(req, options);
-    return new UpdateProjectOperation(this, op);
+    return new UpdateProjectOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Update a role for a branch. */
@@ -1614,14 +1654,19 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateRoleOperation> {
     const op = await this.updateRole(req, options);
-    return new UpdateRoleOperation(this, op);
+    return new UpdateRoleOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 }
 
 export class CreateBranchOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1650,7 +1695,7 @@ export class CreateBranchOperation {
     let result: Branch | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1693,10 +1738,7 @@ export class CreateBranchOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -1704,8 +1746,11 @@ export class CreateBranchOperation {
 
 export class CreateCatalogOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1734,7 +1779,7 @@ export class CreateCatalogOperation {
     let result: Catalog | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1777,10 +1822,7 @@ export class CreateCatalogOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -1788,8 +1830,11 @@ export class CreateCatalogOperation {
 
 export class CreateDatabaseOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1818,7 +1863,7 @@ export class CreateDatabaseOperation {
     let result: Database | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1861,10 +1906,7 @@ export class CreateDatabaseOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -1872,8 +1914,11 @@ export class CreateDatabaseOperation {
 
 export class CreateEndpointOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1902,7 +1947,7 @@ export class CreateEndpointOperation {
     let result: Endpoint | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1945,10 +1990,7 @@ export class CreateEndpointOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -1956,8 +1998,11 @@ export class CreateEndpointOperation {
 
 export class CreateProjectOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1986,7 +2031,7 @@ export class CreateProjectOperation {
     let result: Project | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2029,10 +2074,7 @@ export class CreateProjectOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2040,8 +2082,11 @@ export class CreateProjectOperation {
 
 export class CreateRoleOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2070,7 +2115,7 @@ export class CreateRoleOperation {
     let result: Role | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2113,10 +2158,7 @@ export class CreateRoleOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2124,8 +2166,11 @@ export class CreateRoleOperation {
 
 export class CreateSyncedTableOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2154,7 +2199,7 @@ export class CreateSyncedTableOperation {
     let result: SyncedTable | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2199,10 +2244,7 @@ export class CreateSyncedTableOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2210,8 +2252,11 @@ export class CreateSyncedTableOperation {
 
 export class DeleteBranchOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2238,7 +2283,7 @@ export class DeleteBranchOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2271,10 +2316,7 @@ export class DeleteBranchOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2282,8 +2324,11 @@ export class DeleteBranchOperation {
 
 export class DeleteCatalogOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2310,7 +2355,7 @@ export class DeleteCatalogOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2343,10 +2388,7 @@ export class DeleteCatalogOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2354,8 +2396,11 @@ export class DeleteCatalogOperation {
 
 export class DeleteDatabaseOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2382,7 +2427,7 @@ export class DeleteDatabaseOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2415,10 +2460,7 @@ export class DeleteDatabaseOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2426,8 +2468,11 @@ export class DeleteDatabaseOperation {
 
 export class DeleteEndpointOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2454,7 +2499,7 @@ export class DeleteEndpointOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2487,10 +2532,7 @@ export class DeleteEndpointOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2498,8 +2540,11 @@ export class DeleteEndpointOperation {
 
 export class DeleteProjectOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2526,7 +2571,7 @@ export class DeleteProjectOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2559,10 +2604,7 @@ export class DeleteProjectOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2570,8 +2612,11 @@ export class DeleteProjectOperation {
 
 export class DeleteRoleOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2598,7 +2643,7 @@ export class DeleteRoleOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2631,10 +2676,7 @@ export class DeleteRoleOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2642,8 +2684,11 @@ export class DeleteRoleOperation {
 
 export class DeleteSyncedTableOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2670,7 +2715,7 @@ export class DeleteSyncedTableOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2703,10 +2748,7 @@ export class DeleteSyncedTableOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2714,8 +2756,11 @@ export class DeleteSyncedTableOperation {
 
 export class UndeleteBranchOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2742,7 +2787,7 @@ export class UndeleteBranchOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2775,10 +2820,7 @@ export class UndeleteBranchOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2786,8 +2828,11 @@ export class UndeleteBranchOperation {
 
 export class UndeleteProjectOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2814,7 +2859,7 @@ export class UndeleteProjectOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2847,10 +2892,7 @@ export class UndeleteProjectOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2858,8 +2900,11 @@ export class UndeleteProjectOperation {
 
 export class UpdateBranchOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2888,7 +2933,7 @@ export class UpdateBranchOperation {
     let result: Branch | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -2931,10 +2976,7 @@ export class UpdateBranchOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -2942,8 +2984,11 @@ export class UpdateBranchOperation {
 
 export class UpdateDatabaseOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -2972,7 +3017,7 @@ export class UpdateDatabaseOperation {
     let result: Database | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -3015,10 +3060,7 @@ export class UpdateDatabaseOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -3026,8 +3068,11 @@ export class UpdateDatabaseOperation {
 
 export class UpdateEndpointOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -3056,7 +3101,7 @@ export class UpdateEndpointOperation {
     let result: Endpoint | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -3099,10 +3144,7 @@ export class UpdateEndpointOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -3110,8 +3152,11 @@ export class UpdateEndpointOperation {
 
 export class UpdateProjectOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -3140,7 +3185,7 @@ export class UpdateProjectOperation {
     let result: Project | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -3183,10 +3228,7 @@ export class UpdateProjectOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -3194,8 +3236,11 @@ export class UpdateProjectOperation {
 
 export class UpdateRoleOperation {
   constructor(
-    private readonly client: PostgresClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -3224,7 +3269,7 @@ export class UpdateRoleOperation {
     let result: Role | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -3267,10 +3312,7 @@ export class UpdateRoleOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }

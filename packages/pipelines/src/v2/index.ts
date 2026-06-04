@@ -79,6 +79,7 @@ export type {
   IngestionPipelineDefinition_TableSpec,
   IngestionPipelineDefinition_TableSpecificConfig,
   IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfig,
+  IngestionPipelineDefinition_TableSpecificConfig_TablePropertiesEntry,
   IngestionPipelineDefinition_WorkdayReportParameters,
   IngestionPipelineDefinition_WorkdayReportParameters_ParametersEntry,
   IngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValue,

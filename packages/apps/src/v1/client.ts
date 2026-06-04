@@ -319,7 +319,9 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<CreateSpaceOperation> {
     const op = await this.createSpace(req, options);
-    return new CreateSpaceOperation(this, op);
+    return new CreateSpaceOperation(op, (req, options) =>
+      this.getSpaceOperation(req, options)
+    );
   }
 
   /** Deletes an app. */
@@ -430,7 +432,9 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<DeleteSpaceOperation> {
     const op = await this.deleteSpace(req, options);
-    return new DeleteSpaceOperation(this, op);
+    return new DeleteSpaceOperation(op, (req, options) =>
+      this.getSpaceOperation(req, options)
+    );
   }
 
   /** Retrieves information for the app with the supplied name. */
@@ -568,7 +572,7 @@ export class AppsClient {
   }
 
   /** Gets the status of an app space update operation. */
-  async getSpaceOperation(
+  private async getSpaceOperation(
     req: GetOperationRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1027,14 +1031,19 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<UpdateSpaceOperation> {
     const op = await this.updateSpace(req, options);
-    return new UpdateSpaceOperation(this, op);
+    return new UpdateSpaceOperation(op, (req, options) =>
+      this.getSpaceOperation(req, options)
+    );
   }
 }
 
 export class CreateSpaceOperation {
   constructor(
-    private readonly client: AppsClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1061,7 +1070,7 @@ export class CreateSpaceOperation {
     let result: Space | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getSpaceOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1104,10 +1113,7 @@ export class CreateSpaceOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getSpaceOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -1115,8 +1121,11 @@ export class CreateSpaceOperation {
 
 export class DeleteSpaceOperation {
   constructor(
-    private readonly client: AppsClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1141,7 +1150,7 @@ export class DeleteSpaceOperation {
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getSpaceOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1174,10 +1183,7 @@ export class DeleteSpaceOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getSpaceOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -1185,8 +1191,11 @@ export class DeleteSpaceOperation {
 
 export class UpdateSpaceOperation {
   constructor(
-    private readonly client: AppsClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -1213,7 +1222,7 @@ export class UpdateSpaceOperation {
     let result: Space | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getSpaceOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -1256,10 +1265,7 @@ export class UpdateSpaceOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getSpaceOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }

@@ -141,7 +141,9 @@ export class EnvironmentsClient {
     options?: CallOptions
   ): Promise<CreateWorkspaceBaseEnvironmentOperation> {
     const op = await this.createWorkspaceBaseEnvironment(req, options);
-    return new CreateWorkspaceBaseEnvironmentOperation(this, op);
+    return new CreateWorkspaceBaseEnvironmentOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /**
@@ -208,7 +210,7 @@ export class EnvironmentsClient {
    * Gets the status of a long-running operation.
    * Clients can use this method to poll the operation result.
    */
-  async getOperation(
+  private async getOperation(
     req: GetOperationRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -377,7 +379,9 @@ export class EnvironmentsClient {
     options?: CallOptions
   ): Promise<RefreshWorkspaceBaseEnvironmentOperation> {
     const op = await this.refreshWorkspaceBaseEnvironment(req, options);
-    return new RefreshWorkspaceBaseEnvironmentOperation(this, op);
+    return new RefreshWorkspaceBaseEnvironmentOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /**
@@ -472,14 +476,19 @@ export class EnvironmentsClient {
     options?: CallOptions
   ): Promise<UpdateWorkspaceBaseEnvironmentOperation> {
     const op = await this.updateWorkspaceBaseEnvironment(req, options);
-    return new UpdateWorkspaceBaseEnvironmentOperation(this, op);
+    return new UpdateWorkspaceBaseEnvironmentOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 }
 
 export class CreateWorkspaceBaseEnvironmentOperation {
   constructor(
-    private readonly client: EnvironmentsClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -508,7 +517,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -553,10 +562,7 @@ export class CreateWorkspaceBaseEnvironmentOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -564,8 +570,11 @@ export class CreateWorkspaceBaseEnvironmentOperation {
 
 export class RefreshWorkspaceBaseEnvironmentOperation {
   constructor(
-    private readonly client: EnvironmentsClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -594,7 +603,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -639,10 +648,7 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
@@ -650,8 +656,11 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
 
 export class UpdateWorkspaceBaseEnvironmentOperation {
   constructor(
-    private readonly client: EnvironmentsClient,
-    private operation: Operation
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
   ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
@@ -680,7 +689,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
+      const op = await this.getOperation(
         {
           name: this.operation.name,
         },
@@ -725,10 +734,7 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
 
   /** Checks whether the operation has completed */
   async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
+    const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
   }
