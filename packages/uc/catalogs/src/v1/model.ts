@@ -2,53 +2,69 @@
 
 import {z} from 'zod';
 
-export enum CatalogIsolationMode {
-  OPEN = 'OPEN',
-  ISOLATED = 'ISOLATED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CatalogIsolationMode = {
+  OPEN: 'OPEN',
+  ISOLATED: 'ISOLATED',
+} as const;
+export type CatalogIsolationMode =
+  | (typeof CatalogIsolationMode)[keyof typeof CatalogIsolationMode]
+  | (string & {});
 
 /** The type of the catalog. */
-export enum CatalogType {
-  MANAGED_CATALOG = 'MANAGED_CATALOG',
-  DELTASHARING_CATALOG = 'DELTASHARING_CATALOG',
-  SYSTEM_CATALOG = 'SYSTEM_CATALOG',
-  INTERNAL_CATALOG = 'INTERNAL_CATALOG',
-  FOREIGN_CATALOG = 'FOREIGN_CATALOG',
-  MANAGED_ONLINE_CATALOG = 'MANAGED_ONLINE_CATALOG',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CatalogType = {
+  MANAGED_CATALOG: 'MANAGED_CATALOG',
+  DELTASHARING_CATALOG: 'DELTASHARING_CATALOG',
+  SYSTEM_CATALOG: 'SYSTEM_CATALOG',
+  INTERNAL_CATALOG: 'INTERNAL_CATALOG',
+  FOREIGN_CATALOG: 'FOREIGN_CATALOG',
+  MANAGED_ONLINE_CATALOG: 'MANAGED_ONLINE_CATALOG',
+} as const;
+export type CatalogType =
+  | (typeof CatalogType)[keyof typeof CatalogType]
+  | (string & {});
 
 /** The type of Unity Catalog securable. */
-export enum SecurableType {
-  CATALOG = 'CATALOG',
-  SCHEMA = 'SCHEMA',
-  TABLE = 'TABLE',
-  STORAGE_CREDENTIAL = 'STORAGE_CREDENTIAL',
-  EXTERNAL_LOCATION = 'EXTERNAL_LOCATION',
-  FUNCTION = 'FUNCTION',
-  SHARE = 'SHARE',
-  PROVIDER = 'PROVIDER',
-  RECIPIENT = 'RECIPIENT',
-  CLEAN_ROOM = 'CLEAN_ROOM',
-  METASTORE = 'METASTORE',
-  PIPELINE = 'PIPELINE',
-  VOLUME = 'VOLUME',
-  CONNECTION = 'CONNECTION',
-  CREDENTIAL = 'CREDENTIAL',
-  EXTERNAL_METADATA = 'EXTERNAL_METADATA',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableType = {
+  CATALOG: 'CATALOG',
+  SCHEMA: 'SCHEMA',
+  TABLE: 'TABLE',
+  STORAGE_CREDENTIAL: 'STORAGE_CREDENTIAL',
+  EXTERNAL_LOCATION: 'EXTERNAL_LOCATION',
+  FUNCTION: 'FUNCTION',
+  SHARE: 'SHARE',
+  PROVIDER: 'PROVIDER',
+  RECIPIENT: 'RECIPIENT',
+  CLEAN_ROOM: 'CLEAN_ROOM',
+  METASTORE: 'METASTORE',
+  PIPELINE: 'PIPELINE',
+  VOLUME: 'VOLUME',
+  CONNECTION: 'CONNECTION',
+  CREDENTIAL: 'CREDENTIAL',
+  EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
-  STAGING_TABLE = 'STAGING_TABLE',
-}
+  STAGING_TABLE: 'STAGING_TABLE',
+} as const;
+export type SecurableType =
+  | (typeof SecurableType)[keyof typeof SecurableType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningInfo_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PROVISIONING: 'PROVISIONING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DELETING: 'DELETING',
+  UPDATING: 'UPDATING',
+  DEGRADED: 'DEGRADED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ProvisioningInfo_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PROVISIONING = 'PROVISIONING',
-  ACTIVE = 'ACTIVE',
-  FAILED = 'FAILED',
-  DELETING = 'DELETING',
-  UPDATING = 'UPDATING',
-  DEGRADED = 'DEGRADED',
-}
+export type ProvisioningInfo_State =
+  | (typeof ProvisioningInfo_State)[keyof typeof ProvisioningInfo_State]
+  | (string & {});
 
 export interface AzureEncryptionSettings {
   azureTenantId?: string | undefined;
@@ -358,7 +374,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     comment: z.string().optional(),
     storage_root: z.string().optional(),
     enable_predictive_optimization: z.string().optional(),
-    catalog_type: z.enum(CatalogType).optional(),
+    catalog_type: z.string().optional(),
     provider_name: z.string().optional(),
     share_name: z.string().optional(),
     connection_name: z.string().optional(),
@@ -374,14 +390,14 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
       .optional(),
     updated_by: z.string().optional(),
     storage_location: z.string().optional(),
-    isolation_mode: z.enum(CatalogIsolationMode).optional(),
+    isolation_mode: z.string().optional(),
     effective_predictive_optimization_flag: z
       .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     browse_only: z.boolean().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     full_name: z.string().optional(),
-    securable_type: z.enum(SecurableType).optional(),
+    securable_type: z.string().optional(),
     custom_max_retention_hours: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -465,7 +481,7 @@ export const unmarshalListCatalogsResponseSchema: z.ZodType<ListCatalogsResponse
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
   .object({
-    state: z.enum(ProvisioningInfo_State).optional(),
+    state: z.string().optional(),
   })
   .transform(d => ({
     state: d.state,
@@ -490,7 +506,7 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
     enablePredictiveOptimization: z.string().optional(),
-    catalogType: z.enum(CatalogType).optional(),
+    catalogType: z.string().optional(),
     providerName: z.string().optional(),
     shareName: z.string().optional(),
     connectionName: z.string().optional(),
@@ -500,14 +516,14 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
-    isolationMode: z.enum(CatalogIsolationMode).optional(),
+    isolationMode: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
       .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     browseOnly: z.boolean().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
-    securableType: z.enum(SecurableType).optional(),
+    securableType: z.string().optional(),
     customMaxRetentionHours: z.bigint().optional(),
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
@@ -572,7 +588,7 @@ export const marshalEncryptionSettingsSchema: z.ZodType = z
 
 export const marshalProvisioningInfoSchema: z.ZodType = z
   .object({
-    state: z.enum(ProvisioningInfo_State).optional(),
+    state: z.string().optional(),
   })
   .transform(d => ({
     state: d.state,
@@ -587,7 +603,7 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
     enablePredictiveOptimization: z.string().optional(),
-    catalogType: z.enum(CatalogType).optional(),
+    catalogType: z.string().optional(),
     providerName: z.string().optional(),
     shareName: z.string().optional(),
     connectionName: z.string().optional(),
@@ -597,14 +613,14 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
-    isolationMode: z.enum(CatalogIsolationMode).optional(),
+    isolationMode: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
       .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     browseOnly: z.boolean().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
-    securableType: z.enum(SecurableType).optional(),
+    securableType: z.string().optional(),
     customMaxRetentionHours: z.bigint().optional(),
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)

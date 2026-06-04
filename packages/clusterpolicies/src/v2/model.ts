@@ -2,17 +2,25 @@
 
 import {z} from 'zod';
 
-export enum ListOrder {
-  DESC = 'DESC',
-  ASC = 'ASC',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListOrder = {
+  DESC: 'DESC',
+  ASC: 'ASC',
+} as const;
+export type ListOrder =
+  | (typeof ListOrder)[keyof typeof ListOrder]
+  | (string & {});
 
-export enum PolicySortColumn {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PolicySortColumn = {
   /** Sort result list by policy creation time. */
-  POLICY_CREATION_TIME = 'POLICY_CREATION_TIME',
+  POLICY_CREATION_TIME: 'POLICY_CREATION_TIME',
   /** Sort result list by policy name. */
-  POLICY_NAME = 'POLICY_NAME',
-}
+  POLICY_NAME: 'POLICY_NAME',
+} as const;
+export type PolicySortColumn =
+  | (typeof PolicySortColumn)[keyof typeof PolicySortColumn]
+  | (string & {});
 
 export interface CreatePolicyRequest {
   /**

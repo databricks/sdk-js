@@ -5,48 +5,68 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum DatePrecision {
-  DAY_PRECISION = 'DAY_PRECISION',
-  MINUTE_PRECISION = 'MINUTE_PRECISION',
-  SECOND_PRECISION = 'SECOND_PRECISION',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DatePrecision = {
+  DAY_PRECISION: 'DAY_PRECISION',
+  MINUTE_PRECISION: 'MINUTE_PRECISION',
+  SECOND_PRECISION: 'SECOND_PRECISION',
+} as const;
+export type DatePrecision =
+  | (typeof DatePrecision)[keyof typeof DatePrecision]
+  | (string & {});
 
-export enum LifecycleState {
-  ACTIVE = 'ACTIVE',
-  TRASHED = 'TRASHED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LifecycleState = {
+  ACTIVE: 'ACTIVE',
+  TRASHED: 'TRASHED',
+} as const;
+export type LifecycleState =
+  | (typeof LifecycleState)[keyof typeof LifecycleState]
+  | (string & {});
 
-export enum RunAsMode {
-  OWNER = 'OWNER',
-  VIEWER = 'VIEWER',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RunAsMode = {
+  OWNER: 'OWNER',
+  VIEWER: 'VIEWER',
+} as const;
+export type RunAsMode =
+  | (typeof RunAsMode)[keyof typeof RunAsMode]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DateRangeValue_DynamicDateRange = {
+  TODAY: 'TODAY',
+  YESTERDAY: 'YESTERDAY',
+  THIS_WEEK: 'THIS_WEEK',
+  THIS_MONTH: 'THIS_MONTH',
+  THIS_YEAR: 'THIS_YEAR',
+  LAST_WEEK: 'LAST_WEEK',
+  LAST_MONTH: 'LAST_MONTH',
+  LAST_YEAR: 'LAST_YEAR',
+  LAST_HOUR: 'LAST_HOUR',
+  LAST_8_HOURS: 'LAST_8_HOURS',
+  LAST_24_HOURS: 'LAST_24_HOURS',
+  LAST_7_DAYS: 'LAST_7_DAYS',
+  LAST_14_DAYS: 'LAST_14_DAYS',
+  LAST_30_DAYS: 'LAST_30_DAYS',
+  LAST_60_DAYS: 'LAST_60_DAYS',
+  LAST_90_DAYS: 'LAST_90_DAYS',
+  LAST_12_MONTHS: 'LAST_12_MONTHS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum DateRangeValue_DynamicDateRange {
-  TODAY = 'TODAY',
-  YESTERDAY = 'YESTERDAY',
-  THIS_WEEK = 'THIS_WEEK',
-  THIS_MONTH = 'THIS_MONTH',
-  THIS_YEAR = 'THIS_YEAR',
-  LAST_WEEK = 'LAST_WEEK',
-  LAST_MONTH = 'LAST_MONTH',
-  LAST_YEAR = 'LAST_YEAR',
-  LAST_HOUR = 'LAST_HOUR',
-  LAST_8_HOURS = 'LAST_8_HOURS',
-  LAST_24_HOURS = 'LAST_24_HOURS',
-  LAST_7_DAYS = 'LAST_7_DAYS',
-  LAST_14_DAYS = 'LAST_14_DAYS',
-  LAST_30_DAYS = 'LAST_30_DAYS',
-  LAST_60_DAYS = 'LAST_60_DAYS',
-  LAST_90_DAYS = 'LAST_90_DAYS',
-  LAST_12_MONTHS = 'LAST_12_MONTHS',
-}
+export type DateRangeValue_DynamicDateRange =
+  | (typeof DateRangeValue_DynamicDateRange)[keyof typeof DateRangeValue_DynamicDateRange]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DateValue_DynamicDate = {
+  NOW: 'NOW',
+  YESTERDAY: 'YESTERDAY',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum DateValue_DynamicDate {
-  NOW = 'NOW',
-  YESTERDAY = 'YESTERDAY',
-}
+export type DateValue_DynamicDate =
+  | (typeof DateValue_DynamicDate)[keyof typeof DateValue_DynamicDate]
+  | (string & {});
 
 export interface CreateQueryRequest {
   query?: CreateQueryRequestQuery | undefined;
@@ -388,11 +408,9 @@ export const unmarshalDateRangeSchema: z.ZodType<DateRange> = z
 
 export const unmarshalDateRangeValueSchema: z.ZodType<DateRangeValue> = z
   .object({
-    dynamic_date_range_value: z
-      .enum(DateRangeValue_DynamicDateRange)
-      .optional(),
+    dynamic_date_range_value: z.string().optional(),
     date_range_value: z.lazy(() => unmarshalDateRangeSchema).optional(),
-    precision: z.enum(DatePrecision).optional(),
+    precision: z.string().optional(),
     start_day_of_week: z.number().optional(),
   })
   .transform(d => ({
@@ -414,9 +432,9 @@ export const unmarshalDateRangeValueSchema: z.ZodType<DateRangeValue> = z
 
 export const unmarshalDateValueSchema: z.ZodType<DateValue> = z
   .object({
-    dynamic_date_value: z.enum(DateValue_DynamicDate).optional(),
+    dynamic_date_value: z.string().optional(),
     date_value: z.string().optional(),
-    precision: z.enum(DatePrecision).optional(),
+    precision: z.string().optional(),
   })
   .transform(d => ({
     value:
@@ -469,8 +487,8 @@ export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryOb
       owner_user_name: z.string().optional(),
       warehouse_id: z.string().optional(),
       query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
+      run_as_mode: z.string().optional(),
+      lifecycle_state: z.string().optional(),
       last_modifier_user_name: z.string().optional(),
       parent_path: z.string().optional(),
       tags: z.array(z.string()).optional(),
@@ -549,8 +567,8 @@ export const unmarshalQuerySchema: z.ZodType<Query> = z
     owner_user_name: z.string().optional(),
     warehouse_id: z.string().optional(),
     query_text: z.string().optional(),
-    run_as_mode: z.enum(RunAsMode).optional(),
-    lifecycle_state: z.enum(LifecycleState).optional(),
+    run_as_mode: z.string().optional(),
+    lifecycle_state: z.string().optional(),
     last_modifier_user_name: z.string().optional(),
     parent_path: z.string().optional(),
     tags: z.array(z.string()).optional(),
@@ -693,8 +711,8 @@ export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
     ownerUserName: z.string().optional(),
     warehouseId: z.string().optional(),
     queryText: z.string().optional(),
-    runAsMode: z.enum(RunAsMode).optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
+    runAsMode: z.string().optional(),
+    lifecycleState: z.string().optional(),
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
@@ -747,7 +765,7 @@ export const marshalDateRangeValueSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('dynamicDateRangeValue'),
-          dynamicDateRangeValue: z.enum(DateRangeValue_DynamicDateRange),
+          dynamicDateRangeValue: z.string(),
         }),
         z.object({
           $case: z.literal('dateRangeValue'),
@@ -755,7 +773,7 @@ export const marshalDateRangeValueSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    precision: z.enum(DatePrecision).optional(),
+    precision: z.string().optional(),
     startDayOfWeek: z.number().optional(),
   })
   .transform(d => ({
@@ -775,12 +793,12 @@ export const marshalDateValueSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('dynamicDateValue'),
-          dynamicDateValue: z.enum(DateValue_DynamicDate),
+          dynamicDateValue: z.string(),
         }),
         z.object({$case: z.literal('dateValue'), dateValue: z.string()}),
       ])
       .optional(),
-    precision: z.enum(DatePrecision).optional(),
+    precision: z.string().optional(),
   })
   .transform(d => ({
     ...(d.value?.$case === 'dynamicDateValue' && {
@@ -927,8 +945,8 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
     ownerUserName: z.string().optional(),
     warehouseId: z.string().optional(),
     queryText: z.string().optional(),
-    runAsMode: z.enum(RunAsMode).optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
+    runAsMode: z.string().optional(),
+    lifecycleState: z.string().optional(),
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),

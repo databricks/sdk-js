@@ -8,91 +8,120 @@ import {z} from 'zod';
  * Mirrors only the customer-facing phases surfaced in the UI; internal-only phases
  * (DISABLED, DEV, UNDER_MIGRATION, LAUNCHED, etc.) are not exposed here.
  */
-export enum PreviewPhase {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PreviewPhase = {
   /** Default value. Indicates the preview phase is unknown or the setting is not a feature preview. */
-  PREVIEW_PHASE_UNSPECIFIED = 'PREVIEW_PHASE_UNSPECIFIED',
+  PREVIEW_PHASE_UNSPECIFIED: 'PREVIEW_PHASE_UNSPECIFIED',
   /** The feature is in private preview, available only to specifically enrolled customers. */
-  PRIVATE_PREVIEW = 'PRIVATE_PREVIEW',
+  PRIVATE_PREVIEW: 'PRIVATE_PREVIEW',
   /**
    * The feature is in public preview, available to all customers. Also used for gated public
    * preview (available to customers who request access) since the distinction is internal.
    */
-  PUBLIC_PREVIEW = 'PUBLIC_PREVIEW',
+  PUBLIC_PREVIEW: 'PUBLIC_PREVIEW',
   /** The feature is in beta. */
-  BETA = 'BETA',
+  BETA: 'BETA',
   /** The feature is approaching general availability. */
-  GA_SOON = 'GA_SOON',
+  GA_SOON: 'GA_SOON',
   /** The feature has reached general availability. */
-  GA = 'GA',
-}
+  GA: 'GA',
+} as const;
+export type PreviewPhase =
+  | (typeof PreviewPhase)[keyof typeof PreviewPhase]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AibiDashboardEmbeddingAccessPolicy_AccessPolicyType = {
+  ACCESS_POLICY_TYPE_UNSPECIFIED: 'ACCESS_POLICY_TYPE_UNSPECIFIED',
+  ALLOW_ALL_DOMAINS: 'ALLOW_ALL_DOMAINS',
+  ALLOW_APPROVED_DOMAINS: 'ALLOW_APPROVED_DOMAINS',
+  DENY_ALL_DOMAINS: 'DENY_ALL_DOMAINS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AibiDashboardEmbeddingAccessPolicy_AccessPolicyType {
-  ACCESS_POLICY_TYPE_UNSPECIFIED = 'ACCESS_POLICY_TYPE_UNSPECIFIED',
-  ALLOW_ALL_DOMAINS = 'ALLOW_ALL_DOMAINS',
-  ALLOW_APPROVED_DOMAINS = 'ALLOW_APPROVED_DOMAINS',
-  DENY_ALL_DOMAINS = 'DENY_ALL_DOMAINS',
-}
+export type AibiDashboardEmbeddingAccessPolicy_AccessPolicyType =
+  | (typeof AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)[keyof typeof AibiDashboardEmbeddingAccessPolicy_AccessPolicyType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek = {
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  MONDAY: 'MONDAY',
+  TUESDAY: 'TUESDAY',
+  WEDNESDAY: 'WEDNESDAY',
+  THURSDAY: 'THURSDAY',
+  FRIDAY: 'FRIDAY',
+  SATURDAY: 'SATURDAY',
+  SUNDAY: 'SUNDAY',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek {
-  DAY_OF_WEEK_UNSPECIFIED = 'DAY_OF_WEEK_UNSPECIFIED',
-  MONDAY = 'MONDAY',
-  TUESDAY = 'TUESDAY',
-  WEDNESDAY = 'WEDNESDAY',
-  THURSDAY = 'THURSDAY',
-  FRIDAY = 'FRIDAY',
-  SATURDAY = 'SATURDAY',
-  SUNDAY = 'SUNDAY',
-}
+export type ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek =
+  | (typeof ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek)[keyof typeof ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency = {
+  WEEK_DAY_FREQUENCY_UNSPECIFIED: 'WEEK_DAY_FREQUENCY_UNSPECIFIED',
+  FIRST_OF_MONTH: 'FIRST_OF_MONTH',
+  SECOND_OF_MONTH: 'SECOND_OF_MONTH',
+  THIRD_OF_MONTH: 'THIRD_OF_MONTH',
+  FOURTH_OF_MONTH: 'FOURTH_OF_MONTH',
+  FIRST_AND_THIRD_OF_MONTH: 'FIRST_AND_THIRD_OF_MONTH',
+  SECOND_AND_FOURTH_OF_MONTH: 'SECOND_AND_FOURTH_OF_MONTH',
+  EVERY_WEEK: 'EVERY_WEEK',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency {
-  WEEK_DAY_FREQUENCY_UNSPECIFIED = 'WEEK_DAY_FREQUENCY_UNSPECIFIED',
-  FIRST_OF_MONTH = 'FIRST_OF_MONTH',
-  SECOND_OF_MONTH = 'SECOND_OF_MONTH',
-  THIRD_OF_MONTH = 'THIRD_OF_MONTH',
-  FOURTH_OF_MONTH = 'FOURTH_OF_MONTH',
-  FIRST_AND_THIRD_OF_MONTH = 'FIRST_AND_THIRD_OF_MONTH',
-  SECOND_AND_FOURTH_OF_MONTH = 'SECOND_AND_FOURTH_OF_MONTH',
-  EVERY_WEEK = 'EVERY_WEEK',
-}
+export type ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency =
+  | (typeof ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency)[keyof typeof ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CollaborationPlatformConnectivityMessage_Connectivity = {
+  CONNECTIVITY_UNSPECIFIED: 'CONNECTIVITY_UNSPECIFIED',
+  ALLOW_ALL: 'ALLOW_ALL',
+  ALLOW_TEAMS: 'ALLOW_TEAMS',
+  ALLOW_SLACK: 'ALLOW_SLACK',
+  DENY_ALL: 'DENY_ALL',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CollaborationPlatformConnectivityMessage_Connectivity {
-  CONNECTIVITY_UNSPECIFIED = 'CONNECTIVITY_UNSPECIFIED',
-  ALLOW_ALL = 'ALLOW_ALL',
-  ALLOW_TEAMS = 'ALLOW_TEAMS',
-  ALLOW_SLACK = 'ALLOW_SLACK',
-  DENY_ALL = 'DENY_ALL',
-}
+export type CollaborationPlatformConnectivityMessage_Connectivity =
+  | (typeof CollaborationPlatformConnectivityMessage_Connectivity)[keyof typeof CollaborationPlatformConnectivityMessage_Connectivity]
+  | (string & {});
 
 /**
  * ON: Grants all users in all workspaces access to the Personal Compute default policy, allowing all users to create single-machine compute resources.
  * DELEGATE: Moves access control for the Personal Compute default policy to individual workspaces and requires a workspace’s users or groups to be added to the ACLs of that workspace’s Personal Compute default policy before they will be able to create compute resources through that policy.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PersonalComputeMessage_PersonalComputeMessageEnum = {
+  PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED:
+    'PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED',
+  ON: 'ON',
+  DELEGATE: 'DELEGATE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PersonalComputeMessage_PersonalComputeMessageEnum {
-  PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED = 'PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED',
-  ON = 'ON',
-  DELEGATE = 'DELEGATE',
-}
+export type PersonalComputeMessage_PersonalComputeMessageEnum =
+  | (typeof PersonalComputeMessage_PersonalComputeMessageEnum)[keyof typeof PersonalComputeMessage_PersonalComputeMessageEnum]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum RestrictWorkspaceAdminsMessage_Status {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RestrictWorkspaceAdminsMessage_Status = {
   /** Default value for proto enum */
-  STATUS_UNSPECIFIED = 'STATUS_UNSPECIFIED',
+  STATUS_UNSPECIFIED: 'STATUS_UNSPECIFIED',
   /**
    * Default value for existing workspaces
    * Allows WS admins to create OBO tokens for all SPs in the workspace without explicit permissions.
    */
-  ALLOW_ALL = 'ALLOW_ALL',
+  ALLOW_ALL: 'ALLOW_ALL',
   /**
    * Default value for new workspaces
    * Restrict WS admins to create OBO tokens for SPs in the workspace unless corresponding permissions are provided
    */
-  RESTRICT_TOKENS_AND_JOB_RUN_AS = 'RESTRICT_TOKENS_AND_JOB_RUN_AS',
-}
+  RESTRICT_TOKENS_AND_JOB_RUN_AS: 'RESTRICT_TOKENS_AND_JOB_RUN_AS',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type RestrictWorkspaceAdminsMessage_Status =
+  | (typeof RestrictWorkspaceAdminsMessage_Status)[keyof typeof RestrictWorkspaceAdminsMessage_Status]
+  | (string & {});
 
 export interface AibiDashboardEmbeddingAccessPolicy {
   accessPolicyType?:
@@ -506,9 +535,7 @@ export interface UserPreference {
 export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> =
   z
     .object({
-      access_policy_type: z
-        .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
-        .optional(),
+      access_policy_type: z.string().optional(),
     })
     .transform(d => ({
       accessPolicyType: d.access_policy_type,
@@ -594,12 +621,8 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodTy
 export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule> =
   z
     .object({
-      frequency: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency)
-        .optional(),
-      day_of_week: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek)
-        .optional(),
+      frequency: z.string().optional(),
+      day_of_week: z.string().optional(),
       window_start_time: z
         .lazy(
           () =>
@@ -628,9 +651,7 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTim
 export const unmarshalCollaborationPlatformConnectivityMessageSchema: z.ZodType<CollaborationPlatformConnectivityMessage> =
   z
     .object({
-      connectivity: z
-        .enum(CollaborationPlatformConnectivityMessage_Connectivity)
-        .optional(),
+      connectivity: z.string().optional(),
     })
     .transform(d => ({
       connectivity: d.connectivity,
@@ -695,9 +716,7 @@ export const unmarshalOperationalEmailCustomRecipientMessageSchema: z.ZodType<Op
 export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMessage> =
   z
     .object({
-      value: z
-        .enum(PersonalComputeMessage_PersonalComputeMessageEnum)
-        .optional(),
+      value: z.string().optional(),
     })
     .transform(d => ({
       value: d.value,
@@ -706,7 +725,7 @@ export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMes
 export const unmarshalRestrictWorkspaceAdminsMessageSchema: z.ZodType<RestrictWorkspaceAdminsMessage> =
   z
     .object({
-      status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
+      status: z.string().optional(),
       disable_gov_tag_creation: z.boolean().optional(),
     })
     .transform(d => ({
@@ -914,7 +933,7 @@ export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
     description: z.string().optional(),
     type: z.string().optional(),
     docs_link: z.string().optional(),
-    preview_phase: z.enum(PreviewPhase).optional(),
+    preview_phase: z.string().optional(),
     display_name: z.string().optional(),
   })
   .transform(d => ({
@@ -970,9 +989,7 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
 
 export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
   .object({
-    accessPolicyType: z
-      .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
-      .optional(),
+    accessPolicyType: z.string().optional(),
   })
   .transform(d => ({
     access_policy_type: d.accessPolicyType,
@@ -1055,12 +1072,8 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType
 export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType =
   z
     .object({
-      frequency: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency)
-        .optional(),
-      dayOfWeek: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek)
-        .optional(),
+      frequency: z.string().optional(),
+      dayOfWeek: z.string().optional(),
       windowStartTime: z
         .lazy(
           () =>
@@ -1089,9 +1102,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeS
 export const marshalCollaborationPlatformConnectivityMessageSchema: z.ZodType =
   z
     .object({
-      connectivity: z
-        .enum(CollaborationPlatformConnectivityMessage_Connectivity)
-        .optional(),
+      connectivity: z.string().optional(),
     })
     .transform(d => ({
       connectivity: d.connectivity,
@@ -1115,7 +1126,7 @@ export const marshalOperationalEmailCustomRecipientMessageSchema: z.ZodType = z
 
 export const marshalPersonalComputeMessageSchema: z.ZodType = z
   .object({
-    value: z.enum(PersonalComputeMessage_PersonalComputeMessageEnum).optional(),
+    value: z.string().optional(),
   })
   .transform(d => ({
     value: d.value,
@@ -1123,7 +1134,7 @@ export const marshalPersonalComputeMessageSchema: z.ZodType = z
 
 export const marshalRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
   .object({
-    status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
+    status: z.string().optional(),
     disableGovTagCreation: z.boolean().optional(),
   })
   .transform(d => ({

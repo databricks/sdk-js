@@ -9,68 +9,84 @@ import {z} from 'zod';
  * Scalar data types for request-time field definitions.
  * Only flat (non-nested) types are supported.
  */
-export enum ScalarDataType {
-  SCALAR_DATA_TYPE_UNSPECIFIED = 'SCALAR_DATA_TYPE_UNSPECIFIED',
-  INTEGER = 'INTEGER',
-  FLOAT = 'FLOAT',
-  BOOLEAN = 'BOOLEAN',
-  STRING = 'STRING',
-  DOUBLE = 'DOUBLE',
-  LONG = 'LONG',
-  TIMESTAMP = 'TIMESTAMP',
-  DATE = 'DATE',
-  SHORT = 'SHORT',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScalarDataType = {
+  SCALAR_DATA_TYPE_UNSPECIFIED: 'SCALAR_DATA_TYPE_UNSPECIFIED',
+  INTEGER: 'INTEGER',
+  FLOAT: 'FLOAT',
+  BOOLEAN: 'BOOLEAN',
+  STRING: 'STRING',
+  DOUBLE: 'DOUBLE',
+  LONG: 'LONG',
+  TIMESTAMP: 'TIMESTAMP',
+  DATE: 'DATE',
+  SHORT: 'SHORT',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+} as const;
+export type ScalarDataType =
+  | (typeof ScalarDataType)[keyof typeof ScalarDataType]
+  | (string & {});
 
 /** Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead. Kept for backwards compatibility. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Function_FunctionType = {
+  FUNCTION_TYPE_UNSPECIFIED: 'FUNCTION_TYPE_UNSPECIFIED',
+  AVG: 'AVG',
+  COUNT: 'COUNT',
+  SUM: 'SUM',
+  MIN: 'MIN',
+  MAX: 'MAX',
+  FIRST: 'FIRST',
+  LAST: 'LAST',
+  APPROX_COUNT_DISTINCT: 'APPROX_COUNT_DISTINCT',
+  APPROX_PERCENTILE: 'APPROX_PERCENTILE',
+  STDDEV_POP: 'STDDEV_POP',
+  STDDEV_SAMP: 'STDDEV_SAMP',
+  VAR_POP: 'VAR_POP',
+  VAR_SAMP: 'VAR_SAMP',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum Function_FunctionType {
-  FUNCTION_TYPE_UNSPECIFIED = 'FUNCTION_TYPE_UNSPECIFIED',
-  AVG = 'AVG',
-  COUNT = 'COUNT',
-  SUM = 'SUM',
-  MIN = 'MIN',
-  MAX = 'MAX',
-  FIRST = 'FIRST',
-  LAST = 'LAST',
-  APPROX_COUNT_DISTINCT = 'APPROX_COUNT_DISTINCT',
-  APPROX_PERCENTILE = 'APPROX_PERCENTILE',
-  STDDEV_POP = 'STDDEV_POP',
-  STDDEV_SAMP = 'STDDEV_SAMP',
-  VAR_POP = 'VAR_POP',
-  VAR_SAMP = 'VAR_SAMP',
-}
+export type Function_FunctionType =
+  | (typeof Function_FunctionType)[keyof typeof Function_FunctionType]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum MaterializedFeature_PipelineScheduleState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MaterializedFeature_PipelineScheduleState = {
   /** Default value, not used. */
-  PIPELINE_SCHEDULE_STATE_UNSPECIFIED = 'PIPELINE_SCHEDULE_STATE_UNSPECIFIED',
+  PIPELINE_SCHEDULE_STATE_UNSPECIFIED: 'PIPELINE_SCHEDULE_STATE_UNSPECIFIED',
   /** Pipeline was configured to run once then stop. */
-  SNAPSHOT = 'SNAPSHOT',
+  SNAPSHOT: 'SNAPSHOT',
   /** Pipeline is actively running and computing features. */
-  ACTIVE = 'ACTIVE',
+  ACTIVE: 'ACTIVE',
   /** Pipeline is paused and not computing features. */
-  PAUSED = 'PAUSED',
-}
-
+  PAUSED: 'PAUSED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum StreamingMode_StreamingModeType {
+export type MaterializedFeature_PipelineScheduleState =
+  | (typeof MaterializedFeature_PipelineScheduleState)[keyof typeof MaterializedFeature_PipelineScheduleState]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const StreamingMode_StreamingModeType = {
   /** Default value, not used. */
-  STREAMING_MODE_TYPE_UNSPECIFIED = 'STREAMING_MODE_TYPE_UNSPECIFIED',
+  STREAMING_MODE_TYPE_UNSPECIFIED: 'STREAMING_MODE_TYPE_UNSPECIFIED',
   /**
    * Real-time mode. Ultra-low-latency trigger intended for operational workloads
    * that need responses in milliseconds or sub-second latency.
    */
-  STREAMING_MODE_TYPE_RTM = 'STREAMING_MODE_TYPE_RTM',
+  STREAMING_MODE_TYPE_RTM: 'STREAMING_MODE_TYPE_RTM',
   /**
    * Micro-batch mode in Structured Streaming. Better suited for ETL and analytics
    * workloads where latency is measured in seconds or minutes and cost efficiency
    * matters more.
    */
-  STREAMING_MODE_TYPE_MBM = 'STREAMING_MODE_TYPE_MBM',
-}
+  STREAMING_MODE_TYPE_MBM: 'STREAMING_MODE_TYPE_MBM',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type StreamingMode_StreamingModeType =
+  | (typeof StreamingMode_StreamingModeType)[keyof typeof StreamingMode_StreamingModeType]
+  | (string & {});
 
 /** An aggregation function applied over a time window. */
 export interface AggregationFunction {
@@ -1455,7 +1471,7 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
 export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
   .object({
     name: z.string().optional(),
-    data_type: z.enum(ScalarDataType).optional(),
+    data_type: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1480,7 +1496,7 @@ export const unmarshalFlatSchemaSchema: z.ZodType<FlatSchema> = z
 
 export const unmarshalFunctionSchema: z.ZodType<Function> = z
   .object({
-    function_type: z.enum(Function_FunctionType).optional(),
+    function_type: z.string().optional(),
     extra_parameters: z
       .array(z.lazy(() => unmarshalFunction_ExtraParameterSchema))
       .optional(),
@@ -1731,9 +1747,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .lazy(() => unmarshalOnlineStoreConfigSchema)
         .optional(),
       table_name: z.string().optional(),
-      pipeline_schedule_state: z
-        .enum(MaterializedFeature_PipelineScheduleState)
-        .optional(),
+      pipeline_schedule_state: z.string().optional(),
       last_materialization_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -2029,7 +2043,7 @@ export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
 
 export const unmarshalStreamingModeSchema: z.ZodType<StreamingMode> = z
   .object({
-    mode: z.enum(StreamingMode_StreamingModeType).optional(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
     mode: d.mode,
@@ -2483,7 +2497,7 @@ export const marshalFeatureSchema: z.ZodType = z
 export const marshalFieldDefinitionSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    dataType: z.enum(ScalarDataType).optional(),
+    dataType: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2508,7 +2522,7 @@ export const marshalFlatSchemaSchema: z.ZodType = z
 
 export const marshalFunctionSchema: z.ZodType = z
   .object({
-    functionType: z.enum(Function_FunctionType).optional(),
+    functionType: z.string().optional(),
     extraParameters: z
       .array(z.lazy(() => marshalFunction_ExtraParameterSchema))
       .optional(),
@@ -2708,9 +2722,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       ])
       .optional(),
     tableName: z.string().optional(),
-    pipelineScheduleState: z
-      .enum(MaterializedFeature_PipelineScheduleState)
-      .optional(),
+    pipelineScheduleState: z.string().optional(),
     lastMaterializationTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3012,7 +3024,7 @@ export const marshalStreamSourceConfigSchema: z.ZodType = z
 
 export const marshalStreamingModeSchema: z.ZodType = z
   .object({
-    mode: z.enum(StreamingMode_StreamingModeType).optional(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
     mode: d.mode,

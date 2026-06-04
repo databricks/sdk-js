@@ -5,32 +5,36 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum SystemType {
-  SYSTEM_TYPE_UNSPECIFIED = 'SYSTEM_TYPE_UNSPECIFIED',
-  OTHER = 'OTHER',
-  TABLEAU = 'TABLEAU',
-  POWER_BI = 'POWER_BI',
-  LOOKER = 'LOOKER',
-  KAFKA = 'KAFKA',
-  SAP = 'SAP',
-  ORACLE = 'ORACLE',
-  SALESFORCE = 'SALESFORCE',
-  WORKDAY = 'WORKDAY',
-  MYSQL = 'MYSQL',
-  POSTGRESQL = 'POSTGRESQL',
-  MICROSOFT_SQL_SERVER = 'MICROSOFT_SQL_SERVER',
-  SERVICENOW = 'SERVICENOW',
-  AMAZON_REDSHIFT = 'AMAZON_REDSHIFT',
-  AZURE_SYNAPSE = 'AZURE_SYNAPSE',
-  SNOWFLAKE = 'SNOWFLAKE',
-  GOOGLE_BIGQUERY = 'GOOGLE_BIGQUERY',
-  MICROSOFT_FABRIC = 'MICROSOFT_FABRIC',
-  MONGODB = 'MONGODB',
-  TERADATA = 'TERADATA',
-  CONFLUENT = 'CONFLUENT',
-  DATABRICKS = 'DATABRICKS',
-  STREAM_NATIVE = 'STREAM_NATIVE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SystemType = {
+  SYSTEM_TYPE_UNSPECIFIED: 'SYSTEM_TYPE_UNSPECIFIED',
+  OTHER: 'OTHER',
+  TABLEAU: 'TABLEAU',
+  POWER_BI: 'POWER_BI',
+  LOOKER: 'LOOKER',
+  KAFKA: 'KAFKA',
+  SAP: 'SAP',
+  ORACLE: 'ORACLE',
+  SALESFORCE: 'SALESFORCE',
+  WORKDAY: 'WORKDAY',
+  MYSQL: 'MYSQL',
+  POSTGRESQL: 'POSTGRESQL',
+  MICROSOFT_SQL_SERVER: 'MICROSOFT_SQL_SERVER',
+  SERVICENOW: 'SERVICENOW',
+  AMAZON_REDSHIFT: 'AMAZON_REDSHIFT',
+  AZURE_SYNAPSE: 'AZURE_SYNAPSE',
+  SNOWFLAKE: 'SNOWFLAKE',
+  GOOGLE_BIGQUERY: 'GOOGLE_BIGQUERY',
+  MICROSOFT_FABRIC: 'MICROSOFT_FABRIC',
+  MONGODB: 'MONGODB',
+  TERADATA: 'TERADATA',
+  CONFLUENT: 'CONFLUENT',
+  DATABRICKS: 'DATABRICKS',
+  STREAM_NATIVE: 'STREAM_NATIVE',
+} as const;
+export type SystemType =
+  | (typeof SystemType)[keyof typeof SystemType]
+  | (string & {});
 
 export interface CreateExternalMetadataRequest {
   externalMetadata?: ExternalMetadata | undefined;
@@ -104,7 +108,7 @@ export interface UpdateExternalMetadataRequest {
 export const unmarshalExternalMetadataSchema: z.ZodType<ExternalMetadata> = z
   .object({
     name: z.string().optional(),
-    system_type: z.enum(SystemType).optional(),
+    system_type: z.string().optional(),
     entity_type: z.string().optional(),
     url: z.string().optional(),
     description: z.string().optional(),
@@ -157,7 +161,7 @@ export const unmarshalListExternalMetadataResponseV2Schema: z.ZodType<ListExtern
 export const marshalExternalMetadataSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    systemType: z.enum(SystemType).optional(),
+    systemType: z.string().optional(),
     entityType: z.string().optional(),
     url: z.string().optional(),
     description: z.string().optional(),

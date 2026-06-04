@@ -15,29 +15,43 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 );
 
 /** The role of the message. One of [system, user, assistant]. */
-export enum ChatMessageRole {
-  CHAT_MESSAGE_ROLE_UNSPECIFIED = 'CHAT_MESSAGE_ROLE_UNSPECIFIED',
-  SYSTEM = 'system',
-  USER = 'user',
-  ASSISTANT = 'assistant',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ChatMessageRole = {
+  CHAT_MESSAGE_ROLE_UNSPECIFIED: 'CHAT_MESSAGE_ROLE_UNSPECIFIED',
+  SYSTEM: 'system',
+  USER: 'user',
+  ASSISTANT: 'assistant',
+} as const;
+export type ChatMessageRole =
+  | (typeof ChatMessageRole)[keyof typeof ChatMessageRole]
+  | (string & {});
 
 /** This will always be 'embedding'. */
-export enum EmbeddingsV1ResponseEmbeddingElementObject {
-  EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED = 'EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED',
-  EMBEDDING = 'embedding',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EmbeddingsV1ResponseEmbeddingElementObject = {
+  EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED:
+    'EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED',
+  EMBEDDING: 'embedding',
+} as const;
+export type EmbeddingsV1ResponseEmbeddingElementObject =
+  | (typeof EmbeddingsV1ResponseEmbeddingElementObject)[keyof typeof EmbeddingsV1ResponseEmbeddingElementObject]
+  | (string & {});
 
 /**
  * The type of object returned by the __external/foundation model__ serving endpoint, one of
  * [text_completion, chat.completion, list (of embeddings)].
  */
-export enum QueryEndpointResponseObject {
-  QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED = 'QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED',
-  TEXT_COMPLETION = 'text_completion',
-  CHAT_COMPLETION = 'chat.completion',
-  LIST = 'list',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const QueryEndpointResponseObject = {
+  QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED:
+    'QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED',
+  TEXT_COMPLETION: 'text_completion',
+  CHAT_COMPLETION: 'chat.completion',
+  LIST: 'list',
+} as const;
+export type QueryEndpointResponseObject =
+  | (typeof QueryEndpointResponseObject)[keyof typeof QueryEndpointResponseObject]
+  | (string & {});
 
 export interface ChatMessage {
   /** The role of the message. One of [system, user, assistant]. */
@@ -197,7 +211,7 @@ export interface V1ResponseChoiceElement {
 
 export const unmarshalChatMessageSchema: z.ZodType<ChatMessage> = z
   .object({
-    role: z.enum(ChatMessageRole).optional(),
+    role: z.string().optional(),
     content: z.string().optional(),
   })
   .transform(d => ({
@@ -210,7 +224,7 @@ export const unmarshalEmbeddingsV1ResponseEmbeddingElementSchema: z.ZodType<Embe
     .object({
       embedding: z.array(z.number()).optional(),
       index: z.number().optional(),
-      object: z.enum(EmbeddingsV1ResponseEmbeddingElementObject).optional(),
+      object: z.string().optional(),
     })
     .transform(d => ({
       embedding: d.embedding,
@@ -249,7 +263,7 @@ export const unmarshalQueryEndpointResponseSchema: z.ZodType<QueryEndpointRespon
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
         .optional(),
-      object: z.enum(QueryEndpointResponseObject).optional(),
+      object: z.string().optional(),
       predictions: z.array(jsonValueSchema).optional(),
       outputs: z.array(jsonValueSchema).optional(),
       'served-model-name': z.string().optional(),
@@ -286,7 +300,7 @@ export const unmarshalV1ResponseChoiceElementSchema: z.ZodType<V1ResponseChoiceE
 
 export const marshalChatMessageSchema: z.ZodType = z
   .object({
-    role: z.enum(ChatMessageRole).optional(),
+    role: z.string().optional(),
     content: z.string().optional(),
   })
   .transform(d => ({

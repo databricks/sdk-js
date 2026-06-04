@@ -5,21 +5,29 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const KnowledgeAssistant_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  CREATING: 'CREATING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum KnowledgeAssistant_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  CREATING = 'CREATING',
-  ACTIVE = 'ACTIVE',
-  FAILED = 'FAILED',
-}
+export type KnowledgeAssistant_State =
+  | (typeof KnowledgeAssistant_State)[keyof typeof KnowledgeAssistant_State]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const KnowledgeSource_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  UPDATING: 'UPDATING',
+  UPDATED: 'UPDATED',
+  FAILED_UPDATE: 'FAILED_UPDATE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum KnowledgeSource_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  UPDATING = 'UPDATING',
-  UPDATED = 'UPDATED',
-  FAILED_UPDATE = 'FAILED_UPDATE',
-}
+export type KnowledgeSource_State =
+  | (typeof KnowledgeSource_State)[keyof typeof KnowledgeSource_State]
+  | (string & {});
 
 /** Create an example. */
 export interface CreateExampleRequest {
@@ -432,7 +440,7 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
   z
     .object({
       name: z.string().optional(),
-      state: z.enum(KnowledgeAssistant_State).optional(),
+      state: z.string().optional(),
       id: z.string().optional(),
       display_name: z.string().optional(),
       description: z.string().optional(),
@@ -469,7 +477,7 @@ export const unmarshalKnowledgeSourceSchema: z.ZodType<KnowledgeSource> = z
     index: z.lazy(() => unmarshalIndexSpecSchema).optional(),
     files: z.lazy(() => unmarshalFilesSpecSchema).optional(),
     file_table: z.lazy(() => unmarshalFileTableSpecSchema).optional(),
-    state: z.enum(KnowledgeSource_State).optional(),
+    state: z.string().optional(),
     id: z.string().optional(),
     knowledge_cutoff_time: z
       .string()
@@ -593,7 +601,7 @@ export const marshalIndexSpecSchema: z.ZodType = z
 export const marshalKnowledgeAssistantSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    state: z.enum(KnowledgeAssistant_State).optional(),
+    state: z.string().optional(),
     id: z.string().optional(),
     displayName: z.string().optional(),
     description: z.string().optional(),
@@ -643,7 +651,7 @@ export const marshalKnowledgeSourceSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    state: z.enum(KnowledgeSource_State).optional(),
+    state: z.string().optional(),
     id: z.string().optional(),
     knowledgeCutoffTime: z
       .any()

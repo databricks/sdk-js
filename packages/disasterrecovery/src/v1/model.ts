@@ -6,33 +6,41 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The type of failover to perform. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FailoverFailoverGroupRequest_FailoverType = {
+  FAILOVER_TYPE_UNSPECIFIED: 'FAILOVER_TYPE_UNSPECIFIED',
+  FORCED: 'FORCED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FailoverFailoverGroupRequest_FailoverType {
-  FAILOVER_TYPE_UNSPECIFIED = 'FAILOVER_TYPE_UNSPECIFIED',
-  FORCED = 'FORCED',
-}
+export type FailoverFailoverGroupRequest_FailoverType =
+  | (typeof FailoverFailoverGroupRequest_FailoverType)[keyof typeof FailoverFailoverGroupRequest_FailoverType]
+  | (string & {});
 
 /** The aggregate state of a FailoverGroup. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum FailoverGroup_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FailoverGroup_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   /** FailoverGroup is being created, setup in progress. */
-  CREATING = 'CREATING',
+  CREATING: 'CREATING',
   /** FailoverGroup creation failed. */
-  CREATION_FAILED = 'CREATION_FAILED',
+  CREATION_FAILED: 'CREATION_FAILED',
   /** Initial replication is in progress (bootstrapping data). */
-  INITIAL_REPLICATION = 'INITIAL_REPLICATION',
+  INITIAL_REPLICATION: 'INITIAL_REPLICATION',
   /** Replication up-to-date, ready for failover. */
-  ACTIVE = 'ACTIVE',
+  ACTIVE: 'ACTIVE',
   /** Failover or failback in progress. */
-  FAILING_OVER = 'FAILING_OVER',
+  FAILING_OVER: 'FAILING_OVER',
   /** Deletion in progress. */
-  DELETING = 'DELETING',
+  DELETING: 'DELETING',
   /** Failover or failback failed. */
-  FAILOVER_FAILED = 'FAILOVER_FAILED',
+  FAILOVER_FAILED: 'FAILOVER_FAILED',
   /** Deletion failed. */
-  DELETION_FAILED = 'DELETION_FAILED',
-}
+  DELETION_FAILED: 'DELETION_FAILED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type FailoverGroup_State =
+  | (typeof FailoverGroup_State)[keyof typeof FailoverGroup_State]
+  | (string & {});
 
 /** Request to create a new failover group. */
 export interface CreateFailoverGroupRequest {
@@ -348,7 +356,7 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
     unity_catalog_assets: z
       .lazy(() => unmarshalUcReplicationConfigSchema)
       .optional(),
-    state: z.enum(FailoverGroup_State).optional(),
+    state: z.string().optional(),
     etag: z.string().optional(),
     create_time: z
       .string()
@@ -481,7 +489,7 @@ export const marshalFailoverFailoverGroupRequestSchema: z.ZodType = z
     name: z.string().optional(),
     targetPrimaryRegion: z.string().optional(),
     etag: z.string().optional(),
-    failoverType: z.enum(FailoverFailoverGroupRequest_FailoverType).optional(),
+    failoverType: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -499,7 +507,7 @@ export const marshalFailoverGroupSchema: z.ZodType = z
     unityCatalogAssets: z
       .lazy(() => marshalUcReplicationConfigSchema)
       .optional(),
-    state: z.enum(FailoverGroup_State).optional(),
+    state: z.string().optional(),
     etag: z.string().optional(),
     createTime: z
       .any()

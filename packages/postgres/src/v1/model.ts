@@ -6,15 +6,20 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The compute endpoint type. Either `read_write` or `read_only`. */
-export enum EndpointType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointType = {
   /** Default value, not used */
-  ENDPOINT_TYPE_UNSPECIFIED = 'ENDPOINT_TYPE_UNSPECIFIED',
-  ENDPOINT_TYPE_READ_WRITE = 'ENDPOINT_TYPE_READ_WRITE',
-  ENDPOINT_TYPE_READ_ONLY = 'ENDPOINT_TYPE_READ_ONLY',
-}
+  ENDPOINT_TYPE_UNSPECIFIED: 'ENDPOINT_TYPE_UNSPECIFIED',
+  ENDPOINT_TYPE_READ_WRITE: 'ENDPOINT_TYPE_READ_WRITE',
+  ENDPOINT_TYPE_READ_ONLY: 'ENDPOINT_TYPE_READ_ONLY',
+} as const;
+export type EndpointType =
+  | (typeof EndpointType)[keyof typeof EndpointType]
+  | (string & {});
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
-export enum ErrorCode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
@@ -27,7 +32,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNKNOWN = 2;
    * - HTTP code: 500 Internal Server Error
    */
-  UNKNOWN = 'UNKNOWN',
+  UNKNOWN: 'UNKNOWN',
   /**
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
@@ -40,7 +45,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
    */
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
   /**
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
@@ -55,13 +60,13 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  TEMPORARILY_UNAVAILABLE = 'TEMPORARILY_UNAVAILABLE',
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that an IOException has been internally thrown.
    */
-  IO_ERROR = 'IO_ERROR',
+  IO_ERROR: 'IO_ERROR',
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
@@ -72,14 +77,14 @@ export enum ErrorCode {
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
    */
-  BAD_REQUEST = 'BAD_REQUEST',
+  BAD_REQUEST: 'BAD_REQUEST',
   /**
    * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
    * gateway proxy to safely retry the request.
    */
-  SERVICE_UNDER_MAINTENANCE = 'SERVICE_UNDER_MAINTENANCE',
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
   /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
-  WORKSPACE_TEMPORARILY_UNAVAILABLE = 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
   /**
    * The deadline expired before the operation could complete. For operations that change the state
    * of the system, this error may be returned even if the operation has completed successfully.
@@ -92,7 +97,7 @@ export enum ErrorCode {
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
    */
-  DEADLINE_EXCEEDED = 'DEADLINE_EXCEEDED',
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
@@ -101,7 +106,7 @@ export enum ErrorCode {
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
    */
-  CANCELLED = 'CANCELLED',
+  CANCELLED: 'CANCELLED',
   /**
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
@@ -114,7 +119,7 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  RESOURCE_EXHAUSTED = 'RESOURCE_EXHAUSTED',
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
@@ -123,7 +128,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
    */
-  ABORTED = 'ABORTED',
+  ABORTED: 'ABORTED',
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
@@ -132,7 +137,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  NOT_FOUND = 'NOT_FOUND',
+  NOT_FOUND: 'NOT_FOUND',
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
@@ -143,7 +148,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
    */
-  ALREADY_EXISTS = 'ALREADY_EXISTS',
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -155,7 +160,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  UNAUTHENTICATED = 'UNAUTHENTICATED',
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
   /**
    * The service is currently unavailable. Please note that the unavailability may or may not be transient.
    * That means if this is a non-transient condition, retrying it does not work. If the unavailability
@@ -170,7 +175,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  UNAVAILABLE = 'UNAVAILABLE',
+  UNAVAILABLE: 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
    *
@@ -178,7 +183,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
    */
-  INVALID_PARAMETER_VALUE = 'INVALID_PARAMETER_VALUE',
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
@@ -187,15 +192,15 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  ENDPOINT_NOT_FOUND = 'ENDPOINT_NOT_FOUND',
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
   /** Indicates that the given API request was malformed. */
-  MALFORMED_REQUEST = 'MALFORMED_REQUEST',
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * If one or more of the inputs to a given RPC are not in a valid state for the action.
    */
-  INVALID_STATE = 'INVALID_STATE',
+  INVALID_STATE: 'INVALID_STATE',
   /**
    * The caller does not have permission to execute the specified operation.
    * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
@@ -209,7 +214,7 @@ export enum ErrorCode {
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
    */
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
   /**
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
@@ -221,7 +226,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  FEATURE_DISABLED = 'FEATURE_DISABLED',
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -242,7 +247,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  CUSTOMER_UNAUTHORIZED = 'CUSTOMER_UNAUTHORIZED',
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
@@ -256,16 +261,16 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  REQUEST_LIMIT_EXCEEDED = 'REQUEST_LIMIT_EXCEEDED',
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
   /** Indicates API request was rejected due a conflict with an existing resource. */
-  RESOURCE_CONFLICT = 'RESOURCE_CONFLICT',
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that the HTTP response cannot be correctly deserialized.
    * This currently is only used in DUST test clients, and not by any real service code.
    */
-  UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
    *
@@ -273,7 +278,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
    */
-  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
    *
@@ -288,15 +293,15 @@ export enum ErrorCode {
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
    */
-  DATA_LOSS = 'DATA_LOSS',
+  DATA_LOSS: 'DATA_LOSS',
   /** If the user attempts to perform an invalid state transition on a shard. */
-  INVALID_STATE_TRANSITION = 'INVALID_STATE_TRANSITION',
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Unable to perform the operation because the shard was locked by some other operation.
    */
-  COULD_NOT_ACQUIRE_LOCK = 'COULD_NOT_ACQUIRE_LOCK',
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
   /**
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
@@ -304,7 +309,7 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that already exists.
    */
-  RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
@@ -312,378 +317,428 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that does not exist.
    */
-  RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_BLOCK_SIZE_EXCEEDED = 'MAX_BLOCK_SIZE_EXCEEDED',
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_READ_SIZE_EXCEEDED = 'MAX_READ_SIZE_EXCEEDED',
-  PARTIAL_DELETE = 'PARTIAL_DELETE',
-  MAX_LIST_SIZE_EXCEEDED = 'MAX_LIST_SIZE_EXCEEDED',
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DRY_RUN_FAILED = 'DRY_RUN_FAILED',
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Cluster request was rejected because it would exceed a resource limit.
    */
-  RESOURCE_LIMIT_EXCEEDED = 'RESOURCE_LIMIT_EXCEEDED',
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_NOT_EMPTY = 'DIRECTORY_NOT_EMPTY',
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_PROTECTED = 'DIRECTORY_PROTECTED',
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_NOTEBOOK_SIZE_EXCEEDED = 'MAX_NOTEBOOK_SIZE_EXCEEDED',
-  MAX_CHILD_NODE_SIZE_EXCEEDED = 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_LONG = 'SEARCH_QUERY_TOO_LONG',
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_SHORT = 'SEARCH_QUERY_TOO_SHORT',
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST = 'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PERMISSION_NOT_PROPAGATED = 'PERMISSION_NOT_PROPAGATED',
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DEPLOYMENT_TIMEOUT = 'DEPLOYMENT_TIMEOUT',
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_CONFLICT = 'GIT_CONFLICT',
+  GIT_CONFLICT: 'GIT_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_UNKNOWN_REF = 'GIT_UNKNOWN_REF',
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_SENSITIVE_TOKEN_DETECTED = 'GIT_SENSITIVE_TOKEN_DETECTED',
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_URL_NOT_ON_ALLOW_LIST = 'GIT_URL_NOT_ON_ALLOW_LIST',
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_REMOTE_ERROR = 'GIT_REMOTE_ERROR',
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROJECTS_OPERATION_TIMEOUT = 'PROJECTS_OPERATION_TIMEOUT',
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  IPYNB_FILE_IN_REPO = 'IPYNB_FILE_IN_REPO',
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  INSECURE_PARTNER_RESPONSE = 'INSECURE_PARTNER_RESPONSE',
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MALFORMED_PARTNER_RESPONSE = 'MALFORMED_PARTNER_RESPONSE',
-  METASTORE_DOES_NOT_EXIST = 'METASTORE_DOES_NOT_EXIST',
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_DOES_NOT_EXIST = 'DAC_DOES_NOT_EXIST',
-  CATALOG_DOES_NOT_EXIST = 'CATALOG_DOES_NOT_EXIST',
-  SCHEMA_DOES_NOT_EXIST = 'SCHEMA_DOES_NOT_EXIST',
-  TABLE_DOES_NOT_EXIST = 'TABLE_DOES_NOT_EXIST',
-  SHARE_DOES_NOT_EXIST = 'SHARE_DOES_NOT_EXIST',
-  RECIPIENT_DOES_NOT_EXIST = 'RECIPIENT_DOES_NOT_EXIST',
-  STORAGE_CREDENTIAL_DOES_NOT_EXIST = 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
-  EXTERNAL_LOCATION_DOES_NOT_EXIST = 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
-  PRINCIPAL_DOES_NOT_EXIST = 'PRINCIPAL_DOES_NOT_EXIST',
-  PROVIDER_DOES_NOT_EXIST = 'PROVIDER_DOES_NOT_EXIST',
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_ALREADY_EXISTS = 'METASTORE_ALREADY_EXISTS',
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_ALREADY_EXISTS = 'DAC_ALREADY_EXISTS',
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_ALREADY_EXISTS = 'CATALOG_ALREADY_EXISTS',
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_ALREADY_EXISTS = 'SCHEMA_ALREADY_EXISTS',
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  TABLE_ALREADY_EXISTS = 'TABLE_ALREADY_EXISTS',
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SHARE_ALREADY_EXISTS = 'SHARE_ALREADY_EXISTS',
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  RECIPIENT_ALREADY_EXISTS = 'RECIPIENT_ALREADY_EXISTS',
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  STORAGE_CREDENTIAL_ALREADY_EXISTS = 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  EXTERNAL_LOCATION_ALREADY_EXISTS = 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_ALREADY_EXISTS = 'PROVIDER_ALREADY_EXISTS',
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_NOT_EMPTY = 'CATALOG_NOT_EMPTY',
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_NOT_EMPTY = 'SCHEMA_NOT_EMPTY',
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_NOT_EMPTY = 'METASTORE_NOT_EMPTY',
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_SHARE_NOT_ACCESSIBLE = 'PROVIDER_SHARE_NOT_ACCESSIBLE',
-}
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
 
 /** The current phase of the data synchronization pipeline. */
-export enum ProvisioningPhase {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningPhase = {
   /** The default phase. It should not be reported by any synced tables. */
-  PROVISIONING_PHASE_UNSPECIFIED = 'PROVISIONING_PHASE_UNSPECIFIED',
+  PROVISIONING_PHASE_UNSPECIFIED: 'PROVISIONING_PHASE_UNSPECIFIED',
   /** Ingestion phase of the synced table. This is when the synced table is ingesting data from the delta table. */
-  PROVISIONING_PHASE_MAIN = 'PROVISIONING_PHASE_MAIN',
+  PROVISIONING_PHASE_MAIN: 'PROVISIONING_PHASE_MAIN',
   /** Index scan phase of the synced table. This is when the synced table is creating indexes on the ingested data. */
-  PROVISIONING_PHASE_INDEX_SCAN = 'PROVISIONING_PHASE_INDEX_SCAN',
+  PROVISIONING_PHASE_INDEX_SCAN: 'PROVISIONING_PHASE_INDEX_SCAN',
   /** Index sort phase of the synced table. This is when the synced table is creating indexes on the ingested data. */
-  PROVISIONING_PHASE_INDEX_SORT = 'PROVISIONING_PHASE_INDEX_SORT',
-}
+  PROVISIONING_PHASE_INDEX_SORT: 'PROVISIONING_PHASE_INDEX_SORT',
+} as const;
+export type ProvisioningPhase =
+  | (typeof ProvisioningPhase)[keyof typeof ProvisioningPhase]
+  | (string & {});
 
 /** The state of a synced table. */
-export enum SyncedTableState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTableState = {
   /** The default state. It should not be reported by any synced tables. */
-  SYNCED_TABLE_STATE_UNSPECIFIED = 'SYNCED_TABLE_STATE_UNSPECIFIED',
+  SYNCED_TABLE_STATE_UNSPECIFIED: 'SYNCED_TABLE_STATE_UNSPECIFIED',
   /**
    * The synced table has just been created and resources are being provisioned. This is also the
    * catch-all state if there is not a more suitable state to report for the synced table.
    */
-  SYNCED_TABLE_PROVISIONING = 'SYNCED_TABLE_PROVISIONING',
+  SYNCED_TABLE_PROVISIONING: 'SYNCED_TABLE_PROVISIONING',
   /** The synced table is provisioning resources for the data synchronization pipeline. */
-  SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES = 'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES',
+  SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES:
+    'SYNCED_TABLE_PROVISIONING_PIPELINE_RESOURCES',
   /** The synced table is executing the initial data synchronization. */
-  SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT = 'SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT',
+  SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT:
+    'SYNCED_TABLE_PROVISIONING_INITIAL_SNAPSHOT',
   /** The synced table is ready to serve data. */
-  SYNCED_TABLE_ONLINE = 'SYNCED_TABLE_ONLINE',
+  SYNCED_TABLE_ONLINE: 'SYNCED_TABLE_ONLINE',
   /**
    * The synced table is ready to serve data and is continuously updating. Only shown for synced
    * tables using the "Continuous" sync mode.
    */
-  SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE = 'SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE',
+  SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE:
+    'SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE',
   /**
    * The synced table is ready to serve data and an active update is in progress. Only shown for
    * synced tables using the "Triggered" sync mode.
    */
-  SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE = 'SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE',
+  SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE: 'SYNCED_TABLE_ONLINE_TRIGGERED_UPDATE',
   /**
    * The synced table is ready to serve data and there are no active updates. Only shown for synced
    * tables using the "Triggered" sync mode.
    */
-  SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE = 'SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE',
+  SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE:
+    'SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE',
   /** The synced table has encountered an internal error and is not available for serving. */
-  SYNCED_TABLE_OFFLINE = 'SYNCED_TABLE_OFFLINE',
+  SYNCED_TABLE_OFFLINE: 'SYNCED_TABLE_OFFLINE',
   /**
    * The synced table is not available for serving because the data synchronization pipeline has
    * failed. Please review the pipeline event logs to troubleshoot.
    */
-  SYNCED_TABLE_OFFLINE_FAILED = 'SYNCED_TABLE_OFFLINE_FAILED',
+  SYNCED_TABLE_OFFLINE_FAILED: 'SYNCED_TABLE_OFFLINE_FAILED',
   /**
    * The data synchronization pipeline has encountered an error but the synced table is still
    * available for serving (potentially stale) data. Please review the pipeline event logs to
    * troubleshoot.
    */
-  SYNCED_TABLE_ONLINE_PIPELINE_FAILED = 'SYNCED_TABLE_ONLINE_PIPELINE_FAILED',
+  SYNCED_TABLE_ONLINE_PIPELINE_FAILED: 'SYNCED_TABLE_ONLINE_PIPELINE_FAILED',
   /**
    * The synced table is available for serving, and is provisioning resources for a newly started
    * data synchronization pipeline.
    */
-  SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES = 'SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES',
-}
+  SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES:
+    'SYNCED_TABLE_ONLINE_UPDATING_PIPELINE_RESOURCES',
+} as const;
+export type SyncedTableState =
+  | (typeof SyncedTableState)[keyof typeof SyncedTableState]
+  | (string & {});
 
 /** The state of the branch. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum BranchStatus_State {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BranchStatus_State = {
   /** Default value, not used. */
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   /** The branch is being created but is not yet available for querying. */
-  INIT = 'INIT',
+  INIT: 'INIT',
   /** The branch is being imported and is not yet available for querying. */
-  IMPORTING = 'IMPORTING',
+  IMPORTING: 'IMPORTING',
   /** The branch is being reset to a specific point in time or LSN and is not yet available for querying. */
-  RESETTING = 'RESETTING',
+  RESETTING: 'RESETTING',
   /** The branch is fully operational and ready for querying. */
-  READY = 'READY',
+  READY: 'READY',
   /** The branch is stored in cost-effective archival storage. Expect slow query response times. */
-  ARCHIVED = 'ARCHIVED',
+  ARCHIVED: 'ARCHIVED',
   /** The branch is deleted and is not available for querying, but can be undeleted. */
-  DELETED = 'DELETED',
-}
+  DELETED: 'DELETED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type BranchStatus_State =
+  | (typeof BranchStatus_State)[keyof typeof BranchStatus_State]
+  | (string & {});
 
 /** The state of the compute endpoint. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EndpointStatus_State {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointStatus_State = {
   /** Default value, not used */
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  INIT = 'INIT',
-  ACTIVE = 'ACTIVE',
-  IDLE = 'IDLE',
-  DEGRADED = 'DEGRADED',
-}
-
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  INIT: 'INIT',
+  ACTIVE: 'ACTIVE',
+  IDLE: 'IDLE',
+  DEGRADED: 'DEGRADED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ProvisioningInfo_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PROVISIONING = 'PROVISIONING',
-  ACTIVE = 'ACTIVE',
-  FAILED = 'FAILED',
-  DELETING = 'DELETING',
-  UPDATING = 'UPDATING',
-  DEGRADED = 'DEGRADED',
-}
+export type EndpointStatus_State =
+  | (typeof EndpointStatus_State)[keyof typeof EndpointStatus_State]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningInfo_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PROVISIONING: 'PROVISIONING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DELETING: 'DELETING',
+  UPDATING: 'UPDATING',
+  DEGRADED: 'DEGRADED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum RequestedClaims_PermissionSet {
-  PERMISSION_SET_UNSPECIFIED = 'PERMISSION_SET_UNSPECIFIED',
-  READ_ONLY = 'READ_ONLY',
-}
+export type ProvisioningInfo_State =
+  | (typeof ProvisioningInfo_State)[keyof typeof ProvisioningInfo_State]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const RequestedClaims_PermissionSet = {
+  PERMISSION_SET_UNSPECIFIED: 'PERMISSION_SET_UNSPECIFIED',
+  READ_ONLY: 'READ_ONLY',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type RequestedClaims_PermissionSet =
+  | (typeof RequestedClaims_PermissionSet)[keyof typeof RequestedClaims_PermissionSet]
+  | (string & {});
 
 /** How the role is authenticated when connecting to Postgres. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum Role_AuthMethod {
-  AUTH_METHOD_UNSPECIFIED = 'AUTH_METHOD_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Role_AuthMethod = {
+  AUTH_METHOD_UNSPECIFIED: 'AUTH_METHOD_UNSPECIFIED',
   /** NO_LOGIN means this role cannot be used for interactive access */
-  NO_LOGIN = 'NO_LOGIN',
+  NO_LOGIN: 'NO_LOGIN',
   /** PG_PASSWORD_SCRAM_SHA_256 is a password-based authentication */
-  PG_PASSWORD_SCRAM_SHA_256 = 'PG_PASSWORD_SCRAM_SHA_256',
+  PG_PASSWORD_SCRAM_SHA_256: 'PG_PASSWORD_SCRAM_SHA_256',
   /**
    * LAKEBASE_OAUTH_V1 is for logging in with the managed identities like
    * the <Databricks> service principal, <Databricks> Group or <Databricks> user.
    */
-  LAKEBASE_OAUTH_V1 = 'LAKEBASE_OAUTH_V1',
-}
+  LAKEBASE_OAUTH_V1: 'LAKEBASE_OAUTH_V1',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type Role_AuthMethod =
+  | (typeof Role_AuthMethod)[keyof typeof Role_AuthMethod]
+  | (string & {});
 
 /**
  * The type of the <Databricks> managed identity that this Role represents.
  * Leave empty if you wish to create a regular Postgres role not associated with a <Databricks> identity.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum Role_IdentityType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Role_IdentityType = {
   /** Default value, not used */
-  IDENTITY_TYPE_UNSPECIFIED = 'IDENTITY_TYPE_UNSPECIFIED',
+  IDENTITY_TYPE_UNSPECIFIED: 'IDENTITY_TYPE_UNSPECIFIED',
   /** A user in a <Databricks> workspace. */
-  USER = 'USER',
+  USER: 'USER',
   /** A service principal in a <Databricks> workspace. */
-  SERVICE_PRINCIPAL = 'SERVICE_PRINCIPAL',
+  SERVICE_PRINCIPAL: 'SERVICE_PRINCIPAL',
   /** A group in a <Databricks> workspace. */
-  GROUP = 'GROUP',
-}
+  GROUP: 'GROUP',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type Role_IdentityType =
+  | (typeof Role_IdentityType)[keyof typeof Role_IdentityType]
+  | (string & {});
 
 /** Roles that the DatabaseInstanceRole can be a member of. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum Role_MembershipRole {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Role_MembershipRole = {
   /** Indicates that the DatabaseInstanceRole is not a member of any standard, managed roles. */
-  MEMBERSHIP_ROLE_UNSPECIFIED = 'MEMBERSHIP_ROLE_UNSPECIFIED',
+  MEMBERSHIP_ROLE_UNSPECIFIED: 'MEMBERSHIP_ROLE_UNSPECIFIED',
   /** Indicates membership in DATABRICKS_SUPERUSER, the highest set of privileges exposed to customers. */
-  DATABRICKS_SUPERUSER = 'DATABRICKS_SUPERUSER',
-}
+  DATABRICKS_SUPERUSER: 'DATABRICKS_SUPERUSER',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type Role_MembershipRole =
+  | (typeof Role_MembershipRole)[keyof typeof Role_MembershipRole]
+  | (string & {});
 
 /** Scheduling policy of the synced table's underlying pipeline. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy {
-  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED = 'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy = {
+  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED:
+    'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
   /**
    * Pipeline runs continuously after generating the initial data.
    * Requires the source table to have Change Data Feed (CDF) enabled.
    */
-  CONTINUOUS = 'CONTINUOUS',
+  CONTINUOUS: 'CONTINUOUS',
   /**
    * Pipeline stops after generating the initial data and can be triggered later (manually, through a cron job or through data triggers).
    * Requires the source table to have Change Data Feed (CDF) enabled.
    */
-  TRIGGERED = 'TRIGGERED',
+  TRIGGERED: 'TRIGGERED',
   /**
    * Pipeline stops after generating the initial data and can be triggered later (manually, through a cron job or through data triggers).
    * Successive updates always perform a full copy of the source table data (no incremental updates).
    * Does not require the source table to have Change Data Feed (CDF) enabled.
    */
-  SNAPSHOT = 'SNAPSHOT',
-}
+  SNAPSHOT: 'SNAPSHOT',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy =
+  | (typeof SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)[keyof typeof SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy]
+  | (string & {});
 
 /** Databricks Error that is returned by all Databricks APIs. */
 export interface ApiError {
@@ -2074,7 +2129,7 @@ export interface UpdateRoleRequest {
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
   .object({
-    error_code: z.enum(ErrorCode).optional(),
+    error_code: z.string().optional(),
     message: z.string().optional(),
     stack_trace: z.string().optional(),
     details: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -2161,8 +2216,8 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .optional(),
     default: z.boolean().optional(),
     is_protected: z.boolean().optional(),
-    current_state: z.enum(BranchStatus_State).optional(),
-    pending_state: z.enum(BranchStatus_State).optional(),
+    current_state: z.string().optional(),
+    pending_state: z.string().optional(),
     state_change_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -2420,7 +2475,7 @@ export const unmarshalEndpointSettingsSchema: z.ZodType<EndpointSettings> = z
 
 export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
   .object({
-    endpoint_type: z.enum(EndpointType).optional(),
+    endpoint_type: z.string().optional(),
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     disabled: z.boolean().optional(),
@@ -2452,12 +2507,12 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
 
 export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
-    endpoint_type: z.enum(EndpointType).optional(),
+    endpoint_type: z.string().optional(),
     hosts: z.lazy(() => unmarshalEndpointHostsSchema).optional(),
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
-    current_state: z.enum(EndpointStatus_State).optional(),
-    pending_state: z.enum(EndpointStatus_State).optional(),
+    current_state: z.string().optional(),
+    pending_state: z.string().optional(),
     disabled: z.boolean().optional(),
     suspend_timeout_duration: z
       .string()
@@ -2770,10 +2825,10 @@ export const unmarshalRole_AttributesSchema: z.ZodType<Role_Attributes> = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRole_RoleSpecSchema: z.ZodType<Role_RoleSpec> = z
   .object({
-    membership_roles: z.array(z.enum(Role_MembershipRole)).optional(),
-    identity_type: z.enum(Role_IdentityType).optional(),
+    membership_roles: z.array(z.string()).optional(),
+    identity_type: z.string().optional(),
     attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
-    auth_method: z.enum(Role_AuthMethod).optional(),
+    auth_method: z.string().optional(),
     postgres_role: z.string().optional(),
   })
   .transform(d => ({
@@ -2787,10 +2842,10 @@ export const unmarshalRole_RoleSpecSchema: z.ZodType<Role_RoleSpec> = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRole_RoleStatusSchema: z.ZodType<Role_RoleStatus> = z
   .object({
-    membership_roles: z.array(z.enum(Role_MembershipRole)).optional(),
-    identity_type: z.enum(Role_IdentityType).optional(),
+    membership_roles: z.array(z.string()).optional(),
+    identity_type: z.string().optional(),
     attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
-    auth_method: z.enum(Role_AuthMethod).optional(),
+    auth_method: z.string().optional(),
     postgres_role: z.string().optional(),
     role_id: z.string().optional(),
   })
@@ -2835,9 +2890,7 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
     .object({
       postgres_database: z.string().optional(),
       branch: z.string().optional(),
-      scheduling_policy: z
-        .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
-        .optional(),
+      scheduling_policy: z.string().optional(),
       source_table_full_name: z.string().optional(),
       primary_key_columns: z.array(z.string()).optional(),
       timeseries_key: z.string().optional(),
@@ -2864,12 +2917,12 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
   z
     .object({
       message: z.string().optional(),
-      detailed_state: z.enum(SyncedTableState).optional(),
+      detailed_state: z.string().optional(),
       last_sync: z.lazy(() => unmarshalSyncedTablePositionSchema).optional(),
       ongoing_sync_progress: z
         .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
         .optional(),
-      provisioning_phase: z.enum(ProvisioningPhase).optional(),
+      provisioning_phase: z.string().optional(),
       last_processed_commit_version: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -2879,9 +2932,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
         .transform(s => Temporal.Instant.from(s))
         .optional(),
       pipeline_id: z.string().optional(),
-      unity_catalog_provisioning_state: z
-        .enum(ProvisioningInfo_State)
-        .optional(),
+      unity_catalog_provisioning_state: z.string().optional(),
       project: z.string().optional(),
     })
     .transform(d => ({
@@ -3032,8 +3083,8 @@ export const marshalBranchStatusSchema: z.ZodType = z
       .optional(),
     default: z.boolean().optional(),
     isProtected: z.boolean().optional(),
-    currentState: z.enum(BranchStatus_State).optional(),
-    pendingState: z.enum(BranchStatus_State).optional(),
+    currentState: z.string().optional(),
+    pendingState: z.string().optional(),
     stateChangeTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3256,7 +3307,7 @@ export const marshalEndpointSettingsSchema: z.ZodType = z
 
 export const marshalEndpointSpecSchema: z.ZodType = z
   .object({
-    endpointType: z.enum(EndpointType).optional(),
+    endpointType: z.string().optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     disabled: z.boolean().optional(),
@@ -3293,12 +3344,12 @@ export const marshalEndpointSpecSchema: z.ZodType = z
 
 export const marshalEndpointStatusSchema: z.ZodType = z
   .object({
-    endpointType: z.enum(EndpointType).optional(),
+    endpointType: z.string().optional(),
     hosts: z.lazy(() => marshalEndpointHostsSchema).optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
-    currentState: z.enum(EndpointStatus_State).optional(),
-    pendingState: z.enum(EndpointStatus_State).optional(),
+    currentState: z.string().optional(),
+    pendingState: z.string().optional(),
     disabled: z.boolean().optional(),
     suspendTimeoutDuration: z
       .any()
@@ -3497,7 +3548,7 @@ export const marshalProjectStatusSchema: z.ZodType = z
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
   .object({
-    permissionSet: z.enum(RequestedClaims_PermissionSet).optional(),
+    permissionSet: z.string().optional(),
     resources: z.array(z.lazy(() => marshalRequestedResourceSchema)).optional(),
   })
   .transform(d => ({
@@ -3561,10 +3612,10 @@ export const marshalRole_AttributesSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalRole_RoleSpecSchema: z.ZodType = z
   .object({
-    membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
-    identityType: z.enum(Role_IdentityType).optional(),
+    membershipRoles: z.array(z.string()).optional(),
+    identityType: z.string().optional(),
     attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
-    authMethod: z.enum(Role_AuthMethod).optional(),
+    authMethod: z.string().optional(),
     postgresRole: z.string().optional(),
   })
   .transform(d => ({
@@ -3578,10 +3629,10 @@ export const marshalRole_RoleSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalRole_RoleStatusSchema: z.ZodType = z
   .object({
-    membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
-    identityType: z.enum(Role_IdentityType).optional(),
+    membershipRoles: z.array(z.string()).optional(),
+    identityType: z.string().optional(),
     attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
-    authMethod: z.enum(Role_AuthMethod).optional(),
+    authMethod: z.string().optional(),
     postgresRole: z.string().optional(),
     roleId: z.string().optional(),
   })
@@ -3620,9 +3671,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
   .object({
     postgresDatabase: z.string().optional(),
     branch: z.string().optional(),
-    schedulingPolicy: z
-      .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
-      .optional(),
+    schedulingPolicy: z.string().optional(),
     sourceTableFullName: z.string().optional(),
     primaryKeyColumns: z.array(z.string()).optional(),
     timeseriesKey: z.string().optional(),
@@ -3646,19 +3695,19 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
 export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
   .object({
     message: z.string().optional(),
-    detailedState: z.enum(SyncedTableState).optional(),
+    detailedState: z.string().optional(),
     lastSync: z.lazy(() => marshalSyncedTablePositionSchema).optional(),
     ongoingSyncProgress: z
       .lazy(() => marshalSyncedTablePipelineProgressSchema)
       .optional(),
-    provisioningPhase: z.enum(ProvisioningPhase).optional(),
+    provisioningPhase: z.string().optional(),
     lastProcessedCommitVersion: z.bigint().optional(),
     lastSyncTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     pipelineId: z.string().optional(),
-    unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
+    unityCatalogProvisioningState: z.string().optional(),
     project: z.string().optional(),
   })
   .transform(d => ({

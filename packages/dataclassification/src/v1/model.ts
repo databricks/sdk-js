@@ -5,12 +5,16 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Auto-tagging mode. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AutoTaggingConfig_AutoTaggingMode = {
+  AUTO_TAGGING_MODE_UNSPECIFIED: 'AUTO_TAGGING_MODE_UNSPECIFIED',
+  AUTO_TAGGING_DISABLED: 'AUTO_TAGGING_DISABLED',
+  AUTO_TAGGING_ENABLED: 'AUTO_TAGGING_ENABLED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AutoTaggingConfig_AutoTaggingMode {
-  AUTO_TAGGING_MODE_UNSPECIFIED = 'AUTO_TAGGING_MODE_UNSPECIFIED',
-  AUTO_TAGGING_DISABLED = 'AUTO_TAGGING_DISABLED',
-  AUTO_TAGGING_ENABLED = 'AUTO_TAGGING_ENABLED',
-}
+export type AutoTaggingConfig_AutoTaggingMode =
+  | (typeof AutoTaggingConfig_AutoTaggingMode)[keyof typeof AutoTaggingConfig_AutoTaggingMode]
+  | (string & {});
 
 /**
  * Auto-tagging configuration for a classification tag.
@@ -103,7 +107,7 @@ export interface UpdateCatalogConfigRequest {
 export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
   .object({
     classification_tag: z.string().optional(),
-    auto_tagging_mode: z.enum(AutoTaggingConfig_AutoTaggingMode).optional(),
+    auto_tagging_mode: z.string().optional(),
   })
   .transform(d => ({
     classificationTag: d.classification_tag,
@@ -145,7 +149,7 @@ export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_S
 export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
     classificationTag: z.string().optional(),
-    autoTaggingMode: z.enum(AutoTaggingConfig_AutoTaggingMode).optional(),
+    autoTaggingMode: z.string().optional(),
   })
   .transform(d => ({
     classification_tag: d.classificationTag,

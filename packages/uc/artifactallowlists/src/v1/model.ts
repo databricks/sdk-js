@@ -3,20 +3,28 @@
 import {z} from 'zod';
 
 /** The artifact type */
-export enum ArtifactType {
-  ARTIFACT_TYPE_UNSPECIFIED = 'ARTIFACT_TYPE_UNSPECIFIED',
-  INIT_SCRIPT = 'INIT_SCRIPT',
-  LIBRARY_JAR = 'LIBRARY_JAR',
-  LIBRARY_MAVEN = 'LIBRARY_MAVEN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ArtifactType = {
+  ARTIFACT_TYPE_UNSPECIFIED: 'ARTIFACT_TYPE_UNSPECIFIED',
+  INIT_SCRIPT: 'INIT_SCRIPT',
+  LIBRARY_JAR: 'LIBRARY_JAR',
+  LIBRARY_MAVEN: 'LIBRARY_MAVEN',
+} as const;
+export type ArtifactType =
+  | (typeof ArtifactType)[keyof typeof ArtifactType]
+  | (string & {});
 
 /** The artifact pattern matching type */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ArtifactMatcher_MatchType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ArtifactMatcher_MatchType = {
   /** In the future, we will add EXACT_MATCH, WILDCARDS, and more types */
-  MATCH_TYPE_UNSPECIFIED = 'MATCH_TYPE_UNSPECIFIED',
-  PREFIX_MATCH = 'PREFIX_MATCH',
-}
+  MATCH_TYPE_UNSPECIFIED: 'MATCH_TYPE_UNSPECIFIED',
+  PREFIX_MATCH: 'PREFIX_MATCH',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type ArtifactMatcher_MatchType =
+  | (typeof ArtifactMatcher_MatchType)[keyof typeof ArtifactMatcher_MatchType]
+  | (string & {});
 
 export interface ArtifactAllowlistInfo {
   /** A list of allowed artifact match patterns. */
@@ -77,7 +85,7 @@ export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistIn
 export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
   .object({
     artifact: z.string().optional(),
-    match_type: z.enum(ArtifactMatcher_MatchType).optional(),
+    match_type: z.string().optional(),
   })
   .transform(d => ({
     artifact: d.artifact,
@@ -87,7 +95,7 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
 export const marshalArtifactMatcherSchema: z.ZodType = z
   .object({
     artifact: z.string().optional(),
-    matchType: z.enum(ArtifactMatcher_MatchType).optional(),
+    matchType: z.string().optional(),
   })
   .transform(d => ({
     artifact: d.artifact,
@@ -96,7 +104,7 @@ export const marshalArtifactMatcherSchema: z.ZodType = z
 
 export const marshalSetArtifactAllowlistRequestSchema: z.ZodType = z
   .object({
-    artifactType: z.enum(ArtifactType).optional(),
+    artifactType: z.string().optional(),
     artifactMatchers: z
       .array(z.lazy(() => marshalArtifactMatcherSchema))
       .optional(),

@@ -6,14 +6,19 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto */
-export enum BaseEnvironmentType {
-  BASE_ENVIRONMENT_TYPE_UNSPECIFIED = 'BASE_ENVIRONMENT_TYPE_UNSPECIFIED',
-  CPU = 'CPU',
-  GPU = 'GPU',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BaseEnvironmentType = {
+  BASE_ENVIRONMENT_TYPE_UNSPECIFIED: 'BASE_ENVIRONMENT_TYPE_UNSPECIFIED',
+  CPU: 'CPU',
+  GPU: 'GPU',
+} as const;
+export type BaseEnvironmentType =
+  | (typeof BaseEnvironmentType)[keyof typeof BaseEnvironmentType]
+  | (string & {});
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
-export enum ErrorCode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
@@ -26,7 +31,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNKNOWN = 2;
    * - HTTP code: 500 Internal Server Error
    */
-  UNKNOWN = 'UNKNOWN',
+  UNKNOWN: 'UNKNOWN',
   /**
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
@@ -39,7 +44,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
    */
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
   /**
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
@@ -54,13 +59,13 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  TEMPORARILY_UNAVAILABLE = 'TEMPORARILY_UNAVAILABLE',
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that an IOException has been internally thrown.
    */
-  IO_ERROR = 'IO_ERROR',
+  IO_ERROR: 'IO_ERROR',
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
@@ -71,14 +76,14 @@ export enum ErrorCode {
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
    */
-  BAD_REQUEST = 'BAD_REQUEST',
+  BAD_REQUEST: 'BAD_REQUEST',
   /**
    * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
    * gateway proxy to safely retry the request.
    */
-  SERVICE_UNDER_MAINTENANCE = 'SERVICE_UNDER_MAINTENANCE',
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
   /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
-  WORKSPACE_TEMPORARILY_UNAVAILABLE = 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
   /**
    * The deadline expired before the operation could complete. For operations that change the state
    * of the system, this error may be returned even if the operation has completed successfully.
@@ -91,7 +96,7 @@ export enum ErrorCode {
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
    */
-  DEADLINE_EXCEEDED = 'DEADLINE_EXCEEDED',
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
@@ -100,7 +105,7 @@ export enum ErrorCode {
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
    */
-  CANCELLED = 'CANCELLED',
+  CANCELLED: 'CANCELLED',
   /**
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
@@ -113,7 +118,7 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  RESOURCE_EXHAUSTED = 'RESOURCE_EXHAUSTED',
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
@@ -122,7 +127,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
    */
-  ABORTED = 'ABORTED',
+  ABORTED: 'ABORTED',
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
@@ -131,7 +136,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  NOT_FOUND = 'NOT_FOUND',
+  NOT_FOUND: 'NOT_FOUND',
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
@@ -142,7 +147,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
    */
-  ALREADY_EXISTS = 'ALREADY_EXISTS',
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -154,7 +159,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  UNAUTHENTICATED = 'UNAUTHENTICATED',
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
   /**
    * The service is currently unavailable. Please note that the unavailability may or may not be transient.
    * That means if this is a non-transient condition, retrying it does not work. If the unavailability
@@ -169,7 +174,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  UNAVAILABLE = 'UNAVAILABLE',
+  UNAVAILABLE: 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
    *
@@ -177,7 +182,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
    */
-  INVALID_PARAMETER_VALUE = 'INVALID_PARAMETER_VALUE',
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
@@ -186,15 +191,15 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  ENDPOINT_NOT_FOUND = 'ENDPOINT_NOT_FOUND',
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
   /** Indicates that the given API request was malformed. */
-  MALFORMED_REQUEST = 'MALFORMED_REQUEST',
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * If one or more of the inputs to a given RPC are not in a valid state for the action.
    */
-  INVALID_STATE = 'INVALID_STATE',
+  INVALID_STATE: 'INVALID_STATE',
   /**
    * The caller does not have permission to execute the specified operation.
    * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
@@ -208,7 +213,7 @@ export enum ErrorCode {
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
    */
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
   /**
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
@@ -220,7 +225,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  FEATURE_DISABLED = 'FEATURE_DISABLED',
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -241,7 +246,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  CUSTOMER_UNAUTHORIZED = 'CUSTOMER_UNAUTHORIZED',
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
@@ -255,16 +260,16 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  REQUEST_LIMIT_EXCEEDED = 'REQUEST_LIMIT_EXCEEDED',
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
   /** Indicates API request was rejected due a conflict with an existing resource. */
-  RESOURCE_CONFLICT = 'RESOURCE_CONFLICT',
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that the HTTP response cannot be correctly deserialized.
    * This currently is only used in DUST test clients, and not by any real service code.
    */
-  UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
    *
@@ -272,7 +277,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
    */
-  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
    *
@@ -287,15 +292,15 @@ export enum ErrorCode {
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
    */
-  DATA_LOSS = 'DATA_LOSS',
+  DATA_LOSS: 'DATA_LOSS',
   /** If the user attempts to perform an invalid state transition on a shard. */
-  INVALID_STATE_TRANSITION = 'INVALID_STATE_TRANSITION',
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Unable to perform the operation because the shard was locked by some other operation.
    */
-  COULD_NOT_ACQUIRE_LOCK = 'COULD_NOT_ACQUIRE_LOCK',
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
   /**
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
@@ -303,7 +308,7 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that already exists.
    */
-  RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
@@ -311,225 +316,233 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that does not exist.
    */
-  RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_BLOCK_SIZE_EXCEEDED = 'MAX_BLOCK_SIZE_EXCEEDED',
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_READ_SIZE_EXCEEDED = 'MAX_READ_SIZE_EXCEEDED',
-  PARTIAL_DELETE = 'PARTIAL_DELETE',
-  MAX_LIST_SIZE_EXCEEDED = 'MAX_LIST_SIZE_EXCEEDED',
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DRY_RUN_FAILED = 'DRY_RUN_FAILED',
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Cluster request was rejected because it would exceed a resource limit.
    */
-  RESOURCE_LIMIT_EXCEEDED = 'RESOURCE_LIMIT_EXCEEDED',
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_NOT_EMPTY = 'DIRECTORY_NOT_EMPTY',
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_PROTECTED = 'DIRECTORY_PROTECTED',
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_NOTEBOOK_SIZE_EXCEEDED = 'MAX_NOTEBOOK_SIZE_EXCEEDED',
-  MAX_CHILD_NODE_SIZE_EXCEEDED = 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_LONG = 'SEARCH_QUERY_TOO_LONG',
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_SHORT = 'SEARCH_QUERY_TOO_SHORT',
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST = 'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PERMISSION_NOT_PROPAGATED = 'PERMISSION_NOT_PROPAGATED',
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DEPLOYMENT_TIMEOUT = 'DEPLOYMENT_TIMEOUT',
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_CONFLICT = 'GIT_CONFLICT',
+  GIT_CONFLICT: 'GIT_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_UNKNOWN_REF = 'GIT_UNKNOWN_REF',
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_SENSITIVE_TOKEN_DETECTED = 'GIT_SENSITIVE_TOKEN_DETECTED',
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_URL_NOT_ON_ALLOW_LIST = 'GIT_URL_NOT_ON_ALLOW_LIST',
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_REMOTE_ERROR = 'GIT_REMOTE_ERROR',
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROJECTS_OPERATION_TIMEOUT = 'PROJECTS_OPERATION_TIMEOUT',
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  IPYNB_FILE_IN_REPO = 'IPYNB_FILE_IN_REPO',
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  INSECURE_PARTNER_RESPONSE = 'INSECURE_PARTNER_RESPONSE',
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MALFORMED_PARTNER_RESPONSE = 'MALFORMED_PARTNER_RESPONSE',
-  METASTORE_DOES_NOT_EXIST = 'METASTORE_DOES_NOT_EXIST',
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_DOES_NOT_EXIST = 'DAC_DOES_NOT_EXIST',
-  CATALOG_DOES_NOT_EXIST = 'CATALOG_DOES_NOT_EXIST',
-  SCHEMA_DOES_NOT_EXIST = 'SCHEMA_DOES_NOT_EXIST',
-  TABLE_DOES_NOT_EXIST = 'TABLE_DOES_NOT_EXIST',
-  SHARE_DOES_NOT_EXIST = 'SHARE_DOES_NOT_EXIST',
-  RECIPIENT_DOES_NOT_EXIST = 'RECIPIENT_DOES_NOT_EXIST',
-  STORAGE_CREDENTIAL_DOES_NOT_EXIST = 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
-  EXTERNAL_LOCATION_DOES_NOT_EXIST = 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
-  PRINCIPAL_DOES_NOT_EXIST = 'PRINCIPAL_DOES_NOT_EXIST',
-  PROVIDER_DOES_NOT_EXIST = 'PROVIDER_DOES_NOT_EXIST',
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_ALREADY_EXISTS = 'METASTORE_ALREADY_EXISTS',
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_ALREADY_EXISTS = 'DAC_ALREADY_EXISTS',
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_ALREADY_EXISTS = 'CATALOG_ALREADY_EXISTS',
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_ALREADY_EXISTS = 'SCHEMA_ALREADY_EXISTS',
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  TABLE_ALREADY_EXISTS = 'TABLE_ALREADY_EXISTS',
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SHARE_ALREADY_EXISTS = 'SHARE_ALREADY_EXISTS',
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  RECIPIENT_ALREADY_EXISTS = 'RECIPIENT_ALREADY_EXISTS',
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  STORAGE_CREDENTIAL_ALREADY_EXISTS = 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  EXTERNAL_LOCATION_ALREADY_EXISTS = 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_ALREADY_EXISTS = 'PROVIDER_ALREADY_EXISTS',
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_NOT_EMPTY = 'CATALOG_NOT_EMPTY',
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_NOT_EMPTY = 'SCHEMA_NOT_EMPTY',
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_NOT_EMPTY = 'METASTORE_NOT_EMPTY',
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_SHARE_NOT_ACCESSIBLE = 'PROVIDER_SHARE_NOT_ACCESSIBLE',
-}
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
 
 /** Status of the environment materialization. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum WorkspaceBaseEnvironmentCache_Status {
-  STATUS_UNSPECIFIED = 'STATUS_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const WorkspaceBaseEnvironmentCache_Status = {
+  STATUS_UNSPECIFIED: 'STATUS_UNSPECIFIED',
   /** Materialized environment creation is pending. */
-  PENDING = 'PENDING',
+  PENDING: 'PENDING',
   /** Materialized environment has been successfully created. */
-  CREATED = 'CREATED',
+  CREATED: 'CREATED',
   /** Materialized environment creation failed. */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** Materialized environment has expired. */
-  EXPIRED = 'EXPIRED',
+  EXPIRED: 'EXPIRED',
   /** Materialized environment is invalid. */
-  INVALID = 'INVALID',
+  INVALID: 'INVALID',
   /** Materialized environment is being refreshed. */
-  REFRESHING = 'REFRESHING',
-}
+  REFRESHING: 'REFRESHING',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type WorkspaceBaseEnvironmentCache_Status =
+  | (typeof WorkspaceBaseEnvironmentCache_Status)[keyof typeof WorkspaceBaseEnvironmentCache_Status]
+  | (string & {});
 
 /** Databricks Error that is returned by all Databricks APIs. */
 export interface ApiError {
@@ -756,7 +769,7 @@ export interface WorkspaceBaseEnvironmentOperationMetadata {}
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
   .object({
-    error_code: z.enum(ErrorCode).optional(),
+    error_code: z.string().optional(),
     message: z.string().optional(),
     stack_trace: z.string().optional(),
     details: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -830,10 +843,10 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
         .string()
         .transform(s => Temporal.Instant.from(s))
         .optional(),
-      status: z.enum(WorkspaceBaseEnvironmentCache_Status).optional(),
+      status: z.string().optional(),
       message: z.string().optional(),
       is_default: z.boolean().optional(),
-      base_environment_type: z.enum(BaseEnvironmentType).optional(),
+      base_environment_type: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -887,10 +900,10 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    status: z.enum(WorkspaceBaseEnvironmentCache_Status).optional(),
+    status: z.string().optional(),
     message: z.string().optional(),
     isDefault: z.boolean().optional(),
-    baseEnvironmentType: z.enum(BaseEnvironmentType).optional(),
+    baseEnvironmentType: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,

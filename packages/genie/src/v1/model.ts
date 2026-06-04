@@ -2,35 +2,40 @@
 
 import {z} from 'zod';
 
-export enum ColumnTypeName {
-  BOOLEAN = 'BOOLEAN',
-  BYTE = 'BYTE',
-  SHORT = 'SHORT',
-  INT = 'INT',
-  LONG = 'LONG',
-  FLOAT = 'FLOAT',
-  DOUBLE = 'DOUBLE',
-  DATE = 'DATE',
-  TIMESTAMP = 'TIMESTAMP',
-  STRING = 'STRING',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-  INTERVAL = 'INTERVAL',
-  ARRAY = 'ARRAY',
-  STRUCT = 'STRUCT',
-  MAP = 'MAP',
-  CHAR = 'CHAR',
-  NULL = 'NULL',
-  USER_DEFINED_TYPE = 'USER_DEFINED_TYPE',
-  TIMESTAMP_NTZ = 'TIMESTAMP_NTZ',
-  VARIANT = 'VARIANT',
-  GEOMETRY = 'GEOMETRY',
-  GEOGRAPHY = 'GEOGRAPHY',
-  TABLE_TYPE = 'TABLE_TYPE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ColumnTypeName = {
+  BOOLEAN: 'BOOLEAN',
+  BYTE: 'BYTE',
+  SHORT: 'SHORT',
+  INT: 'INT',
+  LONG: 'LONG',
+  FLOAT: 'FLOAT',
+  DOUBLE: 'DOUBLE',
+  DATE: 'DATE',
+  TIMESTAMP: 'TIMESTAMP',
+  STRING: 'STRING',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+  INTERVAL: 'INTERVAL',
+  ARRAY: 'ARRAY',
+  STRUCT: 'STRUCT',
+  MAP: 'MAP',
+  CHAR: 'CHAR',
+  NULL: 'NULL',
+  USER_DEFINED_TYPE: 'USER_DEFINED_TYPE',
+  TIMESTAMP_NTZ: 'TIMESTAMP_NTZ',
+  VARIANT: 'VARIANT',
+  GEOMETRY: 'GEOMETRY',
+  GEOGRAPHY: 'GEOGRAPHY',
+  TABLE_TYPE: 'TABLE_TYPE',
+} as const;
+export type ColumnTypeName =
+  | (typeof ColumnTypeName)[keyof typeof ColumnTypeName]
+  | (string & {});
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
-export enum ErrorCode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
@@ -43,7 +48,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNKNOWN = 2;
    * - HTTP code: 500 Internal Server Error
    */
-  UNKNOWN = 'UNKNOWN',
+  UNKNOWN: 'UNKNOWN',
   /**
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
@@ -56,7 +61,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
    */
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
   /**
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
@@ -71,13 +76,13 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  TEMPORARILY_UNAVAILABLE = 'TEMPORARILY_UNAVAILABLE',
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that an IOException has been internally thrown.
    */
-  IO_ERROR = 'IO_ERROR',
+  IO_ERROR: 'IO_ERROR',
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
@@ -88,14 +93,14 @@ export enum ErrorCode {
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
    */
-  BAD_REQUEST = 'BAD_REQUEST',
+  BAD_REQUEST: 'BAD_REQUEST',
   /**
    * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
    * gateway proxy to safely retry the request.
    */
-  SERVICE_UNDER_MAINTENANCE = 'SERVICE_UNDER_MAINTENANCE',
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
   /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
-  WORKSPACE_TEMPORARILY_UNAVAILABLE = 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
   /**
    * The deadline expired before the operation could complete. For operations that change the state
    * of the system, this error may be returned even if the operation has completed successfully.
@@ -108,7 +113,7 @@ export enum ErrorCode {
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
    */
-  DEADLINE_EXCEEDED = 'DEADLINE_EXCEEDED',
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
@@ -117,7 +122,7 @@ export enum ErrorCode {
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
    */
-  CANCELLED = 'CANCELLED',
+  CANCELLED: 'CANCELLED',
   /**
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
@@ -130,7 +135,7 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  RESOURCE_EXHAUSTED = 'RESOURCE_EXHAUSTED',
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
@@ -139,7 +144,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
    */
-  ABORTED = 'ABORTED',
+  ABORTED: 'ABORTED',
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
@@ -148,7 +153,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  NOT_FOUND = 'NOT_FOUND',
+  NOT_FOUND: 'NOT_FOUND',
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
@@ -159,7 +164,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
    */
-  ALREADY_EXISTS = 'ALREADY_EXISTS',
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -171,7 +176,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  UNAUTHENTICATED = 'UNAUTHENTICATED',
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
   /**
    * The service is currently unavailable. Please note that the unavailability may or may not be transient.
    * That means if this is a non-transient condition, retrying it does not work. If the unavailability
@@ -186,7 +191,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  UNAVAILABLE = 'UNAVAILABLE',
+  UNAVAILABLE: 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
    *
@@ -194,7 +199,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
    */
-  INVALID_PARAMETER_VALUE = 'INVALID_PARAMETER_VALUE',
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
@@ -203,15 +208,15 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  ENDPOINT_NOT_FOUND = 'ENDPOINT_NOT_FOUND',
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
   /** Indicates that the given API request was malformed. */
-  MALFORMED_REQUEST = 'MALFORMED_REQUEST',
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * If one or more of the inputs to a given RPC are not in a valid state for the action.
    */
-  INVALID_STATE = 'INVALID_STATE',
+  INVALID_STATE: 'INVALID_STATE',
   /**
    * The caller does not have permission to execute the specified operation.
    * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
@@ -225,7 +230,7 @@ export enum ErrorCode {
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
    */
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
   /**
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
@@ -237,7 +242,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  FEATURE_DISABLED = 'FEATURE_DISABLED',
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -258,7 +263,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  CUSTOMER_UNAUTHORIZED = 'CUSTOMER_UNAUTHORIZED',
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
@@ -272,16 +277,16 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  REQUEST_LIMIT_EXCEEDED = 'REQUEST_LIMIT_EXCEEDED',
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
   /** Indicates API request was rejected due a conflict with an existing resource. */
-  RESOURCE_CONFLICT = 'RESOURCE_CONFLICT',
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that the HTTP response cannot be correctly deserialized.
    * This currently is only used in DUST test clients, and not by any real service code.
    */
-  UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
    *
@@ -289,7 +294,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
    */
-  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
    *
@@ -304,15 +309,15 @@ export enum ErrorCode {
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
    */
-  DATA_LOSS = 'DATA_LOSS',
+  DATA_LOSS: 'DATA_LOSS',
   /** If the user attempts to perform an invalid state transition on a shard. */
-  INVALID_STATE_TRANSITION = 'INVALID_STATE_TRANSITION',
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Unable to perform the operation because the shard was locked by some other operation.
    */
-  COULD_NOT_ACQUIRE_LOCK = 'COULD_NOT_ACQUIRE_LOCK',
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
   /**
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
@@ -320,7 +325,7 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that already exists.
    */
-  RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
@@ -328,245 +333,267 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that does not exist.
    */
-  RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_BLOCK_SIZE_EXCEEDED = 'MAX_BLOCK_SIZE_EXCEEDED',
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_READ_SIZE_EXCEEDED = 'MAX_READ_SIZE_EXCEEDED',
-  PARTIAL_DELETE = 'PARTIAL_DELETE',
-  MAX_LIST_SIZE_EXCEEDED = 'MAX_LIST_SIZE_EXCEEDED',
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DRY_RUN_FAILED = 'DRY_RUN_FAILED',
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Cluster request was rejected because it would exceed a resource limit.
    */
-  RESOURCE_LIMIT_EXCEEDED = 'RESOURCE_LIMIT_EXCEEDED',
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_NOT_EMPTY = 'DIRECTORY_NOT_EMPTY',
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_PROTECTED = 'DIRECTORY_PROTECTED',
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_NOTEBOOK_SIZE_EXCEEDED = 'MAX_NOTEBOOK_SIZE_EXCEEDED',
-  MAX_CHILD_NODE_SIZE_EXCEEDED = 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_LONG = 'SEARCH_QUERY_TOO_LONG',
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_SHORT = 'SEARCH_QUERY_TOO_SHORT',
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST = 'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PERMISSION_NOT_PROPAGATED = 'PERMISSION_NOT_PROPAGATED',
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DEPLOYMENT_TIMEOUT = 'DEPLOYMENT_TIMEOUT',
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_CONFLICT = 'GIT_CONFLICT',
+  GIT_CONFLICT: 'GIT_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_UNKNOWN_REF = 'GIT_UNKNOWN_REF',
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_SENSITIVE_TOKEN_DETECTED = 'GIT_SENSITIVE_TOKEN_DETECTED',
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_URL_NOT_ON_ALLOW_LIST = 'GIT_URL_NOT_ON_ALLOW_LIST',
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_REMOTE_ERROR = 'GIT_REMOTE_ERROR',
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROJECTS_OPERATION_TIMEOUT = 'PROJECTS_OPERATION_TIMEOUT',
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  IPYNB_FILE_IN_REPO = 'IPYNB_FILE_IN_REPO',
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  INSECURE_PARTNER_RESPONSE = 'INSECURE_PARTNER_RESPONSE',
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MALFORMED_PARTNER_RESPONSE = 'MALFORMED_PARTNER_RESPONSE',
-  METASTORE_DOES_NOT_EXIST = 'METASTORE_DOES_NOT_EXIST',
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_DOES_NOT_EXIST = 'DAC_DOES_NOT_EXIST',
-  CATALOG_DOES_NOT_EXIST = 'CATALOG_DOES_NOT_EXIST',
-  SCHEMA_DOES_NOT_EXIST = 'SCHEMA_DOES_NOT_EXIST',
-  TABLE_DOES_NOT_EXIST = 'TABLE_DOES_NOT_EXIST',
-  SHARE_DOES_NOT_EXIST = 'SHARE_DOES_NOT_EXIST',
-  RECIPIENT_DOES_NOT_EXIST = 'RECIPIENT_DOES_NOT_EXIST',
-  STORAGE_CREDENTIAL_DOES_NOT_EXIST = 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
-  EXTERNAL_LOCATION_DOES_NOT_EXIST = 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
-  PRINCIPAL_DOES_NOT_EXIST = 'PRINCIPAL_DOES_NOT_EXIST',
-  PROVIDER_DOES_NOT_EXIST = 'PROVIDER_DOES_NOT_EXIST',
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_ALREADY_EXISTS = 'METASTORE_ALREADY_EXISTS',
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_ALREADY_EXISTS = 'DAC_ALREADY_EXISTS',
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_ALREADY_EXISTS = 'CATALOG_ALREADY_EXISTS',
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_ALREADY_EXISTS = 'SCHEMA_ALREADY_EXISTS',
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  TABLE_ALREADY_EXISTS = 'TABLE_ALREADY_EXISTS',
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SHARE_ALREADY_EXISTS = 'SHARE_ALREADY_EXISTS',
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  RECIPIENT_ALREADY_EXISTS = 'RECIPIENT_ALREADY_EXISTS',
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  STORAGE_CREDENTIAL_ALREADY_EXISTS = 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  EXTERNAL_LOCATION_ALREADY_EXISTS = 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_ALREADY_EXISTS = 'PROVIDER_ALREADY_EXISTS',
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_NOT_EMPTY = 'CATALOG_NOT_EMPTY',
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_NOT_EMPTY = 'SCHEMA_NOT_EMPTY',
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_NOT_EMPTY = 'METASTORE_NOT_EMPTY',
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_SHARE_NOT_ACCESSIBLE = 'PROVIDER_SHARE_NOT_ACCESSIBLE',
-}
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
 
-export enum EvaluationStatusType {
-  EVALUATION_STATUS_TYPE_UNSPECIFIED = 'EVALUATION_STATUS_TYPE_UNSPECIFIED',
-  RUNNING = 'RUNNING',
-  DONE = 'DONE',
-  NOT_STARTED = 'NOT_STARTED',
-  EVALUATION_FAILED = 'EVALUATION_FAILED',
-  EVALUATION_CANCELLED = 'EVALUATION_CANCELLED',
-  EVALUATION_TIMEOUT = 'EVALUATION_TIMEOUT',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EvaluationStatusType = {
+  EVALUATION_STATUS_TYPE_UNSPECIFIED: 'EVALUATION_STATUS_TYPE_UNSPECIFIED',
+  RUNNING: 'RUNNING',
+  DONE: 'DONE',
+  NOT_STARTED: 'NOT_STARTED',
+  EVALUATION_FAILED: 'EVALUATION_FAILED',
+  EVALUATION_CANCELLED: 'EVALUATION_CANCELLED',
+  EVALUATION_TIMEOUT: 'EVALUATION_TIMEOUT',
+} as const;
+export type EvaluationStatusType =
+  | (typeof EvaluationStatusType)[keyof typeof EvaluationStatusType]
+  | (string & {});
 
-export enum Format {
-  FORMAT_UNSPECIFIED = 'FORMAT_UNSPECIFIED',
-  JSON_ARRAY = 'JSON_ARRAY',
-  ARROW_STREAM = 'ARROW_STREAM',
-  CSV = 'CSV',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Format = {
+  FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
+  JSON_ARRAY: 'JSON_ARRAY',
+  ARROW_STREAM: 'ARROW_STREAM',
+  CSV: 'CSV',
+} as const;
+export type Format = (typeof Format)[keyof typeof Format] | (string & {});
 
-export enum GenieEvalAssessment {
-  GENIE_EVAL_ASSESSMENT_UNSPECIFIED = 'GENIE_EVAL_ASSESSMENT_UNSPECIFIED',
-  GOOD = 'GOOD',
-  BAD = 'BAD',
-  NEEDS_REVIEW = 'NEEDS_REVIEW',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GenieEvalAssessment = {
+  GENIE_EVAL_ASSESSMENT_UNSPECIFIED: 'GENIE_EVAL_ASSESSMENT_UNSPECIFIED',
+  GOOD: 'GOOD',
+  BAD: 'BAD',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+} as const;
+export type GenieEvalAssessment =
+  | (typeof GenieEvalAssessment)[keyof typeof GenieEvalAssessment]
+  | (string & {});
 
-export enum GenieEvalResponseType {
-  GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED = 'GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED',
-  TEXT = 'TEXT',
-  SQL = 'SQL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GenieEvalResponseType = {
+  GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED: 'GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED',
+  TEXT: 'TEXT',
+  SQL: 'SQL',
+} as const;
+export type GenieEvalResponseType =
+  | (typeof GenieEvalResponseType)[keyof typeof GenieEvalResponseType]
+  | (string & {});
 
 /** Feedback rating for Genie messages */
-export enum GenieFeedbackRating {
-  GENIE_FEEDBACK_RATING_UNSPECIFIED = 'GENIE_FEEDBACK_RATING_UNSPECIFIED',
-  POSITIVE = 'POSITIVE',
-  NEGATIVE = 'NEGATIVE',
-  NONE = 'NONE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GenieFeedbackRating = {
+  GENIE_FEEDBACK_RATING_UNSPECIFIED: 'GENIE_FEEDBACK_RATING_UNSPECIFIED',
+  POSITIVE: 'POSITIVE',
+  NEGATIVE: 'NEGATIVE',
+  NONE: 'NONE',
+} as const;
+export type GenieFeedbackRating =
+  | (typeof GenieFeedbackRating)[keyof typeof GenieFeedbackRating]
+  | (string & {});
 
 /**
  * copied from proto3 / Google Well Known Types, source:
@@ -576,47 +603,66 @@ export enum GenieFeedbackRating {
  *
  * The JSON representation for `NullValue` is JSON `null`.
  */
-export enum NullValue {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const NullValue = {
   /** Null value. */
-  NULL_VALUE = 'NULL_VALUE',
-}
+  NULL_VALUE: 'NULL_VALUE',
+} as const;
+export type NullValue =
+  | (typeof NullValue)[keyof typeof NullValue]
+  | (string & {});
 
-export enum ScoreReason {
-  SCORE_REASON_UNSPECIFIED = 'SCORE_REASON_UNSPECIFIED',
-  EMPTY_RESULT = 'EMPTY_RESULT',
-  RESULT_MISSING_ROWS = 'RESULT_MISSING_ROWS',
-  RESULT_EXTRA_ROWS = 'RESULT_EXTRA_ROWS',
-  RESULT_MISSING_COLUMNS = 'RESULT_MISSING_COLUMNS',
-  RESULT_EXTRA_COLUMNS = 'RESULT_EXTRA_COLUMNS',
-  SINGLE_CELL_DIFFERENCE = 'SINGLE_CELL_DIFFERENCE',
-  EMPTY_GOOD_SQL = 'EMPTY_GOOD_SQL',
-  COLUMN_TYPE_DIFFERENCE = 'COLUMN_TYPE_DIFFERENCE',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScoreReason = {
+  SCORE_REASON_UNSPECIFIED: 'SCORE_REASON_UNSPECIFIED',
+  EMPTY_RESULT: 'EMPTY_RESULT',
+  RESULT_MISSING_ROWS: 'RESULT_MISSING_ROWS',
+  RESULT_EXTRA_ROWS: 'RESULT_EXTRA_ROWS',
+  RESULT_MISSING_COLUMNS: 'RESULT_MISSING_COLUMNS',
+  RESULT_EXTRA_COLUMNS: 'RESULT_EXTRA_COLUMNS',
+  SINGLE_CELL_DIFFERENCE: 'SINGLE_CELL_DIFFERENCE',
+  EMPTY_GOOD_SQL: 'EMPTY_GOOD_SQL',
+  COLUMN_TYPE_DIFFERENCE: 'COLUMN_TYPE_DIFFERENCE',
   /** Deprecated LLM Judge error categories - kept for backward compatibility */
-  LLM_JUDGE_MISSING_JOIN = 'LLM_JUDGE_MISSING_JOIN',
-  LLM_JUDGE_WRONG_FILTER = 'LLM_JUDGE_WRONG_FILTER',
-  LLM_JUDGE_WRONG_AGGREGATION = 'LLM_JUDGE_WRONG_AGGREGATION',
-  LLM_JUDGE_WRONG_COLUMNS = 'LLM_JUDGE_WRONG_COLUMNS',
-  LLM_JUDGE_SYNTAX_ERROR = 'LLM_JUDGE_SYNTAX_ERROR',
-  LLM_JUDGE_SEMANTIC_ERROR = 'LLM_JUDGE_SEMANTIC_ERROR',
+  LLM_JUDGE_MISSING_JOIN: 'LLM_JUDGE_MISSING_JOIN',
+  LLM_JUDGE_WRONG_FILTER: 'LLM_JUDGE_WRONG_FILTER',
+  LLM_JUDGE_WRONG_AGGREGATION: 'LLM_JUDGE_WRONG_AGGREGATION',
+  LLM_JUDGE_WRONG_COLUMNS: 'LLM_JUDGE_WRONG_COLUMNS',
+  LLM_JUDGE_SYNTAX_ERROR: 'LLM_JUDGE_SYNTAX_ERROR',
+  LLM_JUDGE_SEMANTIC_ERROR: 'LLM_JUDGE_SEMANTIC_ERROR',
   /** New LLM Judge error categories - aligned with LlmJudgeFunctionSpec */
-  LLM_JUDGE_OTHER = 'LLM_JUDGE_OTHER',
-  LLM_JUDGE_MISSING_OR_INCORRECT_FILTER = 'LLM_JUDGE_MISSING_OR_INCORRECT_FILTER',
-  LLM_JUDGE_INCOMPLETE_OR_PARTIAL_OUTPUT = 'LLM_JUDGE_INCOMPLETE_OR_PARTIAL_OUTPUT',
-  LLM_JUDGE_MISINTERPRETATION_OF_USER_REQUEST = 'LLM_JUDGE_MISINTERPRETATION_OF_USER_REQUEST',
-  LLM_JUDGE_INSTRUCTION_COMPLIANCE_OR_MISSING_BUSINESS_LOGIC = 'LLM_JUDGE_INSTRUCTION_COMPLIANCE_OR_MISSING_BUSINESS_LOGIC',
-  LLM_JUDGE_INCORRECT_METRIC_CALCULATION = 'LLM_JUDGE_INCORRECT_METRIC_CALCULATION',
-  LLM_JUDGE_INCORRECT_TABLE_OR_FIELD_USAGE = 'LLM_JUDGE_INCORRECT_TABLE_OR_FIELD_USAGE',
-  LLM_JUDGE_INCORRECT_FUNCTION_USAGE = 'LLM_JUDGE_INCORRECT_FUNCTION_USAGE',
-  LLM_JUDGE_MISSING_OR_INCORRECT_JOIN = 'LLM_JUDGE_MISSING_OR_INCORRECT_JOIN',
-  LLM_JUDGE_MISSING_OR_INCORRECT_AGGREGATION = 'LLM_JUDGE_MISSING_OR_INCORRECT_AGGREGATION',
-  LLM_JUDGE_FORMATTING_ERROR = 'LLM_JUDGE_FORMATTING_ERROR',
-}
+  LLM_JUDGE_OTHER: 'LLM_JUDGE_OTHER',
+  LLM_JUDGE_MISSING_OR_INCORRECT_FILTER:
+    'LLM_JUDGE_MISSING_OR_INCORRECT_FILTER',
+  LLM_JUDGE_INCOMPLETE_OR_PARTIAL_OUTPUT:
+    'LLM_JUDGE_INCOMPLETE_OR_PARTIAL_OUTPUT',
+  LLM_JUDGE_MISINTERPRETATION_OF_USER_REQUEST:
+    'LLM_JUDGE_MISINTERPRETATION_OF_USER_REQUEST',
+  LLM_JUDGE_INSTRUCTION_COMPLIANCE_OR_MISSING_BUSINESS_LOGIC:
+    'LLM_JUDGE_INSTRUCTION_COMPLIANCE_OR_MISSING_BUSINESS_LOGIC',
+  LLM_JUDGE_INCORRECT_METRIC_CALCULATION:
+    'LLM_JUDGE_INCORRECT_METRIC_CALCULATION',
+  LLM_JUDGE_INCORRECT_TABLE_OR_FIELD_USAGE:
+    'LLM_JUDGE_INCORRECT_TABLE_OR_FIELD_USAGE',
+  LLM_JUDGE_INCORRECT_FUNCTION_USAGE: 'LLM_JUDGE_INCORRECT_FUNCTION_USAGE',
+  LLM_JUDGE_MISSING_OR_INCORRECT_JOIN: 'LLM_JUDGE_MISSING_OR_INCORRECT_JOIN',
+  LLM_JUDGE_MISSING_OR_INCORRECT_AGGREGATION:
+    'LLM_JUDGE_MISSING_OR_INCORRECT_AGGREGATION',
+  LLM_JUDGE_FORMATTING_ERROR: 'LLM_JUDGE_FORMATTING_ERROR',
+} as const;
+export type ScoreReason =
+  | (typeof ScoreReason)[keyof typeof ScoreReason]
+  | (string & {});
 
 /** Purpose/intent of a text attachment */
-export enum TextAttachmentPurpose {
-  TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED = 'TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED',
-  FOLLOW_UP_QUESTION = 'FOLLOW_UP_QUESTION',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TextAttachmentPurpose = {
+  TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED: 'TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED',
+  FOLLOW_UP_QUESTION: 'FOLLOW_UP_QUESTION',
+} as const;
+export type TextAttachmentPurpose =
+  | (typeof TextAttachmentPurpose)[keyof typeof TextAttachmentPurpose]
+  | (string & {});
 
 /**
  * ThoughtType.
@@ -630,87 +676,121 @@ export enum TextAttachmentPurpose {
  * The category of a Thought.
  * Additional values may be added in the future.
  */
-export enum ThoughtType {
-  THOUGHT_TYPE_UNSPECIFIED = 'THOUGHT_TYPE_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ThoughtType = {
+  THOUGHT_TYPE_UNSPECIFIED: 'THOUGHT_TYPE_UNSPECIFIED',
   /** A high-level description of how the question was interpreted. */
-  THOUGHT_TYPE_DESCRIPTION = 'THOUGHT_TYPE_DESCRIPTION',
+  THOUGHT_TYPE_DESCRIPTION: 'THOUGHT_TYPE_DESCRIPTION',
   /** How ambiguous parts of the question were resolved. */
-  THOUGHT_TYPE_UNDERSTANDING = 'THOUGHT_TYPE_UNDERSTANDING',
+  THOUGHT_TYPE_UNDERSTANDING: 'THOUGHT_TYPE_UNDERSTANDING',
   /** Which tables or datasets were identified as relevant. */
-  THOUGHT_TYPE_DATA_SOURCING = 'THOUGHT_TYPE_DATA_SOURCING',
+  THOUGHT_TYPE_DATA_SOURCING: 'THOUGHT_TYPE_DATA_SOURCING',
   /** Which author-defined instructions were referenced. */
-  THOUGHT_TYPE_INSTRUCTIONS = 'THOUGHT_TYPE_INSTRUCTIONS',
+  THOUGHT_TYPE_INSTRUCTIONS: 'THOUGHT_TYPE_INSTRUCTIONS',
   /** The logical steps taken to compute the answer. */
-  THOUGHT_TYPE_STEPS = 'THOUGHT_TYPE_STEPS',
-}
+  THOUGHT_TYPE_STEPS: 'THOUGHT_TYPE_STEPS',
+} as const;
+export type ThoughtType =
+  | (typeof ThoughtType)[keyof typeof ThoughtType]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum MessageError_Type {
-  TYPE_UNSPECIFIED = 'TYPE_UNSPECIFIED',
-  UNEXPECTED_REPLY_PROCESS_EXCEPTION = 'UNEXPECTED_REPLY_PROCESS_EXCEPTION',
-  GENERIC_CHAT_COMPLETION_EXCEPTION = 'GENERIC_CHAT_COMPLETION_EXCEPTION',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MessageError_Type = {
+  TYPE_UNSPECIFIED: 'TYPE_UNSPECIFIED',
+  UNEXPECTED_REPLY_PROCESS_EXCEPTION: 'UNEXPECTED_REPLY_PROCESS_EXCEPTION',
+  GENERIC_CHAT_COMPLETION_EXCEPTION: 'GENERIC_CHAT_COMPLETION_EXCEPTION',
   /** TokenCounter estimates were off and OpenAi responds with an error due to the token limit. */
-  CONTEXT_EXCEEDED_EXCEPTION = 'CONTEXT_EXCEEDED_EXCEPTION',
-  DEPLOYMENT_NOT_FOUND_EXCEPTION = 'DEPLOYMENT_NOT_FOUND_EXCEPTION',
-  FUNCTIONS_NOT_AVAILABLE_EXCEPTION = 'FUNCTIONS_NOT_AVAILABLE_EXCEPTION',
-  INVALID_COMPLETION_REQUEST_EXCEPTION = 'INVALID_COMPLETION_REQUEST_EXCEPTION',
-  CONTENT_FILTER_EXCEPTION = 'CONTENT_FILTER_EXCEPTION',
-  FUNCTION_ARGUMENTS_INVALID_JSON_EXCEPTION = 'FUNCTION_ARGUMENTS_INVALID_JSON_EXCEPTION',
-  RETRYABLE_PROCESSING_EXCEPTION = 'RETRYABLE_PROCESSING_EXCEPTION',
-  INVALID_FUNCTION_CALL_EXCEPTION = 'INVALID_FUNCTION_CALL_EXCEPTION',
+  CONTEXT_EXCEEDED_EXCEPTION: 'CONTEXT_EXCEEDED_EXCEPTION',
+  DEPLOYMENT_NOT_FOUND_EXCEPTION: 'DEPLOYMENT_NOT_FOUND_EXCEPTION',
+  FUNCTIONS_NOT_AVAILABLE_EXCEPTION: 'FUNCTIONS_NOT_AVAILABLE_EXCEPTION',
+  INVALID_COMPLETION_REQUEST_EXCEPTION: 'INVALID_COMPLETION_REQUEST_EXCEPTION',
+  CONTENT_FILTER_EXCEPTION: 'CONTENT_FILTER_EXCEPTION',
+  FUNCTION_ARGUMENTS_INVALID_JSON_EXCEPTION:
+    'FUNCTION_ARGUMENTS_INVALID_JSON_EXCEPTION',
+  RETRYABLE_PROCESSING_EXCEPTION: 'RETRYABLE_PROCESSING_EXCEPTION',
+  INVALID_FUNCTION_CALL_EXCEPTION: 'INVALID_FUNCTION_CALL_EXCEPTION',
   /** Request can not fit into model or the configured limits and TokenCounter registers token limit exceeded. */
-  LOCAL_CONTEXT_EXCEEDED_EXCEPTION = 'LOCAL_CONTEXT_EXCEEDED_EXCEPTION',
-  CHAT_COMPLETION_NETWORK_EXCEPTION = 'CHAT_COMPLETION_NETWORK_EXCEPTION',
-  INVALID_CHAT_COMPLETION_JSON_EXCEPTION = 'INVALID_CHAT_COMPLETION_JSON_EXCEPTION',
-  GENERIC_CHAT_COMPLETION_SERVICE_EXCEPTION = 'GENERIC_CHAT_COMPLETION_SERVICE_EXCEPTION',
-  WAREHOUSE_ACCESS_MISSING_EXCEPTION = 'WAREHOUSE_ACCESS_MISSING_EXCEPTION',
-  WAREHOUSE_NOT_FOUND_EXCEPTION = 'WAREHOUSE_NOT_FOUND_EXCEPTION',
-  NO_TABLES_TO_QUERY_EXCEPTION = 'NO_TABLES_TO_QUERY_EXCEPTION',
-  SQL_EXECUTION_EXCEPTION = 'SQL_EXECUTION_EXCEPTION',
-  REPLY_PROCESS_TIMEOUT_EXCEPTION = 'REPLY_PROCESS_TIMEOUT_EXCEPTION',
-  COULD_NOT_GET_UC_SCHEMA_EXCEPTION = 'COULD_NOT_GET_UC_SCHEMA_EXCEPTION',
-  INVALID_TABLE_IDENTIFIER_EXCEPTION = 'INVALID_TABLE_IDENTIFIER_EXCEPTION',
-  TOO_MANY_TABLES_EXCEPTION = 'TOO_MANY_TABLES_EXCEPTION',
-  FUNCTION_ARGUMENTS_INVALID_EXCEPTION = 'FUNCTION_ARGUMENTS_INVALID_EXCEPTION',
-  GENERIC_SQL_EXEC_API_CALL_EXCEPTION = 'GENERIC_SQL_EXEC_API_CALL_EXCEPTION',
-  CHAT_COMPLETION_CLIENT_EXCEPTION = 'CHAT_COMPLETION_CLIENT_EXCEPTION',
-  CHAT_COMPLETION_CLIENT_TIMEOUT_EXCEPTION = 'CHAT_COMPLETION_CLIENT_TIMEOUT_EXCEPTION',
-  UNKNOWN_AI_MODEL = 'UNKNOWN_AI_MODEL',
-  TABLES_MISSING_EXCEPTION = 'TABLES_MISSING_EXCEPTION',
-  MESSAGE_DELETED_WHILE_EXECUTING_EXCEPTION = 'MESSAGE_DELETED_WHILE_EXECUTING_EXCEPTION',
-  MESSAGE_UPDATED_WHILE_EXECUTING_EXCEPTION = 'MESSAGE_UPDATED_WHILE_EXECUTING_EXCEPTION',
-  BLOCK_MULTIPLE_EXECUTIONS_EXCEPTION = 'BLOCK_MULTIPLE_EXECUTIONS_EXCEPTION',
-  INVALID_CERTIFIED_ANSWER_IDENTIFIER_EXCEPTION = 'INVALID_CERTIFIED_ANSWER_IDENTIFIER_EXCEPTION',
-  TOO_MANY_CERTIFIED_ANSWERS_EXCEPTION = 'TOO_MANY_CERTIFIED_ANSWERS_EXCEPTION',
-  RATE_LIMIT_EXCEEDED_GENERIC_EXCEPTION = 'RATE_LIMIT_EXCEEDED_GENERIC_EXCEPTION',
-  RATE_LIMIT_EXCEEDED_SPECIFIED_WAIT_EXCEPTION = 'RATE_LIMIT_EXCEEDED_SPECIFIED_WAIT_EXCEPTION',
-  FUNCTION_CALL_MISSING_PARAMETER_EXCEPTION = 'FUNCTION_CALL_MISSING_PARAMETER_EXCEPTION',
-  INVALID_CERTIFIED_ANSWER_FUNCTION_EXCEPTION = 'INVALID_CERTIFIED_ANSWER_FUNCTION_EXCEPTION',
-  ILLEGAL_PARAMETER_DEFINITION_EXCEPTION = 'ILLEGAL_PARAMETER_DEFINITION_EXCEPTION',
-  NO_QUERY_TO_VISUALIZE_EXCEPTION = 'NO_QUERY_TO_VISUALIZE_EXCEPTION',
-  NO_DEPLOYMENTS_AVAILABLE_TO_WORKSPACE = 'NO_DEPLOYMENTS_AVAILABLE_TO_WORKSPACE',
-  STOP_PROCESS_DUE_TO_AUTO_REGENERATE = 'STOP_PROCESS_DUE_TO_AUTO_REGENERATE',
-  FUNCTION_ARGUMENTS_INVALID_TYPE_EXCEPTION = 'FUNCTION_ARGUMENTS_INVALID_TYPE_EXCEPTION',
-  MESSAGE_CANCELLED_WHILE_EXECUTING_EXCEPTION = 'MESSAGE_CANCELLED_WHILE_EXECUTING_EXCEPTION',
-  COULD_NOT_GET_MODEL_DEPLOYMENTS_EXCEPTION = 'COULD_NOT_GET_MODEL_DEPLOYMENTS_EXCEPTION',
-  GENERATED_SQL_QUERY_TOO_LONG_EXCEPTION = 'GENERATED_SQL_QUERY_TOO_LONG_EXCEPTION',
-  MISSING_SQL_QUERY_EXCEPTION = 'MISSING_SQL_QUERY_EXCEPTION',
-  DESCRIBE_QUERY_UNEXPECTED_FAILURE = 'DESCRIBE_QUERY_UNEXPECTED_FAILURE',
-  DESCRIBE_QUERY_TIMEOUT = 'DESCRIBE_QUERY_TIMEOUT',
-  DESCRIBE_QUERY_INVALID_SQL_ERROR = 'DESCRIBE_QUERY_INVALID_SQL_ERROR',
-  INVALID_SQL_UNKNOWN_TABLE_EXCEPTION = 'INVALID_SQL_UNKNOWN_TABLE_EXCEPTION',
-  INVALID_SQL_MULTIPLE_STATEMENTS_EXCEPTION = 'INVALID_SQL_MULTIPLE_STATEMENTS_EXCEPTION',
-  INVALID_SQL_MULTIPLE_DATASET_REFERENCES_EXCEPTION = 'INVALID_SQL_MULTIPLE_DATASET_REFERENCES_EXCEPTION',
-  MESSAGE_ATTACHMENT_TOO_LONG_ERROR = 'MESSAGE_ATTACHMENT_TOO_LONG_ERROR',
-  INTERNAL_CATALOG_PATH_OVERLAP_EXCEPTION = 'INTERNAL_CATALOG_PATH_OVERLAP_EXCEPTION',
-  INTERNAL_CATALOG_MISSING_UC_PATH_EXCEPTION = 'INTERNAL_CATALOG_MISSING_UC_PATH_EXCEPTION',
-  EXCEEDED_MAX_TOKEN_LENGTH_EXCEPTION = 'EXCEEDED_MAX_TOKEN_LENGTH_EXCEPTION',
-  INTERNAL_CATALOG_ASSET_CREATION_ONGOING_EXCEPTION = 'INTERNAL_CATALOG_ASSET_CREATION_ONGOING_EXCEPTION',
-  INTERNAL_CATALOG_ASSET_CREATION_FAILED_EXCEPTION = 'INTERNAL_CATALOG_ASSET_CREATION_FAILED_EXCEPTION',
-  INTERNAL_CATALOG_ASSET_CREATION_UNSUPPORTED_EXCEPTION = 'INTERNAL_CATALOG_ASSET_CREATION_UNSUPPORTED_EXCEPTION',
-  UNSUPPORTED_CONVERSATION_TYPE_EXCEPTION = 'UNSUPPORTED_CONVERSATION_TYPE_EXCEPTION',
-  COULD_NOT_GET_DASHBOARD_SCHEMA_EXCEPTION = 'COULD_NOT_GET_DASHBOARD_SCHEMA_EXCEPTION',
-}
+  LOCAL_CONTEXT_EXCEEDED_EXCEPTION: 'LOCAL_CONTEXT_EXCEEDED_EXCEPTION',
+  CHAT_COMPLETION_NETWORK_EXCEPTION: 'CHAT_COMPLETION_NETWORK_EXCEPTION',
+  INVALID_CHAT_COMPLETION_JSON_EXCEPTION:
+    'INVALID_CHAT_COMPLETION_JSON_EXCEPTION',
+  GENERIC_CHAT_COMPLETION_SERVICE_EXCEPTION:
+    'GENERIC_CHAT_COMPLETION_SERVICE_EXCEPTION',
+  WAREHOUSE_ACCESS_MISSING_EXCEPTION: 'WAREHOUSE_ACCESS_MISSING_EXCEPTION',
+  WAREHOUSE_NOT_FOUND_EXCEPTION: 'WAREHOUSE_NOT_FOUND_EXCEPTION',
+  NO_TABLES_TO_QUERY_EXCEPTION: 'NO_TABLES_TO_QUERY_EXCEPTION',
+  SQL_EXECUTION_EXCEPTION: 'SQL_EXECUTION_EXCEPTION',
+  REPLY_PROCESS_TIMEOUT_EXCEPTION: 'REPLY_PROCESS_TIMEOUT_EXCEPTION',
+  COULD_NOT_GET_UC_SCHEMA_EXCEPTION: 'COULD_NOT_GET_UC_SCHEMA_EXCEPTION',
+  INVALID_TABLE_IDENTIFIER_EXCEPTION: 'INVALID_TABLE_IDENTIFIER_EXCEPTION',
+  TOO_MANY_TABLES_EXCEPTION: 'TOO_MANY_TABLES_EXCEPTION',
+  FUNCTION_ARGUMENTS_INVALID_EXCEPTION: 'FUNCTION_ARGUMENTS_INVALID_EXCEPTION',
+  GENERIC_SQL_EXEC_API_CALL_EXCEPTION: 'GENERIC_SQL_EXEC_API_CALL_EXCEPTION',
+  CHAT_COMPLETION_CLIENT_EXCEPTION: 'CHAT_COMPLETION_CLIENT_EXCEPTION',
+  CHAT_COMPLETION_CLIENT_TIMEOUT_EXCEPTION:
+    'CHAT_COMPLETION_CLIENT_TIMEOUT_EXCEPTION',
+  UNKNOWN_AI_MODEL: 'UNKNOWN_AI_MODEL',
+  TABLES_MISSING_EXCEPTION: 'TABLES_MISSING_EXCEPTION',
+  MESSAGE_DELETED_WHILE_EXECUTING_EXCEPTION:
+    'MESSAGE_DELETED_WHILE_EXECUTING_EXCEPTION',
+  MESSAGE_UPDATED_WHILE_EXECUTING_EXCEPTION:
+    'MESSAGE_UPDATED_WHILE_EXECUTING_EXCEPTION',
+  BLOCK_MULTIPLE_EXECUTIONS_EXCEPTION: 'BLOCK_MULTIPLE_EXECUTIONS_EXCEPTION',
+  INVALID_CERTIFIED_ANSWER_IDENTIFIER_EXCEPTION:
+    'INVALID_CERTIFIED_ANSWER_IDENTIFIER_EXCEPTION',
+  TOO_MANY_CERTIFIED_ANSWERS_EXCEPTION: 'TOO_MANY_CERTIFIED_ANSWERS_EXCEPTION',
+  RATE_LIMIT_EXCEEDED_GENERIC_EXCEPTION:
+    'RATE_LIMIT_EXCEEDED_GENERIC_EXCEPTION',
+  RATE_LIMIT_EXCEEDED_SPECIFIED_WAIT_EXCEPTION:
+    'RATE_LIMIT_EXCEEDED_SPECIFIED_WAIT_EXCEPTION',
+  FUNCTION_CALL_MISSING_PARAMETER_EXCEPTION:
+    'FUNCTION_CALL_MISSING_PARAMETER_EXCEPTION',
+  INVALID_CERTIFIED_ANSWER_FUNCTION_EXCEPTION:
+    'INVALID_CERTIFIED_ANSWER_FUNCTION_EXCEPTION',
+  ILLEGAL_PARAMETER_DEFINITION_EXCEPTION:
+    'ILLEGAL_PARAMETER_DEFINITION_EXCEPTION',
+  NO_QUERY_TO_VISUALIZE_EXCEPTION: 'NO_QUERY_TO_VISUALIZE_EXCEPTION',
+  NO_DEPLOYMENTS_AVAILABLE_TO_WORKSPACE:
+    'NO_DEPLOYMENTS_AVAILABLE_TO_WORKSPACE',
+  STOP_PROCESS_DUE_TO_AUTO_REGENERATE: 'STOP_PROCESS_DUE_TO_AUTO_REGENERATE',
+  FUNCTION_ARGUMENTS_INVALID_TYPE_EXCEPTION:
+    'FUNCTION_ARGUMENTS_INVALID_TYPE_EXCEPTION',
+  MESSAGE_CANCELLED_WHILE_EXECUTING_EXCEPTION:
+    'MESSAGE_CANCELLED_WHILE_EXECUTING_EXCEPTION',
+  COULD_NOT_GET_MODEL_DEPLOYMENTS_EXCEPTION:
+    'COULD_NOT_GET_MODEL_DEPLOYMENTS_EXCEPTION',
+  GENERATED_SQL_QUERY_TOO_LONG_EXCEPTION:
+    'GENERATED_SQL_QUERY_TOO_LONG_EXCEPTION',
+  MISSING_SQL_QUERY_EXCEPTION: 'MISSING_SQL_QUERY_EXCEPTION',
+  DESCRIBE_QUERY_UNEXPECTED_FAILURE: 'DESCRIBE_QUERY_UNEXPECTED_FAILURE',
+  DESCRIBE_QUERY_TIMEOUT: 'DESCRIBE_QUERY_TIMEOUT',
+  DESCRIBE_QUERY_INVALID_SQL_ERROR: 'DESCRIBE_QUERY_INVALID_SQL_ERROR',
+  INVALID_SQL_UNKNOWN_TABLE_EXCEPTION: 'INVALID_SQL_UNKNOWN_TABLE_EXCEPTION',
+  INVALID_SQL_MULTIPLE_STATEMENTS_EXCEPTION:
+    'INVALID_SQL_MULTIPLE_STATEMENTS_EXCEPTION',
+  INVALID_SQL_MULTIPLE_DATASET_REFERENCES_EXCEPTION:
+    'INVALID_SQL_MULTIPLE_DATASET_REFERENCES_EXCEPTION',
+  MESSAGE_ATTACHMENT_TOO_LONG_ERROR: 'MESSAGE_ATTACHMENT_TOO_LONG_ERROR',
+  INTERNAL_CATALOG_PATH_OVERLAP_EXCEPTION:
+    'INTERNAL_CATALOG_PATH_OVERLAP_EXCEPTION',
+  INTERNAL_CATALOG_MISSING_UC_PATH_EXCEPTION:
+    'INTERNAL_CATALOG_MISSING_UC_PATH_EXCEPTION',
+  EXCEEDED_MAX_TOKEN_LENGTH_EXCEPTION: 'EXCEEDED_MAX_TOKEN_LENGTH_EXCEPTION',
+  INTERNAL_CATALOG_ASSET_CREATION_ONGOING_EXCEPTION:
+    'INTERNAL_CATALOG_ASSET_CREATION_ONGOING_EXCEPTION',
+  INTERNAL_CATALOG_ASSET_CREATION_FAILED_EXCEPTION:
+    'INTERNAL_CATALOG_ASSET_CREATION_FAILED_EXCEPTION',
+  INTERNAL_CATALOG_ASSET_CREATION_UNSUPPORTED_EXCEPTION:
+    'INTERNAL_CATALOG_ASSET_CREATION_UNSUPPORTED_EXCEPTION',
+  UNSUPPORTED_CONVERSATION_TYPE_EXCEPTION:
+    'UNSUPPORTED_CONVERSATION_TYPE_EXCEPTION',
+  COULD_NOT_GET_DASHBOARD_SCHEMA_EXCEPTION:
+    'COULD_NOT_GET_DASHBOARD_SCHEMA_EXCEPTION',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type MessageError_Type =
+  | (typeof MessageError_Type)[keyof typeof MessageError_Type]
+  | (string & {});
 
 /**
  * MessageStatus.
@@ -726,30 +806,38 @@ export enum MessageError_Type {
  * * `QUERY_RESULT_EXPIRED`: SQL result is not available anymore. The user needs to rerun the query. Rerun the SQL query result by calling [executeMessageAttachmentQuery](:method:genie/executeMessageAttachmentQuery) API.
  * * `CANCELLED`: Message has been cancelled.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MessageStatus_MessageStatus = {
+  FETCHING_METADATA: 'FETCHING_METADATA',
+  FILTERING_CONTEXT: 'FILTERING_CONTEXT',
+  ASKING_AI: 'ASKING_AI',
+  PENDING_WAREHOUSE: 'PENDING_WAREHOUSE',
+  EXECUTING_QUERY: 'EXECUTING_QUERY',
+  FAILED: 'FAILED',
+  COMPLETED: 'COMPLETED',
+  SUBMITTED: 'SUBMITTED',
+  QUERY_RESULT_EXPIRED: 'QUERY_RESULT_EXPIRED',
+  CANCELLED: 'CANCELLED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum MessageStatus_MessageStatus {
-  FETCHING_METADATA = 'FETCHING_METADATA',
-  FILTERING_CONTEXT = 'FILTERING_CONTEXT',
-  ASKING_AI = 'ASKING_AI',
-  PENDING_WAREHOUSE = 'PENDING_WAREHOUSE',
-  EXECUTING_QUERY = 'EXECUTING_QUERY',
-  FAILED = 'FAILED',
-  COMPLETED = 'COMPLETED',
-  SUBMITTED = 'SUBMITTED',
-  QUERY_RESULT_EXPIRED = 'QUERY_RESULT_EXPIRED',
-  CANCELLED = 'CANCELLED',
-}
+export type MessageStatus_MessageStatus =
+  | (typeof MessageStatus_MessageStatus)[keyof typeof MessageStatus_MessageStatus]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const StatementStatus_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+  CLOSED: 'CLOSED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum StatementStatus_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED',
-  CANCELED = 'CANCELED',
-  CLOSED = 'CLOSED',
-}
+export type StatementStatus_State =
+  | (typeof StatementStatus_State)[keyof typeof StatementStatus_State]
+  | (string & {});
 
 export interface ChunkInfo {
   /** The position within the sequence of result set chunks. */
@@ -1811,7 +1899,7 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
     name: z.string().optional(),
     type_text: z.string().optional(),
-    type_name: z.enum(ColumnTypeName).optional(),
+    type_name: z.string().optional(),
     position: z.number().optional(),
     type_precision: z.number().optional(),
     type_scale: z.number().optional(),
@@ -1854,7 +1942,7 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
 export const unmarshalDatabricksServiceExceptionProtoSchema: z.ZodType<DatabricksServiceExceptionProto> =
   z
     .object({
-      error_code: z.enum(ErrorCode).optional(),
+      error_code: z.string().optional(),
       message: z.string().optional(),
       stack_trace: z.string().optional(),
     })
@@ -1972,7 +2060,7 @@ export const unmarshalGenieEvalResponseSchema: z.ZodType<GenieEvalResponse> = z
     sql_execution_result: z
       .lazy(() => unmarshalStatementResponseSchema)
       .optional(),
-    response_type: z.enum(GenieEvalResponseType).optional(),
+    response_type: z.string().optional(),
   })
   .transform(d => ({
     response: d.response,
@@ -1985,7 +2073,7 @@ export const unmarshalGenieEvalResultSchema: z.ZodType<GenieEvalResult> = z
     result_id: z.string().optional(),
     space_id: z.string().optional(),
     benchmark_question_id: z.string().optional(),
-    status: z.enum(EvaluationStatusType).optional(),
+    status: z.string().optional(),
     question: z.string().optional(),
     benchmark_answer: z.string().optional(),
     created_by_user: z
@@ -2009,10 +2097,10 @@ export const unmarshalGenieEvalResultDetailsSchema: z.ZodType<GenieEvalResultDet
       result_id: z.string().optional(),
       space_id: z.string().optional(),
       benchmark_question_id: z.string().optional(),
-      eval_run_status: z.enum(EvaluationStatusType).optional(),
-      assessment: z.enum(GenieEvalAssessment).optional(),
+      eval_run_status: z.string().optional(),
+      assessment: z.string().optional(),
       manual_assessment: z.boolean().optional(),
-      assessment_reasons: z.array(z.enum(ScoreReason)).optional(),
+      assessment_reasons: z.array(z.string()).optional(),
       actual_response: z
         .array(z.lazy(() => unmarshalGenieEvalResponseSchema))
         .optional(),
@@ -2036,7 +2124,7 @@ export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse
   z
     .object({
       eval_run_id: z.string().optional(),
-      eval_run_status: z.enum(EvaluationStatusType).optional(),
+      eval_run_status: z.string().optional(),
       run_by_user: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -2080,7 +2168,7 @@ export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse
 
 export const unmarshalGenieFeedbackSchema: z.ZodType<GenieFeedback> = z
   .object({
-    rating: z.enum(GenieFeedbackRating).optional(),
+    rating: z.string().optional(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -2225,7 +2313,7 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    status: z.enum(MessageStatus_MessageStatus).optional(),
+    status: z.string().optional(),
     content: z.string().optional(),
     attachments: z
       .array(z.lazy(() => unmarshalGenieAttachmentSchema))
@@ -2390,7 +2478,7 @@ export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> 
 export const unmarshalMessageErrorSchema: z.ZodType<MessageError> = z
   .object({
     error: z.string().optional(),
-    type: z.enum(MessageError_Type).optional(),
+    type: z.string().optional(),
   })
   .transform(d => ({
     error: d.error,
@@ -2477,7 +2565,7 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
 
 export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
   .object({
-    format: z.enum(Format).optional(),
+    format: z.string().optional(),
     schema: z.lazy(() => unmarshalSchemaSchema).optional(),
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
@@ -2527,7 +2615,7 @@ export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
 
 export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
   .object({
-    state: z.enum(StatementStatus_State).optional(),
+    state: z.string().optional(),
     error: z
       .lazy(() => unmarshalDatabricksServiceExceptionProtoSchema)
       .optional(),
@@ -2553,7 +2641,7 @@ export const unmarshalTextAttachmentSchema: z.ZodType<TextAttachment> = z
   .object({
     content: z.string().optional(),
     id: z.string().optional(),
-    purpose: z.enum(TextAttachmentPurpose).optional(),
+    purpose: z.string().optional(),
   })
   .transform(d => ({
     content: d.content,
@@ -2563,7 +2651,7 @@ export const unmarshalTextAttachmentSchema: z.ZodType<TextAttachment> = z
 
 export const unmarshalThoughtSchema: z.ZodType<Thought> = z
   .object({
-    thought_type: z.enum(ThoughtType).optional(),
+    thought_type: z.string().optional(),
     content: z.string().optional(),
   })
   .transform(d => ({
@@ -2573,7 +2661,7 @@ export const unmarshalThoughtSchema: z.ZodType<Thought> = z
 
 export const unmarshalValueSchema: z.ZodType<Value> = z
   .object({
-    null_value: z.enum(NullValue).optional(),
+    null_value: z.string().optional(),
     number_value: z.number().optional(),
     string_value: z.string().optional(),
     bool_value: z.boolean().optional(),
@@ -2696,7 +2784,7 @@ export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
     spaceId: z.string().optional(),
     conversationId: z.string().optional(),
     messageId: z.string().optional(),
-    rating: z.enum(GenieFeedbackRating).optional(),
+    rating: z.string().optional(),
     comment: z.string().optional(),
   })
   .transform(d => ({

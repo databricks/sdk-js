@@ -2,13 +2,17 @@
 
 import {z} from 'zod';
 
-export enum DestinationType {
-  SLACK = 'SLACK',
-  EMAIL = 'EMAIL',
-  WEBHOOK = 'WEBHOOK',
-  PAGERDUTY = 'PAGERDUTY',
-  MICROSOFT_TEAMS = 'MICROSOFT_TEAMS',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DestinationType = {
+  SLACK: 'SLACK',
+  EMAIL: 'EMAIL',
+  WEBHOOK: 'WEBHOOK',
+  PAGERDUTY: 'PAGERDUTY',
+  MICROSOFT_TEAMS: 'MICROSOFT_TEAMS',
+} as const;
+export type DestinationType =
+  | (typeof DestinationType)[keyof typeof DestinationType]
+  | (string & {});
 
 export interface Config {
   config?:
@@ -225,7 +229,7 @@ export const unmarshalListNotificationDestinationsResultSchema: z.ZodType<ListNo
     .object({
       id: z.string().optional(),
       display_name: z.string().optional(),
-      destination_type: z.enum(DestinationType).optional(),
+      destination_type: z.string().optional(),
       config: z.lazy(() => unmarshalConfigSchema).optional(),
     })
     .transform(d => ({
@@ -267,7 +271,7 @@ export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDesti
     .object({
       id: z.string().optional(),
       display_name: z.string().optional(),
-      destination_type: z.enum(DestinationType).optional(),
+      destination_type: z.string().optional(),
       config: z.lazy(() => unmarshalConfigSchema).optional(),
     })
     .transform(d => ({

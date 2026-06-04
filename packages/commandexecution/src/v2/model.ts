@@ -18,39 +18,53 @@ const jsonObjectSchema: z.ZodType<JsonObject> = z.record(
   jsonValueSchema
 );
 
-export enum CommandStatus {
-  COMMAND_STATUS_UNSPECIFIED = 'COMMAND_STATUS_UNSPECIFIED',
-  COMMAND_CANCELLED = 'Cancelled',
-  COMMAND_CANCELLING = 'Cancelling',
-  COMMAND_ERROR = 'Error',
-  COMMAND_FINISHED = 'Finished',
-  COMMAND_QUEUED = 'Queued',
-  COMMAND_RUNNING = 'Running',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CommandStatus = {
+  COMMAND_STATUS_UNSPECIFIED: 'COMMAND_STATUS_UNSPECIFIED',
+  COMMAND_CANCELLED: 'Cancelled',
+  COMMAND_CANCELLING: 'Cancelling',
+  COMMAND_ERROR: 'Error',
+  COMMAND_FINISHED: 'Finished',
+  COMMAND_QUEUED: 'Queued',
+  COMMAND_RUNNING: 'Running',
+} as const;
+export type CommandStatus =
+  | (typeof CommandStatus)[keyof typeof CommandStatus]
+  | (string & {});
 
-export enum ContextStatus {
-  CONTEXT_STATUS_UNSPECIFIED = 'CONTEXT_STATUS_UNSPECIFIED',
-  CONTEXT_RUNNING = 'Running',
-  CONTEXT_PENDING = 'Pending',
-  CONTEXT_ERROR = 'Error',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ContextStatus = {
+  CONTEXT_STATUS_UNSPECIFIED: 'CONTEXT_STATUS_UNSPECIFIED',
+  CONTEXT_RUNNING: 'Running',
+  CONTEXT_PENDING: 'Pending',
+  CONTEXT_ERROR: 'Error',
+} as const;
+export type ContextStatus =
+  | (typeof ContextStatus)[keyof typeof ContextStatus]
+  | (string & {});
 
-export enum Language {
-  LANGUAGE_UNSPECIFIED = 'LANGUAGE_UNSPECIFIED',
-  PYTHON = 'python',
-  SCALA = 'scala',
-  SQL = 'sql',
-  R = 'r',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Language = {
+  LANGUAGE_UNSPECIFIED: 'LANGUAGE_UNSPECIFIED',
+  PYTHON: 'python',
+  SCALA: 'scala',
+  SQL: 'sql',
+  R: 'r',
+} as const;
+export type Language = (typeof Language)[keyof typeof Language] | (string & {});
 
-export enum ResultType {
-  RESULT_TYPE_UNSPECIFIED = 'RESULT_TYPE_UNSPECIFIED',
-  ERROR_RESULT = 'error',
-  IMAGE_RESULT = 'image',
-  IMAGES_RESULT = 'images',
-  TABLE_RESULT = 'table',
-  TEXT_RESULT = 'text',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ResultType = {
+  RESULT_TYPE_UNSPECIFIED: 'RESULT_TYPE_UNSPECIFIED',
+  ERROR_RESULT: 'error',
+  IMAGE_RESULT: 'image',
+  IMAGES_RESULT: 'images',
+  TABLE_RESULT: 'table',
+  TEXT_RESULT: 'text',
+} as const;
+export type ResultType =
+  | (typeof ResultType)[keyof typeof ResultType]
+  | (string & {});
 
 export interface CancelCommandRequest {
   clusterId?: string | undefined;
@@ -160,7 +174,7 @@ export const unmarshalGetCommandStatusResponseSchema: z.ZodType<GetCommandStatus
   z
     .object({
       id: z.string().optional(),
-      status: z.enum(CommandStatus).optional(),
+      status: z.string().optional(),
       results: z.lazy(() => unmarshalResultsSchema).optional(),
     })
     .transform(d => ({
@@ -173,7 +187,7 @@ export const unmarshalGetContextStatusResponseSchema: z.ZodType<GetContextStatus
   z
     .object({
       id: z.string().optional(),
-      status: z.enum(ContextStatus).optional(),
+      status: z.string().optional(),
     })
     .transform(d => ({
       id: d.id,
@@ -188,7 +202,7 @@ export const unmarshalResultsSchema: z.ZodType<Results> = z
     fileNames: z.array(z.string()).optional(),
     isJsonSchema: z.boolean().optional(),
     pos: z.number().optional(),
-    resultType: z.enum(ResultType).optional(),
+    resultType: z.string().optional(),
     schema: z.array(jsonObjectSchema).optional(),
     summary: z.string().optional(),
     truncated: z.boolean().optional(),
@@ -221,7 +235,7 @@ export const marshalCancelCommandRequestSchema: z.ZodType = z
 export const marshalCreateContextRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
-    language: z.enum(Language).optional(),
+    language: z.string().optional(),
   })
   .transform(d => ({
     clusterId: d.clusterId,
@@ -242,7 +256,7 @@ export const marshalExecuteCommandRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     contextId: z.string().optional(),
-    language: z.enum(Language).optional(),
+    language: z.string().optional(),
     command: z.string().optional(),
   })
   .transform(d => ({

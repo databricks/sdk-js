@@ -6,175 +6,224 @@ import {z} from 'zod';
  * Copied from elastic-spark-common/api/messages/runs.proto.
  * Using the original definition to remove coupling with jobs API definition
  */
-export enum CleanRoomTaskRunLifeCycleState {
-  RUN_LIFE_CYCLE_STATE_UNSPECIFIED = 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
-  PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  TERMINATING = 'TERMINATING',
-  TERMINATED = 'TERMINATED',
-  SKIPPED = 'SKIPPED',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  BLOCKED = 'BLOCKED',
-  WAITING_FOR_RETRY = 'WAITING_FOR_RETRY',
-  QUEUED = 'QUEUED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomTaskRunLifeCycleState = {
+  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  TERMINATING: 'TERMINATING',
+  TERMINATED: 'TERMINATED',
+  SKIPPED: 'SKIPPED',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  BLOCKED: 'BLOCKED',
+  WAITING_FOR_RETRY: 'WAITING_FOR_RETRY',
+  QUEUED: 'QUEUED',
+} as const;
+export type CleanRoomTaskRunLifeCycleState =
+  | (typeof CleanRoomTaskRunLifeCycleState)[keyof typeof CleanRoomTaskRunLifeCycleState]
+  | (string & {});
 
 /**
  * Copied from elastic-spark-common/api/messages/runs.proto.
  * Using the original definition to avoid cyclic dependency.
  */
-export enum CleanRoomTaskRunResultState {
-  RUN_RESULT_STATE_UNSPECIFIED = 'RUN_RESULT_STATE_UNSPECIFIED',
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
-  TIMEDOUT = 'TIMEDOUT',
-  CANCELED = 'CANCELED',
-  MAXIMUM_CONCURRENT_RUNS_REACHED = 'MAXIMUM_CONCURRENT_RUNS_REACHED',
-  UPSTREAM_CANCELED = 'UPSTREAM_CANCELED',
-  UPSTREAM_FAILED = 'UPSTREAM_FAILED',
-  EXCLUDED = 'EXCLUDED',
-  EVICTED = 'EVICTED',
-  SUCCESS_WITH_FAILURES = 'SUCCESS_WITH_FAILURES',
-  UPSTREAM_EVICTED = 'UPSTREAM_EVICTED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomTaskRunResultState = {
+  RUN_RESULT_STATE_UNSPECIFIED: 'RUN_RESULT_STATE_UNSPECIFIED',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  TIMEDOUT: 'TIMEDOUT',
+  CANCELED: 'CANCELED',
+  MAXIMUM_CONCURRENT_RUNS_REACHED: 'MAXIMUM_CONCURRENT_RUNS_REACHED',
+  UPSTREAM_CANCELED: 'UPSTREAM_CANCELED',
+  UPSTREAM_FAILED: 'UPSTREAM_FAILED',
+  EXCLUDED: 'EXCLUDED',
+  EVICTED: 'EVICTED',
+  SUCCESS_WITH_FAILURES: 'SUCCESS_WITH_FAILURES',
+  UPSTREAM_EVICTED: 'UPSTREAM_EVICTED',
   /** 12 is reserved for previously used SUCCESS_WITH_SKIPPED_CELLS */
-  DISABLED = 'DISABLED',
-}
+  DISABLED: 'DISABLED',
+} as const;
+export type CleanRoomTaskRunResultState =
+  | (typeof CleanRoomTaskRunResultState)[keyof typeof CleanRoomTaskRunResultState]
+  | (string & {});
 
-export enum ColumnTypeName {
-  BOOLEAN = 'BOOLEAN',
-  BYTE = 'BYTE',
-  SHORT = 'SHORT',
-  INT = 'INT',
-  LONG = 'LONG',
-  FLOAT = 'FLOAT',
-  DOUBLE = 'DOUBLE',
-  DATE = 'DATE',
-  TIMESTAMP = 'TIMESTAMP',
-  STRING = 'STRING',
-  BINARY = 'BINARY',
-  DECIMAL = 'DECIMAL',
-  INTERVAL = 'INTERVAL',
-  ARRAY = 'ARRAY',
-  STRUCT = 'STRUCT',
-  MAP = 'MAP',
-  CHAR = 'CHAR',
-  NULL = 'NULL',
-  USER_DEFINED_TYPE = 'USER_DEFINED_TYPE',
-  TIMESTAMP_NTZ = 'TIMESTAMP_NTZ',
-  VARIANT = 'VARIANT',
-  GEOMETRY = 'GEOMETRY',
-  GEOGRAPHY = 'GEOGRAPHY',
-  TABLE_TYPE = 'TABLE_TYPE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ColumnTypeName = {
+  BOOLEAN: 'BOOLEAN',
+  BYTE: 'BYTE',
+  SHORT: 'SHORT',
+  INT: 'INT',
+  LONG: 'LONG',
+  FLOAT: 'FLOAT',
+  DOUBLE: 'DOUBLE',
+  DATE: 'DATE',
+  TIMESTAMP: 'TIMESTAMP',
+  STRING: 'STRING',
+  BINARY: 'BINARY',
+  DECIMAL: 'DECIMAL',
+  INTERVAL: 'INTERVAL',
+  ARRAY: 'ARRAY',
+  STRUCT: 'STRUCT',
+  MAP: 'MAP',
+  CHAR: 'CHAR',
+  NULL: 'NULL',
+  USER_DEFINED_TYPE: 'USER_DEFINED_TYPE',
+  TIMESTAMP_NTZ: 'TIMESTAMP_NTZ',
+  VARIANT: 'VARIANT',
+  GEOMETRY: 'GEOMETRY',
+  GEOGRAPHY: 'GEOGRAPHY',
+  TABLE_TYPE: 'TABLE_TYPE',
+} as const;
+export type ColumnTypeName =
+  | (typeof ColumnTypeName)[keyof typeof ColumnTypeName]
+  | (string & {});
 
 /** Compliance standard for SHIELD customers. See README.md for how instructions of how to add new standards. */
-export enum ComplianceStandard {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComplianceStandard = {
   /** Sentinel value, should not be used in prod */
-  COMPLIANCE_STANDARD_UNSPECIFIED = 'COMPLIANCE_STANDARD_UNSPECIFIED',
+  COMPLIANCE_STANDARD_UNSPECIFIED: 'COMPLIANCE_STANDARD_UNSPECIFIED',
   /**
    * For customers who buy Enhanced Security Compliance (ESC) product
    * but don't belong to any standards.
    */
-  NONE = 'NONE',
+  NONE: 'NONE',
   /** Industry standards below */
-  HIPAA = 'HIPAA',
-  PCI_DSS = 'PCI_DSS',
-  FEDRAMP_MODERATE = 'FEDRAMP_MODERATE',
-  IRAP_PROTECTED = 'IRAP_PROTECTED',
+  HIPAA: 'HIPAA',
+  PCI_DSS: 'PCI_DSS',
+  FEDRAMP_MODERATE: 'FEDRAMP_MODERATE',
+  IRAP_PROTECTED: 'IRAP_PROTECTED',
   /** Only available in AWS GovCloud */
-  FEDRAMP_HIGH = 'FEDRAMP_HIGH',
-  FEDRAMP_IL5 = 'FEDRAMP_IL5',
+  FEDRAMP_HIGH: 'FEDRAMP_HIGH',
+  FEDRAMP_IL5: 'FEDRAMP_IL5',
   /** International Traffic in Arms Regulations (ITAR); Export Administration Regulations (EAR) */
-  ITAR_EAR = 'ITAR_EAR',
+  ITAR_EAR: 'ITAR_EAR',
   /** UK Cyber Essential Plus */
-  CYBER_ESSENTIAL_PLUS = 'CYBER_ESSENTIAL_PLUS',
+  CYBER_ESSENTIAL_PLUS: 'CYBER_ESSENTIAL_PLUS',
   /**
    * The Government of Canada (GC) Protected B
    * https://www.tpsgc-pwgsc.gc.ca/esc-src/protection-safeguarding/niveaux-levels-eng.html
    */
-  CANADA_PROTECTED_B = 'CANADA_PROTECTED_B',
+  CANADA_PROTECTED_B: 'CANADA_PROTECTED_B',
   /**
    * Japan Information system Security Management and Assessment Program
    * https://www.ismap.go.jp/csm?id=kb_article_view&sysparm_article=KB0010301&sys_kb_id=9b6741cec305821032713201150131c2&spa=1
    */
-  ISMAP = 'ISMAP',
+  ISMAP: 'ISMAP',
   /**
    * HITRUST
    * https://hitrustalliance.net/
    */
-  HITRUST = 'HITRUST',
+  HITRUST: 'HITRUST',
   /** Korea Financial Security Institute */
-  K_FSI = 'K_FSI',
+  K_FSI: 'K_FSI',
   /** Cloud Computing Compliance Criteria Catalogue for Germany */
-  GERMANY_C5 = 'GERMANY_C5',
+  GERMANY_C5: 'GERMANY_C5',
   /** Trusted Information Security Assessment Exchange, a compliance standard for automotive industry for Germany */
-  GERMANY_TISAX = 'GERMANY_TISAX',
-}
+  GERMANY_TISAX: 'GERMANY_TISAX',
+} as const;
+export type ComplianceStandard =
+  | (typeof ComplianceStandard)[keyof typeof ComplianceStandard]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoom_AccessRestricted = {
+  NO_RESTRICTION: 'NO_RESTRICTION',
+  CSP_MISMATCH: 'CSP_MISMATCH',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoom_AccessRestricted {
-  NO_RESTRICTION = 'NO_RESTRICTION',
-  CSP_MISMATCH = 'CSP_MISMATCH',
-}
+export type CleanRoom_AccessRestricted =
+  | (typeof CleanRoom_AccessRestricted)[keyof typeof CleanRoom_AccessRestricted]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoom_Status_Enum = {
+  ENUM_UNSPECIFIED: 'ENUM_UNSPECIFIED',
+  ACTIVE: 'ACTIVE',
+  PROVISIONING: 'PROVISIONING',
+  DELETED: 'DELETED',
+  FAILED: 'FAILED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoom_Status_Enum {
-  ENUM_UNSPECIFIED = 'ENUM_UNSPECIFIED',
-  ACTIVE = 'ACTIVE',
-  PROVISIONING = 'PROVISIONING',
-  DELETED = 'DELETED',
-  FAILED = 'FAILED',
-}
+export type CleanRoom_Status_Enum =
+  | (typeof CleanRoom_Status_Enum)[keyof typeof CleanRoom_Status_Enum]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomAsset_AssetType = {
+  ASSET_TYPE_UNSPECIFIED: 'ASSET_TYPE_UNSPECIFIED',
+  TABLE: 'TABLE',
+  NOTEBOOK_FILE: 'NOTEBOOK_FILE',
+  VOLUME: 'VOLUME',
+  VIEW: 'VIEW',
+  FOREIGN_TABLE: 'FOREIGN_TABLE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomAsset_AssetType {
-  ASSET_TYPE_UNSPECIFIED = 'ASSET_TYPE_UNSPECIFIED',
-  TABLE = 'TABLE',
-  NOTEBOOK_FILE = 'NOTEBOOK_FILE',
-  VOLUME = 'VOLUME',
-  VIEW = 'VIEW',
-  FOREIGN_TABLE = 'FOREIGN_TABLE',
-}
+export type CleanRoomAsset_AssetType =
+  | (typeof CleanRoomAsset_AssetType)[keyof typeof CleanRoomAsset_AssetType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomAsset_Status_Enum = {
+  ENUM_UNSPECIFIED: 'ENUM_UNSPECIFIED',
+  ACTIVE: 'ACTIVE',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  PENDING: 'PENDING',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomAsset_Status_Enum {
-  ENUM_UNSPECIFIED = 'ENUM_UNSPECIFIED',
-  ACTIVE = 'ACTIVE',
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
-  PENDING = 'PENDING',
-}
+export type CleanRoomAsset_Status_Enum =
+  | (typeof CleanRoomAsset_Status_Enum)[keyof typeof CleanRoomAsset_Status_Enum]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomAutoApprovalRule_AuthorScope = {
+  AUTHOR_SCOPE_UNSPECIFIED: 'AUTHOR_SCOPE_UNSPECIFIED',
+  ANY_AUTHOR: 'ANY_AUTHOR',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomAutoApprovalRule_AuthorScope {
-  AUTHOR_SCOPE_UNSPECIFIED = 'AUTHOR_SCOPE_UNSPECIFIED',
-  ANY_AUTHOR = 'ANY_AUTHOR',
-}
+export type CleanRoomAutoApprovalRule_AuthorScope =
+  | (typeof CleanRoomAutoApprovalRule_AuthorScope)[keyof typeof CleanRoomAutoApprovalRule_AuthorScope]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomNotebookReview_NotebookReviewState = {
+  NOTEBOOK_REVIEW_STATE_UNSPECIFIED: 'NOTEBOOK_REVIEW_STATE_UNSPECIFIED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  PENDING: 'PENDING',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomNotebookReview_NotebookReviewState {
-  NOTEBOOK_REVIEW_STATE_UNSPECIFIED = 'NOTEBOOK_REVIEW_STATE_UNSPECIFIED',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  PENDING = 'PENDING',
-}
+export type CleanRoomNotebookReview_NotebookReviewState =
+  | (typeof CleanRoomNotebookReview_NotebookReviewState)[keyof typeof CleanRoomNotebookReview_NotebookReviewState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomNotebookReview_NotebookReviewSubReason = {
+  NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED:
+    'NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED',
+  BACKFILLED: 'BACKFILLED',
+  AUTO_APPROVED: 'AUTO_APPROVED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomNotebookReview_NotebookReviewSubReason {
-  NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED = 'NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED',
-  BACKFILLED = 'BACKFILLED',
-  AUTO_APPROVED = 'AUTO_APPROVED',
-}
+export type CleanRoomNotebookReview_NotebookReviewSubReason =
+  | (typeof CleanRoomNotebookReview_NotebookReviewSubReason)[keyof typeof CleanRoomNotebookReview_NotebookReviewSubReason]
+  | (string & {});
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CleanRoomOutputCatalog_OutputCatalogStatus {
-  OUTPUT_CATALOG_STATUS_UNSPECIFIED = 'OUTPUT_CATALOG_STATUS_UNSPECIFIED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomOutputCatalog_OutputCatalogStatus = {
+  OUTPUT_CATALOG_STATUS_UNSPECIFIED: 'OUTPUT_CATALOG_STATUS_UNSPECIFIED',
   /** The clean room is not eligible for output catalog. */
-  NOT_ELIGIBLE = 'NOT_ELIGIBLE',
+  NOT_ELIGIBLE: 'NOT_ELIGIBLE',
   /** The output catalog of the clean room is not yet created. */
-  NOT_CREATED = 'NOT_CREATED',
+  NOT_CREATED: 'NOT_CREATED',
   /** The output catalog of the clean room is created. */
-  CREATED = 'CREATED',
-}
+  CREATED: 'CREATED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CleanRoomOutputCatalog_OutputCatalogStatus =
+  | (typeof CleanRoomOutputCatalog_OutputCatalogStatus)[keyof typeof CleanRoomOutputCatalog_OutputCatalogStatus]
+  | (string & {});
 
 /**
  * The filtering protocol used by the DP. For private and public preview, SEG will only
@@ -182,32 +231,57 @@ export enum CleanRoomOutputCatalog_OutputCatalogStatus {
  * so protocol will be set to TCP by default and hidden from the user. In the future, users
  * may be able to select HTTP filtering (i.e. SNI based filtering, filtering by FQDN).
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol =
+  {
+    INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED:
+      'INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED',
+    TCP: 'TCP',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol {
-  INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED = 'INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED',
-  TCP = 'TCP',
-}
+export type EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol =
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType {
-  INTERNET_DESTINATION_TYPE_UNSPECIFIED = 'INTERNET_DESTINATION_TYPE_UNSPECIFIED',
-  FQDN = 'FQDN',
-}
+    | (typeof EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol)[keyof typeof EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol]
+    | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType =
+  {
+    INTERNET_DESTINATION_TYPE_UNSPECIFIED:
+      'INTERNET_DESTINATION_TYPE_UNSPECIFIED',
+    FQDN: 'FQDN',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType {
-  LOG_ONLY_MODE_TYPE_UNSPECIFIED = 'LOG_ONLY_MODE_TYPE_UNSPECIFIED',
-  ALL_SERVICES = 'ALL_SERVICES',
-  SELECTED_SERVICES = 'SELECTED_SERVICES',
-}
+export type EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType =
+
+    | (typeof EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType)[keyof typeof EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType]
+    | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType =
+  {
+    LOG_ONLY_MODE_TYPE_UNSPECIFIED: 'LOG_ONLY_MODE_TYPE_UNSPECIFIED',
+    ALL_SERVICES: 'ALL_SERVICES',
+    SELECTED_SERVICES: 'SELECTED_SERVICES',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType =
+
+    | (typeof EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType)[keyof typeof EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType]
+    | (string & {});
 
 /** The values should match the list of workloads used in networkconfig.proto */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType =
+  {
+    WORKLOAD_TYPE_UNSPECIFIED: 'WORKLOAD_TYPE_UNSPECIFIED',
+    DBSQL: 'DBSQL',
+    ML_SERVING: 'ML_SERVING',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType {
-  WORKLOAD_TYPE_UNSPECIFIED = 'WORKLOAD_TYPE_UNSPECIFIED',
-  DBSQL = 'DBSQL',
-  ML_SERVING = 'ML_SERVING',
-}
+export type EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType =
+  | (typeof EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType)[keyof typeof EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType]
+  | (string & {});
 
 /**
  * At which level can <Databricks> and <Databricks> managed compute access Internet.
@@ -216,28 +290,44 @@ export enum EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType {
  * as well as UC connections and external locations.
  * PRIVATE_ACCESS_ONLY (not used): <Databricks> can only access destinations via private link.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode = {
+  RESTRICTION_MODE_UNSPECIFIED: 'RESTRICTION_MODE_UNSPECIFIED',
+  FULL_ACCESS: 'FULL_ACCESS',
+  PRIVATE_ACCESS_ONLY: 'PRIVATE_ACCESS_ONLY',
+  RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode {
-  RESTRICTION_MODE_UNSPECIFIED = 'RESTRICTION_MODE_UNSPECIFIED',
-  FULL_ACCESS = 'FULL_ACCESS',
-  PRIVATE_ACCESS_ONLY = 'PRIVATE_ACCESS_ONLY',
-  RESTRICTED_ACCESS = 'RESTRICTED_ACCESS',
-}
+export type EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode =
+  | (typeof EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode)[keyof typeof EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType =
+  {
+    STORAGE_DESTINATION_TYPE_UNSPECIFIED:
+      'STORAGE_DESTINATION_TYPE_UNSPECIFIED',
+    AWS_S3: 'AWS_S3',
+    CLOUDFLARE_R2: 'CLOUDFLARE_R2',
+    AZURE_STORAGE: 'AZURE_STORAGE',
+    GOOGLE_CLOUD_STORAGE: 'GOOGLE_CLOUD_STORAGE',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType {
-  STORAGE_DESTINATION_TYPE_UNSPECIFIED = 'STORAGE_DESTINATION_TYPE_UNSPECIFIED',
-  AWS_S3 = 'AWS_S3',
-  CLOUDFLARE_R2 = 'CLOUDFLARE_R2',
-  AZURE_STORAGE = 'AZURE_STORAGE',
-  GOOGLE_CLOUD_STORAGE = 'GOOGLE_CLOUD_STORAGE',
-}
+export type EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType =
 
+    | (typeof EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType)[keyof typeof EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType]
+    | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PartitionSpecification_Partition_PartitionValue_PartitionValueOp =
+  {
+    EQUAL: 'EQUAL',
+    LIKE: 'LIKE',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PartitionSpecification_Partition_PartitionValue_PartitionValueOp {
-  EQUAL = 'EQUAL',
-  LIKE = 'LIKE',
-}
+export type PartitionSpecification_Partition_PartitionValue_PartitionValueOp =
+  | (typeof PartitionSpecification_Partition_PartitionValue_PartitionValueOp)[keyof typeof PartitionSpecification_Partition_PartitionValue_PartitionValueOp]
+  | (string & {});
 
 export interface CleanRoom {
   /**
@@ -1026,12 +1116,12 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    status: z.enum(CleanRoom_Status_Enum).optional(),
+    status: z.string().optional(),
     local_collaborator_alias: z.string().optional(),
     output_catalog: z
       .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
       .optional(),
-    access_restricted: z.enum(CleanRoom_AccessRestricted).optional(),
+    access_restricted: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1050,12 +1140,12 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
   .object({
     clean_room_name: z.string().optional(),
     name: z.string().optional(),
-    asset_type: z.enum(CleanRoomAsset_AssetType).optional(),
+    asset_type: z.string().optional(),
     added_at: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    status: z.enum(CleanRoomAsset_Status_Enum).optional(),
+    status: z.string().optional(),
     owner_collaborator_alias: z.string().optional(),
     table_local_details: z
       .lazy(() => unmarshalCleanRoomAsset_TableLocalDetailsSchema)
@@ -1147,9 +1237,7 @@ export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_No
       reviews: z
         .array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema))
         .optional(),
-      review_state: z
-        .enum(CleanRoomNotebookReview_NotebookReviewState)
-        .optional(),
+      review_state: z.string().optional(),
     })
     .transform(d => ({
       notebookContent: d.notebook_content,
@@ -1220,7 +1308,7 @@ export const unmarshalCleanRoomAutoApprovalRuleSchema: z.ZodType<CleanRoomAutoAp
       rule_id: z.string().optional(),
       rule_owner_collaborator_alias: z.string().optional(),
       author_collaborator_alias: z.string().optional(),
-      author_scope: z.enum(CleanRoomAutoApprovalRule_AuthorScope).optional(),
+      author_scope: z.string().optional(),
       runner_collaborator_alias: z.string().optional(),
       created_at: z
         .union([z.number(), z.bigint()])
@@ -1280,13 +1368,9 @@ export const unmarshalCleanRoomNotebookReviewSchema: z.ZodType<CleanRoomNotebook
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
         .optional(),
-      review_state: z
-        .enum(CleanRoomNotebookReview_NotebookReviewState)
-        .optional(),
+      review_state: z.string().optional(),
       comment: z.string().optional(),
-      review_sub_reason: z
-        .enum(CleanRoomNotebookReview_NotebookReviewSubReason)
-        .optional(),
+      review_sub_reason: z.string().optional(),
     })
     .transform(d => ({
       reviewerCollaboratorAlias: d.reviewer_collaborator_alias,
@@ -1340,7 +1424,7 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
 export const unmarshalCleanRoomOutputCatalogSchema: z.ZodType<CleanRoomOutputCatalog> =
   z
     .object({
-      status: z.enum(CleanRoomOutputCatalog_OutputCatalogStatus).optional(),
+      status: z.string().optional(),
       catalog_name: z.string().optional(),
     })
     .transform(d => ({
@@ -1378,8 +1462,8 @@ export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDeta
 export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
   z
     .object({
-      life_cycle_state: z.enum(CleanRoomTaskRunLifeCycleState).optional(),
-      result_state: z.enum(CleanRoomTaskRunResultState).optional(),
+      life_cycle_state: z.string().optional(),
+      result_state: z.string().optional(),
     })
     .transform(d => ({
       lifeCycleState: d.life_cycle_state,
@@ -1419,7 +1503,7 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
     name: z.string().optional(),
     type_text: z.string().optional(),
-    type_name: z.enum(ColumnTypeName).optional(),
+    type_name: z.string().optional(),
     position: z.number().optional(),
     type_precision: z.number().optional(),
     type_scale: z.number().optional(),
@@ -1463,7 +1547,7 @@ export const unmarshalComplianceSecurityProfileSchema: z.ZodType<ComplianceSecur
   z
     .object({
       is_enabled: z.boolean().optional(),
-      compliance_standards: z.array(z.enum(ComplianceStandard)).optional(),
+      compliance_standards: z.array(z.string()).optional(),
     })
     .transform(d => ({
       isEnabled: d.is_enabled,
@@ -1476,9 +1560,7 @@ export const unmarshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType<Create
       notebook_reviews: z
         .array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema))
         .optional(),
-      notebook_review_state: z
-        .enum(CleanRoomNotebookReview_NotebookReviewState)
-        .optional(),
+      notebook_review_state: z.string().optional(),
     })
     .transform(d => ({
       notebookReviews: d.notebook_reviews,
@@ -1520,9 +1602,7 @@ export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> 
 export const unmarshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy> =
   z
     .object({
-      restriction_mode: z
-        .enum(EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode)
-        .optional(),
+      restriction_mode: z.string().optional(),
       allowed_internet_destinations: z
         .array(
           z.lazy(
@@ -1558,16 +1638,8 @@ export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinati
   z
     .object({
       destination: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
-      protocol: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol
-        )
-        .optional(),
+      type: z.string().optional(),
+      protocol: z.string().optional(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -1579,18 +1651,8 @@ export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinati
 export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode> =
   z
     .object({
-      log_only_mode_type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
-        )
-        .optional(),
-      workloads: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType
-          )
-        )
-        .optional(),
+      log_only_mode_type: z.string().optional(),
+      workloads: z.array(z.string()).optional(),
     })
     .transform(d => ({
       logOnlyModeType: d.log_only_mode_type,
@@ -1603,11 +1665,7 @@ export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinatio
     .object({
       bucket_name: z.string().optional(),
       region: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
+      type: z.string().optional(),
       azure_storage_account: z.string().optional(),
       allowed_paths: z.array(z.string()).optional(),
       azure_storage_service: z.string().optional(),
@@ -1709,9 +1767,7 @@ export const unmarshalPartitionSpecification_Partition_PartitionValueSchema: z.Z
       name: z.string().optional(),
       value: z.string().optional(),
       recipient_property_key: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
+      op: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1745,10 +1801,10 @@ export const marshalCleanRoomSchema: z.ZodType = z
     comment: z.string().optional(),
     createdAt: z.bigint().optional(),
     updatedAt: z.bigint().optional(),
-    status: z.enum(CleanRoom_Status_Enum).optional(),
+    status: z.string().optional(),
     localCollaboratorAlias: z.string().optional(),
     outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
-    accessRestricted: z.enum(CleanRoom_AccessRestricted).optional(),
+    accessRestricted: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1767,9 +1823,9 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
     name: z.string().optional(),
-    assetType: z.enum(CleanRoomAsset_AssetType).optional(),
+    assetType: z.string().optional(),
     addedAt: z.bigint().optional(),
-    status: z.enum(CleanRoomAsset_Status_Enum).optional(),
+    status: z.string().optional(),
     ownerCollaboratorAlias: z.string().optional(),
     localDetails: z
       .discriminatedUnion('$case', [
@@ -1874,7 +1930,7 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
     reviews: z
       .array(z.lazy(() => marshalCleanRoomNotebookReviewSchema))
       .optional(),
-    reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+    reviewState: z.string().optional(),
   })
   .transform(d => ({
     notebook_content: d.notebookContent,
@@ -1944,10 +2000,7 @@ export const marshalCleanRoomAutoApprovalRuleSchema: z.ZodType = z
           $case: z.literal('authorCollaboratorAlias'),
           authorCollaboratorAlias: z.string(),
         }),
-        z.object({
-          $case: z.literal('authorScope'),
-          authorScope: z.enum(CleanRoomAutoApprovalRule_AuthorScope),
-        }),
+        z.object({$case: z.literal('authorScope'), authorScope: z.string()}),
       ])
       .optional(),
     runners: z
@@ -1998,11 +2051,9 @@ export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
   .object({
     reviewerCollaboratorAlias: z.string().optional(),
     createdAtMillis: z.bigint().optional(),
-    reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+    reviewState: z.string().optional(),
     comment: z.string().optional(),
-    reviewSubReason: z
-      .enum(CleanRoomNotebookReview_NotebookReviewSubReason)
-      .optional(),
+    reviewSubReason: z.string().optional(),
   })
   .transform(d => ({
     reviewer_collaborator_alias: d.reviewerCollaboratorAlias,
@@ -2014,7 +2065,7 @@ export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
 
 export const marshalCleanRoomOutputCatalogSchema: z.ZodType = z
   .object({
-    status: z.enum(CleanRoomOutputCatalog_OutputCatalogStatus).optional(),
+    status: z.string().optional(),
     catalogName: z.string().optional(),
   })
   .transform(d => ({
@@ -2052,7 +2103,7 @@ export const marshalColumnInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     typeText: z.string().optional(),
-    typeName: z.enum(ColumnTypeName).optional(),
+    typeName: z.string().optional(),
     position: z.number().optional(),
     typePrecision: z.number().optional(),
     typeScale: z.number().optional(),
@@ -2095,7 +2146,7 @@ export const marshalColumnMaskSchema: z.ZodType = z
 export const marshalComplianceSecurityProfileSchema: z.ZodType = z
   .object({
     isEnabled: z.boolean().optional(),
-    complianceStandards: z.array(z.enum(ComplianceStandard)).optional(),
+    complianceStandards: z.array(z.string()).optional(),
   })
   .transform(d => ({
     is_enabled: d.isEnabled,
@@ -2106,7 +2157,7 @@ export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
     name: z.string().optional(),
-    assetType: z.enum(CleanRoomAsset_AssetType).optional(),
+    assetType: z.string().optional(),
     review: z
       .discriminatedUnion('$case', [
         z.object({
@@ -2149,9 +2200,7 @@ export const marshalEgressNetworkPolicySchema: z.ZodType = z
 export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType =
   z
     .object({
-      restrictionMode: z
-        .enum(EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode)
-        .optional(),
+      restrictionMode: z.string().optional(),
       allowedInternetDestinations: z
         .array(
           z.lazy(
@@ -2187,16 +2236,8 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestination
   z
     .object({
       destination: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
-      protocol: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol
-        )
-        .optional(),
+      type: z.string().optional(),
+      protocol: z.string().optional(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -2208,18 +2249,8 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestination
 export const marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType =
   z
     .object({
-      logOnlyModeType: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
-        )
-        .optional(),
-      workloads: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType
-          )
-        )
-        .optional(),
+      logOnlyModeType: z.string().optional(),
+      workloads: z.array(z.string()).optional(),
     })
     .transform(d => ({
       log_only_mode_type: d.logOnlyModeType,
@@ -2232,11 +2263,7 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationS
     .object({
       bucketName: z.string().optional(),
       region: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
+      type: z.string().optional(),
       azureStorageAccount: z.string().optional(),
       allowedPaths: z.array(z.string()).optional(),
       azureStorageService: z.string().optional(),
@@ -2257,7 +2284,7 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationS
 export const marshalNotebookVersionReviewSchema: z.ZodType = z
   .object({
     etag: z.string().optional(),
-    reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+    reviewState: z.string().optional(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -2288,9 +2315,7 @@ export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.Zod
       name: z.string().optional(),
       value: z.string().optional(),
       recipientPropertyKey: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
+      op: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,

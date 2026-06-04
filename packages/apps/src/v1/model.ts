@@ -5,13 +5,18 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum ComputeSize {
-  MEDIUM = 'MEDIUM',
-  LARGE = 'LARGE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComputeSize = {
+  MEDIUM: 'MEDIUM',
+  LARGE: 'LARGE',
+} as const;
+export type ComputeSize =
+  | (typeof ComputeSize)[keyof typeof ComputeSize]
+  | (string & {});
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
-export enum ErrorCode {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
@@ -24,7 +29,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNKNOWN = 2;
    * - HTTP code: 500 Internal Server Error
    */
-  UNKNOWN = 'UNKNOWN',
+  UNKNOWN: 'UNKNOWN',
   /**
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
@@ -37,7 +42,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
    */
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
   /**
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
@@ -52,13 +57,13 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  TEMPORARILY_UNAVAILABLE = 'TEMPORARILY_UNAVAILABLE',
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that an IOException has been internally thrown.
    */
-  IO_ERROR = 'IO_ERROR',
+  IO_ERROR: 'IO_ERROR',
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
@@ -69,14 +74,14 @@ export enum ErrorCode {
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
    */
-  BAD_REQUEST = 'BAD_REQUEST',
+  BAD_REQUEST: 'BAD_REQUEST',
   /**
    * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
    * gateway proxy to safely retry the request.
    */
-  SERVICE_UNDER_MAINTENANCE = 'SERVICE_UNDER_MAINTENANCE',
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
   /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
-  WORKSPACE_TEMPORARILY_UNAVAILABLE = 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
   /**
    * The deadline expired before the operation could complete. For operations that change the state
    * of the system, this error may be returned even if the operation has completed successfully.
@@ -89,7 +94,7 @@ export enum ErrorCode {
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
    */
-  DEADLINE_EXCEEDED = 'DEADLINE_EXCEEDED',
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
@@ -98,7 +103,7 @@ export enum ErrorCode {
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
    */
-  CANCELLED = 'CANCELLED',
+  CANCELLED: 'CANCELLED',
   /**
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
@@ -111,7 +116,7 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  RESOURCE_EXHAUSTED = 'RESOURCE_EXHAUSTED',
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
@@ -120,7 +125,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
    */
-  ABORTED = 'ABORTED',
+  ABORTED: 'ABORTED',
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
@@ -129,7 +134,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  NOT_FOUND = 'NOT_FOUND',
+  NOT_FOUND: 'NOT_FOUND',
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
@@ -140,7 +145,7 @@ export enum ErrorCode {
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
    */
-  ALREADY_EXISTS = 'ALREADY_EXISTS',
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -152,7 +157,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  UNAUTHENTICATED = 'UNAUTHENTICATED',
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
   /**
    * The service is currently unavailable. Please note that the unavailability may or may not be transient.
    * That means if this is a non-transient condition, retrying it does not work. If the unavailability
@@ -167,7 +172,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
    */
-  UNAVAILABLE = 'UNAVAILABLE',
+  UNAVAILABLE: 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
    *
@@ -175,7 +180,7 @@ export enum ErrorCode {
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
    */
-  INVALID_PARAMETER_VALUE = 'INVALID_PARAMETER_VALUE',
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
@@ -184,15 +189,15 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  ENDPOINT_NOT_FOUND = 'ENDPOINT_NOT_FOUND',
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
   /** Indicates that the given API request was malformed. */
-  MALFORMED_REQUEST = 'MALFORMED_REQUEST',
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * If one or more of the inputs to a given RPC are not in a valid state for the action.
    */
-  INVALID_STATE = 'INVALID_STATE',
+  INVALID_STATE: 'INVALID_STATE',
   /**
    * The caller does not have permission to execute the specified operation.
    * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
@@ -206,7 +211,7 @@ export enum ErrorCode {
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
    */
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
   /**
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
@@ -218,7 +223,7 @@ export enum ErrorCode {
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
    */
-  FEATURE_DISABLED = 'FEATURE_DISABLED',
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
    *
@@ -239,7 +244,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
    */
-  CUSTOMER_UNAUTHORIZED = 'CUSTOMER_UNAUTHORIZED',
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
@@ -253,16 +258,16 @@ export enum ErrorCode {
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
    */
-  REQUEST_LIMIT_EXCEEDED = 'REQUEST_LIMIT_EXCEEDED',
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
   /** Indicates API request was rejected due a conflict with an existing resource. */
-  RESOURCE_CONFLICT = 'RESOURCE_CONFLICT',
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Indicates that the HTTP response cannot be correctly deserialized.
    * This currently is only used in DUST test clients, and not by any real service code.
    */
-  UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
    *
@@ -270,7 +275,7 @@ export enum ErrorCode {
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
    */
-  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
    *
@@ -285,15 +290,15 @@ export enum ErrorCode {
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
    */
-  DATA_LOSS = 'DATA_LOSS',
+  DATA_LOSS: 'DATA_LOSS',
   /** If the user attempts to perform an invalid state transition on a shard. */
-  INVALID_STATE_TRANSITION = 'INVALID_STATE_TRANSITION',
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Unable to perform the operation because the shard was locked by some other operation.
    */
-  COULD_NOT_ACQUIRE_LOCK = 'COULD_NOT_ACQUIRE_LOCK',
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
   /**
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
@@ -301,7 +306,7 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that already exists.
    */
-  RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
@@ -309,405 +314,511 @@ export enum ErrorCode {
    *
    * Operation was performed on a resource that does not exist.
    */
-  RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_BLOCK_SIZE_EXCEEDED = 'MAX_BLOCK_SIZE_EXCEEDED',
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_READ_SIZE_EXCEEDED = 'MAX_READ_SIZE_EXCEEDED',
-  PARTIAL_DELETE = 'PARTIAL_DELETE',
-  MAX_LIST_SIZE_EXCEEDED = 'MAX_LIST_SIZE_EXCEEDED',
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DRY_RUN_FAILED = 'DRY_RUN_FAILED',
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    * Cluster request was rejected because it would exceed a resource limit.
    */
-  RESOURCE_LIMIT_EXCEEDED = 'RESOURCE_LIMIT_EXCEEDED',
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_NOT_EMPTY = 'DIRECTORY_NOT_EMPTY',
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DIRECTORY_PROTECTED = 'DIRECTORY_PROTECTED',
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MAX_NOTEBOOK_SIZE_EXCEEDED = 'MAX_NOTEBOOK_SIZE_EXCEEDED',
-  MAX_CHILD_NODE_SIZE_EXCEEDED = 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_LONG = 'SEARCH_QUERY_TOO_LONG',
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SEARCH_QUERY_TOO_SHORT = 'SEARCH_QUERY_TOO_SHORT',
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST = 'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PERMISSION_NOT_PROPAGATED = 'PERMISSION_NOT_PROPAGATED',
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DEPLOYMENT_TIMEOUT = 'DEPLOYMENT_TIMEOUT',
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_CONFLICT = 'GIT_CONFLICT',
+  GIT_CONFLICT: 'GIT_CONFLICT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_UNKNOWN_REF = 'GIT_UNKNOWN_REF',
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_SENSITIVE_TOKEN_DETECTED = 'GIT_SENSITIVE_TOKEN_DETECTED',
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_URL_NOT_ON_ALLOW_LIST = 'GIT_URL_NOT_ON_ALLOW_LIST',
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  GIT_REMOTE_ERROR = 'GIT_REMOTE_ERROR',
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROJECTS_OPERATION_TIMEOUT = 'PROJECTS_OPERATION_TIMEOUT',
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  IPYNB_FILE_IN_REPO = 'IPYNB_FILE_IN_REPO',
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  INSECURE_PARTNER_RESPONSE = 'INSECURE_PARTNER_RESPONSE',
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  MALFORMED_PARTNER_RESPONSE = 'MALFORMED_PARTNER_RESPONSE',
-  METASTORE_DOES_NOT_EXIST = 'METASTORE_DOES_NOT_EXIST',
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_DOES_NOT_EXIST = 'DAC_DOES_NOT_EXIST',
-  CATALOG_DOES_NOT_EXIST = 'CATALOG_DOES_NOT_EXIST',
-  SCHEMA_DOES_NOT_EXIST = 'SCHEMA_DOES_NOT_EXIST',
-  TABLE_DOES_NOT_EXIST = 'TABLE_DOES_NOT_EXIST',
-  SHARE_DOES_NOT_EXIST = 'SHARE_DOES_NOT_EXIST',
-  RECIPIENT_DOES_NOT_EXIST = 'RECIPIENT_DOES_NOT_EXIST',
-  STORAGE_CREDENTIAL_DOES_NOT_EXIST = 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
-  EXTERNAL_LOCATION_DOES_NOT_EXIST = 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
-  PRINCIPAL_DOES_NOT_EXIST = 'PRINCIPAL_DOES_NOT_EXIST',
-  PROVIDER_DOES_NOT_EXIST = 'PROVIDER_DOES_NOT_EXIST',
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_ALREADY_EXISTS = 'METASTORE_ALREADY_EXISTS',
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  DAC_ALREADY_EXISTS = 'DAC_ALREADY_EXISTS',
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_ALREADY_EXISTS = 'CATALOG_ALREADY_EXISTS',
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_ALREADY_EXISTS = 'SCHEMA_ALREADY_EXISTS',
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  TABLE_ALREADY_EXISTS = 'TABLE_ALREADY_EXISTS',
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SHARE_ALREADY_EXISTS = 'SHARE_ALREADY_EXISTS',
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  RECIPIENT_ALREADY_EXISTS = 'RECIPIENT_ALREADY_EXISTS',
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  STORAGE_CREDENTIAL_ALREADY_EXISTS = 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  EXTERNAL_LOCATION_ALREADY_EXISTS = 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_ALREADY_EXISTS = 'PROVIDER_ALREADY_EXISTS',
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  CATALOG_NOT_EMPTY = 'CATALOG_NOT_EMPTY',
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  SCHEMA_NOT_EMPTY = 'SCHEMA_NOT_EMPTY',
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  METASTORE_NOT_EMPTY = 'METASTORE_NOT_EMPTY',
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
   /**
    * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
    * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
    */
-  PROVIDER_SHARE_NOT_ACCESSIBLE = 'PROVIDER_SHARE_NOT_ACCESSIBLE',
-}
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
 
-export enum SpaceUpdateState {
-  SPACE_UPDATE_STATE_UNSPECIFIED = 'SPACE_UPDATE_STATE_UNSPECIFIED',
-  NOT_UPDATED = 'NOT_UPDATED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SpaceUpdateState = {
+  SPACE_UPDATE_STATE_UNSPECIFIED: 'SPACE_UPDATE_STATE_UNSPECIFIED',
+  NOT_UPDATED: 'NOT_UPDATED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+} as const;
+export type SpaceUpdateState =
+  | (typeof SpaceUpdateState)[keyof typeof SpaceUpdateState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppDeployment_Mode = {
+  MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  SNAPSHOT: 'SNAPSHOT',
+  AUTO_SYNC: 'AUTO_SYNC',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppDeployment_Mode {
-  MODE_UNSPECIFIED = 'MODE_UNSPECIFIED',
-  SNAPSHOT = 'SNAPSHOT',
-  AUTO_SYNC = 'AUTO_SYNC',
-}
+export type AppDeployment_Mode =
+  | (typeof AppDeployment_Mode)[keyof typeof AppDeployment_Mode]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppDeployment_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  CANCELLED: 'CANCELLED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppDeployment_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  CANCELLED = 'CANCELLED',
-}
+export type AppDeployment_State =
+  | (typeof AppDeployment_State)[keyof typeof AppDeployment_State]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceExperimentSpec_ExperimentPermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_EDIT: 'CAN_EDIT',
+  CAN_READ: 'CAN_READ',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceExperimentSpec_ExperimentPermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_EDIT = 'CAN_EDIT',
-  CAN_READ = 'CAN_READ',
-}
+export type AppManifest_AppResourceExperimentSpec_ExperimentPermission =
+  | (typeof AppManifest_AppResourceExperimentSpec_ExperimentPermission)[keyof typeof AppManifest_AppResourceExperimentSpec_ExperimentPermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceJobSpec_JobPermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  IS_OWNER: 'IS_OWNER',
+  CAN_MANAGE_RUN: 'CAN_MANAGE_RUN',
+  CAN_VIEW: 'CAN_VIEW',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceJobSpec_JobPermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  IS_OWNER = 'IS_OWNER',
-  CAN_MANAGE_RUN = 'CAN_MANAGE_RUN',
-  CAN_VIEW = 'CAN_VIEW',
-}
+export type AppManifest_AppResourceJobSpec_JobPermission =
+  | (typeof AppManifest_AppResourceJobSpec_JobPermission)[keyof typeof AppManifest_AppResourceJobSpec_JobPermission]
+  | (string & {});
 
 /** Permission to grant on the secret scope. Supported permissions are: "READ", "WRITE", "MANAGE". */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceSecretSpec_SecretPermission = {
+  READ: 'READ',
+  WRITE: 'WRITE',
+  MANAGE: 'MANAGE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceSecretSpec_SecretPermission {
-  READ = 'READ',
-  WRITE = 'WRITE',
-  MANAGE = 'MANAGE',
-}
+export type AppManifest_AppResourceSecretSpec_SecretPermission =
+  | (typeof AppManifest_AppResourceSecretSpec_SecretPermission)[keyof typeof AppManifest_AppResourceSecretSpec_SecretPermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission =
+  {
+    CAN_MANAGE: 'CAN_MANAGE',
+    CAN_QUERY: 'CAN_QUERY',
+    CAN_VIEW: 'CAN_VIEW',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_QUERY = 'CAN_QUERY',
-  CAN_VIEW = 'CAN_VIEW',
-}
+export type AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission =
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_USE = 'CAN_USE',
-  IS_OWNER = 'IS_OWNER',
-}
+    | (typeof AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission)[keyof typeof AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission]
+    | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_USE: 'CAN_USE',
+  IS_OWNER: 'IS_OWNER',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission {
-  READ_VOLUME = 'READ_VOLUME',
-  WRITE_VOLUME = 'WRITE_VOLUME',
-  MANAGE = 'MANAGE',
-  SELECT = 'SELECT',
-  EXECUTE = 'EXECUTE',
-  USE_CONNECTION = 'USE_CONNECTION',
-}
+export type AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission =
+  | (typeof AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission)[keyof typeof AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission = {
+  READ_VOLUME: 'READ_VOLUME',
+  WRITE_VOLUME: 'WRITE_VOLUME',
+  MANAGE: 'MANAGE',
+  SELECT: 'SELECT',
+  EXECUTE: 'EXECUTE',
+  USE_CONNECTION: 'USE_CONNECTION',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceUcSecurableSpec_UcSecurableType {
-  VOLUME = 'VOLUME',
-  TABLE = 'TABLE',
-  FUNCTION = 'FUNCTION',
-  CONNECTION = 'CONNECTION',
-}
+export type AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission =
+  | (typeof AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission)[keyof typeof AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppManifest_AppResourceUcSecurableSpec_UcSecurableType = {
+  VOLUME: 'VOLUME',
+  TABLE: 'TABLE',
+  FUNCTION: 'FUNCTION',
+  CONNECTION: 'CONNECTION',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceApp_AppPermission {
-  CAN_USE = 'CAN_USE',
-}
+export type AppManifest_AppResourceUcSecurableSpec_UcSecurableType =
+  | (typeof AppManifest_AppResourceUcSecurableSpec_UcSecurableType)[keyof typeof AppManifest_AppResourceUcSecurableSpec_UcSecurableType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceApp_AppPermission = {
+  CAN_USE: 'CAN_USE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceDatabase_DatabasePermission {
-  CAN_CONNECT_AND_CREATE = 'CAN_CONNECT_AND_CREATE',
-}
+export type AppResourceApp_AppPermission =
+  | (typeof AppResourceApp_AppPermission)[keyof typeof AppResourceApp_AppPermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceDatabase_DatabasePermission = {
+  CAN_CONNECT_AND_CREATE: 'CAN_CONNECT_AND_CREATE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceExperiment_ExperimentPermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_EDIT = 'CAN_EDIT',
-  CAN_READ = 'CAN_READ',
-}
+export type AppResourceDatabase_DatabasePermission =
+  | (typeof AppResourceDatabase_DatabasePermission)[keyof typeof AppResourceDatabase_DatabasePermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceExperiment_ExperimentPermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_EDIT: 'CAN_EDIT',
+  CAN_READ: 'CAN_READ',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceGenieSpace_GenieSpacePermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_EDIT = 'CAN_EDIT',
-  CAN_RUN = 'CAN_RUN',
-  CAN_VIEW = 'CAN_VIEW',
-}
+export type AppResourceExperiment_ExperimentPermission =
+  | (typeof AppResourceExperiment_ExperimentPermission)[keyof typeof AppResourceExperiment_ExperimentPermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceGenieSpace_GenieSpacePermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_EDIT: 'CAN_EDIT',
+  CAN_RUN: 'CAN_RUN',
+  CAN_VIEW: 'CAN_VIEW',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceJob_JobPermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  IS_OWNER = 'IS_OWNER',
-  CAN_MANAGE_RUN = 'CAN_MANAGE_RUN',
-  CAN_VIEW = 'CAN_VIEW',
-}
+export type AppResourceGenieSpace_GenieSpacePermission =
+  | (typeof AppResourceGenieSpace_GenieSpacePermission)[keyof typeof AppResourceGenieSpace_GenieSpacePermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceJob_JobPermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  IS_OWNER: 'IS_OWNER',
+  CAN_MANAGE_RUN: 'CAN_MANAGE_RUN',
+  CAN_VIEW: 'CAN_VIEW',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourcePostgres_PostgresPermission {
-  CAN_CONNECT_AND_CREATE = 'CAN_CONNECT_AND_CREATE',
-}
+export type AppResourceJob_JobPermission =
+  | (typeof AppResourceJob_JobPermission)[keyof typeof AppResourceJob_JobPermission]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourcePostgres_PostgresPermission = {
+  CAN_CONNECT_AND_CREATE: 'CAN_CONNECT_AND_CREATE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AppResourcePostgres_PostgresPermission =
+  | (typeof AppResourcePostgres_PostgresPermission)[keyof typeof AppResourcePostgres_PostgresPermission]
+  | (string & {});
 
 /** Permission to grant on the secret scope. Supported permissions are: "READ", "WRITE", "MANAGE". */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceSecret_SecretPermission = {
+  READ: 'READ',
+  WRITE: 'WRITE',
+  MANAGE: 'MANAGE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceSecret_SecretPermission {
-  READ = 'READ',
-  WRITE = 'WRITE',
-  MANAGE = 'MANAGE',
-}
+export type AppResourceSecret_SecretPermission =
+  | (typeof AppResourceSecret_SecretPermission)[keyof typeof AppResourceSecret_SecretPermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceServingEndpoint_ServingEndpointPermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_QUERY: 'CAN_QUERY',
+  CAN_VIEW: 'CAN_VIEW',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceServingEndpoint_ServingEndpointPermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_QUERY = 'CAN_QUERY',
-  CAN_VIEW = 'CAN_VIEW',
-}
+export type AppResourceServingEndpoint_ServingEndpointPermission =
+  | (typeof AppResourceServingEndpoint_ServingEndpointPermission)[keyof typeof AppResourceServingEndpoint_ServingEndpointPermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceSqlWarehouse_SqlWarehousePermission = {
+  CAN_MANAGE: 'CAN_MANAGE',
+  CAN_USE: 'CAN_USE',
+  IS_OWNER: 'IS_OWNER',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceSqlWarehouse_SqlWarehousePermission {
-  CAN_MANAGE = 'CAN_MANAGE',
-  CAN_USE = 'CAN_USE',
-  IS_OWNER = 'IS_OWNER',
-}
+export type AppResourceSqlWarehouse_SqlWarehousePermission =
+  | (typeof AppResourceSqlWarehouse_SqlWarehousePermission)[keyof typeof AppResourceSqlWarehouse_SqlWarehousePermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceUcSecurable_UcSecurablePermission = {
+  READ_VOLUME: 'READ_VOLUME',
+  WRITE_VOLUME: 'WRITE_VOLUME',
+  SELECT: 'SELECT',
+  EXECUTE: 'EXECUTE',
+  USE_CONNECTION: 'USE_CONNECTION',
+  MODIFY: 'MODIFY',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceUcSecurable_UcSecurablePermission {
-  READ_VOLUME = 'READ_VOLUME',
-  WRITE_VOLUME = 'WRITE_VOLUME',
-  SELECT = 'SELECT',
-  EXECUTE = 'EXECUTE',
-  USE_CONNECTION = 'USE_CONNECTION',
-  MODIFY = 'MODIFY',
-}
+export type AppResourceUcSecurable_UcSecurablePermission =
+  | (typeof AppResourceUcSecurable_UcSecurablePermission)[keyof typeof AppResourceUcSecurable_UcSecurablePermission]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppResourceUcSecurable_UcSecurableType = {
+  VOLUME: 'VOLUME',
+  TABLE: 'TABLE',
+  FUNCTION: 'FUNCTION',
+  CONNECTION: 'CONNECTION',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppResourceUcSecurable_UcSecurableType {
-  VOLUME = 'VOLUME',
-  TABLE = 'TABLE',
-  FUNCTION = 'FUNCTION',
-  CONNECTION = 'CONNECTION',
-}
+export type AppResourceUcSecurable_UcSecurableType =
+  | (typeof AppResourceUcSecurable_UcSecurableType)[keyof typeof AppResourceUcSecurable_UcSecurableType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppUpdate_UpdateStatus_UpdateState = {
+  UPDATE_STATE_UNSPECIFIED: 'UPDATE_STATE_UNSPECIFIED',
+  NOT_UPDATED: 'NOT_UPDATED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppUpdate_UpdateStatus_UpdateState {
-  UPDATE_STATE_UNSPECIFIED = 'UPDATE_STATE_UNSPECIFIED',
-  NOT_UPDATED = 'NOT_UPDATED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED',
-}
+export type AppUpdate_UpdateStatus_UpdateState =
+  | (typeof AppUpdate_UpdateStatus_UpdateState)[keyof typeof AppUpdate_UpdateStatus_UpdateState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ApplicationStatus_ApplicationState = {
+  APPLICATION_STATE_UNSPECIFIED: 'APPLICATION_STATE_UNSPECIFIED',
+  DEPLOYING: 'DEPLOYING',
+  RUNNING: 'RUNNING',
+  CRASHED: 'CRASHED',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ApplicationStatus_ApplicationState {
-  APPLICATION_STATE_UNSPECIFIED = 'APPLICATION_STATE_UNSPECIFIED',
-  DEPLOYING = 'DEPLOYING',
-  RUNNING = 'RUNNING',
-  CRASHED = 'CRASHED',
-  UNAVAILABLE = 'UNAVAILABLE',
-}
+export type ApplicationStatus_ApplicationState =
+  | (typeof ApplicationStatus_ApplicationState)[keyof typeof ApplicationStatus_ApplicationState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComputeStatus_ComputeState = {
+  COMPUTE_STATE_UNSPECIFIED: 'COMPUTE_STATE_UNSPECIFIED',
+  ERROR: 'ERROR',
+  DELETING: 'DELETING',
+  STARTING: 'STARTING',
+  STOPPING: 'STOPPING',
+  UPDATING: 'UPDATING',
+  STOPPED: 'STOPPED',
+  ACTIVE: 'ACTIVE',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ComputeStatus_ComputeState {
-  COMPUTE_STATE_UNSPECIFIED = 'COMPUTE_STATE_UNSPECIFIED',
-  ERROR = 'ERROR',
-  DELETING = 'DELETING',
-  STARTING = 'STARTING',
-  STOPPING = 'STOPPING',
-  UPDATING = 'UPDATING',
-  STOPPED = 'STOPPED',
-  ACTIVE = 'ACTIVE',
-}
+export type ComputeStatus_ComputeState =
+  | (typeof ComputeStatus_ComputeState)[keyof typeof ComputeStatus_ComputeState]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SpaceStatus_SpaceState = {
+  SPACE_STATE_UNSPECIFIED: 'SPACE_STATE_UNSPECIFIED',
+  SPACE_CREATING: 'SPACE_CREATING',
+  SPACE_ACTIVE: 'SPACE_ACTIVE',
+  SPACE_ERROR: 'SPACE_ERROR',
+  SPACE_DELETING: 'SPACE_DELETING',
+  SPACE_DELETED: 'SPACE_DELETED',
+  SPACE_UPDATING: 'SPACE_UPDATING',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SpaceStatus_SpaceState {
-  SPACE_STATE_UNSPECIFIED = 'SPACE_STATE_UNSPECIFIED',
-  SPACE_CREATING = 'SPACE_CREATING',
-  SPACE_ACTIVE = 'SPACE_ACTIVE',
-  SPACE_ERROR = 'SPACE_ERROR',
-  SPACE_DELETING = 'SPACE_DELETING',
-  SPACE_DELETED = 'SPACE_DELETED',
-  SPACE_UPDATING = 'SPACE_UPDATING',
-}
+export type SpaceStatus_SpaceState =
+  | (typeof SpaceStatus_SpaceState)[keyof typeof SpaceStatus_SpaceState]
+  | (string & {});
 
 /** Databricks Error that is returned by all Databricks APIs. */
 export interface ApiError {
@@ -1419,7 +1530,7 @@ export interface UpdateSpaceRequest {
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
   .object({
-    error_code: z.enum(ErrorCode).optional(),
+    error_code: z.string().optional(),
     message: z.string().optional(),
     stack_trace: z.string().optional(),
     details: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -1465,7 +1576,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     effective_user_api_scopes: z.array(z.string()).optional(),
     oauth2_app_integration_id: z.string().optional(),
     oauth2_app_client_id: z.string().optional(),
-    compute_size: z.enum(ComputeSize).optional(),
+    compute_size: z.string().optional(),
     usage_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     compute_min_instances: z.number().optional(),
@@ -1517,7 +1628,7 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
     deployment_id: z.string().optional(),
     source_code_path: z.string().optional(),
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
-    mode: z.enum(AppDeployment_Mode).optional(),
+    mode: z.string().optional(),
     deployment_artifacts: z
       .lazy(() => unmarshalAppDeploymentArtifactsSchema)
       .optional(),
@@ -1560,7 +1671,7 @@ export const unmarshalAppDeploymentArtifactsSchema: z.ZodType<AppDeploymentArtif
 export const unmarshalAppDeploymentStatusSchema: z.ZodType<AppDeploymentStatus> =
   z
     .object({
-      state: z.enum(AppDeployment_State).optional(),
+      state: z.string().optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -1588,9 +1699,7 @@ export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
 export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<AppManifest_AppResourceExperimentSpec> =
   z
     .object({
-      permission: z
-        .enum(AppManifest_AppResourceExperimentSpec_ExperimentPermission)
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1600,9 +1709,7 @@ export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<App
 export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifest_AppResourceJobSpec> =
   z
     .object({
-      permission: z
-        .enum(AppManifest_AppResourceJobSpec_JobPermission)
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1612,9 +1719,7 @@ export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifes
 export const unmarshalAppManifest_AppResourceSecretSpecSchema: z.ZodType<AppManifest_AppResourceSecretSpec> =
   z
     .object({
-      permission: z
-        .enum(AppManifest_AppResourceSecretSpec_SecretPermission)
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1624,11 +1729,7 @@ export const unmarshalAppManifest_AppResourceSecretSpecSchema: z.ZodType<AppMani
 export const unmarshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType<AppManifest_AppResourceServingEndpointSpec> =
   z
     .object({
-      permission: z
-        .enum(
-          AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
-        )
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1694,9 +1795,7 @@ export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_A
 export const unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType<AppManifest_AppResourceSqlWarehouseSpec> =
   z
     .object({
-      permission: z
-        .enum(AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission)
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1706,12 +1805,8 @@ export const unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType<A
 export const unmarshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType<AppManifest_AppResourceUcSecurableSpec> =
   z
     .object({
-      securable_type: z
-        .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurableType)
-        .optional(),
-      permission: z
-        .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission)
-        .optional(),
+      securable_type: z.string().optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       securableType: d.securable_type,
@@ -1772,7 +1867,7 @@ export const unmarshalAppResourceSchema: z.ZodType<AppResource> = z
 export const unmarshalAppResourceAppSchema: z.ZodType<AppResourceApp> = z
   .object({
     name: z.string().optional(),
-    permission: z.enum(AppResourceApp_AppPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1784,7 +1879,7 @@ export const unmarshalAppResourceDatabaseSchema: z.ZodType<AppResourceDatabase> 
     .object({
       instance_name: z.string().optional(),
       database_name: z.string().optional(),
-      permission: z.enum(AppResourceDatabase_DatabasePermission).optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       instanceName: d.instance_name,
@@ -1796,7 +1891,7 @@ export const unmarshalAppResourceExperimentSchema: z.ZodType<AppResourceExperime
   z
     .object({
       experiment_id: z.string().optional(),
-      permission: z.enum(AppResourceExperiment_ExperimentPermission).optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       experimentId: d.experiment_id,
@@ -1808,7 +1903,7 @@ export const unmarshalAppResourceGenieSpaceSchema: z.ZodType<AppResourceGenieSpa
     .object({
       name: z.string().optional(),
       space_id: z.string().optional(),
-      permission: z.enum(AppResourceGenieSpace_GenieSpacePermission).optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1819,7 +1914,7 @@ export const unmarshalAppResourceGenieSpaceSchema: z.ZodType<AppResourceGenieSpa
 export const unmarshalAppResourceJobSchema: z.ZodType<AppResourceJob> = z
   .object({
     id: z.string().optional(),
-    permission: z.enum(AppResourceJob_JobPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1831,7 +1926,7 @@ export const unmarshalAppResourcePostgresSchema: z.ZodType<AppResourcePostgres> 
     .object({
       branch: z.string().optional(),
       database: z.string().optional(),
-      permission: z.enum(AppResourcePostgres_PostgresPermission).optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       branch: d.branch,
@@ -1843,7 +1938,7 @@ export const unmarshalAppResourceSecretSchema: z.ZodType<AppResourceSecret> = z
   .object({
     scope: z.string().optional(),
     key: z.string().optional(),
-    permission: z.enum(AppResourceSecret_SecretPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -1855,9 +1950,7 @@ export const unmarshalAppResourceServingEndpointSchema: z.ZodType<AppResourceSer
   z
     .object({
       name: z.string().optional(),
-      permission: z
-        .enum(AppResourceServingEndpoint_ServingEndpointPermission)
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1868,9 +1961,7 @@ export const unmarshalAppResourceSqlWarehouseSchema: z.ZodType<AppResourceSqlWar
   z
     .object({
       id: z.string().optional(),
-      permission: z
-        .enum(AppResourceSqlWarehouse_SqlWarehousePermission)
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       id: d.id,
@@ -1881,10 +1972,8 @@ export const unmarshalAppResourceUcSecurableSchema: z.ZodType<AppResourceUcSecur
   z
     .object({
       securable_full_name: z.string().optional(),
-      securable_type: z.enum(AppResourceUcSecurable_UcSecurableType).optional(),
-      permission: z
-        .enum(AppResourceUcSecurable_UcSecurablePermission)
-        .optional(),
+      securable_type: z.string().optional(),
+      permission: z.string().optional(),
       securable_kind: z.string().optional(),
     })
     .transform(d => ({
@@ -1912,7 +2001,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     budget_policy_id: z.string().optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
     user_api_scopes: z.array(z.string()).optional(),
-    compute_size: z.enum(ComputeSize).optional(),
+    compute_size: z.string().optional(),
     usage_policy_id: z.string().optional(),
     compute_min_instances: z.number().optional(),
     compute_max_instances: z.number().optional(),
@@ -1935,7 +2024,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
 export const unmarshalAppUpdate_UpdateStatusSchema: z.ZodType<AppUpdate_UpdateStatus> =
   z
     .object({
-      state: z.enum(AppUpdate_UpdateStatus_UpdateState).optional(),
+      state: z.string().optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -1945,7 +2034,7 @@ export const unmarshalAppUpdate_UpdateStatusSchema: z.ZodType<AppUpdate_UpdateSt
 
 export const unmarshalApplicationStatusSchema: z.ZodType<ApplicationStatus> = z
   .object({
-    state: z.enum(ApplicationStatus_ApplicationState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -1955,7 +2044,7 @@ export const unmarshalApplicationStatusSchema: z.ZodType<ApplicationStatus> = z
 
 export const unmarshalComputeStatusSchema: z.ZodType<ComputeStatus> = z
   .object({
-    state: z.enum(ComputeStatus_ComputeState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
     active_instances: z.number().optional(),
   })
@@ -2150,7 +2239,7 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
 
 export const unmarshalSpaceStatusSchema: z.ZodType<SpaceStatus> = z
   .object({
-    state: z.enum(SpaceStatus_SpaceState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -2176,7 +2265,7 @@ export const unmarshalSpaceUpdateSchema: z.ZodType<SpaceUpdate> = z
 
 export const unmarshalSpaceUpdateStatusSchema: z.ZodType<SpaceUpdateStatus> = z
   .object({
-    state: z.enum(SpaceUpdateState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -2239,7 +2328,7 @@ export const marshalAppSchema: z.ZodType = z
     effectiveUserApiScopes: z.array(z.string()).optional(),
     oauth2AppIntegrationId: z.string().optional(),
     oauth2AppClientId: z.string().optional(),
-    computeSize: z.enum(ComputeSize).optional(),
+    computeSize: z.string().optional(),
     usagePolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
     computeMinInstances: z.number().optional(),
@@ -2291,7 +2380,7 @@ export const marshalAppDeploymentSchema: z.ZodType = z
     deploymentId: z.string().optional(),
     sourceCodePath: z.string().optional(),
     gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
-    mode: z.enum(AppDeployment_Mode).optional(),
+    mode: z.string().optional(),
     deploymentArtifacts: z
       .lazy(() => marshalAppDeploymentArtifactsSchema)
       .optional(),
@@ -2332,7 +2421,7 @@ export const marshalAppDeploymentArtifactsSchema: z.ZodType = z
 
 export const marshalAppDeploymentStatusSchema: z.ZodType = z
   .object({
-    state: z.enum(AppDeployment_State).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -2359,9 +2448,7 @@ export const marshalAppManifestSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
   .object({
-    permission: z
-      .enum(AppManifest_AppResourceExperimentSpec_ExperimentPermission)
-      .optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2370,7 +2457,7 @@ export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
   .object({
-    permission: z.enum(AppManifest_AppResourceJobSpec_JobPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2379,9 +2466,7 @@ export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSecretSpecSchema: z.ZodType = z
   .object({
-    permission: z
-      .enum(AppManifest_AppResourceSecretSpec_SecretPermission)
-      .optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2391,11 +2476,7 @@ export const marshalAppManifest_AppResourceSecretSpecSchema: z.ZodType = z
 export const marshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType =
   z
     .object({
-      permission: z
-        .enum(
-          AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
-        )
-        .optional(),
+      permission: z.string().optional(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -2469,9 +2550,7 @@ export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
   .object({
-    permission: z
-      .enum(AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission)
-      .optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2480,12 +2559,8 @@ export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType = z
   .object({
-    securableType: z
-      .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurableType)
-      .optional(),
-    permission: z
-      .enum(AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission)
-      .optional(),
+    securableType: z.string().optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     securable_type: d.securableType,
@@ -2571,7 +2646,7 @@ export const marshalAppResourceSchema: z.ZodType = z
 export const marshalAppResourceAppSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    permission: z.enum(AppResourceApp_AppPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2582,7 +2657,7 @@ export const marshalAppResourceDatabaseSchema: z.ZodType = z
   .object({
     instanceName: z.string().optional(),
     databaseName: z.string().optional(),
-    permission: z.enum(AppResourceDatabase_DatabasePermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     instance_name: d.instanceName,
@@ -2593,7 +2668,7 @@ export const marshalAppResourceDatabaseSchema: z.ZodType = z
 export const marshalAppResourceExperimentSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
-    permission: z.enum(AppResourceExperiment_ExperimentPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     experiment_id: d.experimentId,
@@ -2604,7 +2679,7 @@ export const marshalAppResourceGenieSpaceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     spaceId: z.string().optional(),
-    permission: z.enum(AppResourceGenieSpace_GenieSpacePermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2615,7 +2690,7 @@ export const marshalAppResourceGenieSpaceSchema: z.ZodType = z
 export const marshalAppResourceJobSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    permission: z.enum(AppResourceJob_JobPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2626,7 +2701,7 @@ export const marshalAppResourcePostgresSchema: z.ZodType = z
   .object({
     branch: z.string().optional(),
     database: z.string().optional(),
-    permission: z.enum(AppResourcePostgres_PostgresPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     branch: d.branch,
@@ -2638,7 +2713,7 @@ export const marshalAppResourceSecretSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
     key: z.string().optional(),
-    permission: z.enum(AppResourceSecret_SecretPermission).optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -2649,9 +2724,7 @@ export const marshalAppResourceSecretSchema: z.ZodType = z
 export const marshalAppResourceServingEndpointSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    permission: z
-      .enum(AppResourceServingEndpoint_ServingEndpointPermission)
-      .optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2661,9 +2734,7 @@ export const marshalAppResourceServingEndpointSchema: z.ZodType = z
 export const marshalAppResourceSqlWarehouseSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    permission: z
-      .enum(AppResourceSqlWarehouse_SqlWarehousePermission)
-      .optional(),
+    permission: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2673,8 +2744,8 @@ export const marshalAppResourceSqlWarehouseSchema: z.ZodType = z
 export const marshalAppResourceUcSecurableSchema: z.ZodType = z
   .object({
     securableFullName: z.string().optional(),
-    securableType: z.enum(AppResourceUcSecurable_UcSecurableType).optional(),
-    permission: z.enum(AppResourceUcSecurable_UcSecurablePermission).optional(),
+    securableType: z.string().optional(),
+    permission: z.string().optional(),
     securableKind: z.string().optional(),
   })
   .transform(d => ({
@@ -2699,7 +2770,7 @@ export const marshalAppThumbnailSchema: z.ZodType = z
 
 export const marshalApplicationStatusSchema: z.ZodType = z
   .object({
-    state: z.enum(ApplicationStatus_ApplicationState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({
@@ -2724,7 +2795,7 @@ export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
 
 export const marshalComputeStatusSchema: z.ZodType = z
   .object({
-    state: z.enum(ComputeStatus_ComputeState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
     activeInstances: z.number().optional(),
   })
@@ -2848,7 +2919,7 @@ export const marshalSpaceSchema: z.ZodType = z
 
 export const marshalSpaceStatusSchema: z.ZodType = z
   .object({
-    state: z.enum(SpaceStatus_SpaceState).optional(),
+    state: z.string().optional(),
     message: z.string().optional(),
   })
   .transform(d => ({

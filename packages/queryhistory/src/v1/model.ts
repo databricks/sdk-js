@@ -2,89 +2,105 @@
 
 import {z} from 'zod';
 
-export enum ChannelName {
-  CHANNEL_NAME_UNSPECIFIED = 'CHANNEL_NAME_UNSPECIFIED',
-  CHANNEL_NAME_PREVIEW = 'CHANNEL_NAME_PREVIEW',
-  CHANNEL_NAME_CURRENT = 'CHANNEL_NAME_CURRENT',
-  CHANNEL_NAME_PREVIOUS = 'CHANNEL_NAME_PREVIOUS',
-  CHANNEL_NAME_CUSTOM = 'CHANNEL_NAME_CUSTOM',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ChannelName = {
+  CHANNEL_NAME_UNSPECIFIED: 'CHANNEL_NAME_UNSPECIFIED',
+  CHANNEL_NAME_PREVIEW: 'CHANNEL_NAME_PREVIEW',
+  CHANNEL_NAME_CURRENT: 'CHANNEL_NAME_CURRENT',
+  CHANNEL_NAME_PREVIOUS: 'CHANNEL_NAME_PREVIOUS',
+  CHANNEL_NAME_CUSTOM: 'CHANNEL_NAME_CUSTOM',
+} as const;
+export type ChannelName =
+  | (typeof ChannelName)[keyof typeof ChannelName]
+  | (string & {});
 
 /** Possible Reasons for which we have not saved plans in the database */
-export enum PlansState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PlansState = {
   /** Execution time of the query was smaller than the min required to save plans */
-  IGNORED_SMALL_DURATION = 'IGNORED_SMALL_DURATION',
+  IGNORED_SMALL_DURATION: 'IGNORED_SMALL_DURATION',
   /** Size of plans is larger than the limit defined in config */
-  IGNORED_LARGE_PLANS_SIZE = 'IGNORED_LARGE_PLANS_SIZE',
+  IGNORED_LARGE_PLANS_SIZE: 'IGNORED_LARGE_PLANS_SIZE',
   /** If plans exist and are stored in the DB */
-  EXISTS = 'EXISTS',
+  EXISTS: 'EXISTS',
   /** Catchall for unknown states in graphql, to prevent it from crashing when it recieved an unknown enum type that is defined here but not in the graphql schema of the object */
-  UNKNOWN = 'UNKNOWN',
+  UNKNOWN: 'UNKNOWN',
   /** When the query has no plans by default */
-  EMPTY = 'EMPTY',
+  EMPTY: 'EMPTY',
   /** When plans are filtered out in history backend because it is isIgnoredSparkPlanType, isIgnoredSparkPlanName or isDeltaLogScan */
-  IGNORED_SPARK_PLAN_TYPE = 'IGNORED_SPARK_PLAN_TYPE',
-}
+  IGNORED_SPARK_PLAN_TYPE: 'IGNORED_SPARK_PLAN_TYPE',
+} as const;
+export type PlansState =
+  | (typeof PlansState)[keyof typeof PlansState]
+  | (string & {});
 
-export enum QueryStatementType {
-  OTHER = 'OTHER',
-  ALTER = 'ALTER',
-  ANALYZE = 'ANALYZE',
-  COPY = 'COPY',
-  CREATE = 'CREATE',
-  DELETE = 'DELETE',
-  DESCRIBE = 'DESCRIBE',
-  DROP = 'DROP',
-  EXPLAIN = 'EXPLAIN',
-  GRANT = 'GRANT',
-  INSERT = 'INSERT',
-  MERGE = 'MERGE',
-  OPTIMIZE = 'OPTIMIZE',
-  REFRESH = 'REFRESH',
-  REPLACE = 'REPLACE',
-  REVOKE = 'REVOKE',
-  SELECT = 'SELECT',
-  SET = 'SET',
-  SHOW = 'SHOW',
-  TRUNCATE = 'TRUNCATE',
-  UPDATE = 'UPDATE',
-  USE = 'USE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const QueryStatementType = {
+  OTHER: 'OTHER',
+  ALTER: 'ALTER',
+  ANALYZE: 'ANALYZE',
+  COPY: 'COPY',
+  CREATE: 'CREATE',
+  DELETE: 'DELETE',
+  DESCRIBE: 'DESCRIBE',
+  DROP: 'DROP',
+  EXPLAIN: 'EXPLAIN',
+  GRANT: 'GRANT',
+  INSERT: 'INSERT',
+  MERGE: 'MERGE',
+  OPTIMIZE: 'OPTIMIZE',
+  REFRESH: 'REFRESH',
+  REPLACE: 'REPLACE',
+  REVOKE: 'REVOKE',
+  SELECT: 'SELECT',
+  SET: 'SET',
+  SHOW: 'SHOW',
+  TRUNCATE: 'TRUNCATE',
+  UPDATE: 'UPDATE',
+  USE: 'USE',
+} as const;
+export type QueryStatementType =
+  | (typeof QueryStatementType)[keyof typeof QueryStatementType]
+  | (string & {});
 
 /**
  * Statuses which are also used by OperationStatus in runtime.
  * When adding a new QueryStatus, make sure to update com.databricks.sqlgateway.history.QueryStatusOrdering
  */
-export enum QueryStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const QueryStatus = {
   /** query has been received and queued */
-  QUEUED = 'QUEUED',
+  QUEUED: 'QUEUED',
   /**
    * query has been received and started by the driver
    * DEPRECATED: to be removed once runtime side change is picked up.
    */
-  STARTED = 'STARTED',
+  STARTED: 'STARTED',
   /**
    * query compilation has been started
    * This isn't currently used. We will soon use this.
    */
-  COMPILING = 'COMPILING',
+  COMPILING: 'COMPILING',
   /**
    * query has been compiled
    * DEPRECATED: to be removed once runtime side change is picked up.
    */
-  COMPILED = 'COMPILED',
+  COMPILED: 'COMPILED',
   /**
    * currently execution has been started (spark jobs for this query has been started running)
    * detail ui is available from this state
    */
-  RUNNING = 'RUNNING',
+  RUNNING: 'RUNNING',
   /** query has been cancelled by the user */
-  CANCELED = 'CANCELED',
+  CANCELED: 'CANCELED',
   /** query has failed */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** query execution has been completed */
-  FINISHED = 'FINISHED',
-}
+  FINISHED: 'FINISHED',
+} as const;
+export type QueryStatus =
+  | (typeof QueryStatus)[keyof typeof QueryStatus]
+  | (string & {});
 
 /** Details about a Channel. */
 export interface ChannelInfo {
@@ -368,7 +384,7 @@ export interface TimeRange {
 
 export const unmarshalChannelInfoSchema: z.ZodType<ChannelInfo> = z
   .object({
-    name: z.enum(ChannelName).optional(),
+    name: z.string().optional(),
     dbsql_version: z.string().optional(),
   })
   .transform(d => ({
@@ -429,7 +445,7 @@ export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> 
 export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
   .object({
     query_id: z.string().optional(),
-    status: z.enum(QueryStatus).optional(),
+    status: z.string().optional(),
     query_text: z.string().optional(),
     query_start_time_ms: z
       .union([z.number(), z.bigint()])
@@ -465,8 +481,8 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
     session_id: z.string().optional(),
     is_final: z.boolean().optional(),
     channel_used: z.lazy(() => unmarshalChannelInfoSchema).optional(),
-    plans_state: z.enum(PlansState).optional(),
-    statement_type: z.enum(QueryStatementType).optional(),
+    plans_state: z.string().optional(),
+    statement_type: z.string().optional(),
     warehouse_id: z.string().optional(),
     duration: z
       .union([z.number(), z.bigint()])
@@ -695,7 +711,7 @@ export const marshalQueryFilterSchema: z.ZodType = z
   .object({
     queryStartTimeRange: z.lazy(() => marshalTimeRangeSchema).optional(),
     userIds: z.array(z.bigint()).optional(),
-    statuses: z.array(z.enum(QueryStatus)).optional(),
+    statuses: z.array(z.string()).optional(),
     warehouseIds: z.array(z.string()).optional(),
     statementIds: z.array(z.string()).optional(),
   })

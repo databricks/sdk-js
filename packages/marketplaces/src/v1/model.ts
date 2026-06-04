@@ -2,142 +2,207 @@
 
 import {z} from 'zod';
 
-export enum AssetType {
-  ASSET_TYPE_UNSPECIFIED = 'ASSET_TYPE_UNSPECIFIED',
-  ASSET_TYPE_GIT_REPO = 'ASSET_TYPE_GIT_REPO',
-  ASSET_TYPE_DATA_TABLE = 'ASSET_TYPE_DATA_TABLE',
-  ASSET_TYPE_MODEL = 'ASSET_TYPE_MODEL',
-  ASSET_TYPE_NOTEBOOK = 'ASSET_TYPE_NOTEBOOK',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AssetType = {
+  ASSET_TYPE_UNSPECIFIED: 'ASSET_TYPE_UNSPECIFIED',
+  ASSET_TYPE_GIT_REPO: 'ASSET_TYPE_GIT_REPO',
+  ASSET_TYPE_DATA_TABLE: 'ASSET_TYPE_DATA_TABLE',
+  ASSET_TYPE_MODEL: 'ASSET_TYPE_MODEL',
+  ASSET_TYPE_NOTEBOOK: 'ASSET_TYPE_NOTEBOOK',
   /**
    * (MP-2408): media-based assets generally involve volumes; however some volumes files (e.g. CSV) still correspond to datasets
    * as such, add a new asset type to specify media
    */
-  ASSET_TYPE_MEDIA = 'ASSET_TYPE_MEDIA',
-  ASSET_TYPE_PARTNER_INTEGRATION = 'ASSET_TYPE_PARTNER_INTEGRATION',
-  ASSET_TYPE_APP = 'ASSET_TYPE_APP',
-  ASSET_TYPE_MCP = 'ASSET_TYPE_MCP',
-}
+  ASSET_TYPE_MEDIA: 'ASSET_TYPE_MEDIA',
+  ASSET_TYPE_PARTNER_INTEGRATION: 'ASSET_TYPE_PARTNER_INTEGRATION',
+  ASSET_TYPE_APP: 'ASSET_TYPE_APP',
+  ASSET_TYPE_MCP: 'ASSET_TYPE_MCP',
+} as const;
+export type AssetType =
+  | (typeof AssetType)[keyof typeof AssetType]
+  | (string & {});
 
-export enum Category {
-  ADVERTISING_AND_MARKETING = 'ADVERTISING_AND_MARKETING',
-  CLIMATE_AND_ENVIRONMENT = 'CLIMATE_AND_ENVIRONMENT',
-  COMMERCE = 'COMMERCE',
-  DEMOGRAPHICS = 'DEMOGRAPHICS',
-  ECONOMICS = 'ECONOMICS',
-  EDUCATION = 'EDUCATION',
-  ENERGY = 'ENERGY',
-  FINANCIAL = 'FINANCIAL',
-  GAMING = 'GAMING',
-  GEOSPATIAL = 'GEOSPATIAL',
-  HEALTH = 'HEALTH',
-  LOOKUP_TABLES = 'LOOKUP_TABLES',
-  MANUFACTURING = 'MANUFACTURING',
-  MEDIA = 'MEDIA',
-  OTHER = 'OTHER',
-  PUBLIC_SECTOR = 'PUBLIC_SECTOR',
-  RETAIL = 'RETAIL',
-  SECURITY = 'SECURITY',
-  SCIENCE_AND_RESEARCH = 'SCIENCE_AND_RESEARCH',
-  SPORTS = 'SPORTS',
-  TRANSPORTATION_AND_LOGISTICS = 'TRANSPORTATION_AND_LOGISTICS',
-  TRAVEL_AND_TOURISM = 'TRAVEL_AND_TOURISM',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Category = {
+  ADVERTISING_AND_MARKETING: 'ADVERTISING_AND_MARKETING',
+  CLIMATE_AND_ENVIRONMENT: 'CLIMATE_AND_ENVIRONMENT',
+  COMMERCE: 'COMMERCE',
+  DEMOGRAPHICS: 'DEMOGRAPHICS',
+  ECONOMICS: 'ECONOMICS',
+  EDUCATION: 'EDUCATION',
+  ENERGY: 'ENERGY',
+  FINANCIAL: 'FINANCIAL',
+  GAMING: 'GAMING',
+  GEOSPATIAL: 'GEOSPATIAL',
+  HEALTH: 'HEALTH',
+  LOOKUP_TABLES: 'LOOKUP_TABLES',
+  MANUFACTURING: 'MANUFACTURING',
+  MEDIA: 'MEDIA',
+  OTHER: 'OTHER',
+  PUBLIC_SECTOR: 'PUBLIC_SECTOR',
+  RETAIL: 'RETAIL',
+  SECURITY: 'SECURITY',
+  SCIENCE_AND_RESEARCH: 'SCIENCE_AND_RESEARCH',
+  SPORTS: 'SPORTS',
+  TRANSPORTATION_AND_LOGISTICS: 'TRANSPORTATION_AND_LOGISTICS',
+  TRAVEL_AND_TOURISM: 'TRAVEL_AND_TOURISM',
+} as const;
+export type Category = (typeof Category)[keyof typeof Category] | (string & {});
 
-export enum Cost {
-  FREE = 'FREE',
-  PAID = 'PAID',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Cost = {
+  FREE: 'FREE',
+  PAID: 'PAID',
+} as const;
+export type Cost = (typeof Cost)[keyof typeof Cost] | (string & {});
 
-export enum DataRefresh {
-  NONE = 'NONE',
-  SECOND = 'SECOND',
-  MINUTE = 'MINUTE',
-  HOURLY = 'HOURLY',
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY',
-  QUARTERLY = 'QUARTERLY',
-  YEARLY = 'YEARLY',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DataRefresh = {
+  NONE: 'NONE',
+  SECOND: 'SECOND',
+  MINUTE: 'MINUTE',
+  HOURLY: 'HOURLY',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY',
+} as const;
+export type DataRefresh =
+  | (typeof DataRefresh)[keyof typeof DataRefresh]
+  | (string & {});
 
-export enum DeltaSharingRecipientType {
-  DELTA_SHARING_RECIPIENT_TYPE_DATABRICKS = 'DELTA_SHARING_RECIPIENT_TYPE_DATABRICKS',
-  DELTA_SHARING_RECIPIENT_TYPE_OPEN = 'DELTA_SHARING_RECIPIENT_TYPE_OPEN',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DeltaSharingRecipientType = {
+  DELTA_SHARING_RECIPIENT_TYPE_DATABRICKS:
+    'DELTA_SHARING_RECIPIENT_TYPE_DATABRICKS',
+  DELTA_SHARING_RECIPIENT_TYPE_OPEN: 'DELTA_SHARING_RECIPIENT_TYPE_OPEN',
+} as const;
+export type DeltaSharingRecipientType =
+  | (typeof DeltaSharingRecipientType)[keyof typeof DeltaSharingRecipientType]
+  | (string & {});
 
-export enum ExchangeFilterType {
-  GLOBAL_METASTORE_ID = 'GLOBAL_METASTORE_ID',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ExchangeFilterType = {
+  GLOBAL_METASTORE_ID: 'GLOBAL_METASTORE_ID',
+} as const;
+export type ExchangeFilterType =
+  | (typeof ExchangeFilterType)[keyof typeof ExchangeFilterType]
+  | (string & {});
 
-export enum FileParentType {
-  PROVIDER = 'PROVIDER',
-  LISTING = 'LISTING',
-  LISTING_RESOURCE = 'LISTING_RESOURCE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FileParentType = {
+  PROVIDER: 'PROVIDER',
+  LISTING: 'LISTING',
+  LISTING_RESOURCE: 'LISTING_RESOURCE',
+} as const;
+export type FileParentType =
+  | (typeof FileParentType)[keyof typeof FileParentType]
+  | (string & {});
 
-export enum FileStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FileStatus = {
   /** Published files have been sanitized by Marketplace backend and can be viewed by consumers. */
-  FILE_STATUS_PUBLISHED = 'FILE_STATUS_PUBLISHED',
+  FILE_STATUS_PUBLISHED: 'FILE_STATUS_PUBLISHED',
   /** Created files start in staging. These are viewable by provider APIs but not consumer APIs. */
-  FILE_STATUS_STAGING = 'FILE_STATUS_STAGING',
+  FILE_STATUS_STAGING: 'FILE_STATUS_STAGING',
   /** Indicates this file is in the process of being sanitized. */
-  FILE_STATUS_SANITIZING = 'FILE_STATUS_SANITIZING',
+  FILE_STATUS_SANITIZING: 'FILE_STATUS_SANITIZING',
   /** Something went wrong with sanitization, refer to the status message for more information. */
-  FILE_STATUS_SANITIZATION_FAILED = 'FILE_STATUS_SANITIZATION_FAILED',
-}
+  FILE_STATUS_SANITIZATION_FAILED: 'FILE_STATUS_SANITIZATION_FAILED',
+} as const;
+export type FileStatus =
+  | (typeof FileStatus)[keyof typeof FileStatus]
+  | (string & {});
 
-export enum FulfillmentType {
-  REQUEST_ACCESS = 'REQUEST_ACCESS',
-  INSTALL = 'INSTALL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const FulfillmentType = {
+  REQUEST_ACCESS: 'REQUEST_ACCESS',
+  INSTALL: 'INSTALL',
+} as const;
+export type FulfillmentType =
+  | (typeof FulfillmentType)[keyof typeof FulfillmentType]
+  | (string & {});
 
-export enum InstallationStatus {
-  INSTALLED = 'INSTALLED',
-  FAILED = 'FAILED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const InstallationStatus = {
+  INSTALLED: 'INSTALLED',
+  FAILED: 'FAILED',
+} as const;
+export type InstallationStatus =
+  | (typeof InstallationStatus)[keyof typeof InstallationStatus]
+  | (string & {});
 
-export enum ListingShareType {
-  SAMPLE = 'SAMPLE',
-  FULL = 'FULL',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListingShareType = {
+  SAMPLE: 'SAMPLE',
+  FULL: 'FULL',
+} as const;
+export type ListingShareType =
+  | (typeof ListingShareType)[keyof typeof ListingShareType]
+  | (string & {});
 
 /** Enums */
-export enum ListingStatus {
-  DRAFT = 'DRAFT',
-  PENDING = 'PENDING',
-  PUBLISHED = 'PUBLISHED',
-  SUSPENDED = 'SUSPENDED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListingStatus = {
+  DRAFT: 'DRAFT',
+  PENDING: 'PENDING',
+  PUBLISHED: 'PUBLISHED',
+  SUSPENDED: 'SUSPENDED',
+} as const;
+export type ListingStatus =
+  | (typeof ListingStatus)[keyof typeof ListingStatus]
+  | (string & {});
 
-export enum ListingTagType {
-  LISTING_TAG_TYPE_UNSPECIFIED = 'LISTING_TAG_TYPE_UNSPECIFIED',
-  LISTING_TAG_TYPE_LANGUAGE = 'LISTING_TAG_TYPE_LANGUAGE',
-  LISTING_TAG_TYPE_TASK = 'LISTING_TAG_TYPE_TASK',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListingTagType = {
+  LISTING_TAG_TYPE_UNSPECIFIED: 'LISTING_TAG_TYPE_UNSPECIFIED',
+  LISTING_TAG_TYPE_LANGUAGE: 'LISTING_TAG_TYPE_LANGUAGE',
+  LISTING_TAG_TYPE_TASK: 'LISTING_TAG_TYPE_TASK',
+} as const;
+export type ListingTagType =
+  | (typeof ListingTagType)[keyof typeof ListingTagType]
+  | (string & {});
 
-export enum ListingType {
-  STANDARD = 'STANDARD',
-  PERSONALIZED = 'PERSONALIZED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ListingType = {
+  STANDARD: 'STANDARD',
+  PERSONALIZED: 'PERSONALIZED',
+} as const;
+export type ListingType =
+  | (typeof ListingType)[keyof typeof ListingType]
+  | (string & {});
 
-export enum MarketplaceFileType {
-  PROVIDER_ICON = 'PROVIDER_ICON',
-  EMBEDDED_NOTEBOOK = 'EMBEDDED_NOTEBOOK',
-  APP = 'APP',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MarketplaceFileType = {
+  PROVIDER_ICON: 'PROVIDER_ICON',
+  EMBEDDED_NOTEBOOK: 'EMBEDDED_NOTEBOOK',
+  APP: 'APP',
+} as const;
+export type MarketplaceFileType =
+  | (typeof MarketplaceFileType)[keyof typeof MarketplaceFileType]
+  | (string & {});
 
-export enum PersonalizationRequestStatus {
-  NEW = 'NEW',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PersonalizationRequestStatus = {
+  NEW: 'NEW',
   /** Pending already defined for ListingStatus */
-  REQUEST_PENDING = 'REQUEST_PENDING',
-  FULFILLED = 'FULFILLED',
-  DENIED = 'DENIED',
-}
+  REQUEST_PENDING: 'REQUEST_PENDING',
+  FULFILLED: 'FULFILLED',
+  DENIED: 'DENIED',
+} as const;
+export type PersonalizationRequestStatus =
+  | (typeof PersonalizationRequestStatus)[keyof typeof PersonalizationRequestStatus]
+  | (string & {});
 
-export enum Visibility {
-  PUBLIC = 'PUBLIC',
-  PRIVATE = 'PRIVATE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Visibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE',
+} as const;
+export type Visibility =
+  | (typeof Visibility)[keyof typeof Visibility]
+  | (string & {});
 
 export interface AddExchangeForListingRequest {
   listingId?: string | undefined;
@@ -1061,7 +1126,7 @@ export const unmarshalDataRefreshInfoSchema: z.ZodType<DataRefreshInfo> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
-    unit: z.enum(DataRefresh).optional(),
+    unit: z.string().optional(),
   })
   .transform(d => ({
     interval: d.interval,
@@ -1134,7 +1199,7 @@ export const unmarshalExchangeFilterSchema: z.ZodType<ExchangeFilter> = z
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
-    filter_type: z.enum(ExchangeFilterType).optional(),
+    filter_type: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1174,7 +1239,7 @@ export const unmarshalExchangeListingSchema: z.ZodType<ExchangeListing> = z
 export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   .object({
     id: z.string().optional(),
-    marketplace_file_type: z.enum(MarketplaceFileType).optional(),
+    marketplace_file_type: z.string().optional(),
     file_parent: z.lazy(() => unmarshalFileParentSchema).optional(),
     mime_type: z.string().optional(),
     download_link: z.string().optional(),
@@ -1187,7 +1252,7 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     display_name: z.string().optional(),
-    status: z.enum(FileStatus).optional(),
+    status: z.string().optional(),
     status_message: z.string().optional(),
   })
   .transform(d => ({
@@ -1206,7 +1271,7 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
 export const unmarshalFileParentSchema: z.ZodType<FileParent> = z
   .object({
     parent_id: z.string().optional(),
-    file_parent_type: z.enum(FileParentType).optional(),
+    file_parent_type: z.string().optional(),
   })
   .transform(d => ({
     parentId: d.parent_id,
@@ -1361,12 +1426,12 @@ export const unmarshalInstallationDetailSchema: z.ZodType<InstallationDetail> =
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
         .optional(),
-      status: z.enum(InstallationStatus).optional(),
+      status: z.string().optional(),
       error_message: z.string().optional(),
       listing_name: z.string().optional(),
       repo_name: z.string().optional(),
       repo_path: z.string().optional(),
-      recipient_type: z.enum(DeltaSharingRecipientType).optional(),
+      recipient_type: z.string().optional(),
       tokens: z.array(z.lazy(() => unmarshalTokenInfoSchema)).optional(),
       token_detail: z.lazy(() => unmarshalTokenDetailSchema).optional(),
     })
@@ -1545,7 +1610,7 @@ export const unmarshalListingDetailSchema: z.ZodType<ListingDetail> = z
       .array(z.lazy(() => unmarshalFileInfoSchema))
       .optional(),
     geographical_coverage: z.string().optional(),
-    cost: z.enum(Cost).optional(),
+    cost: z.string().optional(),
     pricing_model: z.string().optional(),
     update_frequency: z.lazy(() => unmarshalDataRefreshInfoSchema).optional(),
     collection_granularity: z
@@ -1561,7 +1626,7 @@ export const unmarshalListingDetailSchema: z.ZodType<ListingDetail> = z
       .optional(),
     data_source: z.string().optional(),
     size: z.number().optional(),
-    assets: z.array(z.enum(AssetType)).optional(),
+    assets: z.array(z.string()).optional(),
     license: z.string().optional(),
     tags: z.array(z.lazy(() => unmarshalListingTagSchema)).optional(),
   })
@@ -1591,10 +1656,10 @@ export const unmarshalListingFulfillmentSchema: z.ZodType<ListingFulfillment> =
   z
     .object({
       listing_id: z.string().optional(),
-      fulfillment_type: z.enum(FulfillmentType).optional(),
+      fulfillment_type: z.string().optional(),
       share_info: z.lazy(() => unmarshalShareInfoSchema).optional(),
       repo_info: z.lazy(() => unmarshalRepoInfoSchema).optional(),
-      recipient_type: z.enum(DeltaSharingRecipientType).optional(),
+      recipient_type: z.string().optional(),
     })
     .transform(d => ({
       listingId: d.listing_id,
@@ -1606,7 +1671,7 @@ export const unmarshalListingFulfillmentSchema: z.ZodType<ListingFulfillment> =
 
 export const unmarshalListingSettingSchema: z.ZodType<ListingSetting> = z
   .object({
-    visibility: z.enum(Visibility).optional(),
+    visibility: z.string().optional(),
   })
   .transform(d => ({
     visibility: d.visibility,
@@ -1616,7 +1681,7 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
   .object({
     name: z.string().optional(),
     subtitle: z.string().optional(),
-    status: z.enum(ListingStatus).optional(),
+    status: z.string().optional(),
     share: z.lazy(() => unmarshalShareInfoSchema).optional(),
     provider_region: z.lazy(() => unmarshalRegionInfoSchema).optional(),
     setting: z.lazy(() => unmarshalListingSettingSchema).optional(),
@@ -1635,8 +1700,8 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
       .transform(v => BigInt(v))
       .optional(),
     published_by: z.string().optional(),
-    categories: z.array(z.enum(Category)).optional(),
-    listingType: z.enum(ListingType).optional(),
+    categories: z.array(z.string()).optional(),
+    listingType: z.string().optional(),
     created_by_id: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -1673,7 +1738,7 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
 
 export const unmarshalListingTagSchema: z.ZodType<ListingTag> = z
   .object({
-    tag_name: z.enum(ListingTagType).optional(),
+    tag_name: z.string().optional(),
     tag_values: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -1689,7 +1754,7 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
       contact_info: z.lazy(() => unmarshalContactInfoSchema).optional(),
       comment: z.string().optional(),
       intended_use: z.string().optional(),
-      status: z.enum(PersonalizationRequestStatus).optional(),
+      status: z.string().optional(),
       status_message: z.string().optional(),
       share: z.lazy(() => unmarshalShareInfoSchema).optional(),
       created_at: z
@@ -1705,7 +1770,7 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
       listing_name: z.string().optional(),
       is_from_lighthouse: z.boolean().optional(),
       provider_id: z.string().optional(),
-      recipient_type: z.enum(DeltaSharingRecipientType).optional(),
+      recipient_type: z.string().optional(),
     })
     .transform(d => ({
       id: d.id,
@@ -1795,7 +1860,7 @@ export const unmarshalSearchPublishedListingsForConsumerResponseSchema: z.ZodTyp
 export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
   .object({
     name: z.string().optional(),
-    type: z.enum(ListingShareType).optional(),
+    type: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1962,7 +2027,7 @@ export const marshalCreateExchangeRequestSchema: z.ZodType = z
 export const marshalCreateFileRequestSchema: z.ZodType = z
   .object({
     fileParent: z.lazy(() => marshalFileParentSchema).optional(),
-    marketplaceFileType: z.enum(MarketplaceFileType).optional(),
+    marketplaceFileType: z.string().optional(),
     mimeType: z.string().optional(),
     displayName: z.string().optional(),
   })
@@ -1990,7 +2055,7 @@ export const marshalCreatePersonalizationRequestSchema: z.ZodType = z
     lastName: z.string().optional(),
     company: z.string().optional(),
     isFromLighthouse: z.boolean().optional(),
-    recipientType: z.enum(DeltaSharingRecipientType).optional(),
+    recipientType: z.string().optional(),
     acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
   })
   .transform(d => ({
@@ -2019,7 +2084,7 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
 export const marshalDataRefreshInfoSchema: z.ZodType = z
   .object({
     interval: z.bigint().optional(),
-    unit: z.enum(DataRefresh).optional(),
+    unit: z.string().optional(),
   })
   .transform(d => ({
     interval: d.interval,
@@ -2062,7 +2127,7 @@ export const marshalExchangeFilterSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    filterType: z.enum(ExchangeFilterType).optional(),
+    filterType: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2099,14 +2164,14 @@ export const marshalExchangeListingSchema: z.ZodType = z
 export const marshalFileInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    marketplaceFileType: z.enum(MarketplaceFileType).optional(),
+    marketplaceFileType: z.string().optional(),
     fileParent: z.lazy(() => marshalFileParentSchema).optional(),
     mimeType: z.string().optional(),
     downloadLink: z.string().optional(),
     createdAt: z.bigint().optional(),
     updatedAt: z.bigint().optional(),
     displayName: z.string().optional(),
-    status: z.enum(FileStatus).optional(),
+    status: z.string().optional(),
     statusMessage: z.string().optional(),
   })
   .transform(d => ({
@@ -2125,7 +2190,7 @@ export const marshalFileInfoSchema: z.ZodType = z
 export const marshalFileParentSchema: z.ZodType = z
   .object({
     parentId: z.string().optional(),
-    fileParentType: z.enum(FileParentType).optional(),
+    fileParentType: z.string().optional(),
   })
   .transform(d => ({
     parent_id: d.parentId,
@@ -2138,7 +2203,7 @@ export const marshalInstallListingSchema: z.ZodType = z
     shareName: z.string().optional(),
     catalogName: z.string().optional(),
     repoDetail: z.lazy(() => marshalRepoInstallationSchema).optional(),
-    recipientType: z.enum(DeltaSharingRecipientType).optional(),
+    recipientType: z.string().optional(),
     acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
   })
   .transform(d => ({
@@ -2157,12 +2222,12 @@ export const marshalInstallationDetailSchema: z.ZodType = z
     shareName: z.string().optional(),
     catalogName: z.string().optional(),
     installedOn: z.bigint().optional(),
-    status: z.enum(InstallationStatus).optional(),
+    status: z.string().optional(),
     errorMessage: z.string().optional(),
     listingName: z.string().optional(),
     repoName: z.string().optional(),
     repoPath: z.string().optional(),
-    recipientType: z.enum(DeltaSharingRecipientType).optional(),
+    recipientType: z.string().optional(),
     tokens: z.array(z.lazy(() => marshalTokenInfoSchema)).optional(),
     tokenDetail: z.lazy(() => marshalTokenDetailSchema).optional(),
   })
@@ -2206,7 +2271,7 @@ export const marshalListingDetailSchema: z.ZodType = z
       .array(z.lazy(() => marshalFileInfoSchema))
       .optional(),
     geographicalCoverage: z.string().optional(),
-    cost: z.enum(Cost).optional(),
+    cost: z.string().optional(),
     pricingModel: z.string().optional(),
     updateFrequency: z.lazy(() => marshalDataRefreshInfoSchema).optional(),
     collectionGranularity: z
@@ -2216,7 +2281,7 @@ export const marshalListingDetailSchema: z.ZodType = z
     collectionDateEnd: z.bigint().optional(),
     dataSource: z.string().optional(),
     size: z.number().optional(),
-    assets: z.array(z.enum(AssetType)).optional(),
+    assets: z.array(z.string()).optional(),
     license: z.string().optional(),
     tags: z.array(z.lazy(() => marshalListingTagSchema)).optional(),
   })
@@ -2244,7 +2309,7 @@ export const marshalListingDetailSchema: z.ZodType = z
 
 export const marshalListingSettingSchema: z.ZodType = z
   .object({
-    visibility: z.enum(Visibility).optional(),
+    visibility: z.string().optional(),
   })
   .transform(d => ({
     visibility: d.visibility,
@@ -2254,7 +2319,7 @@ export const marshalListingSummarySchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     subtitle: z.string().optional(),
-    status: z.enum(ListingStatus).optional(),
+    status: z.string().optional(),
     share: z.lazy(() => marshalShareInfoSchema).optional(),
     providerRegion: z.lazy(() => marshalRegionInfoSchema).optional(),
     setting: z.lazy(() => marshalListingSettingSchema).optional(),
@@ -2264,8 +2329,8 @@ export const marshalListingSummarySchema: z.ZodType = z
     updatedBy: z.string().optional(),
     publishedAt: z.bigint().optional(),
     publishedBy: z.string().optional(),
-    categories: z.array(z.enum(Category)).optional(),
-    listingType: z.enum(ListingType).optional(),
+    categories: z.array(z.string()).optional(),
+    listingType: z.string().optional(),
     createdById: z.bigint().optional(),
     updatedById: z.bigint().optional(),
     providerId: z.string().optional(),
@@ -2296,7 +2361,7 @@ export const marshalListingSummarySchema: z.ZodType = z
 
 export const marshalListingTagSchema: z.ZodType = z
   .object({
-    tagName: z.enum(ListingTagType).optional(),
+    tagName: z.string().optional(),
     tagValues: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -2369,7 +2434,7 @@ export const marshalRepoInstallationSchema: z.ZodType = z
 export const marshalShareInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    type: z.enum(ListingShareType).optional(),
+    type: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2459,7 +2524,7 @@ export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
     .object({
       listingId: z.string().optional(),
       requestId: z.string().optional(),
-      status: z.enum(PersonalizationRequestStatus).optional(),
+      status: z.string().optional(),
       reason: z.string().optional(),
       share: z.lazy(() => marshalShareInfoSchema).optional(),
     })

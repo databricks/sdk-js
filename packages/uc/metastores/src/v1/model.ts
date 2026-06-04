@@ -2,20 +2,24 @@
 
 import {z} from 'zod';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum DeltaSharingScope_Enum {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DeltaSharingScope_Enum = {
   /**
    * Internal Delta Sharing enabled on metastore.
    * This applies to Databricks-managed authentication where both provider and recipient are
    * under the same account.
    */
-  INTERNAL = 'INTERNAL',
+  INTERNAL: 'INTERNAL',
   /**
    * Internal and External Delta Sharing enabled on metastore.
    * This allows all flavors of Delta Sharing.
    */
-  INTERNAL_AND_EXTERNAL = 'INTERNAL_AND_EXTERNAL',
-}
+  INTERNAL_AND_EXTERNAL: 'INTERNAL_AND_EXTERNAL',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DeltaSharingScope_Enum =
+  | (typeof DeltaSharingScope_Enum)[keyof typeof DeltaSharingScope_Enum]
+  | (string & {});
 
 /** The mapping from workspace to metastore. */
 export interface AccountsCreateMetastoreAssignmentRequest {
@@ -598,7 +602,7 @@ export const unmarshalGetMetastoreSummaryResponseSchema: z.ZodType<GetMetastoreS
       global_metastore_id: z.string().optional(),
       storage_root_credential_name: z.string().optional(),
       privilege_model_version: z.string().optional(),
-      delta_sharing_scope: z.enum(DeltaSharingScope_Enum).optional(),
+      delta_sharing_scope: z.string().optional(),
       delta_sharing_recipient_token_lifetime_in_seconds: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -676,7 +680,7 @@ export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
     storage_root: z.string().optional(),
     default_data_access_config_id: z.string().optional(),
     storage_root_credential_id: z.string().optional(),
-    delta_sharing_scope: z.enum(DeltaSharingScope_Enum).optional(),
+    delta_sharing_scope: z.string().optional(),
     delta_sharing_recipient_token_lifetime_in_seconds: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -793,7 +797,7 @@ export const marshalCreateAccountsMetastoreSchema: z.ZodType = z
     storageRoot: z.string().optional(),
     defaultDataAccessConfigId: z.string().optional(),
     storageRootCredentialId: z.string().optional(),
-    deltaSharingScope: z.enum(DeltaSharingScope_Enum).optional(),
+    deltaSharingScope: z.string().optional(),
     deltaSharingRecipientTokenLifetimeInSeconds: z.bigint().optional(),
     deltaSharingOrganizationName: z.string().optional(),
     owner: z.string().optional(),
@@ -850,7 +854,7 @@ export const marshalCreateMetastoreRequestSchema: z.ZodType = z
     storageRoot: z.string().optional(),
     defaultDataAccessConfigId: z.string().optional(),
     storageRootCredentialId: z.string().optional(),
-    deltaSharingScope: z.enum(DeltaSharingScope_Enum).optional(),
+    deltaSharingScope: z.string().optional(),
     deltaSharingRecipientTokenLifetimeInSeconds: z.bigint().optional(),
     deltaSharingOrganizationName: z.string().optional(),
     owner: z.string().optional(),
@@ -907,7 +911,7 @@ export const marshalUpdateAccountsMetastoreSchema: z.ZodType = z
     storageRoot: z.string().optional(),
     defaultDataAccessConfigId: z.string().optional(),
     storageRootCredentialId: z.string().optional(),
-    deltaSharingScope: z.enum(DeltaSharingScope_Enum).optional(),
+    deltaSharingScope: z.string().optional(),
     deltaSharingRecipientTokenLifetimeInSeconds: z.bigint().optional(),
     deltaSharingOrganizationName: z.string().optional(),
     owner: z.string().optional(),
@@ -966,7 +970,7 @@ export const marshalUpdateMetastoreRequestSchema: z.ZodType = z
     storageRoot: z.string().optional(),
     defaultDataAccessConfigId: z.string().optional(),
     storageRootCredentialId: z.string().optional(),
-    deltaSharingScope: z.enum(DeltaSharingScope_Enum).optional(),
+    deltaSharingScope: z.string().optional(),
     deltaSharingRecipientTokenLifetimeInSeconds: z.bigint().optional(),
     deltaSharingOrganizationName: z.string().optional(),
     owner: z.string().optional(),

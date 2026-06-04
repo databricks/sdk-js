@@ -10,15 +10,19 @@ import {z} from 'zod';
  * Token store and token management proto can depend on this.
  * Principal context proto should NOT depend on this proto definitions because too many services depend on the principal context proto.
  */
-export enum AutoscopeState {
-  AUTOSCOPE_STATE_UNSPECIFIED = 'AUTOSCOPE_STATE_UNSPECIFIED',
-  AUTOSCOPE_STATE_DISABLED = 'AUTOSCOPE_STATE_DISABLED',
-  AUTOSCOPE_STATE_RUNNING = 'AUTOSCOPE_STATE_RUNNING',
-  AUTOSCOPE_STATE_COMPLETED = 'AUTOSCOPE_STATE_COMPLETED',
-  AUTOSCOPE_STATE_BACKFILLED = 'AUTOSCOPE_STATE_BACKFILLED',
-  AUTOSCOPE_STATE_USER_SELECTED = 'AUTOSCOPE_STATE_USER_SELECTED',
-  AUTOSCOPE_STATE_API_NOT_COVERED = 'AUTOSCOPE_STATE_API_NOT_COVERED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AutoscopeState = {
+  AUTOSCOPE_STATE_UNSPECIFIED: 'AUTOSCOPE_STATE_UNSPECIFIED',
+  AUTOSCOPE_STATE_DISABLED: 'AUTOSCOPE_STATE_DISABLED',
+  AUTOSCOPE_STATE_RUNNING: 'AUTOSCOPE_STATE_RUNNING',
+  AUTOSCOPE_STATE_COMPLETED: 'AUTOSCOPE_STATE_COMPLETED',
+  AUTOSCOPE_STATE_BACKFILLED: 'AUTOSCOPE_STATE_BACKFILLED',
+  AUTOSCOPE_STATE_USER_SELECTED: 'AUTOSCOPE_STATE_USER_SELECTED',
+  AUTOSCOPE_STATE_API_NOT_COVERED: 'AUTOSCOPE_STATE_API_NOT_COVERED',
+} as const;
+export type AutoscopeState =
+  | (typeof AutoscopeState)[keyof typeof AutoscopeState]
+  | (string & {});
 
 export interface CreateTokenRequest {
   /**
@@ -130,7 +134,7 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
       .optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
-    autoscope_state: z.enum(AutoscopeState).optional(),
+    autoscope_state: z.string().optional(),
     inferred_scopes: z.array(z.string()).optional(),
     backfill_scopes: z.array(z.string()).optional(),
   })
@@ -172,7 +176,7 @@ export const marshalPublicTokenInfoSchema: z.ZodType = z
     expiryTime: z.bigint().optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
-    autoscopeState: z.enum(AutoscopeState).optional(),
+    autoscopeState: z.string().optional(),
     inferredScopes: z.array(z.string()).optional(),
     backfillScopes: z.array(z.string()).optional(),
   })

@@ -4,34 +4,42 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum PolicyType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PolicyType = {
   /** For detecting field not being set to a supported value */
-  POLICY_TYPE_UNSPECIFIED = 'POLICY_TYPE_UNSPECIFIED',
-  POLICY_TYPE_ROW_FILTER = 'POLICY_TYPE_ROW_FILTER',
-  POLICY_TYPE_COLUMN_MASK = 'POLICY_TYPE_COLUMN_MASK',
-}
+  POLICY_TYPE_UNSPECIFIED: 'POLICY_TYPE_UNSPECIFIED',
+  POLICY_TYPE_ROW_FILTER: 'POLICY_TYPE_ROW_FILTER',
+  POLICY_TYPE_COLUMN_MASK: 'POLICY_TYPE_COLUMN_MASK',
+} as const;
+export type PolicyType =
+  | (typeof PolicyType)[keyof typeof PolicyType]
+  | (string & {});
 
 /** The type of Unity Catalog securable. */
-export enum SecurableType {
-  CATALOG = 'CATALOG',
-  SCHEMA = 'SCHEMA',
-  TABLE = 'TABLE',
-  STORAGE_CREDENTIAL = 'STORAGE_CREDENTIAL',
-  EXTERNAL_LOCATION = 'EXTERNAL_LOCATION',
-  FUNCTION = 'FUNCTION',
-  SHARE = 'SHARE',
-  PROVIDER = 'PROVIDER',
-  RECIPIENT = 'RECIPIENT',
-  CLEAN_ROOM = 'CLEAN_ROOM',
-  METASTORE = 'METASTORE',
-  PIPELINE = 'PIPELINE',
-  VOLUME = 'VOLUME',
-  CONNECTION = 'CONNECTION',
-  CREDENTIAL = 'CREDENTIAL',
-  EXTERNAL_METADATA = 'EXTERNAL_METADATA',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SecurableType = {
+  CATALOG: 'CATALOG',
+  SCHEMA: 'SCHEMA',
+  TABLE: 'TABLE',
+  STORAGE_CREDENTIAL: 'STORAGE_CREDENTIAL',
+  EXTERNAL_LOCATION: 'EXTERNAL_LOCATION',
+  FUNCTION: 'FUNCTION',
+  SHARE: 'SHARE',
+  PROVIDER: 'PROVIDER',
+  RECIPIENT: 'RECIPIENT',
+  CLEAN_ROOM: 'CLEAN_ROOM',
+  METASTORE: 'METASTORE',
+  PIPELINE: 'PIPELINE',
+  VOLUME: 'VOLUME',
+  CONNECTION: 'CONNECTION',
+  CREDENTIAL: 'CREDENTIAL',
+  EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
-  STAGING_TABLE = 'STAGING_TABLE',
-}
+  STAGING_TABLE: 'STAGING_TABLE',
+} as const;
+export type SecurableType =
+  | (typeof SecurableType)[keyof typeof SecurableType]
+  | (string & {});
 
 export interface ColumnMaskOptions {
   /**
@@ -303,15 +311,15 @@ export const unmarshalMatchColumnSchema: z.ZodType<MatchColumn> = z
 export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
   .object({
     id: z.string().optional(),
-    on_securable_type: z.enum(SecurableType).optional(),
+    on_securable_type: z.string().optional(),
     on_securable_fullname: z.string().optional(),
     name: z.string().optional(),
     comment: z.string().optional(),
     to_principals: z.array(z.string()).optional(),
     except_principals: z.array(z.string()).optional(),
-    for_securable_type: z.enum(SecurableType).optional(),
+    for_securable_type: z.string().optional(),
     when_condition: z.string().optional(),
-    policy_type: z.enum(PolicyType).optional(),
+    policy_type: z.string().optional(),
     row_filter: z.lazy(() => unmarshalRowFilterOptionsSchema).optional(),
     column_mask: z.lazy(() => unmarshalColumnMaskOptionsSchema).optional(),
     match_columns: z.array(z.lazy(() => unmarshalMatchColumnSchema)).optional(),
@@ -399,15 +407,15 @@ export const marshalMatchColumnSchema: z.ZodType = z
 export const marshalPolicyInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    onSecurableType: z.enum(SecurableType).optional(),
+    onSecurableType: z.string().optional(),
     onSecurableFullname: z.string().optional(),
     name: z.string().optional(),
     comment: z.string().optional(),
     toPrincipals: z.array(z.string()).optional(),
     exceptPrincipals: z.array(z.string()).optional(),
-    forSecurableType: z.enum(SecurableType).optional(),
+    forSecurableType: z.string().optional(),
     whenCondition: z.string().optional(),
-    policyType: z.enum(PolicyType).optional(),
+    policyType: z.string().optional(),
     options: z
       .discriminatedUnion('$case', [
         z.object({

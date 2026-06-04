@@ -3,22 +3,34 @@
 import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
-export enum DashboardView {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DashboardView = {
   /** Includes summary metadata from the dashboard. */
-  DASHBOARD_VIEW_BASIC = 'DASHBOARD_VIEW_BASIC',
-}
+  DASHBOARD_VIEW_BASIC: 'DASHBOARD_VIEW_BASIC',
+} as const;
+export type DashboardView =
+  | (typeof DashboardView)[keyof typeof DashboardView]
+  | (string & {});
 
-export enum LifecycleState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LifecycleState = {
   /** The dashboard is in an active state (not-trashed). */
-  ACTIVE = 'ACTIVE',
+  ACTIVE: 'ACTIVE',
   /** The dashboard is in a trashed state. */
-  TRASHED = 'TRASHED',
-}
+  TRASHED: 'TRASHED',
+} as const;
+export type LifecycleState =
+  | (typeof LifecycleState)[keyof typeof LifecycleState]
+  | (string & {});
 
-export enum SchedulePauseStatus {
-  UNPAUSED = 'UNPAUSED',
-  PAUSED = 'PAUSED',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SchedulePauseStatus = {
+  UNPAUSED: 'UNPAUSED',
+  PAUSED: 'PAUSED',
+} as const;
+export type SchedulePauseStatus =
+  | (typeof SchedulePauseStatus)[keyof typeof SchedulePauseStatus]
+  | (string & {});
 
 export interface AuthorizationDetails {
   /**
@@ -508,7 +520,7 @@ export const unmarshalDashboardSchema: z.ZodType<Dashboard> = z
     warehouse_id: z.string().optional(),
     etag: z.string().optional(),
     serialized_dashboard: z.string().optional(),
-    lifecycle_state: z.enum(LifecycleState).optional(),
+    lifecycle_state: z.string().optional(),
     parent_path: z.string().optional(),
   })
   .transform(d => ({
@@ -606,7 +618,7 @@ export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
     schedule_id: z.string().optional(),
     dashboard_id: z.string().optional(),
     cron_schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    pause_status: z.enum(SchedulePauseStatus).optional(),
+    pause_status: z.string().optional(),
     display_name: z.string().optional(),
     etag: z.string().optional(),
     create_time: z
@@ -735,7 +747,7 @@ export const marshalDashboardSchema: z.ZodType = z
     warehouseId: z.string().optional(),
     etag: z.string().optional(),
     serializedDashboard: z.string().optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
+    lifecycleState: z.string().optional(),
     parentPath: z.string().optional(),
   })
   .transform(d => ({
@@ -792,7 +804,7 @@ export const marshalScheduleSchema: z.ZodType = z
     scheduleId: z.string().optional(),
     dashboardId: z.string().optional(),
     cronSchedule: z.lazy(() => marshalCronScheduleSchema).optional(),
-    pauseStatus: z.enum(SchedulePauseStatus).optional(),
+    pauseStatus: z.string().optional(),
     displayName: z.string().optional(),
     etag: z.string().optional(),
     createTime: z

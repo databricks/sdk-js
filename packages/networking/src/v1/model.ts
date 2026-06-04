@@ -5,33 +5,45 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export enum CustomerFacingVpcEndpointUseCase {
-  WORKSPACE_ACCESS = 'WORKSPACE_ACCESS',
-  DATAPLANE_RELAY_ACCESS = 'DATAPLANE_RELAY_ACCESS',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingVpcEndpointUseCase = {
+  WORKSPACE_ACCESS: 'WORKSPACE_ACCESS',
+  DATAPLANE_RELAY_ACCESS: 'DATAPLANE_RELAY_ACCESS',
   /** General access, replaces WORKSPACE_ACCESS in customer-facing API. */
-  GENERAL_ACCESS = 'GENERAL_ACCESS',
-}
+  GENERAL_ACCESS: 'GENERAL_ACCESS',
+} as const;
+export type CustomerFacingVpcEndpointUseCase =
+  | (typeof CustomerFacingVpcEndpointUseCase)[keyof typeof CustomerFacingVpcEndpointUseCase]
+  | (string & {});
 
 /**
  * The target resources that are supported by Network Connectivity Config.
  * Note: some egress types can support general types that are not defined in EgressResourceType.
  * E.g.: Azure private endpoint supports private link enabled Azure services.
  */
-export enum EgressResourceType {
-  EGRESS_RESOURCE_TYPE_UNSPECIFIED = 'EGRESS_RESOURCE_TYPE_UNSPECIFIED',
-  AZURE_BLOB_STORAGE = 'AZURE_BLOB_STORAGE',
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressResourceType = {
+  EGRESS_RESOURCE_TYPE_UNSPECIFIED: 'EGRESS_RESOURCE_TYPE_UNSPECIFIED',
+  AZURE_BLOB_STORAGE: 'AZURE_BLOB_STORAGE',
+} as const;
+export type EgressResourceType =
+  | (typeof EgressResourceType)[keyof typeof EgressResourceType]
+  | (string & {});
 
-export enum EndpointState {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointState = {
   /** The endpoint is pending approval. */
-  PENDING = 'PENDING',
+  PENDING: 'PENDING',
   /** The endpoint has been approved and is ready for use. */
-  APPROVED = 'APPROVED',
+  APPROVED: 'APPROVED',
   /** The endpoint encountered some issues during setup. */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /** The endpoint was once established but later disconnected. This endpoint doesn't provide connectivity. */
-  DISCONNECTED = 'DISCONNECTED',
-}
+  DISCONNECTED: 'DISCONNECTED',
+} as const;
+export type EndpointState =
+  | (typeof EndpointState)[keyof typeof EndpointState]
+  | (string & {});
 
 /**
  * Type of IP access list. Valid values are as follows and are case-sensitive:
@@ -39,26 +51,38 @@ export enum EndpointState {
  * * `ALLOW`: An allow list. Include this IP or range.
  * * `BLOCK`: A block list. Exclude this IP or range. IP addresses in the block list are excluded even if they are included in an allow list.
  */
-export enum IpAccessListType {
-  ALLOW = 'ALLOW',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IpAccessListType = {
+  ALLOW: 'ALLOW',
   /** Blocks the associated CIDRs. */
-  BLOCK = 'BLOCK',
-}
+  BLOCK: 'BLOCK',
+} as const;
+export type IpAccessListType =
+  | (typeof IpAccessListType)[keyof typeof IpAccessListType]
+  | (string & {});
 
-export enum PrivateAccessLevel {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrivateAccessLevel = {
   /** Only specifically listed endpoints can access my workspace */
-  ENDPOINT = 'ENDPOINT',
+  ENDPOINT: 'ENDPOINT',
   /** Only endpoints in the same account can access my workspace */
-  ACCOUNT = 'ACCOUNT',
-}
+  ACCOUNT: 'ACCOUNT',
+} as const;
+export type PrivateAccessLevel =
+  | (typeof PrivateAccessLevel)[keyof typeof PrivateAccessLevel]
+  | (string & {});
 
-export enum VpcStatus {
-  VALID = 'VALID',
-  BROKEN = 'BROKEN',
-  UNATTACHED = 'UNATTACHED',
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const VpcStatus = {
+  VALID: 'VALID',
+  BROKEN: 'BROKEN',
+  UNATTACHED: 'UNATTACHED',
   /** Some optional tests are failing for this Vpc, see NetworkWarning for more information */
-  WARNED = 'WARNED',
-}
+  WARNED: 'WARNED',
+} as const;
+export type VpcStatus =
+  | (typeof VpcStatus)[keyof typeof VpcStatus]
+  | (string & {});
 
 /**
  * Type of IP access list. Valid values are as follows and are case-sensitive:
@@ -66,131 +90,198 @@ export enum VpcStatus {
  * * `ALLOW`: An allow list. Include this IP or range.
  * * `BLOCK`: A block list. Exclude this IP or range. IP addresses in the block list are excluded even if they are included in an allow list.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AccountIpAccessListType_IpAccessListType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AccountIpAccessListType_IpAccessListType = {
   /** Allows the associated CIDRs. */
-  ALLOW = 'ALLOW',
+  ALLOW: 'ALLOW',
   /** Blocks the associated CIDRs. */
-  BLOCK = 'BLOCK',
-}
+  BLOCK: 'BLOCK',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AccountIpAccessListType_IpAccessListType =
+  | (typeof AccountIpAccessListType_IpAccessListType)[keyof typeof AccountIpAccessListType_IpAccessListType]
+  | (string & {});
 
 /**
  * Qualifies the breadth of API access permitted by an ingress network policy rule.
  * API_SCOPE_QUALIFIER_READ narrows matching to read-only variants of the listed scopes;
  * API_SCOPE_QUALIFIER_ALL matches any scope. When unset, scopes match exactly as listed.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingIngressNetworkPolicy_ApiScopeQualifier {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingIngressNetworkPolicy_ApiScopeQualifier = {
   /** Narrows matching to read-only variants of the listed scopes (e.g. GET/HEAD requests). */
-  API_SCOPE_QUALIFIER_READ = 'API_SCOPE_QUALIFIER_READ',
+  API_SCOPE_QUALIFIER_READ: 'API_SCOPE_QUALIFIER_READ',
   /** Matches any scope regardless of access level. */
-  API_SCOPE_QUALIFIER_ALL = 'API_SCOPE_QUALIFIER_ALL',
-}
-
+  API_SCOPE_QUALIFIER_ALL: 'API_SCOPE_QUALIFIER_ALL',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingIngressNetworkPolicy_Authentication_IdentityType {
-  IDENTITY_TYPE_UNSPECIFIED = 'IDENTITY_TYPE_UNSPECIFIED',
-  IDENTITY_TYPE_ALL_USERS = 'IDENTITY_TYPE_ALL_USERS',
-  IDENTITY_TYPE_ALL_SERVICE_PRINCIPALS = 'IDENTITY_TYPE_ALL_SERVICE_PRINCIPALS',
-  IDENTITY_TYPE_SELECTED_IDENTITIES = 'IDENTITY_TYPE_SELECTED_IDENTITIES',
-}
+export type CustomerFacingIngressNetworkPolicy_ApiScopeQualifier =
+  | (typeof CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)[keyof typeof CustomerFacingIngressNetworkPolicy_ApiScopeQualifier]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingIngressNetworkPolicy_Authentication_IdentityType = {
+  IDENTITY_TYPE_UNSPECIFIED: 'IDENTITY_TYPE_UNSPECIFIED',
+  IDENTITY_TYPE_ALL_USERS: 'IDENTITY_TYPE_ALL_USERS',
+  IDENTITY_TYPE_ALL_SERVICE_PRINCIPALS: 'IDENTITY_TYPE_ALL_SERVICE_PRINCIPALS',
+  IDENTITY_TYPE_SELECTED_IDENTITIES: 'IDENTITY_TYPE_SELECTED_IDENTITIES',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType {
-  PRINCIPAL_TYPE_UNSPECIFIED = 'PRINCIPAL_TYPE_UNSPECIFIED',
-  PRINCIPAL_TYPE_USER = 'PRINCIPAL_TYPE_USER',
-  PRINCIPAL_TYPE_SERVICE_PRINCIPAL = 'PRINCIPAL_TYPE_SERVICE_PRINCIPAL',
-}
+export type CustomerFacingIngressNetworkPolicy_Authentication_IdentityType =
+  | (typeof CustomerFacingIngressNetworkPolicy_Authentication_IdentityType)[keyof typeof CustomerFacingIngressNetworkPolicy_Authentication_IdentityType]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType =
+  {
+    PRINCIPAL_TYPE_UNSPECIFIED: 'PRINCIPAL_TYPE_UNSPECIFIED',
+    PRINCIPAL_TYPE_USER: 'PRINCIPAL_TYPE_USER',
+    PRINCIPAL_TYPE_SERVICE_PRINCIPAL: 'PRINCIPAL_TYPE_SERVICE_PRINCIPAL',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode {
-  FULL_ACCESS = 'FULL_ACCESS',
-  RESTRICTED_ACCESS = 'RESTRICTED_ACCESS',
-}
+export type CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType =
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode {
-  ALLOW_ALL_REGISTERED_ENDPOINTS = 'ALLOW_ALL_REGISTERED_ENDPOINTS',
-  RESTRICTED_ACCESS = 'RESTRICTED_ACCESS',
-}
+    | (typeof CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType)[keyof typeof CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType]
+    | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode =
+  {
+    FULL_ACCESS: 'FULL_ACCESS',
+    RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode {
-  FULL_ACCESS = 'FULL_ACCESS',
-  RESTRICTED_ACCESS = 'RESTRICTED_ACCESS',
-}
+export type CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode =
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState {
-  PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED = 'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
-  /** The endpoint has been approved and is ready to use in your serverless compute resources. */
-  ESTABLISHED = 'ESTABLISHED',
-  /** Connection was rejected by the private link resource owner. */
-  REJECTED = 'REJECTED',
-  /**
-   * Connection was removed by the private link resource owner, the private endpoint becomes informative and should
-   * be deleted for clean-up.
-   */
-  DISCONNECTED = 'DISCONNECTED',
-  /** If the endpoint is created but not approved in 14 days, it is EXPIRED. */
-  EXPIRED = 'EXPIRED',
-  /** The endpoint has been created and pending approval. */
-  PENDING = 'PENDING',
-  /** The endpoint creation is in progress. */
-  CREATING = 'CREATING',
-  /** The endpoint creation failed. */
-  CREATE_FAILED = 'CREATE_FAILED',
-}
+    | (typeof CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode)[keyof typeof CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode]
+    | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode =
+  {
+    ALLOW_ALL_REGISTERED_ENDPOINTS: 'ALLOW_ALL_REGISTERED_ENDPOINTS',
+    RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState {
-  PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED = 'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
-  /** The endpoint has been created and pending approval. */
-  INIT = 'INIT',
-  /** The endpoint has been approved and is ready to use in your serverless compute resources. */
-  ESTABLISHED = 'ESTABLISHED',
-  /** Connection was rejected by the private link resource owner. */
-  REJECTED = 'REJECTED',
-  /**
-   * Connection was removed by the private link resource owner, the private endpoint becomes informative and should
-   * be deleted for clean-up.
-   */
-  DISCONNECTED = 'DISCONNECTED',
-  /** If the endpoint was created but not approved in 14 days, it will be EXPIRED. */
-  EXPIRED = 'EXPIRED',
-  /** The endpoint has been created and pending approval. */
-  PENDING = 'PENDING',
-  /** The endpoint creation is in progress. */
-  CREATING = 'CREATING',
-  /** The endpoint creation failed. */
-  CREATE_FAILED = 'CREATE_FAILED',
-}
+export type CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode =
+  | (typeof CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode)[keyof typeof CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode = {
+  FULL_ACCESS: 'FULL_ACCESS',
+  RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType {
-  INTERNET_DESTINATION_TYPE_UNSPECIFIED = 'INTERNET_DESTINATION_TYPE_UNSPECIFIED',
-  /** This is defined as `FQDN` in settings-policy/api/proto/messages.proto. Translation is done in accounts-lake-net-manager/src/util/NetworkPolicySettingUtil.scala. */
-  DNS_NAME = 'DNS_NAME',
-}
+export type CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode =
+  | (typeof CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode)[keyof typeof CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState =
+  {
+    PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED:
+      'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
+    /** The endpoint has been approved and is ready to use in your serverless compute resources. */
+    ESTABLISHED: 'ESTABLISHED',
+    /** Connection was rejected by the private link resource owner. */
+    REJECTED: 'REJECTED',
+    /**
+     * Connection was removed by the private link resource owner, the private endpoint becomes informative and should
+     * be deleted for clean-up.
+     */
+    DISCONNECTED: 'DISCONNECTED',
+    /** If the endpoint is created but not approved in 14 days, it is EXPIRED. */
+    EXPIRED: 'EXPIRED',
+    /** The endpoint has been created and pending approval. */
+    PENDING: 'PENDING',
+    /** The endpoint creation is in progress. */
+    CREATING: 'CREATING',
+    /** The endpoint creation failed. */
+    CREATE_FAILED: 'CREATE_FAILED',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState =
+
+    | (typeof CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState)[keyof typeof CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState]
+    | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState =
+  {
+    PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED:
+      'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
+    /** The endpoint has been created and pending approval. */
+    INIT: 'INIT',
+    /** The endpoint has been approved and is ready to use in your serverless compute resources. */
+    ESTABLISHED: 'ESTABLISHED',
+    /** Connection was rejected by the private link resource owner. */
+    REJECTED: 'REJECTED',
+    /**
+     * Connection was removed by the private link resource owner, the private endpoint becomes informative and should
+     * be deleted for clean-up.
+     */
+    DISCONNECTED: 'DISCONNECTED',
+    /** If the endpoint was created but not approved in 14 days, it will be EXPIRED. */
+    EXPIRED: 'EXPIRED',
+    /** The endpoint has been created and pending approval. */
+    PENDING: 'PENDING',
+    /** The endpoint creation is in progress. */
+    CREATING: 'CREATING',
+    /** The endpoint creation failed. */
+    CREATE_FAILED: 'CREATE_FAILED',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState =
+
+    | (typeof CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState)[keyof typeof CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState]
+    | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType =
+  {
+    INTERNET_DESTINATION_TYPE_UNSPECIFIED:
+      'INTERNET_DESTINATION_TYPE_UNSPECIFIED',
+    /** This is defined as `FQDN` in settings-policy/api/proto/messages.proto. Translation is done in accounts-lake-net-manager/src/util/NetworkPolicySettingUtil.scala. */
+    DNS_NAME: 'DNS_NAME',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType =
+
+    | (typeof EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType)[keyof typeof EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType]
+    | (string & {});
 
 /** The values should match the list of workloads used in networkconfig.proto */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter =
+  {
+    DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED:
+      'DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED',
+    /** SQL Warehouse product */
+    DBSQL: 'DBSQL',
+    /** Machine Learning serving product */
+    ML_SERVING: 'ML_SERVING',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter {
-  DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED = 'DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED',
-  /** SQL Warehouse product */
-  DBSQL = 'DBSQL',
-  /** Machine Learning serving product */
-  ML_SERVING = 'ML_SERVING',
-}
+export type EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter =
 
+    | (typeof EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter)[keyof typeof EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter]
+    | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode =
+  {
+    ENFORCEMENT_MODE_UNSPECIFIED: 'ENFORCEMENT_MODE_UNSPECIFIED',
+    /** Blocks traffic that violates network policy. This is the default mode. */
+    ENFORCED: 'ENFORCED',
+    /** Logs violations without blocking traffic. Useful for testing policies before enforcement. */
+    DRY_RUN: 'DRY_RUN',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode {
-  ENFORCEMENT_MODE_UNSPECIFIED = 'ENFORCEMENT_MODE_UNSPECIFIED',
-  /** Blocks traffic that violates network policy. This is the default mode. */
-  ENFORCED = 'ENFORCED',
-  /** Logs violations without blocking traffic. Useful for testing policies before enforcement. */
-  DRY_RUN = 'DRY_RUN',
-}
+export type EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode =
+
+    | (typeof EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode)[keyof typeof EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode]
+    | (string & {});
 
 /**
  * At which level can <Databricks> and <Databricks> managed compute access Internet.
@@ -198,52 +289,72 @@ export enum EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_Enforcemen
  * RESTRICTED_ACCESS: <Databricks> can only access explicitly allowed internet and storage destinations,
  * as well as UC connections and external locations.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode = {
+  RESTRICTION_MODE_UNSPECIFIED: 'RESTRICTION_MODE_UNSPECIFIED',
+  FULL_ACCESS: 'FULL_ACCESS',
+  RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode {
-  RESTRICTION_MODE_UNSPECIFIED = 'RESTRICTION_MODE_UNSPECIFIED',
-  FULL_ACCESS = 'FULL_ACCESS',
-  RESTRICTED_ACCESS = 'RESTRICTED_ACCESS',
-}
+export type EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode =
+  | (typeof EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode)[keyof typeof EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode]
+  | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType =
+  {
+    STORAGE_DESTINATION_TYPE_UNSPECIFIED:
+      'STORAGE_DESTINATION_TYPE_UNSPECIFIED',
+    /**
+     * AWS_S3 can be used both for direct AWS S3 access and for cross-cloud access from Azure and GCP
+     * When used in an Azure/GCP context, this indicates cross-cloud access from Azure/GCP to the specified S3 bucket
+     */
+    AWS_S3: 'AWS_S3',
+    AZURE_STORAGE: 'AZURE_STORAGE',
+    GOOGLE_CLOUD_STORAGE: 'GOOGLE_CLOUD_STORAGE',
+  } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType {
-  STORAGE_DESTINATION_TYPE_UNSPECIFIED = 'STORAGE_DESTINATION_TYPE_UNSPECIFIED',
-  /**
-   * AWS_S3 can be used both for direct AWS S3 access and for cross-cloud access from Azure and GCP
-   * When used in an Azure/GCP context, this indicates cross-cloud access from Azure/GCP to the specified S3 bucket
-   */
-  AWS_S3 = 'AWS_S3',
-  AZURE_STORAGE = 'AZURE_STORAGE',
-  GOOGLE_CLOUD_STORAGE = 'GOOGLE_CLOUD_STORAGE',
-}
+export type EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType =
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum EndpointUseCase_EndpointUseCase {
+    | (typeof EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType)[keyof typeof EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType]
+    | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointUseCase_EndpointUseCase = {
   /** service-direct frontend private link connectivity. */
-  SERVICE_DIRECT = 'SERVICE_DIRECT',
-}
-
+  SERVICE_DIRECT: 'SERVICE_DIRECT',
+} as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum NccPrivateEndpointRule_PrivateLinkConnectionState {
-  PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED = 'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
+export type EndpointUseCase_EndpointUseCase =
+  | (typeof EndpointUseCase_EndpointUseCase)[keyof typeof EndpointUseCase_EndpointUseCase]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const NccPrivateEndpointRule_PrivateLinkConnectionState = {
+  PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED:
+    'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
   /** The endpoint has been approved and is ready to use in your serverless compute resources. */
-  ESTABLISHED = 'ESTABLISHED',
+  ESTABLISHED: 'ESTABLISHED',
   /** Connection was rejected by the private link resource owner. */
-  REJECTED = 'REJECTED',
+  REJECTED: 'REJECTED',
   /**
    * Connection was removed by the private link resource owner, the private endpoint becomes informative and should
    * be deleted for clean-up.
    */
-  DISCONNECTED = 'DISCONNECTED',
+  DISCONNECTED: 'DISCONNECTED',
   /** If the endpoint was created but not approved in 14 days, it will be EXPIRED. */
-  EXPIRED = 'EXPIRED',
+  EXPIRED: 'EXPIRED',
   /** The endpoint has been created and pending approval. */
-  PENDING = 'PENDING',
+  PENDING: 'PENDING',
   /** The endpoint creation is in progress. */
-  CREATING = 'CREATING',
+  CREATING: 'CREATING',
   /** The endpoint creation failed. */
-  CREATE_FAILED = 'CREATE_FAILED',
-}
+  CREATE_FAILED: 'CREATE_FAILED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type NccPrivateEndpointRule_PrivateLinkConnectionState =
+  | (typeof NccPrivateEndpointRule_PrivateLinkConnectionState)[keyof typeof NccPrivateEndpointRule_PrivateLinkConnectionState]
+  | (string & {});
 
 /** Definition of an IP Access list */
 export interface AccountIpAccessList {
@@ -1836,7 +1947,7 @@ export const unmarshalAccountIpAccessListSchema: z.ZodType<AccountIpAccessList> 
       label: z.string().optional(),
       ip_addresses: z.array(z.string()).optional(),
       address_count: z.number().optional(),
-      list_type: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
+      list_type: z.string().optional(),
       created_at: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -1972,9 +2083,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSc
   z
     .object({
       scopes: z.array(z.string()).optional(),
-      scope_qualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
+      scope_qualifier: z.string().optional(),
     })
     .transform(d => ({
       scopes: d.scopes,
@@ -2015,9 +2124,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationS
 export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_Authentication> =
   z
     .object({
-      identity_type: z
-        .enum(CustomerFacingIngressNetworkPolicy_Authentication_IdentityType)
-        .optional(),
+      identity_type: z.string().optional(),
       identities: z
         .array(
           z.lazy(
@@ -2036,11 +2143,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z
 export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AuthenticationIdentity> =
   z
     .object({
-      principal_type: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
-        )
-        .optional(),
+      principal_type: z.string().optional(),
       principal_id: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -2055,11 +2158,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentityS
 export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess> =
   z
     .object({
-      restriction_mode: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
-        )
-        .optional(),
+      restriction_mode: z.string().optional(),
       deny_rules: z
         .array(
           z.lazy(
@@ -2174,9 +2273,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinat
 export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateAccess> =
   z
     .object({
-      restriction_mode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode)
-        .optional(),
+      restriction_mode: z.string().optional(),
       deny_rules: z
         .array(
           z.lazy(
@@ -2267,9 +2364,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSch
 export const unmarshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicAccess> =
   z
     .object({
-      restriction_mode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode)
-        .optional(),
+      restriction_mode: z.string().optional(),
       deny_rules: z
         .array(
           z.lazy(
@@ -2416,9 +2511,7 @@ export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestination
   z
     .object({
       scopes: z.array(z.string()).optional(),
-      scope_qualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
+      scope_qualifier: z.string().optional(),
     })
     .transform(d => ({
       scopes: d.scopes,
@@ -2489,11 +2582,7 @@ export const unmarshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointR
       domain_names: z.array(z.string()).optional(),
       resource_names: z.array(z.string()).optional(),
       vpc_endpoint_id: z.string().optional(),
-      connection_state: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
+      connection_state: z.string().optional(),
       creation_time: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -2535,11 +2624,7 @@ export const unmarshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpoin
       resource_id: z.string().optional(),
       group_id: z.string().optional(),
       endpoint_name: z.string().optional(),
-      connection_state: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
+      connection_state: z.string().optional(),
       creation_time: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -2625,7 +2710,7 @@ export const unmarshalCustomerFacingPrivateAccessSettingsSchema: z.ZodType<Custo
       private_access_settings_name: z.string().optional(),
       region: z.string().optional(),
       public_access_enabled: z.boolean().optional(),
-      private_access_level: z.enum(PrivateAccessLevel).optional(),
+      private_access_level: z.string().optional(),
       allowed_vpc_endpoint_ids: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -2646,7 +2731,7 @@ export const unmarshalCustomerFacingVpcEndpointSchema: z.ZodType<CustomerFacingV
       vpc_endpoint_name: z.string().optional(),
       aws_vpc_endpoint_id: z.string().optional(),
       aws_endpoint_service_id: z.string().optional(),
-      use_case: z.enum(CustomerFacingVpcEndpointUseCase).optional(),
+      use_case: z.string().optional(),
       region: z.string().optional(),
       aws_account_id: z.string().optional(),
       state: z.string().optional(),
@@ -2694,9 +2779,7 @@ export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> 
 export const unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy> =
   z
     .object({
-      restriction_mode: z
-        .enum(EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode)
-        .optional(),
+      restriction_mode: z.string().optional(),
       allowed_internet_destinations: z
         .array(
           z.lazy(
@@ -2762,11 +2845,7 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinatio
   z
     .object({
       destination: z.string().optional(),
-      internet_destination_type: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
+      internet_destination_type: z.string().optional(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -2777,18 +2856,8 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinatio
 export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement> =
   z
     .object({
-      enforcement_mode: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode
-        )
-        .optional(),
-      dry_run_mode_product_filter: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter
-          )
-        )
-        .optional(),
+      enforcement_mode: z.string().optional(),
+      dry_run_mode_product_filter: z.array(z.string()).optional(),
     })
     .transform(d => ({
       enforcementMode: d.enforcement_mode,
@@ -2801,11 +2870,7 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestination
     .object({
       bucket_name: z.string().optional(),
       region: z.string().optional(),
-      storage_destination_type: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
+      storage_destination_type: z.string().optional(),
       azure_storage_account: z.string().optional(),
       azure_storage_service: z.string().optional(),
     })
@@ -2823,9 +2888,9 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     endpoint_id: z.string().optional(),
     account_id: z.string().optional(),
     display_name: z.string().optional(),
-    use_case: z.enum(EndpointUseCase_EndpointUseCase).optional(),
+    use_case: z.string().optional(),
     region: z.string().optional(),
-    state: z.enum(EndpointState).optional(),
+    state: z.string().optional(),
     azure_private_endpoint_info: z
       .lazy(() => unmarshalAzurePrivateEndpointInfoSchema)
       .optional(),
@@ -2912,7 +2977,7 @@ export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
     label: z.string().optional(),
     ip_addresses: z.array(z.string()).optional(),
     address_count: z.number().optional(),
-    list_type: z.enum(IpAccessListType).optional(),
+    list_type: z.string().optional(),
     created_at: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -3023,9 +3088,7 @@ export const unmarshalNccPrivateEndpointRuleSchema: z.ZodType<NccPrivateEndpoint
     .object({
       rule_id: z.string().optional(),
       network_connectivity_config_id: z.string().optional(),
-      connection_state: z
-        .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
-        .optional(),
+      connection_state: z.string().optional(),
       domain_names: z.array(z.string()).optional(),
       creation_time: z
         .union([z.number(), z.bigint()])
@@ -3086,7 +3149,7 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
     vpc_id: z.string().optional(),
     subnet_ids: z.array(z.string()).optional(),
     security_group_ids: z.array(z.string()).optional(),
-    vpc_status: z.enum(VpcStatus).optional(),
+    vpc_status: z.string().optional(),
     error_messages: z
       .array(z.lazy(() => unmarshalNetworkHealthSchema))
       .optional(),
@@ -3157,7 +3220,7 @@ export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureSer
   z
     .object({
       target_region: z.string().optional(),
-      target_services: z.array(z.enum(EgressResourceType)).optional(),
+      target_services: z.array(z.string()).optional(),
       subnets: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -3289,7 +3352,7 @@ export const marshalCreateAccountIpAccessListRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     label: z.string().optional(),
-    listType: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
+    listType: z.string().optional(),
     ipAddresses: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -3302,7 +3365,7 @@ export const marshalCreateAccountIpAccessListRequestSchema: z.ZodType = z
 export const marshalCreateIpAccessListSchema: z.ZodType = z
   .object({
     label: z.string().optional(),
-    listType: z.enum(IpAccessListType).optional(),
+    listType: z.string().optional(),
     ipAddresses: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -3361,7 +3424,7 @@ export const marshalCreatePrivateAccessSettingsRequestSchema: z.ZodType = z
     privateAccessSettingsName: z.string().optional(),
     region: z.string().optional(),
     publicAccessEnabled: z.boolean().optional(),
-    privateAccessLevel: z.enum(PrivateAccessLevel).optional(),
+    privateAccessLevel: z.string().optional(),
     allowedVpcEndpointIds: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -3377,9 +3440,7 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
     ruleId: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
-    connectionState: z
-      .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
-      .optional(),
+    connectionState: z.string().optional(),
     domainNames: z.array(z.string()).optional(),
     creationTime: z.bigint().optional(),
     updatedTime: z.bigint().optional(),
@@ -3495,9 +3556,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSche
   z
     .object({
       scopes: z.array(z.string()).optional(),
-      scopeQualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
+      scopeQualifier: z.string().optional(),
     })
     .transform(d => ({
       scopes: d.scopes,
@@ -3538,9 +3597,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSch
 export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.ZodType =
   z
     .object({
-      identityType: z
-        .enum(CustomerFacingIngressNetworkPolicy_Authentication_IdentityType)
-        .optional(),
+      identityType: z.string().optional(),
       identities: z
         .array(
           z.lazy(
@@ -3559,11 +3616,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.Z
 export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType =
   z
     .object({
-      principalType: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
-        )
-        .optional(),
+      principalType: z.string().optional(),
       principalId: z.bigint().optional(),
     })
     .transform(d => ({
@@ -3575,11 +3628,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySch
 export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType =
   z
     .object({
-      restrictionMode: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
-        )
-        .optional(),
+      restrictionMode: z.string().optional(),
       denyRules: z
         .array(
           z.lazy(
@@ -3696,9 +3745,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinatio
 export const marshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema: z.ZodType =
   z
     .object({
-      restrictionMode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode)
-        .optional(),
+      restrictionMode: z.string().optional(),
       denyRules: z
         .array(
           z.lazy(
@@ -3796,9 +3843,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchem
 export const marshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema: z.ZodType =
   z
     .object({
-      restrictionMode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode)
-        .optional(),
+      restrictionMode: z.string().optional(),
       denyRules: z
         .array(
           z.lazy(
@@ -3950,9 +3995,7 @@ export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSc
   z
     .object({
       scopes: z.array(z.string()).optional(),
-      scopeQualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
+      scopeQualifier: z.string().optional(),
     })
     .transform(d => ({
       scopes: d.scopes,
@@ -3989,11 +4032,7 @@ export const marshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRul
       domainNames: z.array(z.string()).optional(),
       resourceNames: z.array(z.string()).optional(),
       vpcEndpointId: z.string().optional(),
-      connectionState: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
+      connectionState: z.string().optional(),
       creationTime: z.bigint().optional(),
       updatedTime: z.bigint().optional(),
       deactivated: z.boolean().optional(),
@@ -4026,11 +4065,7 @@ export const marshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointR
       resourceId: z.string().optional(),
       groupId: z.string().optional(),
       endpointName: z.string().optional(),
-      connectionState: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
+      connectionState: z.string().optional(),
       creationTime: z.bigint().optional(),
       updatedTime: z.bigint().optional(),
       deactivated: z.boolean().optional(),
@@ -4106,7 +4141,7 @@ export const marshalCustomerFacingPrivateAccessSettingsSchema: z.ZodType = z
     privateAccessSettingsName: z.string().optional(),
     region: z.string().optional(),
     publicAccessEnabled: z.boolean().optional(),
-    privateAccessLevel: z.enum(PrivateAccessLevel).optional(),
+    privateAccessLevel: z.string().optional(),
     allowedVpcEndpointIds: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -4132,9 +4167,7 @@ export const marshalEgressNetworkPolicySchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType = z
   .object({
-    restrictionMode: z
-      .enum(EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode)
-      .optional(),
+    restrictionMode: z.string().optional(),
     allowedInternetDestinations: z
       .array(
         z.lazy(
@@ -4198,11 +4231,7 @@ export const marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationS
   z
     .object({
       destination: z.string().optional(),
-      internetDestinationType: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
+      internetDestinationType: z.string().optional(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -4213,18 +4242,8 @@ export const marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationS
 export const marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType =
   z
     .object({
-      enforcementMode: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode
-        )
-        .optional(),
-      dryRunModeProductFilter: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter
-          )
-        )
-        .optional(),
+      enforcementMode: z.string().optional(),
+      dryRunModeProductFilter: z.array(z.string()).optional(),
     })
     .transform(d => ({
       enforcement_mode: d.enforcementMode,
@@ -4237,11 +4256,7 @@ export const marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSc
     .object({
       bucketName: z.string().optional(),
       region: z.string().optional(),
-      storageDestinationType: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
+      storageDestinationType: z.string().optional(),
       azureStorageAccount: z.string().optional(),
       azureStorageService: z.string().optional(),
     })
@@ -4259,9 +4274,9 @@ export const marshalEndpointSchema: z.ZodType = z
     endpointId: z.string().optional(),
     accountId: z.string().optional(),
     displayName: z.string().optional(),
-    useCase: z.enum(EndpointUseCase_EndpointUseCase).optional(),
+    useCase: z.string().optional(),
     region: z.string().optional(),
-    state: z.enum(EndpointState).optional(),
+    state: z.string().optional(),
     endpointInfo: z
       .discriminatedUnion('$case', [
         z.object({
@@ -4365,7 +4380,7 @@ export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServi
   z
     .object({
       targetRegion: z.string().optional(),
-      targetServices: z.array(z.enum(EgressResourceType)).optional(),
+      targetServices: z.array(z.string()).optional(),
       subnets: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -4389,7 +4404,7 @@ export const marshalReplaceAccountIpAccessListRequestSchema: z.ZodType = z
     accountId: z.string().optional(),
     listId: z.string().optional(),
     label: z.string().optional(),
-    listType: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
+    listType: z.string().optional(),
     ipAddresses: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
   })
@@ -4406,7 +4421,7 @@ export const marshalReplaceIpAccessListSchema: z.ZodType = z
   .object({
     listId: z.string().optional(),
     label: z.string().optional(),
-    listType: z.enum(IpAccessListType).optional(),
+    listType: z.string().optional(),
     ipAddresses: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
   })
@@ -4423,7 +4438,7 @@ export const marshalUpdateAccountIpAccessListRequestSchema: z.ZodType = z
     accountId: z.string().optional(),
     listId: z.string().optional(),
     label: z.string().optional(),
-    listType: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
+    listType: z.string().optional(),
     ipAddresses: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
   })
@@ -4440,7 +4455,7 @@ export const marshalUpdateIpAccessListSchema: z.ZodType = z
   .object({
     listId: z.string().optional(),
     label: z.string().optional(),
-    listType: z.enum(IpAccessListType).optional(),
+    listType: z.string().optional(),
     ipAddresses: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
   })
@@ -4456,9 +4471,7 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
     ruleId: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
-    connectionState: z
-      .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
-      .optional(),
+    connectionState: z.string().optional(),
     domainNames: z.array(z.string()).optional(),
     creationTime: z.bigint().optional(),
     updatedTime: z.bigint().optional(),

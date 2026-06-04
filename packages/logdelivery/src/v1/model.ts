@@ -9,23 +9,31 @@ import {z} from 'zod';
  * `ENABLED`: All dependencies have executed and succeeded
  * `DISABLED`: At least one dependency has succeeded
  */
-export enum LogDeliveryConfigStatus {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LogDeliveryConfigStatus = {
   /** Configuration is enabled */
-  ENABLED = 'ENABLED',
+  ENABLED: 'ENABLED',
   /** Configuration is disabled */
-  DISABLED = 'DISABLED',
-}
+  DISABLED: 'DISABLED',
+} as const;
+export type LogDeliveryConfigStatus =
+  | (typeof LogDeliveryConfigStatus)[keyof typeof LogDeliveryConfigStatus]
+  | (string & {});
 
 /**
  * *
  * Log Delivery Output Format
  */
-export enum LogDeliveryOutputFormat {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LogDeliveryOutputFormat = {
   /** Deliver CSV files */
-  CSV = 'CSV',
+  CSV: 'CSV',
   /** Deliver JSON files */
-  JSON = 'JSON',
-}
+  JSON: 'JSON',
+} as const;
+export type LogDeliveryOutputFormat =
+  | (typeof LogDeliveryOutputFormat)[keyof typeof LogDeliveryOutputFormat]
+  | (string & {});
 
 /**
  * *
@@ -36,29 +44,37 @@ export enum LogDeliveryOutputFormat {
  * `SYSTEM_FAILURE`: The latest attempt of log delivery failed because of an <Databricks> internal error. Contact support if it doesn't go away soon.
  * `NOT_FOUND`: The log delivery status as the configuration has been disabled since the release of this feature or there are no workspaces in the account.
  */
-export enum LogDeliveryStatusEnum {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LogDeliveryStatusEnum = {
   /** Configuration is just created and logs haven't delivered yet */
-  CREATED = 'CREATED',
+  CREATED: 'CREATED',
   /** Configuration has succeeded in the last run */
-  SUCCEEDED = 'SUCCEEDED',
+  SUCCEEDED: 'SUCCEEDED',
   /** Configuration has failed in the last run due to user failure */
-  USER_FAILURE = 'USER_FAILURE',
+  USER_FAILURE: 'USER_FAILURE',
   /** Configuration has failed in the last run due to system failure */
-  SYSTEM_FAILURE = 'SYSTEM_FAILURE',
+  SYSTEM_FAILURE: 'SYSTEM_FAILURE',
   /** Status not found */
-  NOT_FOUND = 'NOT_FOUND',
-}
+  NOT_FOUND: 'NOT_FOUND',
+} as const;
+export type LogDeliveryStatusEnum =
+  | (typeof LogDeliveryStatusEnum)[keyof typeof LogDeliveryStatusEnum]
+  | (string & {});
 
 /**
  * *
  * Log Delivery Type
  */
-export enum LogDeliveryType {
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LogDeliveryType = {
   /** Deliver Billable Usage logs */
-  BILLABLE_USAGE = 'BILLABLE_USAGE',
+  BILLABLE_USAGE: 'BILLABLE_USAGE',
   /** Deliver Audit Logs */
-  AUDIT_LOGS = 'AUDIT_LOGS',
-}
+  AUDIT_LOGS: 'AUDIT_LOGS',
+} as const;
+export type LogDeliveryType =
+  | (typeof LogDeliveryType)[keyof typeof LogDeliveryType]
+  | (string & {});
 
 /**
  * *
@@ -276,8 +292,8 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
     .object({
       config_id: z.string().optional(),
       config_name: z.string().optional(),
-      log_type: z.enum(LogDeliveryType).optional(),
-      output_format: z.enum(LogDeliveryOutputFormat).optional(),
+      log_type: z.string().optional(),
+      output_format: z.string().optional(),
       account_id: z.string().optional(),
       credentials_id: z.string().optional(),
       storage_configuration_id: z.string().optional(),
@@ -286,7 +302,7 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
         .optional(),
       delivery_path_prefix: z.string().optional(),
       delivery_start_time: z.string().optional(),
-      status: z.enum(LogDeliveryConfigStatus).optional(),
+      status: z.string().optional(),
       creation_time: z
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
@@ -318,7 +334,7 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
 
 export const unmarshalLogDeliveryStatusSchema: z.ZodType<LogDeliveryStatus> = z
   .object({
-    status: z.enum(LogDeliveryStatusEnum).optional(),
+    status: z.string().optional(),
     last_attempt_time: z.string().optional(),
     last_successful_attempt_time: z.string().optional(),
     message: z.string().optional(),
@@ -337,15 +353,15 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
   .object({
     configId: z.string().optional(),
     configName: z.string().optional(),
-    logType: z.enum(LogDeliveryType).optional(),
-    outputFormat: z.enum(LogDeliveryOutputFormat).optional(),
+    logType: z.string().optional(),
+    outputFormat: z.string().optional(),
     accountId: z.string().optional(),
     credentialsId: z.string().optional(),
     storageConfigurationId: z.string().optional(),
     workspaceIdsFilter: z.array(z.bigint()).optional(),
     deliveryPathPrefix: z.string().optional(),
     deliveryStartTime: z.string().optional(),
-    status: z.enum(LogDeliveryConfigStatus).optional(),
+    status: z.string().optional(),
     creationTime: z.bigint().optional(),
     updateTime: z.bigint().optional(),
     logDeliveryStatus: z.lazy(() => marshalLogDeliveryStatusSchema).optional(),
@@ -379,7 +395,7 @@ export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
 
 export const marshalLogDeliveryStatusSchema: z.ZodType = z
   .object({
-    status: z.enum(LogDeliveryStatusEnum).optional(),
+    status: z.string().optional(),
     lastAttemptTime: z.string().optional(),
     lastSuccessfulAttemptTime: z.string().optional(),
     message: z.string().optional(),
@@ -395,7 +411,7 @@ export const marshalUpdateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
     configId: z.string().optional(),
     accountId: z.string().optional(),
-    status: z.enum(LogDeliveryConfigStatus).optional(),
+    status: z.string().optional(),
   })
   .transform(d => ({
     config_id: d.configId,
