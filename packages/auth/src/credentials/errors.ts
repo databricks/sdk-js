@@ -5,7 +5,7 @@
  */
 
 /** Discriminant codes for {@link PatCredentialsError}. */
-export type PatCredentialsErrorCode = 'TOKEN_REQUIRED';
+export type PatCredentialsErrorCode = 'TOKEN_REQUIRED' | 'TOKEN_MALFORMED';
 
 /**
  * Error thrown by personal access token (PAT) credential operations.
