@@ -110,10 +110,9 @@ export async function executeHttpCall(
 
   const body = await readAll(resp.body);
 
-  opts.logger.debug('HTTP response', {
-    statusCode: resp.statusCode,
-    body: new TextDecoder().decode(body),
-  });
+  // Log only statusCode. The body can contain plaintext secrets, e.g.
+  // getSecret(), so logging it would leak them into debug logs.
+  opts.logger.debug('HTTP response', {statusCode: resp.statusCode});
 
   const apiErr = ApiError.fromHttpError(resp.statusCode, resp.headers, body);
   if (apiErr !== undefined) {
