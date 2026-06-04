@@ -1158,6 +1158,31 @@ export interface IngestionPipelineDefinition_TableSpecificConfig {
    * If unspecified, auto full refresh is disabled.
    */
   autoFullRefreshPolicy?: AutoFullRefreshPolicy | undefined;
+  /**
+   * Table properties to set on the destination table.
+   * These are key-value pairs that configure various Delta table behaviors or any user defined properties.
+   * Example: {"delta.feature.variantType": "supported", "delta.enableTypeWidening": "true"}
+   * Note: table_properties in table specific configuration will override the table_properties of the pipeline definition.
+   */
+  tableProperties?: Record<string, string> | undefined;
+  /**
+   * Whether to enable auto clustering on the destination table.
+   * When enabled, Delta will automatically optimize the data layout
+   * based on the clustering columns for improved query performance.
+   * Note: enable_auto_clustering in table specific configuration will override the pipeline definition.
+   * Note: we can only provide enable_auto_clustering or clustering_columns,
+   * added as separate fields as we cannot have repeated field in oneof.
+   */
+  enableAutoClustering?: boolean | undefined;
+  /**
+   * List of column names to use for clustering the destination table.
+   * When specified, the destination Delta table will be clustered by these columns.
+   * This can improve query performance when filtering on these columns.
+   * Note: clustering_columns in table specific configuration will override the pipeline definition.
+   * Note: we can only provide enable_auto_clustering or clustering_columns,
+   * added as separate fields as we cannot have repeated field in oneof.
+   */
+  clusteringColumns?: string[] | undefined;
 }
 
 /** Configurations that are only applicable for query-based ingestion connectors. */
@@ -1193,6 +1218,12 @@ export interface IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConne
    * This field is mutable and can be updated without triggering a full snapshot.
    */
   hardDeletionSyncMinIntervalInSeconds?: bigint | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_TableSpecificConfig_TablePropertiesEntry {
+  key?: string | undefined;
+  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3154,6 +3185,9 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
       auto_full_refresh_policy: z
         .lazy(() => unmarshalAutoFullRefreshPolicySchema)
         .optional(),
+      table_properties: z.record(z.string(), z.string()).optional(),
+      enable_auto_clustering: z.boolean().optional(),
+      clustering_columns: z.array(z.string()).optional(),
     })
     .transform(d => ({
       scdType: d.scd_type,
@@ -3166,6 +3200,9 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
       rowFilter: d.row_filter,
       queryBasedConnectorConfig: d.query_based_connector_config,
       autoFullRefreshPolicy: d.auto_full_refresh_policy,
+      tableProperties: d.table_properties,
+      enableAutoClustering: d.enable_auto_clustering,
+      clusteringColumns: d.clustering_columns,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4790,6 +4827,9 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       autoFullRefreshPolicy: z
         .lazy(() => marshalAutoFullRefreshPolicySchema)
         .optional(),
+      tableProperties: z.record(z.string(), z.string()).optional(),
+      enableAutoClustering: z.boolean().optional(),
+      clusteringColumns: z.array(z.string()).optional(),
     })
     .transform(d => ({
       scd_type: d.scdType,
@@ -4802,6 +4842,9 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       row_filter: d.rowFilter,
       query_based_connector_config: d.queryBasedConnectorConfig,
       auto_full_refresh_policy: d.autoFullRefreshPolicy,
+      table_properties: d.tableProperties,
+      enable_auto_clustering: d.enableAutoClustering,
+      clustering_columns: d.clusteringColumns,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
