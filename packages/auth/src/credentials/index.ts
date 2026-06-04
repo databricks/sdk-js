@@ -2,8 +2,16 @@
  * Credential implementations for the Databricks SDK.
  */
 
-export {M2mCredentialsError, U2mCredentialsError} from './errors';
-export type {M2mCredentialsErrorCode, U2mCredentialsErrorCode} from './errors';
+export {
+  M2mCredentialsError,
+  PatCredentialsError,
+  U2mCredentialsError,
+} from './errors';
+export type {
+  M2mCredentialsErrorCode,
+  PatCredentialsErrorCode,
+  U2mCredentialsErrorCode,
+} from './errors';
 export {newM2mCredentials} from './m2m';
 export type {M2mCredentialsOptions} from './m2m';
 export {newPatCredentials} from './pat';

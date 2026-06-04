@@ -4,15 +4,7 @@
 
 import type {Credentials, Header} from '../auth';
 
-/**
- * Error thrown when a token is required but not provided.
- */
-class TokenRequiredError extends Error {
-  constructor() {
-    super('token is required');
-    this.name = 'TokenRequiredError';
-  }
-}
+import {PatCredentialsError} from './errors';
 
 /**
  * Creates a Credentials that can be used to authenticate with a Personal
@@ -20,11 +12,11 @@ class TokenRequiredError extends Error {
  *
  * @param token - The personal access token.
  * @returns Credentials for PAT authentication.
- * @throws TokenRequiredError if token is empty.
+ * @throws PatCredentialsError if token is empty.
  */
 export function newPatCredentials(token: string): Credentials {
   if (token === '') {
-    throw new TokenRequiredError();
+    throw new PatCredentialsError('TOKEN_REQUIRED', 'token is required');
   }
   return new PatCredentials(token);
 }

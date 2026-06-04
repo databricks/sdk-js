@@ -4,6 +4,24 @@
  * @module
  */
 
+/** Discriminant codes for {@link PatCredentialsError}. */
+export type PatCredentialsErrorCode = 'TOKEN_REQUIRED';
+
+/**
+ * Error thrown by personal access token (PAT) credential operations.
+ *
+ * Use the `code` field to distinguish between error causes.
+ */
+export class PatCredentialsError extends Error {
+  readonly code: PatCredentialsErrorCode;
+
+  constructor(code: PatCredentialsErrorCode, message: string) {
+    super(message);
+    this.name = 'PatCredentialsError';
+    this.code = code;
+  }
+}
+
 /** Discriminant codes for {@link M2mCredentialsError}. */
 export type M2mCredentialsErrorCode =
   | 'CLIENT_ID_REQUIRED'
