@@ -1,8 +1,10 @@
 import {describe, it, expect} from 'vitest';
 import type {Header} from '../../src/auth';
-// Import from the specific module rather than the barrel because the barrel
+// Import from the specific modules rather than the barrel because the barrel
 // re-exports Node-only credentials (`newU2mCredentials`) that can't load in
 // browser test runs.
+import type {PatCredentialsErrorCode} from '../../src/credentials/errors';
+import {PatCredentialsError} from '../../src/credentials/errors';
 import {newPatCredentials} from '../../src/credentials/pat';
 
 describe('newPatCredentials', () => {
@@ -39,15 +41,35 @@ describe('newPatCredentials', () => {
     expect(newPatCredentials('test-token').name()).toBe('pat');
   });
 
-  it('should throw for empty token with correct error name and message', () => {
-    let caught: Error | undefined;
-    try {
-      newPatCredentials('');
-    } catch (e) {
-      caught = e as Error;
+  const errorCases: {
+    name: string;
+    token: string;
+    code: PatCredentialsErrorCode;
+    message: string;
+  }[] = [
+    {
+      name: 'empty token',
+      token: '',
+      code: 'TOKEN_REQUIRED',
+      message: 'token is required',
+    },
+  ];
+
+  it.each(errorCases)(
+    'throws PatCredentialsError for $name',
+    ({token, code, message}) => {
+      let caught: unknown;
+      try {
+        newPatCredentials(token);
+      } catch (e) {
+        caught = e;
+      }
+      if (!(caught instanceof PatCredentialsError)) {
+        expect.fail(`expected PatCredentialsError, got ${String(caught)}`);
+      }
+      expect(caught.name).toBe('PatCredentialsError');
+      expect(caught.code).toBe(code);
+      expect(caught.message).toBe(message);
     }
-    expect(caught).toBeInstanceOf(Error);
-    expect(caught?.name).toBe('TokenRequiredError');
-    expect(caught?.message).toBe('token is required');
-  });
+  );
 });
