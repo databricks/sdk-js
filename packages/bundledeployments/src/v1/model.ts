@@ -291,6 +291,8 @@ export interface Deployment {
   deploymentMode?: DeploymentMode | undefined;
   /** Git provenance of the deployment's source, derived from the latest version. */
   gitInfo?: GitInfo | undefined;
+  /** Workspace location of the deployment, derived from the latest version. */
+  workspaceInfo?: WorkspaceInfo | undefined;
 }
 
 /** A request to retrieve a Deployment. */
@@ -607,6 +609,33 @@ export interface Version {
   deploymentMode?: DeploymentMode | undefined;
   /** Git provenance of the source, captured at the time of this version. */
   gitInfo?: GitInfo | undefined;
+  /** Workspace location of the deployment, captured at the time of this version. */
+  workspaceInfo?: WorkspaceInfo | undefined;
+}
+
+/** Workspace location of a bundle deployment, captured at deploy time. */
+export interface WorkspaceInfo {
+  /**
+   * Absolute workspace path of the deployment root — the base path the deployed
+   * files live under. Mirrors workspace.root_path in the DABs bundle config;
+   * file_path is its files subdirectory.
+   */
+  rootPath?: string | undefined;
+  /**
+   * Absolute workspace path where the deployed bundle files live. Mirrors the
+   * workspace.file_path field in DABs bundle config.
+   */
+  filePath?: string | undefined;
+  /**
+   * Whether files are served directly from the source sync root instead of
+   * being copied into file_path.
+   */
+  sourceLinked?: boolean | undefined;
+  /**
+   * When deployed from a Databricks Git folder, the absolute workspace path of
+   * that folder; empty for local deploys.
+   */
+  gitFolderPath?: string | undefined;
 }
 
 export const unmarshalDeploymentSchema: z.ZodType<Deployment> = z
@@ -632,6 +661,7 @@ export const unmarshalDeploymentSchema: z.ZodType<Deployment> = z
     destroyed_by: z.string().optional(),
     deployment_mode: z.enum(DeploymentMode).optional(),
     git_info: z.lazy(() => unmarshalGitInfoSchema).optional(),
+    workspace_info: z.lazy(() => unmarshalWorkspaceInfoSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -646,6 +676,7 @@ export const unmarshalDeploymentSchema: z.ZodType<Deployment> = z
     destroyedBy: d.destroyed_by,
     deploymentMode: d.deployment_mode,
     gitInfo: d.git_info,
+    workspaceInfo: d.workspace_info,
   }));
 
 export const unmarshalGitInfoSchema: z.ZodType<GitInfo> = z
@@ -784,6 +815,7 @@ export const unmarshalVersionSchema: z.ZodType<Version> = z
     target_name: z.string().optional(),
     deployment_mode: z.enum(DeploymentMode).optional(),
     git_info: z.lazy(() => unmarshalGitInfoSchema).optional(),
+    workspace_info: z.lazy(() => unmarshalWorkspaceInfoSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -800,6 +832,21 @@ export const unmarshalVersionSchema: z.ZodType<Version> = z
     targetName: d.target_name,
     deploymentMode: d.deployment_mode,
     gitInfo: d.git_info,
+    workspaceInfo: d.workspace_info,
+  }));
+
+export const unmarshalWorkspaceInfoSchema: z.ZodType<WorkspaceInfo> = z
+  .object({
+    root_path: z.string().optional(),
+    file_path: z.string().optional(),
+    source_linked: z.boolean().optional(),
+    git_folder_path: z.string().optional(),
+  })
+  .transform(d => ({
+    rootPath: d.root_path,
+    filePath: d.file_path,
+    sourceLinked: d.source_linked,
+    gitFolderPath: d.git_folder_path,
   }));
 
 export const marshalCompleteVersionRequestSchema: z.ZodType = z
@@ -837,6 +884,7 @@ export const marshalDeploymentSchema: z.ZodType = z
     destroyedBy: z.string().optional(),
     deploymentMode: z.enum(DeploymentMode).optional(),
     gitInfo: z.lazy(() => marshalGitInfoSchema).optional(),
+    workspaceInfo: z.lazy(() => marshalWorkspaceInfoSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -851,6 +899,7 @@ export const marshalDeploymentSchema: z.ZodType = z
     destroyed_by: d.destroyedBy,
     deployment_mode: d.deploymentMode,
     git_info: d.gitInfo,
+    workspace_info: d.workspaceInfo,
   }));
 
 export const marshalGitInfoSchema: z.ZodType = z
@@ -922,6 +971,7 @@ export const marshalVersionSchema: z.ZodType = z
     targetName: z.string().optional(),
     deploymentMode: z.enum(DeploymentMode).optional(),
     gitInfo: z.lazy(() => marshalGitInfoSchema).optional(),
+    workspaceInfo: z.lazy(() => marshalWorkspaceInfoSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -938,4 +988,19 @@ export const marshalVersionSchema: z.ZodType = z
     target_name: d.targetName,
     deployment_mode: d.deploymentMode,
     git_info: d.gitInfo,
+    workspace_info: d.workspaceInfo,
+  }));
+
+export const marshalWorkspaceInfoSchema: z.ZodType = z
+  .object({
+    rootPath: z.string().optional(),
+    filePath: z.string().optional(),
+    sourceLinked: z.boolean().optional(),
+    gitFolderPath: z.string().optional(),
+  })
+  .transform(d => ({
+    root_path: d.rootPath,
+    file_path: d.filePath,
+    source_linked: d.sourceLinked,
+    git_folder_path: d.gitFolderPath,
   }));

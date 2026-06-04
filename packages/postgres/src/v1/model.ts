@@ -717,6 +717,8 @@ export interface Branch {
   spec?: BranchSpec | undefined;
   /** The current status of a Branch. */
   status?: BranchStatus | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  branchId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -825,6 +827,8 @@ export interface Catalog {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the catalog was last updated. */
   updateTime?: Temporal.Instant | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  catalogId?: string | undefined;
 }
 
 /** The desired state of the Catalog. */
@@ -1021,6 +1025,8 @@ export interface Database {
   spec?: Database_DatabaseSpec | undefined;
   /** The observed state of the Database. */
   status?: Database_DatabaseStatus | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  databaseId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1172,6 +1178,8 @@ export interface Endpoint {
   spec?: EndpointSpec | undefined;
   /** Current operational status of the compute endpoint. */
   status?: EndpointStatus | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  endpointId?: string | undefined;
 }
 
 export interface EndpointGroupSpec {
@@ -1598,6 +1606,8 @@ export interface Project {
    * Empty if the project is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  projectId?: string | undefined;
 }
 
 export interface ProjectCustomTag {
@@ -1739,6 +1749,8 @@ export interface Role {
   spec?: Role_RoleSpec | undefined;
   /** Current status of the role, including its identity type, authentication method, and role attributes. */
   status?: Role_RoleStatus | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  roleId?: string | undefined;
 }
 
 /**
@@ -1848,6 +1860,8 @@ export interface SyncedTable {
   /** Synced Table data synchronization status. */
   status?: SyncedTable_SyncedTableStatus | undefined;
   createTime?: Temporal.Instant | undefined;
+  /** The part of the name, chosen by the user when the resource was created. */
+  syncedTableId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2087,6 +2101,7 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
       .optional(),
     spec: z.lazy(() => unmarshalBranchSpecSchema).optional(),
     status: z.lazy(() => unmarshalBranchStatusSchema).optional(),
+    branch_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2096,6 +2111,7 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
     updateTime: d.update_time,
     spec: d.spec,
     status: d.status,
+    branchId: d.branch_id,
   }));
 
 export const unmarshalBranchOperationMetadataSchema: z.ZodType<BranchOperationMetadata> =
@@ -2199,6 +2215,7 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    catalog_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2207,6 +2224,7 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
     status: d.status,
     createTime: d.create_time,
     updateTime: d.update_time,
+    catalogId: d.catalog_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2254,6 +2272,7 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
       .optional(),
     spec: z.lazy(() => unmarshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => unmarshalDatabase_DatabaseStatusSchema).optional(),
+    database_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2262,6 +2281,7 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
     updateTime: d.update_time,
     spec: d.spec,
     status: d.status,
+    databaseId: d.database_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2339,6 +2359,7 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
       .optional(),
     spec: z.lazy(() => unmarshalEndpointSpecSchema).optional(),
     status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
+    endpoint_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2348,6 +2369,7 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     updateTime: d.update_time,
     spec: d.spec,
     status: d.status,
+    endpointId: d.endpoint_id,
   }));
 
 export const unmarshalEndpointGroupSpecSchema: z.ZodType<EndpointGroupSpec> = z
@@ -2579,6 +2601,7 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    project_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2590,6 +2613,7 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     initialEndpointSpec: d.initial_endpoint_spec,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
+    projectId: d.project_id,
   }));
 
 export const unmarshalProjectCustomTagSchema: z.ZodType<ProjectCustomTag> = z
@@ -2718,6 +2742,7 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
       .optional(),
     spec: z.lazy(() => unmarshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => unmarshalRole_RoleStatusSchema).optional(),
+    role_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2726,6 +2751,7 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
     updateTime: d.update_time,
     spec: d.spec,
     status: d.status,
+    roleId: d.role_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2792,6 +2818,7 @@ export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    synced_table_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2799,6 +2826,7 @@ export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
     spec: d.spec,
     status: d.status,
     createTime: d.create_time,
+    syncedTableId: d.synced_table_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2940,6 +2968,7 @@ export const marshalBranchSchema: z.ZodType = z
       .optional(),
     spec: z.lazy(() => marshalBranchSpecSchema).optional(),
     status: z.lazy(() => marshalBranchStatusSchema).optional(),
+    branchId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2949,6 +2978,7 @@ export const marshalBranchSchema: z.ZodType = z
     update_time: d.updateTime,
     spec: d.spec,
     status: d.status,
+    branch_id: d.branchId,
   }));
 
 export const marshalBranchSpecSchema: z.ZodType = z
@@ -3053,6 +3083,7 @@ export const marshalCatalogSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    catalogId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3061,6 +3092,7 @@ export const marshalCatalogSchema: z.ZodType = z
     status: d.status,
     create_time: d.createTime,
     update_time: d.updateTime,
+    catalog_id: d.catalogId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3103,6 +3135,7 @@ export const marshalDatabaseSchema: z.ZodType = z
       .optional(),
     spec: z.lazy(() => marshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => marshalDatabase_DatabaseStatusSchema).optional(),
+    databaseId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3111,6 +3144,7 @@ export const marshalDatabaseSchema: z.ZodType = z
     update_time: d.updateTime,
     spec: d.spec,
     status: d.status,
+    database_id: d.databaseId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3165,6 +3199,7 @@ export const marshalEndpointSchema: z.ZodType = z
       .optional(),
     spec: z.lazy(() => marshalEndpointSpecSchema).optional(),
     status: z.lazy(() => marshalEndpointStatusSchema).optional(),
+    endpointId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3174,6 +3209,7 @@ export const marshalEndpointSchema: z.ZodType = z
     update_time: d.updateTime,
     spec: d.spec,
     status: d.status,
+    endpoint_id: d.endpointId,
   }));
 
 export const marshalEndpointGroupSpecSchema: z.ZodType = z
@@ -3341,6 +3377,7 @@ export const marshalProjectSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    projectId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3352,6 +3389,7 @@ export const marshalProjectSchema: z.ZodType = z
     initial_endpoint_spec: d.initialEndpointSpec,
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
+    project_id: d.projectId,
   }));
 
 export const marshalProjectCustomTagSchema: z.ZodType = z
@@ -3495,6 +3533,7 @@ export const marshalRoleSchema: z.ZodType = z
       .optional(),
     spec: z.lazy(() => marshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => marshalRole_RoleStatusSchema).optional(),
+    roleId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3503,6 +3542,7 @@ export const marshalRoleSchema: z.ZodType = z
     update_time: d.updateTime,
     spec: d.spec,
     status: d.status,
+    role_id: d.roleId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3564,6 +3604,7 @@ export const marshalSyncedTableSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    syncedTableId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3571,6 +3612,7 @@ export const marshalSyncedTableSchema: z.ZodType = z
     spec: d.spec,
     status: d.status,
     create_time: d.createTime,
+    synced_table_id: d.syncedTableId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3692,6 +3734,7 @@ export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   }));
 
 const branchFieldMaskSchema: FieldMaskSchema = {
+  branchId: {wire: 'branch_id'},
   createTime: {wire: 'create_time'},
   name: {wire: 'name'},
   parent: {wire: 'parent'},
@@ -3733,6 +3776,7 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
 
 const databaseFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
+  databaseId: {wire: 'database_id'},
   name: {wire: 'name'},
   parent: {wire: 'parent'},
   spec: {wire: 'spec', children: () => database_DatabaseSpecFieldMaskSchema},
@@ -3762,6 +3806,7 @@ const database_DatabaseStatusFieldMaskSchema: FieldMaskSchema = {
 
 const endpointFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
+  endpointId: {wire: 'endpoint_id'},
   name: {wire: 'name'},
   parent: {wire: 'parent'},
   spec: {wire: 'spec', children: () => endpointSpecFieldMaskSchema},
@@ -3832,6 +3877,7 @@ const projectFieldMaskSchema: FieldMaskSchema = {
     children: () => initialEndpointSpecFieldMaskSchema,
   },
   name: {wire: 'name'},
+  projectId: {wire: 'project_id'},
   purgeTime: {wire: 'purge_time'},
   spec: {wire: 'spec', children: () => projectSpecFieldMaskSchema},
   status: {wire: 'status', children: () => projectStatusFieldMaskSchema},
@@ -3887,6 +3933,7 @@ const roleFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   name: {wire: 'name'},
   parent: {wire: 'parent'},
+  roleId: {wire: 'role_id'},
   spec: {wire: 'spec', children: () => role_RoleSpecFieldMaskSchema},
   status: {wire: 'status', children: () => role_RoleStatusFieldMaskSchema},
   updateTime: {wire: 'update_time'},

@@ -38,4 +38,5 @@ export type {
   Operation,
   Resource,
   Version,
+  WorkspaceInfo,
 } from './model';
