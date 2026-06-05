@@ -15,7 +15,6 @@ function findDef(field: string): PropertyDef {
 
 const STRING_DEF = findDef('host');
 const SECRET_DEF = findDef('token');
-const BOOLEAN_DEF = findDef('azureUseMsi');
 
 describe('property set and get', () => {
   const roundTripCases: {
@@ -50,34 +49,6 @@ describe('property set and get', () => {
       raw: 'abc#def#ghi',
       wantGet: 'abc#def#ghi',
     },
-    // Boolean properties — all valid representations.
-    {name: 'boolean: "true"', def: BOOLEAN_DEF, raw: 'true', wantGet: 'true'},
-    {name: 'boolean: "True"', def: BOOLEAN_DEF, raw: 'True', wantGet: 'true'},
-    {name: 'boolean: "TRUE"', def: BOOLEAN_DEF, raw: 'TRUE', wantGet: 'true'},
-    {name: 'boolean: "t"', def: BOOLEAN_DEF, raw: 't', wantGet: 'true'},
-    {name: 'boolean: "T"', def: BOOLEAN_DEF, raw: 'T', wantGet: 'true'},
-    {name: 'boolean: "1"', def: BOOLEAN_DEF, raw: '1', wantGet: 'true'},
-    {
-      name: 'boolean: "false"',
-      def: BOOLEAN_DEF,
-      raw: 'false',
-      wantGet: 'false',
-    },
-    {
-      name: 'boolean: "False"',
-      def: BOOLEAN_DEF,
-      raw: 'False',
-      wantGet: 'false',
-    },
-    {
-      name: 'boolean: "FALSE"',
-      def: BOOLEAN_DEF,
-      raw: 'FALSE',
-      wantGet: 'false',
-    },
-    {name: 'boolean: "f"', def: BOOLEAN_DEF, raw: 'f', wantGet: 'false'},
-    {name: 'boolean: "F"', def: BOOLEAN_DEF, raw: 'F', wantGet: 'false'},
-    {name: 'boolean: "0"', def: BOOLEAN_DEF, raw: '0', wantGet: 'false'},
   ];
 
   it.each(roundTripCases)('should round-trip: $name', ({def, raw, wantGet}) => {
@@ -95,30 +66,12 @@ describe('property set and get', () => {
   const unsetCases: {name: string; def: PropertyDef}[] = [
     {name: 'string', def: STRING_DEF},
     {name: 'secret', def: SECRET_DEF},
-    {name: 'boolean', def: BOOLEAN_DEF},
   ];
 
   it.each(unsetCases)(
     'should return undefined for unset $name field',
     ({def}) => {
       expect(def.get({})).toBeUndefined();
-    }
-  );
-
-  const invalidBoolCases: {name: string; raw: string}[] = [
-    {name: 'empty string', raw: ''},
-    {name: 'yes', raw: 'yes'},
-    {name: 'no', raw: 'no'},
-    {name: 'random text', raw: 'maybe'},
-  ];
-
-  it.each(invalidBoolCases)(
-    'should throw for invalid boolean value: $name',
-    ({raw}) => {
-      const profile: Profile = {};
-      expect(() => {
-        BOOLEAN_DEF.set(profile, raw);
-      }).toThrow(/invalid boolean value/);
     }
   );
 });
@@ -130,7 +83,7 @@ describe('PROPERTY_DEFS', () => {
     // interface itself — no parallel list to maintain.
     const profile: Profile = {};
     for (const def of PROPERTY_DEFS) {
-      def.set(profile, def.field === 'azureUseMsi' ? 'true' : 'sentinel');
+      def.set(profile, 'sentinel');
     }
     const META_FIELDS = new Set(['name', 'extra']);
     for (const [key, value] of Object.entries(profile)) {
