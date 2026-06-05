@@ -10,18 +10,29 @@
  * @module
  */
 
+import {sanitize} from './clientinfo';
+
 interface KnownAgent {
   readonly envVar: string;
   readonly product: string;
 }
 
-// Name of the agents.md standard env var. When set to a value that no
-// known agent recognizes, detection falls back to "unknown".
+// Name of the agents.md standard env var.
 const AGENT_ENV_VAR = 'AGENT';
 
-// Canonical list of AI coding agents. Keep this list in sync with the
-// Go, Java, and Python SDKs. Agents are listed alphabetically by product
-// name.
+// Name of the Vercel @vercel/detect-agent convention env var. It serves
+// the same purpose as AGENT_ENV_VAR; agentEnvFallback consults it only when
+// AGENT_ENV_VAR is unset or empty.
+const AI_AGENT_ENV_VAR = 'AI_AGENT';
+
+// Caps fallback values to keep the user-agent bounded. Explicit-matcher
+// products are short by construction; only the fallback path can carry
+// arbitrary lengths.
+const MAX_AGENT_FALLBACK_LEN = 64;
+
+// Canonical list of AI coding agents. Keep this list, and the AGENT /
+// AI_AGENT fallback handling in agentEnvFallback, in sync with the Go,
+// Java, and Python SDKs. Agents are listed alphabetically by product name.
 const KNOWN_AGENTS: readonly KnownAgent[] = [
   // The amp agent also sets AGENT=amp, handled by the central fallback.
   {envVar: 'AMP_CURRENT_THREAD_ID', product: 'amp'},
@@ -45,15 +56,22 @@ const KNOWN_AGENTS: readonly KnownAgent[] = [
   {envVar: 'WINDSURF_AGENT', product: 'windsurf'},
 ];
 
+/**
+ * Returns a sanitized, length-capped name from `AGENT` or `AI_AGENT`,
+ * preferring `AGENT` when both are non-empty. Empty is treated as unset for
+ * both. The value is passed through rather than categorized so that new
+ * names are propagated without the need to update the list of known agents.
+ */
 function agentEnvFallback(): string {
-  const v = process.env[AGENT_ENV_VAR];
+  let v = process.env[AGENT_ENV_VAR];
+  if (v === undefined || v === '') {
+    v = process.env[AI_AGENT_ENV_VAR];
+  }
   if (v === undefined || v === '') {
     return '';
   }
-  if (KNOWN_AGENTS.some(a => a.product === v)) {
-    return v;
-  }
-  return 'unknown';
+  // slice is a no-op when the value is already within the cap.
+  return sanitize(v).slice(0, MAX_AGENT_FALLBACK_LEN);
 }
 
 /**
@@ -61,8 +79,7 @@ function agentEnvFallback(): string {
  * detected product name.
  *
  * Explicit product-specific env vars always take precedence over the
- * generic agents.md `AGENT` env var. `AGENT` is consulted only as a
- * fallback when no explicit matcher fires, so that an explicit signal
+ * generic `AGENT` and `AI_AGENT` env vars, so that an explicit signal
  * (e.g. `CLAUDECODE=1`) always wins over a conflicting `AGENT=<name>`
  * value.
  *
@@ -73,8 +90,8 @@ function agentEnvFallback(): string {
  *   can be stacked when one agent invokes another as a subagent (e.g.
  *   Claude Code spawning a Cursor CLI subprocess), so the child process
  *   inherits env vars from multiple layers.
- * - When no known env var is set and `AGENT` is a non-empty value: the
- *   value itself if it names a known product, otherwise `"unknown"`.
+ * - A sanitized, length-capped value from `AGENT` or `AI_AGENT` when no
+ *   known env var is set (see {@link agentEnvFallback}).
  * - `""` when nothing is set.
  */
 export function lookupAgentProvider(): string {
@@ -101,13 +118,12 @@ let cached: string | undefined;
  * Returns one of:
  *
  * - The known product name when exactly one agent is detected via
- *   explicit env matchers, or when `AGENT` is set to a known product
- *   name and no explicit matcher fired.
+ *   explicit env matchers.
  * - `"multiple"` when multiple explicit matchers fire for different
  *   agents (typically nested agents, e.g. Cursor CLI running as a
  *   Claude Code subagent).
- * - `"unknown"` when no explicit matcher fired and `AGENT` is set to a
- *   value that is not a known product name.
+ * - A sanitized, length-capped value from `AGENT` or `AI_AGENT` when no
+ *   explicit matcher fired (see {@link agentEnvFallback}).
  * - `""` when no agent is detected.
  */
 export function agentProvider(): string {
