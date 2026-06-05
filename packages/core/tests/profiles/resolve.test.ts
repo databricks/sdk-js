@@ -79,8 +79,6 @@ describe('resolve', () => {
         accountId: 'acc-123',
         clientId: 'client-abc',
         clientSecret: new Secret('secret-xyz'),
-        clusterId: '0123-456789-abcdef',
-        warehouseId: 'abc123def456',
       },
     },
     {
@@ -131,19 +129,6 @@ describe('resolve', () => {
       },
     },
     {
-      name: 'azure',
-      options: {filePath: CFG, profile: 'azure'},
-      want: {
-        name: 'azure',
-        host: 'https://adb-123.azuredatabricks.net',
-        azureClientId: 'az-client-id',
-        azureClientSecret: new Secret('az-client-secret'),
-        azureTenantId: 'az-tenant-id',
-        azureResourceId:
-          '/subscriptions/sub-id/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/ws',
-      },
-    },
-    {
       name: 'empty section',
       options: {filePath: CFG, profile: 'empty'},
       want: {name: 'empty'},
@@ -188,8 +173,6 @@ describe('resolve', () => {
         accountId: 'acc-123',
         clientId: 'client-abc',
         clientSecret: new Secret('secret-xyz'),
-        clusterId: '0123-456789-abcdef',
-        warehouseId: 'abc123def456',
       },
     },
     {
@@ -205,8 +188,6 @@ describe('resolve', () => {
         accountId: 'acc-123',
         clientId: 'client-abc',
         clientSecret: new Secret('secret-xyz'),
-        clusterId: '0123-456789-abcdef',
-        warehouseId: 'abc123def456',
       },
     },
     {
@@ -223,8 +204,6 @@ describe('resolve', () => {
         accountId: 'acc-123',
         clientId: 'client-abc',
         clientSecret: new Secret('secret-xyz'),
-        clusterId: '0123-456789-abcdef',
-        warehouseId: 'abc123def456',
       },
     },
     {
@@ -336,14 +315,7 @@ describe('listProfiles', () => {
     {
       name: 'all profiles',
       path: CFG,
-      want: [
-        'DEFAULT',
-        'workspace',
-        'azure',
-        'hash-in-value',
-        'extra-keys',
-        'empty',
-      ],
+      want: ['DEFAULT', 'workspace', 'hash-in-value', 'extra-keys', 'empty'],
     },
     {
       name: 'no default',
