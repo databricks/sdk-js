@@ -82,9 +82,9 @@ describe('createDefault', () => {
       want: `${prefix} agent/goose`,
     },
     {
-      name: 'AGENT fallback to unknown',
+      name: 'AGENT fallback passes unrecognized value through',
       env: {AGENT: 'somethingweird'},
-      want: `${prefix} agent/unknown`,
+      want: `${prefix} agent/somethingweird`,
     },
     {
       name: 'databricks runtime',

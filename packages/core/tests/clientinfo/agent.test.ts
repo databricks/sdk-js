@@ -135,9 +135,19 @@ describe('lookupAgentProvider', () => {
       want: 'cursor',
     },
     {
-      name: 'AGENT with unknown value falls back to unknown',
-      env: {AGENT: 'somethingweird'},
-      want: 'unknown',
+      name: 'AGENT with unrecognized value passes through (sanitized)',
+      env: {AGENT: 'someweirdthing'},
+      want: 'someweirdthing',
+    },
+    {
+      name: 'AGENT with disallowed chars is sanitized to hyphens',
+      env: {AGENT: 'claude code/agent'},
+      want: 'claude-code-agent',
+    },
+    {
+      name: 'AGENT longer than the cap is truncated',
+      env: {AGENT: 'a'.repeat(100)},
+      want: 'a'.repeat(64),
     },
     {
       name: 'AGENT empty string does not trigger fallback',
@@ -160,7 +170,7 @@ describe('lookupAgentProvider', () => {
       want: 'claude-code',
     },
     {
-      name: 'known matcher wins over AGENT fallback to unknown',
+      name: 'known matcher wins over unrecognized AGENT fallback',
       env: {AGENT: 'somethingunknown', CLAUDECODE: '1'},
       want: 'claude-code',
     },
@@ -168,6 +178,48 @@ describe('lookupAgentProvider', () => {
       name: 'VSCODE_AGENT + COPILOT_CLI reports multiple',
       env: {VSCODE_AGENT: '1', COPILOT_CLI: '1'},
       want: 'multiple',
+    },
+    // AI_AGENT fallback (Vercel @vercel/detect-agent convention).
+    {
+      name: 'AI_AGENT=cursor falls back to cursor',
+      env: {AI_AGENT: 'cursor'},
+      want: 'cursor',
+    },
+    {
+      name: 'AI_AGENT empty string does not trigger fallback',
+      env: {AI_AGENT: ''},
+      want: '',
+    },
+    {
+      name: 'known matcher wins over AI_AGENT fallback',
+      env: {AI_AGENT: 'somethingunknown', CLAUDECODE: '1'},
+      want: 'claude-code',
+    },
+    // AGENT vs AI_AGENT precedence: AGENT wins when both are non-empty.
+    {
+      name: 'AGENT wins over AI_AGENT when both are set to known products',
+      env: {AGENT: 'claude-code', AI_AGENT: 'cursor'},
+      want: 'claude-code',
+    },
+    {
+      name: 'AGENT set to unrecognized non-empty value still wins over AI_AGENT',
+      env: {AGENT: 'somethingunknown', AI_AGENT: 'cursor'},
+      want: 'somethingunknown',
+    },
+    {
+      name: 'AGENT set, AI_AGENT empty: AGENT value is used',
+      env: {AGENT: 'cursor', AI_AGENT: ''},
+      want: 'cursor',
+    },
+    {
+      name: 'empty AGENT falls through to AI_AGENT',
+      env: {AGENT: '', AI_AGENT: 'cursor'},
+      want: 'cursor',
+    },
+    {
+      name: 'both AGENT and AI_AGENT empty returns no agent',
+      env: {AGENT: '', AI_AGENT: ''},
+      want: '',
     },
   ];
 
