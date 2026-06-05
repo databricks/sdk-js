@@ -1,5 +1,7 @@
 /** Discriminant codes for {@link DefaultCredentialsError}. */
-export type DefaultCredentialsErrorCode = 'NO_AUTH_CONFIGURED';
+export type DefaultCredentialsErrorCode =
+  | 'NO_AUTH_CONFIGURED'
+  | 'AUTH_TYPE_NOT_FOUND';
 
 /**
  * Error thrown when the default credentials chain cannot resolve a
