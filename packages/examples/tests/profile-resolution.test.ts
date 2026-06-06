@@ -56,13 +56,13 @@ describe('profile-resolution example', () => {
     expect(profile.host).toBe('https://test-profile.cloud.databricks.com');
   });
 
-  it('ignores env for an explicit profile unless withEnv is set', async () => {
+  it('overlays env for an explicit profile unless disableEnv is set', async () => {
     process.env.DATABRICKS_HOST = 'https://env-override.example.com';
     try {
-      const ignored = await resolve({profile: 'test'});
-      const optedIn = await resolve({profile: 'test', withEnv: true});
-      expect(ignored.host).toBe('https://test-profile.cloud.databricks.com');
-      expect(optedIn.host).toBe('https://env-override.example.com');
+      const overlaid = await resolve({profile: 'test'});
+      const fileOnly = await resolve({profile: 'test', disableEnv: true});
+      expect(overlaid.host).toBe('https://env-override.example.com');
+      expect(fileOnly.host).toBe('https://test-profile.cloud.databricks.com');
     } finally {
       delete process.env.DATABRICKS_HOST;
     }

@@ -7,6 +7,7 @@
 import type {Credentials} from '@databricks/sdk-auth';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import type {Logger} from '@databricks/sdk-core/logger';
+import type {ProfileOptions} from '@databricks/sdk-core/profiles';
 
 /** Options that configure a Databricks API client. */
 export interface ClientOptions {
@@ -30,9 +31,8 @@ export interface ClientOptions {
   workspaceId?: string;
 
   /**
-   * A pre-configured HTTP client to use when making HTTP requests.
-   *
-   * Important: When set, this option ignores all other options.
+   * Base HTTP client used as the transport. Replaces the default fetch-based
+   * client (e.g. for a proxy, custom TLS, or instrumentation).
    */
   httpClient?: HttpClient;
 
@@ -47,4 +47,16 @@ export interface ClientOptions {
 
   /** Logger used to record diagnostic messages. */
   logger?: Logger;
+
+  /**
+   * Controls how a configuration profile fills the options left unset above.
+   *
+   * Profile resolution is enabled by default: the config file
+   * (~/.databrickscfg or `$DATABRICKS_CONFIG_FILE`) and DATABRICKS_*
+   * environment variables supply `host`, `accountId`, `workspaceId`, and
+   * credentials whenever the caller does not set them explicitly. Explicit
+   * values always win. Disable the file with `noProfile`, the environment
+   * with `disableEnv`, or select a specific `profile`/`configFile`.
+   */
+  profileOptions?: ProfileOptions;
 }

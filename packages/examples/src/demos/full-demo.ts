@@ -54,12 +54,12 @@ function cliCredentials(): ReturnType<typeof newU2mCredentials> {
 // environment variables, then merges them based on what the caller asked
 // for:
 //
-//   resolve()                                — file + env overlay (default)
-//   resolve({profile: 'demo'})               — file only, that one profile
-//   resolve({profile: 'demo', withEnv: true})— file + env overlay
+//   resolve()                                  — file + env overlay (default)
+//   resolve({profile: 'demo'})                 — that profile, file + env
+//   resolve({profile: 'demo', disableEnv: true})— that profile, file only
 //
-// When ANY explicit option is passed, env overlay is opt-in. This is the
-// key difference between the two patterns.
+// Both sources are read by default; `noProfile` and `disableEnv` turn off the
+// file and the env overlay respectively.
 //
 // Profile-name fallback chain when `profile` is not set:
 //   1. DATABRICKS_CONFIG_PROFILE env var
@@ -106,13 +106,13 @@ async function showProfile(): Promise<void> {
     log.info('    Host (env overlaid): ', overlaid.host ?? '(unset)');
   });
 
-  // ----- 1b. Explicit profile: opt-in, file only by default. -----
-  // `resolve({profile: 'demo'})` picks the named profile and does NOT
-  // overlay env vars unless `withEnv: true` is also passed. Useful when a
-  // config file is the source of truth and you don't want a stray shell
-  // variable to silently retarget your code.
+  // ----- 1b. Explicit profile: file + env by default, opt out of env. -----
+  // `resolve({profile: 'demo'})` picks the named profile and still overlays
+  // DATABRICKS_* env vars on top. Pass `disableEnv: true` when the config file
+  // must be the source of truth and a stray shell variable should not silently
+  // retarget your code.
   rule();
-  log.info('1b. resolve({profile: "demo"}) — explicit profile, file only');
+  log.info('1b. resolve({profile: "demo"}) — explicit profile, file + env');
   const demoProfile = await resolve({profile: PROFILE_NAME});
   log.info('  Profile resolved:        ', demoProfile.name);
   log.info('  Host:                    ', demoProfile.host);
@@ -121,14 +121,14 @@ async function showProfile(): Promise<void> {
   // that hides their value from logs and stack traces.
   log.info('  Token configured:        ', demoProfile.token !== undefined);
 
-  // Prove env overlay is suppressed: same env override as 1a, but the
-  // explicit form ignores it. Adding `withEnv: true` re-enables overlay.
+  // Same env override as 1a: the overlay applies by default, and
+  // `disableEnv: true` suppresses it.
   await withEnvHost('https://env-override.example.com', async () => {
-    const ignoredEnv = await resolve({profile: PROFILE_NAME});
-    const optedIn = await resolve({profile: PROFILE_NAME, withEnv: true});
+    const overlaid = await resolve({profile: PROFILE_NAME});
+    const fileOnly = await resolve({profile: PROFILE_NAME, disableEnv: true});
     log.info('  After DATABRICKS_HOST=https://env-override.example.com:');
-    log.info('    Host (env ignored):  ', ignoredEnv.host);
-    log.info('    Host (withEnv:true): ', optedIn.host);
+    log.info('    Host (env overlaid):   ', overlaid.host);
+    log.info('    Host (disableEnv:true):', fileOnly.host);
   });
 }
 
