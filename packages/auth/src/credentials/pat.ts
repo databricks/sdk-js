@@ -10,10 +10,6 @@ import {PatCredentialsError} from './errors';
  * Creates a Credentials that can be used to authenticate with a Personal
  * Access Token.
  *
- * The token is trimmed of surrounding whitespace so that a value read from a
- * file or environment variable with a trailing newline still produces a valid
- * `Authorization` header.
- *
  * @param token - The personal access token.
  * @returns Credentials for PAT authentication.
  * @throws PatCredentialsError with code `TOKEN_REQUIRED` if the token is empty
