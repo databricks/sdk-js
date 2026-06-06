@@ -83,7 +83,7 @@ export type DataSourceFormat =
   | (string & {});
 
 /**
- * Latest kind: PIPELINE_FEATURE_STORE_INGESTION = 343; Next id: 344.
+ * Latest kind: CONNECTION_LINKEDIN_ADS_U2M = 344; Next id: 345.
  * Reserved numbers: 316, 317, 327, 330, 341 (former ENDPOINT_LLM_*,
  * MODEL_SERVICE_STANDARD, MODEL_SERVICE_SYSTEM_DELTASHARING, MCP_SERVICE_STANDARD).
  */

@@ -2597,43 +2597,22 @@ export interface TikTokAdsOptions {
   /**
    * (Optional) Number of days to look back for report tables during incremental sync
    * to capture late-arriving conversions and attribution data.
-   * If not specified, defaults to 7 days.
    */
   lookbackWindowDays?: number | undefined;
   /**
    * (Optional) Start date for the initial sync of report tables in YYYY-MM-DD format.
    * This determines the earliest date from which to sync historical data.
-   * If not specified, defaults to 1 year of historical data for daily reports
-   * and 30 days for hourly reports.
    */
   syncStartDate?: string | undefined;
-  /**
-   * (Optional) Dimensions to include in the report.
-   * Examples: "campaign_id", "adgroup_id", "ad_id", "stat_time_day", "stat_time_hour"
-   * If not specified, defaults to campaign_id.
-   */
+  /** Deprecated. Use custom_report_options.dimensions instead. */
   dimensions?: string[] | undefined;
-  /**
-   * (Optional) Metrics to include in the report.
-   * Examples: "spend", "impressions", "clicks", "conversion", "cpc"
-   * If not specified, defaults to basic metrics (spend, impressions, clicks, etc.)
-   */
+  /** Deprecated. Use custom_report_options.metrics instead. */
   metrics?: string[] | undefined;
-  /**
-   * (Optional) Report type for the TikTok Ads API.
-   * If not specified, defaults to BASIC.
-   */
+  /** Deprecated. Use custom_report_options.report_type instead. */
   reportType?: TikTokAdsOptions_TikTokReportType | undefined;
-  /**
-   * (Optional) Data level for the report.
-   * If not specified, defaults to AUCTION_CAMPAIGN.
-   */
+  /** Deprecated. Use custom_report_options.data_level instead. */
   dataLevel?: TikTokAdsOptions_TikTokDataLevel | undefined;
-  /**
-   * (Optional) Whether to request lifetime metrics (all-time aggregated data).
-   * When true, the report returns all-time data.
-   * If not specified, defaults to false.
-   */
+  /** Deprecated. Use custom_report_options.query_lifetime instead. */
   queryLifetime?: boolean | undefined;
 }
 

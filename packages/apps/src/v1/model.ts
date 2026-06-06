@@ -1143,6 +1143,8 @@ export interface ApplicationStatus {
   state?: ApplicationStatus_ApplicationState | undefined;
   /** Application status message */
   message?: string | undefined;
+  /** The number of running instances of this application. */
+  runningInstances?: number | undefined;
 }
 
 export interface AsyncUpdateAppRequest {
@@ -2036,10 +2038,12 @@ export const unmarshalApplicationStatusSchema: z.ZodType<ApplicationStatus> = z
   .object({
     state: z.string().optional(),
     message: z.string().optional(),
+    running_instances: z.number().optional(),
   })
   .transform(d => ({
     state: d.state,
     message: d.message,
+    runningInstances: d.running_instances,
   }));
 
 export const unmarshalComputeStatusSchema: z.ZodType<ComputeStatus> = z
@@ -2772,10 +2776,12 @@ export const marshalApplicationStatusSchema: z.ZodType = z
   .object({
     state: z.string().optional(),
     message: z.string().optional(),
+    runningInstances: z.number().optional(),
   })
   .transform(d => ({
     state: d.state,
     message: d.message,
+    running_instances: d.runningInstances,
   }));
 
 export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
@@ -3064,6 +3070,7 @@ const appDeploymentStatusFieldMaskSchema: FieldMaskSchema = {
 
 const applicationStatusFieldMaskSchema: FieldMaskSchema = {
   message: {wire: 'message'},
+  runningInstances: {wire: 'running_instances'},
   state: {wire: 'state'},
 };
 

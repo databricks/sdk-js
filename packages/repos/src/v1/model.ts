@@ -162,6 +162,19 @@ export interface UpdateRepoRequest {
    * not enabled for the repo.
    */
   sparseCheckout?: SparseCheckoutUpdate | undefined;
+  /**
+   * WARNING: DESTRUCTIVE AND IRREVERSIBLE. If true, permanently deletes ALL uncommitted
+   * changes in the Git folder — staged, unstaged, and untracked files — before updating.
+   * Lost data CANNOT be recovered.
+   *
+   * NEVER use this on Git folders where users author or edit files. This flag is intended
+   * ONLY for automated jobs that treat the Git folder as a read-only mirror of a remote
+   * branch and need to force-sync it. If any user has uncommitted work in the Git folder,
+   * that work will be permanently destroyed without warning.
+   *
+   * Local commits that have been made but not yet pushed to the remote are preserved.
+   */
+  dangerouslyForceDiscardAll?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -297,10 +310,12 @@ export const marshalUpdateRepoRequestSchema: z.ZodType = z
     branch: z.string().optional(),
     tag: z.string().optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutUpdateSchema).optional(),
+    dangerouslyForceDiscardAll: z.boolean().optional(),
   })
   .transform(d => ({
     id: d.id,
     branch: d.branch,
     tag: d.tag,
     sparse_checkout: d.sparseCheckout,
+    dangerously_force_discard_all: d.dangerouslyForceDiscardAll,
   }));
