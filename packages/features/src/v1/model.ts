@@ -750,14 +750,20 @@ export interface MaterializedFeature {
     | undefined;
   /** The fully qualified Unity Catalog path to the table containing the materialized feature (Delta table or Lakebase table). Output only. */
   tableName?: string | undefined;
-  /** The schedule state of the materialization pipeline. */
+  /**
+   * The schedule state of the materialization pipeline.
+   * Hidden from GraphQL: being deprecated, so not exposed to Catalog Explorer.
+   */
   pipelineScheduleState?: MaterializedFeature_PipelineScheduleState | undefined;
   /**
    * The timestamp when the pipeline last ran and updated the materialized feature values.
    * If the pipeline has not run yet, this field will be null.
    */
   lastMaterializationTime?: Temporal.Instant | undefined;
-  /** The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone. */
+  /**
+   * The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone.
+   * Hidden from GraphQL: superseded by the `trigger` oneof (cron_schedule_trigger), so not exposed to Catalog Explorer.
+   */
   cronSchedule?: string | undefined;
   /** True if this is an online materialized feature. False if it is an offline materialized feature. */
   isOnline?: boolean | undefined;

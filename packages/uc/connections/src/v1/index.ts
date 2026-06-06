@@ -18,6 +18,7 @@ export type {
   CreateConnectionRequest_PropertiesEntry,
   DeleteConnectionRequest,
   DeleteConnectionResponse,
+  EnvironmentSettings,
   GetConnectionRequest,
   ListConnectionsRequest,
   ListConnectionsResponse,

@@ -113,6 +113,8 @@ export interface ConnectionInfo {
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
+  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
+  environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -162,6 +164,8 @@ export interface CreateConnectionRequest {
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
+  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
+  environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -207,6 +211,11 @@ export interface DeleteConnectionRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteConnectionResponse {}
+
+export interface EnvironmentSettings {
+  javaDependencies?: string[] | undefined;
+  environmentVersion?: string | undefined;
+}
 
 export interface GetConnectionRequest {
   /** Name of the connection. */
@@ -257,6 +266,8 @@ export interface UpdateConnectionRequest {
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
+  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
+  environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -302,6 +313,9 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
+    environment_settings: z
+      .lazy(() => unmarshalEnvironmentSettingsSchema)
+      .optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.string().optional(),
@@ -328,6 +342,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     owner: d.owner,
     readOnly: d.read_only,
     comment: d.comment,
+    environmentSettings: d.environment_settings,
     fullName: d.full_name,
     url: d.url,
     credentialType: d.credential_type,
@@ -345,6 +360,17 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
 
 export const unmarshalDeleteConnectionResponseSchema: z.ZodType<DeleteConnectionResponse> =
   z.object({});
+
+export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> =
+  z
+    .object({
+      java_dependencies: z.array(z.string()).optional(),
+      environment_version: z.string().optional(),
+    })
+    .transform(d => ({
+      javaDependencies: d.java_dependencies,
+      environmentVersion: d.environment_version,
+    }));
 
 export const unmarshalListConnectionsResponseSchema: z.ZodType<ListConnectionsResponse> =
   z
@@ -374,6 +400,9 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
+    environmentSettings: z
+      .lazy(() => marshalEnvironmentSettingsSchema)
+      .optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.string().optional(),
@@ -394,6 +423,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     owner: d.owner,
     read_only: d.readOnly,
     comment: d.comment,
+    environment_settings: d.environmentSettings,
     full_name: d.fullName,
     url: d.url,
     credential_type: d.credentialType,
@@ -407,6 +437,16 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     provisioning_info: d.provisioningInfo,
     options: d.options,
     properties: d.properties,
+  }));
+
+export const marshalEnvironmentSettingsSchema: z.ZodType = z
+  .object({
+    javaDependencies: z.array(z.string()).optional(),
+    environmentVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    java_dependencies: d.javaDependencies,
+    environment_version: d.environmentVersion,
   }));
 
 export const marshalProvisioningInfoSchema: z.ZodType = z
@@ -426,6 +466,9 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
+    environmentSettings: z
+      .lazy(() => marshalEnvironmentSettingsSchema)
+      .optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.string().optional(),
@@ -448,6 +491,7 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     owner: d.owner,
     read_only: d.readOnly,
     comment: d.comment,
+    environment_settings: d.environmentSettings,
     full_name: d.fullName,
     url: d.url,
     credential_type: d.credentialType,
