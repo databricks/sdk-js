@@ -16,17 +16,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint (${{ matrix.shard }})
+  # Partition the workspace packages into balanced shards. Alphabetical
+  # sharding put ~43% of packages in the [s-z] shard (the `uc-*` packages all
+  # start with `u`), making it the CI long pole. This computes shards balanced
+  # by source weight so every static-check leg finishes at roughly the same
+  # time. It only reads package.json files, so it needs no dependency install.
+  setup:
+    name: Setup shards
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
+    outputs:
+      shards: ${{ steps.shards.outputs.shards }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Compute balanced shards
+        id: shards
+        run: echo "shards=$(node scripts/ci-shards.mjs 8)" >> "$GITHUB_OUTPUT"
+
+  # Build, lint, and format-check each shard in one job. Lint and build both
+  # depend on `^build`, so running them together builds each shard's dependency
+  # closure once instead of repeating it across separate jobs. The build task is
+  # `tsc -b`, which type-checks `src` while emitting, so a standalone `tsc
+  # --noEmit` typecheck over the same files would be redundant and is omitted.
+  static:
+    name: Static (shard ${{ matrix.shard.id }})
+    needs: setup
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # Shards partition packages by the first letter after `@databricks/sdk-`.
-        # Together the four ranges cover a-z.
-        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
+        shard: ${{ fromJSON(needs.setup.outputs.shards) }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -49,42 +77,16 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
-      - name: Run lint and format checks
-        run: npm run checks -- --filter='@databricks/sdk-${{ matrix.shard }}'
-
-  typecheck:
-    name: Type Check (${{ matrix.shard }})
-    runs-on:
-      group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+      - name: Build, lint, and format-check shard
+        shell: bash
         env:
-          JF_URL: https://databricks.jfrog.io
-        with:
-          oidc-provider-name: github-actions
-
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Configure npm for JFrog
-        run: jf npmc --repo-resolve=db-npm
-
-      - name: Install dependencies
-        run: jf npm ci
-
-      - name: Run type check
-        run: npm run typecheck -- --filter='@databricks/sdk-${{ matrix.shard }}'
+          SHARD_PKGS: ${{ matrix.shard.pkgs }}
+        run: |
+          filters=""
+          for pkg in $SHARD_PKGS; do
+            filters="$filters --filter=$pkg"
+          done
+          npm run ci:verify -- $filters
 
   test:
     name: Test (Node.js ${{ matrix.node-version }})
@@ -157,41 +159,6 @@ jobs:
       - name: Run browser tests
         run: npm run test:browser
 
-  build:
-    name: Build (Node.js ${{ matrix.node-version }}, ${{ matrix.shard }})
-    runs-on:
-      group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: ['22', '24']
-        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
-        env:
-          JF_URL: https://databricks.jfrog.io
-        with:
-          oidc-provider-name: github-actions
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Configure npm for JFrog
-        run: jf npmc --repo-resolve=db-npm
-
-      - name: Install dependencies
-        run: jf npm ci
-
-      - name: Build
-        run: npm run build -- --filter='@databricks/sdk-${{ matrix.shard }}'
-
   check-licenses:
     name: Check Licenses
     runs-on:
@@ -214,7 +181,7 @@ jobs:
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, test, test-browser, build, check-licenses]
+    needs: [setup, static, test, test-browser, check-licenses]
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
