@@ -1,37 +1,19 @@
 import {describe, it, expect} from 'vitest';
-import {
-  Code,
-  codeToString,
-  codeFromString,
-} from '../../../src/apierror/codes/codes';
-
-const ALL_CODES = Object.values(Code).filter(
-  (v): v is Code => typeof v === 'number'
-);
+import {Code} from '../../../src/apierror/codes/codes';
 
 describe('Code', () => {
-  describe('round-trip', () => {
-    it.each(ALL_CODES)(
-      'should round-trip code %i through string conversion',
-      code => {
-        expect(codeFromString(codeToString(code))).toBe(code);
-      }
-    );
+  it('exposes the canonical gRPC codes as their string names', () => {
+    expect(Code.UNKNOWN).toBe('UNKNOWN');
+    expect(Code.OK).toBe('OK');
+    expect(Code.CANCELLED).toBe('CANCELLED');
+    expect(Code.NOT_FOUND).toBe('NOT_FOUND');
+    expect(Code.INVALID_ARGUMENT).toBe('INVALID_ARGUMENT');
+    expect(Code.UNAUTHENTICATED).toBe('UNAUTHENTICATED');
   });
 
-  describe('codeToString', () => {
-    it('should return "UNKNOWN" for unrecognized code values', () => {
-      // Numeric enums accept arbitrary numbers at runtime.
-      expect(codeToString(999 as Code)).toBe('UNKNOWN');
-      expect(codeToString(-1 as Code)).toBe('UNKNOWN');
-    });
-  });
-
-  describe('codeFromString', () => {
-    it('should return Code.UNKNOWN for unrecognized strings', () => {
-      expect(codeFromString('NONEXISTENT')).toBe(Code.UNKNOWN);
-      expect(codeFromString('')).toBe(Code.UNKNOWN);
-      expect(codeFromString('not_found')).toBe(Code.UNKNOWN);
-    });
+  it('is an open enum that also accepts product-specific codes', () => {
+    // A Databricks-specific code that is not a named member is still a Code.
+    const code: Code = 'CATALOG_DOES_NOT_EXIST';
+    expect(code).toBe('CATALOG_DOES_NOT_EXIST');
   });
 });
