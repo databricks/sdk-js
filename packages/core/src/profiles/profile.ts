@@ -46,39 +46,39 @@ export interface Profile {
   extra?: Record<string, string>;
 }
 
-/** Configures the behavior of {@link resolve}. */
-export interface ResolveOptions {
-  /**
-   * Path to the databrickscfg file. If not set, reads
-   * DATABRICKS_CONFIG_FILE from the environment, falling back to
-   * ~/.databrickscfg. Setting this implies withFile: true.
-   */
-  filePath?: string;
-
+/**
+ * Configures how a profile is resolved by {@link resolve}.
+ *
+ * Resolution is enabled by default: with no options, {@link resolve} reads the
+ * config file and overlays DATABRICKS_* environment variables on top. Each
+ * source can be disabled independently with {@link ProfileOptions.noProfile}
+ * and {@link ProfileOptions.disableEnv}.
+ */
+export interface ProfileOptions {
   /**
    * Profile name (INI section) to load. If not set, resolves from the
    * DATABRICKS_CONFIG_PROFILE environment variable, then the default_profile
    * key in the __settings__ section, then falls back to the DEFAULT section.
-   * Setting this implies withFile: true.
    */
   profile?: string;
 
   /**
-   * Whether to read from the config file. The default is context-dependent: a
-   * bare {@link resolve} call with no options reads the config file, but once
-   * any option is supplied this defaults to false unless explicitly set to
-   * true. Setting filePath or profile implies withFile: true.
+   * Path to the databrickscfg file. If not set, reads DATABRICKS_CONFIG_FILE
+   * from the environment, falling back to ~/.databrickscfg.
    */
-  withFile?: boolean;
+  configFile?: string;
 
   /**
-   * Whether to overlay environment variables on top of config file values.
-   * When enabled, environment variables take precedence over file values. The
-   * default is context-dependent: a bare {@link resolve} call with no options
-   * overlays environment variables, but once any option is supplied this
-   * defaults to false unless explicitly set to true.
+   * Disable reading the config file. Cannot be combined with
+   * {@link ProfileOptions.profile} or {@link ProfileOptions.configFile},
+   * which would have nothing to read.
    */
-  withEnv?: boolean;
+  noProfile?: boolean;
+
+  /**
+   * Disable overlaying DATABRICKS_* environment variables.
+   */
+  disableEnv?: boolean;
 }
 
 /**

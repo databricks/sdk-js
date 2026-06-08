@@ -10,7 +10,8 @@ export type ProfileErrorCode =
   | 'PROFILE_NOT_FOUND'
   | 'EMPTY_PATH'
   | 'EMPTY_PROFILE'
-  | 'INVALID_PROFILE_NAME';
+  | 'INVALID_PROFILE_NAME'
+  | 'CONFLICTING_OPTIONS';
 
 /**
  * Error thrown by profile operations.

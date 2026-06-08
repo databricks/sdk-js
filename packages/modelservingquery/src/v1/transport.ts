@@ -8,33 +8,73 @@ import type {
   HttpResponse,
 } from '@databricks/sdk-core/http';
 import {newFetchHttpClient} from '@databricks/sdk-core/http';
+import type {Profile} from '@databricks/sdk-core/profiles';
+import {resolve} from '@databricks/sdk-core/profiles';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 
-/** Creates a new HTTP client with the given options. */
-export function newHttpClient(options?: ClientOptions): HttpClient {
-  const opts = options ?? {};
+/**
+ * The configuration a client needs to issue requests, resolved from
+ * {@link ClientOptions} and a configuration profile.
+ */
+export interface ResolvedClientConfig {
+  /** Host with any trailing slash removed. */
+  host: string;
 
-  // If an HTTP client is provided, use it as-is. Throw if other options are
-  // also set, since they would be silently ignored.
-  if (opts.httpClient !== undefined) {
-    if (opts.credentials !== undefined || opts.timeout !== undefined) {
-      throw new Error(
-        'httpClient cannot be combined with credentials or timeout'
-      );
-    }
-    return opts.httpClient;
+  /**
+   * Default account ID for account-level paths that contain an
+   * `{account_id}` segment. A request's own `accountId` still wins.
+   */
+  accountId?: string;
+
+  /**
+   * Workspace ID used to route workspace-level calls on unified hosts (SPOG).
+   */
+  workspaceId?: string;
+
+  /** HTTP client with authentication, and any configured timeout, applied. */
+  httpClient: HttpClient;
+}
+
+/**
+ * Resolves {@link ClientOptions} into a {@link ResolvedClientConfig}.
+ *
+ * A configuration profile is always resolved from the config file and
+ * environment variables (per `options.profileOptions`); it supplies `host`,
+ * `accountId`, `workspaceId`, and credentials wherever the caller did not set
+ * them explicitly. Explicit options always take precedence.
+ *
+ * @throws if `host` is neither provided nor present in the resolved profile.
+ */
+export async function resolveClientConfig(
+  options: ClientOptions
+): Promise<ResolvedClientConfig> {
+  const profile: Profile = await resolve(options.profileOptions);
+
+  const host = options.host ?? profile.host;
+  if (host === undefined) {
+    throw new Error('Host is required.');
   }
 
-  const credentials = opts.credentials ?? defaultCredentials();
-
-  const base = newFetchHttpClient();
-  let client: HttpClient = new AuthHttpClient(base, credentials);
-
-  if (opts.timeout !== undefined) {
-    client = new TimeoutHttpClient(client, opts.timeout);
+  // The provided httpClient (or the default fetch client) is the base wire;
+  // authentication and the optional timeout are layered on top of it. The
+  // default credential chain reuses the profile resolved above so that the
+  // same profileOptions govern host and authentication alike.
+  const base = options.httpClient ?? newFetchHttpClient();
+  const credentials = options.credentials ?? defaultCredentials({profile});
+  let httpClient: HttpClient = new AuthHttpClient(base, credentials);
+  if (options.timeout !== undefined) {
+    httpClient = new TimeoutHttpClient(httpClient, options.timeout);
   }
 
-  return client;
+  const accountId = options.accountId ?? profile.accountId;
+  const workspaceId = options.workspaceId ?? profile.workspaceId;
+
+  return {
+    host: host.replace(/\/$/, ''),
+    httpClient,
+    ...(accountId !== undefined && {accountId}),
+    ...(workspaceId !== undefined && {workspaceId}),
+  };
 }
 
 /** Wraps an HttpClient and adds authentication headers to requests. */

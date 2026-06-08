@@ -10,7 +10,7 @@ import {join} from 'node:path';
 
 import {ProfileError} from './errors';
 import {parseIni} from './ini';
-import type {Profile, ResolveOptions} from './profile';
+import type {Profile, ProfileOptions} from './profile';
 import {PROPERTY_DEFS, SETTINGS_SECTION} from './profile';
 
 /**
@@ -172,29 +172,35 @@ function loadEnv(): Profile {
  * Creates a {@link Profile} from a databrickscfg file and/or environment
  * variables.
  *
- * With no options, the defaults are used: read the default config file and
- * overlay environment variables.
- *
- * When any explicit option is provided, only the requested behaviors are
- * enabled.
+ * Both sources are read by default: the config file is loaded and DATABRICKS_*
+ * environment variables are overlaid on top (env takes precedence). This holds
+ * whether or not a specific {@link ProfileOptions.profile} or
+ * {@link ProfileOptions.configFile} is given. Disable the config file with
+ * {@link ProfileOptions.noProfile} and the environment overlay with
+ * {@link ProfileOptions.disableEnv}.
  */
-export async function resolve(options?: ResolveOptions): Promise<Profile> {
-  if (options?.filePath === '') {
+export async function resolve(options?: ProfileOptions): Promise<Profile> {
+  if (options?.configFile === '') {
     throw new ProfileError('EMPTY_PATH', 'empty path');
   }
   if (options?.profile === '') {
     throw new ProfileError('EMPTY_PROFILE', 'empty profile');
   }
+  if (
+    options?.noProfile === true &&
+    (options.profile !== undefined || options.configFile !== undefined)
+  ) {
+    throw new ProfileError(
+      'CONFLICTING_OPTIONS',
+      'noProfile cannot be combined with profile or configFile'
+    );
+  }
 
-  const shouldReadFile =
-    options === undefined ||
-    options.filePath !== undefined ||
-    options.profile !== undefined ||
-    (options.withFile ?? false);
-  const shouldReadEnv = options === undefined || (options.withEnv ?? false);
+  const shouldReadFile = options?.noProfile !== true;
+  const shouldReadEnv = options?.disableEnv !== true;
 
   const fileProfile = shouldReadFile
-    ? await loadFile(options?.filePath, options?.profile)
+    ? await loadFile(options?.configFile, options?.profile)
     : {};
   const envProfile = shouldReadEnv ? loadEnv() : {};
 

@@ -71,7 +71,7 @@ describe('resolve', () => {
   }[] = [
     {
       name: 'file and profile',
-      options: {filePath: CFG, profile: 'workspace'},
+      options: {configFile: CFG, profile: 'workspace'},
       want: {
         name: 'workspace',
         host: 'https://workspace.cloud.databricks.com',
@@ -83,7 +83,7 @@ describe('resolve', () => {
     },
     {
       name: 'default section',
-      options: {filePath: CFG},
+      options: {configFile: CFG},
       want: {
         name: 'DEFAULT',
         host: 'https://default.cloud.databricks.com',
@@ -92,7 +92,7 @@ describe('resolve', () => {
     },
     {
       name: 'missing explicit file',
-      options: {filePath: join(TESTDATA, 'nonexistent')},
+      options: {configFile: join(TESTDATA, 'nonexistent')},
       want: {},
       wantErr: 'CONFIG_FILE_NOT_FOUND',
     },
@@ -109,18 +109,18 @@ describe('resolve', () => {
     },
     {
       name: 'missing explicit profile',
-      options: {filePath: CFG, profile: 'nonexistent'},
+      options: {configFile: CFG, profile: 'nonexistent'},
       want: {},
       wantErr: 'PROFILE_NOT_FOUND',
     },
     {
       name: 'missing default section',
-      options: {filePath: CFG_NO_DEFAULT},
+      options: {configFile: CFG_NO_DEFAULT},
       want: {},
     },
     {
       name: 'hash in values',
-      options: {filePath: CFG, profile: 'hash-in-value'},
+      options: {configFile: CFG, profile: 'hash-in-value'},
       want: {
         name: 'hash-in-value',
         host: 'https://hash.cloud.databricks.com',
@@ -130,12 +130,12 @@ describe('resolve', () => {
     },
     {
       name: 'empty section',
-      options: {filePath: CFG, profile: 'empty'},
+      options: {configFile: CFG, profile: 'empty'},
       want: {name: 'empty'},
     },
     {
-      name: 'env only',
-      options: {withEnv: true},
+      name: 'env only via noProfile',
+      options: {noProfile: true},
       env: {
         DATABRICKS_HOST: 'https://env.cloud.databricks.com',
         DATABRICKS_TOKEN: 'env-token',
@@ -148,8 +148,17 @@ describe('resolve', () => {
       },
     },
     {
-      name: 'file only without env overlay',
-      options: {filePath: CFG},
+      name: 'noProfile skips an existing config file',
+      options: {noProfile: true},
+      env: {
+        DATABRICKS_CONFIG_FILE: CFG,
+        DATABRICKS_HOST: 'https://env.cloud.databricks.com',
+      },
+      want: {host: 'https://env.cloud.databricks.com'},
+    },
+    {
+      name: 'file only via disableEnv',
+      options: {configFile: CFG, disableEnv: true},
       env: {
         DATABRICKS_HOST: 'https://should-be-ignored.cloud.databricks.com',
       },
@@ -160,8 +169,26 @@ describe('resolve', () => {
       },
     },
     {
-      name: 'env overrides file',
-      options: {filePath: CFG, profile: 'workspace', withEnv: true},
+      name: 'noProfile and disableEnv resolve nothing',
+      options: {noProfile: true, disableEnv: true},
+      env: {DATABRICKS_HOST: 'https://ignored.cloud.databricks.com'},
+      want: {},
+    },
+    {
+      name: 'noProfile with profile is rejected',
+      options: {noProfile: true, profile: 'workspace'},
+      want: {},
+      wantErr: 'CONFLICTING_OPTIONS',
+    },
+    {
+      name: 'noProfile with configFile is rejected',
+      options: {noProfile: true, configFile: CFG},
+      want: {},
+      wantErr: 'CONFLICTING_OPTIONS',
+    },
+    {
+      name: 'explicit profile overlays env by default',
+      options: {configFile: CFG, profile: 'workspace'},
       env: {
         DATABRICKS_HOST: 'https://env-override.cloud.databricks.com',
         DATABRICKS_TOKEN: 'env-override-token',
@@ -208,7 +235,7 @@ describe('resolve', () => {
     },
     {
       name: 'extra keys',
-      options: {filePath: CFG, profile: 'extra-keys'},
+      options: {configFile: CFG, profile: 'extra-keys'},
       want: {
         name: 'extra-keys',
         host: 'https://extra.cloud.databricks.com',
@@ -219,8 +246,8 @@ describe('resolve', () => {
       },
     },
     {
-      name: 'empty filePath is an error',
-      options: {filePath: ''},
+      name: 'empty configFile is an error',
+      options: {configFile: ''},
       want: {},
       wantErr: 'EMPTY_PATH',
     },
@@ -232,7 +259,7 @@ describe('resolve', () => {
     },
     {
       name: 'settings default_profile resolves',
-      options: {filePath: CFG_SETTINGS},
+      options: {configFile: CFG_SETTINGS},
       want: {
         name: 'my-workspace',
         host: 'https://my-workspace.cloud.databricks.com',
@@ -241,7 +268,7 @@ describe('resolve', () => {
     },
     {
       name: 'settings empty default_profile falls back to DEFAULT',
-      options: {filePath: CFG_SETTINGS_EMPTY},
+      options: {configFile: CFG_SETTINGS_EMPTY},
       want: {
         name: 'DEFAULT',
         host: 'https://default.cloud.databricks.com',
@@ -250,7 +277,7 @@ describe('resolve', () => {
     },
     {
       name: 'explicit profile overrides settings default_profile',
-      options: {filePath: CFG_SETTINGS, profile: 'DEFAULT'},
+      options: {configFile: CFG_SETTINGS, profile: 'DEFAULT'},
       want: {
         name: 'DEFAULT',
         host: 'https://default.cloud.databricks.com',
@@ -259,7 +286,7 @@ describe('resolve', () => {
     },
     {
       name: 'env profile overrides settings default_profile',
-      options: {filePath: CFG_SETTINGS},
+      options: {configFile: CFG_SETTINGS},
       env: {DATABRICKS_CONFIG_PROFILE: 'DEFAULT'},
       want: {
         name: 'DEFAULT',
@@ -269,19 +296,19 @@ describe('resolve', () => {
     },
     {
       name: 'settings self-reference is rejected',
-      options: {filePath: CFG_SETTINGS_SELF_REF},
+      options: {configFile: CFG_SETTINGS_SELF_REF},
       want: {},
       wantErr: 'INVALID_PROFILE_NAME',
     },
     {
       name: 'settings nonexistent profile is rejected',
-      options: {filePath: CFG_SETTINGS_NONEXISTENT},
+      options: {configFile: CFG_SETTINGS_NONEXISTENT},
       want: {},
       wantErr: 'PROFILE_NOT_FOUND',
     },
     {
       name: 'explicit __settings__ profile is rejected',
-      options: {filePath: CFG_SETTINGS, profile: '__settings__'},
+      options: {configFile: CFG_SETTINGS, profile: '__settings__'},
       want: {},
       wantErr: 'INVALID_PROFILE_NAME',
     },
