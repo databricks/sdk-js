@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {Code, codeFromString} from './codes';
+import {Code} from './codes';
 import type {ErrorDetails} from './details';
 import {parseErrorDetails} from './details';
 
@@ -33,7 +33,6 @@ const errorResponseSchema = z.object({
 // Constructor options for ApiError.
 interface ApiErrorOptions {
   code: Code;
-  errorCode?: string | undefined;
   message: string;
   details: ErrorDetails;
   httpStatusCode?: number | undefined;
@@ -44,16 +43,10 @@ interface ApiErrorOptions {
 
 /** ApiError is a transport-agnostic error representing a Databricks API error. */
 export class ApiError extends Error {
-  /** The canonical error code of the error. */
-  readonly code: Code;
-
   /**
-   * The raw, Databricks-specific error code string from the error response
-   * (e.g. "CATALOG_DOES_NOT_EXIST"). This is empty when the error response did
-   * not carry a string error code. Use this to match on Databricks-specific
-   * codes that do not have a canonical {@link Code} equivalent.
+   * The error code of the error.
    */
-  readonly errorCode: string;
+  readonly code: Code;
 
   /**
    * The structured error details of the error. This is left empty if the
@@ -79,7 +72,6 @@ export class ApiError extends Error {
     super(options.message, {cause: options.cause});
     this.name = 'ApiError';
     this.code = options.code;
-    this.errorCode = options.errorCode ?? '';
     this.details = options.details;
     if (options.httpStatusCode !== undefined) {
       this.httpErr = {
@@ -140,7 +132,7 @@ export class ApiError extends Error {
 
     if (body === undefined || body.length === 0) {
       return new ApiError({
-        code: toCode(statusCode),
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
         httpStatusCode: statusCode,
@@ -158,7 +150,7 @@ export class ApiError extends Error {
       // error does not come directly from a Databricks API. A typical example
       // is when the error is returned by a proxy.
       return new ApiError({
-        code: toCode(statusCode),
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
         httpStatusCode: statusCode,
@@ -171,7 +163,7 @@ export class ApiError extends Error {
     const result = errorResponseSchema.safeParse(parsed);
     if (!result.success) {
       return new ApiError({
-        code: toCode(statusCode),
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
         httpStatusCode: statusCode,
@@ -183,18 +175,17 @@ export class ApiError extends Error {
 
     const errResp = result.data;
 
-    // Error codes may be missing or be an integer (legacy APIs). In such
-    // cases, defer to the HTTP status code to infer the closest canonical
-    // error code. Databricks-specific string codes (e.g.
-    // "CATALOG_DOES_NOT_EXIST") have no canonical mapping and resolve to
-    // UNKNOWN, so fall back to the HTTP status code for those as well. The
-    // raw string is preserved separately so callers can match on it directly.
-    const rawErrorCode =
-      typeof errResp.error_code === 'string' ? errResp.error_code : '';
-    let code = codeFromString(rawErrorCode);
-    if (code === Code.UNKNOWN) {
-      code = toCode(statusCode);
-    }
+    // code carries the error_code string verbatim: a canonical code (e.g.
+    // "NOT_FOUND") matches a named Code member, while a Databricks
+    // product-specific code (e.g. "CATALOG_DOES_NOT_EXIST") is an open Code
+    // value. It is Code.UNKNOWN when the response carries no string error_code
+    // (missing or an integer); the HTTP status is never used to infer a code,
+    // since it may not reflect the true error semantic, so callers fall back to
+    // httpStatusCode.
+    const code: Code =
+      typeof errResp.error_code === 'string' && errResp.error_code !== ''
+        ? errResp.error_code
+        : Code.UNKNOWN;
 
     // Determine the error message from available fields.
     let errorMessage = '';
@@ -210,7 +201,6 @@ export class ApiError extends Error {
 
     return new ApiError({
       code,
-      errorCode: rawErrorCode,
       message: errorMessage,
       details: parseErrorDetails(errResp.details),
       httpStatusCode: statusCode,
@@ -218,50 +208,4 @@ export class ApiError extends Error {
       httpBody: body,
     });
   }
-}
-
-// Maps an HTTP status code to the closest canonical error code.
-export function toCode(httpCode: number): Code {
-  // Canonical mappings.
-  switch (httpCode) {
-    case 200:
-      return Code.OK;
-    case 400:
-      return Code.INVALID_ARGUMENT;
-    case 401:
-      return Code.UNAUTHENTICATED;
-    case 403:
-      return Code.PERMISSION_DENIED;
-    case 404:
-      return Code.NOT_FOUND;
-    case 409:
-      return Code.ABORTED;
-    case 416:
-      return Code.OUT_OF_RANGE;
-    case 429:
-      return Code.RESOURCE_EXHAUSTED;
-    case 501:
-      return Code.UNIMPLEMENTED;
-    case 503:
-      return Code.UNAVAILABLE;
-    case 504:
-      return Code.DEADLINE_EXCEEDED;
-    default:
-      break;
-  }
-
-  // Fallback for status codes without a direct canonical mapping.
-  if (httpCode >= 200 && httpCode < 300) {
-    return Code.OK;
-  }
-  if (httpCode >= 400 && httpCode < 500) {
-    // Most non-canonical 4xx status codes are state related and map
-    // to the definition of FailedPrecondition.
-    return Code.FAILED_PRECONDITION;
-  }
-  if (httpCode >= 500 && httpCode < 600) {
-    return Code.INTERNAL;
-  }
-
-  return Code.UNKNOWN;
 }
