@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -92,35 +92,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class MetastoresClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Creates a Unity Catalog metastore. */
@@ -128,7 +123,8 @@ export class MetastoresClient {
     req: AccountsCreateMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsCreateMetastoreResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateMetastoreRequestSchema
@@ -140,7 +136,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -160,7 +156,8 @@ export class MetastoresClient {
     req: AccountsCreateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsCreateMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateMetastoreAssignmentRequestSchema
@@ -172,7 +169,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -192,7 +189,8 @@ export class MetastoresClient {
     req: AccountsDeleteMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsDeleteMetastoreResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -206,7 +204,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -226,7 +224,8 @@ export class MetastoresClient {
     req: AccountsDeleteMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsDeleteMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
     let resp: AccountsDeleteMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -234,7 +233,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -254,7 +253,8 @@ export class MetastoresClient {
     req: AccountsGetMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsGetMetastoreResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
     let resp: AccountsGetMetastoreResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -262,7 +262,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -287,7 +287,8 @@ export class MetastoresClient {
     req: AccountsGetMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsGetMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     let resp: AccountsGetMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -295,7 +296,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -315,7 +316,8 @@ export class MetastoresClient {
     req: AccountsListMetastoresRequest,
     options?: CallOptions
   ): Promise<AccountsListMetastoresResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores`;
     let resp: AccountsListMetastoresResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -323,7 +325,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -343,7 +345,8 @@ export class MetastoresClient {
     req: AccountsListWorkspaceIdsForMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsListWorkspaceIdsForMetastoreResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/workspaces`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/workspaces`;
     let resp: AccountsListWorkspaceIdsForMetastoreResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -351,7 +354,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -371,7 +374,8 @@ export class MetastoresClient {
     req: AccountsUpdateMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsUpdateMetastoreResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateMetastoreRequestSchema
@@ -383,7 +387,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -403,7 +407,8 @@ export class MetastoresClient {
     req: AccountsUpdateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsUpdateMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateMetastoreAssignmentRequestSchema
@@ -415,7 +420,7 @@ export class MetastoresClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -440,19 +445,20 @@ export class MetastoresClient {
     req: CreateMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastores`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastores`;
     const body = marshalRequest(req, marshalCreateMetastoreRequestSchema);
     let resp: MetastoreInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
@@ -473,7 +479,8 @@ export class MetastoresClient {
     req: CreateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<CreateMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     const body = marshalRequest(
       req,
       marshalCreateMetastoreAssignmentRequestSchema
@@ -481,14 +488,14 @@ export class MetastoresClient {
     let resp: CreateMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -508,7 +515,8 @@ export class MetastoresClient {
     req: DeleteMetastoreRequest,
     options?: CallOptions
   ): Promise<DeleteMetastoreResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -518,14 +526,14 @@ export class MetastoresClient {
     let resp: DeleteMetastoreResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteMetastoreResponseSchema);
@@ -542,7 +550,8 @@ export class MetastoresClient {
     req: DeleteMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<DeleteMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     const params = new URLSearchParams();
     if (req.metastoreId !== undefined) {
       params.append('metastore_id', req.metastoreId);
@@ -552,14 +561,14 @@ export class MetastoresClient {
     let resp: DeleteMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -579,18 +588,19 @@ export class MetastoresClient {
     _req: GetCurrentMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<MetastoreAssignment> {
-    const url = `${this.host}/api/2.1/unity-catalog/current-metastore-assignment`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/current-metastore-assignment`;
     let resp: MetastoreAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMetastoreAssignmentSchema);
@@ -607,18 +617,19 @@ export class MetastoresClient {
     req: GetMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     let resp: MetastoreInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
@@ -638,18 +649,19 @@ export class MetastoresClient {
     _req: GetMetastoreSummaryRequest,
     options?: CallOptions
   ): Promise<GetMetastoreSummaryResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastore_summary`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastore_summary`;
     let resp: GetMetastoreSummaryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -677,7 +689,8 @@ export class MetastoresClient {
     req: ListMetastoresRequest,
     options?: CallOptions
   ): Promise<ListMetastoresResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastores`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastores`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -690,14 +703,14 @@ export class MetastoresClient {
     let resp: ListMetastoresResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListMetastoresResponseSchema);
@@ -735,19 +748,20 @@ export class MetastoresClient {
     req: UpdateMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateMetastoreRequestSchema);
     let resp: MetastoreInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
@@ -768,7 +782,8 @@ export class MetastoresClient {
     req: UpdateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<UpdateMetastoreAssignmentResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     const body = marshalRequest(
       req,
       marshalUpdateMetastoreAssignmentRequestSchema
@@ -776,14 +791,14 @@ export class MetastoresClient {
     let resp: UpdateMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

@@ -7,6 +7,7 @@ import type {
 } from '@databricks/sdk-core/http';
 
 import {main} from '../src/pagination';
+import {testCredentials} from './helpers';
 
 function jsonResponse(body: unknown): HttpResponse {
   return {
@@ -34,7 +35,11 @@ describe('pagination example', () => {
       },
     };
 
-    await main({host: 'https://test.cloud.databricks.com', httpClient});
+    await main({
+      host: 'https://test.cloud.databricks.com',
+      httpClient,
+      credentials: testCredentials,
+    });
 
     expect(seenTokens).toEqual([null, 'tok-2', 'tok-3']);
   });

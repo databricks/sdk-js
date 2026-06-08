@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -115,35 +115,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class ScimClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Creates a group in the <Databricks> account with a unique name, using the supplied group details. */
@@ -151,7 +146,8 @@ export class ScimClient {
     req: CreateAccountGroupRequest,
     options?: CallOptions
   ): Promise<AccountGroup> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateAccountGroupRequestSchema);
     let resp: AccountGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -160,7 +156,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountGroupSchema);
@@ -177,14 +173,15 @@ export class ScimClient {
     req: DeleteAccountGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -196,7 +193,8 @@ export class ScimClient {
     req: GetAccountGroupRequest,
     options?: CallOptions
   ): Promise<AccountGroup> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     let resp: AccountGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -204,7 +202,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountGroupSchema);
@@ -226,7 +224,8 @@ export class ScimClient {
     req: ListAccountGroupsRequest,
     options?: CallOptions
   ): Promise<ListAccountGroupsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
       params.append('filter', req.filter);
@@ -258,7 +257,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListAccountGroupsResponseSchema);
@@ -293,7 +292,8 @@ export class ScimClient {
     req: PatchAccountGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchAccountGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -301,7 +301,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -313,7 +313,8 @@ export class ScimClient {
     req: UpdateAccountGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAccountGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -321,7 +322,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -333,7 +334,8 @@ export class ScimClient {
     req: CreateAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<AccountServicePrincipal> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals`;
     const body = marshalRequest(
       req,
       marshalCreateAccountServicePrincipalRequestSchema
@@ -345,7 +347,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountServicePrincipalSchema);
@@ -362,14 +364,15 @@ export class ScimClient {
     req: DeleteAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -381,7 +384,8 @@ export class ScimClient {
     req: GetAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<AccountServicePrincipal> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     let resp: AccountServicePrincipal | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -389,7 +393,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountServicePrincipalSchema);
@@ -406,7 +410,8 @@ export class ScimClient {
     req: ListAccountServicePrincipalsRequest,
     options?: CallOptions
   ): Promise<ListAccountServicePrincipalsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -438,7 +443,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -476,7 +481,8 @@ export class ScimClient {
     req: PatchAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const body = marshalRequest(
       req,
       marshalPatchAccountServicePrincipalRequestSchema
@@ -487,7 +493,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -503,7 +509,8 @@ export class ScimClient {
     req: UpdateAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateAccountServicePrincipalRequestSchema
@@ -514,7 +521,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -526,7 +533,8 @@ export class ScimClient {
     req: CreateAccountUserRequest,
     options?: CallOptions
   ): Promise<AccountUser> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateAccountUserRequestSchema);
     let resp: AccountUser | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -535,7 +543,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountUserSchema);
@@ -552,14 +560,15 @@ export class ScimClient {
     req: DeleteAccountUserRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -571,7 +580,8 @@ export class ScimClient {
     req: GetAccountUserRequest,
     options?: CallOptions
   ): Promise<AccountUser> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -603,7 +613,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountUserSchema);
@@ -620,7 +630,8 @@ export class ScimClient {
     req: ListAccountUsersRequest,
     options?: CallOptions
   ): Promise<ListAccountUsersResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -652,7 +663,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListAccountUsersResponseSchema);
@@ -687,7 +698,8 @@ export class ScimClient {
     req: PatchAccountUserRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchAccountUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -695,7 +707,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -707,7 +719,8 @@ export class ScimClient {
     req: UpdateAccountUserRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAccountUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -715,7 +728,7 @@ export class ScimClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -724,7 +737,8 @@ export class ScimClient {
 
   /** Get details about the current method caller's identity. */
   async me(req: MeRequest, options?: CallOptions): Promise<User> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Me`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Me`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -737,14 +751,14 @@ export class ScimClient {
     let resp: User | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
@@ -761,19 +775,20 @@ export class ScimClient {
     req: CreateGroupRequest,
     options?: CallOptions
   ): Promise<Group> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Groups`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateGroupRequestSchema);
     let resp: Group | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
@@ -790,17 +805,18 @@ export class ScimClient {
     req: DeleteGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -809,18 +825,19 @@ export class ScimClient {
 
   /** Gets the information for a specific group in the <Databricks> workspace. */
   async getGroup(req: GetGroupRequest, options?: CallOptions): Promise<Group> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     let resp: Group | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
@@ -837,7 +854,8 @@ export class ScimClient {
     req: ListGroupsRequest,
     options?: CallOptions
   ): Promise<ListGroupsResponse> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Groups`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Groups`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
       params.append('filter', req.filter);
@@ -865,14 +883,14 @@ export class ScimClient {
     let resp: ListGroupsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListGroupsResponseSchema);
@@ -907,18 +925,19 @@ export class ScimClient {
     req: PatchGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -930,18 +949,19 @@ export class ScimClient {
     req: UpdateGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -953,7 +973,8 @@ export class ScimClient {
     req: CreateServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals`;
     const body = marshalRequest(
       req,
       marshalCreateServicePrincipalRequestSchema
@@ -961,14 +982,14 @@ export class ScimClient {
     let resp: ServicePrincipal | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
@@ -985,17 +1006,18 @@ export class ScimClient {
     req: DeleteServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -1007,18 +1029,19 @@ export class ScimClient {
     req: GetServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     let resp: ServicePrincipal | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
@@ -1035,7 +1058,8 @@ export class ScimClient {
     req: ListServicePrincipalsRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalResponse> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -1063,14 +1087,14 @@ export class ScimClient {
     let resp: ListServicePrincipalResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1108,18 +1132,19 @@ export class ScimClient {
     req: PatchServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchServicePrincipalRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -1135,21 +1160,22 @@ export class ScimClient {
     req: UpdateServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateServicePrincipalRequestSchema
     );
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -1161,19 +1187,20 @@ export class ScimClient {
     req: CreateUserRequest,
     options?: CallOptions
   ): Promise<User> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Users`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateUserRequestSchema);
     let resp: User | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
@@ -1190,17 +1217,18 @@ export class ScimClient {
     req: DeleteUserRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -1212,18 +1240,19 @@ export class ScimClient {
     _req: GetPasswordPermissionLevelsRequest,
     options?: CallOptions
   ): Promise<GetPasswordPermissionLevelsResponse> {
-    const url = `${this.host}/api/2.0/permissions/authorization/passwords/permissionLevels`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/authorization/passwords/permissionLevels`;
     let resp: GetPasswordPermissionLevelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1243,18 +1272,19 @@ export class ScimClient {
     _req: GetPasswordPermissionsRequest,
     options?: CallOptions
   ): Promise<PasswordPermissions> {
-    const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/authorization/passwords`;
     let resp: PasswordPermissions | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPasswordPermissionsSchema);
@@ -1268,7 +1298,8 @@ export class ScimClient {
 
   /** Gets information for a specific user in <Databricks> workspace. */
   async getUser(req: GetUserRequest, options?: CallOptions): Promise<User> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -1296,14 +1327,14 @@ export class ScimClient {
     let resp: User | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
@@ -1320,7 +1351,8 @@ export class ScimClient {
     req: ListUsersRequest,
     options?: CallOptions
   ): Promise<ListUsersResponse> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Users`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Users`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -1348,14 +1380,14 @@ export class ScimClient {
     let resp: ListUsersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
@@ -1387,18 +1419,19 @@ export class ScimClient {
 
   /** Partially updates a user resource by applying the supplied operations on specific user attributes. */
   async patchUser(req: PatchUserRequest, options?: CallOptions): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -1410,19 +1443,20 @@ export class ScimClient {
     req: PasswordPermissionsRequest,
     options?: CallOptions
   ): Promise<PasswordPermissions> {
-    const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/authorization/passwords`;
     const body = marshalRequest(req, marshalPasswordPermissionsRequestSchema);
     let resp: PasswordPermissions | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPasswordPermissionsSchema);
@@ -1439,19 +1473,20 @@ export class ScimClient {
     req: PasswordPermissionsRequest,
     options?: CallOptions
   ): Promise<PasswordPermissions> {
-    const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/authorization/passwords`;
     const body = marshalRequest(req, marshalPasswordPermissionsRequestSchema);
     let resp: PasswordPermissions | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPasswordPermissionsSchema);
@@ -1468,18 +1503,19 @@ export class ScimClient {
     req: UpdateUserRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };

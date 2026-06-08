@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   encodeMultiSegmentPath,
@@ -91,31 +91,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class FilesClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -128,19 +127,20 @@ export class FilesClient {
     req: AddBlockRequest,
     options?: CallOptions
   ): Promise<AddBlockResponse> {
-    const url = `${this.host}/api/2.0/dbfs/add-block`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/add-block`;
     const body = marshalRequest(req, marshalAddBlockRequestSchema);
     let resp: AddBlockResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAddBlockResponseSchema);
@@ -160,19 +160,20 @@ export class FilesClient {
     req: CloseRequest,
     options?: CallOptions
   ): Promise<CloseResponse> {
-    const url = `${this.host}/api/2.0/dbfs/close`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/close`;
     const body = marshalRequest(req, marshalCloseRequestSchema);
     let resp: CloseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCloseResponseSchema);
@@ -199,19 +200,20 @@ export class FilesClient {
     req: CreateRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
-    const url = `${this.host}/api/2.0/dbfs/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/create`;
     const body = marshalRequest(req, marshalCreateRequestSchema);
     let resp: CreateResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateResponseSchema);
@@ -243,19 +245,20 @@ export class FilesClient {
     req: DeleteRequest,
     options?: CallOptions
   ): Promise<DeleteResponse> {
-    const url = `${this.host}/api/2.0/dbfs/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/delete`;
     const body = marshalRequest(req, marshalDeleteRequestSchema);
     let resp: DeleteResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteResponseSchema);
@@ -275,7 +278,8 @@ export class FilesClient {
     req: GetStatusRequest,
     options?: CallOptions
   ): Promise<GetStatusResponse> {
-    const url = `${this.host}/api/2.0/dbfs/get-status`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/get-status`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -285,14 +289,14 @@ export class FilesClient {
     let resp: GetStatusResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetStatusResponseSchema);
@@ -319,7 +323,8 @@ export class FilesClient {
     req: ListStatusRequest,
     options?: CallOptions
   ): Promise<ListStatusResponse> {
-    const url = `${this.host}/api/2.0/dbfs/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/list`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -329,14 +334,14 @@ export class FilesClient {
     let resp: ListStatusResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListStatusResponseSchema);
@@ -357,19 +362,20 @@ export class FilesClient {
     req: MkDirsRequest,
     options?: CallOptions
   ): Promise<MkDirsResponse> {
-    const url = `${this.host}/api/2.0/dbfs/mkdirs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/mkdirs`;
     const body = marshalRequest(req, marshalMkDirsRequestSchema);
     let resp: MkDirsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMkDirsResponseSchema);
@@ -388,19 +394,20 @@ export class FilesClient {
    * If the given source path is a directory, this call always recursively moves all files.
    */
   async move(req: MoveRequest, options?: CallOptions): Promise<MoveResponse> {
-    const url = `${this.host}/api/2.0/dbfs/move`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/move`;
     const body = marshalRequest(req, marshalMoveRequestSchema);
     let resp: MoveResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMoveResponseSchema);
@@ -425,19 +432,20 @@ export class FilesClient {
    * :method:dbfs/addBlock, :method:dbfs/close.
    */
   async put(req: PutRequest, options?: CallOptions): Promise<PutResponse> {
-    const url = `${this.host}/api/2.0/dbfs/put`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/put`;
     const body = marshalRequest(req, marshalPutRequestSchema);
     let resp: PutResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPutResponseSchema);
@@ -458,7 +466,8 @@ export class FilesClient {
    * If `offset + length` exceeds the number of bytes in a file, it reads the contents until the end of file.
    */
   async read(req: ReadRequest, options?: CallOptions): Promise<ReadResponse> {
-    const url = `${this.host}/api/2.0/dbfs/read`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/dbfs/read`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -474,14 +483,14 @@ export class FilesClient {
     let resp: ReadResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalReadResponseSchema);
@@ -503,18 +512,19 @@ export class FilesClient {
     req: CreateDirectoryRequest,
     options?: CallOptions
   ): Promise<CreateDirectoryResponse> {
-    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     let resp: CreateDirectoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateDirectoryResponseSchema);
@@ -536,18 +546,19 @@ export class FilesClient {
     req: DeleteDirectoryRequest,
     options?: CallOptions
   ): Promise<DeleteDirectoryResponse> {
-    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     let resp: DeleteDirectoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteDirectoryResponseSchema);
@@ -564,18 +575,19 @@ export class FilesClient {
     req: DeleteFileRequest,
     options?: CallOptions
   ): Promise<DeleteFileResponse> {
-    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: DeleteFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteFileResponseSchema);
@@ -596,7 +608,8 @@ export class FilesClient {
     req: DownloadFileRequest,
     options?: CallOptions
   ): Promise<DownloadFileResponse> {
-    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: DownloadFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -606,14 +619,14 @@ export class FilesClient {
       if (req.ifUnmodifiedSince !== undefined) {
         headers.set('If-Unmodified-Since', req.ifUnmodifiedSince);
       }
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const httpResp = await sendAndCheckError({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       const contentLengthHeader = httpResp.headers.get('content-length');
@@ -648,18 +661,19 @@ export class FilesClient {
     req: GetDirectoryMetadataRequest,
     options?: CallOptions
   ): Promise<GetDirectoryMetadataResponse> {
-    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     let resp: GetDirectoryMetadataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('head', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -682,7 +696,8 @@ export class FilesClient {
     req: GetFileMetadataRequest,
     options?: CallOptions
   ): Promise<GetFileMetadataResponse> {
-    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: GetFileMetadataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -692,14 +707,14 @@ export class FilesClient {
       if (req.ifUnmodifiedSince !== undefined) {
         headers.set('If-Unmodified-Since', req.ifUnmodifiedSince);
       }
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('head', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetFileMetadataResponseSchema);
@@ -719,7 +734,8 @@ export class FilesClient {
     req: ListDirectoryContentsRequest,
     options?: CallOptions
   ): Promise<ListDirectoryResponse> {
-    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -732,14 +748,14 @@ export class FilesClient {
     let resp: ListDirectoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListDirectoryResponseSchema);
@@ -778,7 +794,8 @@ export class FilesClient {
     req: UploadFileRequest,
     options?: CallOptions
   ): Promise<UploadFileResponse> {
-    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     const params = new URLSearchParams();
     if (req.overwrite !== undefined) {
       params.append('overwrite', String(req.overwrite));
@@ -786,8 +803,8 @@ export class FilesClient {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const headers = new Headers({'Content-Type': 'application/octet-stream'});
-    if (this.workspaceId !== undefined) {
-      headers.set('X-Databricks-Org-Id', this.workspaceId);
+    if (workspaceId !== undefined) {
+      headers.set('X-Databricks-Org-Id', workspaceId);
     }
     headers.set('User-Agent', this.userAgent);
     const httpReq = buildHttpRequest(
@@ -799,7 +816,7 @@ export class FilesClient {
     );
     const respBody = await executeHttpCall({
       request: httpReq,
-      httpClient: this.httpClient,
+      httpClient,
       logger: this.logger,
     });
     return parseResponse(respBody, unmarshalUploadFileResponseSchema);

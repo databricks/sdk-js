@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -54,30 +54,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class AuthenticationClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Create account federation policy. */
@@ -85,7 +85,8 @@ export class AuthenticationClient {
     req: CreateAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/federationPolicies`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -109,7 +110,7 @@ export class AuthenticationClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -126,7 +127,8 @@ export class AuthenticationClient {
     req: CreateServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
       params.append('policy_id', req.policyId);
@@ -147,7 +149,7 @@ export class AuthenticationClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -164,7 +166,8 @@ export class AuthenticationClient {
     req: DeleteAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -177,7 +180,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -189,14 +192,15 @@ export class AuthenticationClient {
     req: DeleteServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -208,7 +212,8 @@ export class AuthenticationClient {
     req: GetAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -222,7 +227,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -239,7 +244,8 @@ export class AuthenticationClient {
     req: GetServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -247,7 +253,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -264,7 +270,8 @@ export class AuthenticationClient {
     req: ListAccountFederationPoliciesRequest,
     options?: CallOptions
   ): Promise<ListFederationPoliciesResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/federationPolicies`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -284,7 +291,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -321,7 +328,8 @@ export class AuthenticationClient {
     req: ListServicePrincipalFederationPoliciesRequest,
     options?: CallOptions
   ): Promise<ListFederationPoliciesResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -338,7 +346,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -378,7 +386,8 @@ export class AuthenticationClient {
     req: UpdateAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -402,7 +411,7 @@ export class AuthenticationClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -419,7 +428,8 @@ export class AuthenticationClient {
     req: UpdateServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -440,7 +450,7 @@ export class AuthenticationClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -457,7 +467,8 @@ export class AuthenticationClient {
     req: CreateServicePrincipalSecretRequest,
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const body = marshalRequest(
       req,
       marshalCreateServicePrincipalSecretRequestSchema
@@ -469,7 +480,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -489,7 +500,8 @@ export class AuthenticationClient {
     req: CreateServicePrincipalSecretRequest,
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const body = marshalRequest(
       req,
       marshalCreateServicePrincipalSecretRequestSchema
@@ -501,7 +513,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -521,7 +533,8 @@ export class AuthenticationClient {
     req: DeleteServicePrincipalSecretRequest,
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecretResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
     let resp: DeleteServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -529,7 +542,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -549,7 +562,8 @@ export class AuthenticationClient {
     req: DeleteServicePrincipalSecretRequest,
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecretResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
     let resp: DeleteServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -557,7 +571,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -577,7 +591,8 @@ export class AuthenticationClient {
     req: ListServicePrincipalSecretsRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalSecretsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -594,7 +609,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -631,7 +646,8 @@ export class AuthenticationClient {
     req: ListServicePrincipalSecretsRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalSecretsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -648,7 +664,7 @@ export class AuthenticationClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

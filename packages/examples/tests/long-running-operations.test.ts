@@ -7,6 +7,7 @@ import type {
 } from '@databricks/sdk-core/http';
 
 import {main} from '../src/long-running-operations';
+import {testCredentials} from './helpers';
 
 // Wire-format names for the operation handles and the project the create LRO
 // resolves to. Operation names double as the resource path the poller GETs.
@@ -98,7 +99,11 @@ describe('long-running-operations example', () => {
       },
     };
 
-    await main({host: 'https://test.cloud.databricks.com', httpClient});
+    await main({
+      host: 'https://test.cloud.databricks.com',
+      httpClient,
+      credentials: testCredentials,
+    });
 
     // The full lifecycle: create POST, poll the create op to done, delete
     // DELETE, then poll the delete op to done.

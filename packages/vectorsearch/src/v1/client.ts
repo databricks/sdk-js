@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -90,31 +90,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class VectorSearchClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Create a new endpoint. */
@@ -122,19 +121,20 @@ export class VectorSearchClient {
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints`;
     const body = marshalRequest(req, marshalCreateEndpointRequestSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
@@ -162,19 +162,20 @@ export class VectorSearchClient {
     req: CreateVectorIndexRequest,
     options?: CallOptions
   ): Promise<VectorIndex> {
-    const url = `${this.host}/api/2.0/vector-search/indexes`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes`;
     const body = marshalRequest(req, marshalCreateVectorIndexRequestSchema);
     let resp: VectorIndex | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
@@ -191,7 +192,8 @@ export class VectorSearchClient {
     req: DeleteDataVectorIndexRequest,
     options?: CallOptions
   ): Promise<DeleteDataVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/delete-data`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/delete-data`;
     const params = new URLSearchParams();
     if (req.primaryKeys !== undefined) {
       params.append('primary_keys', String(req.primaryKeys));
@@ -201,14 +203,14 @@ export class VectorSearchClient {
     let resp: DeleteDataVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -228,18 +230,19 @@ export class VectorSearchClient {
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<DeleteEndpointResponse> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: DeleteEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteEndpointResponseSchema);
@@ -256,18 +259,19 @@ export class VectorSearchClient {
     req: DeleteVectorIndexRequest,
     options?: CallOptions
   ): Promise<DeleteVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     let resp: DeleteVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteVectorIndexResponseSchema);
@@ -284,18 +288,19 @@ export class VectorSearchClient {
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
@@ -312,7 +317,8 @@ export class VectorSearchClient {
     req: GetVectorIndexRequest,
     options?: CallOptions
   ): Promise<VectorIndex> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.ensureRerankerCompatible !== undefined) {
       params.append(
@@ -325,14 +331,14 @@ export class VectorSearchClient {
     let resp: VectorIndex | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
@@ -349,7 +355,8 @@ export class VectorSearchClient {
     req: ListEndpointRequest,
     options?: CallOptions
   ): Promise<ListEndpointResponse> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -359,14 +366,14 @@ export class VectorSearchClient {
     let resp: ListEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListEndpointResponseSchema);
@@ -400,7 +407,8 @@ export class VectorSearchClient {
     req: ListVectorIndexRequest,
     options?: CallOptions
   ): Promise<ListVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes`;
     const params = new URLSearchParams();
     if (req.endpointName !== undefined) {
       params.append('endpoint_name', req.endpointName);
@@ -413,14 +421,14 @@ export class VectorSearchClient {
     let resp: ListVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListVectorIndexResponseSchema);
@@ -454,19 +462,20 @@ export class VectorSearchClient {
     req: PatchEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalPatchEndpointRequestSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
@@ -483,7 +492,8 @@ export class VectorSearchClient {
     req: PatchEndpointBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<PatchEndpointBudgetPolicyResponse> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/budget-policy`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/budget-policy`;
     const body = marshalRequest(
       req,
       marshalPatchEndpointBudgetPolicyRequestSchema
@@ -491,14 +501,14 @@ export class VectorSearchClient {
     let resp: PatchEndpointBudgetPolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -518,19 +528,20 @@ export class VectorSearchClient {
     req: QueryVectorIndexRequest,
     options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query`;
     const body = marshalRequest(req, marshalQueryVectorIndexRequestSchema);
     let resp: QueryVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
@@ -547,7 +558,8 @@ export class VectorSearchClient {
     req: QueryVectorIndexNextPageRequest,
     options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query-next-page`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query-next-page`;
     const body = marshalRequest(
       req,
       marshalQueryVectorIndexNextPageRequestSchema
@@ -555,14 +567,14 @@ export class VectorSearchClient {
     let resp: QueryVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
@@ -579,7 +591,8 @@ export class VectorSearchClient {
     req: RetrieveUserVisibleMetricsRequest,
     options?: CallOptions
   ): Promise<RetrieveUserVisibleMetricsResponse> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/metrics`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/metrics`;
     const body = marshalRequest(
       req,
       marshalRetrieveUserVisibleMetricsRequestSchema
@@ -587,14 +600,14 @@ export class VectorSearchClient {
     let resp: RetrieveUserVisibleMetricsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -614,19 +627,20 @@ export class VectorSearchClient {
     req: ScanVectorIndexRequest,
     options?: CallOptions
   ): Promise<ScanVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/scan`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/scan`;
     const body = marshalRequest(req, marshalScanVectorIndexRequestSchema);
     let resp: ScanVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalScanVectorIndexResponseSchema);
@@ -643,19 +657,20 @@ export class VectorSearchClient {
     req: SyncVectorIndexRequest,
     options?: CallOptions
   ): Promise<SyncVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/sync`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/sync`;
     const body = marshalRequest(req, marshalSyncVectorIndexRequestSchema);
     let resp: SyncVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSyncVectorIndexResponseSchema);
@@ -672,7 +687,8 @@ export class VectorSearchClient {
     req: UpdateEndpointCustomTagsRequest,
     options?: CallOptions
   ): Promise<UpdateEndpointCustomTagsResponse> {
-    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/tags`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/tags`;
     const body = marshalRequest(
       req,
       marshalUpdateEndpointCustomTagsRequestSchema
@@ -680,14 +696,14 @@ export class VectorSearchClient {
     let resp: UpdateEndpointCustomTagsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -707,19 +723,20 @@ export class VectorSearchClient {
     req: UpsertDataVectorIndexRequest,
     options?: CallOptions
   ): Promise<UpsertDataVectorIndexResponse> {
-    const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/upsert-data`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/upsert-data`;
     const body = marshalRequest(req, marshalUpsertDataVectorIndexRequestSchema);
     let resp: UpsertDataVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

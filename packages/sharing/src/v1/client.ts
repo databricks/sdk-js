@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -101,31 +101,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class SharingClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -153,19 +152,20 @@ export class SharingClient {
     req: CreateFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
     const body = marshalRequest(req.policy, marshalFederationPolicySchema);
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -185,19 +185,20 @@ export class SharingClient {
     req: CreateProviderRequest,
     options?: CallOptions
   ): Promise<ProviderInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/providers`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/providers`;
     const body = marshalRequest(req, marshalCreateProviderRequestSchema);
     let resp: ProviderInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalProviderInfoSchema);
@@ -217,19 +218,20 @@ export class SharingClient {
     req: CreateRecipientRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients`;
     const body = marshalRequest(req, marshalCreateRecipientRequestSchema);
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRecipientInfoSchema);
@@ -249,19 +251,20 @@ export class SharingClient {
     req: CreateShareRequest,
     options?: CallOptions
   ): Promise<ShareInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares`;
     const body = marshalRequest(req, marshalCreateShareRequestSchema);
     let resp: ShareInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalShareInfoSchema);
@@ -281,17 +284,18 @@ export class SharingClient {
     req: DeleteFederationPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -303,18 +307,19 @@ export class SharingClient {
     req: DeleteProviderRequest,
     options?: CallOptions
   ): Promise<DeleteProviderResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
     let resp: DeleteProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteProviderResponseSchema);
@@ -331,18 +336,19 @@ export class SharingClient {
     req: DeleteRecipientRequest,
     options?: CallOptions
   ): Promise<DeleteRecipientResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
     let resp: DeleteRecipientResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteRecipientResponseSchema);
@@ -359,18 +365,19 @@ export class SharingClient {
     req: DeleteShareRequest,
     options?: CallOptions
   ): Promise<DeleteShareResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
     let resp: DeleteShareResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteShareResponseSchema);
@@ -387,18 +394,19 @@ export class SharingClient {
     req: GetActivationUrlInfoRequest,
     options?: CallOptions
   ): Promise<GetActivationUrlInfoResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/public/data_sharing_activation_info/${req.activationUrl ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/public/data_sharing_activation_info/${req.activationUrl ?? ''}`;
     let resp: GetActivationUrlInfoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -421,18 +429,19 @@ export class SharingClient {
     req: GetFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
-    const url = `${this.host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies/${req.name ?? ''}`;
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFederationPolicySchema);
@@ -452,18 +461,19 @@ export class SharingClient {
     req: GetProviderRequest,
     options?: CallOptions
   ): Promise<ProviderInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
     let resp: ProviderInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalProviderInfoSchema);
@@ -485,18 +495,19 @@ export class SharingClient {
     req: GetRecipientRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRecipientInfoSchema);
@@ -513,7 +524,8 @@ export class SharingClient {
     req: GetShareRequest,
     options?: CallOptions
   ): Promise<ShareInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeSharedData !== undefined) {
       params.append('include_shared_data', String(req.includeSharedData));
@@ -523,14 +535,14 @@ export class SharingClient {
     let resp: ShareInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalShareInfoSchema);
@@ -550,7 +562,8 @@ export class SharingClient {
     req: ListFederationPoliciesRequest,
     options?: CallOptions
   ): Promise<ListFederationPoliciesResponse> {
-    const url = `${this.host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -563,14 +576,14 @@ export class SharingClient {
     let resp: ListFederationPoliciesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -610,7 +623,8 @@ export class SharingClient {
     req: ListProviderShareAssetsRequest,
     options?: CallOptions
   ): Promise<ListProviderShareAssetsResponse> {
-    const url = `${this.host}/api/2.1/data-sharing/providers/${req.providerNameArg ?? ''}/shares/${req.shareNameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/data-sharing/providers/${req.providerNameArg ?? ''}/shares/${req.shareNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.tableMaxResults !== undefined) {
       params.append('table_max_results', String(req.tableMaxResults));
@@ -629,14 +643,14 @@ export class SharingClient {
     let resp: ListProviderShareAssetsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -661,7 +675,8 @@ export class SharingClient {
     req: ListProviderSharesRequest,
     options?: CallOptions
   ): Promise<ListProviderSharesResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/providers/${req.providerNameArg ?? ''}/shares`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/providers/${req.providerNameArg ?? ''}/shares`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -674,14 +689,14 @@ export class SharingClient {
     let resp: ListProviderSharesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListProviderSharesResponseSchema);
@@ -721,7 +736,8 @@ export class SharingClient {
     req: ListProvidersRequest,
     options?: CallOptions
   ): Promise<ListProvidersResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/providers`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/providers`;
     const params = new URLSearchParams();
     if (req.dataProviderGlobalMetastoreId !== undefined) {
       params.append(
@@ -740,14 +756,14 @@ export class SharingClient {
     let resp: ListProvidersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListProvidersResponseSchema);
@@ -781,7 +797,8 @@ export class SharingClient {
     req: ListRecipientSharePermissionsRequest,
     options?: CallOptions
   ): Promise<GetRecipientSharePermissionsResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/share-permissions`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/share-permissions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -794,14 +811,14 @@ export class SharingClient {
     let resp: GetRecipientSharePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -827,7 +844,8 @@ export class SharingClient {
     req: ListRecipientsRequest,
     options?: CallOptions
   ): Promise<ListRecipientsResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients`;
     const params = new URLSearchParams();
     if (req.dataRecipientGlobalMetastoreId !== undefined) {
       params.append(
@@ -846,14 +864,14 @@ export class SharingClient {
     let resp: ListRecipientsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListRecipientsResponseSchema);
@@ -890,7 +908,8 @@ export class SharingClient {
     req: ListSharePermissionsRequest,
     options?: CallOptions
   ): Promise<GetSharePermissionsResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -903,14 +922,14 @@ export class SharingClient {
     let resp: GetSharePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -933,7 +952,8 @@ export class SharingClient {
     req: ListSharesRequest,
     options?: CallOptions
   ): Promise<ListSharesResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -946,14 +966,14 @@ export class SharingClient {
     let resp: ListSharesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListSharesResponseSchema);
@@ -990,18 +1010,19 @@ export class SharingClient {
     req: RetrieveToken,
     options?: CallOptions
   ): Promise<RetrieveTokenResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/public/data_sharing_activation/${req.activationUrl ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/public/data_sharing_activation/${req.activationUrl ?? ''}`;
     let resp: RetrieveTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRetrieveTokenResponseSchema);
@@ -1021,19 +1042,20 @@ export class SharingClient {
     req: RotateRecipientTokenRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/rotate-token`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/rotate-token`;
     const body = marshalRequest(req, marshalRotateRecipientTokenRequestSchema);
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRecipientInfoSchema);
@@ -1053,19 +1075,20 @@ export class SharingClient {
     req: UpdateProviderRequest,
     options?: CallOptions
   ): Promise<ProviderInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateProviderRequestSchema);
     let resp: ProviderInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalProviderInfoSchema);
@@ -1085,19 +1108,20 @@ export class SharingClient {
     req: UpdateRecipientRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/recipients/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/recipients/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateRecipientRequestSchema);
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRecipientInfoSchema);
@@ -1130,19 +1154,20 @@ export class SharingClient {
     req: UpdateShareRequest,
     options?: CallOptions
   ): Promise<ShareInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateShareRequestSchema);
     let resp: ShareInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalShareInfoSchema);
@@ -1166,7 +1191,8 @@ export class SharingClient {
     req: UpdateSharePermissionsRequest,
     options?: CallOptions
   ): Promise<UpdateSharePermissionsResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
     const body = marshalRequest(
       req,
       marshalUpdateSharePermissionsRequestSchema
@@ -1174,14 +1200,14 @@ export class SharingClient {
     let resp: UpdateSharePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

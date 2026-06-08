@@ -7,6 +7,7 @@ import type {
 } from '@databricks/sdk-core/http';
 
 import {main} from '../src/streaming-upload';
+import {testCredentials} from './helpers';
 
 const TOTAL_BYTES = 5 * 1024 * 1024;
 
@@ -54,7 +55,11 @@ describe('streaming-upload example', () => {
       },
     };
 
-    await main({host: 'https://test.cloud.databricks.com', httpClient});
+    await main({
+      host: 'https://test.cloud.databricks.com',
+      httpClient,
+      credentials: testCredentials,
+    });
 
     // The whole 5 MiB payload was streamed to the transport.
     expect(streamedBytes).toBe(TOTAL_BYTES);

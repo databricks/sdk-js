@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -82,31 +82,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class CleanRoomsClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -123,19 +122,20 @@ export class CleanRoomsClient {
     req: CreateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
-    const url = `${this.host}/api/2.0/clean-rooms`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms`;
     const body = marshalRequest(req.cleanRoom, marshalCleanRoomSchema);
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
@@ -169,19 +169,20 @@ export class CleanRoomsClient {
     req: CreateCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.asset?.cleanRoomName ?? ''}/assets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.asset?.cleanRoomName ?? ''}/assets`;
     const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
@@ -198,7 +199,8 @@ export class CleanRoomsClient {
     req: CreateCleanRoomAssetReviewRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomAssetReviewResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/reviews`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/reviews`;
     const body = marshalRequest(
       req,
       marshalCreateCleanRoomAssetReviewRequestSchema
@@ -206,14 +208,14 @@ export class CleanRoomsClient {
     let resp: CreateCleanRoomAssetReviewResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -233,7 +235,8 @@ export class CleanRoomsClient {
     req: CreateCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules`;
     const body = marshalRequest(
       req,
       marshalCreateCleanRoomAutoApprovalRuleRequestSchema
@@ -241,14 +244,14 @@ export class CleanRoomsClient {
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
@@ -265,7 +268,8 @@ export class CleanRoomsClient {
     req: CreateCleanRoomOutputCatalogRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomOutputCatalogResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/output-catalogs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/output-catalogs`;
     const body = marshalRequest(
       req.outputCatalog,
       marshalCleanRoomOutputCatalogSchema
@@ -273,14 +277,14 @@ export class CleanRoomsClient {
     let resp: CreateCleanRoomOutputCatalogResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -305,17 +309,18 @@ export class CleanRoomsClient {
     req: DeleteCleanRoomRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -327,18 +332,19 @@ export class CleanRoomsClient {
     req: DeleteCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<DeleteCleanRoomAssetResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
     let resp: DeleteCleanRoomAssetResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -358,17 +364,18 @@ export class CleanRoomsClient {
     req: DeleteCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -380,18 +387,19 @@ export class CleanRoomsClient {
     req: GetCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
@@ -408,18 +416,19 @@ export class CleanRoomsClient {
     req: GetCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
@@ -436,18 +445,19 @@ export class CleanRoomsClient {
     req: GetCleanRoomAssetRevisionRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions/${req.etag ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions/${req.etag ?? ''}`;
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
@@ -464,18 +474,19 @@ export class CleanRoomsClient {
     req: GetCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
@@ -492,7 +503,8 @@ export class CleanRoomsClient {
     req: ListCleanRoomAssetRevisionsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAssetRevisionsResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -505,14 +517,14 @@ export class CleanRoomsClient {
     let resp: ListCleanRoomAssetRevisionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -549,7 +561,8 @@ export class CleanRoomsClient {
     req: ListCleanRoomAssetsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAssetsResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -559,14 +572,14 @@ export class CleanRoomsClient {
     let resp: ListCleanRoomAssetsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -603,7 +616,8 @@ export class CleanRoomsClient {
     req: ListCleanRoomAutoApprovalRulesRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAutoApprovalRulesResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -616,14 +630,14 @@ export class CleanRoomsClient {
     let resp: ListCleanRoomAutoApprovalRulesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -660,7 +674,8 @@ export class CleanRoomsClient {
     req: ListCleanRoomNotebookTaskRunsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomNotebookTaskRunsResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/runs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/runs`;
     const params = new URLSearchParams();
     if (req.notebookName !== undefined) {
       params.append('notebook_name', req.notebookName);
@@ -676,14 +691,14 @@ export class CleanRoomsClient {
     let resp: ListCleanRoomNotebookTaskRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -726,7 +741,8 @@ export class CleanRoomsClient {
     req: ListCleanRoomsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomsResponse> {
-    const url = `${this.host}/api/2.0/clean-rooms`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -739,14 +755,14 @@ export class CleanRoomsClient {
     let resp: ListCleanRoomsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListCleanRoomsResponseSchema);
@@ -786,19 +802,20 @@ export class CleanRoomsClient {
     req: UpdateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCleanRoomRequestSchema);
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
@@ -818,19 +835,20 @@ export class CleanRoomsClient {
     req: UpdateCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.asset?.assetType ?? ''}/${req.asset?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.asset?.assetType ?? ''}/${req.asset?.name ?? ''}`;
     const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
@@ -847,7 +865,8 @@ export class CleanRoomsClient {
     req: UpdateCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
-    const url = `${this.host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules/${req.autoApprovalRule?.ruleId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules/${req.autoApprovalRule?.ruleId ?? ''}`;
     const body = marshalRequest(
       req.autoApprovalRule,
       marshalCleanRoomAutoApprovalRuleSchema
@@ -855,14 +874,14 @@ export class CleanRoomsClient {
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);

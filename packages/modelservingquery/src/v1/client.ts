@@ -36,8 +36,8 @@ export class ModelServingQueryClient {
   // credential's name.
   private readonly userAgent: string;
   // Memoized configuration. The profile is resolved once, lazily, on the first
-  // request, then reused; host, workspaceId, and credentials are filled from it
-  // when not set explicitly.
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
   private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {

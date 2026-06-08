@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -52,31 +52,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class DataQualityClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -92,19 +91,20 @@ export class DataQualityClient {
     req: CancelRefreshRequest,
     options?: CallOptions
   ): Promise<CancelRefreshResponse> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}/cancel`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}/cancel`;
     const body = marshalRequest(req, marshalCancelRefreshRequestSchema);
     let resp: CancelRefreshResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCancelRefreshResponseSchema);
@@ -134,19 +134,20 @@ export class DataQualityClient {
     req: CreateMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
-    const url = `${this.host}/api/data-quality/v1/monitors`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors`;
     const body = marshalRequest(req.monitor, marshalMonitorSchema);
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMonitorSchema);
@@ -171,19 +172,20 @@ export class DataQualityClient {
     req: CreateRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.refresh?.objectType ?? ''}/${req.refresh?.objectId ?? ''}/refreshes`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.refresh?.objectType ?? ''}/${req.refresh?.objectId ?? ''}/refreshes`;
     const body = marshalRequest(req.refresh, marshalRefreshSchema);
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRefreshSchema);
@@ -214,17 +216,18 @@ export class DataQualityClient {
     req: DeleteMonitorRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -236,17 +239,18 @@ export class DataQualityClient {
     req: DeleteRefreshRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -273,18 +277,19 @@ export class DataQualityClient {
     req: GetMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMonitorSchema);
@@ -312,18 +317,19 @@ export class DataQualityClient {
     req: GetRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRefreshSchema);
@@ -340,7 +346,8 @@ export class DataQualityClient {
     req: ListMonitorRequest,
     options?: CallOptions
   ): Promise<ListMonitorResponse> {
-    const url = `${this.host}/api/data-quality/v1/monitors`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -353,14 +360,14 @@ export class DataQualityClient {
     let resp: ListMonitorResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListMonitorResponseSchema);
@@ -405,7 +412,8 @@ export class DataQualityClient {
     req: ListRefreshRequest,
     options?: CallOptions
   ): Promise<ListRefreshResponse> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -418,14 +426,14 @@ export class DataQualityClient {
     let resp: ListRefreshResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListRefreshResponseSchema);
@@ -470,7 +478,8 @@ export class DataQualityClient {
     req: UpdateMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -481,8 +490,8 @@ export class DataQualityClient {
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -494,7 +503,7 @@ export class DataQualityClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMonitorSchema);
@@ -511,7 +520,8 @@ export class DataQualityClient {
     req: UpdateRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
-    const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -522,8 +532,8 @@ export class DataQualityClient {
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -535,7 +545,7 @@ export class DataQualityClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRefreshSchema);

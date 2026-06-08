@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -82,31 +82,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class DatabaseClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Create a Database Catalog. */
@@ -114,19 +113,20 @@ export class DatabaseClient {
     req: CreateDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
-    const url = `${this.host}/api/2.0/database/catalogs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/catalogs`;
     const body = marshalRequest(req.catalog, marshalDatabaseCatalogSchema);
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
@@ -143,7 +143,8 @@ export class DatabaseClient {
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
-    const url = `${this.host}/api/2.0/database/instances`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances`;
     const body = marshalRequest(
       req.databaseInstance,
       marshalDatabaseInstanceSchema
@@ -151,14 +152,14 @@ export class DatabaseClient {
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
@@ -186,7 +187,8 @@ export class DatabaseClient {
     req: CreateDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
     const params = new URLSearchParams();
     if (req.databaseInstanceName !== undefined) {
       params.append('database_instance_name', req.databaseInstanceName);
@@ -200,8 +202,8 @@ export class DatabaseClient {
     let resp: DatabaseInstanceRole | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -213,7 +215,7 @@ export class DatabaseClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
@@ -233,19 +235,20 @@ export class DatabaseClient {
     req: CreateDatabaseTableRequest,
     options?: CallOptions
   ): Promise<DatabaseTable> {
-    const url = `${this.host}/api/2.0/database/tables`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/tables`;
     const body = marshalRequest(req.table, marshalDatabaseTableSchema);
     let resp: DatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
@@ -262,7 +265,8 @@ export class DatabaseClient {
     req: CreateSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
-    const url = `${this.host}/api/2.0/database/synced_tables`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/synced_tables`;
     const body = marshalRequest(
       req.syncedTable,
       marshalSyncedDatabaseTableSchema
@@ -270,14 +274,14 @@ export class DatabaseClient {
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
@@ -294,17 +298,18 @@ export class DatabaseClient {
     req: DeleteDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/database/catalogs/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/catalogs/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -316,7 +321,8 @@ export class DatabaseClient {
     req: DeleteDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -328,14 +334,14 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -347,7 +353,8 @@ export class DatabaseClient {
     req: DeleteDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.reassignOwnedTo !== undefined) {
       params.append('reassign_owned_to', req.reassignOwnedTo);
@@ -359,14 +366,14 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -378,17 +385,18 @@ export class DatabaseClient {
     req: DeleteDatabaseTableRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/database/tables/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/tables/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -400,7 +408,8 @@ export class DatabaseClient {
     req: DeleteSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.purgeData !== undefined) {
       params.append('purge_data', String(req.purgeData));
@@ -409,14 +418,14 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -428,7 +437,8 @@ export class DatabaseClient {
     req: FindDatabaseInstanceByUidRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
-    const url = `${this.host}/api/2.0/database/instances:findByUid`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances:findByUid`;
     const params = new URLSearchParams();
     if (req.uid !== undefined) {
       params.append('uid', req.uid);
@@ -438,14 +448,14 @@ export class DatabaseClient {
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
@@ -462,7 +472,8 @@ export class DatabaseClient {
     req: GenerateDatabaseCredentialRequest,
     options?: CallOptions
   ): Promise<DatabaseCredential> {
-    const url = `${this.host}/api/2.0/database/credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateDatabaseCredentialRequestSchema
@@ -470,14 +481,14 @@ export class DatabaseClient {
     let resp: DatabaseCredential | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
@@ -494,18 +505,19 @@ export class DatabaseClient {
     req: GetDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
-    const url = `${this.host}/api/2.0/database/catalogs/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/catalogs/${req.name ?? ''}`;
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
@@ -522,18 +534,19 @@ export class DatabaseClient {
     req: GetDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
-    const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.name ?? ''}`;
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
@@ -550,18 +563,19 @@ export class DatabaseClient {
     req: GetDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
     let resp: DatabaseInstanceRole | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
@@ -578,18 +592,19 @@ export class DatabaseClient {
     req: GetDatabaseTableRequest,
     options?: CallOptions
   ): Promise<DatabaseTable> {
-    const url = `${this.host}/api/2.0/database/tables/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/tables/${req.name ?? ''}`;
     let resp: DatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
@@ -606,18 +621,19 @@ export class DatabaseClient {
     req: GetSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
-    const url = `${this.host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
@@ -634,7 +650,8 @@ export class DatabaseClient {
     req: ListDatabaseCatalogsRequest,
     options?: CallOptions
   ): Promise<ListDatabaseCatalogsResponse> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/catalogs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/catalogs`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -647,14 +664,14 @@ export class DatabaseClient {
     let resp: ListDatabaseCatalogsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -696,7 +713,8 @@ export class DatabaseClient {
     req: ListDatabaseInstanceRolesRequest,
     options?: CallOptions
   ): Promise<ListDatabaseInstanceRolesResponse> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -709,14 +727,14 @@ export class DatabaseClient {
     let resp: ListDatabaseInstanceRolesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -753,7 +771,8 @@ export class DatabaseClient {
     req: ListDatabaseInstancesRequest,
     options?: CallOptions
   ): Promise<ListDatabaseInstancesResponse> {
-    const url = `${this.host}/api/2.0/database/instances`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -766,14 +785,14 @@ export class DatabaseClient {
     let resp: ListDatabaseInstancesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -810,7 +829,8 @@ export class DatabaseClient {
     req: ListSyncedDatabaseTablesRequest,
     options?: CallOptions
   ): Promise<ListSyncedDatabaseTablesResponse> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/synced_tables`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/synced_tables`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -823,14 +843,14 @@ export class DatabaseClient {
     let resp: ListSyncedDatabaseTablesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -867,7 +887,8 @@ export class DatabaseClient {
     req: UpdateDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
-    const url = `${this.host}/api/2.0/database/catalogs/${req.databaseCatalog?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/catalogs/${req.databaseCatalog?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -881,8 +902,8 @@ export class DatabaseClient {
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -894,7 +915,7 @@ export class DatabaseClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
@@ -911,7 +932,8 @@ export class DatabaseClient {
     req: UpdateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
-    const url = `${this.host}/api/2.0/database/instances/${req.databaseInstance?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/instances/${req.databaseInstance?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -925,8 +947,8 @@ export class DatabaseClient {
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -938,7 +960,7 @@ export class DatabaseClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
@@ -955,7 +977,8 @@ export class DatabaseClient {
     req: UpdateSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
-    const url = `${this.host}/api/2.0/database/synced_tables/${req.syncedTable?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/database/synced_tables/${req.syncedTable?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -969,8 +992,8 @@ export class DatabaseClient {
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -982,7 +1005,7 @@ export class DatabaseClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);

@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -103,31 +103,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class JobsClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -140,7 +139,8 @@ export class JobsClient {
     req: EnforcePolicyComplianceForJob,
     options?: CallOptions
   ): Promise<EnforcePolicyComplianceResponse> {
-    const url = `${this.host}/api/2.0/policies/jobs/enforce-compliance`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/jobs/enforce-compliance`;
     const body = marshalRequest(
       req,
       marshalEnforcePolicyComplianceForJobSchema
@@ -148,14 +148,14 @@ export class JobsClient {
     let resp: EnforcePolicyComplianceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -180,7 +180,8 @@ export class JobsClient {
     req: GetPolicyComplianceForJob,
     options?: CallOptions
   ): Promise<GetPolicyComplianceForJobResponse> {
-    const url = `${this.host}/api/2.0/policies/jobs/get-compliance`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/jobs/get-compliance`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
       params.append('job_id', String(req.jobId));
@@ -190,14 +191,14 @@ export class JobsClient {
     let resp: GetPolicyComplianceForJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -222,7 +223,8 @@ export class JobsClient {
     req: ListJobComplianceForPolicy,
     options?: CallOptions
   ): Promise<ListJobComplianceResponse> {
-    const url = `${this.host}/api/2.0/policies/jobs/list-compliance`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/jobs/list-compliance`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
       params.append('policy_id', req.policyId);
@@ -238,14 +240,14 @@ export class JobsClient {
     let resp: ListJobComplianceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListJobComplianceResponseSchema);
@@ -282,19 +284,20 @@ export class JobsClient {
     req: CancelAllRunsRequest,
     options?: CallOptions
   ): Promise<CancelAllRunsResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/cancel-all`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/runs/cancel-all`;
     const body = marshalRequest(req, marshalCancelAllRunsRequestSchema);
     let resp: CancelAllRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCancelAllRunsResponseSchema);
@@ -314,19 +317,20 @@ export class JobsClient {
     req: CancelRunRequest,
     options?: CallOptions
   ): Promise<CancelRunResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/cancel`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/runs/cancel`;
     const body = marshalRequest(req, marshalCancelRunRequestSchema);
     let resp: CancelRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCancelRunResponseSchema);
@@ -354,19 +358,20 @@ export class JobsClient {
     req: CreateJobRequest,
     options?: CallOptions
   ): Promise<CreateJobResponse> {
-    const url = `${this.host}/api/2.2/jobs/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/create`;
     const body = marshalRequest(req, marshalCreateJobRequestSchema);
     let resp: CreateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateJobResponseSchema);
@@ -383,19 +388,20 @@ export class JobsClient {
     req: DeleteJobRequest,
     options?: CallOptions
   ): Promise<DeleteJobResponse> {
-    const url = `${this.host}/api/2.2/jobs/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/delete`;
     const body = marshalRequest(req, marshalDeleteJobRequestSchema);
     let resp: DeleteJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteJobResponseSchema);
@@ -412,19 +418,20 @@ export class JobsClient {
     req: DeleteRunRequest,
     options?: CallOptions
   ): Promise<DeleteRunResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
     let resp: DeleteRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteRunResponseSchema);
@@ -441,7 +448,8 @@ export class JobsClient {
     req: ExportRunRequest,
     options?: CallOptions
   ): Promise<ExportRunResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/export`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.2/jobs/runs/export`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
       params.append('run_id', String(req.runId));
@@ -454,14 +462,14 @@ export class JobsClient {
     let resp: ExportRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalExportRunResponseSchema);
@@ -485,7 +493,8 @@ export class JobsClient {
     req: GetJobRequest,
     options?: CallOptions
   ): Promise<GetJobResponse> {
-    const url = `${this.host}/api/2.2/jobs/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.2/jobs/get`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
       params.append('job_id', String(req.jobId));
@@ -501,14 +510,14 @@ export class JobsClient {
     let resp: GetJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetJobResponseSchema);
@@ -532,7 +541,8 @@ export class JobsClient {
     req: GetRunRequest,
     options?: CallOptions
   ): Promise<GetRunResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.2/jobs/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
       params.append('run_id', String(req.runId));
@@ -554,14 +564,14 @@ export class JobsClient {
     let resp: GetRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetRunResponseSchema);
@@ -588,7 +598,8 @@ export class JobsClient {
     req: GetRunOutputRequest,
     options?: CallOptions
   ): Promise<GetRunOutputResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/get-output`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.2/jobs/runs/get-output`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
       params.append('run_id', String(req.runId));
@@ -598,14 +609,14 @@ export class JobsClient {
     let resp: GetRunOutputResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetRunOutputResponseSchema);
@@ -622,7 +633,8 @@ export class JobsClient {
     req: ListJobsRequest,
     options?: CallOptions
   ): Promise<ListJobsResponse> {
-    const url = `${this.host}/api/2.2/jobs/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.2/jobs/list`;
     const params = new URLSearchParams();
     if (req.offset !== undefined) {
       params.append('offset', String(req.offset));
@@ -644,14 +656,14 @@ export class JobsClient {
     let resp: ListJobsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListJobsResponseSchema);
@@ -685,7 +697,8 @@ export class JobsClient {
     req: ListRunsRequest,
     options?: CallOptions
   ): Promise<ListRunsResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.2/jobs/runs/list`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
       params.append('job_id', String(req.jobId));
@@ -725,14 +738,14 @@ export class JobsClient {
     let resp: ListRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListRunsResponseSchema);
@@ -770,19 +783,20 @@ export class JobsClient {
     req: RepairRunRequest,
     options?: CallOptions
   ): Promise<RepairRunResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/repair`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/jobs/runs/repair`;
     const body = marshalRequest(req, marshalRepairRunRequestSchema);
     let resp: RepairRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRepairRunResponseSchema);
@@ -810,19 +824,20 @@ export class JobsClient {
     req: ResetJobRequest,
     options?: CallOptions
   ): Promise<ResetJobResponse> {
-    const url = `${this.host}/api/2.2/jobs/reset`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/reset`;
     const body = marshalRequest(req, marshalResetJobRequestSchema);
     let resp: ResetJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalResetJobResponseSchema);
@@ -839,19 +854,20 @@ export class JobsClient {
     req: RunNowRequest,
     options?: CallOptions
   ): Promise<RunNowResponse> {
-    const url = `${this.host}/api/2.2/jobs/run-now`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowRequestSchema);
     let resp: RunNowResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRunNowResponseSchema);
@@ -891,19 +907,20 @@ export class JobsClient {
     req: SubmitRunRequest,
     options?: CallOptions
   ): Promise<SubmitRunResponse> {
-    const url = `${this.host}/api/2.2/jobs/runs/submit`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/runs/submit`;
     const body = marshalRequest(req, marshalSubmitRunRequestSchema);
     let resp: SubmitRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSubmitRunResponseSchema);
@@ -931,19 +948,20 @@ export class JobsClient {
     req: UpdateJobRequest,
     options?: CallOptions
   ): Promise<UpdateJobResponse> {
-    const url = `${this.host}/api/2.2/jobs/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/jobs/update`;
     const body = marshalRequest(req, marshalUpdateJobRequestSchema);
     let resp: UpdateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateJobResponseSchema);
