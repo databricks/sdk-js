@@ -9,22 +9,29 @@ import type {Profile} from '@databricks/sdk-core/profiles/browser';
 import type {Header} from '../../../src/auth';
 import {
   DefaultCredentials,
+  m2mStrategy,
   patStrategy,
 } from '../../../src/credentials/default/chain';
 import type {Strategy} from '../../../src/credentials/default/chain';
 import {DefaultCredentialsError} from '../../../src/credentials/default/errors';
+import type {DefaultCredentialsErrorCode} from '../../../src/credentials/default/errors';
 
 const HOST = 'https://workspace.example';
 
 function configuredStrategy(label: string): Strategy {
-  return () => ({
-    name: () => label,
-    authHeaders: () =>
-      Promise.resolve([{key: 'X-Test-Strategy', value: label}]),
-  });
+  return {
+    name: label,
+    configure: () => ({
+      name: () => label,
+      authHeaders: () =>
+        Promise.resolve([{key: 'X-Test-Strategy', value: label}]),
+    }),
+  };
 }
 
-const unconfiguredStrategy: Strategy = () => undefined;
+function unconfiguredStrategy(label: string): Strategy {
+  return {name: label, configure: () => undefined};
+}
 
 const loaderFor =
   (profile: Profile): (() => Promise<Profile>) =>
@@ -46,8 +53,23 @@ describe('DefaultCredentials chain', () => {
     },
     {
       name: 'falls through to the next strategy when earlier ones are unconfigured',
-      strategies: [unconfiguredStrategy, configuredStrategy('oauth-m2m')],
+      strategies: [
+        unconfiguredStrategy('pat'),
+        configuredStrategy('oauth-m2m'),
+      ],
       profile: {host: HOST},
+      wantHeaders: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+    },
+    {
+      // PAT is configured and comes first, but authType pins oauth-m2m, so
+      // oauth-m2m must win.
+      name: 'selects the strategy named by authType over an earlier configured strategy',
+      strategies: [patStrategy, configuredStrategy('oauth-m2m')],
+      profile: {
+        host: HOST,
+        token: new Secret('dapi-abc'),
+        authType: 'oauth-m2m',
+      },
       wantHeaders: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
     },
   ];
@@ -63,34 +85,20 @@ describe('DefaultCredentials chain', () => {
 
   it('caches the resolved strategy across calls', async () => {
     let buildCount = 0;
-    const strategy: Strategy = () => {
-      buildCount += 1;
-      return {
-        name: () => 'counting',
-        authHeaders: () => Promise.resolve([]),
-      };
+    const strategy: Strategy = {
+      name: 'counting',
+      configure: () => {
+        buildCount += 1;
+        return {
+          name: () => 'counting',
+          authHeaders: () => Promise.resolve([]),
+        };
+      },
     };
     const creds = new DefaultCredentials([strategy], loaderFor({}));
     await creds.authHeaders();
     await creds.authHeaders();
     expect(buildCount).toBe(1);
-  });
-
-  it('throws NO_AUTH_CONFIGURED when no strategy is configured', async () => {
-    const creds = new DefaultCredentials(
-      [patStrategy],
-      loaderFor({host: HOST})
-    );
-    let caught: unknown;
-    try {
-      await creds.authHeaders();
-    } catch (e) {
-      caught = e;
-    }
-    if (!(caught instanceof DefaultCredentialsError)) {
-      expect.fail(`expected DefaultCredentialsError, got ${String(caught)}`);
-    }
-    expect(caught.code).toBe('NO_AUTH_CONFIGURED');
   });
 
   it('invokes the profile loader exactly once', async () => {
@@ -105,13 +113,80 @@ describe('DefaultCredentials chain', () => {
     expect(loaderCalls).toBe(1);
   });
 
-  it('always reports name "default"', async () => {
-    const creds = new DefaultCredentials(
-      [patStrategy],
-      loaderFor({host: HOST, token: new Secret('dapi-abc')})
-    );
-    expect(creds.name()).toBe('default');
-    await creds.authHeaders();
-    expect(creds.name()).toBe('default');
+  const errorCases: {
+    name: string;
+    strategies: readonly Strategy[];
+    profile: Profile;
+    wantCode: DefaultCredentialsErrorCode;
+  }[] = [
+    {
+      name: 'throws NO_AUTH_CONFIGURED when no strategy is configured',
+      strategies: [patStrategy],
+      profile: {host: HOST},
+      wantCode: 'NO_AUTH_CONFIGURED',
+    },
+    {
+      name: 'throws AUTH_TYPE_NOT_FOUND when no strategy matches authType',
+      strategies: [patStrategy, m2mStrategy],
+      profile: {
+        host: HOST,
+        token: new Secret('dapi-abc'),
+        authType: 'made-up',
+      },
+      wantCode: 'AUTH_TYPE_NOT_FOUND',
+    },
+    {
+      name: 'throws NO_AUTH_CONFIGURED when the strategy named by authType is not configured',
+      strategies: [patStrategy, configuredStrategy('oauth-m2m')],
+      profile: {host: HOST, authType: 'pat'},
+      wantCode: 'NO_AUTH_CONFIGURED',
+    },
+  ];
+
+  it.each(errorCases)('$name', async ({strategies, profile, wantCode}) => {
+    const creds = new DefaultCredentials(strategies, loaderFor(profile));
+    let caught: unknown;
+    try {
+      await creds.authHeaders();
+    } catch (e) {
+      caught = e;
+    }
+    if (!(caught instanceof DefaultCredentialsError)) {
+      expect.fail(`expected DefaultCredentialsError, got ${String(caught)}`);
+    }
+    expect(caught.code).toBe(wantCode);
+  });
+
+  describe('name()', () => {
+    const nameCases: {
+      name: string;
+      strategies: readonly Strategy[];
+      profile: Profile;
+      wantName: string;
+    }[] = [
+      {
+        name: 'reports the first configured strategy when authType is not set',
+        strategies: [patStrategy],
+        profile: {host: HOST, token: new Secret('dapi-abc')},
+        wantName: 'pat',
+      },
+      {
+        name: 'reports the strategy selected by authType',
+        strategies: [patStrategy, configuredStrategy('oauth-m2m')],
+        profile: {
+          host: HOST,
+          token: new Secret('dapi-abc'),
+          authType: 'oauth-m2m',
+        },
+        wantName: 'oauth-m2m',
+      },
+    ];
+
+    it.each(nameCases)('$name', async ({strategies, profile, wantName}) => {
+      const creds = new DefaultCredentials(strategies, loaderFor(profile));
+      expect(creds.name()).toBe('default');
+      await creds.authHeaders();
+      expect(creds.name()).toBe(wantName);
+    });
   });
 });

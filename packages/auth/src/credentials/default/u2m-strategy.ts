@@ -8,13 +8,16 @@ import type {Strategy} from './chain';
  * The CLI must have been logged in ahead of time via `databricks auth
  * login`.
  */
-export const u2mStrategy: Strategy = profile => {
-  if (profile.host === undefined) return undefined;
-  if (profile.name === undefined) return undefined;
-  return newU2mCredentials({
-    profile: profile.name,
-    ...(profile.databricksCliPath !== undefined && {
-      cliPath: profile.databricksCliPath,
-    }),
-  });
+export const u2mStrategy: Strategy = {
+  name: 'databricks-cli',
+  configure: profile => {
+    if (profile.host === undefined) return undefined;
+    if (profile.name === undefined) return undefined;
+    return newU2mCredentials({
+      profile: profile.name,
+      ...(profile.databricksCliPath !== undefined && {
+        cliPath: profile.databricksCliPath,
+      }),
+    });
+  },
 };
