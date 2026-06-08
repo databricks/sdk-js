@@ -14,7 +14,6 @@
 
 import {newPatCredentials} from '@databricks/sdk-auth/credentials';
 import {ApiError} from '@databricks/sdk-core/apierror';
-import {codeToString} from '@databricks/sdk-core/apierror/codes';
 import {LogLevel} from '@databricks/sdk-core/logger';
 
 const log = new LogLevel('debug');
@@ -86,7 +85,7 @@ async function runErrorHandling(): Promise<void> {
   );
   const err404 = await toApiError(resp404);
   if (err404) {
-    log.info('  Code:       ', codeToString(err404.code));
+    log.info('  Code:       ', err404.code);
     log.info('  HTTP Status:', err404.httpStatusCode);
     log.info('  Message:    ', err404.message);
     if (err404.details.errorInfo) {
@@ -108,7 +107,7 @@ async function runErrorHandling(): Promise<void> {
   });
   const err401 = await toApiError(resp401);
   if (err401) {
-    log.info('  Code:       ', codeToString(err401.code));
+    log.info('  Code:       ', err401.code);
     log.info('  HTTP Status:', err401.httpStatusCode);
     log.info('  Message:    ', err401.message);
   }

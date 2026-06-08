@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {ApiError, toCode} from '../../src/apierror/apierror';
+import {ApiError} from '../../src/apierror/apierror';
 import {Code} from '../../src/apierror/codes';
 import type {ErrorDetails} from '../../src/apierror/details';
 
@@ -144,7 +144,7 @@ describe('fromHttpError', () => {
       desc: 'empty body with status',
       statusCode: 400,
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
       }),
@@ -154,7 +154,7 @@ describe('fromHttpError', () => {
       statusCode: 404,
       header: new Headers({'Content-Type': 'application/json'}),
       want: new ApiError({
-        code: Code.NOT_FOUND,
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
       }),
@@ -164,7 +164,7 @@ describe('fromHttpError', () => {
       statusCode: 502,
       body: encode('<html><body>Bad Gateway</body></html>'),
       want: new ApiError({
-        code: Code.INTERNAL,
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
       }),
@@ -174,7 +174,7 @@ describe('fromHttpError', () => {
       statusCode: 400,
       body: encode('{not valid json'),
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: '',
         details: emptyDetails,
       }),
@@ -187,7 +187,6 @@ describe('fromHttpError', () => {
       ),
       want: new ApiError({
         code: Code.NOT_FOUND,
-        errorCode: 'NOT_FOUND',
         message: 'Job 123 not found',
         details: emptyDetails,
       }),
@@ -210,7 +209,6 @@ describe('fromHttpError', () => {
       ),
       want: new ApiError({
         code: Code.NOT_FOUND,
-        errorCode: 'NOT_FOUND',
         message: 'Job 123 not found',
         details: {
           errorInfo: {
@@ -223,14 +221,13 @@ describe('fromHttpError', () => {
       }),
     },
     {
-      desc: 'Databricks-specific error_code falls back to status code',
+      desc: 'Databricks-specific error_code is carried verbatim as the code',
       statusCode: 404,
       body: encode(
         '{"error_code": "CATALOG_DOES_NOT_EXIST", "message": "Catalog not found"}'
       ),
       want: new ApiError({
-        code: Code.NOT_FOUND,
-        errorCode: 'CATALOG_DOES_NOT_EXIST',
+        code: 'CATALOG_DOES_NOT_EXIST',
         message: 'Catalog not found',
         details: emptyDetails,
       }),
@@ -240,7 +237,7 @@ describe('fromHttpError', () => {
       statusCode: 403,
       body: encode('{"message": "Access denied"}'),
       want: new ApiError({
-        code: Code.PERMISSION_DENIED,
+        code: Code.UNKNOWN,
         message: 'Access denied',
         details: emptyDetails,
       }),
@@ -250,7 +247,7 @@ describe('fromHttpError', () => {
       statusCode: 400,
       body: encode('{"error_code": 42, "message": "Invalid request"}'),
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: 'Invalid request',
         details: emptyDetails,
       }),
@@ -260,7 +257,7 @@ describe('fromHttpError', () => {
       statusCode: 400,
       body: encode('{"error": "Invalid parameter"}'),
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: 'Invalid parameter',
         details: emptyDetails,
       }),
@@ -270,7 +267,7 @@ describe('fromHttpError', () => {
       statusCode: 400,
       body: encode('{"message": "New message", "error": "Old error"}'),
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: 'New message',
         details: emptyDetails,
       }),
@@ -280,7 +277,7 @@ describe('fromHttpError', () => {
       statusCode: 404,
       body: encode('{"detail": "User not found", "scimType": "invalidValue"}'),
       want: new ApiError({
-        code: Code.NOT_FOUND,
+        code: Code.UNKNOWN,
         message: 'User not found',
         details: emptyDetails,
       }),
@@ -290,7 +287,7 @@ describe('fromHttpError', () => {
       statusCode: 400,
       body: encode('{"scimType": "uniqueness"}'),
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: 'uniqueness',
         details: emptyDetails,
       }),
@@ -300,7 +297,7 @@ describe('fromHttpError', () => {
       statusCode: 400,
       body: encode('{"message": "Standard message", "detail": "SCIM detail"}'),
       want: new ApiError({
-        code: Code.INVALID_ARGUMENT,
+        code: Code.UNKNOWN,
         message: 'Standard message',
         details: emptyDetails,
       }),
@@ -320,7 +317,6 @@ describe('fromHttpError', () => {
     }
 
     expect(got.code).toBe(tc.want.code);
-    expect(got.errorCode).toBe(tc.want.errorCode);
     expect(got.message).toBe(tc.want.message);
     expect(got.details).toStrictEqual(tc.want.details);
     expect(got.httpStatusCode).toBe(tc.statusCode);
@@ -330,47 +326,5 @@ describe('fromHttpError', () => {
     } else {
       expect(got.httpBody).toStrictEqual(tc.body);
     }
-  });
-});
-
-describe('toCode', () => {
-  const testCases: {
-    httpCode: number;
-    want: Code;
-  }[] = [
-    // Direct mappings.
-    {httpCode: 200, want: Code.OK},
-    {httpCode: 400, want: Code.INVALID_ARGUMENT},
-    {httpCode: 401, want: Code.UNAUTHENTICATED},
-    {httpCode: 403, want: Code.PERMISSION_DENIED},
-    {httpCode: 404, want: Code.NOT_FOUND},
-    {httpCode: 409, want: Code.ABORTED},
-    {httpCode: 416, want: Code.OUT_OF_RANGE},
-    {httpCode: 429, want: Code.RESOURCE_EXHAUSTED},
-    {httpCode: 504, want: Code.DEADLINE_EXCEEDED},
-    {httpCode: 501, want: Code.UNIMPLEMENTED},
-    {httpCode: 503, want: Code.UNAVAILABLE},
-
-    // Fallback ranges.
-    {httpCode: 201, want: Code.OK},
-    {httpCode: 204, want: Code.OK},
-    {httpCode: 418, want: Code.FAILED_PRECONDITION},
-    {httpCode: 500, want: Code.INTERNAL},
-    {httpCode: 599, want: Code.INTERNAL},
-
-    // Unknown (valid).
-    {httpCode: 100, want: Code.UNKNOWN},
-    {httpCode: 300, want: Code.UNKNOWN},
-
-    // Unknown (invalid).
-    {httpCode: -1, want: Code.UNKNOWN},
-    {httpCode: 0, want: Code.UNKNOWN},
-    {httpCode: 42, want: Code.UNKNOWN},
-    {httpCode: 600, want: Code.UNKNOWN},
-    {httpCode: 1337, want: Code.UNKNOWN},
-  ];
-
-  it.each(testCases)('status $httpCode', ({httpCode, want}) => {
-    expect(toCode(httpCode)).toBe(want);
   });
 });

@@ -4,4 +4,4 @@
  * @packageDocumentation
  */
 
-export {Code, codeToString, codeFromString} from './codes';
+export {Code} from './codes';
