@@ -318,6 +318,14 @@ export class AppsClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createSpaceOperation(req);
+   * const result = await op.wait();
+   */
   async createSpaceOperation(
     req: CreateSpaceRequest,
     options?: CallOptions
@@ -435,6 +443,14 @@ export class AppsClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteSpaceOperation(req);
+   * const result = await op.wait();
+   */
   async deleteSpaceOperation(
     req: DeleteSpaceRequest,
     options?: CallOptions
@@ -1050,6 +1066,14 @@ export class AppsClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateSpaceOperation(req);
+   * const result = await op.wait();
+   */
   async updateSpaceOperation(
     req: UpdateSpaceRequest,
     options?: CallOptions
@@ -1086,9 +1110,9 @@ export class CreateSpaceOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Space> {
     let result: Space | undefined;
@@ -1168,9 +1192,9 @@ export class DeleteSpaceOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1238,9 +1262,9 @@ export class UpdateSpaceOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Space> {
     let result: Space | undefined;

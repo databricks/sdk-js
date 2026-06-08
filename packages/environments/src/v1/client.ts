@@ -136,6 +136,14 @@ export class EnvironmentsClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createWorkspaceBaseEnvironmentOperation(req);
+   * const result = await op.wait();
+   */
   async createWorkspaceBaseEnvironmentOperation(
     req: CreateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
@@ -380,6 +388,14 @@ export class EnvironmentsClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.refreshWorkspaceBaseEnvironmentOperation(req);
+   * const result = await op.wait();
+   */
   async refreshWorkspaceBaseEnvironmentOperation(
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
@@ -479,6 +495,14 @@ export class EnvironmentsClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateWorkspaceBaseEnvironmentOperation(req);
+   * const result = await op.wait();
+   */
   async updateWorkspaceBaseEnvironmentOperation(
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
@@ -517,9 +541,9 @@ export class CreateWorkspaceBaseEnvironmentOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<WorkspaceBaseEnvironment> {
     let result: WorkspaceBaseEnvironment | undefined;
@@ -603,9 +627,9 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<WorkspaceBaseEnvironment> {
     let result: WorkspaceBaseEnvironment | undefined;
@@ -689,9 +713,9 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<WorkspaceBaseEnvironment> {
     let result: WorkspaceBaseEnvironment | undefined;

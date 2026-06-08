@@ -190,6 +190,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createBranchOperation(req);
+   * const result = await op.wait();
+   */
   async createBranchOperation(
     req: CreateBranchRequest,
     options?: CallOptions
@@ -242,6 +250,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createCatalogOperation(req);
+   * const result = await op.wait();
+   */
   async createCatalogOperation(
     req: CreateCatalogRequest,
     options?: CallOptions
@@ -298,6 +314,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createDatabaseOperation(req);
+   * const result = await op.wait();
+   */
   async createDatabaseOperation(
     req: CreateDatabaseRequest,
     options?: CallOptions
@@ -353,6 +377,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createEndpointOperation(req);
+   * const result = await op.wait();
+   */
   async createEndpointOperation(
     req: CreateEndpointRequest,
     options?: CallOptions
@@ -405,6 +437,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createProjectOperation(req);
+   * const result = await op.wait();
+   */
   async createProjectOperation(
     req: CreateProjectRequest,
     options?: CallOptions
@@ -457,6 +497,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createRoleOperation(req);
+   * const result = await op.wait();
+   */
   async createRoleOperation(
     req: CreateRoleRequest,
     options?: CallOptions
@@ -509,6 +557,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.createSyncedTableOperation(req);
+   * const result = await op.wait();
+   */
   async createSyncedTableOperation(
     req: CreateSyncedTableRequest,
     options?: CallOptions
@@ -554,6 +610,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteBranchOperation(req);
+   * const result = await op.wait();
+   */
   async deleteBranchOperation(
     req: DeleteBranchRequest,
     options?: CallOptions
@@ -593,6 +657,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteCatalogOperation(req);
+   * const result = await op.wait();
+   */
   async deleteCatalogOperation(
     req: DeleteCatalogRequest,
     options?: CallOptions
@@ -632,6 +704,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteDatabaseOperation(req);
+   * const result = await op.wait();
+   */
   async deleteDatabaseOperation(
     req: DeleteDatabaseRequest,
     options?: CallOptions
@@ -671,6 +751,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteEndpointOperation(req);
+   * const result = await op.wait();
+   */
   async deleteEndpointOperation(
     req: DeleteEndpointRequest,
     options?: CallOptions
@@ -716,6 +804,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteProjectOperation(req);
+   * const result = await op.wait();
+   */
   async deleteProjectOperation(
     req: DeleteProjectRequest,
     options?: CallOptions
@@ -761,6 +857,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteRoleOperation(req);
+   * const result = await op.wait();
+   */
   async deleteRoleOperation(
     req: DeleteRoleRequest,
     options?: CallOptions
@@ -800,6 +904,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.deleteSyncedTableOperation(req);
+   * const result = await op.wait();
+   */
   async deleteSyncedTableOperation(
     req: DeleteSyncedTableRequest,
     options?: CallOptions
@@ -1383,6 +1495,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.undeleteBranchOperation(req);
+   * const result = await op.wait();
+   */
   async undeleteBranchOperation(
     req: UndeleteBranchRequest,
     options?: CallOptions
@@ -1423,6 +1543,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.undeleteProjectOperation(req);
+   * const result = await op.wait();
+   */
   async undeleteProjectOperation(
     req: UndeleteProjectRequest,
     options?: CallOptions
@@ -1475,6 +1603,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateBranchOperation(req);
+   * const result = await op.wait();
+   */
   async updateBranchOperation(
     req: UpdateBranchRequest,
     options?: CallOptions
@@ -1527,6 +1663,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateDatabaseOperation(req);
+   * const result = await op.wait();
+   */
   async updateDatabaseOperation(
     req: UpdateDatabaseRequest,
     options?: CallOptions
@@ -1579,6 +1723,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateEndpointOperation(req);
+   * const result = await op.wait();
+   */
   async updateEndpointOperation(
     req: UpdateEndpointRequest,
     options?: CallOptions
@@ -1631,6 +1783,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateProjectOperation(req);
+   * const result = await op.wait();
+   */
   async updateProjectOperation(
     req: UpdateProjectRequest,
     options?: CallOptions
@@ -1683,6 +1843,14 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the operation and returns a handle to it. Call `wait()` on the
+   * returned handle to poll until the operation completes.
+   *
+   * @example
+   * const op = await client.updateRoleOperation(req);
+   * const result = await op.wait();
+   */
   async updateRoleOperation(
     req: UpdateRoleRequest,
     options?: CallOptions
@@ -1721,9 +1889,9 @@ export class CreateBranchOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Branch> {
     let result: Branch | undefined;
@@ -1805,9 +1973,9 @@ export class CreateCatalogOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Catalog> {
     let result: Catalog | undefined;
@@ -1889,9 +2057,9 @@ export class CreateDatabaseOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Database> {
     let result: Database | undefined;
@@ -1973,9 +2141,9 @@ export class CreateEndpointOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Endpoint> {
     let result: Endpoint | undefined;
@@ -2057,9 +2225,9 @@ export class CreateProjectOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Project> {
     let result: Project | undefined;
@@ -2141,9 +2309,9 @@ export class CreateRoleOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Role> {
     let result: Role | undefined;
@@ -2225,9 +2393,9 @@ export class CreateSyncedTableOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<SyncedTable> {
     let result: SyncedTable | undefined;
@@ -2311,9 +2479,9 @@ export class DeleteBranchOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2383,9 +2551,9 @@ export class DeleteCatalogOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2455,9 +2623,9 @@ export class DeleteDatabaseOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2527,9 +2695,9 @@ export class DeleteEndpointOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2599,9 +2767,9 @@ export class DeleteProjectOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2671,9 +2839,9 @@ export class DeleteRoleOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2743,9 +2911,9 @@ export class DeleteSyncedTableOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2815,9 +2983,9 @@ export class UndeleteBranchOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2887,9 +3055,9 @@ export class UndeleteProjectOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<void> {
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2959,9 +3127,9 @@ export class UpdateBranchOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Branch> {
     let result: Branch | undefined;
@@ -3043,9 +3211,9 @@ export class UpdateDatabaseOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Database> {
     let result: Database | undefined;
@@ -3127,9 +3295,9 @@ export class UpdateEndpointOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Endpoint> {
     let result: Endpoint | undefined;
@@ -3211,9 +3379,9 @@ export class UpdateProjectOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Project> {
     let result: Project | undefined;
@@ -3295,9 +3463,9 @@ export class UpdateRoleOperation {
   }
 
   /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
+   * Polls the operation until it completes and returns the result. Throws if the
+   * operation failed. `options` is optional; call `wait()` to poll with the
+   * defaults.
    */
   async wait(options?: LroOptions): Promise<Role> {
     let result: Role | undefined;
