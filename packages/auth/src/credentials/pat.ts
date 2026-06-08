@@ -12,13 +12,23 @@ import {PatCredentialsError} from './errors';
  *
  * @param token - The personal access token.
  * @returns Credentials for PAT authentication.
- * @throws PatCredentialsError if token is empty.
+ * @throws PatCredentialsError with code `TOKEN_REQUIRED` if the token is empty
+ *   after trimming, or `TOKEN_MALFORMED` if it contains internal whitespace.
  */
 export function newPatCredentials(token: string): Credentials {
-  if (token === '') {
+  const trimmed = token.trim();
+  if (trimmed === '') {
     throw new PatCredentialsError('TOKEN_REQUIRED', 'token is required');
   }
-  return new PatCredentials(token);
+  // Internal whitespace would corrupt the header even after trimming, so
+  // reject it rather than silently producing a malformed `Bearer` value.
+  if (/\s/.test(trimmed)) {
+    throw new PatCredentialsError(
+      'TOKEN_MALFORMED',
+      'token must not contain whitespace'
+    );
+  }
+  return new PatCredentials(trimmed);
 }
 
 class PatCredentials implements Credentials {

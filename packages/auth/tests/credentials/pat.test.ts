@@ -19,6 +19,16 @@ describe('newPatCredentials', () => {
       token: 'some-other-token',
       expected: [{key: 'Authorization', value: 'Bearer some-other-token'}],
     },
+    {
+      name: 'token with a trailing newline',
+      token: 'dapi1234567890abcdef\n',
+      expected: [{key: 'Authorization', value: 'Bearer dapi1234567890abcdef'}],
+    },
+    {
+      name: 'token with surrounding whitespace',
+      token: '  dapi1234567890abcdef\t\n',
+      expected: [{key: 'Authorization', value: 'Bearer dapi1234567890abcdef'}],
+    },
   ];
 
   it.each(validCases)(
@@ -52,6 +62,24 @@ describe('newPatCredentials', () => {
       token: '',
       code: 'TOKEN_REQUIRED',
       message: 'token is required',
+    },
+    {
+      name: 'whitespace-only token',
+      token: '  \n\t',
+      code: 'TOKEN_REQUIRED',
+      message: 'token is required',
+    },
+    {
+      name: 'token with internal whitespace',
+      token: 'dapi 1234567890abcdef',
+      code: 'TOKEN_MALFORMED',
+      message: 'token must not contain whitespace',
+    },
+    {
+      name: 'token with an internal newline',
+      token: 'dapiABC\ndapiDEF',
+      code: 'TOKEN_MALFORMED',
+      message: 'token must not contain whitespace',
     },
   ];
 
