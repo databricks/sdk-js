@@ -9,6 +9,7 @@ import type {
 import {PostgresClient} from '@databricks/sdk-postgres/v1';
 
 import {main} from '../src/oneof';
+import {testCredentials} from './helpers';
 
 const PROJECT_NAME = 'projects/sdkjs-oneof-demo';
 
@@ -61,7 +62,11 @@ function listProjectsClient(): HttpClient {
 describe('oneof example', () => {
   it('decodes the suspension oneof into the suspendTimeoutDuration variant', async () => {
     const host = 'https://test.cloud.databricks.com';
-    const client = new PostgresClient({host, httpClient: listProjectsClient()});
+    const client = new PostgresClient({
+      host,
+      httpClient: listProjectsClient(),
+      credentials: testCredentials,
+    });
 
     // Pull the first project the same way the example does, then inspect the
     // discriminated union the wire JSON decodes into.
@@ -89,7 +94,11 @@ describe('oneof example', () => {
   it('runs main() against the stub transport without throwing', async () => {
     const host = 'https://test.cloud.databricks.com';
     await expect(
-      main({host, httpClient: listProjectsClient()})
+      main({
+        host,
+        httpClient: listProjectsClient(),
+        credentials: testCredentials,
+      })
     ).resolves.toBeUndefined();
   });
 });

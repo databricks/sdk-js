@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -38,31 +38,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class SecretsClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -78,19 +77,20 @@ export class SecretsClient {
     req: CreateSecretRequest,
     options?: CallOptions
   ): Promise<Secret> {
-    const url = `${this.host}/api/2.1/unity-catalog/secrets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/secrets`;
     const body = marshalRequest(req.secret, marshalSecretSchema);
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSecretSchema);
@@ -111,17 +111,18 @@ export class SecretsClient {
     req: DeleteSecretRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -141,7 +142,8 @@ export class SecretsClient {
     req: GetSecretRequest,
     options?: CallOptions
   ): Promise<Secret> {
-    const url = `${this.host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
       params.append('include_browse', String(req.includeBrowse));
@@ -151,14 +153,14 @@ export class SecretsClient {
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSecretSchema);
@@ -184,7 +186,8 @@ export class SecretsClient {
     req: ListSecretsRequest,
     options?: CallOptions
   ): Promise<ListSecretsResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/secrets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/secrets`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
       params.append('catalog_name', req.catalogName);
@@ -206,14 +209,14 @@ export class SecretsClient {
     let resp: ListSecretsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListSecretsResponseSchema);
@@ -255,7 +258,8 @@ export class SecretsClient {
     req: UpdateSecretRequest,
     options?: CallOptions
   ): Promise<Secret> {
-    const url = `${this.host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -266,8 +270,8 @@ export class SecretsClient {
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -279,7 +283,7 @@ export class SecretsClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSecretSchema);

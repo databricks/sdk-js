@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -119,31 +119,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class PostgresClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Creates a new database branch in the project. */
@@ -151,7 +150,8 @@ export class PostgresClient {
     req: CreateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
     const params = new URLSearchParams();
     if (req.branchId !== undefined) {
       params.append('branch_id', req.branchId);
@@ -165,8 +165,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -178,7 +178,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -205,7 +205,8 @@ export class PostgresClient {
     req: CreateCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/catalogs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/catalogs`;
     const params = new URLSearchParams();
     if (req.catalogId !== undefined) {
       params.append('catalog_id', req.catalogId);
@@ -216,8 +217,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -229,7 +230,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -260,7 +261,8 @@ export class PostgresClient {
     req: CreateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
     const params = new URLSearchParams();
     if (req.databaseId !== undefined) {
       params.append('database_id', req.databaseId);
@@ -271,8 +273,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -284,7 +286,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -311,7 +313,8 @@ export class PostgresClient {
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
     const params = new URLSearchParams();
     if (req.endpointId !== undefined) {
       params.append('endpoint_id', req.endpointId);
@@ -325,8 +328,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -338,7 +341,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -365,7 +368,8 @@ export class PostgresClient {
     req: CreateProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/projects`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/projects`;
     const params = new URLSearchParams();
     if (req.projectId !== undefined) {
       params.append('project_id', req.projectId);
@@ -376,8 +380,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -389,7 +393,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -416,7 +420,8 @@ export class PostgresClient {
     req: CreateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
     const params = new URLSearchParams();
     if (req.roleId !== undefined) {
       params.append('role_id', req.roleId);
@@ -427,8 +432,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -440,7 +445,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -467,7 +472,8 @@ export class PostgresClient {
     req: CreateSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/synced_tables`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/synced_tables`;
     const params = new URLSearchParams();
     if (req.syncedTableId !== undefined) {
       params.append('synced_table_id', req.syncedTableId);
@@ -478,8 +484,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -491,7 +497,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -518,7 +524,8 @@ export class PostgresClient {
     req: DeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
       params.append('purge', String(req.purge));
@@ -528,14 +535,14 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -562,18 +569,19 @@ export class PostgresClient {
     req: DeleteCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -600,18 +608,19 @@ export class PostgresClient {
     req: DeleteDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -638,18 +647,19 @@ export class PostgresClient {
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -676,7 +686,8 @@ export class PostgresClient {
     req: DeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
       params.append('purge', String(req.purge));
@@ -686,14 +697,14 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -720,7 +731,8 @@ export class PostgresClient {
     req: DeleteRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.reassignOwnedTo !== undefined) {
       params.append('reassign_owned_to', req.reassignOwnedTo);
@@ -730,14 +742,14 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -764,18 +776,19 @@ export class PostgresClient {
     req: DeleteSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -802,7 +815,8 @@ export class PostgresClient {
     req: GenerateDatabaseCredentialRequest,
     options?: CallOptions
   ): Promise<DatabaseCredential> {
-    const url = `${this.host}/api/2.0/postgres/credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateDatabaseCredentialRequestSchema
@@ -810,14 +824,14 @@ export class PostgresClient {
     let resp: DatabaseCredential | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
@@ -834,18 +848,19 @@ export class PostgresClient {
     req: GetBranchRequest,
     options?: CallOptions
   ): Promise<Branch> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Branch | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalBranchSchema);
@@ -862,18 +877,19 @@ export class PostgresClient {
     req: GetCatalogRequest,
     options?: CallOptions
   ): Promise<Catalog> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Catalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCatalogSchema);
@@ -890,18 +906,19 @@ export class PostgresClient {
     req: GetDatabaseRequest,
     options?: CallOptions
   ): Promise<Database> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Database | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseSchema);
@@ -918,18 +935,19 @@ export class PostgresClient {
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
@@ -946,18 +964,19 @@ export class PostgresClient {
     req: GetOperationRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -974,18 +993,19 @@ export class PostgresClient {
     req: GetProjectRequest,
     options?: CallOptions
   ): Promise<Project> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Project | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalProjectSchema);
@@ -999,18 +1019,19 @@ export class PostgresClient {
 
   /** Retrieves information about the specified Postgres role, including its authentication method and permissions. */
   async getRole(req: GetRoleRequest, options?: CallOptions): Promise<Role> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Role | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRoleSchema);
@@ -1027,18 +1048,19 @@ export class PostgresClient {
     req: GetSyncedTableRequest,
     options?: CallOptions
   ): Promise<SyncedTable> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: SyncedTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSyncedTableSchema);
@@ -1055,7 +1077,8 @@ export class PostgresClient {
     req: ListBranchesRequest,
     options?: CallOptions
   ): Promise<ListBranchesResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1071,14 +1094,14 @@ export class PostgresClient {
     let resp: ListBranchesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListBranchesResponseSchema);
@@ -1112,7 +1135,8 @@ export class PostgresClient {
     req: ListDatabasesRequest,
     options?: CallOptions
   ): Promise<ListDatabasesResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1125,14 +1149,14 @@ export class PostgresClient {
     let resp: ListDatabasesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListDatabasesResponseSchema);
@@ -1166,7 +1190,8 @@ export class PostgresClient {
     req: ListEndpointsRequest,
     options?: CallOptions
   ): Promise<ListEndpointsResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1179,14 +1204,14 @@ export class PostgresClient {
     let resp: ListEndpointsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListEndpointsResponseSchema);
@@ -1220,7 +1245,8 @@ export class PostgresClient {
     req: ListProjectsRequest,
     options?: CallOptions
   ): Promise<ListProjectsResponse> {
-    const url = `${this.host}/api/2.0/postgres/projects`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/projects`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1236,14 +1262,14 @@ export class PostgresClient {
     let resp: ListProjectsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListProjectsResponseSchema);
@@ -1277,7 +1303,8 @@ export class PostgresClient {
     req: ListRolesRequest,
     options?: CallOptions
   ): Promise<ListRolesResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1290,14 +1317,14 @@ export class PostgresClient {
     let resp: ListRolesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListRolesResponseSchema);
@@ -1331,19 +1358,20 @@ export class PostgresClient {
     req: UndeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
     const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -1370,19 +1398,20 @@ export class PostgresClient {
     req: UndeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
     const body = marshalRequest(req, marshalUndeleteProjectRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -1409,7 +1438,8 @@ export class PostgresClient {
     req: UpdateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.branch?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.branch?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1420,8 +1450,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -1433,7 +1463,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -1460,7 +1490,8 @@ export class PostgresClient {
     req: UpdateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.database?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.database?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1471,8 +1502,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -1484,7 +1515,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -1511,7 +1542,8 @@ export class PostgresClient {
     req: UpdateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.endpoint?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.endpoint?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1522,8 +1554,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -1535,7 +1567,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -1562,7 +1594,8 @@ export class PostgresClient {
     req: UpdateProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.project?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.project?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1573,8 +1606,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -1586,7 +1619,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
@@ -1613,7 +1646,8 @@ export class PostgresClient {
     req: UpdateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.role?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.role?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1624,8 +1658,8 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -1637,7 +1671,7 @@ export class PostgresClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);

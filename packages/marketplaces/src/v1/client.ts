@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -207,31 +207,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class MarketplacesClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Batch get a published listing in the Databricks Marketplace that the consumer has access to. */
@@ -239,7 +238,8 @@ export class MarketplacesClient {
     req: BatchGetListingsRequest,
     options?: CallOptions
   ): Promise<BatchGetListingsResponse> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/listings:batchGet`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/marketplace-consumer/listings:batchGet`;
     const params = new URLSearchParams();
     if (req.ids !== undefined) {
       params.append('ids', String(req.ids));
@@ -249,14 +249,14 @@ export class MarketplacesClient {
     let resp: BatchGetListingsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalBatchGetListingsResponseSchema);
@@ -273,7 +273,8 @@ export class MarketplacesClient {
     req: BatchGetProvidersRequest,
     options?: CallOptions
   ): Promise<BatchGetProvidersResponse> {
-    const url = `${this.host}/api/2.1/marketplace-consumer/providers:batchGet`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/marketplace-consumer/providers:batchGet`;
     const params = new URLSearchParams();
     if (req.ids !== undefined) {
       params.append('ids', String(req.ids));
@@ -283,14 +284,14 @@ export class MarketplacesClient {
     let resp: BatchGetProvidersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalBatchGetProvidersResponseSchema);
@@ -307,19 +308,20 @@ export class MarketplacesClient {
     req: CreatePersonalizationRequest,
     options?: CallOptions
   ): Promise<CreatePersonalizationResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     const body = marshalRequest(req, marshalCreatePersonalizationRequestSchema);
     let resp: CreatePersonalizationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -339,7 +341,8 @@ export class MarketplacesClient {
     req: GetInstallationDetails,
     options?: CallOptions
   ): Promise<ListInstallationsResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -352,14 +355,14 @@ export class MarketplacesClient {
     let resp: ListInstallationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListInstallationsResponseSchema);
@@ -393,7 +396,8 @@ export class MarketplacesClient {
     req: GetListingContent,
     options?: CallOptions
   ): Promise<GetListingContentMetadataResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -406,14 +410,14 @@ export class MarketplacesClient {
     let resp: GetListingContentMetadataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -450,18 +454,19 @@ export class MarketplacesClient {
     req: GetPersonalizationRequestsForConsumer,
     options?: CallOptions
   ): Promise<GetPersonalizationRequestsForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     let resp: GetPersonalizationRequestsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -481,18 +486,19 @@ export class MarketplacesClient {
     req: GetPublishedListingForConsumer,
     options?: CallOptions
   ): Promise<GetPublishedListingForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.id ?? ''}`;
     let resp: GetPublishedListingForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -512,18 +518,19 @@ export class MarketplacesClient {
     req: GetPublishedProviderForConsumer,
     options?: CallOptions
   ): Promise<GetPublishedProviderForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/providers/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/providers/${req.id ?? ''}`;
     let resp: GetPublishedProviderForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -543,19 +550,20 @@ export class MarketplacesClient {
     req: InstallListing,
     options?: CallOptions
   ): Promise<CreateInstallationResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const body = marshalRequest(req, marshalInstallListingSchema);
     let resp: CreateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateInstallationResponseSchema);
@@ -572,7 +580,8 @@ export class MarketplacesClient {
     req: ListInstallationsRequest,
     options?: CallOptions
   ): Promise<ListAllInstallationsResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/installations`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -585,14 +594,14 @@ export class MarketplacesClient {
     let resp: ListAllInstallationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -633,7 +642,8 @@ export class MarketplacesClient {
     req: ListListingFulfillmentsRequest,
     options?: CallOptions
   ): Promise<ListFulfillmentsResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -646,14 +656,14 @@ export class MarketplacesClient {
     let resp: ListFulfillmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListFulfillmentsResponseSchema);
@@ -687,7 +697,8 @@ export class MarketplacesClient {
     req: ListPersonalizationRequestsForConsumerRequest,
     options?: CallOptions
   ): Promise<GetAllPersonalizationRequestsForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/personalization-requests`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -700,14 +711,14 @@ export class MarketplacesClient {
     let resp: GetAllPersonalizationRequestsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -747,7 +758,8 @@ export class MarketplacesClient {
     req: ListPublishedListingsForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPublishedListingsForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -785,14 +797,14 @@ export class MarketplacesClient {
     let resp: GetPublishedListingsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -832,7 +844,8 @@ export class MarketplacesClient {
     req: ListPublishedProvidersForConsumer,
     options?: CallOptions
   ): Promise<ListPublishedProvidersForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/providers`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -848,14 +861,14 @@ export class MarketplacesClient {
     let resp: ListPublishedProvidersForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -898,7 +911,8 @@ export class MarketplacesClient {
     req: SearchPublishedListingsForConsumer,
     options?: CallOptions
   ): Promise<SearchPublishedListingsForConsumerResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/search-listings`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/search-listings`;
     const params = new URLSearchParams();
     if (req.query !== undefined) {
       params.append('query', req.query);
@@ -929,14 +943,14 @@ export class MarketplacesClient {
     let resp: SearchPublishedListingsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -976,18 +990,19 @@ export class MarketplacesClient {
     req: UninstallListing,
     options?: CallOptions
   ): Promise<DeleteInstallationResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     let resp: DeleteInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteInstallationResponseSchema);
@@ -1009,19 +1024,20 @@ export class MarketplacesClient {
     req: UpdateInstallationDetail,
     options?: CallOptions
   ): Promise<UpdateInstallationResponse> {
-    const url = `${this.host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateInstallationDetailSchema);
     let resp: UpdateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateInstallationResponseSchema);
@@ -1038,19 +1054,20 @@ export class MarketplacesClient {
     req: AddExchangeForListingRequest,
     options?: CallOptions
   ): Promise<AddExchangeForListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
     const body = marshalRequest(req, marshalAddExchangeForListingRequestSchema);
     let resp: AddExchangeForListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1070,19 +1087,20 @@ export class MarketplacesClient {
     req: CreateExchangeRequest,
     options?: CallOptions
   ): Promise<CreateExchangeResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges`;
     const body = marshalRequest(req, marshalCreateExchangeRequestSchema);
     let resp: CreateExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateExchangeResponseSchema);
@@ -1099,19 +1117,20 @@ export class MarketplacesClient {
     req: CreateExchangeFilterRequest,
     options?: CallOptions
   ): Promise<CreateExchangeFilterResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/filters`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/filters`;
     const body = marshalRequest(req, marshalCreateExchangeFilterRequestSchema);
     let resp: CreateExchangeFilterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1131,19 +1150,20 @@ export class MarketplacesClient {
     req: CreateFileRequest,
     options?: CallOptions
   ): Promise<CreateFileResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/files`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/files`;
     const body = marshalRequest(req, marshalCreateFileRequestSchema);
     let resp: CreateFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateFileResponseSchema);
@@ -1160,19 +1180,20 @@ export class MarketplacesClient {
     req: CreateListingRequest,
     options?: CallOptions
   ): Promise<CreateListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listing`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/listing`;
     const body = marshalRequest(req, marshalCreateListingRequestSchema);
     let resp: CreateListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateListingResponseSchema);
@@ -1189,19 +1210,20 @@ export class MarketplacesClient {
     req: CreateProviderRequest,
     options?: CallOptions
   ): Promise<CreateProviderResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/provider`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/provider`;
     const body = marshalRequest(req, marshalCreateProviderRequestSchema);
     let resp: CreateProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateProviderResponseSchema);
@@ -1218,7 +1240,8 @@ export class MarketplacesClient {
     req: CreateProviderAnalyticsDashboardRequest,
     options?: CallOptions
   ): Promise<CreateProviderAnalyticsDashboardResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/analytics_dashboard`;
     const body = marshalRequest(
       req,
       marshalCreateProviderAnalyticsDashboardRequestSchema
@@ -1226,14 +1249,14 @@ export class MarketplacesClient {
     let resp: CreateProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1253,18 +1276,19 @@ export class MarketplacesClient {
     req: DeleteExchangeRequest,
     options?: CallOptions
   ): Promise<DeleteExchangeResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
     let resp: DeleteExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteExchangeResponseSchema);
@@ -1281,18 +1305,19 @@ export class MarketplacesClient {
     req: DeleteExchangeFilterRequest,
     options?: CallOptions
   ): Promise<DeleteExchangeFilterResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
     let resp: DeleteExchangeFilterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1312,18 +1337,19 @@ export class MarketplacesClient {
     req: DeleteFileRequest,
     options?: CallOptions
   ): Promise<DeleteFileResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
     let resp: DeleteFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteFileResponseSchema);
@@ -1340,18 +1366,19 @@ export class MarketplacesClient {
     req: DeleteListingRequest,
     options?: CallOptions
   ): Promise<DeleteListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     let resp: DeleteListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteListingResponseSchema);
@@ -1368,18 +1395,19 @@ export class MarketplacesClient {
     req: DeleteProviderRequest,
     options?: CallOptions
   ): Promise<DeleteProviderResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     let resp: DeleteProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteProviderResponseSchema);
@@ -1396,18 +1424,19 @@ export class MarketplacesClient {
     req: GetExchangeRequest,
     options?: CallOptions
   ): Promise<GetExchangeResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
     let resp: GetExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetExchangeResponseSchema);
@@ -1424,18 +1453,19 @@ export class MarketplacesClient {
     req: GetFileRequest,
     options?: CallOptions
   ): Promise<GetFileResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
     let resp: GetFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetFileResponseSchema);
@@ -1452,18 +1482,19 @@ export class MarketplacesClient {
     _req: GetLatestVersionProviderAnalyticsDashboardRequest,
     options?: CallOptions
   ): Promise<GetLatestVersionProviderAnalyticsDashboardResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/latest`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/analytics_dashboard/latest`;
     let resp: GetLatestVersionProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1483,18 +1514,19 @@ export class MarketplacesClient {
     req: GetListingRequest,
     options?: CallOptions
   ): Promise<GetListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     let resp: GetListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetListingResponseSchema);
@@ -1514,7 +1546,8 @@ export class MarketplacesClient {
     req: GetPersonalizationRequestsForProviderRequest,
     options?: CallOptions
   ): Promise<GetPersonalizationRequestsForProviderResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/personalization-requests`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1527,14 +1560,14 @@ export class MarketplacesClient {
     let resp: GetPersonalizationRequestsForProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1574,18 +1607,19 @@ export class MarketplacesClient {
     req: GetProviderRequest,
     options?: CallOptions
   ): Promise<GetProviderResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     let resp: GetProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetProviderResponseSchema);
@@ -1602,7 +1636,8 @@ export class MarketplacesClient {
     req: ListExchangeFiltersRequest,
     options?: CallOptions
   ): Promise<ListExchangeFiltersResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/filters`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/filters`;
     const params = new URLSearchParams();
     if (req.exchangeId !== undefined) {
       params.append('exchange_id', req.exchangeId);
@@ -1618,14 +1653,14 @@ export class MarketplacesClient {
     let resp: ListExchangeFiltersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1662,7 +1697,8 @@ export class MarketplacesClient {
     req: ListExchangesRequest,
     options?: CallOptions
   ): Promise<ListExchangesResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1675,14 +1711,14 @@ export class MarketplacesClient {
     let resp: ListExchangesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListExchangesResponseSchema);
@@ -1716,7 +1752,8 @@ export class MarketplacesClient {
     req: ListExchangesForListingRequest,
     options?: CallOptions
   ): Promise<ListExchangesForListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
     const params = new URLSearchParams();
     if (req.listingId !== undefined) {
       params.append('listing_id', req.listingId);
@@ -1732,14 +1769,14 @@ export class MarketplacesClient {
     let resp: ListExchangesForListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1776,7 +1813,8 @@ export class MarketplacesClient {
     req: ListFilesRequest,
     options?: CallOptions
   ): Promise<ListFilesResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/files`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/files`;
     const params = new URLSearchParams();
     if (req.fileParent !== undefined) {
       flattenQueryParams(
@@ -1796,14 +1834,14 @@ export class MarketplacesClient {
     let resp: ListFilesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListFilesResponseSchema);
@@ -1837,7 +1875,8 @@ export class MarketplacesClient {
     req: ListListingsRequest,
     options?: CallOptions
   ): Promise<GetListingsResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listings`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1850,14 +1889,14 @@ export class MarketplacesClient {
     let resp: GetListingsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetListingsResponseSchema);
@@ -1891,7 +1930,8 @@ export class MarketplacesClient {
     req: ListListingsForExchangeRequest,
     options?: CallOptions
   ): Promise<ListListingsForExchangeResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/listings-for-exchange`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/listings-for-exchange`;
     const params = new URLSearchParams();
     if (req.exchangeId !== undefined) {
       params.append('exchange_id', req.exchangeId);
@@ -1907,14 +1947,14 @@ export class MarketplacesClient {
     let resp: ListListingsForExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1951,18 +1991,19 @@ export class MarketplacesClient {
     _req: ListProviderAnalyticsDashboardRequest,
     options?: CallOptions
   ): Promise<ListProviderAnalyticsDashboardResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/analytics_dashboard`;
     let resp: ListProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1982,7 +2023,8 @@ export class MarketplacesClient {
     req: ListProvidersRequest,
     options?: CallOptions
   ): Promise<ListProvidersResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/providers`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1995,14 +2037,14 @@ export class MarketplacesClient {
     let resp: ListProvidersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListProvidersResponseSchema);
@@ -2036,18 +2078,19 @@ export class MarketplacesClient {
     req: RemoveExchangeForListingRequest,
     options?: CallOptions
   ): Promise<RemoveExchangeForListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges-for-listing/${req.id ?? ''}`;
     let resp: RemoveExchangeForListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -2067,19 +2110,20 @@ export class MarketplacesClient {
     req: UpdateExchangeRequest,
     options?: CallOptions
   ): Promise<UpdateExchangeResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateExchangeRequestSchema);
     let resp: UpdateExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateExchangeResponseSchema);
@@ -2096,19 +2140,20 @@ export class MarketplacesClient {
     req: UpdateExchangeFilterRequest,
     options?: CallOptions
   ): Promise<UpdateExchangeFilterResponse> {
-    const url = `${this.host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateExchangeFilterRequestSchema);
     let resp: UpdateExchangeFilterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -2128,19 +2173,20 @@ export class MarketplacesClient {
     req: UpdateListingRequest,
     options?: CallOptions
   ): Promise<UpdateListingResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateListingRequestSchema);
     let resp: UpdateListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateListingResponseSchema);
@@ -2157,7 +2203,8 @@ export class MarketplacesClient {
     req: UpdatePersonalizationRequestStatusRequest,
     options?: CallOptions
   ): Promise<UpdatePersonalizationRequestStatusResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
     const body = marshalRequest(
       req,
       marshalUpdatePersonalizationRequestStatusRequestSchema
@@ -2165,14 +2212,14 @@ export class MarketplacesClient {
     let resp: UpdatePersonalizationRequestStatusResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -2192,19 +2239,20 @@ export class MarketplacesClient {
     req: UpdateProviderRequest,
     options?: CallOptions
   ): Promise<UpdateProviderResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateProviderRequestSchema);
     let resp: UpdateProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateProviderResponseSchema);
@@ -2221,7 +2269,8 @@ export class MarketplacesClient {
     req: UpdateProviderAnalyticsDashboardRequest,
     options?: CallOptions
   ): Promise<UpdateProviderAnalyticsDashboardResponse> {
-    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateProviderAnalyticsDashboardRequestSchema
@@ -2229,14 +2278,14 @@ export class MarketplacesClient {
     let resp: UpdateProviderAnalyticsDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

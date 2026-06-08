@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -67,31 +67,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class SecretsClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -140,19 +139,20 @@ export class SecretsClient {
     req: CreateScopeRequest,
     options?: CallOptions
   ): Promise<CreateScopeResponse> {
-    const url = `${this.host}/api/2.0/secrets/scopes/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/scopes/create`;
     const body = marshalRequest(req, marshalCreateScopeRequestSchema);
     let resp: CreateScopeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateScopeResponseSchema);
@@ -186,19 +186,20 @@ export class SecretsClient {
     req: DeleteAclRequest,
     options?: CallOptions
   ): Promise<DeleteAclResponse> {
-    const url = `${this.host}/api/2.0/secrets/acls/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/acls/delete`;
     const body = marshalRequest(req, marshalDeleteAclRequestSchema);
     let resp: DeleteAclResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteAclResponseSchema);
@@ -229,19 +230,20 @@ export class SecretsClient {
     req: DeleteScopeRequest,
     options?: CallOptions
   ): Promise<DeleteScopeResponse> {
-    const url = `${this.host}/api/2.0/secrets/scopes/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/scopes/delete`;
     const body = marshalRequest(req, marshalDeleteScopeRequestSchema);
     let resp: DeleteScopeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteScopeResponseSchema);
@@ -274,19 +276,20 @@ export class SecretsClient {
     req: DeleteSecretRequest,
     options?: CallOptions
   ): Promise<DeleteSecretResponse> {
-    const url = `${this.host}/api/2.0/secrets/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/delete`;
     const body = marshalRequest(req, marshalDeleteSecretRequestSchema);
     let resp: DeleteSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteSecretResponseSchema);
@@ -317,7 +320,8 @@ export class SecretsClient {
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    */
   async getAcl(req: GetAclRequest, options?: CallOptions): Promise<AclItem> {
-    const url = `${this.host}/api/2.0/secrets/acls/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/acls/get`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
       params.append('scope', req.scope);
@@ -330,14 +334,14 @@ export class SecretsClient {
     let resp: AclItem | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAclItemSchema);
@@ -383,7 +387,8 @@ export class SecretsClient {
     req: GetSecretRequest,
     options?: CallOptions
   ): Promise<GetSecretResponse> {
-    const url = `${this.host}/api/2.0/secrets/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/get`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
       params.append('scope', req.scope);
@@ -396,14 +401,14 @@ export class SecretsClient {
     let resp: GetSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetSecretResponseSchema);
@@ -441,7 +446,8 @@ export class SecretsClient {
     req: ListAclsRequest,
     options?: CallOptions
   ): Promise<ListAclsResponse> {
-    const url = `${this.host}/api/2.0/secrets/acls/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/acls/list`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
       params.append('scope', req.scope);
@@ -451,14 +457,14 @@ export class SecretsClient {
     let resp: ListAclsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListAclsResponseSchema);
@@ -493,18 +499,19 @@ export class SecretsClient {
     _req: ListScopesRequest,
     options?: CallOptions
   ): Promise<ListScopesResponse> {
-    const url = `${this.host}/api/2.0/secrets/scopes/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/scopes/list`;
     let resp: ListScopesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListScopesResponseSchema);
@@ -547,7 +554,8 @@ export class SecretsClient {
     req: ListSecretsRequest,
     options?: CallOptions
   ): Promise<ListSecretsResponse> {
-    const url = `${this.host}/api/2.0/secrets/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/list`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
       params.append('scope', req.scope);
@@ -557,14 +565,14 @@ export class SecretsClient {
     let resp: ListSecretsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListSecretsResponseSchema);
@@ -614,19 +622,20 @@ export class SecretsClient {
     req: PutAclRequest,
     options?: CallOptions
   ): Promise<PutAclResponse> {
-    const url = `${this.host}/api/2.0/secrets/acls/put`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/acls/put`;
     const body = marshalRequest(req, marshalPutAclRequestSchema);
     let resp: PutAclResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPutAclResponseSchema);
@@ -674,19 +683,20 @@ export class SecretsClient {
     req: PutSecretRequest,
     options?: CallOptions
   ): Promise<PutSecretResponse> {
-    const url = `${this.host}/api/2.0/secrets/put`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/secrets/put`;
     const body = marshalRequest(req, marshalPutSecretRequestSchema);
     let resp: PutSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPutSecretResponseSchema);

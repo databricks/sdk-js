@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -107,31 +107,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class ClustersClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -143,19 +142,20 @@ export class ClustersClient {
     req: ListEventsRequest,
     options?: CallOptions
   ): Promise<GetEventsResponse> {
-    const url = `${this.host}/api/2.1/clusters/events`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/events`;
     const body = marshalRequest(req, marshalListEventsRequestSchema);
     let resp: GetEventsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetEventsResponseSchema);
@@ -189,19 +189,20 @@ export class ClustersClient {
     req: ChangeClusterOwnerRequest,
     options?: CallOptions
   ): Promise<ChangeClusterOwnerResponse> {
-    const url = `${this.host}/api/2.1/clusters/change-owner`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/change-owner`;
     const body = marshalRequest(req, marshalChangeClusterOwnerRequestSchema);
     let resp: ChangeClusterOwnerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalChangeClusterOwnerResponseSchema);
@@ -231,19 +232,20 @@ export class ClustersClient {
     req: CreateClusterRequest,
     options?: CallOptions
   ): Promise<CreateClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/create`;
     const body = marshalRequest(req, marshalCreateClusterRequestSchema);
     let resp: CreateClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateClusterResponseSchema);
@@ -277,19 +279,20 @@ export class ClustersClient {
     req: DeleteClusterRequest,
     options?: CallOptions
   ): Promise<DeleteClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/delete`;
     const body = marshalRequest(req, marshalDeleteClusterRequestSchema);
     let resp: DeleteClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteClusterResponseSchema);
@@ -330,19 +333,20 @@ export class ClustersClient {
     req: EditClusterRequest,
     options?: CallOptions
   ): Promise<EditClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/edit`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/edit`;
     const body = marshalRequest(req, marshalEditClusterRequestSchema);
     let resp: EditClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEditClusterResponseSchema);
@@ -375,7 +379,8 @@ export class ClustersClient {
     req: GetClusterRequest,
     options?: CallOptions
   ): Promise<ClusterInfo> {
-    const url = `${this.host}/api/2.1/clusters/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/get`;
     const params = new URLSearchParams();
     if (req.clusterId !== undefined) {
       params.append('cluster_id', req.clusterId);
@@ -385,14 +390,14 @@ export class ClustersClient {
     let resp: ClusterInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalClusterInfoSchema);
@@ -412,18 +417,19 @@ export class ClustersClient {
     _req: ListAvailableZonesRequest,
     options?: CallOptions
   ): Promise<ListAvailableZonesResponse> {
-    const url = `${this.host}/api/2.1/clusters/list-zones`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/list-zones`;
     let resp: ListAvailableZonesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListAvailableZonesResponseSchema);
@@ -440,7 +446,8 @@ export class ClustersClient {
     req: ListClustersRequest,
     options?: CallOptions
   ): Promise<ListClustersResponse> {
-    const url = `${this.host}/api/2.1/clusters/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/list`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -453,14 +460,14 @@ export class ClustersClient {
     let resp: ListClustersResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListClustersResponseSchema);
@@ -494,18 +501,19 @@ export class ClustersClient {
     _req: ListNodeTypesRequest,
     options?: CallOptions
   ): Promise<ListNodeTypesResponse> {
-    const url = `${this.host}/api/2.1/clusters/list-node-types`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/list-node-types`;
     let resp: ListNodeTypesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListNodeTypesResponseSchema);
@@ -522,18 +530,19 @@ export class ClustersClient {
     _req: GetSparkVersionsRequest,
     options?: CallOptions
   ): Promise<GetSparkVersionsResponse> {
-    const url = `${this.host}/api/2.1/clusters/spark-versions`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/spark-versions`;
     let resp: GetSparkVersionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetSparkVersionsResponseSchema);
@@ -555,7 +564,8 @@ export class ClustersClient {
     req: PermanentDeleteClusterRequest,
     options?: CallOptions
   ): Promise<PermanentDeleteClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/permanent-delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/permanent-delete`;
     const body = marshalRequest(
       req,
       marshalPermanentDeleteClusterRequestSchema
@@ -563,14 +573,14 @@ export class ClustersClient {
     let resp: PermanentDeleteClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -594,19 +604,20 @@ export class ClustersClient {
     req: PinClusterRequest,
     options?: CallOptions
   ): Promise<PinClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/pin`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/pin`;
     const body = marshalRequest(req, marshalPinClusterRequestSchema);
     let resp: PinClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPinClusterResponseSchema);
@@ -623,19 +634,20 @@ export class ClustersClient {
     req: ResizeClusterRequest,
     options?: CallOptions
   ): Promise<ResizeClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/resize`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/resize`;
     const body = marshalRequest(req, marshalResizeClusterRequestSchema);
     let resp: ResizeClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalResizeClusterResponseSchema);
@@ -665,19 +677,20 @@ export class ClustersClient {
     req: RestartClusterRequest,
     options?: CallOptions
   ): Promise<RestartClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/restart`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/restart`;
     const body = marshalRequest(req, marshalRestartClusterRequestSchema);
     let resp: RestartClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRestartClusterResponseSchema);
@@ -715,19 +728,20 @@ export class ClustersClient {
     req: StartClusterRequest,
     options?: CallOptions
   ): Promise<StartClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/start`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/start`;
     const body = marshalRequest(req, marshalStartClusterRequestSchema);
     let resp: StartClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStartClusterResponseSchema);
@@ -761,19 +775,20 @@ export class ClustersClient {
     req: UnpinClusterRequest,
     options?: CallOptions
   ): Promise<UnpinClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/unpin`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/unpin`;
     const body = marshalRequest(req, marshalUnpinClusterRequestSchema);
     let resp: UnpinClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUnpinClusterResponseSchema);
@@ -799,19 +814,20 @@ export class ClustersClient {
     req: UpdateClusterRequest,
     options?: CallOptions
   ): Promise<UpdateClusterResponse> {
-    const url = `${this.host}/api/2.1/clusters/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/clusters/update`;
     const body = marshalRequest(req, marshalUpdateClusterRequestSchema);
     let resp: UpdateClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateClusterResponseSchema);
@@ -852,7 +868,8 @@ export class ClustersClient {
     req: EnforcePolicyComplianceForClusterRequest,
     options?: CallOptions
   ): Promise<EnforcePolicyComplianceForClusterResponse> {
-    const url = `${this.host}/api/2.0/policies/clusters/enforce-compliance`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/clusters/enforce-compliance`;
     const body = marshalRequest(
       req,
       marshalEnforcePolicyComplianceForClusterRequestSchema
@@ -860,14 +877,14 @@ export class ClustersClient {
     let resp: EnforcePolicyComplianceForClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -890,7 +907,8 @@ export class ClustersClient {
     req: GetPolicyComplianceForClusterRequest,
     options?: CallOptions
   ): Promise<GetPolicyComplianceForClusterResponse> {
-    const url = `${this.host}/api/2.0/policies/clusters/get-compliance`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/clusters/get-compliance`;
     const params = new URLSearchParams();
     if (req.clusterId !== undefined) {
       params.append('cluster_id', req.clusterId);
@@ -900,14 +918,14 @@ export class ClustersClient {
     let resp: GetPolicyComplianceForClusterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -931,7 +949,8 @@ export class ClustersClient {
     req: ListClusterComplianceForPolicyRequest,
     options?: CallOptions
   ): Promise<ListClusterComplianceForPolicyResponse> {
-    const url = `${this.host}/api/2.0/policies/clusters/list-compliance`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/clusters/list-compliance`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
       params.append('policy_id', req.policyId);
@@ -947,14 +966,14 @@ export class ClustersClient {
     let resp: ListClusterComplianceForPolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -163,31 +163,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class ExperimentsClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -204,19 +203,20 @@ export class ExperimentsClient {
     req: CreateExperimentRequest,
     options?: CallOptions
   ): Promise<CreateExperimentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/create`;
     const body = marshalRequest(req, marshalCreateExperimentRequestSchema);
     let resp: CreateExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateExperimentResponseSchema);
@@ -233,19 +233,20 @@ export class ExperimentsClient {
     req: CreateLoggedModelRequest,
     options?: CallOptions
   ): Promise<CreateLoggedModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models`;
     const body = marshalRequest(req, marshalCreateLoggedModelRequestSchema);
     let resp: CreateLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateLoggedModelResponseSchema);
@@ -266,19 +267,20 @@ export class ExperimentsClient {
     req: CreateRunRequest,
     options?: CallOptions
   ): Promise<CreateRunResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/create`;
     const body = marshalRequest(req, marshalCreateRunRequestSchema);
     let resp: CreateRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateRunResponseSchema);
@@ -298,19 +300,20 @@ export class ExperimentsClient {
     req: DeleteExperimentRequest,
     options?: CallOptions
   ): Promise<DeleteExperimentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/delete`;
     const body = marshalRequest(req, marshalDeleteExperimentRequestSchema);
     let resp: DeleteExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteExperimentResponseSchema);
@@ -327,18 +330,19 @@ export class ExperimentsClient {
     req: DeleteLoggedModelRequest,
     options?: CallOptions
   ): Promise<DeleteLoggedModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     let resp: DeleteLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteLoggedModelResponseSchema);
@@ -355,18 +359,19 @@ export class ExperimentsClient {
     req: DeleteLoggedModelTagRequest,
     options?: CallOptions
   ): Promise<DeleteLoggedModelTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags/${req.tagKey ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: DeleteLoggedModelTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -386,19 +391,20 @@ export class ExperimentsClient {
     req: DeleteRunRequest,
     options?: CallOptions
   ): Promise<DeleteRunResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
     let resp: DeleteRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteRunResponseSchema);
@@ -418,19 +424,20 @@ export class ExperimentsClient {
     req: DeleteRunsRequest,
     options?: CallOptions
   ): Promise<DeleteRunsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/databricks/runs/delete-runs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/databricks/runs/delete-runs`;
     const body = marshalRequest(req, marshalDeleteRunsRequestSchema);
     let resp: DeleteRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteRunsResponseSchema);
@@ -450,19 +457,20 @@ export class ExperimentsClient {
     req: DeleteTagRequest,
     options?: CallOptions
   ): Promise<DeleteTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/delete-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/delete-tag`;
     const body = marshalRequest(req, marshalDeleteTagRequestSchema);
     let resp: DeleteTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteTagResponseSchema);
@@ -479,19 +487,20 @@ export class ExperimentsClient {
     req: FinalizeLoggedModelRequest,
     options?: CallOptions
   ): Promise<FinalizeLoggedModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     const body = marshalRequest(req, marshalFinalizeLoggedModelRequestSchema);
     let resp: FinalizeLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -511,7 +520,8 @@ export class ExperimentsClient {
     req: GetExperimentRequest,
     options?: CallOptions
   ): Promise<GetExperimentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/get`;
     const params = new URLSearchParams();
     if (req.experimentId !== undefined) {
       params.append('experiment_id', req.experimentId);
@@ -521,14 +531,14 @@ export class ExperimentsClient {
     let resp: GetExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetExperimentResponseSchema);
@@ -553,7 +563,8 @@ export class ExperimentsClient {
     req: GetExperimentByNameRequest,
     options?: CallOptions
   ): Promise<GetExperimentByNameResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/get-by-name`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/get-by-name`;
     const params = new URLSearchParams();
     if (req.experimentName !== undefined) {
       params.append('experiment_name', req.experimentName);
@@ -563,14 +574,14 @@ export class ExperimentsClient {
     let resp: GetExperimentByNameResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -590,18 +601,19 @@ export class ExperimentsClient {
     req: GetLoggedModelRequest,
     options?: CallOptions
   ): Promise<GetLoggedModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     let resp: GetLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetLoggedModelResponseSchema);
@@ -623,7 +635,8 @@ export class ExperimentsClient {
     req: GetRunRequest,
     options?: CallOptions
   ): Promise<GetRunResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
       params.append('run_id', req.runId);
@@ -636,14 +649,14 @@ export class ExperimentsClient {
     let resp: GetRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetRunResponseSchema);
@@ -666,7 +679,8 @@ export class ExperimentsClient {
     req: ListArtifactsRequest,
     options?: CallOptions
   ): Promise<ListArtifactsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/artifacts/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/artifacts/list`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
       params.append('run_id', req.runId);
@@ -685,14 +699,14 @@ export class ExperimentsClient {
     let resp: ListArtifactsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListArtifactsResponseSchema);
@@ -726,7 +740,8 @@ export class ExperimentsClient {
     req: ListExperimentsRequest,
     options?: CallOptions
   ): Promise<ListExperimentsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/list`;
     const params = new URLSearchParams();
     if (req.viewType !== undefined) {
       params.append('view_type', req.viewType);
@@ -742,14 +757,14 @@ export class ExperimentsClient {
     let resp: ListExperimentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListExperimentsResponseSchema);
@@ -783,7 +798,8 @@ export class ExperimentsClient {
     req: ListMetricHistoryRequest,
     options?: CallOptions
   ): Promise<GetMetricHistoryResponse> {
-    const url = `${this.host}/api/2.0/mlflow/metrics/get-history`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/metrics/get-history`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
       params.append('run_id', req.runId);
@@ -805,14 +821,14 @@ export class ExperimentsClient {
     let resp: GetMetricHistoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetMetricHistoryResponseSchema);
@@ -887,19 +903,20 @@ export class ExperimentsClient {
     req: LogBatchRequest,
     options?: CallOptions
   ): Promise<LogBatchResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/log-batch`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/log-batch`;
     const body = marshalRequest(req, marshalLogBatchRequestSchema);
     let resp: LogBatchResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalLogBatchResponseSchema);
@@ -916,19 +933,20 @@ export class ExperimentsClient {
     req: LogInputsRequest,
     options?: CallOptions
   ): Promise<LogInputsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/log-inputs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/log-inputs`;
     const body = marshalRequest(req, marshalLogInputsRequestSchema);
     let resp: LogInputsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalLogInputsResponseSchema);
@@ -949,19 +967,20 @@ export class ExperimentsClient {
     req: LogLoggedModelParamsRequest,
     options?: CallOptions
   ): Promise<LogLoggedModelParamsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/params`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/params`;
     const body = marshalRequest(req, marshalLogLoggedModelParamsRequestSchema);
     let resp: LogLoggedModelParamsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -985,19 +1004,20 @@ export class ExperimentsClient {
     req: LogMetricRequest,
     options?: CallOptions
   ): Promise<LogMetricResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/log-metric`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/log-metric`;
     const body = marshalRequest(req, marshalLogMetricRequestSchema);
     let resp: LogMetricResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalLogMetricResponseSchema);
@@ -1018,19 +1038,20 @@ export class ExperimentsClient {
     req: LogModelRequest,
     options?: CallOptions
   ): Promise<LogModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/log-model`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/log-model`;
     const body = marshalRequest(req, marshalLogModelRequestSchema);
     let resp: LogModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalLogModelResponseSchema);
@@ -1047,19 +1068,20 @@ export class ExperimentsClient {
     req: LogOutputsRequest,
     options?: CallOptions
   ): Promise<LogOutputsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/outputs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/outputs`;
     const body = marshalRequest(req, marshalLogOutputsRequestSchema);
     let resp: LogOutputsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalLogOutputsResponseSchema);
@@ -1080,19 +1102,20 @@ export class ExperimentsClient {
     req: LogParamRequest,
     options?: CallOptions
   ): Promise<LogParamResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/log-parameter`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/log-parameter`;
     const body = marshalRequest(req, marshalLogParamRequestSchema);
     let resp: LogParamResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalLogParamResponseSchema);
@@ -1115,19 +1138,20 @@ export class ExperimentsClient {
     req: RestoreExperimentRequest,
     options?: CallOptions
   ): Promise<RestoreExperimentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/restore`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/restore`;
     const body = marshalRequest(req, marshalRestoreExperimentRequestSchema);
     let resp: RestoreExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRestoreExperimentResponseSchema);
@@ -1148,19 +1172,20 @@ export class ExperimentsClient {
     req: RestoreRunRequest,
     options?: CallOptions
   ): Promise<RestoreRunResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/restore`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/restore`;
     const body = marshalRequest(req, marshalRestoreRunRequestSchema);
     let resp: RestoreRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRestoreRunResponseSchema);
@@ -1180,19 +1205,20 @@ export class ExperimentsClient {
     req: RestoreRunsRequest,
     options?: CallOptions
   ): Promise<RestoreRunsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/databricks/runs/restore-runs`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/databricks/runs/restore-runs`;
     const body = marshalRequest(req, marshalRestoreRunsRequestSchema);
     let resp: RestoreRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRestoreRunsResponseSchema);
@@ -1209,19 +1235,20 @@ export class ExperimentsClient {
     req: SearchExperimentsRequest,
     options?: CallOptions
   ): Promise<SearchExperimentsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/search`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/search`;
     const body = marshalRequest(req, marshalSearchExperimentsRequestSchema);
     let resp: SearchExperimentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSearchExperimentsResponseSchema);
@@ -1255,19 +1282,20 @@ export class ExperimentsClient {
     req: SearchLoggedModelsRequest,
     options?: CallOptions
   ): Promise<SearchLoggedModelsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/search`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/search`;
     const body = marshalRequest(req, marshalSearchLoggedModelsRequestSchema);
     let resp: SearchLoggedModelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSearchLoggedModelsResponseSchema);
@@ -1288,19 +1316,20 @@ export class ExperimentsClient {
     req: SearchRunsRequest,
     options?: CallOptions
   ): Promise<SearchRunsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/search`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/search`;
     const body = marshalRequest(req, marshalSearchRunsRequestSchema);
     let resp: SearchRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSearchRunsResponseSchema);
@@ -1334,19 +1363,20 @@ export class ExperimentsClient {
     req: SetExperimentTagRequest,
     options?: CallOptions
   ): Promise<SetExperimentTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/set-experiment-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/set-experiment-tag`;
     const body = marshalRequest(req, marshalSetExperimentTagRequestSchema);
     let resp: SetExperimentTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSetExperimentTagResponseSchema);
@@ -1363,19 +1393,20 @@ export class ExperimentsClient {
     req: SetLoggedModelTagsRequest,
     options?: CallOptions
   ): Promise<SetLoggedModelTagsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags`;
     const body = marshalRequest(req, marshalSetLoggedModelTagsRequestSchema);
     let resp: SetLoggedModelTagsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSetLoggedModelTagsResponseSchema);
@@ -1395,19 +1426,20 @@ export class ExperimentsClient {
     req: SetTagRequest,
     options?: CallOptions
   ): Promise<SetTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/set-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/set-tag`;
     const body = marshalRequest(req, marshalSetTagRequestSchema);
     let resp: SetTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSetTagResponseSchema);
@@ -1424,19 +1456,20 @@ export class ExperimentsClient {
     req: UpdateExperimentRequest,
     options?: CallOptions
   ): Promise<UpdateExperimentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/experiments/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/experiments/update`;
     const body = marshalRequest(req, marshalUpdateExperimentRequestSchema);
     let resp: UpdateExperimentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateExperimentResponseSchema);
@@ -1453,19 +1486,20 @@ export class ExperimentsClient {
     req: UpdateRunRequest,
     options?: CallOptions
   ): Promise<UpdateRunResponse> {
-    const url = `${this.host}/api/2.0/mlflow/runs/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/runs/update`;
     const body = marshalRequest(req, marshalUpdateRunRequestSchema);
     let resp: UpdateRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateRunResponseSchema);

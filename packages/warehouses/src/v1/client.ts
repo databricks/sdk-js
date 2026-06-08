@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -75,31 +75,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class WarehousesClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -110,7 +109,8 @@ export class WarehousesClient {
     req: CreateDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
-    const url = `${this.host}/api/warehouses/v1/default-warehouse-overrides`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/warehouses/v1/default-warehouse-overrides`;
     const params = new URLSearchParams();
     if (req.defaultWarehouseOverrideId !== undefined) {
       params.append(
@@ -127,8 +127,8 @@ export class WarehousesClient {
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -140,7 +140,7 @@ export class WarehousesClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
@@ -157,19 +157,20 @@ export class WarehousesClient {
     req: CreateWarehouseRequest,
     options?: CallOptions
   ): Promise<CreateWarehouseResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses`;
     const body = marshalRequest(req, marshalCreateWarehouseRequestSchema);
     let resp: CreateWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateWarehouseResponseSchema);
@@ -201,17 +202,18 @@ export class WarehousesClient {
     req: DeleteDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/warehouses/v1/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
     };
@@ -223,18 +225,19 @@ export class WarehousesClient {
     req: DeleteWarehouseRequest,
     options?: CallOptions
   ): Promise<DeleteWarehouseResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: DeleteWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteWarehouseResponseSchema);
@@ -251,19 +254,20 @@ export class WarehousesClient {
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/edit`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}/edit`;
     const body = marshalRequest(req, marshalEditWarehouseRequestSchema);
     let resp: EditWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEditWarehouseResponseSchema);
@@ -295,18 +299,19 @@ export class WarehousesClient {
     req: GetDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
-    const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/warehouses/v1/${req.name ?? ''}`;
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
@@ -323,18 +328,19 @@ export class WarehousesClient {
     req: GetWarehouseRequest,
     options?: CallOptions
   ): Promise<GetWarehouseResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: GetWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetWarehouseResponseSchema);
@@ -351,18 +357,19 @@ export class WarehousesClient {
     _req: GetWorkspaceWarehouseConfigRequest,
     options?: CallOptions
   ): Promise<GetWorkspaceWarehouseConfigResponse> {
-    const url = `${this.host}/api/2.0/sql/config/warehouses`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/config/warehouses`;
     let resp: GetWorkspaceWarehouseConfigResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -385,7 +392,8 @@ export class WarehousesClient {
     req: ListDefaultWarehouseOverridesRequest,
     options?: CallOptions
   ): Promise<ListDefaultWarehouseOverridesResponse> {
-    const url = `${this.host}/api/warehouses/v1/default-warehouse-overrides`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/warehouses/v1/default-warehouse-overrides`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -398,14 +406,14 @@ export class WarehousesClient {
     let resp: ListDefaultWarehouseOverridesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -442,7 +450,8 @@ export class WarehousesClient {
     req: ListWarehousesRequest,
     options?: CallOptions
   ): Promise<ListWarehousesResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses`;
     const params = new URLSearchParams();
     if (req.runAsUserId !== undefined) {
       params.append('run_as_user_id', String(req.runAsUserId));
@@ -458,14 +467,14 @@ export class WarehousesClient {
     let resp: ListWarehousesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListWarehousesResponseSchema);
@@ -499,7 +508,8 @@ export class WarehousesClient {
     req: SetWorkspaceWarehouseConfigRequest,
     options?: CallOptions
   ): Promise<SetWorkspaceWarehouseConfigResponse> {
-    const url = `${this.host}/api/2.0/sql/config/warehouses`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/config/warehouses`;
     const body = marshalRequest(
       req,
       marshalSetWorkspaceWarehouseConfigRequestSchema
@@ -507,14 +517,14 @@ export class WarehousesClient {
     let resp: SetWorkspaceWarehouseConfigResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -534,19 +544,20 @@ export class WarehousesClient {
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/start`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}/start`;
     const body = marshalRequest(req, marshalStartRequestSchema);
     let resp: StartResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStartResponseSchema);
@@ -574,19 +585,20 @@ export class WarehousesClient {
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopResponse> {
-    const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/stop`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopRequestSchema);
     let resp: StopResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStopResponseSchema);
@@ -617,7 +629,8 @@ export class WarehousesClient {
     req: UpdateDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
-    const url = `${this.host}/api/warehouses/v1/${req.defaultWarehouseOverride?.name ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/warehouses/v1/${req.defaultWarehouseOverride?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -634,8 +647,8 @@ export class WarehousesClient {
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
@@ -647,7 +660,7 @@ export class WarehousesClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);

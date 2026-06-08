@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -144,31 +144,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class ModelRegistryClient {
-  private readonly host: string;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Approves a model version stage transition request. */
@@ -176,19 +175,20 @@ export class ModelRegistryClient {
     req: ApproveTransitionRequest,
     options?: CallOptions
   ): Promise<ApproveTransitionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/transition-requests/approve`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/transition-requests/approve`;
     const body = marshalRequest(req, marshalApproveTransitionRequestSchema);
     let resp: ApproveTransitionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalApproveTransitionResponseSchema);
@@ -208,19 +208,20 @@ export class ModelRegistryClient {
     req: CreateCommentRequest,
     options?: CallOptions
   ): Promise<CreateCommentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/comments/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/comments/create`;
     const body = marshalRequest(req, marshalCreateCommentRequestSchema);
     let resp: CreateCommentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateCommentResponseSchema);
@@ -240,19 +241,20 @@ export class ModelRegistryClient {
     req: CreateRegistryWebhookRequest,
     options?: CallOptions
   ): Promise<CreateRegistryWebhookResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registry-webhooks/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registry-webhooks/create`;
     const body = marshalRequest(req, marshalCreateRegistryWebhookRequestSchema);
     let resp: CreateRegistryWebhookResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -272,19 +274,20 @@ export class ModelRegistryClient {
     req: CreateTransitionRequest,
     options?: CallOptions
   ): Promise<CreateTransitionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/transition-requests/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/transition-requests/create`;
     const body = marshalRequest(req, marshalCreateTransitionRequestSchema);
     let resp: CreateTransitionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateTransitionResponseSchema);
@@ -301,7 +304,8 @@ export class ModelRegistryClient {
     req: DeleteCommentRequest,
     options?: CallOptions
   ): Promise<DeleteCommentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/comments/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/comments/delete`;
     const params = new URLSearchParams();
     if (req.id !== undefined) {
       params.append('id', req.id);
@@ -311,14 +315,14 @@ export class ModelRegistryClient {
     let resp: DeleteCommentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteCommentResponseSchema);
@@ -338,7 +342,8 @@ export class ModelRegistryClient {
     req: DeleteRegistryWebhookRequest,
     options?: CallOptions
   ): Promise<DeleteRegistryWebhookResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registry-webhooks/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registry-webhooks/delete`;
     const params = new URLSearchParams();
     if (req.id !== undefined) {
       params.append('id', req.id);
@@ -348,14 +353,14 @@ export class ModelRegistryClient {
     let resp: DeleteRegistryWebhookResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -375,7 +380,8 @@ export class ModelRegistryClient {
     req: DeleteTransitionRequest,
     options?: CallOptions
   ): Promise<DeleteTransitionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/transition-requests/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/transition-requests/delete`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -397,14 +403,14 @@ export class ModelRegistryClient {
     let resp: DeleteTransitionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteTransitionResponseSchema);
@@ -425,7 +431,8 @@ export class ModelRegistryClient {
     req: GetRegisteredModelDatabricksRequest,
     options?: CallOptions
   ): Promise<GetRegisteredModelDatabricksResponse> {
-    const url = `${this.host}/api/2.0/mlflow/databricks/registered-models/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/databricks/registered-models/get`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -435,14 +442,14 @@ export class ModelRegistryClient {
     let resp: GetRegisteredModelDatabricksResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -465,7 +472,8 @@ export class ModelRegistryClient {
     req: ListRegistryWebhooksRequest,
     options?: CallOptions
   ): Promise<ListRegistryWebhooksResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registry-webhooks/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registry-webhooks/list`;
     const params = new URLSearchParams();
     if (req.modelName !== undefined) {
       params.append('model_name', req.modelName);
@@ -484,14 +492,14 @@ export class ModelRegistryClient {
     let resp: ListRegistryWebhooksResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -528,7 +536,8 @@ export class ModelRegistryClient {
     req: ListTransitionRequest,
     options?: CallOptions
   ): Promise<ListTransitionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/transition-requests/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/transition-requests/list`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -541,14 +550,14 @@ export class ModelRegistryClient {
     let resp: ListTransitionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListTransitionResponseSchema);
@@ -565,19 +574,20 @@ export class ModelRegistryClient {
     req: RejectTransitionRequest,
     options?: CallOptions
   ): Promise<RejectTransitionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/transition-requests/reject`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/transition-requests/reject`;
     const body = marshalRequest(req, marshalRejectTransitionRequestSchema);
     let resp: RejectTransitionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRejectTransitionResponseSchema);
@@ -597,19 +607,20 @@ export class ModelRegistryClient {
     req: TestRegistryWebhookRequest,
     options?: CallOptions
   ): Promise<TestRegistryWebhookResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registry-webhooks/test`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registry-webhooks/test`;
     const body = marshalRequest(req, marshalTestRegistryWebhookRequestSchema);
     let resp: TestRegistryWebhookResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -633,7 +644,8 @@ export class ModelRegistryClient {
     req: TransitionModelVersionStageDatabricksRequest,
     options?: CallOptions
   ): Promise<TransitionModelVersionStageDatabricksResponse> {
-    const url = `${this.host}/api/2.0/mlflow/databricks/model-versions/transition-stage`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/databricks/model-versions/transition-stage`;
     const body = marshalRequest(
       req,
       marshalTransitionModelVersionStageDatabricksRequestSchema
@@ -641,14 +653,14 @@ export class ModelRegistryClient {
     let resp: TransitionModelVersionStageDatabricksResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -668,19 +680,20 @@ export class ModelRegistryClient {
     req: UpdateCommentRequest,
     options?: CallOptions
   ): Promise<UpdateCommentResponse> {
-    const url = `${this.host}/api/2.0/mlflow/comments/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/comments/update`;
     const body = marshalRequest(req, marshalUpdateCommentRequestSchema);
     let resp: UpdateCommentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateCommentResponseSchema);
@@ -700,19 +713,20 @@ export class ModelRegistryClient {
     req: UpdateRegistryWebhookRequest,
     options?: CallOptions
   ): Promise<UpdateRegistryWebhookResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registry-webhooks/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registry-webhooks/update`;
     const body = marshalRequest(req, marshalUpdateRegistryWebhookRequestSchema);
     let resp: UpdateRegistryWebhookResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -732,19 +746,20 @@ export class ModelRegistryClient {
     req: CreateModelVersionRequest,
     options?: CallOptions
   ): Promise<CreateModelVersionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/create`;
     const body = marshalRequest(req, marshalCreateModelVersionRequestSchema);
     let resp: CreateModelVersionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCreateModelVersionResponseSchema);
@@ -764,19 +779,20 @@ export class ModelRegistryClient {
     req: CreateRegisteredModelRequest,
     options?: CallOptions
   ): Promise<CreateRegisteredModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/create`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/create`;
     const body = marshalRequest(req, marshalCreateRegisteredModelRequestSchema);
     let resp: CreateRegisteredModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -796,7 +812,8 @@ export class ModelRegistryClient {
     req: DeleteModelVersionRequest,
     options?: CallOptions
   ): Promise<DeleteModelVersionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/delete`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -809,14 +826,14 @@ export class ModelRegistryClient {
     let resp: DeleteModelVersionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteModelVersionResponseSchema);
@@ -833,7 +850,8 @@ export class ModelRegistryClient {
     req: DeleteModelVersionTagRequest,
     options?: CallOptions
   ): Promise<DeleteModelVersionTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/delete-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/delete-tag`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -849,14 +867,14 @@ export class ModelRegistryClient {
     let resp: DeleteModelVersionTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -876,7 +894,8 @@ export class ModelRegistryClient {
     req: DeleteRegisteredModelRequest,
     options?: CallOptions
   ): Promise<DeleteRegisteredModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/delete`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/delete`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -886,14 +905,14 @@ export class ModelRegistryClient {
     let resp: DeleteRegisteredModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -913,7 +932,8 @@ export class ModelRegistryClient {
     req: DeleteRegisteredModelTagRequest,
     options?: CallOptions
   ): Promise<DeleteRegisteredModelTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/delete-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/delete-tag`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -926,14 +946,14 @@ export class ModelRegistryClient {
     let resp: DeleteRegisteredModelTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -953,7 +973,8 @@ export class ModelRegistryClient {
     req: GetModelVersionRequest,
     options?: CallOptions
   ): Promise<GetModelVersionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/get`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/get`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -966,14 +987,14 @@ export class ModelRegistryClient {
     let resp: GetModelVersionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetModelVersionResponseSchema);
@@ -990,7 +1011,8 @@ export class ModelRegistryClient {
     req: GetModelVersionDownloadUriRequest,
     options?: CallOptions
   ): Promise<GetModelVersionDownloadUriResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/get-download-uri`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/get-download-uri`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -1003,14 +1025,14 @@ export class ModelRegistryClient {
     let resp: GetModelVersionDownloadUriResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1030,19 +1052,20 @@ export class ModelRegistryClient {
     req: ListLatestVersionsRequest,
     options?: CallOptions
   ): Promise<GetLatestVersionsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/get-latest-versions`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/get-latest-versions`;
     const body = marshalRequest(req, marshalListLatestVersionsRequestSchema);
     let resp: GetLatestVersionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetLatestVersionsResponseSchema);
@@ -1059,7 +1082,8 @@ export class ModelRegistryClient {
     req: ListRegisteredModelsRequest,
     options?: CallOptions
   ): Promise<ListRegisteredModelsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/list`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/list`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -1072,14 +1096,14 @@ export class ModelRegistryClient {
     let resp: ListRegisteredModelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1116,19 +1140,20 @@ export class ModelRegistryClient {
     req: RenameRegisteredModelRequest,
     options?: CallOptions
   ): Promise<RenameRegisteredModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/rename`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/rename`;
     const body = marshalRequest(req, marshalRenameRegisteredModelRequestSchema);
     let resp: RenameRegisteredModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1148,7 +1173,8 @@ export class ModelRegistryClient {
     req: SearchModelVersionsRequest,
     options?: CallOptions
   ): Promise<SearchModelVersionsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/search`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/search`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
       params.append('filter', req.filter);
@@ -1167,14 +1193,14 @@ export class ModelRegistryClient {
     let resp: SearchModelVersionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1211,7 +1237,8 @@ export class ModelRegistryClient {
     req: SearchRegisteredModelsRequest,
     options?: CallOptions
   ): Promise<SearchRegisteredModelsResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/search`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/search`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
       params.append('filter', req.filter);
@@ -1230,14 +1257,14 @@ export class ModelRegistryClient {
     let resp: SearchRegisteredModelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1274,19 +1301,20 @@ export class ModelRegistryClient {
     req: SetModelVersionTagRequest,
     options?: CallOptions
   ): Promise<SetModelVersionTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/set-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/set-tag`;
     const body = marshalRequest(req, marshalSetModelVersionTagRequestSchema);
     let resp: SetModelVersionTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSetModelVersionTagResponseSchema);
@@ -1303,19 +1331,20 @@ export class ModelRegistryClient {
     req: SetRegisteredModelTagRequest,
     options?: CallOptions
   ): Promise<SetRegisteredModelTagResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/set-tag`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/set-tag`;
     const body = marshalRequest(req, marshalSetRegisteredModelTagRequestSchema);
     let resp: SetRegisteredModelTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -1335,19 +1364,20 @@ export class ModelRegistryClient {
     req: UpdateModelVersionRequest,
     options?: CallOptions
   ): Promise<UpdateModelVersionResponse> {
-    const url = `${this.host}/api/2.0/mlflow/model-versions/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/model-versions/update`;
     const body = marshalRequest(req, marshalUpdateModelVersionRequestSchema);
     let resp: UpdateModelVersionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalUpdateModelVersionResponseSchema);
@@ -1364,19 +1394,20 @@ export class ModelRegistryClient {
     req: UpdateRegisteredModelRequest,
     options?: CallOptions
   ): Promise<UpdateRegisteredModelResponse> {
-    const url = `${this.host}/api/2.0/mlflow/registered-models/update`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/registered-models/update`;
     const body = marshalRequest(req, marshalUpdateRegisteredModelRequestSchema);
     let resp: UpdateRegisteredModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

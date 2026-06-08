@@ -7,6 +7,7 @@ import type {
 } from '@databricks/sdk-core/http';
 
 import {main} from '../src/sql-execution';
+import {testCredentials} from './helpers';
 
 // Two warehouses, so the example must pick the first one.
 const WAREHOUSES_WIRE = {
@@ -49,7 +50,11 @@ describe('sql-execution example', () => {
       },
     };
 
-    await main({host: 'https://test.cloud.databricks.com', httpClient});
+    await main({
+      host: 'https://test.cloud.databricks.com',
+      httpClient,
+      credentials: testCredentials,
+    });
 
     // The example picked the first warehouse and sent the inline SELECT.
     expect(executeBody).toMatchObject({

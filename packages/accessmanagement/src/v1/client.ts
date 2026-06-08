@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -66,35 +66,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class AccessManagementClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Deletes the workspace permissions assignment in a given account and workspace for the specified principal. */
@@ -102,7 +97,8 @@ export class AccessManagementClient {
     req: DeleteWorkspacePermissionAssignmentRequest,
     options?: CallOptions
   ): Promise<DeleteWorkspacePermissionAssignmentResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
     let resp: DeleteWorkspacePermissionAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -110,7 +106,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -130,7 +126,8 @@ export class AccessManagementClient {
     req: ListWorkspacePermissionAssignmentsRequest,
     options?: CallOptions
   ): Promise<GetWorkspacePermissionAssignmentsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
     let resp: GetWorkspacePermissionAssignmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -138,7 +135,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -158,7 +155,8 @@ export class AccessManagementClient {
     req: ListWorkspacePermissionsRequest,
     options?: CallOptions
   ): Promise<ListWorkspacePermissionsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
     let resp: ListWorkspacePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -166,7 +164,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -186,7 +184,8 @@ export class AccessManagementClient {
     req: UpdateWorkspacePermissionAssignmentRequest,
     options?: CallOptions
   ): Promise<WorkspacePermissionAssignmentOutput> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
     const body = marshalRequest(
       req,
       marshalUpdateWorkspacePermissionAssignmentRequestSchema
@@ -198,7 +197,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -221,7 +220,8 @@ export class AccessManagementClient {
     req: GetRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -238,7 +238,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
@@ -258,7 +258,8 @@ export class AccessManagementClient {
     req: GetRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -275,7 +276,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
@@ -295,7 +296,8 @@ export class AccessManagementClient {
     req: ListAssignableRolesForResourceRequest,
     options?: CallOptions
   ): Promise<ListAssignableRolesForResourceResponse> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/assignable-roles`;
     const params = new URLSearchParams();
     if (req.resource !== undefined) {
       params.append('resource', req.resource);
@@ -309,7 +311,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -332,7 +334,8 @@ export class AccessManagementClient {
     req: ListAssignableRolesForResourceRequest,
     options?: CallOptions
   ): Promise<ListAssignableRolesForResourceResponse> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/assignable-roles`;
     const params = new URLSearchParams();
     if (req.resource !== undefined) {
       params.append('resource', req.resource);
@@ -346,7 +349,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -369,7 +372,8 @@ export class AccessManagementClient {
     req: UpdateRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -378,7 +382,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
@@ -398,7 +402,8 @@ export class AccessManagementClient {
     req: UpdateRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -407,7 +412,7 @@ export class AccessManagementClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
@@ -424,18 +429,19 @@ export class AccessManagementClient {
     req: GetObjectPermissionsRequest,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
-    const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
@@ -452,18 +458,19 @@ export class AccessManagementClient {
     req: ListPermissionLevelsRequest,
     options?: CallOptions
   ): Promise<GetPermissionLevelsResponse> {
-    const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
     let resp: GetPermissionLevelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -483,19 +490,20 @@ export class AccessManagementClient {
     req: SetObjectPermissionsRequest,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
-    const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
     const body = marshalRequest(req, marshalSetObjectPermissionsRequestSchema);
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
@@ -512,7 +520,8 @@ export class AccessManagementClient {
     req: UpdateObjectPermissionsRequest,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
-    const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateObjectPermissionsRequestSchema
@@ -520,14 +529,14 @@ export class AccessManagementClient {
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
@@ -544,7 +553,8 @@ export class AccessManagementClient {
     req: CheckPolicyRequest,
     options?: CallOptions
   ): Promise<CheckPolicyResponse> {
-    const url = `${this.host}/api/2.0/access-control/check-policy-v2`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/access-control/check-policy-v2`;
     const params = new URLSearchParams();
     if (req.actor !== undefined) {
       flattenQueryParams('actor', marshalActorSchema.parse(req.actor), params);
@@ -577,14 +587,14 @@ export class AccessManagementClient {
     let resp: CheckPolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCheckPolicyResponseSchema);

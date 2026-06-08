@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -35,30 +35,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class UsageDashboardsClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /** Create a usage dashboard specified by workspaceId, accountId, and dashboard type. */
@@ -66,7 +66,8 @@ export class UsageDashboardsClient {
     req: CreateBillingUsageDashboardRequest,
     options?: CallOptions
   ): Promise<CreateBillingUsageDashboardResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/dashboard`;
     const body = marshalRequest(
       req,
       marshalCreateBillingUsageDashboardRequestSchema
@@ -78,7 +79,7 @@ export class UsageDashboardsClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -98,7 +99,8 @@ export class UsageDashboardsClient {
     req: GetBillingUsageDashboardRequest,
     options?: CallOptions
   ): Promise<GetBillingUsageDashboardResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/dashboard`;
     const params = new URLSearchParams();
     if (req.workspaceId !== undefined) {
       params.append('workspace_id', String(req.workspaceId));
@@ -115,7 +117,7 @@ export class UsageDashboardsClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

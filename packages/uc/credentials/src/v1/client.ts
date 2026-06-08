@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -103,35 +103,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class CredentialsClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  // Workspace ID used to route workspace-level calls on unified hosts (SPOG).
-  // When set, workspace-level methods send X-Databricks-Org-Id on every
-  // request.
-  private readonly workspaceId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
-    this.workspaceId = options.workspaceId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -146,7 +141,8 @@ export class CredentialsClient {
     req: AccountsCreateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsCreateStorageCredentialResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateStorageCredentialRequestSchema
@@ -158,7 +154,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -178,7 +174,8 @@ export class CredentialsClient {
     req: AccountsDeleteStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsDeleteStorageCredentialResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -192,7 +189,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -215,7 +212,8 @@ export class CredentialsClient {
     req: AccountsGetStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsGetStorageCredentialResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     let resp: AccountsGetStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -223,7 +221,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -243,7 +241,8 @@ export class CredentialsClient {
     req: AccountsListStorageCredentialsRequest,
     options?: CallOptions
   ): Promise<AccountsListStorageCredentialsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
     let resp: AccountsListStorageCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -251,7 +250,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -274,7 +273,8 @@ export class CredentialsClient {
     req: AccountsUpdateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsUpdateStorageCredentialResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateStorageCredentialRequestSchema
@@ -286,7 +286,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -312,19 +312,20 @@ export class CredentialsClient {
     req: CreateCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/credentials`;
     const body = marshalRequest(req, marshalCreateCredentialRequestSchema);
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
@@ -345,7 +346,8 @@ export class CredentialsClient {
     req: CreateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials`;
     const body = marshalRequest(
       req,
       marshalCreateStorageCredentialRequestSchema
@@ -353,14 +355,14 @@ export class CredentialsClient {
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
@@ -377,7 +379,8 @@ export class CredentialsClient {
     req: DeleteCredentialRequest,
     options?: CallOptions
   ): Promise<DeleteCredentialResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -387,14 +390,14 @@ export class CredentialsClient {
     let resp: DeleteCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteCredentialResponseSchema);
@@ -411,7 +414,8 @@ export class CredentialsClient {
     req: DeleteStorageCredentialRequest,
     options?: CallOptions
   ): Promise<DeleteStorageCredentialResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -421,14 +425,14 @@ export class CredentialsClient {
     let resp: DeleteStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -457,7 +461,8 @@ export class CredentialsClient {
     req: GenerateTemporaryPathCredentialRequest,
     options?: CallOptions
   ): Promise<GenerateTemporaryPathCredentialResponse> {
-    const url = `${this.host}/api/2.0/unity-catalog/temporary-path-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/unity-catalog/temporary-path-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryPathCredentialRequestSchema
@@ -465,14 +470,14 @@ export class CredentialsClient {
     let resp: GenerateTemporaryPathCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -495,7 +500,8 @@ export class CredentialsClient {
     req: GenerateTemporaryServiceCredentialRequest,
     options?: CallOptions
   ): Promise<TemporaryCredentials> {
-    const url = `${this.host}/api/2.1/unity-catalog/temporary-service-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/temporary-service-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryServiceCredentialRequestSchema
@@ -503,14 +509,14 @@ export class CredentialsClient {
     let resp: TemporaryCredentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalTemporaryCredentialsSchema);
@@ -532,7 +538,8 @@ export class CredentialsClient {
     req: GenerateTemporaryTableCredentialRequest,
     options?: CallOptions
   ): Promise<GenerateTemporaryTableCredentialResponse> {
-    const url = `${this.host}/api/2.0/unity-catalog/temporary-table-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/unity-catalog/temporary-table-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryTableCredentialRequestSchema
@@ -540,14 +547,14 @@ export class CredentialsClient {
     let resp: GenerateTemporaryTableCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -572,7 +579,8 @@ export class CredentialsClient {
     req: GenerateTemporaryVolumeCredentialRequest,
     options?: CallOptions
   ): Promise<GenerateTemporaryVolumeCredentialResponse> {
-    const url = `${this.host}/api/2.0/unity-catalog/temporary-volume-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/unity-catalog/temporary-volume-credentials`;
     const body = marshalRequest(
       req,
       marshalGenerateTemporaryVolumeCredentialRequestSchema
@@ -580,14 +588,14 @@ export class CredentialsClient {
     let resp: GenerateTemporaryVolumeCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -610,18 +618,19 @@ export class CredentialsClient {
     req: GetCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
@@ -641,18 +650,19 @@ export class CredentialsClient {
     req: GetStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
@@ -678,7 +688,8 @@ export class CredentialsClient {
     req: ListCredentialsRequest,
     options?: CallOptions
   ): Promise<ListCredentialsRequest_Response> {
-    const url = `${this.host}/api/2.1/unity-catalog/credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/credentials`;
     const params = new URLSearchParams();
     if (req.includeUnbound !== undefined) {
       params.append('include_unbound', String(req.includeUnbound));
@@ -694,14 +705,14 @@ export class CredentialsClient {
     let resp: ListCredentialsRequest_Response | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -748,7 +759,8 @@ export class CredentialsClient {
     req: ListStorageCredentialsRequest,
     options?: CallOptions
   ): Promise<ListStorageCredentialsResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials`;
     const params = new URLSearchParams();
     if (req.includeUnbound !== undefined) {
       params.append('include_unbound', String(req.includeUnbound));
@@ -764,14 +776,14 @@ export class CredentialsClient {
     let resp: ListStorageCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -813,19 +825,20 @@ export class CredentialsClient {
     req: UpdateCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCredentialRequestSchema);
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
@@ -847,7 +860,8 @@ export class CredentialsClient {
     req: UpdateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
-    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateStorageCredentialRequestSchema
@@ -855,14 +869,14 @@ export class CredentialsClient {
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
@@ -892,19 +906,20 @@ export class CredentialsClient {
     req: ValidateCredentialRequest,
     options?: CallOptions
   ): Promise<ValidateCredentialResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/validate-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/validate-credentials`;
     const body = marshalRequest(req, marshalValidateCredentialRequestSchema);
     let resp: ValidateCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalValidateCredentialResponseSchema);
@@ -931,7 +946,8 @@ export class CredentialsClient {
     req: ValidateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<ValidateStorageCredentialResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/validate-storage-credentials`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/validate-storage-credentials`;
     const body = marshalRequest(
       req,
       marshalValidateStorageCredentialRequestSchema
@@ -939,14 +955,14 @@ export class CredentialsClient {
     let resp: ValidateStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (this.workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', this.workspaceId);
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -972,7 +988,8 @@ export class CredentialsClient {
     req: CreateCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials`;
     const body = marshalRequest(req, marshalCreateCredentialsRequestSchema);
     let resp: Credentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -981,7 +998,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCredentialsSchema);
@@ -998,7 +1015,8 @@ export class CredentialsClient {
     req: DeleteCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
     let resp: Credentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1006,7 +1024,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCredentialsSchema);
@@ -1023,7 +1041,8 @@ export class CredentialsClient {
     req: GetCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
     let resp: Credentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1031,7 +1050,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCredentialsSchema);
@@ -1048,7 +1067,8 @@ export class CredentialsClient {
     req: ListCredentialsPublicRequest,
     options?: CallOptions
   ): Promise<ListCredentialsResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials`;
     let resp: ListCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1056,7 +1076,7 @@ export class CredentialsClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = {

@@ -21,8 +21,8 @@ export interface ResolvedClientConfig {
   host: string;
 
   /**
-   * Default account ID for account-level paths that contain an
-   * `{account_id}` segment. A request's own `accountId` still wins.
+   * Default account ID for account-level paths that contain an account_id
+   * segment. A request's own accountId still wins.
    */
   accountId?: string;
 
@@ -39,11 +39,11 @@ export interface ResolvedClientConfig {
  * Resolves {@link ClientOptions} into a {@link ResolvedClientConfig}.
  *
  * A configuration profile is always resolved from the config file and
- * environment variables (per `options.profileOptions`); it supplies `host`,
- * `accountId`, `workspaceId`, and credentials wherever the caller did not set
- * them explicitly. Explicit options always take precedence.
+ * environment variables (per options.profileOptions); it supplies host,
+ * accountId, workspaceId, and credentials wherever the caller did not set them
+ * explicitly. Explicit options always take precedence.
  *
- * @throws if `host` is neither provided nor present in the resolved profile.
+ * @throws if host is neither provided nor present in the resolved profile.
  */
 export async function resolveClientConfig(
   options: ClientOptions

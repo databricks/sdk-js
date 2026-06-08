@@ -9,6 +9,7 @@ import type {
 import {PostgresClient} from '@databricks/sdk-postgres/v1';
 
 import {main} from '../src/well-known-types';
+import {testCredentials} from './helpers';
 
 // The host the example and the direct iterator both target.
 const HOST = 'https://test.cloud.databricks.com';
@@ -75,6 +76,7 @@ describe('well-known-types example', () => {
     const client = new PostgresClient({
       host: HOST,
       httpClient: projectsHttpClient(),
+      credentials: testCredentials,
     });
     const names: string[] = [];
     let first: {
@@ -110,7 +112,11 @@ describe('well-known-types example', () => {
 
   it('runs the example without throwing', async () => {
     await expect(
-      main({host: HOST, httpClient: projectsHttpClient()})
+      main({
+        host: HOST,
+        httpClient: projectsHttpClient(),
+        credentials: testCredentials,
+      })
     ).resolves.toBeUndefined();
   });
 });

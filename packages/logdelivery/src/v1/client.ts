@@ -6,8 +6,8 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -43,30 +43,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class LogDeliveryClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -88,7 +88,8 @@ export class LogDeliveryClient {
     req: CreateLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): Promise<CreateLogDeliveryConfigurationResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? this.accountId ?? ''}/log-delivery`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? accountId ?? ''}/log-delivery`;
     const body = marshalRequest(
       req,
       marshalCreateLogDeliveryConfigurationRequestSchema
@@ -100,7 +101,7 @@ export class LogDeliveryClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -120,7 +121,8 @@ export class LogDeliveryClient {
     req: GetLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): Promise<GetLogDeliveryConfigurationResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
     let resp: GetLogDeliveryConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -128,7 +130,7 @@ export class LogDeliveryClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -148,7 +150,8 @@ export class LogDeliveryClient {
     req: ListLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): Promise<ListLogDeliveryConfigurationResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/log-delivery`;
     const params = new URLSearchParams();
     if (req.credentialsId !== undefined) {
       params.append('credentials_id', req.credentialsId);
@@ -171,7 +174,7 @@ export class LogDeliveryClient {
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(
@@ -212,7 +215,8 @@ export class LogDeliveryClient {
     req: UpdateLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): Promise<UpdateLogDeliveryConfigurationResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateLogDeliveryConfigurationRequestSchema
@@ -224,7 +228,7 @@ export class LogDeliveryClient {
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(

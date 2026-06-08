@@ -7,8 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {LroOptions} from '@databricks/sdk-options/lro';
-import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from './transport';
+import type {ResolvedClientConfig} from './transport';
+import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
   executeCall,
@@ -43,30 +43,30 @@ const PACKAGE_SEGMENT = {
 };
 
 export class WorkspacesClient {
-  private readonly host: string;
-  // Fallback for endpoints whose path contains {account_id}. If the request
-  // already carries an accountId, that value wins.
-  private readonly accountId: string | undefined;
-  private readonly httpClient: HttpClient;
+  private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
   // createDefault() merged with this package's identity and the active
   // credential's name.
   private readonly userAgent: string;
+  // Memoized configuration. The profile is resolved once, lazily, on the first
+  // request, then reused; host, workspaceId/accountId, and credentials are
+  // filled from it when not set explicitly on the options.
+  private config: Promise<ResolvedClientConfig> | undefined;
 
   constructor(options: ClientOptions) {
-    if (options.host === undefined) {
-      throw new Error('Host is required.');
-    }
-    this.host = options.host.replace(/\/$/, '');
-    this.accountId = options.accountId;
+    this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
     const info = createDefault()
       .with(PACKAGE_SEGMENT)
       .with({key: 'sdk-js-auth', value: AUTH_VERSION})
       .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
     this.userAgent = info.toString();
-    this.httpClient = newHttpClient(options);
+  }
+
+  private resolveConfig(): Promise<ResolvedClientConfig> {
+    this.config ??= resolveClientConfig(this.options);
+    return this.config;
   }
 
   /**
@@ -86,7 +86,8 @@ export class WorkspacesClient {
     req: CreateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces`;
     const body = marshalRequest(req, marshalCreateWorkspaceRequestSchema);
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -95,7 +96,7 @@ export class WorkspacesClient {
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalWorkspaceSchema);
@@ -125,7 +126,8 @@ export class WorkspacesClient {
     req: DeleteWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -133,7 +135,7 @@ export class WorkspacesClient {
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalWorkspaceSchema);
@@ -153,7 +155,8 @@ export class WorkspacesClient {
     req: GetWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -161,7 +164,7 @@ export class WorkspacesClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalWorkspaceSchema);
@@ -178,7 +181,8 @@ export class WorkspacesClient {
     req: ListWorkspacesRequest,
     options?: CallOptions
   ): Promise<ListWorkspacesResponse> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces`;
     let resp: ListWorkspacesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -186,7 +190,7 @@ export class WorkspacesClient {
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = {
@@ -208,7 +212,8 @@ export class WorkspacesClient {
     req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
-    const url = `${this.host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? this.accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -232,7 +237,7 @@ export class WorkspacesClient {
       );
       const respBody = await executeHttpCall({
         request: httpReq,
-        httpClient: this.httpClient,
+        httpClient,
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalWorkspaceSchema);
