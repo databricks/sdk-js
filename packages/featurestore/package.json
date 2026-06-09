@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-featurestore",
-  "version": "0.1.0-dev.4",
+  "version": "0.1.0-dev.5",
   "description": "",
   "type": "module",
   "exports": {
@@ -33,9 +33,9 @@
     "directory": "packages/featurestore"
   },
   "dependencies": {
-    "@databricks/sdk-auth": ">=0.1.0-dev.5 <1.0.0",
-    "@databricks/sdk-core": ">=0.1.0-dev.6 <1.0.0",
-    "@databricks/sdk-options": ">=0.1.0-dev.5 <1.0.0",
+    "@databricks/sdk-auth": ">=0.1.0-dev.6 <1.0.0",
+    "@databricks/sdk-core": ">=0.1.0-dev.7 <1.0.0",
+    "@databricks/sdk-options": ">=0.1.0-dev.6 <1.0.0",
     "@js-temporal/polyfill": "^0.5.0",
     "json-bigint": "^1.0.0",
     "zod": "^4.3.6"
