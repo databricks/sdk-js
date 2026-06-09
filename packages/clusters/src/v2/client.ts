@@ -228,7 +228,7 @@ export class ClustersClient {
    * Rather than authoring the cluster's JSON definition from scratch, Databricks recommends filling out the
    * [create compute UI](/compute/configure.html) and then copying the generated JSON definition from the UI.
    */
-  private async createCluster(
+  private async createClusterBase(
     req: CreateClusterRequest,
     options?: CallOptions
   ): Promise<CreateClusterResponse> {
@@ -257,11 +257,25 @@ export class ClustersClient {
     return resp;
   }
 
-  async createClusterWaiter(
+  /**
+   * Creates a new Spark cluster. This method will acquire new instances from the cloud provider
+   * if necessary. This method is asynchronous; the returned ``cluster_id`` can be used to poll the
+   * cluster status. When this method returns, the cluster will be in
+   * a ``PENDING`` state. The cluster will be usable once it enters a ``RUNNING`` state.
+   * Note: <Databricks> may not be able to acquire some of the requested nodes, due to cloud provider
+   * limitations (account limits, spot price, etc.) or transient network issues.
+   *
+   * If <Databricks> acquires at least 85% of the requested on-demand nodes, cluster creation will succeed.
+   * Otherwise the cluster will terminate with an informative error message.
+   *
+   * Rather than authoring the cluster's JSON definition from scratch, Databricks recommends filling out the
+   * [create compute UI](/compute/configure.html) and then copying the generated JSON definition from the UI.
+   */
+  async createCluster(
     req: CreateClusterRequest,
     options?: CallOptions
   ): Promise<CreateClusterWaiter> {
-    const resp = await this.createCluster(req, options);
+    const resp = await this.createClusterBase(req, options);
     if (resp.clusterId === undefined) {
       throw new Error(
         'response field clusterId required for polling is missing'
@@ -275,7 +289,7 @@ export class ClustersClient {
    * Once the termination has completed, the cluster will be in a `TERMINATED` state.
    * If the cluster is already in a `TERMINATING` or `TERMINATED` state, nothing will happen.
    */
-  private async deleteCluster(
+  private async deleteClusterBase(
     req: DeleteClusterRequest,
     options?: CallOptions
   ): Promise<DeleteClusterResponse> {
@@ -304,11 +318,16 @@ export class ClustersClient {
     return resp;
   }
 
-  async deleteClusterWaiter(
+  /**
+   * Terminates the Spark cluster with the specified ID. The cluster is removed asynchronously.
+   * Once the termination has completed, the cluster will be in a `TERMINATED` state.
+   * If the cluster is already in a `TERMINATING` or `TERMINATED` state, nothing will happen.
+   */
+  async deleteCluster(
     req: DeleteClusterRequest,
     options?: CallOptions
   ): Promise<DeleteClusterWaiter> {
-    await this.deleteCluster(req, options);
+    await this.deleteClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -329,7 +348,7 @@ export class ClustersClient {
    *
    * Clusters created by the Databricks Jobs service cannot be edited.
    */
-  private async editCluster(
+  private async editClusterBase(
     req: EditClusterRequest,
     options?: CallOptions
   ): Promise<EditClusterResponse> {
@@ -358,11 +377,23 @@ export class ClustersClient {
     return resp;
   }
 
-  async editClusterWaiter(
+  /**
+   * Updates the configuration of a cluster to match the provided attributes and size.
+   * A cluster can be updated if it is in a `RUNNING` or `TERMINATED` state.
+   *
+   * If a cluster is updated while in a `RUNNING` state, it will be restarted so that the new attributes can take effect.
+   *
+   * If a cluster is updated while in a `TERMINATED` state, it will remain `TERMINATED`.
+   * The next time it is started using the `clusters/start` API, the new attributes will take effect.
+   * Any attempt to update a cluster in any other state will be rejected with an `INVALID_STATE` error code.
+   *
+   * Clusters created by the Databricks Jobs service cannot be edited.
+   */
+  async editCluster(
     req: EditClusterRequest,
     options?: CallOptions
   ): Promise<EditClusterWaiter> {
-    await this.editCluster(req, options);
+    await this.editClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -630,7 +661,7 @@ export class ClustersClient {
   }
 
   /** Resizes a cluster to have a desired number of workers. This will fail unless the cluster is in a `RUNNING` state. */
-  private async resizeCluster(
+  private async resizeClusterBase(
     req: ResizeClusterRequest,
     options?: CallOptions
   ): Promise<ResizeClusterResponse> {
@@ -659,11 +690,12 @@ export class ClustersClient {
     return resp;
   }
 
-  async resizeClusterWaiter(
+  /** Resizes a cluster to have a desired number of workers. This will fail unless the cluster is in a `RUNNING` state. */
+  async resizeCluster(
     req: ResizeClusterRequest,
     options?: CallOptions
   ): Promise<ResizeClusterWaiter> {
-    await this.resizeCluster(req, options);
+    await this.resizeClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -673,7 +705,7 @@ export class ClustersClient {
   }
 
   /** Restarts a Spark cluster with the supplied ID. If the cluster is not currently in a `RUNNING` state, nothing will happen. */
-  private async restartCluster(
+  private async restartClusterBase(
     req: RestartClusterRequest,
     options?: CallOptions
   ): Promise<RestartClusterResponse> {
@@ -702,11 +734,12 @@ export class ClustersClient {
     return resp;
   }
 
-  async restartClusterWaiter(
+  /** Restarts a Spark cluster with the supplied ID. If the cluster is not currently in a `RUNNING` state, nothing will happen. */
+  async restartCluster(
     req: RestartClusterRequest,
     options?: CallOptions
   ): Promise<RestartClusterWaiter> {
-    await this.restartCluster(req, options);
+    await this.restartClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -724,7 +757,7 @@ export class ClustersClient {
    * - If the cluster is not currently in a ``TERMINATED`` state, nothing will happen.
    * - Clusters launched to run a job cannot be started.
    */
-  private async startCluster(
+  private async startClusterBase(
     req: StartClusterRequest,
     options?: CallOptions
   ): Promise<StartClusterResponse> {
@@ -753,11 +786,20 @@ export class ClustersClient {
     return resp;
   }
 
-  async startClusterWaiter(
+  /**
+   * Starts a terminated Spark cluster with the supplied ID. This works similar to `createCluster` except:
+   * - The previous cluster id and attributes are preserved.
+   * - The cluster starts with the last specified cluster size.
+   * - If the previous cluster was an autoscaling cluster, the current cluster starts with
+   * the minimum number of nodes.
+   * - If the cluster is not currently in a ``TERMINATED`` state, nothing will happen.
+   * - Clusters launched to run a job cannot be started.
+   */
+  async startCluster(
     req: StartClusterRequest,
     options?: CallOptions
   ): Promise<StartClusterWaiter> {
-    await this.startCluster(req, options);
+    await this.startClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -810,7 +852,7 @@ export class ClustersClient {
    * Attempts to update a cluster in any other state will be rejected with an `INVALID_STATE` error code.
    * Clusters created by the Databricks Jobs service cannot be updated.
    */
-  private async updateCluster(
+  private async updateClusterBase(
     req: UpdateClusterRequest,
     options?: CallOptions
   ): Promise<UpdateClusterResponse> {
@@ -839,11 +881,21 @@ export class ClustersClient {
     return resp;
   }
 
-  async updateClusterWaiter(
+  /**
+   * Updates the configuration of a cluster to match the partial set of attributes and size.
+   * Denote which fields to update using the `update_mask` field in the request body.
+   * A cluster can be updated if it is in a `RUNNING` or `TERMINATED` state.
+   * If a cluster is updated while in a `RUNNING` state, it will be restarted so that the new attributes can take effect.
+   * If a cluster is updated while in a `TERMINATED` state, it will remain `TERMINATED`.
+   * The updated attributes will take effect the next time the cluster is started using the `clusters/start` API.
+   * Attempts to update a cluster in any other state will be rejected with an `INVALID_STATE` error code.
+   * Clusters created by the Databricks Jobs service cannot be updated.
+   */
+  async updateCluster(
     req: UpdateClusterRequest,
     options?: CallOptions
   ): Promise<UpdateClusterWaiter> {
-    await this.updateCluster(req, options);
+    await this.updateClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'

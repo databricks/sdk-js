@@ -146,7 +146,7 @@ export class PostgresClient {
   }
 
   /** Creates a new database branch in the project. */
-  private async createBranch(
+  private async createBranchBase(
     req: CreateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -190,18 +190,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async createBranchOperation(
+  /** Creates a new database branch in the project. */
+  async createBranch(
     req: CreateBranchRequest,
     options?: CallOptions
   ): Promise<CreateBranchOperation> {
-    const op = await this.createBranch(req, options);
+    const op = await this.createBranchBase(req, options);
     return new CreateBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Register a Postgres database in the Unity Catalog. */
-  private async createCatalog(
+  private async createCatalogBase(
     req: CreateCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -242,11 +243,12 @@ export class PostgresClient {
     return resp;
   }
 
-  async createCatalogOperation(
+  /** Register a Postgres database in the Unity Catalog. */
+  async createCatalog(
     req: CreateCatalogRequest,
     options?: CallOptions
   ): Promise<CreateCatalogOperation> {
-    const op = await this.createCatalog(req, options);
+    const op = await this.createCatalogBase(req, options);
     return new CreateCatalogOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -257,7 +259,7 @@ export class PostgresClient {
    *
    * Creates a database in the specified branch. A branch can have multiple databases.
    */
-  private async createDatabase(
+  private async createDatabaseBase(
     req: CreateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -298,18 +300,23 @@ export class PostgresClient {
     return resp;
   }
 
-  async createDatabaseOperation(
+  /**
+   * Create a Database.
+   *
+   * Creates a database in the specified branch. A branch can have multiple databases.
+   */
+  async createDatabase(
     req: CreateDatabaseRequest,
     options?: CallOptions
   ): Promise<CreateDatabaseOperation> {
-    const op = await this.createDatabase(req, options);
+    const op = await this.createDatabaseBase(req, options);
     return new CreateDatabaseOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Creates a new compute endpoint in the branch. */
-  private async createEndpoint(
+  private async createEndpointBase(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -353,18 +360,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async createEndpointOperation(
+  /** Creates a new compute endpoint in the branch. */
+  async createEndpoint(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<CreateEndpointOperation> {
-    const op = await this.createEndpoint(req, options);
+    const op = await this.createEndpointBase(req, options);
     return new CreateEndpointOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
-  private async createProject(
+  private async createProjectBase(
     req: CreateProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -405,18 +413,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async createProjectOperation(
+  /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
+  async createProject(
     req: CreateProjectRequest,
     options?: CallOptions
   ): Promise<CreateProjectOperation> {
-    const op = await this.createProject(req, options);
+    const op = await this.createProjectBase(req, options);
     return new CreateProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Creates a new Postgres role in the branch. */
-  private async createRole(
+  private async createRoleBase(
     req: CreateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -457,18 +466,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async createRoleOperation(
+  /** Creates a new Postgres role in the branch. */
+  async createRole(
     req: CreateRoleRequest,
     options?: CallOptions
   ): Promise<CreateRoleOperation> {
-    const op = await this.createRole(req, options);
+    const op = await this.createRoleBase(req, options);
     return new CreateRoleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Create a Synced Table. */
-  private async createSyncedTable(
+  private async createSyncedTableBase(
     req: CreateSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -509,18 +519,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async createSyncedTableOperation(
+  /** Create a Synced Table. */
+  async createSyncedTable(
     req: CreateSyncedTableRequest,
     options?: CallOptions
   ): Promise<CreateSyncedTableOperation> {
-    const op = await this.createSyncedTable(req, options);
+    const op = await this.createSyncedTableBase(req, options);
     return new CreateSyncedTableOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Deletes the specified database branch. */
-  private async deleteBranch(
+  private async deleteBranchBase(
     req: DeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -554,18 +565,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteBranchOperation(
+  /** Deletes the specified database branch. */
+  async deleteBranch(
     req: DeleteBranchRequest,
     options?: CallOptions
   ): Promise<DeleteBranchOperation> {
-    const op = await this.deleteBranch(req, options);
+    const op = await this.deleteBranchBase(req, options);
     return new DeleteBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Delete a Database Catalog. */
-  private async deleteCatalog(
+  private async deleteCatalogBase(
     req: DeleteCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -593,18 +605,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteCatalogOperation(
+  /** Delete a Database Catalog. */
+  async deleteCatalog(
     req: DeleteCatalogRequest,
     options?: CallOptions
   ): Promise<DeleteCatalogOperation> {
-    const op = await this.deleteCatalog(req, options);
+    const op = await this.deleteCatalogBase(req, options);
     return new DeleteCatalogOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Delete a Database. */
-  private async deleteDatabase(
+  private async deleteDatabaseBase(
     req: DeleteDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -632,18 +645,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteDatabaseOperation(
+  /** Delete a Database. */
+  async deleteDatabase(
     req: DeleteDatabaseRequest,
     options?: CallOptions
   ): Promise<DeleteDatabaseOperation> {
-    const op = await this.deleteDatabase(req, options);
+    const op = await this.deleteDatabaseBase(req, options);
     return new DeleteDatabaseOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Deletes the specified compute endpoint. */
-  private async deleteEndpoint(
+  private async deleteEndpointBase(
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -671,18 +685,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteEndpointOperation(
+  /** Deletes the specified compute endpoint. */
+  async deleteEndpoint(
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<DeleteEndpointOperation> {
-    const op = await this.deleteEndpoint(req, options);
+    const op = await this.deleteEndpointBase(req, options);
     return new DeleteEndpointOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Deletes the specified database project. */
-  private async deleteProject(
+  private async deleteProjectBase(
     req: DeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -716,18 +731,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteProjectOperation(
+  /** Deletes the specified database project. */
+  async deleteProject(
     req: DeleteProjectRequest,
     options?: CallOptions
   ): Promise<DeleteProjectOperation> {
-    const op = await this.deleteProject(req, options);
+    const op = await this.deleteProjectBase(req, options);
     return new DeleteProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Deletes the specified Postgres role. */
-  private async deleteRole(
+  private async deleteRoleBase(
     req: DeleteRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -761,18 +777,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteRoleOperation(
+  /** Deletes the specified Postgres role. */
+  async deleteRole(
     req: DeleteRoleRequest,
     options?: CallOptions
   ): Promise<DeleteRoleOperation> {
-    const op = await this.deleteRole(req, options);
+    const op = await this.deleteRoleBase(req, options);
     return new DeleteRoleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Delete a Synced Table. */
-  private async deleteSyncedTable(
+  private async deleteSyncedTableBase(
     req: DeleteSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -800,11 +817,12 @@ export class PostgresClient {
     return resp;
   }
 
-  async deleteSyncedTableOperation(
+  /** Delete a Synced Table. */
+  async deleteSyncedTable(
     req: DeleteSyncedTableRequest,
     options?: CallOptions
   ): Promise<DeleteSyncedTableOperation> {
-    const op = await this.deleteSyncedTable(req, options);
+    const op = await this.deleteSyncedTableBase(req, options);
     return new DeleteSyncedTableOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1354,7 +1372,7 @@ export class PostgresClient {
   }
 
   /** Undeletes the specified database branch. */
-  private async undeleteBranch(
+  private async undeleteBranchBase(
     req: UndeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1383,18 +1401,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async undeleteBranchOperation(
+  /** Undeletes the specified database branch. */
+  async undeleteBranch(
     req: UndeleteBranchRequest,
     options?: CallOptions
   ): Promise<UndeleteBranchOperation> {
-    const op = await this.undeleteBranch(req, options);
+    const op = await this.undeleteBranchBase(req, options);
     return new UndeleteBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Undeletes a soft-deleted project. */
-  private async undeleteProject(
+  private async undeleteProjectBase(
     req: UndeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1423,18 +1442,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async undeleteProjectOperation(
+  /** Undeletes a soft-deleted project. */
+  async undeleteProject(
     req: UndeleteProjectRequest,
     options?: CallOptions
   ): Promise<UndeleteProjectOperation> {
-    const op = await this.undeleteProject(req, options);
+    const op = await this.undeleteProjectBase(req, options);
     return new UndeleteProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Updates the specified database branch. You can set this branch as the project's default branch, or protect/unprotect it. */
-  private async updateBranch(
+  private async updateBranchBase(
     req: UpdateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1475,18 +1495,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async updateBranchOperation(
+  /** Updates the specified database branch. You can set this branch as the project's default branch, or protect/unprotect it. */
+  async updateBranch(
     req: UpdateBranchRequest,
     options?: CallOptions
   ): Promise<UpdateBranchOperation> {
-    const op = await this.updateBranch(req, options);
+    const op = await this.updateBranchBase(req, options);
     return new UpdateBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Update a Database. */
-  private async updateDatabase(
+  private async updateDatabaseBase(
     req: UpdateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1527,18 +1548,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async updateDatabaseOperation(
+  /** Update a Database. */
+  async updateDatabase(
     req: UpdateDatabaseRequest,
     options?: CallOptions
   ): Promise<UpdateDatabaseOperation> {
-    const op = await this.updateDatabase(req, options);
+    const op = await this.updateDatabaseBase(req, options);
     return new UpdateDatabaseOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
-  private async updateEndpoint(
+  private async updateEndpointBase(
     req: UpdateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1579,18 +1601,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async updateEndpointOperation(
+  /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
+  async updateEndpoint(
     req: UpdateEndpointRequest,
     options?: CallOptions
   ): Promise<UpdateEndpointOperation> {
-    const op = await this.updateEndpoint(req, options);
+    const op = await this.updateEndpointBase(req, options);
     return new UpdateEndpointOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Updates the specified database project. */
-  private async updateProject(
+  private async updateProjectBase(
     req: UpdateProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1631,18 +1654,19 @@ export class PostgresClient {
     return resp;
   }
 
-  async updateProjectOperation(
+  /** Updates the specified database project. */
+  async updateProject(
     req: UpdateProjectRequest,
     options?: CallOptions
   ): Promise<UpdateProjectOperation> {
-    const op = await this.updateProject(req, options);
+    const op = await this.updateProjectBase(req, options);
     return new UpdateProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
 
   /** Update a role for a branch. */
-  private async updateRole(
+  private async updateRoleBase(
     req: UpdateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1683,11 +1707,12 @@ export class PostgresClient {
     return resp;
   }
 
-  async updateRoleOperation(
+  /** Update a role for a branch. */
+  async updateRole(
     req: UpdateRoleRequest,
     options?: CallOptions
   ): Promise<UpdateRoleOperation> {
-    const op = await this.updateRole(req, options);
+    const op = await this.updateRoleBase(req, options);
     return new UpdateRoleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );

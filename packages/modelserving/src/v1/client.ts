@@ -106,7 +106,7 @@ export class ModelServingClient {
   }
 
   /** Create a new serving endpoint. */
-  private async createInferenceEndpoint(
+  private async createInferenceEndpointBase(
     req: CreateInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -138,11 +138,12 @@ export class ModelServingClient {
     return resp;
   }
 
-  async createInferenceEndpointWaiter(
+  /** Create a new serving endpoint. */
+  async createInferenceEndpoint(
     req: CreateInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<CreateInferenceEndpointWaiter> {
-    await this.createInferenceEndpoint(req, options);
+    await this.createInferenceEndpointBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -150,7 +151,7 @@ export class ModelServingClient {
   }
 
   /** Create a new PT serving endpoint. */
-  private async createProvisionedThroughputInferenceEndpoint(
+  private async createProvisionedThroughputInferenceEndpointBase(
     req: CreatePtEndpointRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -179,11 +180,12 @@ export class ModelServingClient {
     return resp;
   }
 
-  async createProvisionedThroughputInferenceEndpointWaiter(
+  /** Create a new PT serving endpoint. */
+  async createProvisionedThroughputInferenceEndpoint(
     req: CreatePtEndpointRequest,
     options?: CallOptions
   ): Promise<CreateProvisionedThroughputInferenceEndpointWaiter> {
-    await this.createProvisionedThroughputInferenceEndpoint(req, options);
+    await this.createProvisionedThroughputInferenceEndpointBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -482,7 +484,7 @@ export class ModelServingClient {
   }
 
   /** Updates any combination of the serving endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. An endpoint that already has an update in progress can not be updated until the current update completes or fails. */
-  private async putInferenceEndpointConfig(
+  private async putInferenceEndpointConfigBase(
     req: PutInferenceEndpointConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -514,11 +516,12 @@ export class ModelServingClient {
     return resp;
   }
 
-  async putInferenceEndpointConfigWaiter(
+  /** Updates any combination of the serving endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. An endpoint that already has an update in progress can not be updated until the current update completes or fails. */
+  async putInferenceEndpointConfig(
     req: PutInferenceEndpointConfigRequest,
     options?: CallOptions
   ): Promise<PutInferenceEndpointConfigWaiter> {
-    await this.putInferenceEndpointConfig(req, options);
+    await this.putInferenceEndpointConfigBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -562,7 +565,7 @@ export class ModelServingClient {
   }
 
   /** Updates any combination of the pt endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. Updates are instantaneous and endpoint should be updated instantly */
-  private async putProvisionedThroughputInferenceEndpointConfig(
+  private async putProvisionedThroughputInferenceEndpointConfigBase(
     req: PutPtEndpointConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -591,11 +594,15 @@ export class ModelServingClient {
     return resp;
   }
 
-  async putProvisionedThroughputInferenceEndpointConfigWaiter(
+  /** Updates any combination of the pt endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. Updates are instantaneous and endpoint should be updated instantly */
+  async putProvisionedThroughputInferenceEndpointConfig(
     req: PutPtEndpointConfigRequest,
     options?: CallOptions
   ): Promise<PutProvisionedThroughputInferenceEndpointConfigWaiter> {
-    await this.putProvisionedThroughputInferenceEndpointConfig(req, options);
+    await this.putProvisionedThroughputInferenceEndpointConfigBase(
+      req,
+      options
+    );
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }

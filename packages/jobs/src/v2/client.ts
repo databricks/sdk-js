@@ -285,7 +285,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<CancelAllRunsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/runs/cancel-all`;
+    const url = `${host}/api/2.0/jobs/runs/cancel-all`;
     const body = marshalRequest(req, marshalCancelAllRunsRequestSchema);
     let resp: CancelAllRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -313,12 +313,12 @@ export class JobsClient {
    * Cancels a job run or a task run. The run is canceled asynchronously, so it may still be running when
    * this request completes.
    */
-  private async cancelRun(
+  private async cancelRunBase(
     req: CancelRunRequest,
     options?: CallOptions
   ): Promise<CancelRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/runs/cancel`;
+    const url = `${host}/api/2.0/jobs/runs/cancel`;
     const body = marshalRequest(req, marshalCancelRunRequestSchema);
     let resp: CancelRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -342,11 +342,15 @@ export class JobsClient {
     return resp;
   }
 
-  async cancelRunWaiter(
+  /**
+   * Cancels a job run or a task run. The run is canceled asynchronously, so it may still be running when
+   * this request completes.
+   */
+  async cancelRun(
     req: CancelRunRequest,
     options?: CallOptions
   ): Promise<CancelRunWaiter> {
-    await this.cancelRun(req, options);
+    await this.cancelRunBase(req, options);
     if (req.runId === undefined) {
       throw new Error('request field runId required for polling is missing');
     }
@@ -359,7 +363,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<CreateJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/create`;
+    const url = `${host}/api/2.0/jobs/create`;
     const body = marshalRequest(req, marshalCreateJobRequestSchema);
     let resp: CreateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -389,7 +393,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<DeleteJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/delete`;
+    const url = `${host}/api/2.0/jobs/delete`;
     const body = marshalRequest(req, marshalDeleteJobRequestSchema);
     let resp: DeleteJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -419,7 +423,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<DeleteRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/runs/delete`;
+    const url = `${host}/api/2.0/jobs/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
     let resp: DeleteRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -779,12 +783,12 @@ export class JobsClient {
    * They use the current job and task settings, and can be viewed in the history for the
    * original job run.
    */
-  private async repair(
+  private async repairBase(
     req: RepairRunRequest,
     options?: CallOptions
   ): Promise<RepairRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/runs/repair`;
+    const url = `${host}/api/2.1/jobs/runs/repair`;
     const body = marshalRequest(req, marshalRepairRunRequestSchema);
     let resp: RepairRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -808,11 +812,16 @@ export class JobsClient {
     return resp;
   }
 
-  async repairWaiter(
+  /**
+   * Re-run one or more tasks. Tasks are re-run as part of the original job run.
+   * They use the current job and task settings, and can be viewed in the history for the
+   * original job run.
+   */
+  async repair(
     req: RepairRunRequest,
     options?: CallOptions
   ): Promise<RepairWaiter> {
-    await this.repair(req, options);
+    await this.repairBase(req, options);
     if (req.runId === undefined) {
       throw new Error('request field runId required for polling is missing');
     }
@@ -825,7 +834,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<ResetJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/reset`;
+    const url = `${host}/api/2.0/jobs/reset`;
     const body = marshalRequest(req, marshalResetJobRequestSchema);
     let resp: ResetJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -850,12 +859,12 @@ export class JobsClient {
   }
 
   /** Run a job and return the `run_id` of the triggered run. */
-  private async runNow(
+  private async runNowBase(
     req: RunNowRequest,
     options?: CallOptions
   ): Promise<RunNowResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/run-now`;
+    const url = `${host}/api/2.0/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowRequestSchema);
     let resp: RunNowResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -879,11 +888,12 @@ export class JobsClient {
     return resp;
   }
 
-  async runNowWaiter(
+  /** Run a job and return the `run_id` of the triggered run. */
+  async runNow(
     req: RunNowRequest,
     options?: CallOptions
   ): Promise<RunNowWaiter> {
-    const resp = await this.runNow(req, options);
+    const resp = await this.runNowBase(req, options);
     if (resp.runId === undefined) {
       throw new Error('response field runId required for polling is missing');
     }
@@ -903,12 +913,12 @@ export class JobsClient {
    * the compute needs for the job. Alternatively, use the `POST /jobs/create` and
    * `POST /jobs/run-now` endpoints to create and run a saved job.
    */
-  private async submitRun(
+  private async submitRunBase(
     req: SubmitRunRequest,
     options?: CallOptions
   ): Promise<SubmitRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/runs/submit`;
+    const url = `${host}/api/2.0/jobs/runs/submit`;
     const body = marshalRequest(req, marshalSubmitRunRequestSchema);
     let resp: SubmitRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -932,11 +942,24 @@ export class JobsClient {
     return resp;
   }
 
-  async submitRunWaiter(
+  /**
+   * Submit a one-time run. This endpoint allows you to submit a workload directly
+   * without creating a job. Runs submitted using this endpoint don’t display in
+   * the UI. Use the `jobs/runs/get` API to check the run state after the job is
+   * submitted.
+   *
+   * **Important:** Jobs submitted using this endpoint are not saved as a job.
+   * They do not show up in the Jobs UI, and do not retry when they fail. Because
+   * they are not saved, <Databricks> cannot auto-optimize serverless compute in case
+   * of failure. If your job fails, you may want to use classic compute to specify
+   * the compute needs for the job. Alternatively, use the `POST /jobs/create` and
+   * `POST /jobs/run-now` endpoints to create and run a saved job.
+   */
+  async submitRun(
     req: SubmitRunRequest,
     options?: CallOptions
   ): Promise<SubmitRunWaiter> {
-    const resp = await this.submitRun(req, options);
+    const resp = await this.submitRunBase(req, options);
     if (resp.runId === undefined) {
       throw new Error('response field runId required for polling is missing');
     }
@@ -949,7 +972,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<UpdateJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.2/jobs/update`;
+    const url = `${host}/api/2.0/jobs/update`;
     const body = marshalRequest(req, marshalUpdateJobRequestSchema);
     let resp: UpdateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

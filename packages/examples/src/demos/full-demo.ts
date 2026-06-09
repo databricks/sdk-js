@@ -257,7 +257,7 @@ async function showPagination(host: string): Promise<void> {
 // Part 4: Long-Running Operation — Lakebase project creation.
 // ---------------------------------------------------------------------------
 //
-// `createProjectOperation` issues the create request, then returns a typed
+// `createProject` issues the create request, then returns a typed
 // `CreateProjectOperation` whose `wait()` polls the operation until done.
 // The waiter shares the SDK's retry primitives with every other LRO in the
 // SDK (jobs runs, warehouse start/stop, etc.).
@@ -275,7 +275,7 @@ async function showLro(host: string): Promise<{projectName: string}> {
   const startedAt = new Date();
   log.info('Started at:              ', startedAt.toISOString());
 
-  const op = await client.createProjectOperation({
+  const op = await client.createProject({
     projectId,
     project: {
       spec: {
@@ -569,7 +569,7 @@ function showFieldMask(): void {
 // Part 10: Cleanup — delete the project we created in section 4.
 // ---------------------------------------------------------------------------
 //
-// `deleteProjectOperation` is the symmetric LRO. We pass `purge: true` so
+// `deleteProject` is the symmetric LRO. We pass `purge: true` so
 // the project is fully removed instead of soft-deleted.
 async function showCleanup(host: string, projectName: string): Promise<void> {
   section('10. Cleanup');
@@ -579,7 +579,7 @@ async function showCleanup(host: string, projectName: string): Promise<void> {
   log.info('Deleting project:        ', projectName);
   log.info('Started at:              ', startedAt.toISOString());
 
-  const op = await client.deleteProjectOperation({
+  const op = await client.deleteProject({
     name: projectName,
     purge: true,
   });

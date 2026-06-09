@@ -19,7 +19,7 @@ export async function main(options: ClientOptions): Promise<void> {
   const client = new PostgresClient(options);
   const projectId = `sdkjs-demo-${String(Date.now())}`;
 
-  const createOp = await client.createProjectOperation({
+  const createOp = await client.createProject({
     projectId,
     project: {spec: {displayName: 'JS SDK LRO Demo'}},
   });
@@ -29,7 +29,7 @@ export async function main(options: ClientOptions): Promise<void> {
     throw new Error('createProject returned a project without a name.');
   }
 
-  const deleteOp = await client.deleteProjectOperation({
+  const deleteOp = await client.deleteProject({
     name: project.name,
     purge: true,
   });

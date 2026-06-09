@@ -86,7 +86,7 @@ export class EnvironmentsClient {
    * to optimize dependency resolution and is only marked as done when the materialized environment has been
    * successfully generated or has failed.
    */
-  private async createWorkspaceBaseEnvironment(
+  private async createWorkspaceBaseEnvironmentBase(
     req: CreateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -136,11 +136,17 @@ export class EnvironmentsClient {
     return resp;
   }
 
-  async createWorkspaceBaseEnvironmentOperation(
+  /**
+   * Creates a new WorkspaceBaseEnvironment.
+   * This is a long-running operation. The operation will asynchronously generate a materialized environment
+   * to optimize dependency resolution and is only marked as done when the materialized environment has been
+   * successfully generated or has failed.
+   */
+  async createWorkspaceBaseEnvironment(
     req: CreateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<CreateWorkspaceBaseEnvironmentOperation> {
-    const op = await this.createWorkspaceBaseEnvironment(req, options);
+    const op = await this.createWorkspaceBaseEnvironmentBase(req, options);
     return new CreateWorkspaceBaseEnvironmentOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -348,7 +354,7 @@ export class EnvironmentsClient {
    * and is only marked as done when the materialized environment has been successfully generated or has failed.
    * The existing materialized environment remains available until it expires.
    */
-  private async refreshWorkspaceBaseEnvironment(
+  private async refreshWorkspaceBaseEnvironmentBase(
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -380,11 +386,17 @@ export class EnvironmentsClient {
     return resp;
   }
 
-  async refreshWorkspaceBaseEnvironmentOperation(
+  /**
+   * Refreshes the materialized environment for a WorkspaceBaseEnvironment.
+   * This is a long-running operation. The operation will asynchronously regenerate the materialized environment
+   * and is only marked as done when the materialized environment has been successfully generated or has failed.
+   * The existing materialized environment remains available until it expires.
+   */
+  async refreshWorkspaceBaseEnvironment(
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<RefreshWorkspaceBaseEnvironmentOperation> {
-    const op = await this.refreshWorkspaceBaseEnvironment(req, options);
+    const op = await this.refreshWorkspaceBaseEnvironmentBase(req, options);
     return new RefreshWorkspaceBaseEnvironmentOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -447,7 +459,7 @@ export class EnvironmentsClient {
    * and is only marked as done when the materialized environment has been successfully generated or has failed.
    * The existing materialized environment remains available until it expires.
    */
-  private async updateWorkspaceBaseEnvironment(
+  private async updateWorkspaceBaseEnvironmentBase(
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -479,11 +491,17 @@ export class EnvironmentsClient {
     return resp;
   }
 
-  async updateWorkspaceBaseEnvironmentOperation(
+  /**
+   * Updates an existing WorkspaceBaseEnvironment.
+   * This is a long-running operation. The operation will asynchronously regenerate the materialized environment
+   * and is only marked as done when the materialized environment has been successfully generated or has failed.
+   * The existing materialized environment remains available until it expires.
+   */
+  async updateWorkspaceBaseEnvironment(
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<UpdateWorkspaceBaseEnvironmentOperation> {
-    const op = await this.updateWorkspaceBaseEnvironment(req, options);
+    const op = await this.updateWorkspaceBaseEnvironmentBase(req, options);
     return new UpdateWorkspaceBaseEnvironmentOperation(op, (req, options) =>
       this.getOperation(req, options)
     );

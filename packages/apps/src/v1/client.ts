@@ -119,7 +119,7 @@ export class AppsClient {
   }
 
   /** Creates an app update and starts the update process. The update process is asynchronous and the status of the update can be checked with the GetAppUpdate method. */
-  private async asyncUpdateApp(
+  private async asyncUpdateAppBase(
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AppUpdate> {
@@ -148,11 +148,12 @@ export class AppsClient {
     return resp;
   }
 
-  async asyncUpdateAppWaiter(
+  /** Creates an app update and starts the update process. The update process is asynchronous and the status of the update can be checked with the GetAppUpdate method. */
+  async asyncUpdateApp(
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AsyncUpdateAppWaiter> {
-    await this.asyncUpdateApp(req, options);
+    await this.asyncUpdateAppBase(req, options);
     if (req.appName === undefined) {
       throw new Error('request field appName required for polling is missing');
     }
@@ -160,7 +161,7 @@ export class AppsClient {
   }
 
   /** Creates a new app. */
-  private async createApp(
+  private async createAppBase(
     req: CreateAppRequest,
     options?: CallOptions
   ): Promise<App> {
@@ -201,11 +202,12 @@ export class AppsClient {
     return resp;
   }
 
-  async createAppWaiter(
+  /** Creates a new app. */
+  async createApp(
     req: CreateAppRequest,
     options?: CallOptions
   ): Promise<CreateAppWaiter> {
-    const resp = await this.createApp(req, options);
+    const resp = await this.createAppBase(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
@@ -213,7 +215,7 @@ export class AppsClient {
   }
 
   /** Creates an app deployment for the app with the supplied name. */
-  private async createAppDeployment(
+  private async createAppDeploymentBase(
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<AppDeployment> {
@@ -242,11 +244,12 @@ export class AppsClient {
     return resp;
   }
 
-  async createAppDeploymentWaiter(
+  /** Creates an app deployment for the app with the supplied name. */
+  async createAppDeployment(
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<CreateAppDeploymentWaiter> {
-    const resp = await this.createAppDeployment(req, options);
+    const resp = await this.createAppDeploymentBase(req, options);
     if (resp.deploymentId === undefined) {
       throw new Error(
         'response field deploymentId required for polling is missing'
@@ -289,7 +292,7 @@ export class AppsClient {
   }
 
   /** Creates a new app space. */
-  private async createSpace(
+  private async createSpaceBase(
     req: CreateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -318,11 +321,12 @@ export class AppsClient {
     return resp;
   }
 
-  async createSpaceOperation(
+  /** Creates a new app space. */
+  async createSpace(
     req: CreateSpaceRequest,
     options?: CallOptions
   ): Promise<CreateSpaceOperation> {
-    const op = await this.createSpace(req, options);
+    const op = await this.createSpaceBase(req, options);
     return new CreateSpaceOperation(op, (req, options) =>
       this.getSpaceOperation(req, options)
     );
@@ -407,7 +411,7 @@ export class AppsClient {
   }
 
   /** Deletes an app space. */
-  private async deleteSpace(
+  private async deleteSpaceBase(
     req: DeleteSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -435,11 +439,12 @@ export class AppsClient {
     return resp;
   }
 
-  async deleteSpaceOperation(
+  /** Deletes an app space. */
+  async deleteSpace(
     req: DeleteSpaceRequest,
     options?: CallOptions
   ): Promise<DeleteSpaceOperation> {
-    const op = await this.deleteSpace(req, options);
+    const op = await this.deleteSpaceBase(req, options);
     return new DeleteSpaceOperation(op, (req, options) =>
       this.getSpaceOperation(req, options)
     );
@@ -840,7 +845,7 @@ export class AppsClient {
   }
 
   /** Start the last active deployment of the app in the workspace. */
-  private async startApp(
+  private async startAppBase(
     req: StartAppRequest,
     options?: CallOptions
   ): Promise<App> {
@@ -869,11 +874,12 @@ export class AppsClient {
     return resp;
   }
 
-  async startAppWaiter(
+  /** Start the last active deployment of the app in the workspace. */
+  async startApp(
     req: StartAppRequest,
     options?: CallOptions
   ): Promise<StartAppWaiter> {
-    await this.startApp(req, options);
+    await this.startAppBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -881,7 +887,7 @@ export class AppsClient {
   }
 
   /** Stops the active deployment of the app in the workspace. */
-  private async stopApp(
+  private async stopAppBase(
     req: StopAppRequest,
     options?: CallOptions
   ): Promise<App> {
@@ -910,11 +916,12 @@ export class AppsClient {
     return resp;
   }
 
-  async stopAppWaiter(
+  /** Stops the active deployment of the app in the workspace. */
+  async stopApp(
     req: StopAppRequest,
     options?: CallOptions
   ): Promise<StopAppWaiter> {
-    await this.stopApp(req, options);
+    await this.stopAppBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -1009,7 +1016,7 @@ export class AppsClient {
   }
 
   /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
-  private async updateSpace(
+  private async updateSpaceBase(
     req: UpdateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -1050,11 +1057,12 @@ export class AppsClient {
     return resp;
   }
 
-  async updateSpaceOperation(
+  /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
+  async updateSpace(
     req: UpdateSpaceRequest,
     options?: CallOptions
   ): Promise<UpdateSpaceOperation> {
-    const op = await this.updateSpace(req, options);
+    const op = await this.updateSpaceBase(req, options);
     return new UpdateSpaceOperation(op, (req, options) =>
       this.getSpaceOperation(req, options)
     );

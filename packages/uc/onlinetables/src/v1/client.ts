@@ -65,7 +65,7 @@ export class OnlineTablesClient {
   }
 
   /** Create a new Online Table. */
-  private async createOnlineTable(
+  private async createOnlineTableBase(
     req: CreateOnlineTableRequest,
     options?: CallOptions
   ): Promise<OnlineTable> {
@@ -94,11 +94,12 @@ export class OnlineTablesClient {
     return resp;
   }
 
-  async createOnlineTableWaiter(
+  /** Create a new Online Table. */
+  async createOnlineTable(
     req: CreateOnlineTableRequest,
     options?: CallOptions
   ): Promise<CreateOnlineTableWaiter> {
-    const resp = await this.createOnlineTable(req, options);
+    const resp = await this.createOnlineTableBase(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }

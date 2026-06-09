@@ -526,7 +526,7 @@ export class PipelinesClient {
   }
 
   /** Stops the pipeline by canceling the active update. If there is no active update for the pipeline, this request is a no-op. */
-  private async stop(
+  private async stopBase(
     req: StopPipelineRequest,
     options?: CallOptions
   ): Promise<StopPipelineResponse> {
@@ -555,11 +555,12 @@ export class PipelinesClient {
     return resp;
   }
 
-  async stopWaiter(
+  /** Stops the pipeline by canceling the active update. If there is no active update for the pipeline, this request is a no-op. */
+  async stop(
     req: StopPipelineRequest,
     options?: CallOptions
   ): Promise<StopWaiter> {
-    await this.stop(req, options);
+    await this.stopBase(req, options);
     if (req.pipelineId === undefined) {
       throw new Error(
         'request field pipelineId required for polling is missing'

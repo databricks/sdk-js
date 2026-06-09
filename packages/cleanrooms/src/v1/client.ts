@@ -118,7 +118,7 @@ export class CleanRoomsClient {
    * The caller must be a metastore admin or have the **CREATE_CLEAN_ROOM** privilege on the
    * metastore.
    */
-  private async createCleanRoom(
+  private async createCleanRoomBase(
     req: CreateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
@@ -147,11 +147,21 @@ export class CleanRoomsClient {
     return resp;
   }
 
-  async createCleanRoomWaiter(
+  /**
+   * Create a new clean room with the specified collaborators.
+   * This method is asynchronous; the returned name field inside the clean_room field can be used to poll the clean room status,
+   * using the :method:cleanrooms/get method.
+   * When this method returns, the clean room will be in a PROVISIONING state, with only name, owner, comment, created_at and status populated.
+   * The clean room will be usable once it enters an ACTIVE state.
+   *
+   * The caller must be a metastore admin or have the **CREATE_CLEAN_ROOM** privilege on the
+   * metastore.
+   */
+  async createCleanRoom(
     req: CreateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomWaiter> {
-    const resp = await this.createCleanRoom(req, options);
+    const resp = await this.createCleanRoomBase(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
