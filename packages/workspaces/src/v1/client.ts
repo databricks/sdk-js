@@ -82,7 +82,7 @@ export class WorkspacesClient {
    *
    * This operation is available only if your account is on the E2 version of the platform or on a select custom plan that allows multiple workspaces per account.
    */
-  private async createWorkspacePublic(
+  private async createWorkspacePublicBase(
     req: CreateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
@@ -108,11 +108,24 @@ export class WorkspacesClient {
     return resp;
   }
 
-  async createWorkspacePublicWaiter(
+  /**
+   * Creates a new workspace using a credential configuration and a storage configuration, an optional network configuration (if using a customer-managed VPC), an optional managed services key configuration (if using customer-managed keys for managed services), and an optional storage key configuration (if using customer-managed keys for storage). The key configurations used for managed services and storage encryption can be the same or different.
+   *
+   * Important: This operation is asynchronous. A response with HTTP status code 200 means the request has been accepted and is in progress, but does not mean that the workspace deployed successfully and is running. The initial workspace status is typically PROVISIONING. Use the workspace ID (workspace_id) field in the response to identify the new workspace and make repeated GET requests with the workspace ID and check its status. The workspace becomes available when the status changes to RUNNING.
+   *
+   * You can share one customer-managed VPC with multiple workspaces in a single account. It is not required to create a new VPC for each workspace. However, you cannot reuse subnets or Security Groups between workspaces. If you plan to share one VPC with multiple workspaces, make sure you size your VPC and subnets accordingly. Because a Databricks Account API network configuration encapsulates this information, you cannot reuse a Databricks Account API network configuration across workspaces.
+   *
+   * For information about how to create a new workspace with this API including error handling, see [Create a new workspace using the Account API](http://docs.databricks.com/administration-guide/account-api/new-workspace.html).
+   *
+   * Important: Customer-managed VPCs, PrivateLink, and customer-managed keys are supported on a limited set of deployment and subscription types. If you have questions about availability, contact your <Databricks> representative.
+   *
+   * This operation is available only if your account is on the E2 version of the platform or on a select custom plan that allows multiple workspaces per account.
+   */
+  async createWorkspacePublic(
     req: CreateWorkspaceRequest,
     options?: CallOptions
   ): Promise<CreateWorkspacePublicWaiter> {
-    const resp = await this.createWorkspacePublic(req, options);
+    const resp = await this.createWorkspacePublicBase(req, options);
     if (resp.workspaceId === undefined) {
       throw new Error(
         'response field workspaceId required for polling is missing'
@@ -208,7 +221,7 @@ export class WorkspacesClient {
   }
 
   /** Updates a workspace. */
-  private async updateWorkspacePublic(
+  private async updateWorkspacePublicBase(
     req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
@@ -249,11 +262,12 @@ export class WorkspacesClient {
     return resp;
   }
 
-  async updateWorkspacePublicWaiter(
+  /** Updates a workspace. */
+  async updateWorkspacePublic(
     req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<UpdateWorkspacePublicWaiter> {
-    const resp = await this.updateWorkspacePublic(req, options);
+    const resp = await this.updateWorkspacePublicBase(req, options);
     if (resp.workspaceId === undefined) {
       throw new Error(
         'response field workspaceId required for polling is missing'

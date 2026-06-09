@@ -66,7 +66,7 @@ export class ForecastingClient {
   }
 
   /** Creates a serverless forecasting experiment. Returns the experiment ID. */
-  private async createForecastingExperiment(
+  private async createForecastingExperimentBase(
     req: CreateForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<CreateForecastingExperimentResponse> {
@@ -101,11 +101,12 @@ export class ForecastingClient {
     return resp;
   }
 
-  async createForecastingExperimentWaiter(
+  /** Creates a serverless forecasting experiment. Returns the experiment ID. */
+  async createForecastingExperiment(
     req: CreateForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<CreateForecastingExperimentWaiter> {
-    const resp = await this.createForecastingExperiment(req, options);
+    const resp = await this.createForecastingExperimentBase(req, options);
     if (resp.experimentId === undefined) {
       throw new Error(
         'response field experimentId required for polling is missing'

@@ -139,7 +139,7 @@ export class DatabaseClient {
   }
 
   /** Create a Database Instance. */
-  private async createDatabaseInstance(
+  private async createDatabaseInstanceBase(
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
@@ -171,11 +171,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  async createDatabaseInstanceWaiter(
+  /** Create a Database Instance. */
+  async createDatabaseInstance(
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<CreateDatabaseInstanceWaiter> {
-    const resp = await this.createDatabaseInstance(req, options);
+    const resp = await this.createDatabaseInstanceBase(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }

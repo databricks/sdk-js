@@ -153,7 +153,7 @@ export class WarehousesClient {
   }
 
   /** Creates a new SQL warehouse. */
-  private async createWarehouse(
+  private async createWarehouseBase(
     req: CreateWarehouseRequest,
     options?: CallOptions
   ): Promise<CreateWarehouseResponse> {
@@ -182,11 +182,12 @@ export class WarehousesClient {
     return resp;
   }
 
-  async createWarehouseWaiter(
+  /** Creates a new SQL warehouse. */
+  async createWarehouse(
     req: CreateWarehouseRequest,
     options?: CallOptions
   ): Promise<CreateWarehouseWaiter> {
-    const resp = await this.createWarehouse(req, options);
+    const resp = await this.createWarehouseBase(req, options);
     if (resp.id === undefined) {
       throw new Error('response field id required for polling is missing');
     }
@@ -250,7 +251,7 @@ export class WarehousesClient {
   }
 
   /** Updates the configuration for a SQL warehouse. */
-  private async editWarehouse(
+  private async editWarehouseBase(
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseResponse> {
@@ -279,11 +280,12 @@ export class WarehousesClient {
     return resp;
   }
 
-  async editWarehouseWaiter(
+  /** Updates the configuration for a SQL warehouse. */
+  async editWarehouse(
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseWaiter> {
-    await this.editWarehouse(req, options);
+    await this.editWarehouseBase(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
@@ -540,7 +542,7 @@ export class WarehousesClient {
   }
 
   /** Starts a SQL warehouse. */
-  private async startWarehouse(
+  private async startWarehouseBase(
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartResponse> {
@@ -569,11 +571,12 @@ export class WarehousesClient {
     return resp;
   }
 
-  async startWarehouseWaiter(
+  /** Starts a SQL warehouse. */
+  async startWarehouse(
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartWarehouseWaiter> {
-    await this.startWarehouse(req, options);
+    await this.startWarehouseBase(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
@@ -581,7 +584,7 @@ export class WarehousesClient {
   }
 
   /** Stops a SQL warehouse. */
-  private async stopWarehouse(
+  private async stopWarehouseBase(
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopResponse> {
@@ -610,11 +613,12 @@ export class WarehousesClient {
     return resp;
   }
 
-  async stopWarehouseWaiter(
+  /** Stops a SQL warehouse. */
+  async stopWarehouse(
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopWarehouseWaiter> {
-    await this.stopWarehouse(req, options);
+    await this.stopWarehouseBase(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }

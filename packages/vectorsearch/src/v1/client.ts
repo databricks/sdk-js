@@ -117,7 +117,7 @@ export class VectorSearchClient {
   }
 
   /** Create a new endpoint. */
-  private async createEndpoint(
+  private async createEndpointBase(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
@@ -146,11 +146,12 @@ export class VectorSearchClient {
     return resp;
   }
 
-  async createEndpointWaiter(
+  /** Create a new endpoint. */
+  async createEndpoint(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<CreateEndpointWaiter> {
-    const resp = await this.createEndpoint(req, options);
+    const resp = await this.createEndpointBase(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }

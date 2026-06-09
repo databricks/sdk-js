@@ -162,7 +162,7 @@ export class GenieClient {
    * Create new message in a [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
    */
-  private async genieCreateConversationMessage(
+  private async genieCreateConversationMessageBase(
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
@@ -194,11 +194,15 @@ export class GenieClient {
     return resp;
   }
 
-  async genieCreateConversationMessageWaiter(
+  /**
+   * Create new message in a [conversation](:method:genie/startconversation).
+   * The AI response uses all previously created messages in the conversation to respond.
+   */
+  async genieCreateConversationMessage(
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieCreateConversationMessageWaiter> {
-    const resp = await this.genieCreateConversationMessage(req, options);
+    const resp = await this.genieCreateConversationMessageBase(req, options);
     if (resp.messageId === undefined) {
       throw new Error(
         'response field messageId required for polling is missing'
@@ -1059,7 +1063,7 @@ export class GenieClient {
   }
 
   /** Start a new conversation. */
-  private async genieStartConversation(
+  private async genieStartConversationBase(
     req: GenieStartConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationResponse> {
@@ -1094,11 +1098,12 @@ export class GenieClient {
     return resp;
   }
 
-  async genieStartConversationWaiter(
+  /** Start a new conversation. */
+  async genieStartConversation(
     req: GenieStartConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationWaiter> {
-    const resp = await this.genieStartConversation(req, options);
+    const resp = await this.genieStartConversationBase(req, options);
     if (resp.messageId === undefined) {
       throw new Error(
         'response field messageId required for polling is missing'

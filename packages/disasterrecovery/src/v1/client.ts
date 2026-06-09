@@ -305,7 +305,12 @@ export class DisasterRecoveryClient {
     return resp;
   }
 
-  /** List failover groups. */
+  /**
+   * List failover groups.
+   *
+   * List entries are abbreviated: `state` and `replication_point` are not
+   * populated. Call GetFailoverGroup to retrieve the full resource.
+   */
   async listFailoverGroups(
     req: ListFailoverGroupsRequest,
     options?: CallOptions

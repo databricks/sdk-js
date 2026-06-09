@@ -84,7 +84,7 @@ export class CommandExecutionClient {
    *
    * The command ID is obtained from a prior successful call to __execute__.
    */
-  private async cancel(
+  private async cancelBase(
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelResponse> {
@@ -113,11 +113,16 @@ export class CommandExecutionClient {
     return resp;
   }
 
-  async cancelWaiter(
+  /**
+   * Cancels a currently running command within an execution context.
+   *
+   * The command ID is obtained from a prior successful call to __execute__.
+   */
+  async cancel(
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelWaiter> {
-    await this.cancel(req, options);
+    await this.cancelBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -224,7 +229,7 @@ export class CommandExecutionClient {
    *
    * If successful, this method returns the ID of the new execution context.
    */
-  private async create(
+  private async createBase(
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
@@ -253,11 +258,16 @@ export class CommandExecutionClient {
     return resp;
   }
 
-  async createWaiter(
+  /**
+   * Creates an execution context for running cluster commands.
+   *
+   * If successful, this method returns the ID of the new execution context.
+   */
+  async create(
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateWaiter> {
-    const resp = await this.create(req, options);
+    const resp = await this.createBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -304,7 +314,7 @@ export class CommandExecutionClient {
    *
    * If successful, it returns an ID for tracking the status of the command's execution.
    */
-  private async execute(
+  private async executeBase(
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
@@ -333,11 +343,16 @@ export class CommandExecutionClient {
     return resp;
   }
 
-  async executeWaiter(
+  /**
+   * Runs a cluster command in the given execution context, using the provided language.
+   *
+   * If successful, it returns an ID for tracking the status of the command's execution.
+   */
+  async execute(
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<ExecuteWaiter> {
-    const resp = await this.execute(req, options);
+    const resp = await this.executeBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
