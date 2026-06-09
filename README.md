@@ -32,7 +32,7 @@ npm install @databricks/sdk-postgres
 
 ## Authentication
 
-By default, a client reads its configuration — host and credentials — from a Databricks configuration profile (`~/.databrickscfg`) and `DATABRICKS_*` environment variables. With those set, no credentials need to be passed in code:
+By default, a client reads its configuration (host and credentials) from a Databricks configuration profile (`~/.databrickscfg`) and `DATABRICKS_*` environment variables. With those set, no credentials need to be passed in code:
 
 ```typescript
 import {PostgresClient} from '@databricks/sdk-postgres/v1';
@@ -67,7 +67,7 @@ for await (const project of client.listProjectsIter({})) {
 }
 ```
 
-More runnable examples — pagination, long-running operations, error handling, and authentication strategies — are in [`packages/examples`](packages/examples).
+More runnable examples (pagination, long-running operations, error handling, and authentication strategies) are available in [`packages/examples`](packages/examples).
 
 ## Packages
 
