@@ -1560,27 +1560,39 @@ export interface ManualTrigger {}
 
 /** Meta Marketing (Meta Ads) specific options for ingestion */
 export interface MetaMarketingOptions {
-  /** (Optional) Granularity of data to pull (account, ad, adset, campaign) */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.level) Granularity of data to pull
+   * (account, ad, adset, campaign)
+   */
   level?: string | undefined;
-  /** (Optional) Breakdowns to configure for data aggregation */
+  /** (Optional, DEPRECATED — use custom_report_options.breakdowns) Breakdowns to configure */
   breakdowns?: string[] | undefined;
-  /** (Optional) Action breakdowns to configure for data aggregation */
+  /** (Optional, DEPRECATED — use custom_report_options.action_breakdowns) Action breakdowns */
   actionBreakdowns?: string[] | undefined;
-  /** (Optional) Timing used to report action statistics (impression, conversion, mixed, or lifetime) */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.action_report_time) Timing used to report
+   * action statistics (impression, conversion, mixed, or lifetime)
+   */
   actionReportTime?: string | undefined;
   /**
    * (Optional) Start date in yyyy-MM-dd format (e.g. 2025-01-15). Data added
-   * after this date will be ingested
+   * after this date will be ingested, shared by prebuilt and custom reports.
    */
   startDate?: string | undefined;
   /**
    * (Optional) Window in days to revisit data during sync to capture
-   * updated conversion data from the API.
+   * updated conversion data from the API, shared by prebuilt and custom reports.
    */
   customInsightsLookbackWindow?: number | undefined;
-  /** (Optional) Value in string by which to aggregate statistics (can take all_days, monthly or number of days) */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.time_increment) Value in string by which to
+   * aggregate statistics (can take all_days, monthly or number of days)
+   */
   timeIncrement?: string | undefined;
-  /** (Optional) Action attribution windows for insights reporting (e.g. "28d_click", "1d_view") */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.action_attribution_windows) Action attribution
+   * windows for insights reporting (e.g. "28d_click", "1d_view")
+   */
   actionAttributionWindows?: string[] | undefined;
 }
 

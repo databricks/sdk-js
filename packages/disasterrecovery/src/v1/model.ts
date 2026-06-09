@@ -303,7 +303,13 @@ export interface UcCatalog {
 export interface UcReplicationConfig {
   /** Location mappings - storage URI per region for each location. */
   locationMappings?: LocationMapping[] | undefined;
-  /** UC catalogs to replicate. */
+  /**
+   * UC catalogs to replicate.
+   *
+   * Mutable: catalogs may be added or removed on an existing failover group via
+   * UpdateFailoverGroup with `unity_catalog_assets.catalogs` in the update_mask
+   * (gated by the `databricks.drmanager.enableCatalogMutationOnUpdate` flag).
+   */
   catalogs?: UcCatalog[] | undefined;
   /**
    * The workspace set whose workspaces will be used for data replication

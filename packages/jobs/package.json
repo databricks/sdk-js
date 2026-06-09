@@ -27,6 +27,11 @@
   },
   "author": "Databricks",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/databricks/sdk-js.git",
+    "directory": "packages/jobs"
+  },
   "dependencies": {
     "@databricks/sdk-auth": ">=0.1.0-dev.5 <1.0.0",
     "@databricks/sdk-core": ">=0.1.0-dev.6 <1.0.0",
