@@ -11,11 +11,7 @@ export {
 
 export type {
   ConnectionInfo,
-  ConnectionInfo_OptionsEntry,
-  ConnectionInfo_PropertiesEntry,
   CreateConnectionRequest,
-  CreateConnectionRequest_OptionsEntry,
-  CreateConnectionRequest_PropertiesEntry,
   DeleteConnectionRequest,
   DeleteConnectionResponse,
   EnvironmentSettings,
@@ -24,6 +20,4 @@ export type {
   ListConnectionsResponse,
   ProvisioningInfo,
   UpdateConnectionRequest,
-  UpdateConnectionRequest_OptionsEntry,
-  UpdateConnectionRequest_PropertiesEntry,
 } from './model';

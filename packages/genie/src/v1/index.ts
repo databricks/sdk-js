@@ -29,7 +29,6 @@ export type {
   ColumnMask,
   DatabricksServiceExceptionProto,
   ExternalLink,
-  ExternalLink_HttpHeadersEntry,
   GenieAttachment,
   GenieConversation,
   GenieConversationSummary,

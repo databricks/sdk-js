@@ -188,22 +188,6 @@ export interface CreateInstancePoolRequest {
   totalInitialRemoteDiskSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateInstancePoolRequest_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
 export interface CreateInstancePoolResponse {
   /** The ID of the created instance pool. */
   instancePoolId?: string | undefined;
@@ -369,22 +353,6 @@ export interface EditInstancePoolRequest {
   totalInitialRemoteDiskSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditInstancePoolRequest_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface EditInstancePoolResponse {}
 
@@ -490,38 +458,6 @@ export interface GetInstancePoolResponse {
   totalInitialRemoteDiskSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetInstancePoolResponse_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetInstancePoolResponse_DefaultTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
 export interface InstancePoolAndStats {
   /** Usage statistics about the instance pool. */
   stats?: InstancePoolStats | undefined;
@@ -617,38 +553,6 @@ export interface InstancePoolAndStats {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED types. */
   totalInitialRemoteDiskSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface InstancePoolAndStats_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface InstancePoolAndStats_DefaultTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
 }
 
 /** Attributes set during instance pool creation which are related to Amazon Web Services. */

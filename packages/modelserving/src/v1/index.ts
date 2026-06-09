@@ -82,7 +82,6 @@ export type {
   RateLimit,
   Route,
   ServedModel,
-  ServedModel_EnvironmentVarsEntry,
   ServedModelLite,
   ServedModelState,
   TrafficConfig,

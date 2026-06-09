@@ -6,8 +6,6 @@ export {CatalogType} from './model';
 
 export type {
   CreateSchemaRequest,
-  CreateSchemaRequest_OptionsEntry,
-  CreateSchemaRequest_PropertiesEntry,
   DeleteSchemaRequest,
   DeleteSchemaResponse,
   EffectivePredictiveOptimizationFlag,
@@ -15,9 +13,5 @@ export type {
   ListSchemasRequest,
   ListSchemasResponse,
   SchemaInfo,
-  SchemaInfo_OptionsEntry,
-  SchemaInfo_PropertiesEntry,
   UpdateSchemaRequest,
-  UpdateSchemaRequest_OptionsEntry,
-  UpdateSchemaRequest_PropertiesEntry,
 } from './model';

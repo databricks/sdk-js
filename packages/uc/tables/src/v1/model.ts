@@ -83,7 +83,7 @@ export type DataSourceFormat =
   | (string & {});
 
 /**
- * Latest kind: CONNECTION_LINKEDIN_ADS_U2M = 344; Next id: 345.
+ * Latest kind: CONNECTION_ADOBE_CAMPAIGNS_OAUTH_M2M = 345; Next id: 346.
  * Reserved numbers: 316, 317, 327, 330, 341 (former ENDPOINT_LLM_*,
  * MODEL_SERVICE_STANDARD, MODEL_SERVICE_SYSTEM_DELTASHARING, MCP_SERVICE_STANDARD).
  */
@@ -407,12 +407,6 @@ export interface CreateTableRequest {
   properties?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateTableRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** A credential that is dependent on a SQL object. */
 export interface CredentialDependency {
   /** Full name of the dependent credential, in the form of __credential_name__. */
@@ -449,12 +443,6 @@ export interface DeleteTableResponse {}
 export interface DeltaRuntimePropertiesKvPairs {
   /** A map of key-value properties attached to the securable. */
   deltaRuntimeProperties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface DeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /**
@@ -827,12 +815,6 @@ export interface TableInfo {
   properties?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TableInfo_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface TableSummary {
   /** The full name of the table. */
   fullName?: string | undefined;
@@ -912,12 +894,6 @@ export interface UpdateTableRequest {
   columns?: ColumnInfo[] | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateTableRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

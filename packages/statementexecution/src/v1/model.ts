@@ -394,12 +394,6 @@ export interface ExternalLink {
   nextChunkInternalLink?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ExternalLink_HttpHeadersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface GetResultDataRequest {
   /**
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required

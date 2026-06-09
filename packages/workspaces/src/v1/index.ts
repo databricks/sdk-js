@@ -18,7 +18,6 @@ export type {
   AzureWorkspaceInfo,
   CloudResourceContainer,
   CreateWorkspaceRequest,
-  CreateWorkspaceRequest_CustomTagsEntry,
   DeleteWorkspaceRequest,
   GcpCloudResourceContainer,
   GcpCommonNetworkConfig,
@@ -29,7 +28,6 @@ export type {
   ListWorkspacesResponse,
   UpdateWorkspaceRequest,
   Workspace,
-  Workspace_CustomTagsEntry,
   WorkspaceNetwork,
 } from './model';
 

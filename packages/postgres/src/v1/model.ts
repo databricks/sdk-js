@@ -1299,12 +1299,6 @@ export interface EndpointSettings {
   pgSettings?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EndpointSettings_PgSettingsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface EndpointSpec {
   /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
   endpointType?: EndpointType | undefined;
@@ -1700,12 +1694,6 @@ export interface ProjectDefaultEndpointSettings {
     | undefined;
   /** A raw representation of Postgres settings. */
   pgSettings?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ProjectDefaultEndpointSettings_PgSettingsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

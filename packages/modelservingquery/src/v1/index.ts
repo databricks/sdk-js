@@ -14,8 +14,6 @@ export type {
   EmbeddingsV1ResponseEmbeddingElement,
   ExternalModelUsageElement,
   QueryEndpointInputRequest,
-  QueryEndpointInputRequest_ExtraParamsEntry,
-  QueryEndpointInputRequest_UsageContextEntry,
   QueryEndpointResponse,
   V1ResponseChoiceElement,
 } from './model';

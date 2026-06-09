@@ -761,12 +761,6 @@ export interface PropertiesKvPairs {
   properties?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PropertiesKvPairs_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface ProviderInfo {
   /** The name of the Provider. */
   name?: string | undefined;

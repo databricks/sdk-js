@@ -69,12 +69,6 @@ export interface CreateRequestExternalLineage {
   properties?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRequestExternalLineage_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface DeleteExternalLineageRelationshipRequest {
   externalLineageRelationship?: DeleteRequestExternalLineage | undefined;
 }
@@ -90,12 +84,6 @@ export interface DeleteRequestExternalLineage {
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
   properties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface DeleteRequestExternalLineage_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /** Represents the direction of lineage in a lineage event. */
@@ -127,12 +115,6 @@ export interface ExternalLineageRelationship {
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
   properties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ExternalLineageRelationship_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface ExternalLineageRelationshipExternalMetadata {
@@ -254,12 +236,6 @@ export interface UpdateRequestExternalLineage {
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
   properties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateRequestExternalLineage_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export const unmarshalColumnRelationshipSchema: z.ZodType<ColumnRelationship> =

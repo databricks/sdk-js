@@ -75,12 +75,6 @@ export interface ExternalMetadata {
   id?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ExternalMetadata_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface GetExternalMetadataRequest {
   name?: string | undefined;
 }

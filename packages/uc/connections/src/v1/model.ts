@@ -141,18 +141,6 @@ export interface ConnectionInfo {
   properties?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ConnectionInfo_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ConnectionInfo_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface CreateConnectionRequest {
   /** Name of the connection. */
   name?: string | undefined;
@@ -190,18 +178,6 @@ export interface CreateConnectionRequest {
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateConnectionRequest_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateConnectionRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface DeleteConnectionRequest {
@@ -292,18 +268,6 @@ export interface UpdateConnectionRequest {
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateConnectionRequest_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateConnectionRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z

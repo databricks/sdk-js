@@ -1057,19 +1057,6 @@ export interface ServedModel {
   creationTimestamp?: bigint | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ServedModel_EnvironmentVarsEntry {
-  /** Name of the environment variable (e.g., OPENAI_API_KEY). */
-  key?: string | undefined;
-  /**
-   * Value of the environment variable. To set secret environment variable that loads and uses
-   * databricks secret, the value format must be "{{secrets/secret_scope/secret_key}}".
-   * The secret_scope must be replaced with the scope of the secret and secret_key
-   * must be replaced with the key of the secret.
-   */
-  value?: string | undefined;
-}
-
 export interface ServedModelLite {
   name?: string | undefined;
   /** Only one of model_name and entity_name should be populated */

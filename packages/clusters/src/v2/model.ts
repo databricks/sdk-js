@@ -1319,36 +1319,6 @@ export interface ClusterAttributes {
   totalInitialRemoteDiskSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterAttributes_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterAttributes_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterAttributes_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface ClusterCompliance {
   /** Canonical unique identifier for a cluster. */
   clusterId?: string | undefined;
@@ -1360,13 +1330,6 @@ export interface ClusterCompliance {
    * The values indicate an error message describing the policy validation error.
    */
   violations?: Record<string, string> | undefined;
-}
-
-/** Proto defined to model a mapping from string to string. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterCompliance_ViolationsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface ClusterEvent {
@@ -1829,82 +1792,6 @@ export interface ClusterInfo_ComputeSpec {
     | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_ComputeSpec_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_ComputeSpec_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_ComputeSpec_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_DefaultTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterInfo_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Cluster log delivery config */
 export interface ClusterLogConf {
   storageInfo?:
@@ -2154,36 +2041,6 @@ export interface CreateClusterRequest {
   totalInitialRemoteDiskSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateClusterRequest_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateClusterRequest_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateClusterRequest_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface CreateClusterResponse {
   clusterId?: string | undefined;
 }
@@ -2412,36 +2269,6 @@ export interface EditClusterRequest {
   totalInitialRemoteDiskSize?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditClusterRequest_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditClusterRequest_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditClusterRequest_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface EditClusterResponse {}
 
@@ -2657,13 +2484,6 @@ export interface GetPolicyComplianceForClusterResponse {
    * The values indicate an error message describing the policy validation error.
    */
   violations?: Record<string, string> | undefined;
-}
-
-/** Proto defined to model a mapping from string to string. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPolicyComplianceForClusterResponse_ViolationsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /** Returns the list of all Spark versions that can be used to create clusters. */
@@ -3239,12 +3059,6 @@ export interface TerminationReason {
   parameters?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TerminationReason_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface UnpinClusterRequest {
   clusterId?: string | undefined;
 }
@@ -3442,36 +3256,6 @@ export interface UpdateClusterRequest_UpdateClusterResource {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateClusterRequest_UpdateClusterResource_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateClusterRequest_UpdateClusterResource_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateClusterRequest_UpdateClusterResource_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

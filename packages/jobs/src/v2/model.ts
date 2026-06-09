@@ -1231,14 +1231,6 @@ export interface CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput {
   outputSchemaInfo?: OutputSchemaInfo | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CleanRoomsNotebookTask_NotebookBaseParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface ClusterInstance {
   /**
    * The canonical identifier for the cluster used by a run. This field is always available for runs on existing clusters. For runs on new clusters, it becomes available once the cluster is created. This value can be used to view logs by browsing to `/#setting/sparkui/$cluster_id/driver-logs`. The logs continue to be available after the run completes.
@@ -1498,36 +1490,6 @@ export interface ClusterSpec_NewCluster {
     | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterSpec_NewCluster_CustomTagsEntry {
-  /**
-   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  key?: string | undefined;
-  /**
-   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
-   * For a list of all restrictions, see the AWS docs here:
-   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
-   */
-  value?: string | undefined;
-}
-
-/** Spark configuration key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterSpec_NewCluster_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Spark environment variable key-value pairs */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClusterSpec_NewCluster_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface Compute {
   /** Hardware accelerator configuration for Serverless GPU workloads. */
   hardwareAccelerator?: HardwareAcceleratorType | undefined;
@@ -1674,17 +1636,6 @@ export interface CreateJobRequest {
   disableAutoOptimization?: boolean | undefined;
 }
 
-/**
- * <Databricks> proto compiler is too old and does not support map.
- * This is wire compatible with map<string,string>.
- * See https://developers.google.com/protocol-buffers/docs/proto#backwards_compatibility.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateJobRequest_TagsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Job was created successfully */
 export interface CreateJobResponse {
   /** The canonical identifier for the newly created job. */
@@ -1725,12 +1676,6 @@ export interface DashboardTask {
    * - For range and date range filters, provide a JSON object with `start` and `end` (e.g. `"{\"start\":\"1\",\"end\":\"10\"}"`)
    */
   filters?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface DashboardTask_FiltersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface DashboardTaskOutput {
@@ -1844,12 +1789,6 @@ export interface DbtTask_DbtTaskOutput {
   artifactsLink?: string | undefined;
   /** An optional map of headers to send when retrieving the artifact from the `artifacts_link`. */
   artifactsHeaders?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface DbtTask_DbtTaskOutput_ArtifactsHeadersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface DeleteJobRequest {
@@ -2200,13 +2139,6 @@ export interface GetPolicyComplianceForJobResponse {
    * The values indicate an error message describing the policy validation error.
    */
   violations?: Record<string, string> | undefined;
-}
-
-/** Proto defined to model a mapping from string to string. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPolicyComplianceForJobResponse_ViolationsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /** Retrieves both the output and the metadata of a run. */
@@ -2703,17 +2635,6 @@ export interface JobSettings {
   disableAutoOptimization?: boolean | undefined;
 }
 
-/**
- * <Databricks> proto compiler is too old and does not support map.
- * This is wire compatible with map<string,string>.
- * See https://developers.google.com/protocol-buffers/docs/proto#backwards_compatibility.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface JobSettings_TagsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** The source of the job specification in the remote repository when the job is source controlled. */
 export interface JobSource {
   /** Path of the job YAML file that contains the job specification. */
@@ -2838,13 +2759,6 @@ export interface ListJobComplianceForPolicy_JobCompliance {
    * The values indicate an error message describing the policy validation error.
    */
   violations?: Record<string, string> | undefined;
-}
-
-/** Proto defined to model a mapping from string to string. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListJobComplianceForPolicy_JobCompliance_ViolationsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface ListJobComplianceResponse {
@@ -3054,14 +2968,6 @@ export interface NotebookTask {
   warehouseId?: string | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface NotebookTask_BaseParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface NotebookTask_NotebookOutput {
   /**
@@ -3138,12 +3044,6 @@ export interface PipelineTask {
    * options (refresh_selection, full_refresh_selection) to determine the final set of flows to refresh.
    */
   refreshFlowSelection?: string[] | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PipelineTask_PipelineTaskParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface PowerBiModel {
@@ -3224,14 +3124,6 @@ export interface PythonWheelTask {
   parameters?: string[] | undefined;
   /** Command-line parameters passed to Python wheel task in the form of `["--name=task", "--data=dbfs:/path/to/data.json"]`. Leave it empty if `parameters` is not null. */
   namedParameters?: Record<string, string> | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PythonWheelTask_NamedParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface QueueDetails {
@@ -3369,38 +3261,6 @@ export interface RepairRunRequest {
   dbtCommands?: string[] | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRunRequest_JobParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRunRequest_NotebookParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRunRequest_PythonNamedParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRunRequest_SqlParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Run repair was initiated. */
 export interface RepairRunResponse {
   /** The ID of the repair. Must be provided in subsequent repairs using the `latest_repair_id` field to ensure sequential repairs. */
@@ -3478,14 +3338,6 @@ export interface ResolvedValues_NotebookTaskResolvedValues {
   baseParameters?: Record<string, string> | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_NotebookTaskResolvedValues_BaseParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_PipelineTaskResolvedValues {
   /**
@@ -3496,23 +3348,9 @@ export interface ResolvedValues_PipelineTaskResolvedValues {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_PipelineTaskResolvedValues_PipelineTaskParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_PythonWheelTaskResolvedValues {
   parameters?: string[] | undefined;
   namedParameters?: Record<string, string> | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_PythonWheelTaskResolvedValues_NamedParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3521,33 +3359,9 @@ export interface ResolvedValues_RunJobTaskResolvedValues {
   jobParameters?: Record<string, string> | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_RunJobTaskResolvedValues_JobParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_RunJobTaskResolvedValues_ParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_SimulationTaskResolvedValues {
   parameters?: Record<string, string> | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_SimulationTaskResolvedValues_ParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3564,14 +3378,6 @@ export interface ResolvedValues_SparkSubmitTaskResolvedValues {}
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_SqlTaskResolvedValues {
   parameters?: Record<string, string> | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ResolvedValues_SqlTaskResolvedValues_ParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface Run {
@@ -3748,42 +3554,10 @@ export interface RunJobTask {
   dbtCommands?: string[] | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunJobTask_JobParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunJobTask_NotebookParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunJobTask_PythonNamedParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface RunJobTask_RunJobTaskOutput {
   /** The run id of the triggered job run */
   runId?: bigint | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunJobTask_SqlParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3889,38 +3663,6 @@ export interface RunNowRequest {
   dbtCommands?: string[] | undefined;
 }
 
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNowRequest_JobParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNowRequest_NotebookParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNowRequest_PythonNamedParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNowRequest_SqlParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Run was started successfully. */
 export interface RunNowResponse {
   /** The globally unique ID of the newly triggered run. */
@@ -3996,30 +3738,6 @@ export interface RunParameters {
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunParameters_NotebookParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunParameters_PythonNamedParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunParameters_SqlParamsEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -4566,14 +4284,6 @@ export interface SqlTask {
     | undefined;
   /** The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs. */
   warehouseId?: string | undefined;
-}
-
-/** Name-based parameters for jobs running notebook tasks. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SqlTask_ParametersEntry {
-  /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

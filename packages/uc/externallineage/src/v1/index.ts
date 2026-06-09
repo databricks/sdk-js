@@ -8,14 +8,11 @@ export type {
   ColumnRelationship,
   CreateExternalLineageRelationshipRequest,
   CreateRequestExternalLineage,
-  CreateRequestExternalLineage_PropertiesEntry,
   DeleteExternalLineageRelationshipRequest,
   DeleteRequestExternalLineage,
-  DeleteRequestExternalLineage_PropertiesEntry,
   Direction,
   ExternalLineageInfo,
   ExternalLineageRelationship,
-  ExternalLineageRelationship_PropertiesEntry,
   ExternalLineageRelationshipExternalMetadata,
   ExternalLineageRelationshipModelVersion,
   ExternalLineageRelationshipObject,
@@ -29,7 +26,6 @@ export type {
   ListExternalLineageRelationshipsResponse,
   UpdateExternalLineageRelationshipRequest,
   UpdateRequestExternalLineage,
-  UpdateRequestExternalLineage_PropertiesEntry,
 } from './model';
 
 export {updateRequestExternalLineageFieldMask} from './model';

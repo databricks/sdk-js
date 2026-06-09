@@ -12,11 +12,7 @@ export {
 export type {
   AzureEncryptionSettings,
   CatalogInfo,
-  CatalogInfo_OptionsEntry,
-  CatalogInfo_PropertiesEntry,
   CreateCatalogRequest,
-  CreateCatalogRequest_OptionsEntry,
-  CreateCatalogRequest_PropertiesEntry,
   DeleteCatalogRequest,
   DeleteCatalogResponse,
   EffectivePredictiveOptimizationFlag,
@@ -26,6 +22,4 @@ export type {
   ListCatalogsResponse,
   ProvisioningInfo,
   UpdateCatalogRequest,
-  UpdateCatalogRequest_OptionsEntry,
-  UpdateCatalogRequest_PropertiesEntry,
 } from './model';
