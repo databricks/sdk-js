@@ -50,7 +50,6 @@ export type {
   StartResponse,
   StopResponse,
   TerminationReason,
-  TerminationReason_ParametersEntry,
   UpdateDefaultWarehouseOverrideRequest,
   WarehouseTypePair,
   DeleteWarehouseRequest,

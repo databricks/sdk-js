@@ -60,18 +60,6 @@ export interface CreateSchemaRequest {
   options?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateSchemaRequest_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateSchemaRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface DeleteSchemaRequest {
   /** Full name of the schema. */
   fullNameArg?: string | undefined;
@@ -170,18 +158,6 @@ export interface SchemaInfo {
   options?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SchemaInfo_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SchemaInfo_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface UpdateSchemaRequest {
   /** Full name of the schema. */
   fullNameArg?: string | undefined;
@@ -228,18 +204,6 @@ export interface UpdateSchemaRequest {
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateSchemaRequest_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateSchemaRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export const unmarshalDeleteSchemaResponseSchema: z.ZodType<DeleteSchemaResponse> =

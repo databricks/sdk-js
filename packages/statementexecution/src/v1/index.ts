@@ -18,7 +18,6 @@ export type {
   ColumnInfo,
   ExecuteStatementRequest,
   ExternalLink,
-  ExternalLink_HttpHeadersEntry,
   GetResultDataRequest,
   GetStatementResultRequest,
   QueryTag,

@@ -580,12 +580,6 @@ export interface KafkaConfig {
   ingestionConfig?: IngestionConfig | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface KafkaConfig_ExtraOptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface KafkaSource {
   /** Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name. */
   name?: string | undefined;
@@ -613,12 +607,6 @@ export interface KafkaStreamConfig {
    * All auth configuration goes through the underlying UC Connection(s) or configs and should not be stored here.
    */
   extraOptions?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface KafkaStreamConfig_ExtraOptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /** Subscription mode for Kafka topic selection, matching standard Spark Structured Streaming options. */
@@ -712,7 +700,17 @@ export interface ListMaterializedFeaturesResponse {
   nextPageToken?: string | undefined;
 }
 
-/** List Streams under a given parent. */
+/**
+ * List Streams under a given parent.
+ *
+ * NOTE: Results are post-filtered by access permission on each stream's ingestion
+ * table. This means:
+ * - Returned results may be fewer than page_size (including zero)
+ * - Page token points to next unfiltered batch, not next filtered batch, and may
+ * point to an item that will be filtered out
+ * - Callers should paginate until next_page_token is empty to retrieve all
+ * accessible streams
+ */
 export interface ListStreamsRequest {
   /** Two-part name (catalog.schema) of the parent under which to list Streams. */
   parent?: string | undefined;
@@ -722,7 +720,17 @@ export interface ListStreamsRequest {
   pageToken?: string | undefined;
 }
 
-/** Response to a ListStreamsRequest. */
+/**
+ * Response to a ListStreamsRequest.
+ *
+ * NOTE: Results are post-filtered by access permission on each stream's ingestion
+ * table. This means:
+ * - Returned results may be fewer than page_size (including zero)
+ * - Page token points to next unfiltered batch, not next filtered batch, and may
+ * point to an item that will be filtered out
+ * Callers should paginate until next_page_token is empty to retrieve all
+ * accessible streams.
+ */
 export interface ListStreamsResponse {
   /** List of Streams. */
   streams?: Stream[] | undefined;
@@ -1033,6 +1041,8 @@ export interface StreamSchemaConfig {
 export interface StreamSource {
   /** Three-part full name of the Stream (catalog.schema.stream). */
   fullName?: string | undefined;
+  /** The filter condition applied to the source data before aggregation. */
+  filterCondition?: string | undefined;
 }
 
 /** Source-specific configuration. Determines the streaming platform source. */
@@ -2025,9 +2035,11 @@ export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
 export const unmarshalStreamSourceSchema: z.ZodType<StreamSource> = z
   .object({
     full_name: z.string().optional(),
+    filter_condition: z.string().optional(),
   })
   .transform(d => ({
     fullName: d.full_name,
+    filterCondition: d.filter_condition,
   }));
 
 export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
@@ -3006,9 +3018,11 @@ export const marshalStreamSchemaConfigSchema: z.ZodType = z
 export const marshalStreamSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
+    filterCondition: z.string().optional(),
   })
   .transform(d => ({
     full_name: d.fullName,
+    filter_condition: d.filterCondition,
   }));
 
 export const marshalStreamSourceConfigSchema: z.ZodType = z
@@ -3553,6 +3567,7 @@ const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
 };
 
 const streamSourceFieldMaskSchema: FieldMaskSchema = {
+  filterCondition: {wire: 'filter_condition'},
   fullName: {wire: 'full_name'},
 };
 

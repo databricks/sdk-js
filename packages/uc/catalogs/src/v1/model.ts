@@ -127,18 +127,6 @@ export interface CatalogInfo {
   options?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CatalogInfo_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CatalogInfo_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface CreateCatalogRequest {
   /** Name of catalog. */
   name?: string | undefined;
@@ -192,18 +180,6 @@ export interface CreateCatalogRequest {
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCatalogRequest_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCatalogRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface DeleteCatalogRequest {
@@ -340,18 +316,6 @@ export interface UpdateCatalogRequest {
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCatalogRequest_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCatalogRequest_PropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export const unmarshalAzureEncryptionSettingsSchema: z.ZodType<AzureEncryptionSettings> =

@@ -193,13 +193,6 @@ export interface CreateWorkspaceRequest {
   networkConnectivityConfigId?: string | undefined;
 }
 
-/** key-value representation of a custom workspace tag */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateWorkspaceRequest_CustomTagsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface DeleteWorkspaceRequest {
   workspaceId?: bigint | undefined;
   accountId?: string | undefined;
@@ -339,13 +332,6 @@ export interface Workspace {
    * For now this is only used to unblock Temporal workflow for GCP least privileged workspace.
    */
   expectedWorkspaceStatus?: WorkspaceStatus | undefined;
-}
-
-/** key-value representation of a custom workspace tag */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface Workspace_CustomTagsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /** The network configuration for workspaces. */

@@ -64,7 +64,6 @@ export type {
   PermissionsChange,
   PrivilegeAssignment,
   PropertiesKvPairs,
-  PropertiesKvPairs_PropertiesEntry,
   ProviderInfo,
   ProviderShare,
   RecipientInfo,

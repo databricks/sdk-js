@@ -8,7 +8,6 @@ export type {
   CreateExternalMetadataRequest,
   DeleteExternalMetadataRequest,
   ExternalMetadata,
-  ExternalMetadata_PropertiesEntry,
   GetExternalMetadataRequest,
   ListExternalMetadataRequest,
   ListExternalMetadataResponseV2,

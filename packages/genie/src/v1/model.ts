@@ -965,12 +965,6 @@ export interface ExternalLink {
   nextChunkInternalLink?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ExternalLink_HttpHeadersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Genie AI Response */
 export interface GenieAttachment {
   attachment?:

@@ -13,7 +13,6 @@ export {
 
 export type {
   CreateInstancePoolRequest,
-  CreateInstancePoolRequest_CustomTagsEntry,
   CreateInstancePoolResponse,
   DeleteInstancePoolRequest,
   DeleteInstancePoolResponse,
@@ -22,15 +21,10 @@ export type {
   DockerBasicAuth,
   DockerImage,
   EditInstancePoolRequest,
-  EditInstancePoolRequest_CustomTagsEntry,
   EditInstancePoolResponse,
   GetInstancePoolRequest,
   GetInstancePoolResponse,
-  GetInstancePoolResponse_CustomTagsEntry,
-  GetInstancePoolResponse_DefaultTagsEntry,
   InstancePoolAndStats,
-  InstancePoolAndStats_CustomTagsEntry,
-  InstancePoolAndStats_DefaultTagsEntry,
   InstancePoolAwsAttributes,
   InstancePoolAzureAttributes,
   InstancePoolGcpAttributes,

@@ -152,18 +152,6 @@ export interface QueryEndpointInputRequest {
   usageContext?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface QueryEndpointInputRequest_ExtraParamsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface QueryEndpointInputRequest_UsageContextEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface QueryEndpointResponse {
   /** The list of choices returned by the __chat or completions external/foundation model__ serving endpoint. */
   choices?: V1ResponseChoiceElement[] | undefined;

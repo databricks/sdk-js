@@ -1453,12 +1453,6 @@ export interface TerminationReason {
   parameters?: Record<string, string> | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TerminationReason_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Request message for UpdateDefaultWarehouseOverride. */
 export interface UpdateDefaultWarehouseOverrideRequest {
   /**

@@ -516,25 +516,6 @@ export interface ClonePipelineRequest {
   cloneMode?: CloneMode | undefined;
 }
 
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClonePipelineRequest_ConfigurationEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** A key-value entry that defines a single pipeline tags. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClonePipelineRequest_TagsEntry {
-  /** Mandatory key for the tag pair. */
-  key?: string | undefined;
-  /**
-   * Optional value to be associated with the provided key.
-   * If the value is not provided, the key serves as the sole identifier of this key-value pair and the values is assumed to be an empty string.
-   */
-  value?: string | undefined;
-}
-
 export interface ClonePipelineResponse {
   /** The pipeline id of the cloned pipeline */
   pipelineId?: string | undefined;
@@ -653,31 +634,6 @@ export interface CreatePipelineRequest {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-}
-
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipelineRequest_ConfigurationEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipelineRequest_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** A key-value entry that defines a single pipeline tags. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipelineRequest_TagsEntry {
-  /** Mandatory key for the tag pair. */
-  key?: string | undefined;
-  /**
-   * Optional value to be associated with the provided key.
-   * If the value is not provided, the key serves as the sole identifier of this key-value pair and the values is assumed to be an empty string.
-   */
-  value?: string | undefined;
 }
 
 export interface CreatePipelineResponse {
@@ -815,31 +771,6 @@ export interface EditPipelineRequest {
   usagePolicyId?: string | undefined;
 }
 
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditPipelineRequest_ConfigurationEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditPipelineRequest_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** A key-value entry that defines a single pipeline tags. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditPipelineRequest_TagsEntry {
-  /** Mandatory key for the tag pair. */
-  key?: string | undefined;
-  /**
-   * Optional value to be associated with the provided key.
-   * If the value is not provided, the key serves as the sole identifier of this key-value pair and the values is assumed to be an empty string.
-   */
-  value?: string | undefined;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface EditPipelineResponse {}
 
@@ -919,16 +850,6 @@ export interface FileIngestionOptions {
   formatOptions?: Record<string, string> | undefined;
 }
 
-/**
- * Key value pair used to specify configuration parameters
- * Based on public doc https://docs.databricks.com/en/ingestion/auto-loader/options.html
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface FileIngestionOptions_FormatOptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface Filters {
   /** Paths to include. */
   include?: string[] | undefined;
@@ -978,12 +899,6 @@ export interface GetPipelineResponse {
    * Maximum total size: 10k characters (JSON format)
    */
   parameters?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPipelineResponse_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface GetUpdateRequest {
@@ -1325,12 +1240,6 @@ export interface IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConne
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface IngestionPipelineDefinition_TableSpecificConfig_TablePropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_WorkdayReportParameters {
   /**
    * (Optional) Marks the report as incremental.
@@ -1355,13 +1264,6 @@ export interface IngestionPipelineDefinition_WorkdayReportParameters {
    * }
    */
   parameters?: Record<string, string> | undefined;
-}
-
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface IngestionPipelineDefinition_WorkdayReportParameters_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1431,12 +1333,6 @@ export interface KafkaOptions {
    * This is not supported and may break at any time.
    */
   clientConfig?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface KafkaOptions_ClientConfigEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /**
@@ -1560,27 +1456,39 @@ export interface ManualTrigger {}
 
 /** Meta Marketing (Meta Ads) specific options for ingestion */
 export interface MetaMarketingOptions {
-  /** (Optional) Granularity of data to pull (account, ad, adset, campaign) */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.level) Granularity of data to pull
+   * (account, ad, adset, campaign)
+   */
   level?: string | undefined;
-  /** (Optional) Breakdowns to configure for data aggregation */
+  /** (Optional, DEPRECATED — use custom_report_options.breakdowns) Breakdowns to configure */
   breakdowns?: string[] | undefined;
-  /** (Optional) Action breakdowns to configure for data aggregation */
+  /** (Optional, DEPRECATED — use custom_report_options.action_breakdowns) Action breakdowns */
   actionBreakdowns?: string[] | undefined;
-  /** (Optional) Timing used to report action statistics (impression, conversion, mixed, or lifetime) */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.action_report_time) Timing used to report
+   * action statistics (impression, conversion, mixed, or lifetime)
+   */
   actionReportTime?: string | undefined;
   /**
    * (Optional) Start date in yyyy-MM-dd format (e.g. 2025-01-15). Data added
-   * after this date will be ingested
+   * after this date will be ingested, shared by prebuilt and custom reports.
    */
   startDate?: string | undefined;
   /**
    * (Optional) Window in days to revisit data during sync to capture
-   * updated conversion data from the API.
+   * updated conversion data from the API, shared by prebuilt and custom reports.
    */
   customInsightsLookbackWindow?: number | undefined;
-  /** (Optional) Value in string by which to aggregate statistics (can take all_days, monthly or number of days) */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.time_increment) Value in string by which to
+   * aggregate statistics (can take all_days, monthly or number of days)
+   */
   timeIncrement?: string | undefined;
-  /** (Optional) Action attribution windows for insights reporting (e.g. "28d_click", "1d_view") */
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.action_attribution_windows) Action attribution
+   * windows for insights reporting (e.g. "28d_click", "1d_view")
+   */
   actionAttributionWindows?: string[] | undefined;
 }
 
@@ -1846,27 +1754,6 @@ export interface PipelineCluster {
     | undefined;
 }
 
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PipelineCluster_CustomTagsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PipelineCluster_SparkConfEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PipelineCluster_SparkEnvVarsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface PipelineDeployment {
   /** The deployment method that manages the pipeline. */
   kind?: DeploymentKind | undefined;
@@ -2018,25 +1905,6 @@ export interface PipelineSpec {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-}
-
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PipelineSpec_ConfigurationEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-/** A key-value entry that defines a single pipeline tags. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PipelineSpec_TagsEntry {
-  /** Mandatory key for the tag pair. */
-  key?: string | undefined;
-  /**
-   * Optional value to be associated with the provided key.
-   * If the value is not provided, the key serves as the sole identifier of this key-value pair and the values is assumed to be an empty string.
-   */
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -2575,12 +2443,6 @@ export interface StartUpdateRequest {
   replaceWhereOverrides?: ReplaceWhereOverride[] | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface StartUpdateRequest_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface StartUpdateResponse {
   updateId?: string | undefined;
 }
@@ -2684,12 +2546,6 @@ export interface UpdateInfo {
   validateOnly?: boolean | undefined;
   /** Key/value map of parameters used to initiate the update */
   parameters?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateInfo_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface UpdateStateInfo {
