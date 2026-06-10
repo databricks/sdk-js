@@ -1963,6 +1963,12 @@ export interface SyncedTable_SyncedTableSpec {
    * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
+  /**
+   * When true, enables accelerated sync mode for the initial data load.
+   * This significantly improves performance for large tables.
+   * Requires workspace-level enablement through Lakebase Accelerated Sync preview.
+   */
+  acceleratedSync?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2887,6 +2893,7 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       new_pipeline_spec: z
         .lazy(() => unmarshalNewPipelineSpecSchema)
         .optional(),
+      accelerated_sync: z.boolean().optional(),
     })
     .transform(d => ({
       postgresDatabase: d.postgres_database,
@@ -2898,6 +2905,7 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       existingPipelineId: d.existing_pipeline_id,
       createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
       newPipelineSpec: d.new_pipeline_spec,
+      acceleratedSync: d.accelerated_sync,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3666,6 +3674,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     existingPipelineId: z.string().optional(),
     createDatabaseObjectsIfMissing: z.boolean().optional(),
     newPipelineSpec: z.lazy(() => marshalNewPipelineSpecSchema).optional(),
+    acceleratedSync: z.boolean().optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
@@ -3677,6 +3686,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     existing_pipeline_id: d.existingPipelineId,
     create_database_objects_if_missing: d.createDatabaseObjectsIfMissing,
     new_pipeline_spec: d.newPipelineSpec,
+    accelerated_sync: d.acceleratedSync,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
