@@ -789,6 +789,12 @@ export interface SyncedTableSpec {
    * only requires read permissions.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
+  /**
+   * When true, enables accelerated sync mode for the initial data load.
+   * This significantly improves performance for large tables.
+   * Requires workspace-level enablement.
+   */
+  acceleratedSync?: boolean | undefined;
 }
 
 /** Status of a synced table. */
@@ -1267,6 +1273,7 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
     existing_pipeline_id: z.string().optional(),
     create_database_objects_if_missing: z.boolean().optional(),
     new_pipeline_spec: z.lazy(() => unmarshalNewPipelineSpecSchema).optional(),
+    accelerated_sync: z.boolean().optional(),
   })
   .transform(d => ({
     schedulingPolicy: d.scheduling_policy,
@@ -1276,6 +1283,7 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
     existingPipelineId: d.existing_pipeline_id,
     createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
     newPipelineSpec: d.new_pipeline_spec,
+    acceleratedSync: d.accelerated_sync,
   }));
 
 export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
@@ -1689,6 +1697,7 @@ export const marshalSyncedTableSpecSchema: z.ZodType = z
     existingPipelineId: z.string().optional(),
     createDatabaseObjectsIfMissing: z.boolean().optional(),
     newPipelineSpec: z.lazy(() => marshalNewPipelineSpecSchema).optional(),
+    acceleratedSync: z.boolean().optional(),
   })
   .transform(d => ({
     scheduling_policy: d.schedulingPolicy,
@@ -1698,6 +1707,7 @@ export const marshalSyncedTableSpecSchema: z.ZodType = z
     existing_pipeline_id: d.existingPipelineId,
     create_database_objects_if_missing: d.createDatabaseObjectsIfMissing,
     new_pipeline_spec: d.newPipelineSpec,
+    accelerated_sync: d.acceleratedSync,
   }));
 
 export const marshalSyncedTableStatusSchema: z.ZodType = z
@@ -1913,6 +1923,7 @@ const syncedTableProvisioningStatusFieldMaskSchema: FieldMaskSchema = {
 };
 
 const syncedTableSpecFieldMaskSchema: FieldMaskSchema = {
+  acceleratedSync: {wire: 'accelerated_sync'},
   createDatabaseObjectsIfMissing: {wire: 'create_database_objects_if_missing'},
   existingPipelineId: {wire: 'existing_pipeline_id'},
   newPipelineSpec: {
