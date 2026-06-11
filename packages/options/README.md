@@ -1,11 +1,7 @@
 # Databricks SDK Options for JavaScript
 
-> [!WARNING]
-> ## PREVIEW - NOT FOR PRODUCTION USE
+> [!NOTE]
 >
-> **This SDK is in preview and is subject to change without notice.**
+> ## Beta
 >
-> - **Do NOT use in production environments**
-> - **Breaking changes may occur at any time**
-> - **APIs are experimental and unstable**
-> - **Use for development and testing only**
+> **This SDK is in Beta and is supported for production use cases.** Interfaces might still change slightly before GA (e.g. name standardization and minor ergonomic tweaks). We are keen to hear feedback from early adopters — please [file issues](https://github.com/databricks/sdk-js/issues), and we will address them.
