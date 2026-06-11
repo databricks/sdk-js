@@ -59,11 +59,6 @@ export type EndpointSecurityPolicy =
  * Executors | | AZURE | On Demand Driver and Executors       | On Demand Driver
  * and Executors |
  * +-------+--------------------------------------+--------------------------------+
- *
- * While including "spot" in the enum name may limit the the future
- * extensibility of this field because it limits this enum to denoting "spot or
- * not", this is the field that PM recommends after discussion with customers
- * per SC-48783.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointSpotInstancePolicy = {

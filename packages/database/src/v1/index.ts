@@ -11,6 +11,7 @@ export {
   DatabaseInstanceRole_MembershipRole,
   ProvisioningInfo_State,
   RequestedClaims_PermissionSet,
+  SyncedTableSpec_PgSpecificType,
 } from './model';
 
 export type {
@@ -59,6 +60,7 @@ export type {
   SyncedTablePosition,
   SyncedTableProvisioningStatus,
   SyncedTableSpec,
+  SyncedTableSpec_TypeOverride,
   SyncedTableStatus,
   SyncedTableTriggeredUpdateStatus,
   UpdateDatabaseCatalogRequest,
