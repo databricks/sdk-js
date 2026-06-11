@@ -713,6 +713,19 @@ export type Role_MembershipRole =
   | (typeof Role_MembershipRole)[keyof typeof Role_MembershipRole]
   | (string & {});
 
+/** PostgreSQL-specific target types that can override the default Delta-to-PG mapping. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTable_SyncedTableSpec_PgSpecificType = {
+  /** Default value. Indicates that no type override was selected. */
+  PG_SPECIFIC_TYPE_UNSPECIFIED: 'PG_SPECIFIC_TYPE_UNSPECIFIED',
+  /** Maps the column to the pgvector vector type. */
+  PG_SPECIFIC_TYPE_VECTOR: 'PG_SPECIFIC_TYPE_VECTOR',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type SyncedTable_SyncedTableSpec_PgSpecificType =
+  | (typeof SyncedTable_SyncedTableSpec_PgSpecificType)[keyof typeof SyncedTable_SyncedTableSpec_PgSpecificType]
+  | (string & {});
+
 /** Scheduling policy of the synced table's underlying pipeline. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy = {
@@ -1969,6 +1982,25 @@ export interface SyncedTable_SyncedTableSpec {
    * Requires workspace-level enablement through Lakebase Accelerated Sync preview.
    */
   acceleratedSync?: boolean | undefined;
+  /**
+   * Override the default Delta->PG type mapping for specific columns.
+   * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
+   */
+  typeOverrides?: SyncedTable_SyncedTableSpec_TypeOverride[] | undefined;
+}
+
+/** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SyncedTable_SyncedTableSpec_TypeOverride {
+  /** Name of the source column whose target PostgreSQL type should be overridden. */
+  columnName?: string | undefined;
+  /** PostgreSQL-specific target type to use for the column. */
+  pgType?: SyncedTable_SyncedTableSpec_PgSpecificType | undefined;
+  /**
+   * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
+   * (specifies the vector dimension, e.g., 1024).
+   */
+  size?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2894,6 +2926,11 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
         .lazy(() => unmarshalNewPipelineSpecSchema)
         .optional(),
       accelerated_sync: z.boolean().optional(),
+      type_overrides: z
+        .array(
+          z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
+        )
+        .optional(),
     })
     .transform(d => ({
       postgresDatabase: d.postgres_database,
@@ -2906,6 +2943,21 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
       newPipelineSpec: d.new_pipeline_spec,
       acceleratedSync: d.accelerated_sync,
+      typeOverrides: d.type_overrides,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType<SyncedTable_SyncedTableSpec_TypeOverride> =
+  z
+    .object({
+      column_name: z.string().optional(),
+      pg_type: z.string().optional(),
+      size: z.number().optional(),
+    })
+    .transform(d => ({
+      columnName: d.column_name,
+      pgType: d.pg_type,
+      size: d.size,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3675,6 +3727,11 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     createDatabaseObjectsIfMissing: z.boolean().optional(),
     newPipelineSpec: z.lazy(() => marshalNewPipelineSpecSchema).optional(),
     acceleratedSync: z.boolean().optional(),
+    typeOverrides: z
+      .array(
+        z.lazy(() => marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
+      )
+      .optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
@@ -3687,7 +3744,22 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     create_database_objects_if_missing: d.createDatabaseObjectsIfMissing,
     new_pipeline_spec: d.newPipelineSpec,
     accelerated_sync: d.acceleratedSync,
+    type_overrides: d.typeOverrides,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType =
+  z
+    .object({
+      columnName: z.string().optional(),
+      pgType: z.string().optional(),
+      size: z.number().optional(),
+    })
+    .transform(d => ({
+      column_name: d.columnName,
+      pg_type: d.pgType,
+      size: d.size,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z

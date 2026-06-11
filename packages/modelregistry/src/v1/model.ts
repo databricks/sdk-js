@@ -585,7 +585,7 @@ export interface JobSpec {
   accessToken?: string | undefined;
 }
 
-/** Feature for model version. ([ML-57150] Renamed from Feature to LinkedFeature) */
+/** Feature for model version. */
 export interface LinkedFeature {
   /** Feature table name */
   featureTableName?: string | undefined;

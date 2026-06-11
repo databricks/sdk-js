@@ -83,7 +83,7 @@ export type DataSourceFormat =
   | (string & {});
 
 /**
- * Latest kind: CONNECTION_ADOBE_CAMPAIGNS_OAUTH_M2M = 345; Next id: 346.
+ * Latest kind: CONNECTION_CONFLUENT_SCHEMA_REGISTRY_BASIC = 346; Next id: 347.
  * Reserved numbers: 316, 317, 327, 330, 341 (former ENDPOINT_LLM_*,
  * MODEL_SERVICE_STANDARD, MODEL_SERVICE_SYSTEM_DELTASHARING, MCP_SERVICE_STANDARD).
  */

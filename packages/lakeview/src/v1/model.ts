@@ -342,7 +342,6 @@ export interface RevertDashboardRequest {
   /**
    * The etag for the dashboard. Optionally, it can be provided to verify that the dashboard
    * has not been modified from its last retrieval.
-   * TODO(TSE-3937): update to new non-CMK-encrypted label when available
    */
   etag?: string | undefined;
 }

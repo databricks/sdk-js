@@ -410,7 +410,6 @@ export interface FileInfo {
 }
 
 export interface FileParent {
-  /** TODO make the following fields required */
   parentId?: string | undefined;
   fileParentType?: FileParentType | undefined;
 }
@@ -710,10 +709,7 @@ export interface ListingDetail {
   geographicalCoverage?: string | undefined;
   /** Whether the dataset is free or paid */
   cost?: Cost | undefined;
-  /**
-   * What the pricing model is (e.g. paid, subscription, paid upfront); should only be present if cost is paid
-   * TODO: Not used yet, should deprecate if we will never use it
-   */
+  /** What the pricing model is (e.g. paid, subscription, paid upfront); should only be present if cost is paid */
   pricingModel?: string | undefined;
   /** How often data is updated */
   updateFrequency?: DataRefreshInfo | undefined;

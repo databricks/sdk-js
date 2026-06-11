@@ -1104,10 +1104,7 @@ export interface CustomerFacingPrivateAccessSettings {
 export interface CustomerFacingVpcEndpoint {
   /** Databricks VPC endpoint ID. This is the <Databricks>-specific name of the VPC endpoint. Do not confuse this with the `aws_vpc_endpoint_id`, which is the ID within AWS of the VPC endpoint. */
   vpcEndpointId?: string | undefined;
-  /**
-   * The <Databricks> account ID that hosts the VPC endpoint configuration.
-   * TODO - This may signal an OpenAPI diff; it does not show up in the generated spec
-   */
+  /** The <Databricks> account ID that hosts the VPC endpoint configuration. */
   accountId?: string | undefined;
   /** The human-readable name of the storage configuration. */
   vpcEndpointName?: string | undefined;
@@ -1208,13 +1205,7 @@ export interface DeleteVpcEndpointRequest {
   accountId?: string | undefined;
 }
 
-/**
- * The network policies applying for egress traffic.
- * This message is used by the UI/REST API. We translate this message to the format expected by the
- * dataplane in Lakehouse Network Manager (for the format expected by the dataplane, see networkconfig.textproto).
- * This policy should be consistent with [[com.databricks.api.proto.settingspolicy.EgressNetworkPolicy]].
- * Details see API-design: https://docs.google.com/document/d/1DKWO_FpZMCY4cF2O62LpwII1lx8gsnDGG-qgE3t3TOA/
- */
+/** The network policies applying for egress traffic. */
 export interface EgressNetworkPolicy {
   /** The access policy enforced for egress traffic to the internet. */
   networkAccess?: EgressNetworkPolicy_NetworkAccessPolicy | undefined;
