@@ -151,11 +151,6 @@ export interface GetObjectPermissionsRequest {
   requestObjectId?: string | undefined;
 }
 
-export interface GetPermissionLevelsResponse {
-  /** Specific permission levels */
-  permissionLevels?: PermissionsDescription[] | undefined;
-}
-
 export interface GetRuleSetRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
@@ -183,11 +178,6 @@ export interface GetRuleSetRequest {
    * `etag=RENUAAABhSweA4NvVmmUYdiU717H3Tgy0UJdor3gE4a+mq/oj9NjAf8ZsQ==` | An etag encoded a specific version of the rule set to get or to be updated.
    */
   etag?: string | undefined;
-}
-
-export interface GetWorkspacePermissionAssignmentsResponse {
-  /** Array of permissions assignments defined for a workspace. */
-  permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
 }
 
 export interface GrantRule {
@@ -230,12 +220,22 @@ export interface ListPermissionLevelsRequest {
   requestObjectId?: string | undefined;
 }
 
+export interface ListPermissionLevelsResponse {
+  /** Specific permission levels */
+  permissionLevels?: PermissionsDescription[] | undefined;
+}
+
 /** Gets all the permission assignments for a workspace, given an account and a workspace. */
 export interface ListWorkspacePermissionAssignmentsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID for the account. */
   workspaceId?: bigint | undefined;
+}
+
+export interface ListWorkspacePermissionAssignmentsResponse {
+  /** Array of permissions assignments defined for a workspace. */
+  permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
 }
 
 /** List permissions for a workspace, given an account and a workspace. */
@@ -450,28 +450,6 @@ export const unmarshalConsistencyTokenSchema: z.ZodType<ConsistencyToken> = z
 export const unmarshalDeleteWorkspacePermissionAssignmentResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignmentResponse> =
   z.object({});
 
-export const unmarshalGetPermissionLevelsResponseSchema: z.ZodType<GetPermissionLevelsResponse> =
-  z
-    .object({
-      permission_levels: z
-        .array(z.lazy(() => unmarshalPermissionsDescriptionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionLevels: d.permission_levels,
-    }));
-
-export const unmarshalGetWorkspacePermissionAssignmentsResponseSchema: z.ZodType<GetWorkspacePermissionAssignmentsResponse> =
-  z
-    .object({
-      permission_assignments: z
-        .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionAssignments: d.permission_assignments,
-    }));
-
 export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
   .object({
     principals: z.array(z.string()).optional(),
@@ -489,6 +467,28 @@ export const unmarshalListAssignableRolesForResourceResponseSchema: z.ZodType<Li
     })
     .transform(d => ({
       roles: d.roles,
+    }));
+
+export const unmarshalListPermissionLevelsResponseSchema: z.ZodType<ListPermissionLevelsResponse> =
+  z
+    .object({
+      permission_levels: z
+        .array(z.lazy(() => unmarshalPermissionsDescriptionSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      permissionLevels: d.permission_levels,
+    }));
+
+export const unmarshalListWorkspacePermissionAssignmentsResponseSchema: z.ZodType<ListWorkspacePermissionAssignmentsResponse> =
+  z
+    .object({
+      permission_assignments: z
+        .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      permissionAssignments: d.permission_assignments,
     }));
 
 export const unmarshalListWorkspacePermissionsResponseSchema: z.ZodType<ListWorkspacePermissionsResponse> =

@@ -14,7 +14,7 @@ export type {
   ListTokensResponse,
   RevokeTokenRequest,
   RevokeTokenResponse,
-  UpdateToken,
+  UpdateTokenRequest,
 } from './model';
 
 export {adminTokenInfoFieldMask} from './model';

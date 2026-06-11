@@ -19,8 +19,8 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateRepoRequest,
   CreateRepoResponse,
-  DeleteProjectRequest,
-  DeleteProjectResponse,
+  DeleteRepoRequest,
+  DeleteRepoResponse,
   GetRepoRequest,
   GetRepoResponse,
   ListReposRequest,
@@ -33,7 +33,7 @@ import {
   marshalCreateRepoRequestSchema,
   marshalUpdateRepoRequestSchema,
   unmarshalCreateRepoResponseSchema,
-  unmarshalDeleteProjectResponseSchema,
+  unmarshalDeleteRepoResponseSchema,
   unmarshalGetRepoResponseSchema,
   unmarshalListReposResponseSchema,
   unmarshalUpdateRepoResponseSchema,
@@ -107,13 +107,13 @@ export class ReposClient {
   }
 
   /** Deletes the specified repo. */
-  async deleteProject(
-    req: DeleteProjectRequest,
+  async deleteRepo(
+    req: DeleteRepoRequest,
     options?: CallOptions
-  ): Promise<DeleteProjectResponse> {
+  ): Promise<DeleteRepoResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/repos/${String(req.id ?? '')}`;
-    let resp: DeleteProjectResponse | undefined;
+    let resp: DeleteRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined) {
@@ -126,7 +126,7 @@ export class ReposClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteProjectResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteRepoResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

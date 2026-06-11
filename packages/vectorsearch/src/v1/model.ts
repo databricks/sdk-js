@@ -372,16 +372,16 @@ export interface GetVectorIndexRequest {
   ensureRerankerCompatible?: boolean | undefined;
 }
 
-export interface ListEndpointRequest {
-  /** Token for pagination */
-  pageToken?: string | undefined;
-}
-
 export interface ListEndpointResponse {
   /** An array of Endpoint objects */
   endpoints?: Endpoint[] | undefined;
   /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
   nextPageToken?: string | undefined;
+}
+
+export interface ListEndpointsRequest {
+  /** Token for pagination */
+  pageToken?: string | undefined;
 }
 
 export interface ListValue {

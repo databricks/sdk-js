@@ -70,7 +70,7 @@ export type {
   RecipientProfile,
   RecipientTokenInfo,
   RegisteredModelAlias,
-  RetrieveToken,
+  RetrieveTokenRequest,
   RetrieveTokenResponse,
   RotateRecipientTokenRequest,
   Share,

@@ -142,89 +142,6 @@ export class CommandExecutionClient {
   }
 
   /**
-   * Gets the status of and, if available, the results from a currently executing command.
-   *
-   * The command ID is obtained from a prior successful call to __execute__.
-   */
-  async commandStatus(
-    req: GetCommandStatusRequest,
-    options?: CallOptions
-  ): Promise<GetCommandStatusResponse> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/1.2/commands/status`;
-    const params = new URLSearchParams();
-    if (req.clusterId !== undefined) {
-      params.append('clusterId', req.clusterId);
-    }
-    if (req.contextId !== undefined) {
-      params.append('contextId', req.contextId);
-    }
-    if (req.commandId !== undefined) {
-      params.append('commandId', req.commandId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetCommandStatusResponse | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalGetCommandStatusResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Gets the status for an execution context. */
-  async contextStatus(
-    req: GetContextStatusRequest,
-    options?: CallOptions
-  ): Promise<GetContextStatusResponse> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/1.2/contexts/status`;
-    const params = new URLSearchParams();
-    if (req.clusterId !== undefined) {
-      params.append('clusterId', req.clusterId);
-    }
-    if (req.contextId !== undefined) {
-      params.append('contextId', req.contextId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetContextStatusResponse | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Org-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalGetContextStatusResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
-  }
-
-  /**
    * Creates an execution context for running cluster commands.
    *
    * If successful, this method returns the ID of the new execution context.
@@ -368,6 +285,89 @@ export class CommandExecutionClient {
     }
     return new ExecuteWaiter(this, req.clusterId, req.contextId, resp.id);
   }
+
+  /**
+   * Gets the status of and, if available, the results from a currently executing command.
+   *
+   * The command ID is obtained from a prior successful call to __execute__.
+   */
+  async getCommandStatus(
+    req: GetCommandStatusRequest,
+    options?: CallOptions
+  ): Promise<GetCommandStatusResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/1.2/commands/status`;
+    const params = new URLSearchParams();
+    if (req.clusterId !== undefined) {
+      params.append('clusterId', req.clusterId);
+    }
+    if (req.contextId !== undefined) {
+      params.append('contextId', req.contextId);
+    }
+    if (req.commandId !== undefined) {
+      params.append('commandId', req.commandId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetCommandStatusResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetCommandStatusResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets the status for an execution context. */
+  async getContextStatus(
+    req: GetContextStatusRequest,
+    options?: CallOptions
+  ): Promise<GetContextStatusResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/1.2/contexts/status`;
+    const params = new URLSearchParams();
+    if (req.clusterId !== undefined) {
+      params.append('clusterId', req.clusterId);
+    }
+    if (req.contextId !== undefined) {
+      params.append('contextId', req.contextId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetContextStatusResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Org-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetContextStatusResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
 }
 
 export class CancelWaiter {
@@ -387,7 +387,7 @@ export class CancelWaiter {
     let result: GetCommandStatusResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const pollResp = await this.client.commandStatus(
+      const pollResp = await this.client.getCommandStatus(
         {
           clusterId: this.clusterId,
           contextId: this.contextId,
@@ -423,7 +423,7 @@ export class CancelWaiter {
 
   /** Checks whether the operation has reached a terminal state. */
   async done(options?: CallOptions): Promise<boolean> {
-    const pollResp = await this.client.commandStatus(
+    const pollResp = await this.client.getCommandStatus(
       {
         clusterId: this.clusterId,
         contextId: this.contextId,
@@ -463,7 +463,7 @@ export class CreateWaiter {
     let result: GetContextStatusResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const pollResp = await this.client.contextStatus(
+      const pollResp = await this.client.getContextStatus(
         {
           clusterId: this.clusterId,
           contextId: this.contextId,
@@ -498,7 +498,7 @@ export class CreateWaiter {
 
   /** Checks whether the operation has reached a terminal state. */
   async done(options?: CallOptions): Promise<boolean> {
-    const pollResp = await this.client.contextStatus(
+    const pollResp = await this.client.getContextStatus(
       {
         clusterId: this.clusterId,
         contextId: this.contextId,
@@ -538,7 +538,7 @@ export class ExecuteWaiter {
     let result: GetCommandStatusResponse | undefined;
 
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const pollResp = await this.client.commandStatus(
+      const pollResp = await this.client.getCommandStatus(
         {
           clusterId: this.clusterId,
           contextId: this.contextId,
@@ -576,7 +576,7 @@ export class ExecuteWaiter {
 
   /** Checks whether the operation has reached a terminal state. */
   async done(options?: CallOptions): Promise<boolean> {
-    const pollResp = await this.client.commandStatus(
+    const pollResp = await this.client.getCommandStatus(
       {
         clusterId: this.clusterId,
         contextId: this.contextId,

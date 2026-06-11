@@ -60,7 +60,7 @@ import type {
   GenieMessageComment,
   GenieSendMessageFeedbackRequest,
   GenieSpace,
-  GenieStartConversationMessageRequest,
+  GenieStartConversationRequest,
   GenieStartConversationResponse,
   GenieTrashSpaceRequest,
   GenieUpdateSpaceRequest,
@@ -75,7 +75,7 @@ import {
   marshalGenieExecuteMessageQueryRequestSchema,
   marshalGenieGenerateDownloadFullQueryResultRequestSchema,
   marshalGenieSendMessageFeedbackRequestSchema,
-  marshalGenieStartConversationMessageRequestSchema,
+  marshalGenieStartConversationRequestSchema,
   marshalGenieUpdateSpaceRequestSchema,
   unmarshalGenieEvalResultDetailsSchema,
   unmarshalGenieEvalRunResponseSchema,
@@ -1064,14 +1064,14 @@ export class GenieClient {
 
   /** Start a new conversation. */
   private async genieStartConversationBase(
-    req: GenieStartConversationMessageRequest,
+    req: GenieStartConversationRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/start-conversation`;
     const body = marshalRequest(
       req,
-      marshalGenieStartConversationMessageRequestSchema
+      marshalGenieStartConversationRequestSchema
     );
     let resp: GenieStartConversationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1100,7 +1100,7 @@ export class GenieClient {
 
   /** Start a new conversation. */
   async genieStartConversation(
-    req: GenieStartConversationMessageRequest,
+    req: GenieStartConversationRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationWaiter> {
     const resp = await this.genieStartConversationBase(req, options);

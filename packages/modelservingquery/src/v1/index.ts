@@ -13,7 +13,7 @@ export type {
   DataframeSplitInput,
   EmbeddingsV1ResponseEmbeddingElement,
   ExternalModelUsageElement,
-  QueryEndpointInputRequest,
+  QueryEndpointRequest,
   QueryEndpointResponse,
   V1ResponseChoiceElement,
 } from './model';

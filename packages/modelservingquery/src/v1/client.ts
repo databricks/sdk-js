@@ -16,9 +16,9 @@ import {
   parseResponse,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
-import type {QueryEndpointInputRequest, QueryEndpointResponse} from './model';
+import type {QueryEndpointRequest, QueryEndpointResponse} from './model';
 import {
-  marshalQueryEndpointInputRequestSchema,
+  marshalQueryEndpointRequestSchema,
   unmarshalQueryEndpointResponseSchema,
 } from './model';
 
@@ -57,12 +57,12 @@ export class ModelServingQueryClient {
 
   /** Query a serving endpoint */
   async query(
-    req: QueryEndpointInputRequest,
+    req: QueryEndpointRequest,
     options?: CallOptions
   ): Promise<QueryEndpointResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/serving-endpoints/${req.name ?? ''}/invocations`;
-    const body = marshalRequest(req, marshalQueryEndpointInputRequestSchema);
+    const body = marshalRequest(req, marshalQueryEndpointRequestSchema);
     let resp: QueryEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

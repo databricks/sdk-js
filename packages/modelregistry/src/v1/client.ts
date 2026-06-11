@@ -532,7 +532,7 @@ export class ModelRegistryClient {
   }
 
   /** Gets a list of all open stage transition requests for the model version. */
-  async listTransitionsRequest(
+  async listTransitionRequests(
     req: ListTransitionRequest,
     options?: CallOptions
   ): Promise<ListTransitionResponse> {

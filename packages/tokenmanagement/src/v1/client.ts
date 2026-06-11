@@ -26,11 +26,11 @@ import type {
   ListTokensResponse,
   RevokeTokenRequest,
   RevokeTokenResponse,
-  UpdateToken,
+  UpdateTokenRequest,
 } from './model';
 import {
   marshalCreateOnBehalfOfTokenRequestSchema,
-  marshalUpdateTokenSchema,
+  marshalUpdateTokenRequestSchema,
   unmarshalAdminTokenInfoSchema,
   unmarshalCreateOnBehalfOfTokenResponseSchema,
   unmarshalGetTokenResponseSchema,
@@ -202,12 +202,12 @@ export class TokenManagementClient {
 
   /** Updates a token, specified by its ID. */
   async updateToken(
-    req: UpdateToken,
+    req: UpdateTokenRequest,
     options?: CallOptions
   ): Promise<AdminTokenInfo> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/token-management/tokens/${req.token?.tokenId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateTokenSchema);
+    const body = marshalRequest(req, marshalUpdateTokenRequestSchema);
     let resp: AdminTokenInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -804,6 +804,7 @@ export interface CreateWarehouseRequest {
    * - 3X-Large
    * - 4X-Large
    * - 5X-Large
+   * - Auto
    */
   clusterSize?: string | undefined;
   /**
@@ -950,6 +951,7 @@ export interface EditWarehouseRequest {
    * - 3X-Large
    * - 4X-Large
    * - 5X-Large
+   * - Auto
    */
   clusterSize?: string | undefined;
   /**
@@ -1068,6 +1070,7 @@ export interface EndpointInfo {
    * - 3X-Large
    * - 4X-Large
    * - 5X-Large
+   * - Auto
    */
   clusterSize?: string | undefined;
   /**
@@ -1202,6 +1205,7 @@ export interface GetWarehouseResponse {
    * - 3X-Large
    * - 4X-Large
    * - 5X-Large
+   * - Auto
    */
   clusterSize?: string | undefined;
   /**

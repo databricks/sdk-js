@@ -77,7 +77,7 @@ export type {
   GenieResultMetadata,
   GenieSendMessageFeedbackRequest,
   GenieSpace,
-  GenieStartConversationMessageRequest,
+  GenieStartConversationRequest,
   GenieStartConversationResponse,
   GenieSuggestedQuestionsAttachment,
   GenieTrashSpaceRequest,
