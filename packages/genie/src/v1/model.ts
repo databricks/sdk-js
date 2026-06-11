@@ -1562,7 +1562,7 @@ export interface GenieSpace {
   etag?: string | undefined;
 }
 
-export interface GenieStartConversationMessageRequest {
+export interface GenieStartConversationRequest {
   /** The ID associated with the Genie space where you want to start a conversation. */
   spaceId?: string | undefined;
   /** The text of the message that starts the conversation. */
@@ -2789,7 +2789,7 @@ export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalGenieStartConversationMessageRequestSchema: z.ZodType = z
+export const marshalGenieStartConversationRequestSchema: z.ZodType = z
   .object({
     spaceId: z.string().optional(),
     content: z.string().optional(),

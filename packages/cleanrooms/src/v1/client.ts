@@ -680,7 +680,7 @@ export class CleanRoomsClient {
   }
 
   /** List all the historical notebook task runs in a clean room. */
-  async listCleanRoomNotebookTaskRunsHandler(
+  async listCleanRoomNotebookTaskRuns(
     req: ListCleanRoomNotebookTaskRunsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomNotebookTaskRunsResponse> {
@@ -723,16 +723,13 @@ export class CleanRoomsClient {
     return resp;
   }
 
-  async *listCleanRoomNotebookTaskRunsHandlerIter(
+  async *listCleanRoomNotebookTaskRunsIter(
     req: ListCleanRoomNotebookTaskRunsRequest,
     options?: CallOptions
   ): AsyncGenerator<CleanRoomNotebookTaskRun> {
     const pageReq: ListCleanRoomNotebookTaskRunsRequest = {...req};
     for (;;) {
-      const resp = await this.listCleanRoomNotebookTaskRunsHandler(
-        pageReq,
-        options
-      );
+      const resp = await this.listCleanRoomNotebookTaskRuns(pageReq, options);
       for (const item of resp.runs ?? []) {
         yield item;
       }

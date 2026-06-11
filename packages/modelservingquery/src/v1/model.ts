@@ -87,7 +87,7 @@ export interface ExternalModelUsageElement {
   totalTokens?: number | undefined;
 }
 
-export interface QueryEndpointInputRequest {
+export interface QueryEndpointRequest {
   /** The name of the serving endpoint. This field is required and is provided via the path parameter. */
   name?: string | undefined;
   /**
@@ -308,7 +308,7 @@ export const marshalDataframeSplitInputSchema: z.ZodType = z
     data: d.data,
   }));
 
-export const marshalQueryEndpointInputRequestSchema: z.ZodType = z
+export const marshalQueryEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     prompt: jsonValueSchema.optional(),

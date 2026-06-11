@@ -31,8 +31,8 @@ import type {
   Endpoint,
   GetEndpointRequest,
   GetVectorIndexRequest,
-  ListEndpointRequest,
   ListEndpointResponse,
+  ListEndpointsRequest,
   ListVectorIndexRequest,
   ListVectorIndexResponse,
   MiniVectorIndex,
@@ -352,8 +352,8 @@ export class VectorSearchClient {
   }
 
   /** List all AI Search endpoints in the workspace. */
-  async listEndpoint(
-    req: ListEndpointRequest,
+  async listEndpoints(
+    req: ListEndpointsRequest,
     options?: CallOptions
   ): Promise<ListEndpointResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -386,13 +386,13 @@ export class VectorSearchClient {
     return resp;
   }
 
-  async *listEndpointIter(
-    req: ListEndpointRequest,
+  async *listEndpointsIter(
+    req: ListEndpointsRequest,
     options?: CallOptions
   ): AsyncGenerator<Endpoint> {
-    const pageReq: ListEndpointRequest = {...req};
+    const pageReq: ListEndpointsRequest = {...req};
     for (;;) {
-      const resp = await this.listEndpoint(pageReq, options);
+      const resp = await this.listEndpoints(pageReq, options);
       for (const item of resp.endpoints ?? []) {
         yield item;
       }

@@ -100,7 +100,7 @@ export class ResourceQuotasClient {
    * PAGINATION BEHAVIOR: The API is by default paginated, a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listQuota(
+  async listQuotas(
     req: ListQuotasRequest,
     options?: CallOptions
   ): Promise<ListQuotasResponse> {
@@ -137,13 +137,13 @@ export class ResourceQuotasClient {
     return resp;
   }
 
-  async *listQuotaIter(
+  async *listQuotasIter(
     req: ListQuotasRequest,
     options?: CallOptions
   ): AsyncGenerator<QuotaInfo> {
     const pageReq: ListQuotasRequest = {...req};
     for (;;) {
-      const resp = await this.listQuota(pageReq, options);
+      const resp = await this.listQuotas(pageReq, options);
       for (const item of resp.quotas ?? []) {
         yield item;
       }

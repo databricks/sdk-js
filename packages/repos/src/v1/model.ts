@@ -46,13 +46,13 @@ export interface CreateRepoResponse {
   sparseCheckout?: SparseCheckout | undefined;
 }
 
-export interface DeleteProjectRequest {
+export interface DeleteRepoRequest {
   /** The ID for the corresponding repo to delete. */
   id?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface DeleteProjectResponse {}
+export interface DeleteRepoResponse {}
 
 export interface GetRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
@@ -204,7 +204,7 @@ export const unmarshalCreateRepoResponseSchema: z.ZodType<CreateRepoResponse> =
       sparseCheckout: d.sparse_checkout,
     }));
 
-export const unmarshalDeleteProjectResponseSchema: z.ZodType<DeleteProjectResponse> =
+export const unmarshalDeleteRepoResponseSchema: z.ZodType<DeleteRepoResponse> =
   z.object({});
 
 export const unmarshalGetRepoResponseSchema: z.ZodType<GetRepoResponse> = z
