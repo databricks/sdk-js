@@ -119,7 +119,7 @@ export type {
   GenAiComputeTask,
   GetJobRequest,
   GetJobResponse,
-  GetPolicyComplianceForJob,
+  GetPolicyComplianceForJobRequest,
   GetPolicyComplianceForJobResponse,
   GetRunOutputRequest,
   GetRunOutputResponse,

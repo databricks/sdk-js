@@ -22,7 +22,7 @@ import type {
   CreateAccountIpAccessListRequest,
   CreateAccountIpAccessListResponse,
   CreateEndpointRequest,
-  CreateIpAccessList,
+  CreateIpAccessListRequest,
   CreateIpAccessListResponse,
   CreateNccPrivateEndpointRuleRequest,
   CreateNetworkConnectivityConfigRequest,
@@ -30,13 +30,10 @@ import type {
   CreateNetworkRequest,
   CreatePrivateAccessSettingsRequest,
   CreateVpcEndpointRequest,
-  CustomerFacingNetworkConnectivityConfig,
-  CustomerFacingPrivateAccessSettings,
-  CustomerFacingVpcEndpoint,
   DeleteAccountIpAccessListRequest,
   DeleteAccountIpAccessListResponse,
   DeleteEndpointRequest,
-  DeleteIpAccessList,
+  DeleteIpAccessListRequest,
   DeleteIpAccessListResponse,
   DeleteNccPrivateEndpointRuleRequest,
   DeleteNetworkConnectivityConfigRequest,
@@ -48,7 +45,7 @@ import type {
   GetAccountIpAccessListRequest,
   GetAccountIpAccessListResponse,
   GetEndpointRequest,
-  GetIpAccessList,
+  GetIpAccessListRequest,
   GetIpAccessListResponse,
   GetNccPrivateEndpointRuleRequest,
   GetNetworkConnectivityConfigRequest,
@@ -77,43 +74,43 @@ import type {
   ListVpcEndpointResponse,
   NccPrivateEndpointRule,
   Network,
+  NetworkConnectivityConfig,
+  PrivateAccessSettings,
   ReplaceAccountIpAccessListRequest,
   ReplaceAccountIpAccessListResponse,
-  ReplaceIpAccessList,
+  ReplaceIpAccessListRequest,
   ReplaceIpAccessListResponse,
   UpdateAccountIpAccessListRequest,
   UpdateAccountIpAccessListResponse,
-  UpdateIpAccessList,
+  UpdateIpAccessListRequest,
   UpdateIpAccessListResponse,
   UpdateNccPrivateEndpointRuleRequest,
   UpdateNetworkPolicyRequest,
   UpdatePrivateAccessSettingsRequest,
   UpdateWorkspaceNetworkOptionRequest,
+  VpcEndpoint,
   WorkspaceNetworkOption,
 } from './model';
 import {
   marshalAccountNetworkPolicySchema,
   marshalCreateAccountIpAccessListRequestSchema,
-  marshalCreateIpAccessListSchema,
+  marshalCreateIpAccessListRequestSchema,
   marshalCreateNetworkConnectivityConfigurationSchema,
   marshalCreateNetworkRequestSchema,
   marshalCreatePrivateAccessSettingsRequestSchema,
   marshalCreatePrivateEndpointRuleSchema,
   marshalCreateVpcEndpointRequestSchema,
-  marshalCustomerFacingPrivateAccessSettingsSchema,
   marshalEndpointSchema,
+  marshalPrivateAccessSettingsSchema,
   marshalReplaceAccountIpAccessListRequestSchema,
-  marshalReplaceIpAccessListSchema,
+  marshalReplaceIpAccessListRequestSchema,
   marshalUpdateAccountIpAccessListRequestSchema,
-  marshalUpdateIpAccessListSchema,
+  marshalUpdateIpAccessListRequestSchema,
   marshalUpdatePrivateEndpointRuleSchema,
   marshalWorkspaceNetworkOptionSchema,
   unmarshalAccountNetworkPolicySchema,
   unmarshalCreateAccountIpAccessListResponseSchema,
   unmarshalCreateIpAccessListResponseSchema,
-  unmarshalCustomerFacingNetworkConnectivityConfigSchema,
-  unmarshalCustomerFacingPrivateAccessSettingsSchema,
-  unmarshalCustomerFacingVpcEndpointSchema,
   unmarshalDeleteAccountIpAccessListResponseSchema,
   unmarshalDeleteIpAccessListResponseSchema,
   unmarshalEndpointSchema,
@@ -126,11 +123,14 @@ import {
   unmarshalListNetworkConnectivityConfigsResponseSchema,
   unmarshalListNetworkPoliciesResponseSchema,
   unmarshalNccPrivateEndpointRuleSchema,
+  unmarshalNetworkConnectivityConfigSchema,
   unmarshalNetworkSchema,
+  unmarshalPrivateAccessSettingsSchema,
   unmarshalReplaceAccountIpAccessListResponseSchema,
   unmarshalReplaceIpAccessListResponseSchema,
   unmarshalUpdateAccountIpAccessListResponseSchema,
   unmarshalUpdateIpAccessListResponseSchema,
+  unmarshalVpcEndpointSchema,
   unmarshalWorkspaceNetworkOptionSchema,
 } from './model';
 
@@ -560,12 +560,12 @@ export class NetworkingClient {
    * It can take a few minutes for the changes to take effect. **Note**: Your new IP access list has no effect until you enable the feature. See :method:workspaceconf/setStatus
    */
   async createIpAccessList(
-    req: CreateIpAccessList,
+    req: CreateIpAccessListRequest,
     options?: CallOptions
   ): Promise<CreateIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/ip-access-lists`;
-    const body = marshalRequest(req, marshalCreateIpAccessListSchema);
+    const body = marshalRequest(req, marshalCreateIpAccessListRequestSchema);
     let resp: CreateIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -590,7 +590,7 @@ export class NetworkingClient {
 
   /** Deletes an IP access list, specified by its list ID. */
   async deleteIpAccessList(
-    req: DeleteIpAccessList,
+    req: DeleteIpAccessListRequest,
     options?: CallOptions
   ): Promise<DeleteIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -619,7 +619,7 @@ export class NetworkingClient {
 
   /** Gets an IP access list, specified by its list ID. */
   async getIpAccessList(
-    req: GetIpAccessList,
+    req: GetIpAccessListRequest,
     options?: CallOptions
   ): Promise<GetIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -690,12 +690,12 @@ export class NetworkingClient {
    * effect until you enable the feature. See :method:workspaceconf/setStatus.
    */
   async replaceIpAccessList(
-    req: ReplaceIpAccessList,
+    req: ReplaceIpAccessListRequest,
     options?: CallOptions
   ): Promise<ReplaceIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
-    const body = marshalRequest(req, marshalReplaceIpAccessListSchema);
+    const body = marshalRequest(req, marshalReplaceIpAccessListRequestSchema);
     let resp: ReplaceIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -737,12 +737,12 @@ export class NetworkingClient {
    * the feature. See :method:workspaceconf/setStatus.
    */
   async updateIpAccessList(
-    req: UpdateIpAccessList,
+    req: UpdateIpAccessListRequest,
     options?: CallOptions
   ): Promise<UpdateIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateIpAccessListSchema);
+    const body = marshalRequest(req, marshalUpdateIpAccessListRequestSchema);
     let resp: UpdateIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -779,14 +779,14 @@ export class NetworkingClient {
   async createNetworkConnectivityConfigPublic(
     req: CreateNetworkConnectivityConfigRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingNetworkConnectivityConfig> {
+  ): Promise<NetworkConnectivityConfig> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs`;
     const body = marshalRequest(
       req.networkConnectivityConfig,
       marshalCreateNetworkConnectivityConfigurationSchema
     );
-    let resp: CustomerFacingNetworkConnectivityConfig | undefined;
+    let resp: NetworkConnectivityConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -796,10 +796,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomerFacingNetworkConnectivityConfigSchema
-      );
+      resp = parseResponse(respBody, unmarshalNetworkConnectivityConfigSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -832,10 +829,10 @@ export class NetworkingClient {
   async getNetworkConnectivityConfigPublic(
     req: GetNetworkConnectivityConfigRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingNetworkConnectivityConfig> {
+  ): Promise<NetworkConnectivityConfig> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
-    let resp: CustomerFacingNetworkConnectivityConfig | undefined;
+    let resp: NetworkConnectivityConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -845,10 +842,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomerFacingNetworkConnectivityConfigSchema
-      );
+      resp = parseResponse(respBody, unmarshalNetworkConnectivityConfigSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -895,7 +889,7 @@ export class NetworkingClient {
   async *listNetworkConnectivityConfigsPublicIter(
     req: ListNetworkConnectivityConfigsRequest,
     options?: CallOptions
-  ): AsyncGenerator<CustomerFacingNetworkConnectivityConfig> {
+  ): AsyncGenerator<NetworkConnectivityConfig> {
     const pageReq: ListNetworkConnectivityConfigsRequest = {...req};
     for (;;) {
       const resp = await this.listNetworkConnectivityConfigsPublic(
@@ -1299,14 +1293,14 @@ export class NetworkingClient {
   async createPrivateAccessSettingsPublic(
     req: CreatePrivateAccessSettingsRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingPrivateAccessSettings> {
+  ): Promise<PrivateAccessSettings> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings`;
     const body = marshalRequest(
       req,
       marshalCreatePrivateAccessSettingsRequestSchema
     );
-    let resp: CustomerFacingPrivateAccessSettings | undefined;
+    let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -1316,10 +1310,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomerFacingPrivateAccessSettingsSchema
-      );
+      resp = parseResponse(respBody, unmarshalPrivateAccessSettingsSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1344,11 +1335,11 @@ export class NetworkingClient {
   async createVpcEndpointPublic(
     req: CreateVpcEndpointRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingVpcEndpoint> {
+  ): Promise<VpcEndpoint> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints`;
     const body = marshalRequest(req, marshalCreateVpcEndpointRequestSchema);
-    let resp: CustomerFacingVpcEndpoint | undefined;
+    let resp: VpcEndpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -1358,7 +1349,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingVpcEndpointSchema);
+      resp = parseResponse(respBody, unmarshalVpcEndpointSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1401,10 +1392,10 @@ export class NetworkingClient {
   async deletePrivateAccessSettingsPublic(
     req: DeletePrivateAccessSettingsRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingPrivateAccessSettings> {
+  ): Promise<PrivateAccessSettings> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
-    let resp: CustomerFacingPrivateAccessSettings | undefined;
+    let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1414,10 +1405,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomerFacingPrivateAccessSettingsSchema
-      );
+      resp = parseResponse(respBody, unmarshalPrivateAccessSettingsSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1430,10 +1418,10 @@ export class NetworkingClient {
   async deleteVpcEndpointPublic(
     req: DeleteVpcEndpointRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingVpcEndpoint> {
+  ): Promise<VpcEndpoint> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
-    let resp: CustomerFacingVpcEndpoint | undefined;
+    let resp: VpcEndpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1443,7 +1431,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingVpcEndpointSchema);
+      resp = parseResponse(respBody, unmarshalVpcEndpointSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1482,10 +1470,10 @@ export class NetworkingClient {
   async getPrivateAccessSettingsPublic(
     req: GetPrivateAccessSettingsRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingPrivateAccessSettings> {
+  ): Promise<PrivateAccessSettings> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
-    let resp: CustomerFacingPrivateAccessSettings | undefined;
+    let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1495,10 +1483,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomerFacingPrivateAccessSettingsSchema
-      );
+      resp = parseResponse(respBody, unmarshalPrivateAccessSettingsSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1516,10 +1501,10 @@ export class NetworkingClient {
   async getVpcEndpointPublic(
     req: GetVpcEndpointRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingVpcEndpoint> {
+  ): Promise<VpcEndpoint> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
-    let resp: CustomerFacingVpcEndpoint | undefined;
+    let resp: VpcEndpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1529,7 +1514,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingVpcEndpointSchema);
+      resp = parseResponse(respBody, unmarshalVpcEndpointSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1589,9 +1574,7 @@ export class NetworkingClient {
       resp = {
         privateAccessSettings: parseResponse(
           respBody,
-          z.array(
-            z.lazy(() => unmarshalCustomerFacingPrivateAccessSettingsSchema)
-          )
+          z.array(z.lazy(() => unmarshalPrivateAccessSettingsSchema))
         ),
       };
     };
@@ -1622,7 +1605,7 @@ export class NetworkingClient {
       resp = {
         vpcEndpoints: parseResponse(
           respBody,
-          z.array(z.lazy(() => unmarshalCustomerFacingVpcEndpointSchema))
+          z.array(z.lazy(() => unmarshalVpcEndpointSchema))
         ),
       };
     };
@@ -1642,14 +1625,14 @@ export class NetworkingClient {
   async updatePrivateAccessSettingsPublic(
     req: UpdatePrivateAccessSettingsRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingPrivateAccessSettings> {
+  ): Promise<PrivateAccessSettings> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/accounts/${req.customerFacingPrivateAccessSettings?.accountId ?? accountId ?? ''}/private-access-settings/${req.customerFacingPrivateAccessSettings?.privateAccessSettingsId ?? ''}`;
     const body = marshalRequest(
       req.customerFacingPrivateAccessSettings,
-      marshalCustomerFacingPrivateAccessSettingsSchema
+      marshalPrivateAccessSettingsSchema
     );
-    let resp: CustomerFacingPrivateAccessSettings | undefined;
+    let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -1659,10 +1642,7 @@ export class NetworkingClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomerFacingPrivateAccessSettingsSchema
-      );
+      resp = parseResponse(respBody, unmarshalPrivateAccessSettingsSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

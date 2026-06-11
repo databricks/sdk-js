@@ -270,6 +270,16 @@ export interface CreateFileResponse {
   fileInfo?: FileInfo | undefined;
 }
 
+export interface CreateInstallationRequest {
+  listingId?: string | undefined;
+  shareName?: string | undefined;
+  catalogName?: string | undefined;
+  /** for git repo installations */
+  repoDetail?: RepoInstallation | undefined;
+  recipientType?: DeltaSharingRecipientType | undefined;
+  acceptedConsumerTerms?: ConsumerTerms | undefined;
+}
+
 export interface CreateInstallationResponse {
   installation?: InstallationDetail | undefined;
 }
@@ -342,6 +352,11 @@ export interface DeleteFileRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteFileResponse {}
+
+export interface DeleteInstallationRequest {
+  listingId?: string | undefined;
+  installationId?: string | undefined;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteInstallationResponse {}
@@ -435,7 +450,7 @@ export interface GetFileResponse {
   fileInfo?: FileInfo | undefined;
 }
 
-export interface GetInstallationDetails {
+export interface GetInstallationDetailsRequest {
   listingId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -453,7 +468,7 @@ export interface GetLatestVersionProviderAnalyticsDashboardResponse {
   version?: bigint | undefined;
 }
 
-export interface GetListingContent {
+export interface GetListingContentMetadataRequest {
   listingId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -477,7 +492,7 @@ export interface GetListingsResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface GetPersonalizationRequestsForConsumer {
+export interface GetPersonalizationRequestsForConsumerRequest {
   listingId?: string | undefined;
 }
 
@@ -503,7 +518,7 @@ export interface GetProviderResponse {
   provider?: ProviderInfo | undefined;
 }
 
-export interface GetPublishedListingForConsumer {
+export interface GetPublishedListingForConsumerRequest {
   id?: string | undefined;
 }
 
@@ -516,22 +531,12 @@ export interface GetPublishedListingsForConsumerResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface GetPublishedProviderForConsumer {
+export interface GetPublishedProviderForConsumerRequest {
   id?: string | undefined;
 }
 
 export interface GetPublishedProviderForConsumerResponse {
   provider?: ProviderInfo | undefined;
-}
-
-export interface InstallListing {
-  listingId?: string | undefined;
-  shareName?: string | undefined;
-  catalogName?: string | undefined;
-  /** for git repo installations */
-  repoDetail?: RepoInstallation | undefined;
-  recipientType?: DeltaSharingRecipientType | undefined;
-  acceptedConsumerTerms?: ConsumerTerms | undefined;
 }
 
 export interface InstallationDetail {
@@ -680,7 +685,7 @@ export interface ListPublishedListingsForConsumerRequest {
   providerIds?: string[] | undefined;
 }
 
-export interface ListPublishedProvidersForConsumer {
+export interface ListPublishedProvidersForConsumerRequest {
   pageToken?: string | undefined;
   pageSize?: number | undefined;
   isFeatured?: boolean | undefined;
@@ -854,7 +859,7 @@ export interface RepoInstallation {
   repoPath?: string | undefined;
 }
 
-export interface SearchPublishedListingsForConsumer {
+export interface SearchPublishedListingsForConsumerRequest {
   /** Fuzzy matches query */
   query?: string | undefined;
   isFree?: boolean | undefined;
@@ -917,11 +922,6 @@ export interface TokenInfo {
   updatedBy?: string | undefined;
 }
 
-export interface UninstallListing {
-  listingId?: string | undefined;
-  installationId?: string | undefined;
-}
-
 export interface UpdateExchangeFilterRequest {
   id?: string | undefined;
   filter?: ExchangeFilter | undefined;
@@ -940,7 +940,7 @@ export interface UpdateExchangeResponse {
   exchange?: Exchange | undefined;
 }
 
-export interface UpdateInstallationDetail {
+export interface UpdateInstallationRequest {
   listingId?: string | undefined;
   installationId?: string | undefined;
   installation?: InstallationDetail | undefined;
@@ -2034,6 +2034,24 @@ export const marshalCreateFileRequestSchema: z.ZodType = z
     display_name: d.displayName,
   }));
 
+export const marshalCreateInstallationRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    shareName: z.string().optional(),
+    catalogName: z.string().optional(),
+    repoDetail: z.lazy(() => marshalRepoInstallationSchema).optional(),
+    recipientType: z.string().optional(),
+    acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    share_name: d.shareName,
+    catalog_name: d.catalogName,
+    repo_detail: d.repoDetail,
+    recipient_type: d.recipientType,
+    accepted_consumer_terms: d.acceptedConsumerTerms,
+  }));
+
 export const marshalCreateListingRequestSchema: z.ZodType = z
   .object({
     listing: z.lazy(() => marshalListingSchema).optional(),
@@ -2191,24 +2209,6 @@ export const marshalFileParentSchema: z.ZodType = z
   .transform(d => ({
     parent_id: d.parentId,
     file_parent_type: d.fileParentType,
-  }));
-
-export const marshalInstallListingSchema: z.ZodType = z
-  .object({
-    listingId: z.string().optional(),
-    shareName: z.string().optional(),
-    catalogName: z.string().optional(),
-    repoDetail: z.lazy(() => marshalRepoInstallationSchema).optional(),
-    recipientType: z.string().optional(),
-    acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
-  })
-  .transform(d => ({
-    listing_id: d.listingId,
-    share_name: d.shareName,
-    catalog_name: d.catalogName,
-    repo_detail: d.repoDetail,
-    recipient_type: d.recipientType,
-    accepted_consumer_terms: d.acceptedConsumerTerms,
   }));
 
 export const marshalInstallationDetailSchema: z.ZodType = z
@@ -2491,7 +2491,7 @@ export const marshalUpdateExchangeRequestSchema: z.ZodType = z
     exchange: d.exchange,
   }));
 
-export const marshalUpdateInstallationDetailSchema: z.ZodType = z
+export const marshalUpdateInstallationRequestSchema: z.ZodType = z
   .object({
     listingId: z.string().optional(),
     installationId: z.string().optional(),

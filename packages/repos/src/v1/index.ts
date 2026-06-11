@@ -5,8 +5,8 @@ export {ReposClient} from './client';
 export type {
   CreateRepoRequest,
   CreateRepoResponse,
-  DeleteProjectRequest,
-  DeleteProjectResponse,
+  DeleteRepoRequest,
+  DeleteRepoResponse,
   GetRepoRequest,
   GetRepoResponse,
   ListReposRequest,

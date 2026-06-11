@@ -891,7 +891,7 @@ export interface RegisteredModelAlias {
   versionNum?: bigint | undefined;
 }
 
-export interface RetrieveToken {
+export interface RetrieveTokenRequest {
   /** The one time activation url. It also accepts activation token. */
   activationUrl?: string | undefined;
 }

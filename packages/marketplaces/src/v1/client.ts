@@ -30,6 +30,7 @@ import type {
   CreateExchangeResponse,
   CreateFileRequest,
   CreateFileResponse,
+  CreateInstallationRequest,
   CreateInstallationResponse,
   CreateListingRequest,
   CreateListingResponse,
@@ -45,6 +46,7 @@ import type {
   DeleteExchangeResponse,
   DeleteFileRequest,
   DeleteFileResponse,
+  DeleteInstallationRequest,
   DeleteInstallationResponse,
   DeleteListingRequest,
   DeleteListingResponse,
@@ -59,26 +61,25 @@ import type {
   GetExchangeResponse,
   GetFileRequest,
   GetFileResponse,
-  GetInstallationDetails,
+  GetInstallationDetailsRequest,
   GetLatestVersionProviderAnalyticsDashboardRequest,
   GetLatestVersionProviderAnalyticsDashboardResponse,
-  GetListingContent,
+  GetListingContentMetadataRequest,
   GetListingContentMetadataResponse,
   GetListingRequest,
   GetListingResponse,
   GetListingsResponse,
-  GetPersonalizationRequestsForConsumer,
+  GetPersonalizationRequestsForConsumerRequest,
   GetPersonalizationRequestsForConsumerResponse,
   GetPersonalizationRequestsForProviderRequest,
   GetPersonalizationRequestsForProviderResponse,
   GetProviderRequest,
   GetProviderResponse,
-  GetPublishedListingForConsumer,
+  GetPublishedListingForConsumerRequest,
   GetPublishedListingForConsumerResponse,
   GetPublishedListingsForConsumerResponse,
-  GetPublishedProviderForConsumer,
+  GetPublishedProviderForConsumerRequest,
   GetPublishedProviderForConsumerResponse,
-  InstallListing,
   InstallationDetail,
   ListAllInstallationsResponse,
   ListExchangeFiltersRequest,
@@ -102,7 +103,7 @@ import type {
   ListProvidersRequest,
   ListProvidersResponse,
   ListPublishedListingsForConsumerRequest,
-  ListPublishedProvidersForConsumer,
+  ListPublishedProvidersForConsumerRequest,
   ListPublishedProvidersForConsumerResponse,
   Listing,
   ListingFulfillment,
@@ -110,15 +111,14 @@ import type {
   ProviderInfo,
   RemoveExchangeForListingRequest,
   RemoveExchangeForListingResponse,
-  SearchPublishedListingsForConsumer,
+  SearchPublishedListingsForConsumerRequest,
   SearchPublishedListingsForConsumerResponse,
   SharedDataObject,
-  UninstallListing,
   UpdateExchangeFilterRequest,
   UpdateExchangeFilterResponse,
   UpdateExchangeRequest,
   UpdateExchangeResponse,
-  UpdateInstallationDetail,
+  UpdateInstallationRequest,
   UpdateInstallationResponse,
   UpdateListingRequest,
   UpdateListingResponse,
@@ -134,16 +134,16 @@ import {
   marshalCreateExchangeFilterRequestSchema,
   marshalCreateExchangeRequestSchema,
   marshalCreateFileRequestSchema,
+  marshalCreateInstallationRequestSchema,
   marshalCreateListingRequestSchema,
   marshalCreatePersonalizationRequestSchema,
   marshalCreateProviderAnalyticsDashboardRequestSchema,
   marshalCreateProviderRequestSchema,
   marshalFileParentSchema,
-  marshalInstallListingSchema,
   marshalListingTagSchema,
   marshalUpdateExchangeFilterRequestSchema,
   marshalUpdateExchangeRequestSchema,
-  marshalUpdateInstallationDetailSchema,
+  marshalUpdateInstallationRequestSchema,
   marshalUpdateListingRequestSchema,
   marshalUpdatePersonalizationRequestStatusRequestSchema,
   marshalUpdateProviderAnalyticsDashboardRequestSchema,
@@ -338,7 +338,7 @@ export class MarketplacesClient {
 
   /** List all installations for a particular listing. */
   async getInstallationDetails(
-    req: GetInstallationDetails,
+    req: GetInstallationDetailsRequest,
     options?: CallOptions
   ): Promise<ListInstallationsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -375,10 +375,10 @@ export class MarketplacesClient {
   }
 
   async *getInstallationDetailsIter(
-    req: GetInstallationDetails,
+    req: GetInstallationDetailsRequest,
     options?: CallOptions
   ): AsyncGenerator<InstallationDetail> {
-    const pageReq: GetInstallationDetails = {...req};
+    const pageReq: GetInstallationDetailsRequest = {...req};
     for (;;) {
       const resp = await this.getInstallationDetails(pageReq, options);
       for (const item of resp.installations ?? []) {
@@ -393,7 +393,7 @@ export class MarketplacesClient {
 
   /** Get a high level preview of the metadata of listing installable content. */
   async getListingContent(
-    req: GetListingContent,
+    req: GetListingContentMetadataRequest,
     options?: CallOptions
   ): Promise<GetListingContentMetadataResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -433,10 +433,10 @@ export class MarketplacesClient {
   }
 
   async *getListingContentIter(
-    req: GetListingContent,
+    req: GetListingContentMetadataRequest,
     options?: CallOptions
   ): AsyncGenerator<SharedDataObject> {
-    const pageReq: GetListingContent = {...req};
+    const pageReq: GetListingContentMetadataRequest = {...req};
     for (;;) {
       const resp = await this.getListingContent(pageReq, options);
       for (const item of resp.sharedDataObjects ?? []) {
@@ -451,7 +451,7 @@ export class MarketplacesClient {
 
   /** Get the personalization request for a listing. Each consumer can make at *most* one personalization request for a listing. */
   async getPersonalizationRequestsForConsumer(
-    req: GetPersonalizationRequestsForConsumer,
+    req: GetPersonalizationRequestsForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPersonalizationRequestsForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -483,7 +483,7 @@ export class MarketplacesClient {
 
   /** Get a published listing in the Databricks Marketplace that the consumer has access to. */
   async getPublishedListingForConsumer(
-    req: GetPublishedListingForConsumer,
+    req: GetPublishedListingForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPublishedListingForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -515,7 +515,7 @@ export class MarketplacesClient {
 
   /** Get a provider in the Databricks Marketplace with at least one visible listing. */
   async getPublishedProviderForConsumer(
-    req: GetPublishedProviderForConsumer,
+    req: GetPublishedProviderForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPublishedProviderForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -547,12 +547,12 @@ export class MarketplacesClient {
 
   /** Install payload associated with a Databricks Marketplace listing. */
   async installListing(
-    req: InstallListing,
+    req: CreateInstallationRequest,
     options?: CallOptions
   ): Promise<CreateInstallationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
-    const body = marshalRequest(req, marshalInstallListingSchema);
+    const body = marshalRequest(req, marshalCreateInstallationRequestSchema);
     let resp: CreateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -841,7 +841,7 @@ export class MarketplacesClient {
 
   /** List all providers in the Databricks Marketplace with at least one visible listing. */
   async listPublishedProvidersForConsumer(
-    req: ListPublishedProvidersForConsumer,
+    req: ListPublishedProvidersForConsumerRequest,
     options?: CallOptions
   ): Promise<ListPublishedProvidersForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -884,10 +884,10 @@ export class MarketplacesClient {
   }
 
   async *listPublishedProvidersForConsumerIter(
-    req: ListPublishedProvidersForConsumer,
+    req: ListPublishedProvidersForConsumerRequest,
     options?: CallOptions
   ): AsyncGenerator<ProviderInfo> {
-    const pageReq: ListPublishedProvidersForConsumer = {...req};
+    const pageReq: ListPublishedProvidersForConsumerRequest = {...req};
     for (;;) {
       const resp = await this.listPublishedProvidersForConsumer(
         pageReq,
@@ -908,7 +908,7 @@ export class MarketplacesClient {
    * This query supports a variety of different search parameters and performs fuzzy matching.
    */
   async searchPublishedListingsForConsumer(
-    req: SearchPublishedListingsForConsumer,
+    req: SearchPublishedListingsForConsumerRequest,
     options?: CallOptions
   ): Promise<SearchPublishedListingsForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -966,10 +966,10 @@ export class MarketplacesClient {
   }
 
   async *searchPublishedListingsForConsumerIter(
-    req: SearchPublishedListingsForConsumer,
+    req: SearchPublishedListingsForConsumerRequest,
     options?: CallOptions
   ): AsyncGenerator<Listing> {
-    const pageReq: SearchPublishedListingsForConsumer = {...req};
+    const pageReq: SearchPublishedListingsForConsumerRequest = {...req};
     for (;;) {
       const resp = await this.searchPublishedListingsForConsumer(
         pageReq,
@@ -987,7 +987,7 @@ export class MarketplacesClient {
 
   /** Uninstall an installation associated with a Databricks Marketplace listing. */
   async uninstallListing(
-    req: UninstallListing,
+    req: DeleteInstallationRequest,
     options?: CallOptions
   ): Promise<DeleteInstallationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
@@ -1021,12 +1021,12 @@ export class MarketplacesClient {
    * 2. the token will be forcibly rotate if the rotateToken flag is true and the tokenInfo field is empty
    */
   async updateInstallationDetail(
-    req: UpdateInstallationDetail,
+    req: UpdateInstallationRequest,
     options?: CallOptions
   ): Promise<UpdateInstallationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateInstallationDetailSchema);
+    const body = marshalRequest(req, marshalUpdateInstallationRequestSchema);
     let resp: UpdateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -54,7 +54,7 @@ import type {
   ProviderInfo,
   ProviderShare,
   RecipientInfo,
-  RetrieveToken,
+  RetrieveTokenRequest,
   RetrieveTokenResponse,
   RotateRecipientTokenRequest,
   ShareInfo,
@@ -1007,7 +1007,7 @@ export class SharingClient {
    * This is a public API without any authentication.
    */
   async retrieveAccessToken(
-    req: RetrieveToken,
+    req: RetrieveTokenRequest,
     options?: CallOptions
   ): Promise<RetrieveTokenResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();

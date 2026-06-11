@@ -2118,7 +2118,7 @@ export interface GetJobResponse {
   effectiveUsagePolicyId?: string | undefined;
 }
 
-export interface GetPolicyComplianceForJob {
+export interface GetPolicyComplianceForJobRequest {
   /** The ID of the job whose compliance status you are requesting. */
   jobId?: bigint | undefined;
 }

@@ -38,7 +38,7 @@ import type {
   ExportRunResponse,
   GetJobRequest,
   GetJobResponse,
-  GetPolicyComplianceForJob,
+  GetPolicyComplianceForJobRequest,
   GetPolicyComplianceForJobResponse,
   GetRunOutputRequest,
   GetRunOutputResponse,
@@ -177,7 +177,7 @@ export class JobsClient {
    * their updated policies.
    */
   async getPolicyComplianceForJob(
-    req: GetPolicyComplianceForJob,
+    req: GetPolicyComplianceForJobRequest,
     options?: CallOptions
   ): Promise<GetPolicyComplianceForJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();

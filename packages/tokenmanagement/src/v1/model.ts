@@ -124,7 +124,7 @@ export interface RevokeTokenResponse {}
  * For the list of supported token scopes, see
  * https://docs.databricks.com/api/workspace/api/scopes.
  */
-export interface UpdateToken {
+export interface UpdateTokenRequest {
   token?: AdminTokenInfo | undefined;
   /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
   updateMask?: FieldMask<AdminTokenInfo> | undefined;
@@ -261,7 +261,7 @@ export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
     autoscope_enabled: d.autoscopeEnabled,
   }));
 
-export const marshalUpdateTokenSchema: z.ZodType = z
+export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
     token: z.lazy(() => marshalAdminTokenInfoSchema).optional(),
     updateMask: z
