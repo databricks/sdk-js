@@ -2835,7 +2835,7 @@ export interface NodeType {
   memoryMb?: number | undefined;
   /**
    * Number of CPU cores available for this node type.
-   * Note that this can be fractional, e.g., 2.5 cores, if the the number of cores on a
+   * Note that this can be fractional, e.g., 2.5 cores, if the number of cores on a
    * machine instance is not divisible by the number of Spark nodes on that machine.
    */
   numCores?: number | undefined;

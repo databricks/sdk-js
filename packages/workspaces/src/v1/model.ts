@@ -93,7 +93,6 @@ export type StorageMode =
  * -> RUNNING
  * -> CANCELLED
  * Note that a transition from any state to itself is also valid.
- * TODO(PLAT-5867): add a transition from CANCELLED to some other value (e.g. RECOVERING)
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const WorkspaceStatus = {
@@ -344,7 +343,6 @@ export interface WorkspaceNetwork {
          * workspace will use.
          * The network config for GCP workspace with <Databricks> managed network.
          * This object is input-only and will not be provided when listing workspaces.
-         * See go/gcp-byovpc-alpha-design for interface decisions.
          */
         gcpManagedNetworkConfig: GcpManagedNetworkConfig;
       }
