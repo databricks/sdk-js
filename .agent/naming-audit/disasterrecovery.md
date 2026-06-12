@@ -2,7 +2,7 @@
 
 **Path:** `packages/disasterrecovery/src/v1/`
 **Versions audited:** v1
-**Total weird names flagged:** 6
+**Total weird names flagged:** 5
 
 ## Summary
 | Severity | Count |
@@ -10,17 +10,16 @@
 | High | 2 |
 | Medium | 2 |
 | Low | 1 |
-| Observation | 1 |
 
 ## High severity
 
-### 1. `FailoverFailoverGroupRequest` — `src/v1/model.ts:91`
+### 1. `FailoverFailoverGroupRequest` — `src/v1/model.ts:99`
 - **Why weird:** Stutter: the word `Failover` appears twice in a single type name. Mechanically this is `<Verb><Resource>Request` (`Failover` verb + `FailoverGroup` noun + `Request`), but the result reads as a typo.
 - **Category:** 7 (overly verbose), 17 (inconsistency in action-verb naming — every other action type spells out the verb only once since the resource has only one `failover` action).
 - **Suggested name:** `FailoverRequest` (the resource is unambiguous in this package) or `TriggerFailoverRequest` (more explicit verb).
 - **Rationale:** No other request in the package re-states the resource word inside its verb. The wire path is `…/failover`, so a single `Failover` in the type name is sufficient.
 
-### 2. Write-only "primary region" fields are not distinguished in the type shape — `src/v1/model.ts:125,149,101`
+### 2. Write-only "primary region" fields are not distinguished in the type shape — `src/v1/model.ts:133,157,109`
 - **Why weird:** Two of the three "primary region" fields are write-only, but the type signature gives no hint:
   - `effectivePrimaryRegion` — current truth; mutated by failover.
   - `initialPrimaryRegion` — create-only input; never returned.
@@ -32,27 +31,22 @@
 
 ## Medium severity
 
-### 3. `UcCatalog` (and field `catalogs: UcCatalog[]`) — `src/v1/model.ts:289`
-- **Why weird:** Field name on `UcReplicationConfig` is `catalogs`, a plain plural — the leading `Uc` prefix is redundant inside a type that already lives in `UcReplicationConfig`. Adjacent identifiers (e.g., `unityCatalogAssets` at line 131) spell the domain out as `unityCatalog`, so the `Uc` abbreviation is also locally inconsistent.
+### 3. `UcCatalog` (and field `catalogs: UcCatalog[]`) — `src/v1/model.ts:295`
+- **Why weird:** Field name on `UcReplicationConfig` is `catalogs`, a plain plural — the leading `Uc` prefix is redundant inside a type that already lives in `UcReplicationConfig`. Adjacent identifiers (e.g., `unityCatalogAssets` at line 139) spell the domain out as `unityCatalog`, so the `Uc` abbreviation is also locally inconsistent.
 - **Category:** 5 (cryptic abbreviation `Uc`), 8 (redundant `Uc` prefix inside Uc context), 17 (inconsistency — `unityCatalog` vs `Uc`).
 - **Suggested name:** `Catalog` (or `ReplicatedCatalog`), and field type `catalogs: Catalog[]`.
 - **Rationale:** `UcReplicationConfig.catalogs: UcCatalog[]` reads as "UC replication config's UC catalogs" — redundant. The full `unityCatalog` spelling is used adjacent in the file; either propagate that or drop the prefix entirely inside the UC-scoped type.
 
-### 4. `UcReplicationConfig` — `src/v1/model.ts:295`
-- **Why weird:** `Uc` is a two-letter abbreviation in a type name. Comments in the same file (line 113) spell it out as "UCDR" with `Unity Catalog` in `unityCatalogAssets` (line 131). Single SDK uses both `unityCatalog` (full) and `Uc` (abbreviated) for the same concept across adjacent fields/types.
+### 4. `UcReplicationConfig` — `src/v1/model.ts:301`
+- **Why weird:** `Uc` is a two-letter abbreviation in a type name. The same file spells the domain out: the `FailoverGroup` JSDoc (line 121) says "Unity Catalog" and the field `unityCatalogAssets` (line 139) uses the full spelling. Single SDK uses both `unityCatalog` (full) and `Uc` (abbreviated) for the same concept across adjacent fields/types.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency — `unityCatalogAssets: UcReplicationConfig`).
 - **Suggested name:** `UnityCatalogReplicationConfig` (or `UnityCatalogConfig`).
 - **Rationale:** Within a five-line span the same domain is spelled `unityCatalog` and `Uc`. Pick one. The full spelling is unambiguous and the field name already votes for it.
 
 ## Low severity
 
-### 5. `failoverFailoverGroup` method name on `Client` — `src/v1/client.ts:218`
+### 5. `failoverFailoverGroup` method name on `DisasterRecoveryClient` — `src/v1/client.ts:221`
 - **Why weird:** Stutter (same as #1). Methods elsewhere are `createFailoverGroup`, `getFailoverGroup`, `listFailoverGroups`, `updateFailoverGroup`, `deleteFailoverGroup` — all use `<verb><Resource>`. This one collides because `failover` is both the verb and (lower-cased) part of the resource.
 - **Category:** 7 (overly verbose), 17 (inconsistency — verb visually merges with resource).
 - **Suggested name:** `triggerFailover` (verb `trigger`, since `failover` is the object) or just `failover` (single-word, since the package is already "disasterrecovery").
 - **Rationale:** `client.failoverFailoverGroup({...})` reads like a typo. `client.failover({...})` or `client.triggerFailover({...})` are unambiguous.
-
-## Observations
-
-### 6. Action-verb consistency on `Client` (mostly good)
-Methods are `create*`/`get*`/`list*`/`update*`/`delete*` plus one bespoke action (`failoverFailoverGroup`). Aside from the stutter (#5), this is consistent. Listed as observation per rule 17 since the audit asks to flag inconsistencies — here only the one method breaks the pattern.

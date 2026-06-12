@@ -5,12 +5,6 @@
 **Files audited:** `model.ts`, `client.ts`, `utils.ts`, `transport.ts`, `index.ts`
 **Total weird names flagged:** 3
 
-**Last rescanned:** 2026-06-02. All findings re-verified against the
-current source; none addressed upstream. The regeneration shifted most
-line numbers and renamed the proto-nested `GetActivationUrlInfoRequest_Response`
-to the clean `GetActivationUrlInfoResponse`; every citation was corrected
-in place, and finding L1 was rewritten to reference the new response name.
-
 ## Summary
 
 | Severity | Count |
@@ -24,12 +18,12 @@ in place, and finding L1 was rewritten to reference the new response name.
 
 ## High severity (must fix)
 
-### 1. `*Info` suffix repeated across the core entity surface — `model.ts:733, 768, 839, 895, 331, 358`
+### 1. `*Info` suffix repeated across the core entity surface — `model.ts:764, 799, 870, 926, 368, 395`
 - **Why:** Five entity types use the proto-style `*Info` "metadata
-  message" suffix: `ProviderInfo` (model.ts:733), `RecipientInfo`
-  (model.ts:768), `RecipientTokenInfo` (model.ts:839), `ShareInfo`
-  (model.ts:895), and `FunctionParameterInfo` (model.ts:331) plus the
-  pluralised wrapper `FunctionParameterInfos` (model.ts:358). In every
+  message" suffix: `ProviderInfo` (model.ts:764), `RecipientInfo`
+  (model.ts:799), `RecipientTokenInfo` (model.ts:870), `ShareInfo`
+  (model.ts:926), and `FunctionParameterInfo` (model.ts:368) plus the
+  pluralised wrapper `FunctionParameterInfos` (model.ts:395). In every
   case the type IS the entity, not metadata *about* the entity — there
   is no `Provider` / `Recipient` / `RecipientToken` / `FunctionParameter`
   counterpart that `*Info` would document the metadata of. The `Info`
@@ -58,15 +52,15 @@ in place, and finding L1 was rewritten to reference the new response name.
 
 ## Medium severity (worth pushing back on)
 
-### 1. `FunctionParameterInfos` single-field array wrapper — `model.ts:358`
+### 1. `FunctionParameterInfos` single-field array wrapper — `model.ts:395`
 - **Why:** `FunctionParameterInfos { parameters?: FunctionParameterInfo[] }`
   is a wrapper interface whose only field is the array. It is consumed
   exactly once, as the `inputParams: FunctionParameterInfos | undefined`
-  field on `Function` (model.ts:317). The wrapper exists to give the
+  field on `Function` (model.ts:354). The wrapper exists to give the
   proto schema a message type to hang the repeated field on; in TS
   it forces every caller to dereference `function.inputParams?.parameters`
   instead of `function.inputParams`. Same shape as `DependencyList`
-  (model.ts:261), which wraps `Dependency[]` as `dependencies`.
+  (model.ts:298), which wraps `Dependency[]` as `dependencies`.
 - **Category:** Proto-architecture leak (single-field repeated-only
   wrapper message — also a duplicated `*Infos` suffix in line with H1)
 - **Suggested:** Inline the array: change `Function.inputParams` to
@@ -84,11 +78,11 @@ in place, and finding L1 was rewritten to reference the new response name.
 
 ## Low severity (nits)
 
-### 1. `GetActivationUrlInfoRequest` injects `Info` into a method/type name with no payload — `model.ts:363, 369, client.ts:386`
-- **Why:** The method `getActivationUrlInfo` (client.ts:386) returns
-  `GetActivationUrlInfoResponse`, an empty interface (model.ts:369).
+### 1. `GetActivationUrlInfoRequest` injects `Info` into a method/type name with no payload — `model.ts:400, 406, client.ts:393`
+- **Why:** The method `getActivationUrlInfo` (client.ts:393) returns
+  `GetActivationUrlInfoResponse`, an empty interface (model.ts:406).
   The mid-position `Info` in the method and the `GetActivationUrlInfoRequest`
-  type (model.ts:363) adds nothing semantic: the method just gets the
+  type (model.ts:400) adds nothing semantic: the method just gets the
   activation URL data (and currently returns nothing). The naming
   inherits the proto RPC name (`GetActivationUrlInfo`) where `Info`
   was the message-type variant suffix.

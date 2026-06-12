@@ -7,13 +7,13 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 1. Misleading names
 
-### 1.1 `LibraryFullStatus` — `model.ts:122`
+### 1.1 `LibraryFullStatus` — `model.ts:126`
 - "Full" implies there is a "Partial" or "Short" counterpart, but there is
   none in this package. The type is "the status of a library on a cluster"
   per the JSDoc — `LibraryStatus` would suffice. `Full` is meaningless.
 - Severity: medium.
 
-### 1.2 `allClusterStatuses()` — `client.ts:76`
+### 1.2 `allClusterStatuses()` — `client.ts:75`
 - Method is the GET for `all-cluster-statuses`. The TS method name reads
   like an adjective ("all-cluster statuses") and is not verb-prefixed.
   Sibling method is `clusterStatus()` (also verb-less). Compare with the
@@ -27,7 +27,7 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 2. Overly verbose names
 
-### 2.1 `ListAllClusterLibraryStatusesRequest` — `model.ts:134`
+### 2.1 `ListAllClusterLibraryStatusesRequest` — `model.ts:138`
 - The type name embeds "All" (which is also encoded in the URL
   `/api/2.0/libraries/all-cluster-statuses`). The type name
   `ListAllClusterLibraryStatusesRequest` is itself verbose — `ListLibraryStatusesRequest`
@@ -38,7 +38,7 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 3. Redundant suffixes
 
-### 3.1 `LibraryFullStatus` — `model.ts:122`
+### 3.1 `LibraryFullStatus` — `model.ts:126`
 - "Full" is a vestigial qualifier with no counterpart. See §1.1.
 - Severity: medium.
 
@@ -46,8 +46,8 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 4. Singular/plural mismatches
 
-### 4.1 `ListAllClusterLibraryStatusesRequest` (request) — `model.ts:134`
-- Singular method name `allClusterStatuses` (`client.ts:76`) for what is
+### 4.1 `ListAllClusterLibraryStatusesRequest` (request) — `model.ts:138`
+- Singular method name `allClusterStatuses` (`client.ts:75`) for what is
   semantically a list operation. The action verb should be `list`. See §6.
 - Severity: medium.
 
@@ -55,7 +55,7 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 5. Verb-tense inconsistency
 
-### 5.1 Method verbs across the client — `client.ts:76, 115, 152, 184`
+### 5.1 Method verbs across the client — `client.ts:75, 115, 153, 186`
 - `allClusterStatuses` and `clusterStatus` are verb-less (noun-only).
 - `installLibraries`, `uninstallLibraries` use verb-prefixed forms.
 - Two stragglers (`allClusterStatuses`, `clusterStatus`) should be aligned:
@@ -68,7 +68,7 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 6. Inconsistent action verbs
 
-### 6.1 GET vs `list` vs `all` — `client.ts:76`
+### 6.1 GET vs `list` vs `all` — `client.ts:75`
 - `allClusterStatuses()` (verb `all`) reads as a noun-phrase, not a verb.
   The Go SDK uses the same naming, but the TS port has the opportunity to
   normalize to `list` (or `get`).
@@ -78,7 +78,7 @@ Files audited: `src/v2/model.ts`, `src/v2/client.ts`, `src/v2/index.ts`
 
 ## 7. Type-suffix tautology
 
-### 7.1 `LibraryFullStatus` — `model.ts:122`
+### 7.1 `LibraryFullStatus` — `model.ts:126`
 - "Status" appears in the type name and the field `status: LibraryInstallStatus`
   contains the noun again. Not a tautology per se, but the parent
   `LibraryFullStatus` could be `LibraryReport` or just `LibraryStatus`.

@@ -1,17 +1,16 @@
 # Naming Audit: `artifactallowlists` (v1)
 
-Package path: `/home/parth.bansal/sdk-js/packages/artifactallowlists/`
+Package path: `/home/parth.bansal/sdk-js/packages/uc/artifactallowlists/`
 Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 `src/v1/transport.ts`, `src/v1/index.ts`.
 
 ## Summary
 
-| Severity    | Count |
-| ----------- | ----- |
-| High        | 1     |
-| Medium      | 2     |
-| Observation | 1     |
-| **Total**   | **4** |
+| Severity  | Count |
+| --------- | ----- |
+| High      | 1     |
+| Medium    | 2     |
+| **Total** | **3** |
 
 ---
 
@@ -19,8 +18,8 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### H1. `SetArtifactAllowlistRequest` carries server-derived fields on a request type
 
-- **File / line:** `src/v1/model.ts:44–55` (`createdBy` at 52, `createdAt`
-  at 54).
+- **File / line:** `src/v1/model.ts:52–63` (`createdBy` at 60, `createdAt`
+  at 62).
 - **Category:** #16 field contradicting type domain.
 - **Current:** Fields `createdBy?: string` and `createdAt?: bigint` are
   present on what is documented as the SET payload — these are server-set
@@ -39,7 +38,7 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### M1. `ArtifactAllowlistInfo` — redundant `Info` suffix
 
-- **File / line:** `src/v1/model.ts:21`.
+- **File / line:** `src/v1/model.ts:29`.
 - **Category:** #8 redundant suffix; #14 Go/Java-style name.
 - **Current:** `ArtifactAllowlistInfo`.
 - **Suggestion:** `ArtifactAllowlist`.
@@ -54,7 +53,7 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### M2. `ArtifactMatcher_MatchType` — proto-style nested enum with underscore leak
 
-- **File / line:** `src/v1/model.ts:15`.
+- **File / line:** `src/v1/model.ts:19` (const), `model.ts:25` (type).
 - **Category:** proto-architectural-leak — `Proto` infix / nested-enum
   underscore.
 - **Current:** `ArtifactMatcher_MatchType` (with an inline
@@ -68,13 +67,3 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
   the codebase already disables its own naming-convention lint rule to let
   this through. The identifier leaks the proto/IDL layer into the public
   surface of the package.
-
----
-
-## Observations (Repo-wide conventions, not local defects)
-
-### O1. `…Info` suffix repeated across UC types
-
-`ArtifactAllowlistInfo` follows the `CatalogInfo`, `ConnectionInfo`,
-`FunctionInfo`, `ExternalLocationInfo`, `SchemaInfo` pattern. If the
-codebase decides to drop the `Info` suffix, this is one of many to fix.

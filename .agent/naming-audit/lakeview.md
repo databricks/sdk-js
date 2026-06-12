@@ -46,16 +46,19 @@ The product is documented and marketed as "AI/BI Dashboards" (formerly "Lakeview
 
 ### 2. `DashboardView` — single-value enum with a generic, role-obscuring name
 
-**Location:** `src/v1/model.ts:6-9`
+**Location:** `src/v1/model.ts:7-13`
 
 ```ts
-export enum DashboardView {
+export const DashboardView = {
   /** Includes summary metadata from the dashboard. */
-  DASHBOARD_VIEW_BASIC = 'DASHBOARD_VIEW_BASIC',
-}
+  DASHBOARD_VIEW_BASIC: 'DASHBOARD_VIEW_BASIC',
+} as const;
+export type DashboardView =
+  | (typeof DashboardView)[keyof typeof DashboardView]
+  | (string & {});
 ```
 
-The enum has only one member. It exists because the API anticipates further view modes (`DASHBOARD_VIEW_FULL`, etc.).
+The type has only one member. It exists because the API anticipates further view modes (`DASHBOARD_VIEW_FULL`, etc.).
 
 `View` is also a generic name in a Dashboards package (it overloads the HTML/UI sense of "view" with the "field mask" sense — e.g. `proto3` partial-response style).
 
@@ -67,9 +70,9 @@ The enum has only one member. It exists because the API anticipates further view
 
 ### 3. `trashDashboard()` / `TrashDashboardRequest` — verb diverges from the SDK-wide `delete`
 
-**Location:** `src/v1/client.ts:672` (`trashDashboard`), `src/v1/model.ts:421` (`TrashDashboardRequest`)
+**Location:** `src/v1/client.ts:687` (`trashDashboard`), `src/v1/model.ts:432` (`TrashDashboardRequest`)
 
-The method uses `trash` and the type uses `Trash`, while every other CRUD-style endpoint in the Databricks SDK uses `Delete`/`delete`. Alerts had the *exact* same `trash` method/type vocabulary (flagged in `alerts.md` #11 and #12); it was renamed in alerts v2 — leaving Lakeview as an outlier.
+The method uses `trash` and the type uses `Trash`, while CRUD-style endpoints elsewhere in the Databricks SDK use `Delete`/`delete`. The same `trash` method/type vocabulary survives only in `alerts` (`trashAlert` / `TrashAlertRequest`, both v1 and v2, flagged in `alerts.md`) and `queries` (`trashQuery`) — a three-package island against the SDK-wide `delete` verb.
 
 The `trashDashboard()` method (verb `trash`) soft-deletes a dashboard. So the method verb and the type-name suffix share a vocabulary that none of the rest of the SDK uses.
 
@@ -77,7 +80,7 @@ The `trashDashboard()` method (verb `trash`) soft-deletes a dashboard. So the me
 
 **Suggested name:** Rename the method and type to `deleteDashboard` / `DeleteDashboardRequest` so the verb matches the rest of the SDK. The cleanest is to rename method + type together.
 
-**Rationale:** A single coherent verb. The trash → delete method/type migration is partially complete in other packages and lakeview is behind.
+**Rationale:** A single coherent verb. The `alerts`, `queries`, and `lakeview` soft-delete endpoints are the only places in the SDK that spell delete as `trash`.
 
 ---
 
@@ -85,7 +88,7 @@ The `trashDashboard()` method (verb `trash`) soft-deletes a dashboard. So the me
 
 ### 4. `MigrateDashboardRequest` / `migrateDashboard` — vague action verb
 
-**Location:** `src/v1/model.ts:285`, `src/v1/client.ts:585`
+**Location:** `src/v1/model.ts:297`, `src/v1/client.ts:597`
 
 "Migrate" can mean (a) copy and convert, (b) move-and-delete-source, (c) rewrite-in-place. The JSDoc on the method ("Migrates a classic SQL dashboard to Lakeview.") suggests (a): the source dashboard remains, a new AI/BI dashboard is created. The verb does not encode this.
 
@@ -97,7 +100,7 @@ The `trashDashboard()` method (verb `trash`) soft-deletes a dashboard. So the me
 
 ### 5. `trashDashboard` — soft-delete method without a paired restore (see also #3)
 
-**Location:** `src/v1/client.ts:672`
+**Location:** `src/v1/client.ts:687`
 
 Beyond the verb-mismatch flagged in #3, the `trashDashboard` method is paired with no `restoreDashboard` or `untrashDashboard`. The method soft-deletes the dashboard, but the API doesn't expose how to undo it via the SDK — a caller has to use `updateDashboard(...)` to reactivate it. Discovery from method names alone gives no hint that "restore" exists.
 
@@ -109,7 +112,7 @@ Beyond the verb-mismatch flagged in #3, the `trashDashboard` method is paired wi
 
 ### 6. `PublishDashboardRequest` vs `PublishedDashboard` — adjacent names with different roles
 
-**Location:** `src/v1/model.ts:299`, `src/v1/model.ts:315`
+**Location:** `src/v1/model.ts:311`, `src/v1/model.ts:327`
 
 `PublishDashboardRequest` is the input to `publishDashboard()`. `PublishedDashboard` is the response. The names are one letter apart (`Publish*` vs `Published*`). A code reader picking either out of an auto-complete list can grab the wrong one and the compiler will not immediately tell them apart at construction time — both are records with `warehouseId?: string`.
 

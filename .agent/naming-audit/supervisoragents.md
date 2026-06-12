@@ -11,13 +11,12 @@ resource types: `SupervisorAgent` (top-level), `Tool` (child of
 in-context steering). Every list endpoint paginates via
 `pageSize`/`pageToken`. No state enums exist in this package; the entire
 surface is data plus references to other Databricks resources.
-**Total weird names flagged:** 4
+**Total weird names flagged:** 2
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 2 |
-| Observation | 2 |
 
 ## High severity
 
@@ -32,13 +31,3 @@ surface is data plus references to other Databricks resources.
 - **Category:** 1 (vague/generic).
 - **Suggested name:** `AgentTool`, `SupervisorTool`, or `RegisteredTool`. The qualifier disambiguates against generic `Tool` collisions in a multi-package import set.
 - **Rationale:** Same reasoning as #1; specificity in type names prevents alias collisions and makes import lists self-documenting.
-
-## Observations
-
-### 3. Action verbs in `Client` are consistent — `src/v1/client.ts`
-- **Why weird:** The client uses `create`/`delete`/`get`/`list`/`update` — no `fetch`/`retrieve`/`read`/`remove`. This is good. Flagging as a *positive* observation.
-- **Category:** 17 (reversed — consistency note).
-
-### 4. Method-name verb conventions match resource targets — `src/v1/client.ts:89,118,150,191,213,235,257,285,313,338,392,449,503,547,594`
-- **Why weird:** Methods are uniformly `verb` + `Subject` (createExample, createSupervisorAgent, createTool, deleteExample, deleteSupervisorAgent, deleteTool, getExample, getSupervisorAgent, getTool, listExamples, listSupervisorAgents, listTools, updateExample, updateSupervisorAgent, updateTool). 15 methods, 5 verbs × 3 subjects, no exceptions. Strong positive observation.
-- **Category:** 17 (positive observation).

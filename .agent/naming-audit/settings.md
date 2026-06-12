@@ -3,7 +3,7 @@
 **Path:** `/home/parth.bansal/sdk-js/packages/settings/`
 **Versions audited:** v2
 **Inferred domain:** A "unified" generic settings/user-preference key/value API (referred to as `settingsv2` in the wire/JSDoc) that exposes a single `Setting` polymorphic value type with multiple typed payload variants. Operates at three scopes — account-level settings, account-level user preferences, and workspace-level settings — via a single set of generic `get*`/`patch*`/`list*Metadata` endpoints.
-**Total weird names flagged:** 20
+**Total weird names flagged:** 19
 
 ---
 
@@ -12,25 +12,24 @@
 | # | Severity | Category | Identifier | File:line |
 |---|----------|----------|------------|-----------|
 | 1 | Critical | Vague package name | `settings` (package) | package level |
-| 2 | High | Vague/generic type | `Setting` | `model.ts:324` |
-| 3 | High | Vague/generic type | `SettingsMetadata` | `model.ts:453` |
-| 4 | High | Suffix tautology + Go-style | `*Message` suffix (`BooleanMessage`, `IntegerMessage`, `StringMessage`, `ClusterAutoRestartMessage`, `PersonalComputeMessage`, `RestrictWorkspaceAdminsMessage`) | `model.ts:111, 194, 471, 115, 311, 315` |
-| 5 | High | Cryptic abbreviation (undefined) | `Aibi` (AI/BI) in `AibiDashboardEmbedding*` | `model.ts:30, 97, 103` |
-| 6 | High | Verb-tense (action-name as type) | `RestrictWorkspaceAdminsMessage` (verb-noun as state type) | `model.ts:315` |
-| 7 | High | Verb-tense | `ClusterAutoRestartMessage` (verb-phrase as state type) | `model.ts:115` |
-| 8 | High | Proto-architectural leak (nested-type underscore syntax) | `AibiDashboardEmbeddingAccessPolicy_AccessPolicyType`, `ClusterAutoRestartMessage_MaintenanceWindow`, `ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule`, `ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime`, `ClusterAutoRestartMessage_EnablementDetails`, `PersonalComputeMessage_PersonalComputeMessageEnum`, `RestrictWorkspaceAdminsMessage_Status` | `model.ts:30, 142, 38, 50, 149, 160, 132, 75, 82` |
-| 9 | High | Proto-architectural leak (`Api` mid-position) | `AllowedAppsUserApiScopesMessage` (`Api` is the wire/proto term — TS surface should drop it) | `model.ts:107, 526, 989` |
-| 10 | Medium | Plural type singular field | `AibiDashboardEmbeddingApprovedDomains` (plural type, singular `approvedDomains` field) | `model.ts:103-104` |
-| 11 | Medium | Redundant `Public` qualifier | `GetPublicAccountSettingRequest`, `PatchPublicAccountSettingRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicWorkspaceSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `PatchPublicAccountUserPreferenceRequest`, and corresponding methods | `model.ts:175, 289, 189, 305, 180, 296`; `client.ts:85, 354, 139, 417, 114, 386` |
-| 12 | Medium | Redundant `Public` qualifier | method names `getPublicAccountSetting`, `patchPublicAccountSetting`, `getPublicWorkspaceSetting`, `patchPublicWorkspaceSetting`, `getPublicAccountUserPreference`, `patchPublicAccountUserPreference` | `client.ts:85, 354, 139, 417, 114, 386` |
-| 13 | Medium | HTTP-verb leak | `patch` for mutation where the SDK convention is `update`/`set` | `client.ts:354, 386, 417` |
-| 14 | Medium | Inconsistent action verb | `patchPublicAccountUserPreference` for setting a preference (vs noun "set" or "put") | `client.ts:386` |
-| 15 | Medium | Long type name | `ListAccountUserPreferencesMetadataResponse` (42 chars) | `model.ts:248` |
-| 16 | Medium | Long type name | `ListAccountUserPreferencesMetadataRequest` (41 chars) | `model.ts:227` |
-| 17 | Medium | Long type name | `PatchPublicAccountUserPreferenceRequest` (39 chars) | `model.ts:296` |
-| 18 | Medium | Proto-architectural leak (request type `Public` infix maps 1:1 to a proto `PublicSettingsService`) | `GetPublicAccountSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicAccountSettingRequest`, `PatchPublicAccountUserPreferenceRequest`, `PatchPublicWorkspaceSettingRequest` (reiterates #11 as a proto-leak category) | `model.ts:175, 180, 189, 289, 296, 305` |
-| 19 | Low | Misleading singular | `IntegerMessage.value` is `number` (TS has no integer/float distinction; "Integer" misleads) | `model.ts:195` |
-| 20 | Low | HTTP-verb leak | `patch` (HTTP idiom) vs `update`/`set` (SDK idiom) | `client.ts:354, 386, 417` |
+| 2 | High | Vague/generic type | `Setting` | `model.ts:353` |
+| 3 | High | Vague/generic type | `SettingsMetadata` | `model.ts:482` |
+| 4 | High | Suffix tautology + Go-style | `*Message` suffix (`BooleanMessage`, `IntegerMessage`, `StringMessage`, `ClusterAutoRestartMessage`, `PersonalComputeMessage`, `RestrictWorkspaceAdminsMessage`) | `model.ts:140, 223, 500, 144, 340, 344` |
+| 5 | High | Cryptic abbreviation (undefined) | `Aibi` (AI/BI) in `AibiDashboardEmbedding*` | `model.ts:34, 126, 132` |
+| 6 | High | Verb-tense (action-name as type) | `RestrictWorkspaceAdminsMessage` (verb-noun as state type) | `model.ts:344` |
+| 7 | High | Verb-tense | `ClusterAutoRestartMessage` (verb-phrase as state type) | `model.ts:144` |
+| 8 | High | Proto-architectural leak (nested-type underscore syntax) | `AibiDashboardEmbeddingAccessPolicy_AccessPolicyType`, `ClusterAutoRestartMessage_MaintenanceWindow`, `ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency`, `ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule`, `ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime`, `ClusterAutoRestartMessage_EnablementDetails`, `PersonalComputeMessage_PersonalComputeMessageEnum`, `RestrictWorkspaceAdminsMessage_Status` | `model.ts:41, 171, 57, 73, 178, 189, 161, 102, 122` |
+| 9 | High | Proto-architectural leak (`Api` mid-position) | `AllowedAppsUserApiScopesMessage` (`Api` is the wire/proto term — TS surface should drop it) | `model.ts:136, 553, 1006` |
+| 10 | Medium | Redundant `Public` qualifier | `GetPublicAccountSettingRequest`, `PatchPublicAccountSettingRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicWorkspaceSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `PatchPublicAccountUserPreferenceRequest`, and corresponding methods | `model.ts:204, 318, 218, 334, 209, 325`; `client.ts:80, 355, 136, 420, 110, 388` |
+| 11 | Medium | Redundant `Public` qualifier | method names `getPublicAccountSetting`, `patchPublicAccountSetting`, `getPublicWorkspaceSetting`, `patchPublicWorkspaceSetting`, `getPublicAccountUserPreference`, `patchPublicAccountUserPreference` | `client.ts:80, 355, 136, 420, 110, 388` |
+| 12 | Medium | HTTP-verb leak | `patch` for mutation where the SDK convention is `update`/`set` | `client.ts:355, 388, 420` |
+| 13 | Medium | Inconsistent action verb | `patchPublicAccountUserPreference` for setting a preference (vs noun "set" or "put") | `client.ts:388` |
+| 14 | Medium | Long type name | `ListAccountUserPreferencesMetadataResponse` (42 chars) | `model.ts:277` |
+| 15 | Medium | Long type name | `ListAccountUserPreferencesMetadataRequest` (41 chars) | `model.ts:256` |
+| 16 | Medium | Long type name | `PatchPublicAccountUserPreferenceRequest` (39 chars) | `model.ts:325` |
+| 17 | Medium | Proto-architectural leak (request type `Public` infix maps 1:1 to a proto `PublicSettingsService`) | `GetPublicAccountSettingRequest`, `GetPublicAccountUserPreferenceRequest`, `GetPublicWorkspaceSettingRequest`, `PatchPublicAccountSettingRequest`, `PatchPublicAccountUserPreferenceRequest`, `PatchPublicWorkspaceSettingRequest` (reiterates #10 as a proto-leak category) | `model.ts:204, 209, 218, 318, 325, 334` |
+| 18 | Low | Misleading singular | `IntegerMessage.value` is `number` (TS has no integer/float distinction; "Integer" misleads) | `model.ts:224` |
+| 19 | Low | HTTP-verb leak | `patch` (HTTP idiom) vs `update`/`set` (SDK idiom) | `client.ts:355, 388, 420` |
 
 ---
 
@@ -49,21 +48,21 @@
 
 ### 2. `Setting` — extreme generic risk
 
-- **File:line:** `model.ts:324-451`
+- **File:line:** `model.ts:353-480`
 - **Category:** Vague/generic, reserved-word risk
 - **Suggestion:** `UnifiedSetting`, `SettingValue`, or `KeyedSetting`. The Setting concept here is "a name plus a polymorphic value plus a polymorphic effective value" — none of those properties match the bare word "Setting" without context.
 - **Rationale:** `Setting` is one of the most overloaded single words in software (UI settings, settings menu, settings file, configuration setting, etc.). Inside a "settings" package, the type `Setting` reads like "the thing this package is about" — but the package has other top-level types (`UserPreference`, `SettingsMetadata`, and the wrapper messages). The bare name encourages a `import {Setting}` that competes with React UI `Setting` types, Node `process.config` settings, etc.
 
 ### 3. `SettingsMetadata` — plural type, singular use
 
-- **File:line:** `model.ts:453-469`
+- **File:line:** `model.ts:482-498`
 - **Category:** Vague + singular/plural mismatch
 - **Suggestion:** `SettingMetadata` (singular). The type describes metadata about *one* setting; lists are `SettingMetadata[]`. The current `SettingsMetadata` reads as "all metadata about all settings" which is what the *array* of these things represents — not the element.
-- **Rationale:** The field `settingsMetadata?: SettingsMetadata[]` (`model.ts:219, 250, 277`) doubles the plural — "settings metadatas" — and an item from the array `settingsMetadata[0]` then has the type `SettingsMetadata` even though it's one row. Standard practice is singular type, plural field/array (e.g. `User`, `users: User[]`).
+- **Rationale:** The field `settingsMetadata?: SettingsMetadata[]` (`model.ts:248, 279, 306`) doubles the plural — "settings metadatas" — and an item from the array `settingsMetadata[0]` then has the type `SettingsMetadata` even though it's one row. Standard practice is singular type, plural field/array (e.g. `User`, `users: User[]`).
 
 ### 4. `*Message` suffix — Go/proto-style
 
-- **File:line:** `model.ts:111, 194, 471, 115, 311, 315`
+- **File:line:** `model.ts:140, 223, 500, 144, 340, 344`
 - **Category:** Suffix tautology / Go-style
 - **Identifiers:** `BooleanMessage`, `IntegerMessage`, `StringMessage`, `ClusterAutoRestartMessage`, `PersonalComputeMessage`, `RestrictWorkspaceAdminsMessage` (and `AllowedAppsUserApiScopesMessage`, `CollaborationPlatformConnectivityMessage`, `OperationalEmailCustomRecipientMessage`).
 - **Suggestion:** Drop `Message`. Rename `ClusterAutoRestartMessage → ClusterAutoRestart`, `RestrictWorkspaceAdminsMessage → RestrictWorkspaceAdmins`, etc. The "Message" suffix is the protobuf convention for "everything is a Message"; in TS where "everything is an interface", the suffix is noise.
@@ -71,21 +70,21 @@
 
 ### 5. `Aibi` — undefined cryptic abbreviation (AI/BI)
 
-- **File:line:** `model.ts:30, 97, 103`
+- **File:line:** `model.ts:34, 126, 132`
 - **Category:** Cryptic abbreviation
 - **Suggestion:** Spell out as `AiBi` for the AI/BI Genie embedding feature, and add a top-of-file `@module` doc explaining: "AI/BI = Databricks's AI- and BI-powered dashboards product."
 - **Rationale:** "Aibi" is not a recognised English word and is not defined anywhere in this file. A reader has to know the Databricks product naming.
 
 ### 6–7. Verb-tense action-as-noun naming
 
-- **File:line:** `model.ts:315 (RestrictWorkspaceAdminsMessage), 115 (ClusterAutoRestartMessage)`
+- **File:line:** `model.ts:344 (RestrictWorkspaceAdminsMessage), 144 (ClusterAutoRestartMessage)`
 - **Category:** Verb-tense inconsistency
 - **Suggestion:** Types describing *state* should be nouns: `WorkspaceAdminRestriction`, `ClusterAutoRestart` (or `ClusterAutoRestartConfig`).
 - **Rationale:** Standard naming: imperative verbs for actions/methods; nouns for state types.
 
 ### 8. Proto-nested underscore type naming — proto-architectural leak
 
-- **File:line:** `model.ts:30, 142, 38, 50, 149, 160, 132, 75, 82` (and the corresponding marshal/unmarshal schema declarations)
+- **File:line:** `model.ts:41, 171, 57, 73, 178, 189, 161, 102, 122` (and the corresponding marshal/unmarshal schema declarations)
 - **Category:** Proto-architectural leak (nested-message naming)
 - **Why:** Every nested type carries an `eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested ... name.` comment — an explicit admission that the TS surface is wearing proto-generated shape. Examples:
   - `AibiDashboardEmbeddingAccessPolicy_AccessPolicyType`
@@ -102,7 +101,7 @@
 
 ### 9. `AllowedAppsUserApiScopesMessage` — `Api` mid-position proto leak
 
-- **File:line:** `model.ts:107, 526 (unmarshal), 989 (marshal)`
+- **File:line:** `model.ts:136, 553 (unmarshal), 1006 (marshal)`
 - **Category:** Proto-architectural leak (`Api` mid-position) + `*Message` suffix (covered in #4)
 - **Why:** `Api` appears mid-name in a domain type that models *what user-OAuth scopes apps may be granted*. The "Api" half describes the **wire/proto** medium ("user-API scopes") rather than the domain concept (OAuth scopes).
 - **Suggestion:** `AllowedAppsUserScopes` (drop `Api`, drop `Message`). The discriminator value `allowedAppsUserApiScopes` and wire key `allowed_apps_user_api_scopes` would remain wire-side; the TS surface should not carry the proto-medium descriptor.
@@ -112,42 +111,36 @@
 
 ## Medium severity
 
-### 10. `AibiDashboardEmbeddingApprovedDomains` — plural type, singular use
+### 10. `*Public*` qualifier — redundant
 
-- **File:line:** `model.ts:103-104`
-- **Category:** Singular/plural mismatch
-- **Suggestion:** Either keep plural type with plural field (current state — `approvedDomains: string[]`) or move to singular type representing one approved domain and let consumers hold `ApprovedDomain[]`. Current naming is internally consistent but the *type* is plural which is unusual.
-
-### 11. `*Public*` qualifier — redundant
-
-- **File:line:** `model.ts:175, 289, 189, 305, 180, 296`
+- **File:line:** `model.ts:204, 318, 218, 334, 209, 325`
 - **Category:** Redundant qualifier
-- **Suggestion:** Drop `Public` from request type names (and method names — #12). `GetAccountSettingRequest`/`getAccountSetting` is shorter and equally specific.
+- **Suggestion:** Drop `Public` from request type names (and method names — #11). `GetAccountSettingRequest`/`getAccountSetting` is shorter and equally specific.
 - **Rationale:** If everything is "public" (vs internal), the qualifier carries no information. The Go SDK upstream uses the same word probably because the proto service is named `PublicSettingsService` to disambiguate from internal admin services — but the JS SDK only ships the public surface, so the qualifier is redundant.
 
-### 12. Method names: `getPublic*`, `patchPublic*` — redundant `Public`
+### 11. Method names: `getPublic*`, `patchPublic*` — redundant `Public`
 
-- **File:line:** `client.ts:85, 354, 139, 417, 114, 386`
+- **File:line:** `client.ts:80, 355, 136, 420, 110, 388`
 - **Category:** Redundant qualifier + verbose
 - **Suggestion:** `getAccountSetting`, `patchAccountSetting`, etc.
 
-### 13. `patch*` — HTTP-verb leak where the SDK convention is `update`/`set`
+### 12. `patch*` — HTTP-verb leak where the SDK convention is `update`/`set`
 
-- **File:line:** `client.ts:354, 386, 417` (use `patch`)
+- **File:line:** `client.ts:355, 388, 420` (use `patch`)
 - **Category:** HTTP-verb leak / inconsistent action verb
 - **Suggestion:** Pick an SDK-domain verb. `update` (for the setting mutations) or `set`/`put` (for the user-preference replacement) reads more like an SDK operation than the raw HTTP method `patch`.
 - **Rationale:** The method name echoes the HTTP verb (`PATCH`) rather than the domain action. Mutation methods elsewhere in the SDK favor `update`/`set`; `patch` leaks the transport idiom onto the public surface and breaks muscle memory for users scanning for an `update*` method.
 
-### 14. `patchPublicAccountUserPreference` (single user-pref item) — overly verbose action
+### 13. `patchPublicAccountUserPreference` (single user-pref item) — overly verbose action
 
-- **File:line:** `client.ts:386`
+- **File:line:** `client.ts:388`
 - **Category:** Inconsistent + verbose
 - **Suggestion:** `setAccountUserPreference` or `putAccountUserPreference`.
 - **Rationale:** For setting a single preference, `set*` is the conventional SDK verb. `patch*` implies partial-update; this endpoint replaces the whole preference.
 
-### 15–17. Long type names
+### 14–16. Long type names
 
-- **File:line:** `model.ts:248, 227, 296`
+- **File:line:** `model.ts:277, 256, 325`
 - **Category:** Overly verbose
 - **Identifiers:**
   - `ListAccountUserPreferencesMetadataResponse` (42 chars)
@@ -155,37 +148,25 @@
   - `PatchPublicAccountUserPreferenceRequest` (39 chars)
 - **Suggestion:** After applying the suggested simplifications (drop `Public`), names shorten naturally: `ListUserPreferencesMetadataResponse`, etc.
 
-### 18. `*Public*` qualifier as proto-architectural leak (reframe of #11)
+### 17. `*Public*` qualifier as proto-architectural leak (reframe of #10)
 
-- **File:line:** `model.ts:175, 180, 189, 289, 296, 305`; `client.ts:85, 114, 139, 354, 386, 417`
+- **File:line:** `model.ts:204, 209, 218, 318, 325, 334`; `client.ts:80, 110, 136, 355, 388, 420`
 - **Category:** Proto-architectural leak (`Public` mid-position)
 - **Why:** `Public` in `GetPublic*Request`, `PatchPublic*Request`, and method names `getPublic*`/`patchPublic*` is a direct echo of the proto service-name `PublicSettingsService` — i.e., the *server-side* internal-vs-public service split. The TS SDK only ships the public surface, so the qualifier signals nothing the user can act on.
 - **Suggestion:** Drop `Public` from every request type and every method name. `GetAccountSettingRequest`/`getAccountSetting`, `PatchAccountSettingRequest`/`patchAccountSetting`, etc.
-- **Rationale:** This duplicates #11 and #12 but reframes them as a *proto-architectural leak* per the scan brief. The two earlier findings catalogued the names; this one names the cause.
+- **Rationale:** This duplicates #10 and #11 but reframes them as a *proto-architectural leak* per the scan brief. The two earlier findings catalogued the names; this one names the cause.
 
 ---
 
 ## Low severity
 
-### 19. `IntegerMessage` misleading in JS
+### 18. `IntegerMessage` misleading in JS
 
-- **File:line:** `model.ts:194-196`
+- **File:line:** `model.ts:223-225`
 - **Category:** Misleading
 - **Suggestion:** The "Integer" half of the name is misleading — JS has no distinct integer type, and the `value` field is typed `number` (i.e. IEEE-754 double). A neutral name like `NumberMessage` would be honest about the runtime type.
 - **Rationale:** A reader seeing `IntegerMessage` may assume validation, bigint, or some integer-preserving codec. None is present.
 
-### 20. `patch*` vs `update*`/`set*`
+### 19. `patch*` vs `update*`/`set*`
 
-- See #13.
-
----
-
-## Observations
-
-1. **`Setting`, `SettingsMetadata`, `UserPreference` are all underspecific.** The package theme is "settings v2", but the central types use the bare word "Setting" without qualification. This is the single biggest naming risk in the package — a user importing `Setting` from `@databricks/sdk-settings/v2` will clash with any application-level `Setting` type in seconds.
-
-2. **`patch` leaks the HTTP verb onto the public surface.** The mutation methods are named `patch*`, echoing the `PATCH` HTTP method rather than a domain action like `update`/`set`. Same wire verb (PATCH HTTP); the SDK-domain name would read more naturally and is easier to discover.
-
-3. **`Aibi` is an undefined abbreviation.** It is not expanded anywhere in the package — `Aibi` (AI/BI) only appears inside type names. A package-level glossary (or spelling it out in the type identifiers) would be high-ROI and zero-risk.
-
-4. **`patchPublic*` is six syllables and four word-roots for a single PATCH call.** `patch` + `Public` + (`Account` | `Workspace`) + (`Setting` | `UserPreference`) + `Request` accumulates fast. After dropping `Public` and `Request`, names like `patchAccountSetting` would be drastically more usable.
+- See #12.

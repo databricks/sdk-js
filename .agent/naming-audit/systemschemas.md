@@ -3,7 +3,7 @@
 **Path:** `packages/uc/systemschemas/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog *system schemas* (curated, server-managed schemas such as `access`, `billing`, `lineage`, `query`) — enable/disable a system schema in a metastore and list the system schemas under a metastore.
-**Total weird names flagged:** 4
+**Total weird names flagged:** 3
 
 ## Summary
 | Severity | Count |
@@ -11,7 +11,6 @@
 | High | 1 |
 | Medium | 1 |
 | Low | 1 |
-| Observation | 1 |
 
 ## High severity
 
@@ -31,13 +30,8 @@
 
 ## Low severity
 
-### 3. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:49`, `client.ts:190`
-- **Why weird:** `listSystemSchemasIter` (client.ts:190) checks `resp.nextPageToken === undefined || resp.nextPageToken === ''` to know it's done — i.e., the wire uses an empty string as a sentinel. The TS type `nextPageToken: string | undefined` doesn't capture this contract; readers must inspect the iterator code to learn that `''` is a terminator.
+### 3. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:49`, `client.ts:192`
+- **Why weird:** `listSystemSchemasIter` (client.ts:192) checks `resp.nextPageToken === undefined || resp.nextPageToken === ''` to know it's done — i.e., the wire uses an empty string as a sentinel. The TS type `nextPageToken: string | undefined` doesn't capture this contract; readers must inspect the iterator code to learn that `''` is a terminator.
 - **Category:** 6 (misleading — type allows `''` but doc says "Absent if there are no more pages"), 16 (field-vs-doc mismatch).
 - **Suggested name:** Keep the name; tighten the contract by replacing `''` with `undefined` in the zod transform (model.ts:76-79) so callers see a consistent sentinel.
 - **Rationale:** A naming review surfaces the contract drift even though the renaming target is the marshaller, not the field.
-
-## Observations
-
-### 4. Action-verb consistency in `SystemSchemasClient`
-Methods are `disableSystemSchema`, `enableSystemSchema`, `listSystemSchemas` — no mixed `delete`/`remove` or `fetch`/`get`. The pair `enable` / `disable` is also a clean antonym, which is good. Flagged per rule 17 because the audit asked for inconsistency *and* notable consistency.

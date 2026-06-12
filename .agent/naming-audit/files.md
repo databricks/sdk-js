@@ -3,13 +3,12 @@
 **Path:** `packages/files/src/v2/`
 **Versions audited:** v2
 
-**Total weird names flagged:** 2
+**Total weird names flagged:** 1
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 1 |
-| Low | 1 |
 
 ## High severity
 
@@ -29,13 +28,3 @@ export interface CreateRequest {
 - **Category:** 6 (misleading — name says "create" but action is "open").
 - **Suggested name:** `OpenWriteStreamRequest` / `DbfsOpenWriteRequest` (response: `DbfsWriteHandle`).
 - **Rationale:** Method name should reflect action; right now `create` and `createDirectory` look like sibling actions when they are entirely different (create-handle vs create-resource).
-
-## Low severity
-
-### 2. `overwrite` — same — `src/v2/model.ts:36,245,279`
-
-```ts
-overwrite?: boolean | undefined;
-```
-
-Appears in `CreateRequest`, `PutRequest`, `UploadFileRequest` with subtly different defaults. `UploadFileRequest`'s docstring says "If true or unspecified, an existing file will be overwritten" (default-true), while `CreateRequest` says "specifies whether to overwrite existing file/files" (default not specified, but in fact false on the wire). Same field name, opposite defaults — a footgun.

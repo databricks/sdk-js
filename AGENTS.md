@@ -166,6 +166,15 @@ Each per-package audit follows a fixed structure: a summary table, then
 issue. Each finding cites `file:line`, the category, a suggested name, and
 the rationale.
 
+**No history retention.** The audit is a live, current-state snapshot. It
+must read as if generated from scratch against the current source, never as
+a series of patches over earlier versions. NEVER keep a `## Fixed` section,
+a prune-pass or changelog log, "down from N" waypoint history, or
+"Last rescanned" / "Status" change-notes — in any per-package audit or in
+`_SUMMARY.md`. When a finding is fixed (workflow A) or pruned (workflows B
+and C), delete it cleanly with no trace. `_SUMMARY.md` shows only the
+current totals, themes, and findings, never how it got there.
+
 Two reduction workflows keep the audit current. Both spawn one
 `general-purpose` agent per API package in parallel batches of ~30-40 to
 avoid collision in reasoning. Always omit the `model` parameter so
@@ -191,15 +200,18 @@ and asks to re-validate the audit. Phrasings like "rescan the audit",
      line number; update the line number in place.
    - **Superseded** — the symbol exists but the original concern shifted
      into a different category; rewrite the finding.
-4. Delete fixed findings from the active `High`/`Medium`/`Low` sections.
-   Append them to a `## Fixed` section at the bottom of the file with a
-   one-line note (`Fixed in regeneration on YYYY-MM-DD`).
-5. Recompute the summary table totals.
+4. Delete fixed findings outright — remove them from the file entirely,
+   exactly as workflow B removes a pruned finding. Do NOT add a `## Fixed`
+   section, a "Fixed in regeneration" note, or any other record of what was
+   removed (see "No history retention" above).
+5. Renumber remaining findings sequentially and recompute the summary table
+   totals.
 
 **After every agent finishes:** regenerate `_SUMMARY.md` so the
 cross-package totals, theme counts, and by-the-numbers table reflect the
-new state. Do not edit `_SUMMARY.md` by hand; spawn a synthesis agent
-that re-reads every per-package audit.
+current state — current state ONLY, with no prune-pass log, no "down from
+N" waypoint history, and no rescan changelog. Do not edit `_SUMMARY.md` by
+hand; spawn a synthesis agent that re-reads every per-package audit.
 
 ### B. Prune a recommendation category
 

@@ -15,13 +15,13 @@
 ## High severity
 
 ### 1. `AdminTokenInfo` — `Info` is a vague suffix, package-specific prefix is misleading
-- **Why weird:** `AdminTokenInfo` is the central domain entity but `Info` is a generic suffix that adds nothing — every type is "info about something". `Admin` is a prefix that comes from this being the admin-API variant but is meaningless once you've imported from `@databricks/sdk-tokenmanagement`. Compare to the sibling `tokens` package which calls its entity `PublicTokenInfo` (also `Info`-suffixed) — neither name reads well. `src/v1/model.ts:23`.
+- **Why weird:** `AdminTokenInfo` is the central domain entity but `Info` is a generic suffix that adds nothing — every type is "info about something". `Admin` is a prefix that comes from this being the admin-API variant but is meaningless once you've imported from `@databricks/sdk-tokenmanagement`. Compare to the sibling `tokens` package which calls its entity `PublicTokenInfo` (also `Info`-suffixed) — neither name reads well. `src/v1/model.ts:27`.
 - **Category:** 1 (vague suffix `Info`), 8 (redundant type suffix), 15 (generic suffix that loses meaning).
 - **Suggested name:** `Token` (or `ManagedToken` if `Token` would clash with a class on the consumer side; given this is exported from `@databricks/sdk-tokenmanagement/v1`, `Token` is fine).
 - **Rationale:** `Token` is the noun the user thinks about. `Info` is a Go-SDK tic; TS does not need it.
 
 ### 2. Client method `deleteToken` wraps request type `RevokeTokenRequest` — verb-tense inconsistency
-- **Why weird:** `client.deleteToken(req: RevokeTokenRequest)` at `client.ts:108-133` with the type defined at `model.ts:110`. The method says "delete" but the request type, request handler, and HTTP behavior is "revoke". The HTTP method is `DELETE` and the URL is `/tokens/{id}`, so REST-style "delete" is reasonable for the method, but then the request type should match — or the method should be `revokeToken` to match the type. The sibling `tokens` package uses `revokeToken` consistently.
+- **Why weird:** `client.deleteToken(req: RevokeTokenRequest)` at `client.ts:108-134` with the type defined at `model.ts:114`. The method says "delete" but the request type, request handler, and HTTP behavior is "revoke". The HTTP method is `DELETE` and the URL is `/tokens/{id}`, so REST-style "delete" is reasonable for the method, but then the request type should match — or the method should be `revokeToken` to match the type. The sibling `tokens` package uses `revokeToken` consistently.
 - **Category:** 13 (verb-tense inconsistency between method and request type), 17 (inconsistent action verbs across the two packages: `tokenmanagement.deleteToken` vs `tokens.revokeToken` for the same kind of operation).
 - **Suggested name:** Either rename method to `revokeToken` (matches type and matches sibling package) or rename type to `DeleteTokenRequest` (matches HTTP verb). Recommend the former so both packages share a verb.
 - **Rationale:** "Revoke" carries a security/lifecycle meaning that "delete" loses; tokens aren't deleted from history, they're invalidated.
@@ -29,7 +29,7 @@
 ## Medium severity
 
 ### 3. `CreateOnBehalfOfTokenRequest` — preposition phrase inside type name
-- **Why weird:** The type name contains "OnBehalfOf" — a preposition phrase. Reads as "create on behalf of token request" when the intent is "request to create [on-behalf-of token]" (parse: a kind of token). `model.ts:53`. Industry shorthand is "OBO" but the SDK avoids the acronym.
+- **Why weird:** The type name contains "OnBehalfOf" — a preposition phrase. Reads as "create on behalf of token request" when the intent is "request to create [on-behalf-of token]" (parse: a kind of token). `model.ts:57`. Industry shorthand is "OBO" but the SDK avoids the acronym.
 - **Category:** 7 (overly verbose), 14 (Go/Java-style camelCase verb phrase).
 - **Suggested name:** `CreateOboTokenRequest` (with JSDoc spelling out OBO), or `MintTokenForServicePrincipalRequest` if explicitness wins over brevity.
 - **Rationale:** This is the only operation in the package whose name relies on the preposition; surfacing the intent (mint a token for someone else) helps. Defensible as-is.

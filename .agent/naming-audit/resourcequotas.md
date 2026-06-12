@@ -8,30 +8,23 @@
 
 ## Summary
 
-| Severity    | Count |
-| ----------- | ----- |
-| High        | 1     |
-| Medium      | 1     |
-| Low         | 1     |
-| Observation | 1     |
-| **Total**   | **4** |
+| Severity  | Count |
+| --------- | ----- |
+| High      | 0     |
+| Medium    | 1     |
+| Low       | 1     |
+| **Total** | **2** |
 
 
 Headline themes:
 
-1. **Singular/plural mismatch on the `listQuota` / `listQuotaIter` methods.** The package name (`resourcequotas`), HTTP path (`/all-resource-quotas`), and request/response types (`ListQuotasRequest`, `ListQuotasResponse`) are all plural, but the client methods are `listQuota` / `listQuotaIter` (singular). This is the most user-visible naming defect.
+1. **Redundant `Info` suffix on the core record type.** `QuotaInfo` is the quota record itself; the bare noun `Quota` is free and reads more naturally. This mirrors the repo-wide `*Info` suffix pattern (see `catalogs.md`).
 
 ---
 
 ## High Severity
 
-### H1. Method names `listQuota` / `listQuotaIter` are singular but return / paginate a list
-
-- **File / line:** `src/v1/client.ts:103` (`async listQuota(...)`); `src/v1/client.ts:139` (`async *listQuotaIter(...)`).
-- **Category:** #9 singular/plural mismatch; #15 generic-name losing meaning.
-- **Current:** `async listQuota(req: ListQuotasRequest, options?): Promise<ListQuotasResponse>`; `async *listQuotaIter(req: ListQuotasRequest, options?): AsyncGenerator<QuotaInfo>`.
-- **Suggestion:** `listQuotas` / `listQuotasIter`.
-- **Rationale:** The request type is `ListQuotasRequest` (plural noun), the response is `ListQuotasResponse` carrying `quotas: QuotaInfo[]`, the URL is `/all-resource-quotas`, and the JSDoc explicitly says "ListQuotas returns **all** quota values" (`client.ts:97`). Every neighbouring signal is plural except the method names. Compare to sibling packages (`catalogs.listCatalogs`, `connections.listConnections`, `cleanrooms.listCleanRooms`), all of which use the plural verb. This is a 1-character defect with high user impact, and now duplicated on the generator-added `listQuotaIter` paginator.
+_None._
 
 ---
 
@@ -39,11 +32,11 @@ Headline themes:
 
 ### M1. `QuotaInfo` carries the redundant `Info` suffix
 
-- **File / line:** `src/v1/model.ts:58`.
+- **File / line:** `src/v1/model.ts:62`.
 - **Category:** #8 redundant suffix; #14 Go/Java-style name.
 - **Current:** `interface QuotaInfo`.
 - **Suggestion:** `Quota`.
-- **Rationale:** "Info" adds no semantic content — the type *is* the quota record returned by the API. The codebase has no type named bare `Quota`; the natural noun is free. This mirrors the `CatalogInfo`/`ConnectionInfo` discussion in `catalogs.md` §8.1 — repo-wide pattern, flagged here for completeness. See also Observation O1.
+- **Rationale:** "Info" adds no semantic content — the type *is* the quota record returned by the API. The codebase has no type named bare `Quota`; the natural noun is free. This mirrors the `CatalogInfo` discussion in `catalogs.md` §2.1 — repo-wide pattern.
 
 ---
 
@@ -51,16 +44,8 @@ Headline themes:
 
 ### L1. `req` parameter name on every client method
 
-- **File / line:** `src/v1/client.ts:70, 104, 140`.
+- **File / line:** `src/v1/client.ts:69, 104, 141`.
 - **Category:** #5 cryptic abbreviation; #14 Go-style name.
-- **Current:** `req: GetQuotaRequest`, `req: ListQuotasRequest` (twice, once on `listQuota` and once on `listQuotaIter`).
+- **Current:** `req: GetQuotaRequest`, `req: ListQuotasRequest` (twice, once on `listQuotas` and once on `listQuotasIter`).
 - **Suggestion:** `request`.
-- **Rationale:** Throughout the JS/TS ecosystem function parameters are spelled out. The Go `req`/`resp` idiom reads as Go-translated. The companion `resp` shows up at `client.ts:74, 87, 90, 93, 117, 130, 133, 136` — same shorthand, lower priority.
-
----
-
-## Observations (repo-wide conventions, not local defects)
-
-### O1. `…Info` suffix repeated across UC types
-
-`QuotaInfo` mirrors `CatalogInfo`, `ConnectionInfo`, `FunctionInfo`, `ExternalLocationInfo`, `SchemaInfo`. If the codebase decides to drop the `Info` suffix, this is one of many.
+- **Rationale:** Throughout the JS/TS ecosystem function parameters are spelled out. The Go `req`/`resp` idiom reads as Go-translated. The companion `resp` shows up at `client.ts:74, 87, 90, 93, 118, 131, 134, 137` — same shorthand, lower priority.

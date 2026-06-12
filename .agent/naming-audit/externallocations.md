@@ -1,8 +1,8 @@
 # Naming Audit: externallocations
 
-**Path:** `packages/externallocations/src/v1/`
+**Path:** `packages/uc/externallocations/src/v1/`
 **Versions audited:** v1
-**Package name:** `@databricks/sdk-externallocations` (workspace package; the
+**Package name:** `@databricks/sdk-uc-externallocations` (workspace package; the
 folder is one word `externallocations`, no hyphen, no underscore).
 **Total weird names flagged:** 2
 
@@ -12,8 +12,8 @@ folder is one word `externallocations`, no hyphen, no underscore).
 
 | #   | Name                | File           | Kind | Severity | Category                                            | Issue (one-liner)                                                                                                                                                                                                                                                              |
 | --- | ------------------- | -------------- | ---- | -------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `AzureQueueStorage` | model.ts:27    | type | Medium   | 6 Misleading names                                  | The Azure product is "Azure Queue Storage", which the wire/`provided_aqs`/`managed_aqs` shortens to AQS. So `AzureQueueStorage` is the long name, but two of its callers (`providedAqs`/`managedAqs` fields and case literals) use the AQS abbreviation. Pick one canonical form. |
-| 2   | `ExternalLocationInfo` | model.ts:121 | type | Medium   | 16 Proto-architectural-leak names, 7 Overly verbose | The `Info` suffix is a Go/proto convention for the resource-representation message; in idiomatic TS the type for "an external location" is just `ExternalLocation`. The suffix carries no semantic value (there is no `ExternalLocation` vs `ExternalLocationInfo` distinction) and adds noise to every reference (`Promise<ExternalLocationInfo>`, `ExternalLocationInfo[]`). |
+| 1   | `AzureQueueStorage` | model.ts:35    | type | Medium   | 6 Misleading names                                  | The Azure product is "Azure Queue Storage", which the wire/`provided_aqs`/`managed_aqs` shortens to AQS. So `AzureQueueStorage` is the long name, but two of its callers (`providedAqs`/`managedAqs` fields and case literals) use the AQS abbreviation. Pick one canonical form. |
+| 2   | `ExternalLocationInfo` | model.ts:129 | type | Medium   | 16 Proto-architectural-leak names, 7 Overly verbose | The `Info` suffix is a Go/proto convention for the resource-representation message; in idiomatic TS the type for "an external location" is just `ExternalLocation`. The suffix carries no semantic value (there is no `ExternalLocation` vs `ExternalLocationInfo` distinction) and adds noise to every reference (`Promise<ExternalLocationInfo>`, `ExternalLocationInfo[]`). |
 
 ---
 
@@ -41,7 +41,7 @@ idiomatic TS this would just be `ExternalLocation`.
 
 The suffix shows up in every signature touching the resource:
 
-- `Promise<ExternalLocationInfo>` (4 client method return types).
+- `Promise<ExternalLocationInfo>` (3 client method return types).
 - `ExternalLocationInfo[]` in `ListExternalLocationsResponse`.
 - `AsyncGenerator<ExternalLocationInfo>` in the iter method.
 

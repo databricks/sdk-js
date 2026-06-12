@@ -2,7 +2,7 @@
 
 **Path:** `packages/accessmanagement/src/v1/`
 **Versions audited:** v1
-**Total weird names flagged:** 12
+**Total weird names flagged:** 11
 
 ## Summary
 | Severity | Count |
@@ -10,13 +10,13 @@
 | High | 3 |
 | Medium | 5 |
 | Low | 2 |
-| Observation | 2 |
+| Observation | 1 |
 
 ---
 
 ## High severity
 
-### 1. `CAN_MANAGE_STAGING_VERSIONS` / `CAN_MANAGE_PRODUCTION_VERSIONS` / `CAN_CREATE_APP` — `src/v1/model.ts:17,18,26`
+### 1. `CAN_MANAGE_STAGING_VERSIONS` / `CAN_MANAGE_PRODUCTION_VERSIONS` / `CAN_CREATE_APP` — `src/v1/model.ts:18,19,27`
 - **Why weird:** Three values are specific to one object type each
   (`registered-models` in MLflow Model Registry, and Databricks Apps), but
   live in a universal `PermissionLevel` enum applicable to 25+ object
@@ -34,7 +34,7 @@
   discoverability hazard; users browsing autocomplete will see these as
   valid choices for clusters, jobs, and dashboards.
 
-### 2. `RequestAuthzIdentity` enum name — `Request` prefix and `Authz` truncation — `src/v1/model.ts:33-37`
+### 2. `RequestAuthzIdentity` enum name — `Request` prefix and `Authz` truncation — `src/v1/model.ts:38-46`
 - **Why weird:** The type name starts with `Request` — a wire-format
   message prefix (`RequestAuthzIdentity` reads as "the AuthzIdentity field
   on a request message"). The mid-name truncation `Authz` (instead of
@@ -50,16 +50,16 @@
   containing `CheckPolicyRequest`. The `Authz` truncation is fine in code
   comments but jars on a public, exported enum.
 
-### 3. `getRuleSetProxy`, `listAssignableRolesForResourceProxy`, `updateRuleSetProxy` — `src/v1/client.ts:257,331,397`
+### 3. `getRuleSetProxy`, `listAssignableRolesForResourceProxy`, `updateRuleSetProxy` — `src/v1/client.ts:257,333,401`
 - **Why weird:** Three methods carry the `Proxy` suffix and are
-  byte-for-byte identical to their non-`Proxy` siblings (lines 220, 294,
-  368). They issue the same HTTP request to the same URL with the same
+  byte-for-byte identical to their non-`Proxy` siblings (lines 219, 295,
+  371). They issue the same HTTP request to the same URL with the same
   headers. The `Proxy` suffix communicates an architectural concept —
   these are the same operation routed through a proxy server in the
   Databricks control plane — that has zero meaning for a TypeScript SDK
-  caller. The same finding triggered the prior
-  `accountaccesscontrolproxy` package removal; the duplicate-method
-  echo of it now lives inside this package.
+  caller. The `Proxy` variants are the operations of the formerly
+  separate `accountaccesscontrolproxy` service, folded into this
+  package as duplicate methods.
 - **Category:** Proto-architectural / backend-routing leak; duplicate
   concept exposed twice.
 - **Suggested name:** Delete the `*Proxy` variants entirely. If the
@@ -73,7 +73,7 @@
 
 ## Medium severity
 
-### 4. `ListAssignableRolesForResource*` "ForResource" verbosity — `src/v1/model.ts:194,210`, `src/v1/client.ts:294`
+### 4. `ListAssignableRolesForResource*` "ForResource" verbosity — `src/v1/model.ts:207,223`, `src/v1/client.ts:295`
 - **Why weird:** 38-character type names
   (`ListAssignableRolesForResourceRequest` /
   `ListAssignableRolesForResourceResponse`). The "ForResource" suffix is
@@ -88,7 +88,7 @@
   REST semantics; only the redundant "ForResource" qualifier remains. A
   shorter name is just as unambiguous.
 
-### 5. `PermissionOutput`, `PrincipalOutput`, `WorkspacePermissionAssignmentOutput` `Output` suffix — `src/v1/model.ts:247,265,380`
+### 5. `PermissionOutput`, `PrincipalOutput`, `WorkspacePermissionAssignmentOutput` `Output` suffix — `src/v1/model.ts:260,278,393`
 - **Why weird:** Three types ending with `Output`. In proto / gRPC
   service definitions, message types are commonly named `FooInput`
   (request) and `FooOutput` (response) — the `Output` suffix is the
@@ -104,7 +104,7 @@
 - **Rationale:** Compare `principal: PrincipalOutput` to
   `principal: Principal` — the latter reads as plain English.
 
-### 6. `Permission` type collides with the broader vocabulary — `src/v1/model.ts:241`
+### 6. `Permission` type collides with the broader vocabulary — `src/v1/model.ts:254`
 - **Why weird:** Top-level type called `Permission` with three fields:
   `permissionLevel`, `inherited`, `inheritedFromObject`. Every instance
   is really an "effective permission" — a permission level paired with
@@ -121,7 +121,7 @@
   common across IAM systems that it's nearly content-free without
   qualification.
 
-### 7. `PermissionsDescription` plural for a single-level descriptor — `src/v1/model.ts:253`
+### 7. `PermissionsDescription` plural for a single-level descriptor — `src/v1/model.ts:266`
 - **Why weird:** Type carries `permissionLevel?: PermissionLevel`
   (singular) and `description?: string`. The plural `Permissions` in the
   type name is wrong: each instance describes ONE level.
@@ -130,7 +130,7 @@
   `PermissionLevelInfo`.
 - **Rationale:** One descriptor = one level; the type name should match.
 
-### 8. `PermissionsResponse` is a returned ACL, not a "Response" type — `src/v1/model.ts:258`
+### 8. `PermissionsResponse` is a returned ACL, not a "Response" type — `src/v1/model.ts:271`
 - **Why weird:** Returned from three different operations
   (`getObjectPermissions`, `setObjectPermissions`,
   `updateObjectPermissions`). The type carries `objectId`, `objectType`,
@@ -147,9 +147,9 @@
 
 ## Low severity
 
-### 9. `updateObjectPermissions` uses HTTP PATCH; method name implies replace — `src/v1/client.ts:511,527`
+### 9. `updateObjectPermissions` uses HTTP PATCH; method name implies replace — `src/v1/client.ts:519,536`
 - **Why weird:** Method `updateObjectPermissions` issues HTTP `PATCH`
-  (line 527). The request type `UpdateObjectPermissionsRequest` is
+  (line 536). The request type `UpdateObjectPermissionsRequest` is
   symmetric in name to `SetObjectPermissionsRequest` (PUT) — but the
   semantics differ: PUT replaces, PATCH merges. The naming gives no
   hint of this.
@@ -159,7 +159,7 @@
 - **Rationale:** Method verbs should hint at HTTP semantics; `set` vs
   `update` is ambiguous when both exist on the same resource.
 
-### 10. `listWorkspacePermissions` returns a static catalog — `src/v1/client.ts:157`
+### 10. `listWorkspacePermissions` returns a static catalog — `src/v1/client.ts:154`
 - **Why weird:** Method `listWorkspacePermissions` returns the
   catalog of `PermissionOutput` values supported (USER/ADMIN), not
   user data. Sits side-by-side with `listWorkspacePermissionAssignments`
@@ -174,14 +174,7 @@
 
 ## Observations
 
-### O1. `error?: string` on `WorkspacePermissionAssignmentOutput` — `src/v1/model.ts:386`
-- Embedding an opaque error string inside the success response body is
-  unusual; typical SDK design surfaces errors as exceptions or as a
-  typed error union. A caller has to inspect a per-row `error` field to
-  discover that an otherwise-successful response carries a partial
-  failure.
-
-### O2. Single class composes four formerly-distinct services — `src/v1/client.ts:68`
+### O1. Single class composes four formerly-distinct services — `src/v1/client.ts:68`
 - The `AccessManagementClient` class composes 15 methods that previously
   lived across four packages. Three operational clusters
   (workspace-object-permissions, account-level rule sets,

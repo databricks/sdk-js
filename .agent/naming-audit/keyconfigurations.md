@@ -16,12 +16,12 @@
 
 ## Medium severity (worth pushing back on)
 
-### 1. `Public` suffix on every `Client` method — `client.ts:89, 118, 156, 181`
+### 1. `Public` suffix on every `Client` method — `client.ts:89, 119, 158, 184`
 - **Why:** Every method on `Client` carries the `Public` suffix:
   `createCustomerManagedKeyPublic` (client.ts:89),
-  `deleteCustomerManagedKeyPublic` (client.ts:118),
-  `getCustomerManagedKeyPublic` (client.ts:156), and
-  `listCustomerManagedKeyPublic` (client.ts:181). This is a proto-audience
+  `deleteCustomerManagedKeyPublic` (client.ts:119),
+  `getCustomerManagedKeyPublic` (client.ts:158), and
+  `listCustomerManagedKeyPublic` (client.ts:184). This is a proto-audience
   leak surfaced on the most caller-visible symbols in the package. A
   consumer writing `client.createCustomerManagedKeyPublic(...)` sees no
   contrast to a hypothetical non-public form, because none is exported.

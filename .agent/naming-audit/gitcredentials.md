@@ -5,8 +5,7 @@
 **Package name:** `@databricks/sdk-gitcredentials` (lowercased compound — the
 camel-case domain term is "Git credentials", so the package directory and
 module name both drop the obvious word boundary).
-**Total weird names flagged:** 4
-**Last rescan:** 2026-06-02 (post regen, re-validated against current source)
+**Total weird names flagged:** 3
 
 ---
 
@@ -16,8 +15,7 @@ module name both drop the obvious word boundary).
 |---|------|------|------|----------|----------|-------------------|
 | 1 | `CreateCredentialsRequest` named with plural noun | model.ts:5 | interface | High | 9 Singular/plural mismatches | The request creates *a single* credential. The name uses the plural "Credentials". The wire endpoint `POST /api/2.0/git-credentials` is plural because that's the collection URL, but the request type is singular. Should be `CreateCredentialRequest`. (Compare `Credential` itself — the resource singular is already chosen.) |
 | 2 | `UpdateCredentialsRequest`, `DeleteCredentialsRequest`, `GetCredentialsRequest` named with plural | model.ts:149, 97, 107 | interface set | High | 9 Singular/plural mismatches | Same as #1 — three more cases. `UpdateCredentialsRequest` updates one credential (the JSDoc on the client method confirms: "Updates the specified Git credential"). `DeleteCredentialsRequest` deletes one. `GetCredentialsRequest` gets one. All three should be singular. |
-| 3 | `ListCredentialsResponse.credentials` field | model.ts:146 | field | Low | (none) | Generic but correct — the response is the array, the field naming it `credentials` (plural) matches what is inside. (Listing for completeness.) |
-| 4 | `GitCredentialsClient.createCredentials` / `getCredentials` / `listCredentials` / `updateCredentials` / `deleteCredentials` (plural method names) | client.ts:80, 143, 177, 211, 109 | method set | High | 9 Singular/plural mismatches | Five methods all named with the plural "Credentials" even though four of them act on a single credential at a time:<br>- `createCredentials(req)` creates **one** credential.<br>- `getCredentials(req)` gets **one** (selected by `id`).<br>- `updateCredentials(req)` updates **one**.<br>- `deleteCredentials(req)` deletes **one**.<br>- `listCredentials(req)` is the only legitimately plural one.<br>TS idiom for CRUD methods is singular for one-record operations (`createX`/`getX`/`updateX`/`deleteX`) and plural for collection ones (`listXs`/`searchXs`). The five-method API mixes the two and reads as "createCredentials" — i.e., a bulk create. |
+| 3 | `GitCredentialsClient.createCredentials` / `getCredentials` / `listCredentials` / `updateCredentials` / `deleteCredentials` (plural method names) | client.ts:79, 144, 179, 214, 109 | method set | High | 9 Singular/plural mismatches | Five methods all named with the plural "Credentials" even though four of them act on a single credential at a time:<br>- `createCredentials(req)` creates **one** credential.<br>- `getCredentials(req)` gets **one** (selected by `id`).<br>- `updateCredentials(req)` updates **one**.<br>- `deleteCredentials(req)` deletes **one**.<br>- `listCredentials(req)` is the only legitimately plural one.<br>TS idiom for CRUD methods is singular for one-record operations (`createX`/`getX`/`updateX`/`deleteX`) and plural for collection ones (`listXs`/`searchXs`). The five-method API mixes the two and reads as "createCredentials" — i.e., a bulk create. |
 
 ---
 
@@ -42,7 +40,7 @@ await client.createCredential({gitProvider: 'gitHub', ...});
 
 Recommendation: keep `listCredentials` (plural — list returns many) but
 rename the four single-resource methods and their request types to
-singular. See #1, #2, #4.
+singular. See #1, #2, #3.
 
 ---
 

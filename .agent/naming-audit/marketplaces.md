@@ -3,14 +3,13 @@
 **Path:** `packages/marketplaces/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Marketplace — provider-side and exchange-side operations for managing **listings** (the marketplace storefront entry for a dataset, model, notebook, app, MCP, partner integration, or git repo), **providers** (the publisher account), **exchanges** (curated, scoped collections of listings, including exchange filters that scope visibility by metastore), **personalization requests** (consumer-side requests for tailored access), **files** attached to listings/providers (icons, embedded notebooks, embedded markdown, commit drawdown attachments), and a separate **provider analytics dashboard** sub-resource (a Lakeview-backed dashboard for provider-side analytics).
-**Total weird names flagged:** 14 (14 still present, 0 newly fixed, 0 superseded).
+**Total weird names flagged:** 13
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 3 |
 | Medium | 10 |
-| Low | 1 |
 
 ---
 
@@ -18,7 +17,7 @@
 
 ### 1. `AddExchangeForListingRequest` / `RemoveExchangeForListingRequest` — for-Listing word-order
 
-**Location:** `src/v1/model.ts:142, 774`
+**Location:** `src/v1/model.ts:207, 840`
 
 ```ts
 export interface AddExchangeForListingRequest {
@@ -36,9 +35,9 @@ The operations are symmetric (associate / disassociate an exchange with a listin
 - **Suggested name:** `LinkListingToExchangeRequest` / `UnlinkListingFromExchangeRequest` (or `*ExchangeListingRequest`).
 - **Rationale:** Mirror the underlying object (`ExchangeListing`) rather than the verb phrase.
 
-### 2. `ListingSummary` — 20-field "summary"
+### 2. `ListingSummary` — 19-field "summary"
 
-**Location:** `src/v1/model.ts:697-718`
+**Location:** `src/v1/model.ts:763-784`
 
 ```ts
 export interface ListingSummary {
@@ -48,11 +47,11 @@ export interface ListingSummary {
   share?: ShareInfo | undefined;
   providerRegion?: RegionInfo | undefined;
   setting?: ListingSetting | undefined;
-  createdAt?: number | undefined;
+  createdAt?: bigint | undefined;
   createdBy?: string | undefined;
-  updatedAt?: number | undefined;
+  updatedAt?: bigint | undefined;
   updatedBy?: string | undefined;
-  publishedAt?: number | undefined;
+  publishedAt?: bigint | undefined;
   publishedBy?: string | undefined;
   categories?: Category[] | undefined;
   listingType?: ListingType | undefined;
@@ -64,27 +63,26 @@ export interface ListingSummary {
 }
 ```
 
-A 20-field type called `Summary` is misleading — summaries are conventionally short. This includes provider-region info, share info, exchange ids, git-repo info, and full audit timestamps. The name promises slim; the shape is fat.
+A 19-field type called `Summary` is misleading — summaries are conventionally short. This includes provider-region info, share info, exchange ids, git-repo info, and full audit timestamps. The name promises slim; the shape is fat.
 - **Category:** 6 (misleading).
 - **Suggested name:** `ListingMetadata` or `ListingHeader`.
-- **Rationale:** A "summary" with 20 fields, including nested objects and full audit metadata, promises a slim shape the type does not deliver.
+- **Rationale:** A "summary" with 19 fields, including nested objects and full audit metadata, promises a slim shape the type does not deliver.
 
 ### 3. `FileParent` — abstract container with weak typing
 
-**Location:** `src/v1/model.ts:347-351`
+**Location:** `src/v1/model.ts:427-430`
 
 ```ts
 export interface FileParent {
-  /** TODO make the following fields required */
   parentId?: string | undefined;
   fileParentType?: FileParentType | undefined;
 }
 ```
 
-The type ships with a `TODO` in the JSDoc — the API contract is incomplete by the generator's own admission. `parentId` is a free-form string with no statement of which `FileParentType` corresponds to which kind of id. `fileParentType` is a 3-value enum (`PROVIDER`, `LISTING`, `LISTING_RESOURCE`), but `LISTING_RESOURCE` has no separate `ListingResource` type in the package — it's an opaque concept. The pair is effectively a discriminated union that isn't discriminated.
-- **Category:** 6 (misleading: looks like a polymorphic parent but isn't typed), Observation (incomplete API).
+`parentId` is a free-form string with no statement of which `FileParentType` corresponds to which kind of id. `fileParentType` is a 3-value enum (`PROVIDER`, `LISTING`, `LISTING_RESOURCE`), but `LISTING_RESOURCE` has no separate `ListingResource` type in the package — it's an opaque concept. The pair is effectively a discriminated union that isn't discriminated.
+- **Category:** 6 (misleading: looks like a polymorphic parent but isn't typed).
 - **Suggested name:** Model as a TS discriminated union (`{ $case: 'provider' | 'listing' | 'listingResource', id: string }`).
-- **Rationale:** The `TODO` says the team knows; the type is shipped publicly anyway.
+- **Rationale:** An id-plus-type-tag pair models a polymorphic parent reference; a discriminated union expresses the same contract with type safety.
 
 ---
 
@@ -92,63 +90,68 @@ The type ships with a `TODO` in the JSDoc — the API contract is incomplete by 
 
 ### 4. `Cost` — single-word, ambiguous enum
 
-**Location:** `src/v1/model.ts:46-49`
+**Location:** `src/v1/model.ts:53-57`
 
 ```ts
-export enum Cost {
-  FREE = 'FREE',
-  PAID = 'PAID',
-}
+export const Cost = {
+  FREE: 'FREE',
+  PAID: 'PAID',
+} as const;
+export type Cost = (typeof Cost)[keyof typeof Cost] | (string & {});
 ```
 
-`Cost` is a generic noun. Inside `ListingDetail.cost: Cost` (line 647) the field is documented as "Whether the dataset is free or paid" — so the enum is really a *cost category* or *pricing tier*, not a price. The single-word name is collision-prone (cost appears in many domains) and doesn't communicate "is this paid?".
+`Cost` is a generic noun. Inside `ListingDetail.cost: Cost` (line 716) the field is documented as "Whether the dataset is free or paid" — so the enum is really a *cost category* or *pricing tier*, not a price. The single-word name is collision-prone (cost appears in many domains) and doesn't communicate "is this paid?".
 - **Category:** 1 (vague), 6 (misleading: implies price, means tier).
 - **Suggested name:** `ListingPricingTier`, `PricingTier`, or `PriceCategory`.
 - **Rationale:** A two-value boolean-like enum named `Cost` reads ambiguously.
 
 ### 5. `DataRefresh` — enum named after the noun, not the property
 
-**Location:** `src/v1/model.ts:51-61`
+**Location:** `src/v1/model.ts:60-73`
 
 ```ts
-export enum DataRefresh {
-  NONE = 'NONE',
-  SECOND = 'SECOND',
-  MINUTE = 'MINUTE',
-  HOURLY = 'HOURLY',
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY',
-  QUARTERLY = 'QUARTERLY',
-  YEARLY = 'YEARLY',
-}
+export const DataRefresh = {
+  NONE: 'NONE',
+  SECOND: 'SECOND',
+  MINUTE: 'MINUTE',
+  HOURLY: 'HOURLY',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY',
+} as const;
+export type DataRefresh =
+  | (typeof DataRefresh)[keyof typeof DataRefresh]
+  | (string & {});
 ```
 
-The enum is a *time unit / interval*, not a "data refresh". It's used as `DataRefreshInfo.unit: DataRefresh` (line 257) which the wire format calls `data_refresh.unit`. Reading `DataRefresh.HOURLY` requires knowing the value names a frequency, not a refresh event.
+The enum is a *time unit / interval*, not a "data refresh". It's used as `DataRefreshInfo.unit: DataRefresh` (line 332) which the wire format calls `data_refresh.unit`. Reading `DataRefresh.HOURLY` requires knowing the value names a frequency, not a refresh event.
 - **Category:** 1 (vague: name is the noun, not the unit).
 - **Suggested name:** `RefreshInterval`, `TimeUnit`, or `DataRefreshUnit`.
 - **Rationale:** Self-documenting enum name.
 
 ### 6. `Category` — generic enum name with 22 values
 
-**Location:** `src/v1/model.ts:21-44`
+**Location:** `src/v1/model.ts:26-49`
 
 ```ts
-export enum Category {
-  ADVERTISING_AND_MARKETING = 'ADVERTISING_AND_MARKETING',
+export const Category = {
+  ADVERTISING_AND_MARKETING: 'ADVERTISING_AND_MARKETING',
   ...
-  TRAVEL_AND_TOURISM = 'TRAVEL_AND_TOURISM',
-}
+  TRAVEL_AND_TOURISM: 'TRAVEL_AND_TOURISM',
+} as const;
+export type Category = (typeof Category)[keyof typeof Category] | (string & {});
 ```
 
 `Category` is generic without a domain qualifier (compare with `AssetType`, `ListingType`, `MarketplaceFileType`). The other enums use a domain prefix; `Category` does not. Also, it's exported at the package root and a user importing `Category` doesn't know it's marketplace-scoped.
 - **Category:** 1 (vague), 17 (inconsistent qualifier convention).
-- **Suggested name:** `ListingCategory` (since the only usage is `ListingSummary.categories: Category[]` at line 710).
+- **Suggested name:** `ListingCategory` (since the only usage is `ListingSummary.categories: Category[]` at line 776).
 - **Rationale:** Cross-package collision avoidance and self-documentation.
 
 ### 7. `ContactInfo` — generic suffix on a single-purpose type
 
-**Location:** `src/v1/model.ts:171-177`
+**Location:** `src/v1/model.ts:237-242`
 
 ```ts
 /** contact info for the consumer requesting data or performing a listing installation */
@@ -160,14 +163,14 @@ export interface ContactInfo {
 }
 ```
 
-`*Info` suffix is generic. The type is reused only via `PersonalizationRequest.contactInfo: ContactInfo` (line 730). Also note: `firstName` / `lastName` / `email` / `company` describes a person, not generic "contact info". `Person`, `Contact`, or `ConsumerContact` would be more specific.
+`*Info` suffix is generic. The type is reused only via `PersonalizationRequest.contactInfo: ContactInfo` (line 796). Also note: `firstName` / `lastName` / `email` / `company` describes a person, not generic "contact info". `Person`, `Contact`, or `ConsumerContact` would be more specific.
 - **Category:** 8 (redundant `Info` suffix), 1 (vague).
 - **Suggested name:** `Contact` or `ConsumerContact`.
 - **Rationale:** Cross-package, every `*Info` reads as "the info type"; specificity helps autocomplete.
 
 ### 8. `RegionInfo` — `Info` suffix on a single-purpose type
 
-**Location:** `src/v1/model.ts:769-772`
+**Location:** `src/v1/model.ts:835-838`
 
 ```ts
 export interface RegionInfo {
@@ -184,7 +187,7 @@ a region descriptor.
 
 ### 9. `ShareInfo` — `Info` suffix on a sharing concept
 
-**Location:** `src/v1/model.ts:816-819`
+**Location:** `src/v1/model.ts:882-885`
 
 ```ts
 export interface ShareInfo {
@@ -200,7 +203,7 @@ Same problem as #7 and #8. Additionally, `ShareInfo.type: ListingShareType` read
 
 ### 10. `ProviderInfo` — `Info` suffix on the canonical provider type
 
-**Location:** `src/v1/model.ts:750-767`
+**Location:** `src/v1/model.ts:816-833`
 
 ```ts
 export interface ProviderInfo {
@@ -219,7 +222,7 @@ Same problem as #7. The package also has `CreateProviderRequest`, `GetProviderRe
 
 ### 11. `DataRefreshInfo` — `Info` suffix on an interval type
 
-**Location:** `src/v1/model.ts:255-258`
+**Location:** `src/v1/model.ts:330-333`
 
 ```ts
 export interface DataRefreshInfo {
@@ -235,7 +238,7 @@ Same problem as #7. Also note: the type models a generic time interval, so the `
 
 ### 12. `FileInfo` — `Info` suffix on the canonical file type
 
-**Location:** `src/v1/model.ts:332-345`
+**Location:** `src/v1/model.ts:412-425`
 
 ```ts
 export interface FileInfo {
@@ -252,7 +255,7 @@ Same problem as #7. The package also has `CreateFileRequest`, `GetFileRequest`, 
 
 ### 13. `ListingTag` — typed-but-not-typed tags
 
-**Location:** `src/v1/model.ts:682, 720-725`
+**Location:** `src/v1/model.ts:748, 786-791`
 
 ```ts
 export interface ListingDetail {
@@ -277,23 +280,3 @@ The enum constrains tag *names* to a small set. Values are free-form strings. So
 - **Category:** 6 (misleading: name implies free-form labels, structure is constrained).
 - **Suggested name:** Rename type to clarify (e.g. `ListingAttribute`).
 - **Rationale:** "Tag" colloquially means a single label; this structure is closer to an attribute or property bag.
-
----
-
-## Low severity
-
-### 14. `ListingType.STANDARD` / `ListingType.PERSONALIZED` — adjective values
-
-**Location:** `src/v1/model.ts:118-121`
-
-```ts
-export enum ListingType {
-  STANDARD = 'STANDARD',
-  PERSONALIZED = 'PERSONALIZED',
-}
-```
-
-Two adjective values. Fine. Flagged because the package also has `PersonalizationRequest` (line 727) — the noun for `PERSONALIZED` mode. Cross-reference unclear.
-- **Category:** Observation.
-- **Suggested name:** No rename.
-- **Rationale:** Internal consistency check.

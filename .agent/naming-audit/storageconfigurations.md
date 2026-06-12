@@ -25,29 +25,25 @@ workspaces in an account).
 - **Suggested:** `createStorageConfiguration`.
 - **Rationale:** Methods on `Client` are inherently public; the suffix
   is meaningless to a TS caller.
-- **Status:** Still present after regeneration on 2026-06-01.
 
-### 2. `Client.deleteStorageConfigurationPublic` — `src/v1/client.ts:96`
+### 2. `Client.deleteStorageConfigurationPublic` — `src/v1/client.ts:97`
 - **Why weird:** Same `Public` suffix on `Client` method as #1.
 - **Category:** Proto-architectural leak — `Public` suffix on
   client method.
 - **Suggested:** `deleteStorageConfiguration`.
 - **Rationale:** Same as #1.
-- **Status:** Still present after regeneration on 2026-06-01.
 
-### 3. `Client.getStorageConfigurationPublic` — `src/v1/client.ts:121`
+### 3. `Client.getStorageConfigurationPublic` — `src/v1/client.ts:123`
 - **Why weird:** Same `Public` suffix on `Client` method as #1.
 - **Category:** Proto-architectural leak — `Public` suffix on
   client method.
 - **Suggested:** `getStorageConfiguration`.
 - **Rationale:** Same as #1.
-- **Status:** Still present after regeneration on 2026-06-01.
 
-### 4. `Client.listStorageConfigurationPublic` — `src/v1/client.ts:146`
+### 4. `Client.listStorageConfigurationPublic` — `src/v1/client.ts:149`
 - **Why weird:** Same `Public` suffix on `Client` method as #1.
 - **Category:** Proto-architectural leak — `Public` suffix on
   client method.
 - **Suggested:** `listStorageConfigurations` (drop `Public`; pluralise
   while renaming).
 - **Rationale:** Same as #1.
-- **Status:** Still present after regeneration on 2026-06-01.

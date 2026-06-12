@@ -17,31 +17,34 @@
 
 | # | Severity | Location | Name | Category |
 |---|----------|----------|------|----------|
-| 1 | High | `model.ts:5-11` | `DestinationType` | 1 (vague) |
-| 2 | High | `model.ts:13-21` | `Config` (type) | 1 (vague) |
-| 3 | High | `model.ts:42-55` | `GenericWebhookConfig` | 1 (vague — "generic" carries no info) |
-| 4 | Low | `client.ts:74`, `:82`, etc. | `req` / `resp` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
-| 5 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
+| 1 | High | `model.ts:6-15` | `DestinationType` | 1 (vague) |
+| 2 | High | `model.ts:17-25` | `Config` (type) | 1 (vague) |
+| 3 | High | `model.ts:46-59` | `GenericWebhookConfig` | 1 (vague — "generic" carries no info) |
+| 4 | Low | `client.ts:73`, `:82`, etc. | `req` / `resp` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
+| 5 | Obs | `model.ts:47-58` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
 
 ## High severity
 
-### 1. `DestinationType` — vague enum name lacks domain anchor — `src/v1/model.ts:5-11`
+### 1. `DestinationType` — vague enum name lacks domain anchor — `src/v1/model.ts:6-15`
 - **Code:**
   ```ts
-  export enum DestinationType {
-    SLACK = 'SLACK',
-    EMAIL = 'EMAIL',
-    WEBHOOK = 'WEBHOOK',
-    PAGERDUTY = 'PAGERDUTY',
-    MICROSOFT_TEAMS = 'MICROSOFT_TEAMS',
-  }
+  export const DestinationType = {
+    SLACK: 'SLACK',
+    EMAIL: 'EMAIL',
+    WEBHOOK: 'WEBHOOK',
+    PAGERDUTY: 'PAGERDUTY',
+    MICROSOFT_TEAMS: 'MICROSOFT_TEAMS',
+  } as const;
+  export type DestinationType =
+    | (typeof DestinationType)[keyof typeof DestinationType]
+    | (string & {});
   ```
 - **Why weird:** Exported at package root as just `DestinationType`. The word "destination" is overloaded across the SDK — there is a `destination` concept in jobs (`webhook destination`), workflows (`sink destination`), and infra (`DBFS destination`). A user `import { DestinationType } from '@databricks/sdk-notificationdestinations/v1'` and then mixing it with `import { DestinationType } from '@databricks/sdk-pipelines/v1'` (if it existed) will get a name collision. Also, the values are not "destination types" but "notification channels"; the enum mixes the term-of-art ("destination" = the addressable target) with the type-of-target. Compare with `notification-destinations` REST path: the enum could be `NotificationChannel` or `NotificationDestinationKind`.
 - **Category:** 1 (vague/generic).
 - **Suggested name:** `NotificationChannel` or, less invasive, `NotificationDestinationType`.
 - **Rationale:** Domain-anchored enum names protect users from cross-package collisions and read better in IDE autocomplete (`NotificationChannel.SLACK` vs `DestinationType.SLACK`).
 
-### 2. `Config` (interface) — vague top-level type name — `src/v1/model.ts:13-21`
+### 2. `Config` (interface) — vague top-level type name — `src/v1/model.ts:17-25`
 - **Code:**
   ```ts
   export interface Config {
@@ -59,7 +62,7 @@
 - **Suggested name:** Rename the type to `NotificationDestinationConfig` (matches the package's domain prefix).
 - **Rationale:** A domain-anchored type name eliminates the cross-package collision risk.
 
-### 3. `GenericWebhookConfig` — "generic" is doing too much work — `src/v1/model.ts:42-55`
+### 3. `GenericWebhookConfig` — "generic" is doing too much work — `src/v1/model.ts:46-59`
 - **Code:**
   ```ts
   export interface GenericWebhookConfig {
@@ -79,7 +82,7 @@
 
 ## Low severity
 
-### 4. `req` / `resp` / `httpReq` abbreviations — `src/v1/client.ts:74, 82, 89, 106, 109, 134, 137, 162, 182, 201, 219, 234`
+### 4. `req` / `resp` / `httpReq` abbreviations — `src/v1/client.ts:73, 82, 89, 106, 111, 135, 140, 164, 178, 204, 222, 231`
 - **Code:** parameter and local-variable names throughout the client.
 - **Why weird:** Three-to-five-letter abbreviations everywhere. Project rules (typescript.mdc) discourage cryptic abbreviations.
 - **Category:** 5 (cryptic abbreviation).
@@ -87,7 +90,7 @@
 
 ## Observations
 
-### 5. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-103`, `:117-136`
+### 5. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:47-107`, `:122-140`
 JSDoc bracket prefixes mark every secret-bearing field as either input-only or output-only. The TS type system makes both fields `... | undefined` simultaneously, so callers can construct an object that sets both a secret and its `*Set` mirror; the latter is silently ignored on the wire. A cleaner design splits the input and output types or uses TS template literal types / branded types to enforce the modality.
 - **Category:** 6 (type-level dishonesty).
 - **Suggested:** Split `SlackConfigInput` / `SlackConfigOutput`, etc. Or accept that secrets cannot round-trip and document at type level (`type Secret<T> = T | { isSet: boolean }`).

@@ -26,7 +26,7 @@ Total weird names flagged: 3.
 
 ## Medium
 
-### 1. `MavenLibrary` (`model.ts:185`)
+### 1. `MavenLibrary` (`model.ts:193`)
 
 Type-suffix tautology. The type already lives in a `Library` discriminated
 union; the `Library` suffix is redundant when accessed as
@@ -34,10 +34,10 @@ union; the `Library` suffix is redundant when accessed as
 *position* in the union already identifies it as a library variant.
 `MavenSpec` or just `Maven` would suffice.
 
-### 2. `PythonPyPiLibrary` (`model.ts:249`)
+### 2. `PythonPyPiLibrary` (`model.ts:257`)
 
 Type-suffix tautology. Same as finding 1. Could be `PyPISpec`.
 
-### 3. `RCranLibrary` (`model.ts:262`)
+### 3. `RCranLibrary` (`model.ts:270`)
 
 Type-suffix tautology. Same as finding 1. Could be `CRANSpec`.

@@ -5,7 +5,7 @@
 **Package name:** `@databricks/sdk-credentials` (top-level module name
 collides semantically with the hand-written `@databricks/sdk-auth/credentials`
 sub-module).
-**Total weird names flagged:** 4
+**Total weird names flagged:** 3
 
 ---
 
@@ -13,10 +13,9 @@ sub-module).
 
 | # | Name | File | Kind | Severity | Category | Issue (one-liner) |
 |---|------|------|------|----------|----------|-------------------|
-| 1 | `R2Credentials` type | model.ts:853 | interface | Medium | 1 Vague/generic, 5 Cryptic abbreviations | "R2" is Cloudflare's object-storage service name. A reader who doesn't know Cloudflare's product line will be lost. Consider `CloudflareR2Credentials`. |
-| 2 | `GenerateTemporaryPathCredentialRequest` / `GenerateTemporaryTableCredentialRequest` / `GenerateTemporaryVolumeCredentialRequest` / `GenerateTemporaryServiceCredentialRequest` | model.ts:615, 685, 717, 649 | interface set | Medium | 7 Overly verbose | Four request types whose names are 38-41 characters long. They differ in the *operand* (path/table/volume/service). A `TemporaryPathRequest` / etc. shape, parameterized by operand, would shorten. |
-| 3 | `ListCredentialsPublicRequest` | model.ts:769 | interface | High | 20 Proto-architectural leak | `Public` mid-position is an internal Databricks service-layout artifact (proto/RPC public-vs-internal route distinction). No TS caller cares; the package itself is the public surface. Sibling consolidated UC endpoints have no such infix — confirms `Public` is a wire/service-layer disambiguator that should not leak into the TS surface. |
-| 4 | `CredentialsClient.createCredentialsPublic` / `CredentialsClient.deleteCredentialsPublic` / `CredentialsClient.getCredentialsPublic` / `CredentialsClient.listCredentialsPublic` | client.ts:971, 997, 1022, 1047 | method set | High | 20 Proto-architectural leak | Four public methods on the SDK `CredentialsClient` whose names carry the `Public` suffix. Reads as "the method on the public class that calls the public endpoint" — the suffix is meaningless to a TS caller and only exists because the underlying proto/spec uses `Public` to distinguish account-API routes. |
+| 1 | `R2Credentials` type | model.ts:881 | interface | Medium | 1 Vague/generic, 5 Cryptic abbreviations | "R2" is Cloudflare's object-storage service name. A reader who doesn't know Cloudflare's product line will be lost. Consider `CloudflareR2Credentials`. |
+| 2 | `ListCredentialsPublicRequest` | model.ts:797 | interface | High | 20 Proto-architectural leak | `Public` mid-position is an internal Databricks service-layout artifact (proto/RPC public-vs-internal route distinction). No TS caller cares; the package itself is the public surface. Sibling consolidated UC endpoints have no such infix — confirms `Public` is a wire/service-layer disambiguator that should not leak into the TS surface. |
+| 3 | `CredentialsClient.createCredentialsPublic` / `CredentialsClient.deleteCredentialsPublic` / `CredentialsClient.getCredentialsPublic` / `CredentialsClient.listCredentialsPublic` | client.ts:987, 1014, 1040, 1066 | method set | High | 20 Proto-architectural leak | Four public methods on the SDK `CredentialsClient` whose names carry the `Public` suffix. Reads as "the method on the public class that calls the public endpoint" — the suffix is meaningless to a TS caller and only exists because the underlying proto/spec uses `Public` to distinguish account-API routes. |
 
 ---
 
@@ -24,7 +23,7 @@ sub-module).
 
 ### H1. `Public` infix proto-architectural leak (1 type + 4 methods)
 
-Findings #3-#4. The package exposes **1 generated type** and **4
+Findings #2-#3. The package exposes **1 generated type** and **4
 `CredentialsClient` methods** whose identifiers carry `Public` as a
 mid-position or trailing word. The infix originates from the internal
 proto/service definition where
@@ -34,14 +33,14 @@ exported symbol is by definition public.
 
 Types (model.ts):
 
-- `ListCredentialsPublicRequest` (769).
+- `ListCredentialsPublicRequest` (797).
 
 Methods (client.ts):
 
-- `createCredentialsPublic` (971).
-- `deleteCredentialsPublic` (997).
-- `getCredentialsPublic` (1022).
-- `listCredentialsPublic` (1047).
+- `createCredentialsPublic` (987).
+- `deleteCredentialsPublic` (1014).
+- `getCredentialsPublic` (1040).
+- `listCredentialsPublic` (1066).
 
 Note also: the sibling consolidated UC endpoints (`CreateCredentialRequest`,
 `CreateStorageCredentialRequest`, etc.) do *not* carry `Public` even though
@@ -73,15 +72,3 @@ without touching the generator/spec.
 A type named `R2` is identifiable only to readers who know Cloudflare's
 product line. Use `CloudflareR2Credentials` to make the cloud provider
 explicit in the type name.
-
----
-
-## Low severity (nits)
-
-### L1. `Generate*CredentialRequest` method names are 30+ chars
-
-`generateTemporaryServiceCredential` is 35 chars. Combined with `await
-client.generateTemporaryServiceCredential(req)` the call site is 60+ chars
-before the args. Cannot shorten without breaking the resource hierarchy.
-
----

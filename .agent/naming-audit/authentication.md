@@ -16,7 +16,7 @@
 
 ## High severity (must fix)
 
-### 1. `*Proxy` method variants duplicate the entire API surface — `client.ts:488, 548, 630, 666`
+### 1. `*Proxy` method variants duplicate the entire API surface — `client.ts:499, 561, 645, 682`
 - **Why:** The class exposes three real operations
   (`createServicePrincipalSecret`, `deleteServicePrincipalSecret`,
   `listServicePrincipalSecrets`) and, for every one of them, a

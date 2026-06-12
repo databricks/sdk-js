@@ -12,7 +12,7 @@
 
 ## High severity
 
-### 1. `Filter` (bare top-level type) — `src/v1/model.ts:75`
+### 1. `Filter` (bare top-level type) — `src/v1/model.ts:79`
 - **Why weird:** Re-exported from `index.ts` as a bare top-level type. `Filter` is one of the most overloaded words in JS/TS (Array#filter, RxJS filter, content filters, etc.) and the type is package-scoped, so the name carries no hint of what it filters.
 - **Category:** 1 (vague/generic).
 - **Suggested name:** `BudgetPolicyFilter` (mirror `BudgetConfigurationFilter` in the `budgets` package).
@@ -20,7 +20,7 @@
 
 ## Medium severity
 
-### 1. `SortSpec` type — `src/v1/model.ts:147`
+### 1. `SortSpec` type — `src/v1/model.ts:151`
 - **Why weird:** `Spec` is a generic suffix — every type is a spec of something. The suffix communicates nothing about what kind of specification this is or how it differs from a plain options bag.
 - **Category:** 1 (vague suffix `Spec`).
 - **Suggested name:** `SortOptions` or `SortOrder`.

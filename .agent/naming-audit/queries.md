@@ -3,7 +3,7 @@
 **Path:** `packages/queries/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace SQL queries — a stored, named SQL statement bound to a SQL warehouse, with parameterisable values, a "Run as" identity, visualizations attached to it, and a soft-delete (trash) lifecycle.
-**Total weird names flagged:** 12 (last rescanned 2026-06-01)
+**Total weird names flagged:** 11
 
 ## Summary table
 
@@ -18,15 +18,14 @@
 | 7 | Medium | `model.ts` interface | `TrashQueryRequest` | Same verb inconsistency at the type layer |
 | 8 | Medium | `client.ts` method | `listVisualizationsForQuery` | Overly verbose vs sibling `listQueries`; "ForQuery" is a Go-style nested-resource pattern |
 | 9 | Medium | `model.ts` interface | `Visualization` | Vague/generic top-level name (no `Query` prefix) — `QueryVisualization` would mirror `QueryParameter` |
-| 10 | Medium | `model.ts` enum | `RunAsMode` | Verb-as-noun; `Mode` is filler since the enum has only two values |
+| 10 | Medium | `model.ts` const | `RunAsMode` | Verb-as-noun; `Mode` is filler since the type has only two values |
 | 11 | Medium | `model.ts` interface | `MultiValuesOptions` | Singular/plural mismatch — `MultiValueOptions` or `MultiSelectOptions` reads naturally |
-| 12 | Low | `model.ts` fields | `pageToken`, `pageSize`, `nextPageToken` | Conventional; flagged for completeness only |
 
 ## High severity
 
 ### 1. `Query` — vague/generic top-level name
 
-**Location:** `src/v1/model.ts:223-257`
+**Location:** `src/v1/model.ts:243-277`
 
 ```ts
 export interface Query {
@@ -44,7 +43,7 @@ A domain-anchored name like `WorkspaceQuery` or `SavedQuery` (this is, in fact, 
 
 ### 2. `ListQueryObjectsResponseQuery` — Go-style + filler word
 
-**Location:** `src/v1/model.ts:163-197`
+**Location:** `src/v1/model.ts:183-217`
 
 ```ts
 export interface ListQueryObjectsResponseQuery { ... }
@@ -54,7 +53,7 @@ The "Objects" infix between `Query` and `Response` is filler — the RPC is `Lis
 
 ### 3. `trashQuery` — inconsistent action verb (`trash` vs SDK-wide `delete`)
 
-**Location:** `src/v1/client.ts:242-267`
+**Location:** `src/v1/client.ts:245-271`
 
 ```ts
 /** Moves a query to the trash. Trashed queries immediately disappear from searches and list views, ... A trashed query is permanently deleted after 30 days. */
@@ -67,7 +66,7 @@ The HTTP verb is `DELETE`, the docstring talks about "permanently deleted after 
 
 ### 4. `QueryBackedValue` — misleading
 
-**Location:** `src/v1/model.ts:259-266`
+**Location:** `src/v1/model.ts:279-286`
 
 ```ts
 export interface QueryBackedValue {
@@ -84,7 +83,7 @@ The name reads as "a value that is backed by a query" — implying the value its
 
 ### 5. `EnumValue` — vague/generic top-level name
 
-**Location:** `src/v1/model.ts:140-147`
+**Location:** `src/v1/model.ts:160-167`
 
 ```ts
 export interface EnumValue {
@@ -103,7 +102,7 @@ export interface EnumValue {
 
 ### 6. `trashQuery` — inconsistent action verb (`trash` vs SDK-wide `delete`)
 
-**Location:** `src/v1/client.ts:242-267`
+**Location:** `src/v1/client.ts:245-271`
 
 ```ts
 /** Moves a query to the trash. Trashed queries immediately disappear from searches and list views, and cannot be used for alerts. You can restore a trashed query through the UI. A trashed query is permanently deleted after 30 days. */
@@ -117,7 +116,7 @@ The HTTP verb is `DELETE`, the docstring talks about "permanently deleted," but 
 
 ### 7. `TrashQueryRequest` — same as #6, in the type layer
 
-**Location:** `src/v1/model.ts:312-314`
+**Location:** `src/v1/model.ts:332-334`
 
 ```ts
 export interface TrashQueryRequest {
@@ -129,7 +128,7 @@ Same verb inconsistency at the type layer. Carries only `id`.
 
 ### 8. `listVisualizationsForQuery` — overly verbose
 
-**Location:** `src/v1/client.ts:185-222`
+**Location:** `src/v1/client.ts:187-225`
 
 ```ts
 async listVisualizationsForQuery(
@@ -142,7 +141,7 @@ async listVisualizationsForQuery(
 
 ### 9. `Visualization` — vague/generic top-level name
 
-**Location:** `src/v1/model.ts:360-377`
+**Location:** `src/v1/model.ts:380-397`
 
 ```ts
 export interface Visualization { ... }
@@ -152,20 +151,23 @@ export interface Visualization { ... }
 
 ### 10. `RunAsMode` — verb-as-noun, filler `Mode`
 
-**Location:** `src/v1/model.ts:19-22`
+**Location:** `src/v1/model.ts:28-34`
 
 ```ts
-export enum RunAsMode {
-  OWNER = 'OWNER',
-  VIEWER = 'VIEWER',
-}
+export const RunAsMode = {
+  OWNER: 'OWNER',
+  VIEWER: 'VIEWER',
+} as const;
+export type RunAsMode =
+  | (typeof RunAsMode)[keyof typeof RunAsMode]
+  | (string & {});
 ```
 
-`RunAs` is an imperative phrase pressed into noun service (see same flag in `alerts` audit). `Mode` is filler — the enum has only two values and they describe *who* the query runs as, not *how*. `RunAsIdentity` or `Authority` would be cleaner.
+`RunAs` is an imperative phrase pressed into noun service (see same flag in `alerts` audit). `Mode` is filler — the type has only two values and they describe *who* the query runs as, not *how*. `RunAsIdentity` or `Authority` would be cleaner.
 
 ### 11. `MultiValuesOptions` — singular/plural mismatch
 
-**Location:** `src/v1/model.ts:210-217`
+**Location:** `src/v1/model.ts:230-237`
 
 ```ts
 export interface MultiValuesOptions {
@@ -179,11 +181,3 @@ export interface MultiValuesOptions {
 ```
 
 `MultiValuesOptions` (plural-values, singular-options) is grammatically inconsistent. `MultiValueOptions` or `MultiSelectOptions` would be conventional. The type expresses "options for a multi-value selection" — option (singular for each field) of multi-value (one feature).
-
-## Low severity
-
-### 12. `pageToken`, `pageSize`, `nextPageToken` — conventional pagination
-
-**Location:** `src/v1/model.ts:153-156`, `158-161`
-
-Standard Google AIP-158 names. Flagged for completeness; no action recommended.

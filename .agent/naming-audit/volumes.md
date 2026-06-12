@@ -6,12 +6,11 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ## Summary
 
-| Severity    | Count |
-| ----------- | ----- |
-| High        | 1     |
-| Medium      | 3     |
-| Observation | 1     |
-| **Total**   | **5** |
+| Severity  | Count |
+| --------- | ----- |
+| High      | 1     |
+| Medium    | 3     |
+| **Total** | **4** |
 
 ---
 
@@ -19,8 +18,8 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### H1. `Create*` / `Update*` request types include server-only fields
 
-- **File / line:** `src/v1/model.ts:16–52` (`CreateVolumeRequest`),
-  `src/v1/model.ts:123–163` (`UpdateVolumeRequest`).
+- **File / line:** `src/v1/model.ts:24–60` (`CreateVolumeRequest`),
+  `src/v1/model.ts:131–171` (`UpdateVolumeRequest`).
 - **Category:** #6 misleading name; #16 field contradicting type domain;
   #12 duplicate concepts.
 - **Current:** `CreateVolumeRequest` and `UpdateVolumeRequest` both carry
@@ -31,11 +30,11 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
   `name`, `catalogName`, `schemaName`, `volumeType`, `storageLocation`,
   `comment`. For `UpdateVolumeRequest`: `fullNameArg` (the path
   identifier), `newName`, `owner`, `comment` (per the method docstring at
-  `client.ts:279`).
+  `client.ts:282`).
 - **Rationale:** A request type named `CreateVolumeRequest` whose fields
   include `createdAt`, `createdBy`, `updatedAt`, `updatedBy`, and
   `volumeId` invites users to populate them — but the server ignores or
-  rejects them. The `client.ts:279` doc itself says "Currently only the
+  rejects them. The `client.ts:282` doc itself says "Currently only the
   name, the owner or the comment of the volume could be updated." Compare
   with the Go SDK `databricks/sdk-go/databricks/api/volumes/v1/` to
   confirm the upstream split.
@@ -46,7 +45,7 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### M1. `VolumeInfo` — redundant `Info` suffix
 
-- **File / line:** `src/v1/model.ts:165`.
+- **File / line:** `src/v1/model.ts:173`.
 - **Category:** #8 redundant suffix; #14 Go/Java-style name.
 - **Current:** `VolumeInfo`.
 - **Suggestion:** `Volume`.
@@ -59,8 +58,8 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### M2. `browseOnly` is a server-derived flag on request types
 
-- **File / line:** `src/v1/model.ts:51` (`CreateVolumeRequest.browseOnly`),
-  `162` (`UpdateVolumeRequest.browseOnly`), `200`
+- **File / line:** `src/v1/model.ts:59` (`CreateVolumeRequest.browseOnly`),
+  `170` (`UpdateVolumeRequest.browseOnly`), `208`
   (`VolumeInfo.browseOnly`).
 - **Category:** #6 misleading name; #16 field contradicting type domain.
 - **Current:** `browseOnly?: boolean | undefined` — present on the
@@ -78,7 +77,7 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 
 ### M3. `req` parameter name on all client methods
 
-- **File / line:** `src/v1/client.ts:92, 127, 162, 211, 256, 282`.
+- **File / line:** `src/v1/client.ts:91, 127, 163, 213, 259, 285`.
 - **Category:** #5 cryptic abbreviation; #14 Go-style name.
 - **Current:** `req: CreateVolumeRequest`, `req: DeleteVolumeRequest`, etc.
 - **Suggestion:** `request` (matches Go-port readability without
@@ -88,14 +87,3 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
   `req`/`resp` idiom is fine in Go where short identifiers are
   encouraged; in TS this reads as Go-translated code. Pervasive in this
   package (every method uses `req`) and across the repo.
-
----
-
-## Observations (repo-wide conventions, not local defects)
-
-### O1. `…Info` suffix repeated across UC types
-
-`VolumeInfo` follows the `CatalogInfo`, `ConnectionInfo`,
-`FunctionInfo`, `ExternalLocationInfo`, `SchemaInfo` pattern. If the
-codebase decides to drop the `Info` suffix, this is one of many to fix
-(M1 above flags it locally).

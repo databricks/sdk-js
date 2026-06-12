@@ -19,7 +19,7 @@
 #### F1.1 — `done` method on the waiter does not return a boolean of
   "I'm done waiting" but "operation has reached a terminal state"
   (LOW)
-- **Where:** `client.ts:194-216`.
+- **Where:** `client.ts:197-218`.
 - **Why flagged:** Method `done()` returns `Promise<boolean>` and
   performs a poll. A naive reader might assume `done()` reflects
   internal waiter state (similar to `Promise.resolve(done)` or
@@ -29,28 +29,12 @@
   ("Checks whether the operation has reached a terminal state.")
   does clarify this, but the name does not.
 
-#### F1.2 — `createForecastingExperimentWaiter` returns the waiter,
-  not the response (LOW)
-- **Where:** `client.ts:104-115`.
-- **Why flagged:** The method name suggests "create a waiter," but
-  it actually performs the *create* call first and then wraps the
-  result. The return type
-  (`CreateForecastingExperimentWaiter`) suggests the second
-  interpretation correctly, but the verb `create` is overloaded:
-  the same word is used for the API call and the waiter
-  instantiation.
-- **Suggestion:** Rename to
-  `createForecastingExperimentAndWait` (mirroring "AndWait"
-  patterns) or `startForecastingExperiment` (and have the waiter
-  type be `ForecastingExperimentRun` or similar). The current name
-  reads as if it merely *constructs* a waiter without side effects.
-
 ---
 
 ### 2. Overly verbose
 
 #### F2.1 — `ForecastingExperiment` (MEDIUM)
-- **Where:** `model.ts:72`.
+- **Where:** `model.ts:76`.
 - **Why flagged:** Inside a package literally named `forecasting`,
   every type is about forecasting. The `Forecasting` prefix doesn't
   add signal. Users will write
@@ -66,7 +50,7 @@
 #### F2.2 — `CreateForecastingExperimentRequest`,
   `CreateForecastingExperimentResponse`,
   `GetForecastingExperimentRequest` (MEDIUM)
-- **Where:** `model.ts:19, 66, 81`; `index.ts:8-12`.
+- **Where:** `model.ts:23, 70, 85`; `index.ts:8-12`.
 - **Why flagged:** 33-34 character type names. Combined with method
   names that already say `createForecastingExperiment(...)`, the
   argument type is highly redundant. Compare typical TS SDK patterns:
@@ -78,7 +62,7 @@
   per verb, just `CreateRequest`/`CreateResponse`/`GetRequest`.
 
 #### F2.3 — `CreateForecastingExperimentWaiter` (HIGH)
-- **Where:** `client.ts:146`, `index.ts:3`.
+- **Where:** `client.ts:148`, `index.ts:3`.
 - **Why flagged:** 34 characters. Reads as
   "Create-Forecasting-Experiment-Waiter". With `Forecasting` removed
   (F2.1), it becomes `CreateExperimentWaiter` — still long but
@@ -88,20 +72,13 @@
   for create-style long-running operations, and name it
   `ExperimentRun` or `Operation`.
 - **Suggestion:** Rename to `ExperimentRun` (analogous to
-  `LongRunningOperation` in other SDKs). Combined with F1.2, the
-  flow becomes
-  `const run = await client.forecasting.startExperiment(req);
+  `LongRunningOperation` in other SDKs), so the flow reads
+  `const run = await client.createForecastingExperiment(req);
   await run.wait();`.
 
-#### F2.4 — `createForecastingExperimentWaiter` method (HIGH)
-- **Where:** `client.ts:104`.
-- **Why flagged:** 35 character method name. Same issue as F2.3.
-- **Suggestion:** Rename to `startExperiment` (or `createAndWait`)
-  to match a renamed waiter.
-
-#### F2.5 — `getForecastingExperiment` / `createForecastingExperiment`
+#### F2.4 — `getForecastingExperiment` / `createForecastingExperiment`
   methods (MEDIUM)
-- **Where:** `client.ts:70, 118`.
+- **Where:** `client.ts:105, 119`.
 - **Why flagged:** Inside a `Forecasting` client, the `Forecasting`
   suffix is repetitive. Compare typical TS SDK shape:
   `forecasting.experiments.create(...)`,
@@ -117,7 +94,7 @@
 
 #### F3.1 — `Waiter` suffix on `CreateForecastingExperimentWaiter`
   (LOW)
-- **Where:** `client.ts:146`.
+- **Where:** `client.ts:148`.
 - **Why flagged:** `Waiter` is a Go SDK pattern for long-running
   operations. In TS/JS the more common terms are `Operation`,
   `Poller`, `Run`, or `Tracker`. `Waiter` isn't wrong but it is
@@ -130,7 +107,7 @@
 ### 4. Reserved-word / built-in collisions
 
 #### F4.1 — `done` method on `CreateForecastingExperimentWaiter` (MEDIUM)
-- **Where:** `client.ts:195`.
+- **Where:** `client.ts:197`.
 - **Why flagged:** `done` shadows `IteratorResult.done` (the boolean
   property returned by iterator `next()`). Defining a `done()`
   *method* on a non-iterator class is mildly misleading. A reader
@@ -161,8 +138,8 @@
 
 | # | Category                                | Findings |
 | - | --------------------------------------- | -------- |
-| 1 | Misleading names                        | 2 |
-| 2 | Overly verbose                          | 5 |
+| 1 | Misleading names                        | 1 |
+| 2 | Overly verbose                          | 4 |
 | 3 | Go-style `Waiter` pattern               | 1 |
 | 4 | Reserved-word collisions                | 1 |
 | 5 | Proto / architectural leaks             | 1 |

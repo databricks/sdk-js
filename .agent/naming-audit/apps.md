@@ -9,15 +9,15 @@
 | -------- | ----- |
 | Medium   |     6 |
 | Low      |     2 |
-| Observation | 5 |
-| **Total** | **13** |
+| Observation | 2 |
+| **Total** | **10** |
 
 ---
 
 ## Medium-severity findings
 
 ### M1. `EnvVar` — too short
-- **File:** `model.ts:1116`, also `index.ts:85`
+- **File:** `model.ts:1229`, also `index.ts:85`
 - **Category:** Cryptic abbreviations (5)
 - **Issue:** `EnvVar` reads as Go-style. Full TS conventions prefer
   `EnvironmentVariable` or, since it carries both name and source, more
@@ -29,19 +29,19 @@
   strict 1:1 with Go names, leave as-is.
 
 ### M2. `AsyncUpdateAppRequest.appName` carrying a redundant nesting
-- **File:** `model.ts:1037-1041`
+- **File:** `model.ts:1150-1154`
 - **Category:** Redundant suffixes (8)
 - **Issue:** `AsyncUpdateAppRequest` already contains an `app: App` field, and
   separately an `appName: string` field that's just `req.app.name`. This is
   visible at `client.ts:127`: `${this.host}/api/2.0/apps/${req.appName ?? ''}`
   with no consultation of `req.app?.name`.
 - **Suggestion:** Drop `appName` from `AsyncUpdateAppRequest` and read
-  `req.app?.name` (as `updateApp` already does at `client.ts:902`). This is a
+  `req.app?.name` (as `updateApp` already does at `client.ts:927`). This is a
   semantic change; flag for discussion. Alternative: keep both and document
   which wins on conflict.
 
 ### M3. `UnityCatalog` interface — generic name, no role suffix
-- **File:** `model.ts:1391-1398`, also `index.ts:110`
+- **File:** `model.ts:1504-1511`, also `index.ts:110`
 - **Category:** Vague/generic (1)
 - **Issue:** `UnityCatalog` is exported as a public type. The interface has
   three table-name fields (`logsTable`, `metricsTable`, `tracesTable`) and is
@@ -52,10 +52,10 @@
   `UnityCatalogTables`. Inline if not reused.
 
 ### M4. `Operation.result` carries `error` and `response` arms
-- **File:** `model.ts:1300-1311`
+- **File:** `model.ts:1413-1424`
 - **Category:** Vague/generic (1)
 - **Issue:** The `response` arm holds `Record<string, unknown>` — a totally
-  untyped payload. The consumer at `client.ts:1095` immediately re-parses it
+  untyped payload. The consumer at `client.ts:1128` immediately re-parses it
   through `unmarshalSpaceSchema`. The name `response` and the unknown type
   conceal what's actually inside.
 - **Suggestion:** Use generics: `Operation<TResponse>` with `result: ... |
@@ -64,7 +64,7 @@
   promises nothing.
 
 ### M5. Method name verb inconsistency: `asyncUpdateApp` is verb-prefixed but `updateSpace` returns an `Operation` too
-- **File:** `client.ts:123, 985`
+- **File:** `client.ts:122, 1012`
 - **Category:** Inconsistent action verbs (17), Verb-tense inconsistency (13)
 - **Issue:** Both `asyncUpdateApp` and `updateSpace` are asynchronous,
   long-running operations that return an `AppUpdate`/`Operation` and have a
@@ -75,7 +75,7 @@
   `updateSpace`, or add `asyncUpdateSpace` for symmetry.
 
 ### M6. `createSpaceOperation`, `deleteSpaceOperation`, `updateSpaceOperation` — `*Operation` suffix is confusing alongside the `Operation` type
-- **File:** `client.ts:317, 428, 1025`
+- **File:** `client.ts:321, 438, 1053`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** Methods named `createSpaceOperation()` return a
   `CreateSpaceOperation` wrapper (not an `Operation` directly). A reader
@@ -90,7 +90,7 @@
 ## Low-severity findings
 
 ### L1. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
-- **File:** `model.ts:2964, 3041`
+- **File:** `model.ts:3041, 3119`
 - **Category:** Vague/generic (1) — qualified by entity, but
 - **Issue:** Inconsistent that only `App` and `Space` get an exported helper —
   no `appDeploymentFieldMask`, despite the `AppDeployment` having an internal
@@ -99,7 +99,7 @@
   schema, or none.
 
 ### L2. `getSpaceOperation` (method) vs `GetOperationRequest`
-- **File:** `client.ts:571-596`
+- **File:** `client.ts:588-614`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** `getSpaceOperation(req: GetOperationRequest)` — the method tells
   you it's a space operation, but the request type doesn't. Mismatch.
@@ -121,25 +121,7 @@ The two flavours are confusing as named. Consider renaming
 `*Operation` -> `*LongRunning` so the difference (LRO vs status-poll) is
 visible.
 
-### O2. Field-mask helpers exist for `App` and `Space` only
-`appFieldMask()` and `spaceFieldMask()` are exported; equivalents for
-`AppDeployment` etc. are not. Probably intentional (only `App` and `Space`
-have an update endpoint that takes a mask), but worth confirming.
-
-### O3. `CustomTemplate` doesn't carry "App" in its name, but it's an app template
+### O2. `CustomTemplate` doesn't carry "App" in its name, but it's an app template
 The doc and methods make this clear (`createCustomTemplate` ->
 `/api/2.0/apps-settings/templates`), but the type name is ambiguous.
 Consider `AppTemplate` or `CustomAppTemplate`.
-
-### O4. `ListSpacesRequest` doesn't take a `space` filter the way `ListAppsRequest` takes a `space` filter
-Asymmetry but probably intentional.
-
-### O5. `index.ts` exports
-- 27 enums
-- 69 type aliases
-- 9 named exports from `./client` (1 class + 8 wrapper classes)
-
-That's 105 top-level exports, plus the two field-mask helper functions
-(`appFieldMask`, `spaceFieldMask`). Worth checking whether the wrapper classes
-(`*Operation`, `*Waiter`) need to be public or if they're implementation
-detail.
