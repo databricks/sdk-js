@@ -1483,7 +1483,7 @@ export interface UpdateDefaultWarehouseOverrideRequest {
 export interface WarehouseTypePair {
   warehouseType?: WarehouseType | undefined;
   /**
-   * If set to false the specific warehouse type will not be be allowed as a
+   * If set to false the specific warehouse type will not be allowed as a
    * value for warehouse_type in CreateWarehouse and EditWarehouse
    */
   enabled?: boolean | undefined;

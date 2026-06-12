@@ -379,7 +379,7 @@ export class RegisteredModelsClient {
    * The returned models are filtered based on the privileges of the calling user.
    * For example, the metastore admin is able to list all the model versions.
    * A regular user needs to be the owner or have the **EXECUTE** privilege
-   * on the parent registered model to recieve the model versions in the response.
+   * on the parent registered model to receive the model versions in the response.
    * For the latter case, the caller must also be the owner or have the **USE_CATALOG**
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    *
@@ -453,7 +453,7 @@ export class RegisteredModelsClient {
    * The returned models are filtered based on the privileges of the calling user.
    * For example, the metastore admin is able to list all the registered models.
    * A regular user needs to be the owner or have the **EXECUTE** privilege
-   * on the registered model to recieve the registered models in the response.
+   * on the registered model to receive the registered models in the response.
    * For the latter case, the caller must also be the owner or have the **USE_CATALOG**
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    *

@@ -23,7 +23,7 @@ export const PlansState = {
   IGNORED_LARGE_PLANS_SIZE: 'IGNORED_LARGE_PLANS_SIZE',
   /** If plans exist and are stored in the DB */
   EXISTS: 'EXISTS',
-  /** Catchall for unknown states in graphql, to prevent it from crashing when it recieved an unknown enum type that is defined here but not in the graphql schema of the object */
+  /** Catchall for unknown states in graphql, to prevent it from crashing when it received an unknown enum type that is defined here but not in the graphql schema of the object. */
   UNKNOWN: 'UNKNOWN',
   /** When the query has no plans by default */
   EMPTY: 'EMPTY',
@@ -139,7 +139,7 @@ export interface ExternalQuerySource_JobInfo {
 /**
  * Fetches a list of queries conforming to the provided set of query filters.
  *
- * If the the number of queries to return takes > 10 seconds, the request will timeout.
+ * If the number of queries to return takes > 10 seconds, the request will timeout.
  * In that case, please reduce the time range to ensure ListQueries conforms to the 10 second max query time limit.
  */
 export interface ListQueriesRequest {
