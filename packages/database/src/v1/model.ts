@@ -231,7 +231,7 @@ export interface DatabaseCatalog {
   name?: string | undefined;
   /** The name of the DatabaseInstance housing the database. */
   databaseInstanceName?: string | undefined;
-  /** The name of the database (in a instance) associated with the catalog. */
+  /** The name of the database (in an instance) associated with the catalog. */
   databaseName?: string | undefined;
   uid?: string | undefined;
   createDatabaseIfNotExists?: boolean | undefined;
@@ -455,7 +455,7 @@ export interface DeleteDatabaseInstanceRequest {
   /** Name of the instance to delete. */
   name?: string | undefined;
   /**
-   * By default, a instance cannot be deleted if it has descendant instances created via PITR. If
+   * By default, an instance cannot be deleted if it has descendant instances created via PITR. If
    * this flag is specified as true, all descendent instances will be deleted as well.
    */
   force?: boolean | undefined;
