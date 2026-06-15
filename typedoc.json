@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Databricks SDK for JavaScript",
+  "entryPointStrategy": "packages",
+  "entryPoints": ["packages/**"],
+  "out": "site/api",
+  "readme": "README.md",
+  "excludePrivate": true,
+  "excludeInternal": true
+}

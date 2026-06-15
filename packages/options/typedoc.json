@@ -1,0 +1,8 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/call/index.ts",
+    "src/client/index.ts",
+    "src/lro/index.ts"
+  ]
+}

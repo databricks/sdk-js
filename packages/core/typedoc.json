@@ -1,0 +1,13 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/apierror/index.ts",
+    "src/apierror/codes/index.ts",
+    "src/clientinfo/index.ts",
+    "src/http/index.ts",
+    "src/logger/index.ts",
+    "src/ops/index.ts",
+    "src/profiles/index.ts",
+    "src/wkt/index.ts"
+  ]
+}

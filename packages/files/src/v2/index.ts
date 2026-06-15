@@ -1,5 +1,9 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+/**
+ * @module v2
+ */
+
 export {FilesClient} from './client';
 
 export type {

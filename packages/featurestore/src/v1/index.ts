@@ -1,5 +1,9 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+/**
+ * @module v1
+ */
+
 export {FeatureStoreClient} from './client';
 
 export {OnlineStore_State, PublishSpec_PublishMode} from './model';
