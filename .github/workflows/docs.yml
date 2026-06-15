@@ -1,0 +1,87 @@
+name: docs
+
+on:
+  # Publish docs whenever the default branch changes.
+  push:
+    branches: [main]
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+
+# id-token is required for JFrog OIDC and for the Pages deployment; pages:write
+# is required to publish the site.
+permissions:
+  contents: read
+  id-token: write
+  pages: write
+
+# Allow one concurrent deployment. Queued runs wait rather than cancel an
+# in-progress publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build docs
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
+      - name: Install dependencies
+        run: jf npm ci
+
+      # Builds every package, then runs TypeDoc into site/api (see typedoc.json).
+      - name: Build documentation
+        run: npm run docs
+
+      # The API reference lives at /api/; redirect the site root there so the
+      # bare Pages URL is not a 404.
+      - name: Add root redirect to /api/
+        run: |
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./api/">
+          <link rel="canonical" href="./api/">
+          <title>Databricks SDK for JavaScript</title>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          path: site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

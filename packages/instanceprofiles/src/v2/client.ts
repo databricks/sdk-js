@@ -111,10 +111,10 @@ export class InstanceProfilesClient {
    *
    * * Your role name and instance profile name do not match. The name is the part
    * after the last slash in each ARN.
-   * * You want to use the instance profile with [Databricks SQL Serverless](/sql/admin/serverless.html).
+   * * You want to use the instance profile with [Databricks SQL Serverless](https://docs.databricks.com/sql/admin/serverless.html).
    *
    * To understand where these fields are in the AWS console, see
-   * [Enable serverless SQL warehouses](/sql/admin/serverless.html).
+   * [Enable serverless SQL warehouses](https://docs.databricks.com/sql/admin/serverless.html).
    *
    * This API is only available to admin users.
    */

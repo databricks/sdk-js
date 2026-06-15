@@ -26,7 +26,7 @@ export interface AddInstanceProfileRequest {
    * The AWS IAM role ARN of the role associated with the instance profile.
    * This field is required if your role name and instance profile name do
    * not match and you want to use the instance profile with
-   * [Databricks SQL Serverless](/sql/admin/serverless.html).
+   * [Databricks SQL Serverless](https://docs.databricks.com/sql/admin/serverless.html).
    *
    * Otherwise, this field is optional.
    */
@@ -51,7 +51,7 @@ export interface EditInstanceProfileRequest {
    * The AWS IAM role ARN of the role associated with the instance profile.
    * This field is required if your role name and instance profile name do
    * not match and you want to use the instance profile with
-   * [Databricks SQL Serverless](/sql/admin/serverless.html).
+   * [Databricks SQL Serverless](https://docs.databricks.com/sql/admin/serverless.html).
    *
    * Otherwise, this field is optional.
    */
@@ -76,7 +76,7 @@ export interface InstanceProfile {
    * The AWS IAM role ARN of the role associated with the instance profile.
    * This field is required if your role name and instance profile name do
    * not match and you want to use the instance profile with
-   * [Databricks SQL Serverless](/sql/admin/serverless.html).
+   * [Databricks SQL Serverless](https://docs.databricks.com/sql/admin/serverless.html).
    *
    * Otherwise, this field is optional.
    */

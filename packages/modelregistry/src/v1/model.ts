@@ -90,7 +90,7 @@ export type ModelVersionStatus =
   | (typeof ModelVersionStatus)[keyof typeof ModelVersionStatus]
   | (string & {});
 
-/** Permission level of the requesting user on the object. For what is allowed at each level, see [MLflow Model permissions](..). */
+/** Permission level of the requesting user on the object. For what is allowed at each level, see MLflow Model permissions. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PermissionLevel = {
   CAN_MANAGE: 'CAN_MANAGE',

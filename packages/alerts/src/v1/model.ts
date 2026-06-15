@@ -53,9 +53,9 @@ export interface Alert {
   lifecycleState?: LifecycleState | undefined;
   /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
   triggerTime?: Temporal.Instant | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom body of alert notification, if it exists. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;
@@ -124,9 +124,9 @@ export interface CreateAlertRequestAlert {
   lifecycleState?: LifecycleState | undefined;
   /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
   triggerTime?: Temporal.Instant | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom body of alert notification, if it exists. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;
@@ -178,9 +178,9 @@ export interface ListAlertsResponseAlert {
   lifecycleState?: LifecycleState | undefined;
   /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
   triggerTime?: Temporal.Instant | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom body of alert notification, if it exists. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;
@@ -223,9 +223,9 @@ export interface UpdateAlertRequestAlert {
   lifecycleState?: LifecycleState | undefined;
   /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
   triggerTime?: Temporal.Instant | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom body of alert notification, if it exists. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](https://docs.databricks.com/sql/user/alerts/index.html) for custom templating instructions. */
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;

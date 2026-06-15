@@ -58,8 +58,8 @@ export type AzureAvailability =
  * Depending on `kind`, different validations and default values will be applied.
  *
  * Clusters with `kind = CLASSIC_PREVIEW` support the following fields, whereas clusters with no specified `kind` do not.
- * * [is_single_node](/api/workspace/clusters/create#is_single_node)
- * * [use_ml_runtime](/api/workspace/clusters/create#use_ml_runtime)
+ * * [is_single_node](https://docs.databricks.com/api/workspace/clusters/create#is_single_node)
+ * * [use_ml_runtime](https://docs.databricks.com/api/workspace/clusters/create#use_ml_runtime)
  *
  * By using the [simple form](https://docs.databricks.com/compute/simple-form.html), your clusters are automatically using `kind = CLASSIC_PREVIEW`.
  */
@@ -279,7 +279,7 @@ export type RepairType =
 /**
  * The type of a run.
  * * `JOB_RUN`: Normal job run. A run created with :method:jobs/runNow.
- * * `WORKFLOW_RUN`: Workflow run. A run created with [dbutils.notebook.run](/dev-tools/databricks-utils.html#dbutils-workflow).
+ * * `WORKFLOW_RUN`: Workflow run. A run created with [dbutils.notebook.run](https://docs.databricks.com/dev-tools/databricks-utils.html#dbutils-workflow).
  * * `SUBMIT_RUN`: Submit run. A run created with :method:jobs/submit.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -1907,7 +1907,7 @@ export interface Environment {
    * (e.g., `workspace-base-environments/dbe_b849b66e-b31a-4cb5-b161-1f2b10877fb7`) is in Beta.
    * Either `environment_version` or `base_environment` can be provided.
    * For more information about <Databricks>-provided base environments, see the
-   * [list workspace base environments](:method:Environments/ListWorkspaceBaseEnvironments) API.
+   * list workspace base environments API.
    * For more information, see
    */
   baseEnvironment?: string | undefined;
@@ -1931,7 +1931,7 @@ export interface ExportRunRequest {
 
 /** Run was exported successfully. */
 export interface ExportRunResponse {
-  /** The exported content in HTML format (one for every view item). To extract the HTML notebook from the JSON response, download and run this [Python script](/_static/examples/extract.py). */
+  /** The exported content in HTML format (one for every view item). To extract the HTML notebook from the JSON response, download and run this [Python script](https://docs.databricks.com/_static/examples/extract.py). */
   views?: ViewItem[] | undefined;
 }
 
@@ -2161,7 +2161,7 @@ export interface GetRunOutputResponse {
          * The output of a notebook task, if available. A notebook task that terminates (either successfully or with a failure)
          * without calling `dbutils.notebook.exit()` is considered to have an empty output.
          * This field is set but its result value is empty. <Databricks> restricts this API to return the first 5 MB of the output.
-         * To return a larger result, use the [ClusterLogConf](/dev-tools/api/latest/clusters.html#clusterlogconf) field to configure log storage
+         * To return a larger result, use the [ClusterLogConf](https://docs.databricks.com/dev-tools/api/latest/clusters.html#clusterlogconf) field to configure log storage
          * for the job cluster.
          */
         notebookOutput: NotebookTask_NotebookOutput;
@@ -2943,12 +2943,12 @@ export interface NotebookTask {
    * Base parameters to be used for each run of this job. If the run is initiated by a call to :method:jobs/run
    * Now with parameters specified, the two parameters maps are merged. If the same key is specified in
    * `base_parameters` and in `run-now`, the value from `run-now` is used.
-   * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
+   * Use [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.
    *
    * If the notebook takes a parameter that is not specified in the job’s `base_parameters` or the `run-now` override parameters,
    * the default value from the notebook is used.
    *
-   * Retrieve these parameters in a notebook using [dbutils.widgets.get](/dev-tools/databricks-utils.html#dbutils-widgets).
+   * Retrieve these parameters in a notebook using [dbutils.widgets.get](https://docs.databricks.com/dev-tools/databricks-utils.html#dbutils-widgets).
    *
    * The JSON representation of this field cannot exceed 1MB.
    */
@@ -2971,7 +2971,7 @@ export interface NotebookTask {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface NotebookTask_NotebookOutput {
   /**
-   * The value passed to [dbutils.notebook.exit()](/notebooks/notebook-workflows.html#notebook-workflows-exit).
+   * The value passed to [dbutils.notebook.exit()](https://docs.databricks.com/notebooks/notebook-workflows.html#notebook-workflows-exit).
    * <Databricks> restricts this API to return the first 5 MB of the value. For a larger result, your job can store the results in a cloud storage service.
    * This field is absent if `dbutils.notebook.exit()` was never called.
    */
@@ -3202,18 +3202,18 @@ export interface RepairRunRequest {
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
-   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
+   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](https://docs.databricks.com/dev-tools/databricks-utils.html) function.
    *
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
    *
    * notebook_params cannot be specified in conjunction with jar_params.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
@@ -3224,7 +3224,7 @@ export interface RepairRunRequest {
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3238,7 +3238,7 @@ export interface RepairRunRequest {
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3250,13 +3250,13 @@ export interface RepairRunRequest {
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
 }
@@ -3495,18 +3495,18 @@ export interface RunJobTask {
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
-   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
+   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](https://docs.databricks.com/dev-tools/databricks-utils.html) function.
    *
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
    *
    * notebook_params cannot be specified in conjunction with jar_params.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
@@ -3517,7 +3517,7 @@ export interface RunJobTask {
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3531,7 +3531,7 @@ export interface RunJobTask {
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3543,13 +3543,13 @@ export interface RunJobTask {
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
 }
@@ -3604,18 +3604,18 @@ export interface RunNowRequest {
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
-   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
+   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](https://docs.databricks.com/dev-tools/databricks-utils.html) function.
    *
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
    *
    * notebook_params cannot be specified in conjunction with jar_params.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
@@ -3626,7 +3626,7 @@ export interface RunNowRequest {
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3640,7 +3640,7 @@ export interface RunNowRequest {
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3652,13 +3652,13 @@ export interface RunNowRequest {
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
 }
@@ -3681,18 +3681,18 @@ export interface RunParameters {
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
-   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
+   * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](https://docs.databricks.com/dev-tools/databricks-utils.html) function.
    *
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
    *
    * notebook_params cannot be specified in conjunction with jar_params.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
@@ -3703,7 +3703,7 @@ export interface RunParameters {
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3717,7 +3717,7 @@ export interface RunParameters {
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    *
    * Important
    *
@@ -3729,13 +3729,13 @@ export interface RunParameters {
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
    *
-   * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
+   * ⚠ **Deprecation note** Use [job parameters](https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
 }
@@ -3843,7 +3843,7 @@ export interface RunTask {
       }
     | {
         $case: 'sparkSubmitTask';
-        /** (Legacy) The task runs the spark-submit script when the spark_submit_task field is present. Databricks recommends using the spark_jar_task instead; see [Spark Submit task for jobs](/jobs/spark-submit). */
+        /** (Legacy) The task runs the spark-submit script when the spark_submit_task field is present. Databricks recommends using the spark_jar_task instead; see [Spark Submit task for jobs](https://docs.databricks.com/jobs/spark-submit). */
         sparkSubmitTask: SparkSubmitTask;
       }
     | {
@@ -3887,7 +3887,7 @@ export interface RunTask {
     | {
         $case: 'cleanRoomsNotebookTask';
         /**
-         * The task runs a [clean rooms](/clean-rooms/index.html) notebook
+         * The task runs a [clean rooms](https://docs.databricks.com/clean-rooms/index.html) notebook
          * when the `clean_rooms_notebook_task` field is present.
          */
         cleanRoomsNotebookTask: CleanRoomsNotebookTask;
@@ -4032,7 +4032,7 @@ export interface RunTaskSettings {
       }
     | {
         $case: 'sparkSubmitTask';
-        /** (Legacy) The task runs the spark-submit script when the spark_submit_task field is present. Databricks recommends using the spark_jar_task instead; see [Spark Submit task for jobs](/jobs/spark-submit). */
+        /** (Legacy) The task runs the spark-submit script when the spark_submit_task field is present. Databricks recommends using the spark_jar_task instead; see [Spark Submit task for jobs](https://docs.databricks.com/jobs/spark-submit). */
         sparkSubmitTask: SparkSubmitTask;
       }
     | {
@@ -4076,7 +4076,7 @@ export interface RunTaskSettings {
     | {
         $case: 'cleanRoomsNotebookTask';
         /**
-         * The task runs a [clean rooms](/clean-rooms/index.html) notebook
+         * The task runs a [clean rooms](https://docs.databricks.com/clean-rooms/index.html) notebook
          * when the `clean_rooms_notebook_task` field is present.
          */
         cleanRoomsNotebookTask: CleanRoomsNotebookTask;
@@ -4213,7 +4213,7 @@ export interface SparkJarTask {
   /**
    * Parameters passed to the main method.
    *
-   * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
+   * Use [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.
    */
   parameters?: string[] | undefined;
   /** Deprecated. A value of `false` is no longer supported. */
@@ -4226,7 +4226,7 @@ export interface SparkPythonTask {
   /**
    * Command line parameters passed to the Python file.
    *
-   * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
+   * Use [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.
    */
   parameters?: string[] | undefined;
   /**
@@ -4244,7 +4244,7 @@ export interface SparkSubmitTask {
   /**
    * Command-line parameters passed to spark submit.
    *
-   * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
+   * Use [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.
    */
   parameters?: string[] | undefined;
 }
@@ -4623,7 +4623,7 @@ export interface TaskSettings {
       }
     | {
         $case: 'sparkSubmitTask';
-        /** (Legacy) The task runs the spark-submit script when the spark_submit_task field is present. Databricks recommends using the spark_jar_task instead; see [Spark Submit task for jobs](/jobs/spark-submit). */
+        /** (Legacy) The task runs the spark-submit script when the spark_submit_task field is present. Databricks recommends using the spark_jar_task instead; see [Spark Submit task for jobs](https://docs.databricks.com/jobs/spark-submit). */
         sparkSubmitTask: SparkSubmitTask;
       }
     | {
@@ -4667,7 +4667,7 @@ export interface TaskSettings {
     | {
         $case: 'cleanRoomsNotebookTask';
         /**
-         * The task runs a [clean rooms](/clean-rooms/index.html) notebook
+         * The task runs a [clean rooms](https://docs.databricks.com/clean-rooms/index.html) notebook
          * when the `clean_rooms_notebook_task` field is present.
          */
         cleanRoomsNotebookTask: CleanRoomsNotebookTask;

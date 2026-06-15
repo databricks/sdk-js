@@ -363,7 +363,7 @@ export interface ListArtifactsRequest {
    * The token indicating the page of artifact results to fetch. `page_token` is not supported when listing artifacts in UC
    * Volumes. A maximum of 1000 artifacts will be retrieved for UC Volumes. Please call
    * `/api/2.0/fs/directories{directory_path}` for listing artifacts in UC Volumes, which supports pagination. See [List
-   * directory contents | Files API](/api/workspace/files/listdirectorycontents).
+   * directory contents | Files API](https://docs.databricks.com/api/workspace/files/listdirectorycontents).
    */
   pageToken?: string | undefined;
 }

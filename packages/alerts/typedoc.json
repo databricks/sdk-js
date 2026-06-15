@@ -1,0 +1,8 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/v1/index.ts",
+    "src/v2/index.ts"
+  ],
+  "alwaysCreateEntryPointModule": true
+}

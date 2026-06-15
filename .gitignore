@@ -5,6 +5,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# Generated documentation site (TypeDoc)
+site/
+
 # Turbo
 .turbo/
 

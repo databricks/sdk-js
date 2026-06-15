@@ -236,7 +236,7 @@ export class FilesClient {
    *
    * For operations that delete more than 10K files, we discourage using the DBFS REST API, but advise you to
    * perform such operations in the context of a cluster, using
-   * the [File system utility (dbutils.fs)](/dev-tools/databricks-utils.html#dbutils-fs). `dbutils.fs`
+   * the [File system utility (dbutils.fs)](https://docs.databricks.com/dev-tools/databricks-utils.html#dbutils-fs). `dbutils.fs`
    * covers the functional scope of the DBFS REST API, but from notebooks. Running such operations using notebooks
    * provides better control and manageability, such as selective deletes, and the possibility to automate periodic
    * delete jobs.
@@ -316,7 +316,7 @@ export class FilesClient {
    * We strongly recommend using list only on directories containing less than 10K files and discourage using
    * the DBFS REST API for operations that list more than 10K files. Instead, we recommend that you perform such
    * operations in the context of a cluster, using
-   * the [File system utility (dbutils.fs)](/dev-tools/databricks-utils.html#dbutils-fs), which provides the same
+   * the [File system utility (dbutils.fs)](https://docs.databricks.com/dev-tools/databricks-utils.html#dbutils-fs), which provides the same
    * functionality without timing out.
    */
   async list(

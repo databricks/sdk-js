@@ -673,7 +673,7 @@ export class ExperimentsClient {
    * the response contains only artifacts with the specified prefix.
    * A maximum of 1000 artifacts will be retrieved for UC Volumes. Please call
    * `/api/2.0/fs/directories{directory_path}` for listing artifacts in UC Volumes, which supports pagination. See [List
-   * directory contents | Files API](/api/workspace/files/listdirectorycontents).
+   * directory contents | Files API](https://docs.databricks.com/api/workspace/files/listdirectorycontents).
    */
   async listArtifacts(
     req: ListArtifactsRequest,
@@ -1030,7 +1030,7 @@ export class ExperimentsClient {
   }
 
   /**
-   * **Note:** the [Create a logged model](/api/workspace/experiments/createloggedmodel) API replaces this endpoint.
+   * **Note:** the [Create a logged model](https://docs.databricks.com/api/workspace/experiments/createloggedmodel) API replaces this endpoint.
    *
    * Log a model to an MLflow Run.
    */
