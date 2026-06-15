@@ -71,8 +71,8 @@ export class LogDeliveryClient {
 
   /**
    * Creates a new <Databricks> log delivery configuration to enable delivery of the specified type of logs to your storage location.
-   * This requires that you already created a credential object (which encapsulates a cross-account service IAM role)
-   * and a storage configuration object (which encapsulates an S3 bucket).
+   * This requires that you already created a [credential object](:method:Credentials/Create) (which encapsulates a cross-account service IAM role)
+   * and a [storage configuration object](:method:Storage/Create) (which encapsulates an S3 bucket).
    *
    * For full details, including the required IAM role policies and bucket policies,
    * see [Deliver and access billable usage logs](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html)
@@ -82,7 +82,7 @@ export class LogDeliveryClient {
    * You can create a maximum of two enabled account-level delivery configurations (configurations without a workspace filter) per type.
    * Additionally, you can create two enabled workspace-level delivery configurations per workspace for each log type, which means that the same workspace ID can occur in the workspace filter for no more than two delivery configurations per log type.
    *
-   * You cannot delete a log delivery configuration, but you can disable it (see Enable or disable log delivery configuration).
+   * You cannot delete a log delivery configuration, but you can disable it (see [Enable or disable log delivery configuration](:method:LogDelivery/PatchStatus)).
    */
   async createLogDeliveryConfiguration(
     req: CreateLogDeliveryConfigurationRequest,
@@ -209,7 +209,7 @@ export class LogDeliveryClient {
   /**
    * Enables or disables a log delivery configuration.
    * Deletion of delivery configurations is not supported, so disable log delivery configurations that are no longer needed.
-   * Note that you can't re-enable a delivery configuration if this would violate the delivery configuration limits described under Create log delivery.
+   * Note that you can't re-enable a delivery configuration if this would violate the delivery configuration limits described under [Create log delivery](:method:LogDelivery/Create).
    */
   async updateLogDeliveryConfiguration(
     req: UpdateLogDeliveryConfigurationRequest,

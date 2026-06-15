@@ -828,7 +828,7 @@ export class JobsClient {
     return new RepairWaiter(this, req.runId);
   }
 
-  /** Overwrite all settings for the given job. Use the _Update_ endpoint to update job settings partially. */
+  /** Overwrite all settings for the given job. Use the [_Update_ endpoint](:method:jobs/update) to update job settings partially. */
   async resetJob(
     req: ResetJobRequest,
     options?: CallOptions
@@ -966,7 +966,7 @@ export class JobsClient {
     return new SubmitRunWaiter(this, resp.runId);
   }
 
-  /** Add, update, or remove specific settings of an existing job. Use the _Reset_ endpoint to overwrite all job settings. */
+  /** Add, update, or remove specific settings of an existing job. Use the [_Reset_ endpoint](:method:jobs/reset) to overwrite all job settings. */
   async updateJob(
     req: UpdateJobRequest,
     options?: CallOptions

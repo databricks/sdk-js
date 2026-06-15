@@ -799,11 +799,11 @@ export type MessageError_Type =
  * * `FILTERING_CONTEXT`: Running smart context step to determine relevant context.
  * * `ASKING_AI`: Waiting for the LLM to respond to the user's question.
  * * `PENDING_WAREHOUSE`: Waiting for warehouse before the SQL query can start executing.
- * * `EXECUTING_QUERY`: Executing a generated SQL query. Get the SQL query result by calling getMessageAttachmentQueryResult API.
+ * * `EXECUTING_QUERY`: Executing a generated SQL query. Get the SQL query result by calling [getMessageAttachmentQueryResult](:method:genie/getMessageAttachmentQueryResult) API.
  * * `FAILED`: The response generation or query execution failed. See `error` field.
- * * `COMPLETED`: Message processing is completed. Results are in the `attachments` field. Get the SQL query result by calling getMessageAttachmentQueryResult API.
+ * * `COMPLETED`: Message processing is completed. Results are in the `attachments` field. Get the SQL query result by calling [getMessageAttachmentQueryResult](:method:genie/getMessageAttachmentQueryResult) API.
  * * `SUBMITTED`: Message has been submitted.
- * * `QUERY_RESULT_EXPIRED`: SQL result is not available anymore. The user needs to rerun the query. Rerun the SQL query result by calling executeMessageAttachmentQuery API.
+ * * `QUERY_RESULT_EXPIRED`: SQL result is not available anymore. The user needs to rerun the query. Rerun the SQL query result by calling [executeMessageAttachmentQuery](:method:genie/executeMessageAttachmentQuery) API.
  * * `CANCELLED`: Message has been cancelled.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -1051,7 +1051,7 @@ export interface GenieCreateSpaceRequest {
   parentPath?: string | undefined;
   /**
    * The contents of the Genie Space in serialized string form.
-   * Use the Get Genie Space API to retrieve an example response, which includes the `serialized_space` field.
+   * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
    * This field provides the structure of the JSON string that represents the space's layout and components.
    */
   serializedSpace?: string | undefined;
@@ -1249,14 +1249,14 @@ export interface GenieGetDownloadFullQueryResultRequest {
   messageId?: string | undefined;
   /** Attachment ID */
   attachmentId?: string | undefined;
-  /** Download ID. This ID is provided by the Generate Download endpoint */
+  /** Download ID. This ID is provided by the [Generate Download endpoint](:method:genie/generateDownloadFullQueryResult) */
   downloadId?: string | undefined;
   /** JWT signature for the download_id to ensure secure access to query results */
   downloadIdSignature?: string | undefined;
 }
 
 export interface GenieGetDownloadFullQueryResultResponse {
-  /** SQL Statement Execution response. See Get status, manifest, and result first chunk for more details. */
+  /** SQL Statement Execution response. See [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) for more details. */
   statementResponse?: StatementResponse | undefined;
 }
 
@@ -1296,7 +1296,7 @@ export interface GenieGetMessageQueryResultRequest {
 }
 
 export interface GenieGetMessageQueryResultResponse {
-  /** SQL Statement Execution response. See Get status, manifest, and result first chunk for more details. */
+  /** SQL Statement Execution response. See [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) for more details. */
   statementResponse?: StatementResponse | undefined;
 }
 
@@ -1509,7 +1509,7 @@ export interface GenieQueryAttachment {
   lastUpdatedTimestamp?: bigint | undefined;
   parameters?: QueryAttachmentParameter[] | undefined;
   id?: string | undefined;
-  /** Statement Execution API statement id. Use Get status, manifest, and result first chunk to get the full result data. */
+  /** Statement Execution API statement id. Use [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) to get the full result data. */
   statementId?: string | undefined;
   /** Metadata associated with the query result. */
   queryResultMetadata?: GenieResultMetadata | undefined;
@@ -1551,7 +1551,7 @@ export interface GenieSpace {
   /**
    * The contents of the Genie Space in serialized string form.
    * This field is excluded in List Genie spaces responses.
-   * Use the Get Genie Space API to retrieve an example response, which includes the `serialized_space` field.
+   * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
    * This field provides the structure of the JSON string that represents the space's layout and components.
    */
   serializedSpace?: string | undefined;
@@ -1594,7 +1594,7 @@ export interface GenieUpdateSpaceRequest {
   spaceId?: string | undefined;
   /**
    * The contents of the Genie Space in serialized string form (full replacement).
-   * Use the Get Genie Space API to retrieve an example response, which includes the `serialized_space` field.
+   * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
    * This field provides the structure of the JSON string that represents the space's layout and components.
    */
   serializedSpace?: string | undefined;
@@ -1669,7 +1669,7 @@ export interface QueryAttachmentParameter {
 }
 
 export interface Result {
-  /** Statement Execution API statement id. Use Get status, manifest, and result first chunk to get the full result data. */
+  /** Statement Execution API statement id. Use [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) to get the full result data. */
   statementId?: string | undefined;
   /** Row count of the result */
   rowCount?: bigint | undefined;

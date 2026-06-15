@@ -159,7 +159,7 @@ export class GenieClient {
   }
 
   /**
-   * Create new message in a conversation.
+   * Create new message in a [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
    */
   private async genieCreateConversationMessageBase(
@@ -369,7 +369,7 @@ export class GenieClient {
     return resp;
   }
 
-  /** DEPRECATED: Use Execute Message Attachment Query instead. */
+  /** DEPRECATED: Use [Execute Message Attachment Query](:method:genie/executemessageattachmentquery) instead. */
   async genieExecuteMessageQuery(
     req: GenieExecuteMessageQueryRequest,
     options?: CallOptions
@@ -407,7 +407,7 @@ export class GenieClient {
 
   /**
    * Initiates a new SQL execution and returns a `download_id` and `download_id_signature` that you can use to track the progress of the download.
-   * The query result is stored in an external link and can be retrieved using the Get Download Full Query Result API.
+   * The query result is stored in an external link and can be retrieved using the [Get Download Full Query Result](:method:genie/getdownloadfullqueryresult) API.
    * Both `download_id` and `download_id_signature` must be provided when calling the Get endpoint.
    *
    * ----
@@ -426,7 +426,7 @@ export class GenieClient {
    * embedded temporary s,
    * you must not set an `Authorization` header in the download requests.
    *
-   * See Execute Statement for more details.
+   * See [Execute Statement](:method:statementexecution/executestatement) for more details.
    *
    * ----
    */
@@ -495,7 +495,7 @@ export class GenieClient {
   }
 
   /**
-   * After Generating a Full Query Result Download and successfully receiving a `download_id` and `download_id_signature`, use this API to poll the download progress.
+   * After [Generating a Full Query Result Download](:method:genie/generatedownloadfullqueryresult) and successfully receiving a `download_id` and `download_id_signature`, use this API to poll the download progress.
    * Both `download_id` and `download_id_signature` are required to call this endpoint.
    * When the download is complete, the API returns the result in the `EXTERNAL_LINKS` disposition, containing one or more external links to the query result files.
    *
@@ -515,7 +515,7 @@ export class GenieClient {
    * embedded temporary s,
    * you must not set an `Authorization` header in the download requests.
    *
-   * See Execute Statement for more details.
+   * See [Execute Statement](:method:statementexecution/executestatement) for more details.
    *
    * ----
    */
@@ -649,7 +649,7 @@ export class GenieClient {
     return resp;
   }
 
-  /** DEPRECATED: Use Get Message Attachment Query Result instead. */
+  /** DEPRECATED: Use [Get Message Attachment Query Result](:method:genie/getmessageattachmentqueryresult) instead. */
   async genieGetMessageQueryResult(
     req: GenieGetMessageQueryResultRequest,
     options?: CallOptions
@@ -681,7 +681,7 @@ export class GenieClient {
     return resp;
   }
 
-  /** DEPRECATED: Use Get Message Attachment Query Result instead. */
+  /** DEPRECATED: Use [Get Message Attachment Query Result](:method:genie/getmessageattachmentqueryresult) instead. */
   async genieGetQueryResultByAttachment(
     req: GenieGetQueryResultByAttachmentRequest,
     options?: CallOptions

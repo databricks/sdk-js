@@ -581,7 +581,7 @@ export interface CleanRoomCollaborator {
   /** The global Unity Catalog metastore ID of the collaborator. The identifier is of format cloud:region:metastore-uuid. */
   globalMetastoreId?: string | undefined;
   /**
-   * Organization name
+   * [Organization name](:method:metastores/list#metastores-delta_sharing_organization_name)
    * configured in the metastore
    */
   organizationName?: string | undefined;

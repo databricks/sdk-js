@@ -141,7 +141,7 @@ export class StatementExecutionClient {
    * The `EXTERNAL_LINKS` disposition can be disabled upon request by creating a support
    * case.
    *
-   * See also [Security best practices](https://docs.databricks.com/sql/admin/sql-execution-tutorial.html#security-best-practices).
+   * See also [Security best practices](/sql/admin/sql-execution-tutorial.html#security-best-practices).
    *
    * ----
    *

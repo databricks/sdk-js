@@ -226,7 +226,7 @@ export class ClustersClient {
    * Otherwise the cluster will terminate with an informative error message.
    *
    * Rather than authoring the cluster's JSON definition from scratch, Databricks recommends filling out the
-   * [create compute UI](https://docs.databricks.com/compute/configure.html) and then copying the generated JSON definition from the UI.
+   * [create compute UI](/compute/configure.html) and then copying the generated JSON definition from the UI.
    */
   private async createClusterBase(
     req: CreateClusterRequest,
