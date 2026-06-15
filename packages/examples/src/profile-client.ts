@@ -3,7 +3,7 @@
  *
  * The client resolves a profile (config file + DATABRICKS_* env vars) on its
  * first request and fills in whatever the caller left unset — here the host,
- * the workspace ID (sent as X-Databricks-Org-Id), and the credentials. Pass
+ * the workspace ID (sent as X-Databricks-Workspace-Id), and the credentials. Pass
  * `profileOptions` to pick a profile or to turn off the file (`noProfile`) or
  * the env overlay (`disableEnv`); any value set explicitly on the options wins.
  *
