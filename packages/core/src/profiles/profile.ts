@@ -18,7 +18,11 @@ export interface Profile {
   /** Databricks workspace or Accounts API endpoint URL. */
   host?: string;
 
-  /** Databricks Workspace ID, used with unified hosts. */
+  /**
+   * Databricks Workspace ID, used with unified hosts. Accepts either a classic
+   * numeric workspace ID or another workspace identifier format that the server
+   * understands.
+   */
   workspaceId?: string;
 
   /** Databricks Account ID for Accounts API. */

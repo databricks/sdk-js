@@ -77,7 +77,9 @@ describe('profile-client example', () => {
     expect(url.pathname).toBe(
       '/api/serving-endpoints/my-embeddings-endpoint/invocations'
     );
-    expect(seen.headers.get('X-Databricks-Org-Id')).toBe('ws-from-profile');
+    expect(seen.headers.get('X-Databricks-Workspace-Id')).toBe(
+      'ws-from-profile'
+    );
     expect(seen.headers.get('Authorization')).toBe('Bearer pat-from-profile');
   });
 });
