@@ -467,6 +467,8 @@ export interface MiniVectorIndex {
   creator?: string | undefined;
   /** The subtype of the index. */
   indexSubtype?: IndexSubtype | undefined;
+  /** ID of the endpoint associated with the index. */
+  endpointId?: string | undefined;
 }
 
 export interface PatchEndpointBudgetPolicyRequest {
@@ -729,6 +731,8 @@ export interface VectorIndex {
   creator?: string | undefined;
   /** The subtype of the index. */
   indexSubtype?: IndexSubtype | undefined;
+  /** ID of the endpoint associated with the index. */
+  endpointId?: string | undefined;
 }
 
 export interface VectorIndexStatus {
@@ -1028,6 +1032,7 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     status: z.lazy(() => unmarshalVectorIndexStatusSchema).optional(),
     creator: z.string().optional(),
     index_subtype: z.string().optional(),
+    endpoint_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1049,6 +1054,7 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     status: d.status,
     creator: d.creator,
     indexSubtype: d.index_subtype,
+    endpointId: d.endpoint_id,
   }));
 
 export const unmarshalPatchEndpointBudgetPolicyResponseSchema: z.ZodType<PatchEndpointBudgetPolicyResponse> =
@@ -1212,6 +1218,7 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     status: z.lazy(() => unmarshalVectorIndexStatusSchema).optional(),
     creator: z.string().optional(),
     index_subtype: z.string().optional(),
+    endpoint_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1233,6 +1240,7 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     status: d.status,
     creator: d.creator,
     indexSubtype: d.index_subtype,
+    endpointId: d.endpoint_id,
   }));
 
 export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
