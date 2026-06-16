@@ -1038,6 +1038,20 @@ export interface AzureAttributes {
    * on the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.
    */
   spotBidMaxPrice?: number | undefined;
+  /**
+   * The Azure capacity reservation group resource ID to use for launching VMs.
+   * When specified, VMs will be launched using the provided capacity reservation.
+   *
+   * Capacity reservations can only be specified when the workspace uses injected vnet (i.e. customer defined vnet not
+   * managed by databricks). Ensure the databricks-login-prod Enterprise Application is granted the following four permissions:
+   * 1. Microsoft.Compute/capacityReservationGroups/read
+   * 2. Microsoft.Compute/capacityReservationGroups/deploy/action
+   * 3. Microsoft.Compute/capacityReservationGroups/capacityReservations/read
+   * 4. Microsoft.Compute/capacityReservationGroups/capacityReservations/deploy/action
+   *
+   * Format: `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/capacityReservationGroups/{capacityReservationGroupName}`
+   */
+  capacityReservationGroup?: string | undefined;
 }
 
 export interface BaseJob {
@@ -1105,7 +1119,7 @@ export interface BaseRun {
   runPageUrl?: string | undefined;
   runType?: RunType | undefined;
   /**
-   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run resutls.
+   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run results.
    * If more than 100 tasks are available, you can paginate through them using :method:jobs/getrun. Use the `next_page_token` field at the object root to determine if more results are available.
    */
   tasks?: RunTask[] | undefined;
@@ -2266,7 +2280,7 @@ export interface GetRunResponse {
   runPageUrl?: string | undefined;
   runType?: RunType | undefined;
   /**
-   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run resutls.
+   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run results.
    * If more than 100 tasks are available, you can paginate through them using :method:jobs/getrun. Use the `next_page_token` field at the object root to determine if more results are available.
    */
   tasks?: RunTask[] | undefined;
@@ -3411,7 +3425,7 @@ export interface Run {
   runPageUrl?: string | undefined;
   runType?: RunType | undefined;
   /**
-   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run resutls.
+   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run results.
    * If more than 100 tasks are available, you can paginate through them using :method:jobs/getrun. Use the `next_page_token` field at the object root to determine if more results are available.
    */
   tasks?: RunTask[] | undefined;
@@ -4959,12 +4973,14 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
     first_on_demand: z.number().optional(),
     availability: z.string().optional(),
     spot_bid_max_price: z.number().optional(),
+    capacity_reservation_group: z.string().optional(),
   })
   .transform(d => ({
     logAnalyticsInfo: d.log_analytics_info,
     firstOnDemand: d.first_on_demand,
     availability: d.availability,
     spotBidMaxPrice: d.spot_bid_max_price,
+    capacityReservationGroup: d.capacity_reservation_group,
   }));
 
 export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
@@ -8125,12 +8141,14 @@ export const marshalAzureAttributesSchema: z.ZodType = z
     firstOnDemand: z.number().optional(),
     availability: z.string().optional(),
     spotBidMaxPrice: z.number().optional(),
+    capacityReservationGroup: z.string().optional(),
   })
   .transform(d => ({
     log_analytics_info: d.logAnalyticsInfo,
     first_on_demand: d.firstOnDemand,
     availability: d.availability,
     spot_bid_max_price: d.spotBidMaxPrice,
+    capacity_reservation_group: d.capacityReservationGroup,
   }));
 
 export const marshalCancelAllRunsRequestSchema: z.ZodType = z
