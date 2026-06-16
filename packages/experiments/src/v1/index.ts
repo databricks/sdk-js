@@ -1,5 +1,9 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+/**
+ * @module v1
+ */
+
 export {ExperimentsClient} from './client';
 
 export {LoggedModelStatus, RunStatus, ViewType} from './model';
