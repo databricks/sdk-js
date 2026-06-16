@@ -989,6 +989,7 @@ export interface IngressNetworkPolicy {
   crossWorkspaceAccess?: IngressNetworkPolicy_CrossWorkspaceAccess | undefined;
 }
 
+/** Matches account-level Databricks API endpoints for an ingress network policy rule. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_AccountApiDestination {
   scopes?: string[] | undefined;
@@ -1173,6 +1174,7 @@ export interface IngressNetworkPolicy_RequestDestination {
     | undefined;
 }
 
+/** Matches workspace-level Databricks API endpoints for an ingress network policy rule. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_WorkspaceApiDestination {
   scopes?: string[] | undefined;

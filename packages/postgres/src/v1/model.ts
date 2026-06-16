@@ -523,6 +523,25 @@ export type ErrorCode =
   | (typeof ErrorCode)[keyof typeof ErrorCode]
   | (string & {});
 
+/**
+ * Controls how the Data API exposes the OpenAPI documentation endpoint.
+ * Only IGNORE_PRIVILEGES and DISABLED are supported today; "follow-privileges"
+ * is not implemented yet (it may be added later as value 3 — adding new enum
+ * values is backward-compatible).
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OpenApiMode = {
+  /** Unspecified; the server applies its default mode. */
+  OPEN_API_MODE_UNSPECIFIED: 'OPEN_API_MODE_UNSPECIFIED',
+  /** Generate OpenAPI output ignoring the privileges of the requesting role. */
+  OPEN_API_MODE_IGNORE_PRIVILEGES: 'OPEN_API_MODE_IGNORE_PRIVILEGES',
+  /** Disable the OpenAPI documentation endpoint entirely. */
+  OPEN_API_MODE_DISABLED: 'OPEN_API_MODE_DISABLED',
+} as const;
+export type OpenApiMode =
+  | (typeof OpenApiMode)[keyof typeof OpenApiMode]
+  | (string & {});
+
 /** The current phase of the data synchronization pipeline. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningPhase = {
@@ -984,6 +1003,14 @@ export interface CreateCatalogRequest {
   catalog?: Catalog | undefined;
 }
 
+/** Enable Data API for a database. */
+export interface CreateDataApiRequest {
+  /** Parent database: projects/{project_id}/branches/{branch_id}/databases/{database_id} */
+  parent?: string | undefined;
+  /** The Data API configuration to create. */
+  dataApi?: DataApi | undefined;
+}
+
 export interface CreateDatabaseRequest {
   /**
    * The Branch where this Database will be created.
@@ -1073,6 +1100,100 @@ export interface CreateSyncedTableRequest {
   syncedTable?: SyncedTable | undefined;
 }
 
+/**
+ * DataApi represents the Data API (PostgREST) configuration for a Database.
+ * At most one DataApi per database. Create enables Data API, Delete disables it.
+ */
+export interface DataApi {
+  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
+  name?: string | undefined;
+  /**
+   * The database containing this Data API configuration.
+   * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   */
+  parent?: string | undefined;
+  /** A timestamp indicating when the Data API was first enabled. */
+  createTime?: Temporal.Instant | undefined;
+  /** A timestamp indicating when the Data API configuration was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** The desired Data API configuration. */
+  spec?: DataApi_DataApiSpec | undefined;
+  /** The observed Data API state (read-only). */
+  status?: DataApi_DataApiStatus | undefined;
+}
+
+/** Desired PostgREST configuration (input). */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DataApi_DataApiSpec {
+  /**
+   * Enable aggregate functions (count, sum, avg, etc.) in Data API responses.
+   * Default: true.
+   */
+  dbAggregatesEnabled?: boolean | undefined;
+  /**
+   * Additional schemas to include in the PostgreSQL search path.
+   * Each entry must be a valid PostgreSQL schema name.
+   */
+  dbExtraSearchPath?: string[] | undefined;
+  /**
+   * Maximum number of rows returned in a single Data API response.
+   * Must be a positive integer.
+   */
+  dbMaxRows?: number | undefined;
+  /**
+   * Database schemas exposed through the Data API.
+   * Each entry must be a valid PostgreSQL schema name (1-63 chars, [a-zA-Z_][a-zA-Z0-9_$]*).
+   * Maximum 100 entries. Default: ["public"].
+   */
+  dbSchemas?: string[] | undefined;
+  /**
+   * JSON path to the role claim in JWT tokens (e.g., ".sub").
+   * Default: ".sub".
+   */
+  jwtRoleClaimKey?: string | undefined;
+  /** Maximum lifetime for cached JWT tokens. Zero duration disables caching. */
+  jwtCacheMaxLifetime?: Temporal.Duration | undefined;
+  /** OpenAPI documentation mode for the Data API endpoint. */
+  openapiMode?: OpenApiMode | undefined;
+  /**
+   * Allowed origins for CORS requests.
+   * Each entry should be a valid origin URL, or use "*" to allow all origins.
+   */
+  serverCorsAllowedOrigins?: string[] | undefined;
+  /** Enable the Server-Timing header in Data API responses. */
+  serverTimingEnabled?: boolean | undefined;
+}
+
+/** Observed state (output-only). */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DataApi_DataApiStatus {
+  /** Actual aggregate function setting read from the database. */
+  dbAggregatesEnabled?: boolean | undefined;
+  /** Actual extra search path schemas read from the database. */
+  dbExtraSearchPath?: string[] | undefined;
+  /** Actual max rows setting read from the database. */
+  dbMaxRows?: number | undefined;
+  /** Actual exposed schemas read from the database. */
+  dbSchemas?: string[] | undefined;
+  /** Actual JWT role claim key read from the database. */
+  jwtRoleClaimKey?: string | undefined;
+  /** Actual JWT cache max lifetime read from the database. */
+  jwtCacheMaxLifetime?: Temporal.Duration | undefined;
+  /** Actual OpenAPI mode read from the database. */
+  openapiMode?: OpenApiMode | undefined;
+  /** Actual CORS allowed origins read from the database. */
+  serverCorsAllowedOrigins?: string[] | undefined;
+  /** Actual Server-Timing header setting read from the database. */
+  serverTimingEnabled?: boolean | undefined;
+  /** Data API endpoint URL. */
+  url?: string | undefined;
+  /** Schemas available in the database (for reference when configuring db_schemas). */
+  availableSchemas?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DataApiOperationMetadata {}
+
 /** Database represents a Postgres database within a Branch. */
 export interface Database {
   /**
@@ -1159,6 +1280,12 @@ export interface DeleteCatalogRequest {
    *
    * Format: "catalogs/{catalog_id}".
    */
+  name?: string | undefined;
+}
+
+/** Disable Data API for a database. */
+export interface DeleteDataApiRequest {
+  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
   name?: string | undefined;
 }
 
@@ -1418,6 +1545,12 @@ export interface GetCatalogRequest {
    *
    * Format: "catalogs/{catalog_id}".
    */
+  name?: string | undefined;
+}
+
+/** Get Data API configuration for a database. */
+export interface GetDataApiRequest {
+  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
   name?: string | undefined;
 }
 
@@ -2102,6 +2235,17 @@ export interface UpdateBranchRequest {
   updateMask?: FieldMask<Branch> | undefined;
 }
 
+/** Update Data API configuration for a database. */
+export interface UpdateDataApiRequest {
+  /**
+   * The Data API configuration to update.
+   * The data_api's `name` field identifies the resource.
+   */
+  dataApi?: DataApi | undefined;
+  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  updateMask?: FieldMask<DataApi> | undefined;
+}
+
 export interface UpdateDatabaseRequest {
   /**
    * The Database to update.
@@ -2337,6 +2481,95 @@ export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStat
     }));
 
 export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperationMetadata> =
+  z.object({});
+
+export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
+  .object({
+    name: z.string().optional(),
+    parent: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    spec: z.lazy(() => unmarshalDataApi_DataApiSpecSchema).optional(),
+    status: z.lazy(() => unmarshalDataApi_DataApiStatusSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    parent: d.parent,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    spec: d.spec,
+    status: d.status,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDataApi_DataApiSpecSchema: z.ZodType<DataApi_DataApiSpec> =
+  z
+    .object({
+      db_aggregates_enabled: z.boolean().optional(),
+      db_extra_search_path: z.array(z.string()).optional(),
+      db_max_rows: z.number().optional(),
+      db_schemas: z.array(z.string()).optional(),
+      jwt_role_claim_key: z.string().optional(),
+      jwt_cache_max_lifetime: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
+      openapi_mode: z.string().optional(),
+      server_cors_allowed_origins: z.array(z.string()).optional(),
+      server_timing_enabled: z.boolean().optional(),
+    })
+    .transform(d => ({
+      dbAggregatesEnabled: d.db_aggregates_enabled,
+      dbExtraSearchPath: d.db_extra_search_path,
+      dbMaxRows: d.db_max_rows,
+      dbSchemas: d.db_schemas,
+      jwtRoleClaimKey: d.jwt_role_claim_key,
+      jwtCacheMaxLifetime: d.jwt_cache_max_lifetime,
+      openapiMode: d.openapi_mode,
+      serverCorsAllowedOrigins: d.server_cors_allowed_origins,
+      serverTimingEnabled: d.server_timing_enabled,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDataApi_DataApiStatusSchema: z.ZodType<DataApi_DataApiStatus> =
+  z
+    .object({
+      db_aggregates_enabled: z.boolean().optional(),
+      db_extra_search_path: z.array(z.string()).optional(),
+      db_max_rows: z.number().optional(),
+      db_schemas: z.array(z.string()).optional(),
+      jwt_role_claim_key: z.string().optional(),
+      jwt_cache_max_lifetime: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
+      openapi_mode: z.string().optional(),
+      server_cors_allowed_origins: z.array(z.string()).optional(),
+      server_timing_enabled: z.boolean().optional(),
+      url: z.string().optional(),
+      available_schemas: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      dbAggregatesEnabled: d.db_aggregates_enabled,
+      dbExtraSearchPath: d.db_extra_search_path,
+      dbMaxRows: d.db_max_rows,
+      dbSchemas: d.db_schemas,
+      jwtRoleClaimKey: d.jwt_role_claim_key,
+      jwtCacheMaxLifetime: d.jwt_cache_max_lifetime,
+      openapiMode: d.openapi_mode,
+      serverCorsAllowedOrigins: d.server_cors_allowed_origins,
+      serverTimingEnabled: d.server_timing_enabled,
+      url: d.url,
+      availableSchemas: d.available_schemas,
+    }));
+
+export const unmarshalDataApiOperationMetadataSchema: z.ZodType<DataApiOperationMetadata> =
   z.object({});
 
 export const unmarshalDatabaseSchema: z.ZodType<Database> = z
@@ -3220,6 +3453,90 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
     branch: d.branch,
   }));
 
+export const marshalDataApiSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    parent: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    spec: z.lazy(() => marshalDataApi_DataApiSpecSchema).optional(),
+    status: z.lazy(() => marshalDataApi_DataApiStatusSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    parent: d.parent,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    spec: d.spec,
+    status: d.status,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDataApi_DataApiSpecSchema: z.ZodType = z
+  .object({
+    dbAggregatesEnabled: z.boolean().optional(),
+    dbExtraSearchPath: z.array(z.string()).optional(),
+    dbMaxRows: z.number().optional(),
+    dbSchemas: z.array(z.string()).optional(),
+    jwtRoleClaimKey: z.string().optional(),
+    jwtCacheMaxLifetime: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    openapiMode: z.string().optional(),
+    serverCorsAllowedOrigins: z.array(z.string()).optional(),
+    serverTimingEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    db_aggregates_enabled: d.dbAggregatesEnabled,
+    db_extra_search_path: d.dbExtraSearchPath,
+    db_max_rows: d.dbMaxRows,
+    db_schemas: d.dbSchemas,
+    jwt_role_claim_key: d.jwtRoleClaimKey,
+    jwt_cache_max_lifetime: d.jwtCacheMaxLifetime,
+    openapi_mode: d.openapiMode,
+    server_cors_allowed_origins: d.serverCorsAllowedOrigins,
+    server_timing_enabled: d.serverTimingEnabled,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDataApi_DataApiStatusSchema: z.ZodType = z
+  .object({
+    dbAggregatesEnabled: z.boolean().optional(),
+    dbExtraSearchPath: z.array(z.string()).optional(),
+    dbMaxRows: z.number().optional(),
+    dbSchemas: z.array(z.string()).optional(),
+    jwtRoleClaimKey: z.string().optional(),
+    jwtCacheMaxLifetime: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    openapiMode: z.string().optional(),
+    serverCorsAllowedOrigins: z.array(z.string()).optional(),
+    serverTimingEnabled: z.boolean().optional(),
+    url: z.string().optional(),
+    availableSchemas: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    db_aggregates_enabled: d.dbAggregatesEnabled,
+    db_extra_search_path: d.dbExtraSearchPath,
+    db_max_rows: d.dbMaxRows,
+    db_schemas: d.dbSchemas,
+    jwt_role_claim_key: d.jwtRoleClaimKey,
+    jwt_cache_max_lifetime: d.jwtCacheMaxLifetime,
+    openapi_mode: d.openapiMode,
+    server_cors_allowed_origins: d.serverCorsAllowedOrigins,
+    server_timing_enabled: d.serverTimingEnabled,
+    url: d.url,
+    available_schemas: d.availableSchemas,
+  }));
+
 export const marshalDatabaseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3891,6 +4208,50 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
   stateChangeTime: {wire: 'state_change_time'},
+};
+
+const dataApiFieldMaskSchema: FieldMaskSchema = {
+  createTime: {wire: 'create_time'},
+  name: {wire: 'name'},
+  parent: {wire: 'parent'},
+  spec: {wire: 'spec', children: () => dataApi_DataApiSpecFieldMaskSchema},
+  status: {
+    wire: 'status',
+    children: () => dataApi_DataApiStatusFieldMaskSchema,
+  },
+  updateTime: {wire: 'update_time'},
+};
+
+export function dataApiFieldMask(...paths: string[]): FieldMask<DataApi> {
+  return FieldMask.build<DataApi>(paths, dataApiFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const dataApi_DataApiSpecFieldMaskSchema: FieldMaskSchema = {
+  dbAggregatesEnabled: {wire: 'db_aggregates_enabled'},
+  dbExtraSearchPath: {wire: 'db_extra_search_path'},
+  dbMaxRows: {wire: 'db_max_rows'},
+  dbSchemas: {wire: 'db_schemas'},
+  jwtCacheMaxLifetime: {wire: 'jwt_cache_max_lifetime'},
+  jwtRoleClaimKey: {wire: 'jwt_role_claim_key'},
+  openapiMode: {wire: 'openapi_mode'},
+  serverCorsAllowedOrigins: {wire: 'server_cors_allowed_origins'},
+  serverTimingEnabled: {wire: 'server_timing_enabled'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const dataApi_DataApiStatusFieldMaskSchema: FieldMaskSchema = {
+  availableSchemas: {wire: 'available_schemas'},
+  dbAggregatesEnabled: {wire: 'db_aggregates_enabled'},
+  dbExtraSearchPath: {wire: 'db_extra_search_path'},
+  dbMaxRows: {wire: 'db_max_rows'},
+  dbSchemas: {wire: 'db_schemas'},
+  jwtCacheMaxLifetime: {wire: 'jwt_cache_max_lifetime'},
+  jwtRoleClaimKey: {wire: 'jwt_role_claim_key'},
+  openapiMode: {wire: 'openapi_mode'},
+  serverCorsAllowedOrigins: {wire: 'server_cors_allowed_origins'},
+  serverTimingEnabled: {wire: 'server_timing_enabled'},
+  url: {wire: 'url'},
 };
 
 const databaseFieldMaskSchema: FieldMaskSchema = {

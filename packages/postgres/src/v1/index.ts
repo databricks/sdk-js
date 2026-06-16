@@ -1,13 +1,10 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-/**
- * @module v1
- */
-
 export {
   PostgresClient,
   CreateBranchOperation,
   CreateCatalogOperation,
+  CreateDataApiOperation,
   CreateDatabaseOperation,
   CreateEndpointOperation,
   CreateProjectOperation,
@@ -15,6 +12,7 @@ export {
   CreateSyncedTableOperation,
   DeleteBranchOperation,
   DeleteCatalogOperation,
+  DeleteDataApiOperation,
   DeleteDatabaseOperation,
   DeleteEndpointOperation,
   DeleteProjectOperation,
@@ -23,6 +21,7 @@ export {
   UndeleteBranchOperation,
   UndeleteProjectOperation,
   UpdateBranchOperation,
+  UpdateDataApiOperation,
   UpdateDatabaseOperation,
   UpdateEndpointOperation,
   UpdateProjectOperation,
@@ -32,6 +31,7 @@ export {
 export {
   EndpointType,
   ErrorCode,
+  OpenApiMode,
   ProvisioningPhase,
   SyncedTableState,
   BranchStatus_State,
@@ -57,11 +57,16 @@ export type {
   CatalogOperationMetadata,
   CreateBranchRequest,
   CreateCatalogRequest,
+  CreateDataApiRequest,
   CreateDatabaseRequest,
   CreateEndpointRequest,
   CreateProjectRequest,
   CreateRoleRequest,
   CreateSyncedTableRequest,
+  DataApi,
+  DataApi_DataApiSpec,
+  DataApi_DataApiStatus,
+  DataApiOperationMetadata,
   Database,
   Database_DatabaseSpec,
   Database_DatabaseStatus,
@@ -69,6 +74,7 @@ export type {
   DatabaseOperationMetadata,
   DeleteBranchRequest,
   DeleteCatalogRequest,
+  DeleteDataApiRequest,
   DeleteDatabaseRequest,
   DeleteEndpointRequest,
   DeleteProjectRequest,
@@ -86,6 +92,7 @@ export type {
   GenerateDatabaseCredentialRequest,
   GetBranchRequest,
   GetCatalogRequest,
+  GetDataApiRequest,
   GetDatabaseRequest,
   GetEndpointRequest,
   GetOperationRequest,
@@ -129,6 +136,7 @@ export type {
   UndeleteBranchRequest,
   UndeleteProjectRequest,
   UpdateBranchRequest,
+  UpdateDataApiRequest,
   UpdateDatabaseRequest,
   UpdateEndpointRequest,
   UpdateProjectRequest,
@@ -137,6 +145,7 @@ export type {
 
 export {
   branchFieldMask,
+  dataApiFieldMask,
   databaseFieldMask,
   endpointFieldMask,
   projectFieldMask,

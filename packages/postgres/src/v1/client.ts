@@ -27,16 +27,20 @@ import type {
   CatalogOperationMetadata,
   CreateBranchRequest,
   CreateCatalogRequest,
+  CreateDataApiRequest,
   CreateDatabaseRequest,
   CreateEndpointRequest,
   CreateProjectRequest,
   CreateRoleRequest,
   CreateSyncedTableRequest,
+  DataApi,
+  DataApiOperationMetadata,
   Database,
   DatabaseCredential,
   DatabaseOperationMetadata,
   DeleteBranchRequest,
   DeleteCatalogRequest,
+  DeleteDataApiRequest,
   DeleteDatabaseRequest,
   DeleteEndpointRequest,
   DeleteProjectRequest,
@@ -47,6 +51,7 @@ import type {
   GenerateDatabaseCredentialRequest,
   GetBranchRequest,
   GetCatalogRequest,
+  GetDataApiRequest,
   GetDatabaseRequest,
   GetEndpointRequest,
   GetOperationRequest,
@@ -73,6 +78,7 @@ import type {
   UndeleteBranchRequest,
   UndeleteProjectRequest,
   UpdateBranchRequest,
+  UpdateDataApiRequest,
   UpdateDatabaseRequest,
   UpdateEndpointRequest,
   UpdateProjectRequest,
@@ -81,6 +87,7 @@ import type {
 import {
   marshalBranchSchema,
   marshalCatalogSchema,
+  marshalDataApiSchema,
   marshalDatabaseSchema,
   marshalEndpointSchema,
   marshalGenerateDatabaseCredentialRequestSchema,
@@ -93,6 +100,8 @@ import {
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
   unmarshalCatalogSchema,
+  unmarshalDataApiOperationMetadataSchema,
+  unmarshalDataApiSchema,
   unmarshalDatabaseCredentialSchema,
   unmarshalDatabaseOperationMetadataSchema,
   unmarshalDatabaseSchema,
@@ -250,6 +259,47 @@ export class PostgresClient {
   ): Promise<CreateCatalogOperation> {
     const op = await this.createCatalogBase(req, options);
     return new CreateCatalogOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
+  /** Enable Data API for a database. */
+  private async createDataApiBase(
+    req: CreateDataApiRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/data-api`;
+    const body = marshalRequest(req.dataApi, marshalDataApiSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Enable Data API for a database. */
+  async createDataApi(
+    req: CreateDataApiRequest,
+    options?: CallOptions
+  ): Promise<CreateDataApiOperation> {
+    const op = await this.createDataApiBase(req, options);
+    return new CreateDataApiOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
@@ -616,6 +666,46 @@ export class PostgresClient {
     );
   }
 
+  /** Disable Data API for a database. */
+  private async deleteDataApiBase(
+    req: DeleteDataApiRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Disable Data API for a database. */
+  async deleteDataApi(
+    req: DeleteDataApiRequest,
+    options?: CallOptions
+  ): Promise<DeleteDataApiOperation> {
+    const op = await this.deleteDataApiBase(req, options);
+    return new DeleteDataApiOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Delete a Database. */
   private async deleteDatabaseBase(
     req: DeleteDatabaseRequest,
@@ -911,6 +1001,35 @@ export class PostgresClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCatalogSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get Data API configuration for a database. */
+  async getDataApi(
+    req: GetDataApiRequest,
+    options?: CallOptions
+  ): Promise<DataApi> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: DataApi | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDataApiSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1506,6 +1625,59 @@ export class PostgresClient {
     );
   }
 
+  /** Update Data API configuration for a database. */
+  private async updateDataApiBase(
+    req: UpdateDataApiRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.dataApi?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.dataApi, marshalDataApiSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update Data API configuration for a database. */
+  async updateDataApi(
+    req: UpdateDataApiRequest,
+    options?: CallOptions
+  ): Promise<UpdateDataApiOperation> {
+    const op = await this.updateDataApiBase(req, options);
+    return new UpdateDataApiOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Update a Database. */
   private async updateDatabaseBase(
     req: UpdateDatabaseRequest,
@@ -1870,6 +2042,90 @@ export class CreateCatalogOperation {
       }
 
       result = z.lazy(() => unmarshalCatalogSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class CreateDataApiOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<DataApiOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDataApiOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<DataApi> {
+    let result: DataApi | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalDataApiSchema).parse(op.result.response);
     };
 
     await executeWait(call, options);
@@ -2403,6 +2659,78 @@ export class DeleteCatalogOperation {
     return Promise.resolve(
       z
         .lazy(() => unmarshalCatalogOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<void> {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+    };
+
+    await executeWait(call, options);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class DeleteDataApiOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<DataApiOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDataApiOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
   }
@@ -3024,6 +3352,90 @@ export class UpdateBranchOperation {
       }
 
       result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UpdateDataApiOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<DataApiOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDataApiOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<DataApi> {
+    let result: DataApi | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalDataApiSchema).parse(op.result.response);
     };
 
     await executeWait(call, options);
