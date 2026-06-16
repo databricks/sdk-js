@@ -1,5 +1,9 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+/**
+ * @module v1
+ */
+
 export {SecretsClient} from './client';
 
 export {AclPermission, ScopeBackendType} from './model';
