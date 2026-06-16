@@ -38,7 +38,7 @@ export type ConnectionType =
   | (typeof ConnectionType)[keyof typeof ConnectionType]
   | (string & {});
 
-/** Next Id: 19 */
+/** Next Id: 20 */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CredentialType = {
   UNKNOWN_CREDENTIAL_TYPE: 'UNKNOWN_CREDENTIAL_TYPE',
