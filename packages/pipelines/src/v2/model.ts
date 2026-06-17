@@ -512,6 +512,8 @@ export interface ClonePipelineRequest {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
+  /** Serverless compute ID specified by the user for serverless pipelines. */
+  serverlessComputeId?: string | undefined;
   /** The type of clone to perform. Currently, only deep copies are supported */
   cloneMode?: CloneMode | undefined;
 }
@@ -634,6 +636,8 @@ export interface CreatePipelineRequest {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
+  /** Serverless compute ID specified by the user for serverless pipelines. */
+  serverlessComputeId?: string | undefined;
 }
 
 export interface CreatePipelineResponse {
@@ -769,6 +773,8 @@ export interface EditPipelineRequest {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
+  /** Serverless compute ID specified by the user for serverless pipelines. */
+  serverlessComputeId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1905,6 +1911,8 @@ export interface PipelineSpec {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
+  /** Serverless compute ID specified by the user for serverless pipelines. */
+  serverlessComputeId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3590,6 +3598,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     root_path: z.string().optional(),
     environment: z.lazy(() => unmarshalPipelinesEnvironmentSchema).optional(),
     usage_policy_id: z.string().optional(),
+    serverless_compute_id: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -3620,6 +3629,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     rootPath: d.root_path,
     environment: d.environment,
     usagePolicyId: d.usage_policy_id,
+    serverlessComputeId: d.serverless_compute_id,
   }));
 
 export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
@@ -4128,6 +4138,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
+    serverlessComputeId: z.string().optional(),
     cloneMode: z.string().optional(),
   })
   .transform(d => ({
@@ -4162,6 +4173,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     root_path: d.rootPath,
     environment: d.environment,
     usage_policy_id: d.usagePolicyId,
+    serverless_compute_id: d.serverlessComputeId,
     clone_mode: d.cloneMode,
   }));
 
@@ -4310,6 +4322,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
+    serverlessComputeId: z.string().optional(),
   })
   .transform(d => ({
     allow_duplicate_names: d.allowDuplicateNames,
@@ -4344,6 +4357,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     root_path: d.rootPath,
     environment: d.environment,
     usage_policy_id: d.usagePolicyId,
+    serverless_compute_id: d.serverlessComputeId,
   }));
 
 export const marshalCronTriggerSchema: z.ZodType = z
@@ -4407,6 +4421,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
+    serverlessComputeId: z.string().optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
@@ -4442,6 +4457,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     root_path: d.rootPath,
     environment: d.environment,
     usage_policy_id: d.usagePolicyId,
+    serverless_compute_id: d.serverlessComputeId,
   }));
 
 export const marshalEventLogSpecSchema: z.ZodType = z
