@@ -2611,10 +2611,7 @@ export interface InitScriptEventDetails_InitScriptInfoAndExecutionDetails {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface InitScriptExecutionDetails {}
 
-/**
- * Config for an individual init script
- * Next ID: 11
- */
+/** Config for an individual init script */
 export interface InitScriptInfo {
   storageInfo?:
     | {

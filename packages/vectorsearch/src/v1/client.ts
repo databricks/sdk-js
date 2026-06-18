@@ -15,6 +15,7 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  flattenQueryParams,
   executeWait,
   StillRunningError,
 } from './utils';
@@ -197,7 +198,7 @@ export class VectorSearchClient {
     const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/delete-data`;
     const params = new URLSearchParams();
     if (req.primaryKeys !== undefined) {
-      params.append('primary_keys', String(req.primaryKeys));
+      flattenQueryParams('primary_keys', req.primaryKeys, params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

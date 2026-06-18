@@ -2381,10 +2381,7 @@ export interface GitSource {
   sparseCheckout?: SparseCheckout | undefined;
 }
 
-/**
- * Config for an individual init script
- * Next ID: 11
- */
+/** Config for an individual init script */
 export interface InitScriptInfo {
   storageInfo?:
     | {
