@@ -1,6 +1,7 @@
 import {ClientInfo, sanitize} from './clientinfo';
 import {MODULE_NAME, VERSION, getBase} from './base';
 import {agentProvider} from './agent';
+import {metaHarnessProvider} from './meta-harness';
 
 interface EnvCheck {
   readonly name: string;
@@ -122,6 +123,13 @@ export function createDefault(): ClientInfo {
   const agent = agentProvider();
   if (agent !== '') {
     pairs.push({key: 'agent', value: agent});
+  }
+
+  // The meta-harness dimension is independent of agent detection: omnigent
+  // running Claude Code reports both agent/claude-code and meta-harness/omnigent.
+  const metaHarness = metaHarnessProvider();
+  if (metaHarness !== '') {
+    pairs.push({key: 'meta-harness', value: metaHarness});
   }
 
   return ClientInfo.EMPTY.with(...pairs);

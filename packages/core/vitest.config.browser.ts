@@ -13,6 +13,7 @@ export default defineConfig({
       'tests/profiles/resolve.test.ts',
       'tests/clientinfo/default.test.ts',
       'tests/clientinfo/agent.test.ts',
+      'tests/clientinfo/meta-harness.test.ts',
     ],
   },
 });
