@@ -15,6 +15,7 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  flattenQueryParams,
   executeWait,
   StillRunningError,
 } from './utils';
@@ -289,7 +290,7 @@ export class PipelinesClient {
       params.append('max_results', String(req.maxResults));
     }
     if (req.orderBy !== undefined) {
-      params.append('order_by', String(req.orderBy));
+      flattenQueryParams('order_by', req.orderBy, params);
     }
     if (req.filter !== undefined) {
       params.append('filter', req.filter);
@@ -408,7 +409,7 @@ export class PipelinesClient {
       params.append('max_results', String(req.maxResults));
     }
     if (req.orderBy !== undefined) {
-      params.append('order_by', String(req.orderBy));
+      flattenQueryParams('order_by', req.orderBy, params);
     }
     if (req.filter !== undefined) {
       params.append('filter', req.filter);

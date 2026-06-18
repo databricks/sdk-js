@@ -242,7 +242,7 @@ export class MarketplacesClient {
     const url = `${host}/api/2.1/marketplace-consumer/listings:batchGet`;
     const params = new URLSearchParams();
     if (req.ids !== undefined) {
-      params.append('ids', String(req.ids));
+      flattenQueryParams('ids', req.ids, params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -277,7 +277,7 @@ export class MarketplacesClient {
     const url = `${host}/api/2.1/marketplace-consumer/providers:batchGet`;
     const params = new URLSearchParams();
     if (req.ids !== undefined) {
-      params.append('ids', String(req.ids));
+      flattenQueryParams('ids', req.ids, params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -768,10 +768,10 @@ export class MarketplacesClient {
       params.append('page_size', String(req.pageSize));
     }
     if (req.assets !== undefined) {
-      params.append('assets', String(req.assets));
+      flattenQueryParams('assets', req.assets, params);
     }
     if (req.categories !== undefined) {
-      params.append('categories', String(req.categories));
+      flattenQueryParams('categories', req.categories, params);
     }
     if (req.tags !== undefined) {
       flattenQueryParams(
@@ -790,7 +790,7 @@ export class MarketplacesClient {
       params.append('is_staff_pick', String(req.isStaffPick));
     }
     if (req.providerIds !== undefined) {
-      params.append('provider_ids', String(req.providerIds));
+      flattenQueryParams('provider_ids', req.providerIds, params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -924,13 +924,13 @@ export class MarketplacesClient {
       params.append('is_private_exchange', String(req.isPrivateExchange));
     }
     if (req.providerIds !== undefined) {
-      params.append('provider_ids', String(req.providerIds));
+      flattenQueryParams('provider_ids', req.providerIds, params);
     }
     if (req.categories !== undefined) {
-      params.append('categories', String(req.categories));
+      flattenQueryParams('categories', req.categories, params);
     }
     if (req.assets !== undefined) {
-      params.append('assets', String(req.assets));
+      flattenQueryParams('assets', req.assets, params);
     }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);

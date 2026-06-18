@@ -14,6 +14,7 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  flattenQueryParams,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
@@ -479,7 +480,7 @@ export class ModelRegistryClient {
       params.append('model_name', req.modelName);
     }
     if (req.events !== undefined) {
-      params.append('events', String(req.events));
+      flattenQueryParams('events', req.events, params);
     }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1183,7 +1184,7 @@ export class ModelRegistryClient {
       params.append('max_results', String(req.maxResults));
     }
     if (req.orderBy !== undefined) {
-      params.append('order_by', String(req.orderBy));
+      flattenQueryParams('order_by', req.orderBy, params);
     }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1247,7 +1248,7 @@ export class ModelRegistryClient {
       params.append('max_results', String(req.maxResults));
     }
     if (req.orderBy !== undefined) {
-      params.append('order_by', String(req.orderBy));
+      flattenQueryParams('order_by', req.orderBy, params);
     }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
