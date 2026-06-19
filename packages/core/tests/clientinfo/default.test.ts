@@ -18,6 +18,7 @@ import {
   normalizeNodeVersion,
 } from '../../src/clientinfo/default';
 import {clearAgentCache} from '../../src/clientinfo/agent';
+import {clearMetaHarnessCache} from '../../src/clientinfo/meta-harness';
 
 describe('createDefault', () => {
   let savedEnv: NodeJS.ProcessEnv;
@@ -25,6 +26,7 @@ describe('createDefault', () => {
   beforeEach(() => {
     resetBase();
     clearAgentCache();
+    clearMetaHarnessCache();
     savedEnv = process.env;
     process.env = {...savedEnv};
   });
@@ -32,6 +34,7 @@ describe('createDefault', () => {
   afterEach(() => {
     process.env = savedEnv;
     clearAgentCache();
+    clearMetaHarnessCache();
   });
 
   const prefix = `${MODULE_NAME}/${VERSION} node/${CACHED_NODE_VERSION} os/${process.platform}`;
@@ -87,6 +90,16 @@ describe('createDefault', () => {
       want: `${prefix} agent/somethingweird`,
     },
     {
+      name: 'meta-harness only',
+      env: {OMNIGENT: '1'},
+      want: `${prefix} meta-harness/omnigent`,
+    },
+    {
+      name: 'agent and meta-harness reported independently',
+      env: {CLAUDECODE: '1', OMNIGENT: '1'},
+      want: `${prefix} agent/claude-code meta-harness/omnigent`,
+    },
+    {
       name: 'databricks runtime',
       env: {DATABRICKS_RUNTIME_VERSION: '15.5'},
       want: `${prefix} runtime/15.5`,
@@ -122,8 +135,9 @@ describe('createDefault', () => {
         GITHUB_ACTIONS: 'true',
         DATABRICKS_RUNTIME_VERSION: '15.5',
         CLAUDECODE: '1',
+        OMNIGENT: '1',
       },
-      want: `${prefix} upstream/terraform upstream-version/1.5.0 cicd/github runtime/15.5 agent/claude-code`,
+      want: `${prefix} upstream/terraform upstream-version/1.5.0 cicd/github runtime/15.5 agent/claude-code meta-harness/omnigent`,
     },
   ];
 
