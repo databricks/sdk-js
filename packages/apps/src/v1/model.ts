@@ -9,6 +9,7 @@ import {z} from 'zod';
 export const ComputeSize = {
   MEDIUM: 'MEDIUM',
   LARGE: 'LARGE',
+  XLARGE: 'XLARGE',
 } as const;
 export type ComputeSize =
   | (typeof ComputeSize)[keyof typeof ComputeSize]
