@@ -1,5 +1,12 @@
 # Version changelog
 
+## Release v0.6.0 (2026-06-22)
+
+### New Features and Improvements
+
+- Added a `meta-harness` user-agent dimension that reports the omnigent meta-harness (detected via the `OMNIGENT` environment variable) independently of agent detection.
+
+
 ## Release v0.5.0 (2026-06-18)
 
 
