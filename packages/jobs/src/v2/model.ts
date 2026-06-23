@@ -508,6 +508,25 @@ export type CleanRoomTaskRunResultState_CleanRoomTaskRunResultState =
   | (string & {});
 
 /**
+ * Customer-facing AcceleratorType: hardware accelerator type for the
+ * AiRuntime workload. Per-node accelerator count is encoded in the value
+ * name (e.g. `GPU_8xH100` means 8 H100s per node).
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ComputeSpec_AcceleratorType = {
+  /** Single A10 GPU per node. Good for development and small workloads. */
+  GPU_1X_A10: 'GPU_1xA10',
+  /** Single H100 GPU per node. */
+  GPU_1X_H100: 'GPU_1xH100',
+  /** Eight H100 GPUs per node. Typical for distributed training. */
+  GPU_8X_H100: 'GPU_8xH100',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type ComputeSpec_AcceleratorType =
+  | (typeof ComputeSpec_AcceleratorType)[keyof typeof ComputeSpec_AcceleratorType]
+  | (string & {});
+
+/**
  * * `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.
  * * `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.
  *
@@ -875,6 +894,77 @@ export interface AccessControlRequest {
 export interface Adlsgen2Info {
   /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
   destination?: string | undefined;
+}
+
+/**
+ * AiRuntimeTask: multi-node GPU compute task definition for Databricks AI
+ * Runtime workloads.
+ *
+ * Jobs-framework-level concepts (retries, per-task timeout, idempotency
+ * token, usage/budget policy, permissions) live on the surrounding
+ * TaskSettings / run-submit request and are intentionally NOT duplicated
+ * here. Users compose `ai_runtime_task` with the standard Jobs/DABs task
+ * wrapper to get those.
+ */
+export interface AiRuntimeTask {
+  /**
+   * MLflow experiment name for this run. If an experiment with this name
+   * already exists under the calling user, the run is appended to it;
+   * otherwise a new experiment is created. To target a specific MLflow
+   * storage location (for example, when running as a service principal), set
+   * `mlflow_experiment_directory`.
+   */
+  experiment?: string | undefined;
+  /**
+   * Deployment specs for this task. Many single-program training algorithms
+   * use a single entry where every node runs the same command. Role-split
+   * workloads (driver + worker, parameter server, separate eval node, etc.)
+   * have multiple entries, each with its own command and compute.
+   */
+  deployments?: DeploymentSpec[] | undefined;
+  /**
+   * Optional workspace or UC volume path of the uploaded code-source
+   * archive. The CLI packages the user's local code directory into an
+   * archive and populates this. Customers calling the Jobs API directly
+   * should upload their archive to the workspace or a UC volume first and
+   * supply the resulting path here.
+   *
+   * When set, the training node exposes the value via the `$CODE_SOURCE`
+   * environment variable.
+   */
+  codeSourcePath?: string | undefined;
+  /**
+   * Optional display name for the MLflow run created under `experiment`. If
+   * omitted, MLflow generates a default name.
+   */
+  mlflowRun?: string | undefined;
+  /**
+   * Optional workspace directory under which the MLflow experiment named in
+   * `experiment` is created. Must start with `/Workspace`. Set this when
+   * running as a service principal that has no default user directory; for
+   * regular users the experiment defaults to the user's home directory.
+   */
+  mlflowExperimentDirectory?: string | undefined;
+}
+
+/**
+ * AiRuntimeTaskOutput: output identifiers for an AiRuntimeTask run — the
+ * MLflow experiment and run IDs the task wrote to.
+ *
+ * Run lifecycle and termination status are not on this message; they live
+ * on the surrounding `RunTask.status` field (see `runs.proto:RunTask.status`).
+ */
+export interface AiRuntimeTaskOutput {
+  /**
+   * MLflow experiment ID the run was logged to. Use it to look up the
+   * experiment in MLflow APIs or the workspace MLflow UI.
+   */
+  mlflowExperimentId?: string | undefined;
+  /**
+   * MLflow run ID for this task execution. Use it to look up the run in
+   * MLflow APIs or the workspace MLflow UI.
+   */
+  mlflowRunId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1518,6 +1608,26 @@ export interface ComputeConfig {
   gpuType?: string | undefined;
 }
 
+/**
+ * ComputeSpec: compute configuration — accelerator type and total
+ * accelerator count across all nodes.
+ */
+export interface ComputeSpec {
+  /**
+   * Hardware accelerator type (for example, `GPU_1xA10` or `GPU_8xH100`).
+   * The number of accelerators per node is encoded in the enum value —
+   * `GPU_8xH100` means 8 H100 GPUs per node.
+   */
+  acceleratorType?: ComputeSpec_AcceleratorType | undefined;
+  /**
+   * Total number of accelerators across all nodes. Must be a positive
+   * multiple of the per-node accelerator count encoded in `accelerator_type`.
+   * For example, `GPU_8xH100` with `accelerator_count: 16` allocates 2 nodes
+   * (8 GPUs per node).
+   */
+  acceleratorCount?: number | undefined;
+}
+
 export interface ConditionTask {
   /**
    * * `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.
@@ -1822,6 +1932,33 @@ export interface DeleteRunRequest {
 /** Run was deleted successfully. */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteRunResponse {}
+
+/**
+ * DeploymentSpec: configuration for one deployment within an AiRuntimeTask.
+ * Each entry in `AiRuntimeTask.deployments` describes a group of nodes that
+ * share the same command and compute. Many single-program training
+ * algorithms use a single entry where every node runs the same command;
+ * role-split workloads (driver + worker, parameter server, separate eval
+ * node, etc.) use multiple entries.
+ */
+export interface DeploymentSpec {
+  /**
+   * Workspace path of the bash script to execute on each node in this
+   * deployment. The CLI uploads the user's script and populates this.
+   * Customers calling the Jobs API directly should upload their script to
+   * the workspace first and supply the resulting path here.
+   */
+  commandPath?: string | undefined;
+  /** Compute resources allocated to each node in this deployment. */
+  compute?: ComputeSpec | undefined;
+  /**
+   * Optional human-readable name for this deployment (for example, `driver`,
+   * `worker`, `param_server`). Used for log and UI display. Distinct names
+   * are recommended so deployments can be told apart, but uniqueness is not
+   * enforced.
+   */
+  name?: string | undefined;
+}
 
 export interface DockerBasicAuth {
   /** Name of the user */
@@ -2215,6 +2352,17 @@ export interface GetRunOutputResponse {
         $case: 'alertOutput';
         /** The output of an alert task, if available */
         alertOutput: AlertTaskOutput;
+      }
+    | {
+        $case: 'aiRuntimeTaskOutput';
+        /**
+         * The output of an AiRuntimeTask, if available — MLflow identifiers,
+         * artifact paths, and per-replica allocated compute. Run lifecycle /
+         * termination status lives on the surrounding framework `RunTask.status`
+         * (`runs.proto:RunTask.status` of type `RunStatus`), not on this output.
+         * See `tasks/genai/ai_runtime_task.proto:AiRuntimeTaskOutput`.
+         */
+        aiRuntimeTaskOutput: AiRuntimeTaskOutput;
       }
     | undefined;
   /**
@@ -3330,8 +3478,25 @@ export interface ResolvedValues {
         $case: 'pipelineTask';
         pipelineTask: ResolvedValues_PipelineTaskResolvedValues;
       }
+    | {
+        $case: 'aiRuntimeTask';
+        /**
+         * Resolved values for an AI Runtime task — env_vars with
+         * `{{tasks.<key>.values.<name>}}` references substituted to concrete
+         * values before submission to the training service.
+         */
+        aiRuntimeTask: ResolvedValues_AiRuntimeTaskResolvedValues;
+      }
     | undefined;
 }
+
+/**
+ * Resolved env_vars for an AiRuntimeTask after dynamic-value substitution.
+ * Mirrors the task's `resolved_parameters_field` (env_vars) so Jobs can
+ * expand `{{tasks.<key>.values.<name>}}` references before submission.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface ResolvedValues_AiRuntimeTaskResolvedValues {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_ConditionTaskResolvedValues {
@@ -3933,6 +4098,14 @@ export interface RunTask {
         /** The task runs a Python operator task. */
         pythonOperatorTask: PythonOperatorTask;
       }
+    | {
+        $case: 'aiRuntimeTask';
+        /**
+         * The task runs a multi-node GPU compute workload on Databricks AI Runtime.
+         * External-facing surface; mirrors the AIR CLI (fka SGCLI) v2 YAML schema.
+         */
+        aiRuntimeTask: AiRuntimeTask;
+      }
     | undefined;
   spec?:
     | {
@@ -4121,6 +4294,14 @@ export interface RunTaskSettings {
         $case: 'pythonOperatorTask';
         /** The task runs a Python operator task. */
         pythonOperatorTask: PythonOperatorTask;
+      }
+    | {
+        $case: 'aiRuntimeTask';
+        /**
+         * The task runs a multi-node GPU compute workload on Databricks AI Runtime.
+         * External-facing surface; mirrors the AIR CLI (fka SGCLI) v2 YAML schema.
+         */
+        aiRuntimeTask: AiRuntimeTask;
       }
     | undefined;
   spec?:
@@ -4713,6 +4894,14 @@ export interface TaskSettings {
         /** The task runs a Python operator task. */
         pythonOperatorTask: PythonOperatorTask;
       }
+    | {
+        $case: 'aiRuntimeTask';
+        /**
+         * The task runs a multi-node GPU compute workload on Databricks AI Runtime.
+         * External-facing surface; mirrors the AIR CLI (fka SGCLI) v2 YAML schema.
+         */
+        aiRuntimeTask: AiRuntimeTask;
+      }
     | undefined;
   spec?:
     | {
@@ -4886,6 +5075,35 @@ export const unmarshalAdlsgen2InfoSchema: z.ZodType<Adlsgen2Info> = z
   .transform(d => ({
     destination: d.destination,
   }));
+
+export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
+  .object({
+    experiment: z.string().optional(),
+    deployments: z
+      .array(z.lazy(() => unmarshalDeploymentSpecSchema))
+      .optional(),
+    code_source_path: z.string().optional(),
+    mlflow_run: z.string().optional(),
+    mlflow_experiment_directory: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment: d.experiment,
+    deployments: d.deployments,
+    codeSourcePath: d.code_source_path,
+    mlflowRun: d.mlflow_run,
+    mlflowExperimentDirectory: d.mlflow_experiment_directory,
+  }));
+
+export const unmarshalAiRuntimeTaskOutputSchema: z.ZodType<AiRuntimeTaskOutput> =
+  z
+    .object({
+      mlflow_experiment_id: z.string().optional(),
+      mlflow_run_id: z.string().optional(),
+    })
+    .transform(d => ({
+      mlflowExperimentId: d.mlflow_experiment_id,
+      mlflowRunId: d.mlflow_run_id,
+    }));
 
 export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
   .object({
@@ -5334,6 +5552,16 @@ export const unmarshalComputeConfigSchema: z.ZodType<ComputeConfig> = z
     gpuType: d.gpu_type,
   }));
 
+export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
+  .object({
+    accelerator_type: z.string().optional(),
+    accelerator_count: z.number().optional(),
+  })
+  .transform(d => ({
+    acceleratorType: d.accelerator_type,
+    acceleratorCount: d.accelerator_count,
+  }));
+
 export const unmarshalConditionTaskSchema: z.ZodType<ConditionTask> = z
   .object({
     op: z.string().optional(),
@@ -5557,6 +5785,18 @@ export const unmarshalDeleteJobResponseSchema: z.ZodType<DeleteJobResponse> =
 
 export const unmarshalDeleteRunResponseSchema: z.ZodType<DeleteRunResponse> =
   z.object({});
+
+export const unmarshalDeploymentSpecSchema: z.ZodType<DeploymentSpec> = z
+  .object({
+    command_path: z.string().optional(),
+    compute: z.lazy(() => unmarshalComputeSpecSchema).optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    commandPath: d.command_path,
+    compute: d.compute,
+    name: d.name,
+  }));
 
 export const unmarshalDockerBasicAuthSchema: z.ZodType<DockerBasicAuth> = z
   .object({
@@ -5798,6 +6038,9 @@ export const unmarshalGetRunOutputResponseSchema: z.ZodType<GetRunOutputResponse
         .lazy(() => unmarshalDbtPlatformTaskOutputSchema)
         .optional(),
       alert_output: z.lazy(() => unmarshalAlertTaskOutputSchema).optional(),
+      ai_runtime_task_output: z
+        .lazy(() => unmarshalAiRuntimeTaskOutputSchema)
+        .optional(),
       logs: z.string().optional(),
       logs_truncated: z.boolean().optional(),
       error_trace: z.string().optional(),
@@ -5846,7 +6089,12 @@ export const unmarshalGetRunOutputResponseSchema: z.ZodType<GetRunOutputResponse
                               $case: 'alertOutput' as const,
                               alertOutput: d.alert_output,
                             }
-                          : undefined,
+                          : d.ai_runtime_task_output !== undefined
+                            ? {
+                                $case: 'aiRuntimeTaskOutput' as const,
+                                aiRuntimeTaskOutput: d.ai_runtime_task_output,
+                              }
+                            : undefined,
       logs: d.logs,
       logsTruncated: d.logs_truncated,
       errorTrace: d.error_trace,
@@ -6689,6 +6937,9 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
     pipeline_task: z
       .lazy(() => unmarshalResolvedValues_PipelineTaskResolvedValuesSchema)
       .optional(),
+    ai_runtime_task: z
+      .lazy(() => unmarshalResolvedValues_AiRuntimeTaskResolvedValuesSchema)
+      .optional(),
   })
   .transform(d => ({
     resolved:
@@ -6735,8 +6986,17 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
                                 $case: 'pipelineTask' as const,
                                 pipelineTask: d.pipeline_task,
                               }
-                            : undefined,
+                            : d.ai_runtime_task !== undefined
+                              ? {
+                                  $case: 'aiRuntimeTask' as const,
+                                  aiRuntimeTask: d.ai_runtime_task,
+                                }
+                              : undefined,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalResolvedValues_AiRuntimeTaskResolvedValuesSchema: z.ZodType<ResolvedValues_AiRuntimeTaskResolvedValues> =
+  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalResolvedValues_ConditionTaskResolvedValuesSchema: z.ZodType<ResolvedValues_ConditionTaskResolvedValues> =
@@ -7137,6 +7397,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     python_operator_task: z
       .lazy(() => unmarshalPythonOperatorTaskSchema)
       .optional(),
+    ai_runtime_task: z.lazy(() => unmarshalAiRuntimeTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -7287,7 +7548,14 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
                                                 pythonOperatorTask:
                                                   d.python_operator_task,
                                               }
-                                            : undefined,
+                                            : d.ai_runtime_task !== undefined
+                                              ? {
+                                                  $case:
+                                                    'aiRuntimeTask' as const,
+                                                  aiRuntimeTask:
+                                                    d.ai_runtime_task,
+                                                }
+                                              : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -7741,6 +8009,7 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     python_operator_task: z
       .lazy(() => unmarshalPythonOperatorTaskSchema)
       .optional(),
+    ai_runtime_task: z.lazy(() => unmarshalAiRuntimeTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -7854,7 +8123,14 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
                                                 pythonOperatorTask:
                                                   d.python_operator_task,
                                               }
-                                            : undefined,
+                                            : d.ai_runtime_task !== undefined
+                                              ? {
+                                                  $case:
+                                                    'aiRuntimeTask' as const,
+                                                  aiRuntimeTask:
+                                                    d.ai_runtime_task,
+                                                }
+                                              : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -8057,6 +8333,22 @@ export const marshalAdlsgen2InfoSchema: z.ZodType = z
   })
   .transform(d => ({
     destination: d.destination,
+  }));
+
+export const marshalAiRuntimeTaskSchema: z.ZodType = z
+  .object({
+    experiment: z.string().optional(),
+    deployments: z.array(z.lazy(() => marshalDeploymentSpecSchema)).optional(),
+    codeSourcePath: z.string().optional(),
+    mlflowRun: z.string().optional(),
+    mlflowExperimentDirectory: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment: d.experiment,
+    deployments: d.deployments,
+    code_source_path: d.codeSourcePath,
+    mlflow_run: d.mlflowRun,
+    mlflow_experiment_directory: d.mlflowExperimentDirectory,
   }));
 
 export const marshalAlertTaskSchema: z.ZodType = z
@@ -8311,6 +8603,16 @@ export const marshalComputeConfigSchema: z.ZodType = z
     gpu_type: d.gpuType,
   }));
 
+export const marshalComputeSpecSchema: z.ZodType = z
+  .object({
+    acceleratorType: z.string().optional(),
+    acceleratorCount: z.number().optional(),
+  })
+  .transform(d => ({
+    accelerator_type: d.acceleratorType,
+    accelerator_count: d.acceleratorCount,
+  }));
+
 export const marshalConditionTaskSchema: z.ZodType = z
   .object({
     op: z.string().optional(),
@@ -8499,6 +8801,18 @@ export const marshalDeleteRunRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     run_id: d.runId,
+  }));
+
+export const marshalDeploymentSpecSchema: z.ZodType = z
+  .object({
+    commandPath: z.string().optional(),
+    compute: z.lazy(() => marshalComputeSpecSchema).optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    command_path: d.commandPath,
+    compute: d.compute,
+    name: d.name,
   }));
 
 export const marshalDockerBasicAuthSchema: z.ZodType = z
@@ -9399,6 +9713,10 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
           $case: z.literal('pythonOperatorTask'),
           pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
         }),
+        z.object({
+          $case: z.literal('aiRuntimeTask'),
+          aiRuntimeTask: z.lazy(() => marshalAiRuntimeTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -9482,6 +9800,9 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     }),
     ...(d.task?.$case === 'pythonOperatorTask' && {
       python_operator_task: d.task.pythonOperatorTask,
+    }),
+    ...(d.task?.$case === 'aiRuntimeTask' && {
+      ai_runtime_task: d.task.aiRuntimeTask,
     }),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
@@ -9879,6 +10200,10 @@ export const marshalTaskSettingsSchema: z.ZodType = z
           $case: z.literal('pythonOperatorTask'),
           pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
         }),
+        z.object({
+          $case: z.literal('aiRuntimeTask'),
+          aiRuntimeTask: z.lazy(() => marshalAiRuntimeTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -9962,6 +10287,9 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     }),
     ...(d.task?.$case === 'pythonOperatorTask' && {
       python_operator_task: d.task.pythonOperatorTask,
+    }),
+    ...(d.task?.$case === 'aiRuntimeTask' && {
+      ai_runtime_task: d.task.aiRuntimeTask,
     }),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
