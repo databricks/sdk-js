@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-/** Next Id: 127 */
+/** Next Id: 132 */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConnectionType = {
   UNKNOWN_CONNECTION_TYPE: 'UNKNOWN_CONNECTION_TYPE',
