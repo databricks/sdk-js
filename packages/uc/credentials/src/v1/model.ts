@@ -1241,7 +1241,6 @@ export interface UpdateStorageCredentialRequest {
   isolationMode?: IsolationMode | undefined;
 }
 
-/** Next ID: 18 */
 export interface ValidateCredentialRequest {
   credential?:
     | {

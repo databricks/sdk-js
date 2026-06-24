@@ -2,7 +2,6 @@
 
 import {z} from 'zod';
 
-/** Next Id: 132 */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConnectionType = {
   UNKNOWN_CONNECTION_TYPE: 'UNKNOWN_CONNECTION_TYPE',
@@ -38,7 +37,6 @@ export type ConnectionType =
   | (typeof ConnectionType)[keyof typeof ConnectionType]
   | (string & {});
 
-/** Next Id: 20 */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CredentialType = {
   UNKNOWN_CREDENTIAL_TYPE: 'UNKNOWN_CREDENTIAL_TYPE',

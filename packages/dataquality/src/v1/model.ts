@@ -452,7 +452,7 @@ export interface NotificationSettings {
 
 /** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
 export interface Refresh {
-  /** The type of the monitored object. Can be one of the following: `schema`or `table`. */
+  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.

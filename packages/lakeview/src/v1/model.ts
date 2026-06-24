@@ -237,7 +237,7 @@ export interface ListDashboardsRequest {
    * If unspecified, only active dashboards will be returned.
    */
   showTrashed?: boolean | undefined;
-  /** `DASHBOARD_VIEW_BASIC`only includes summary metadata from the dashboard. */
+  /** `DASHBOARD_VIEW_BASIC` only includes summary metadata from the dashboard. */
   view?: DashboardView | undefined;
 }
 

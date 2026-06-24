@@ -82,11 +82,6 @@ export type DataSourceFormat =
   | (typeof DataSourceFormat)[keyof typeof DataSourceFormat]
   | (string & {});
 
-/**
- * Latest kind: CONNECTION_MARKETO_OAUTH_M2M = 347; Next id: 348.
- * Reserved numbers: 316, 317, 327, 330, 341 (former ENDPOINT_LLM_*,
- * MODEL_SERVICE_STANDARD, MODEL_SERVICE_SYSTEM_DELTASHARING, MCP_SERVICE_STANDARD).
- */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SecurableKind = {
   TABLE_STANDARD: 'TABLE_STANDARD',
