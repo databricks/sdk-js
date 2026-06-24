@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
 import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
@@ -916,6 +917,11 @@ export const ClusterEventType_ClusterEventType = {
   DECOMMISSION_STARTED: 'DECOMMISSION_STARTED',
   /** Indicates that decommission ended. */
   DECOMMISSION_ENDED: 'DECOMMISSION_ENDED',
+  /** Indicates that a deferred policy enforcement was scheduled. */
+  DEFERRED_POLICY_ENFORCEMENT_SCHEDULED:
+    'DEFERRED_POLICY_ENFORCEMENT_SCHEDULED',
+  /** Indicates that a deferred policy enforcement failed. */
+  DEFERRED_POLICY_ENFORCEMENT_FAILED: 'DEFERRED_POLICY_ENFORCEMENT_FAILED',
   /** Indicates that the configured UC volume for log delivery is misconfigured (permission does not exist or volume is invalid) */
   UC_VOLUME_MISCONFIGURED: 'UC_VOLUME_MISCONFIGURED',
 } as const;
@@ -965,6 +971,50 @@ export type ClusterState_ClusterState =
   | (typeof ClusterState_ClusterState)[keyof typeof ClusterState_ClusterState]
   | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EnforcePolicyComplianceForClusterRequest_EnforceMode = {
+  /** Default value. This value is unused. */
+  ENFORCE_MODE_UNSPECIFIED: 'ENFORCE_MODE_UNSPECIFIED',
+  /**
+   * If the cluster is in the TERMINATED state, edit the cluster immediately.
+   * If the cluster is in the RUNNING state, edit and restart the cluster.
+   * Else, the operation fails.
+   */
+  ENFORCE_IMMEDIATELY: 'ENFORCE_IMMEDIATELY',
+  /**
+   * If the cluster is in the TERMINATED state, edit the cluster immediately.
+   * Else, the cluster is not edited. Instead, a pending enforcement is scheduled
+   * to update the cluster when it terminates or restarts.
+   * Only workspace admins can use this mode.
+   */
+  WAIT_FOR_TERMINATION: 'WAIT_FOR_TERMINATION',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EnforcePolicyComplianceForClusterRequest_EnforceMode =
+  | (typeof EnforcePolicyComplianceForClusterRequest_EnforceMode)[keyof typeof EnforcePolicyComplianceForClusterRequest_EnforceMode]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EnforcePolicyComplianceForClusterResponse_EnforceResult = {
+  /** Default value. This value is unused. */
+  ENFORCE_RESULT_UNSPECIFIED: 'ENFORCE_RESULT_UNSPECIFIED',
+  /** No changes were made to the cluster. */
+  NO_CHANGES: 'NO_CHANGES',
+  /** Changes were applied to the cluster. */
+  APPLIED: 'APPLIED',
+  /**
+   * Changes were not applied to the cluster yet. Instead, changes will be applied when
+   * the cluster terminates or restarts.
+   * This is not returned when validate_only is true, even if the enforcement would have
+   * normally been deferred. Instead APPLIED will be returned.
+   */
+  DEFERRED: 'DEFERRED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EnforcePolicyComplianceForClusterResponse_EnforceResult =
+  | (typeof EnforcePolicyComplianceForClusterResponse_EnforceResult)[keyof typeof EnforcePolicyComplianceForClusterResponse_EnforceResult]
+  | (string & {});
+
 /** Result of attempted script execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const InitScriptExecutionDetails_InitScriptExecutionStatus = {
@@ -989,6 +1039,26 @@ export const InitScriptExecutionDetails_InitScriptExecutionStatus = {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type InitScriptExecutionDetails_InitScriptExecutionStatus =
   | (typeof InitScriptExecutionDetails_InitScriptExecutionStatus)[keyof typeof InitScriptExecutionDetails_InitScriptExecutionStatus]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PendingEnforcement_EnforcementStatus = {
+  /** Default value. This value is unused. */
+  ENFORCEMENT_STATUS_UNSPECIFIED: 'ENFORCEMENT_STATUS_UNSPECIFIED',
+  /**
+   * The pending enforcement will be attempted on the next cluster terminate or
+   * restart.
+   */
+  ACTIVE: 'ACTIVE',
+  /**
+   * The pending enforcement will not be attempted again because we have already
+   * unsuccessfully attempted to apply the enforce.
+   */
+  INACTIVE: 'INACTIVE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PendingEnforcement_EnforcementStatus =
+  | (typeof PendingEnforcement_EnforcementStatus)[keyof typeof PendingEnforcement_EnforcementStatus]
   | (string & {});
 
 /** The cause of a change in target size. */
@@ -1153,6 +1223,25 @@ export interface AzureAttributes {
    */
   capacityReservationGroup?: string | undefined;
 }
+
+/** Request to cancel the pending enforcement for a cluster. */
+export interface CancelPendingClusterEnforcementRequest {
+  /** The ID of the cluster to cancel the pending enforcement for. */
+  clusterId?: string | undefined;
+  /**
+   * If true and no pending enforcement exists, the request will succeed but no action
+   * will be taken.
+   */
+  allowMissing?: boolean | undefined;
+}
+
+/**
+ * Response for canceling the pending enforcement for a cluster.
+ * If the cancel request succeeds, an empty response object is returned.
+ * Otherwise, an error response is returned.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CancelPendingClusterEnforcementResponse {}
 
 export interface ChangeClusterOwnerRequest {
   clusterId?: string | undefined;
@@ -1344,6 +1433,11 @@ export interface ClusterCompliance {
    * The values indicate an error message describing the policy validation error.
    */
   violations?: Record<string, string> | undefined;
+  /**
+   * Information about the pending enforcement for the cluster. Only present if a pending enforcement
+   * is scheduled for the cluster.
+   */
+  pendingEnforcement?: PendingEnforcement | undefined;
 }
 
 export interface ClusterEvent {
@@ -2294,6 +2388,21 @@ export interface EnforcePolicyComplianceForClusterRequest {
    * to enforce compliance but does not update the cluster.
    */
   validateOnly?: boolean | undefined;
+  /**
+   * Determines how changes should be made to clusters that are not in `TERMINATED` state.
+   *
+   * - `ENFORCE_IMMEDIATELY`: If the cluster is in a `RUNNING` state, it will be restarted so
+   * that the new attributes can take effect. For other states aside from `TERMINATED` state,
+   * the request will be rejected.
+   * - `WAIT_FOR_TERMINATION`: The cluster is not immediately edited. Instead, a pending enforcement
+   * is scheduled to update the cluster when it terminates or restarts. When this occurs,
+   * `enforce_result` will contain `DEFERRED`. Only workspace admins can use this mode.
+   *
+   * Regardless of the enforce mode, clusters in `TERMINATED` state are immediately edited.
+   */
+  enforceMode?:
+    | EnforcePolicyComplianceForClusterRequest_EnforceMode
+    | undefined;
 }
 
 export interface EnforcePolicyComplianceForClusterResponse {
@@ -2308,6 +2417,191 @@ export interface EnforcePolicyComplianceForClusterResponse {
    */
   changes?:
     | EnforcePolicyComplianceForClusterResponse_ClusterSettingsChange[]
+    | undefined;
+  /** Describes whether changes have been applied to the cluster. */
+  enforceResult?:
+    | EnforcePolicyComplianceForClusterResponse_EnforceResult
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EnforcePolicyComplianceForClusterResponse_ClusterSettings {
+  /**
+   * Cluster name requested by the user. This doesn't have to be unique.
+   * If not specified at creation, the cluster name will be an empty string.
+   * For job clusters, the cluster name is automatically set based on the job and job run IDs.
+   */
+  clusterName?: string | undefined;
+  /**
+   * The Spark version of the cluster, e.g. `3.3.x-scala2.11`.
+   * A list of available Spark versions can be retrieved by using
+   * the :method:clusters/sparkVersions API call.
+   */
+  sparkVersion?: string | undefined;
+  /**
+   * An object containing a set of optional, user-specified Spark configuration key-value pairs.
+   * Users can also pass in a string of extra JVM options to the driver and the executors via
+   * `spark.driver.extraJavaOptions` and `spark.executor.extraJavaOptions` respectively.
+   */
+  sparkConf?: Record<string, string> | undefined;
+  /**
+   * Attributes related to clusters running on Amazon Web Services.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  awsAttributes?: AwsAttributes | undefined;
+  /**
+   * Attributes related to clusters running on Microsoft Azure.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  azureAttributes?: AzureAttributes | undefined;
+  /**
+   * Attributes related to clusters running on Google Cloud Platform.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  gcpAttributes?: GcpAttributes | undefined;
+  /**
+   * This field encodes, through a single value, the resources available to each of
+   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * and optimized for memory or compute intensive workloads. A list of available node
+   * types can be retrieved by using the :method:clusters/listNodeTypes API call.
+   */
+  nodeTypeId?: string | undefined;
+  /**
+   * The node type of the Spark driver.
+   * Note that this field is optional; if unset, the driver node type will be set as the same value
+   * as `node_type_id` defined above.
+   *
+   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
+   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
+   */
+  driverNodeTypeId?: string | undefined;
+  /** Flexible node type configuration for worker nodes. */
+  workerNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  /** Flexible node type configuration for the driver node. */
+  driverNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  /**
+   * SSH public key contents that will be added to each Spark node in this cluster. The
+   * corresponding private keys can be used to login with the user name `ubuntu` on port `2200`.
+   * Up to 10 keys can be specified.
+   */
+  sshPublicKeys?: string[] | undefined;
+  /**
+   * Additional tags for cluster resources. <Databricks> will tag all cluster resources (e.g., AWS
+   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   *
+   * - Currently, <Databricks> allows at most 45 custom tags
+   *
+   * - Clusters can only reuse cloud resources if the resources' tags are a subset of the cluster tags
+   */
+  customTags?: Record<string, string> | undefined;
+  /**
+   * The configuration for delivering spark logs to a long-term storage destination.
+   * Three kinds of destinations (DBFS, S3 and Unity Catalog volumes) are supported. Only one destination can be specified
+   * for one cluster. If the conf is given, the logs will be delivered to the destination every
+   * `5 mins`. The destination of driver logs is `$destination/$clusterId/driver`, while
+   * the destination of executor logs is `$destination/$clusterId/executor`.
+   */
+  clusterLogConf?: ClusterLogConf | undefined;
+  /**
+   * An object containing a set of optional, user-specified environment variable key-value pairs.
+   * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
+   * `export X='Y'`) while launching the driver and workers.
+   *
+   * In order to specify an additional set of `SPARK_DAEMON_JAVA_OPTS`, we recommend appending
+   * them to `$SPARK_DAEMON_JAVA_OPTS` as shown in the example below. This ensures that all
+   * default databricks managed environmental variables are included as well.
+   *
+   * Example Spark environment variables:
+   * `{"SPARK_WORKER_MEMORY": "28000m", "SPARK_LOCAL_DIRS": "/local_disk0"}` or
+   * `{"SPARK_DAEMON_JAVA_OPTS": "$SPARK_DAEMON_JAVA_OPTS -Dspark.shuffle.service.enabled=true"}`
+   */
+  sparkEnvVars?: Record<string, string> | undefined;
+  /**
+   * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
+   * this cluster will not be automatically terminated. If specified, the threshold must be between
+   * 10 and 10000 minutes.
+   * Users can also set this value to 0 to explicitly disable automatic termination.
+   */
+  autoterminationMinutes?: number | undefined;
+  /**
+   * Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk
+   * space when its Spark workers are running low on disk space.
+   */
+  enableElasticDisk?: boolean | undefined;
+  /**
+   * The configuration for storing init scripts. Any number of destinations can be specified.
+   * The scripts are executed sequentially in the order provided.
+   * If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.
+   */
+  initScripts?: InitScriptInfo[] | undefined;
+  /** Custom docker image BYOC */
+  dockerImage?: DockerImage | undefined;
+  /** The optional ID of the instance pool to which the cluster belongs. */
+  instancePoolId?: string | undefined;
+  /** Single user name if data_security_mode is `SINGLE_USER` */
+  singleUserName?: string | undefined;
+  /** The ID of the cluster policy used to create the cluster if applicable. */
+  policyId?: string | undefined;
+  /** Whether to enable LUKS on cluster VMs' local disks */
+  enableLocalDiskEncryption?: boolean | undefined;
+  /**
+   * The optional ID of the instance pool for the driver of the cluster belongs.
+   * The pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not
+   * assigned.
+   */
+  driverInstancePoolId?: string | undefined;
+  workloadType?: WorkloadType | undefined;
+  dataSecurityMode?: DataSecurityMode | undefined;
+  /**
+   * Determines the cluster's runtime engine, either standard or Photon.
+   *
+   * This field is not compatible with legacy `spark_version` values that contain `-photon-`.
+   * Remove `-photon-` from the `spark_version` and set `runtime_engine` to `PHOTON`.
+   *
+   * If left unspecified, the runtime engine defaults to standard unless the spark_version
+   * contains -photon-, in which case Photon will be used.
+   */
+  runtimeEngine?: RuntimeEngine | undefined;
+  kind?: ComputeKind | undefined;
+  /**
+   * This field can only be used when `kind = CLASSIC_PREVIEW`.
+   *
+   * `effective_spark_version` is determined by `spark_version` (DBR release), this field `use_ml_runtime`, and whether `node_type_id` is gpu node or not.
+   */
+  useMlRuntime?: boolean | undefined;
+  /**
+   * This field can only be used when `kind = CLASSIC_PREVIEW`.
+   *
+   * When set to true, <Databricks> will automatically set single node related `custom_tags`, `spark_conf`, and `num_workers`
+   */
+  isSingleNode?: boolean | undefined;
+  /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  remoteDiskThroughput?: number | undefined;
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  totalInitialRemoteDiskSize?: number | undefined;
+  size?:
+    | {
+        $case: 'numWorkers';
+        /**
+         * Number of worker nodes that this cluster should have. A cluster has one Spark Driver
+         * and `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.
+         *
+         * Note: When reading the properties of a cluster, this field reflects the desired number
+         * of workers rather than the actual current number of workers. For instance, if a cluster
+         * is resized from 5 to 10 workers, this field will immediately be updated to reflect
+         * the target size of 10 workers, whereas the workers listed in `spark_info` will gradually
+         * increase from 5 to 10 as the new nodes are provisioned.
+         */
+        numWorkers: number;
+      }
+    | {
+        $case: 'autoscale';
+        /**
+         * Parameters needed in order to automatically scale clusters up and down based on load.
+         * Note: autoscaling works best with DB runtime versions 3.0 or later.
+         */
+        autoscale: AutoScale;
+      }
     | undefined;
 }
 
@@ -2498,6 +2792,11 @@ export interface GetPolicyComplianceForClusterResponse {
    * The values indicate an error message describing the policy validation error.
    */
   violations?: Record<string, string> | undefined;
+  /**
+   * Information about the pending enforcement for the cluster. Only present if a pending enforcement
+   * is scheduled for the cluster.
+   */
+  pendingEnforcement?: PendingEnforcement | undefined;
 }
 
 /** Returns the list of all Spark versions that can be used to create clusters. */
@@ -2900,6 +3199,34 @@ export interface NodeType {
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
   alternateNodeTypeIds?: string[] | undefined;
+}
+
+/**
+ * Represents a pending enforcement on a cluster, which contains the changes to make to the cluster
+ * configuration when the cluster is next terminated or restarted.
+ */
+export interface PendingEnforcement {
+  /** The new configuration to apply upon cluster termination or restart. */
+  targetSpec?:
+    | EnforcePolicyComplianceForClusterResponse_ClusterSettings
+    | undefined;
+  /** The time the pending enforcement was initiated. */
+  initiateTime?: Temporal.Instant | undefined;
+  /**
+   * Whether the pending enforcement will be applied. A pending enforcement begins in `ACTIVE`
+   * state. If the enforcement fails to apply too many times, the state transitions to `INACTIVE`.
+   * Afterwards, the enforcement must be re-scheduled to become `ACTIVE` again.
+   */
+  enforcementStatus?: PendingEnforcement_EnforcementStatus | undefined;
+  /**
+   * A list of changes that will be made to the cluster configuration when the pending
+   * enforcement is applied.
+   */
+  targetChanges?:
+    | EnforcePolicyComplianceForClusterResponse_ClusterSettingsChange[]
+    | undefined;
+  /** The user who initiated the pending enforcement. */
+  initiatorUser?: string | undefined;
 }
 
 export interface PermanentDeleteClusterRequest {
@@ -3363,6 +3690,9 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
     capacityReservationGroup: d.capacity_reservation_group,
   }));
 
+export const unmarshalCancelPendingClusterEnforcementResponseSchema: z.ZodType<CancelPendingClusterEnforcementResponse> =
+  z.object({});
+
 export const unmarshalChangeClusterOwnerResponseSchema: z.ZodType<ChangeClusterOwnerResponse> =
   z.object({});
 
@@ -3454,11 +3784,15 @@ export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
     cluster_id: z.string().optional(),
     is_compliant: z.boolean().optional(),
     violations: z.record(z.string(), z.string()).optional(),
+    pending_enforcement: z
+      .lazy(() => unmarshalPendingEnforcementSchema)
+      .optional(),
   })
   .transform(d => ({
     clusterId: d.cluster_id,
     isCompliant: d.is_compliant,
     violations: d.violations,
+    pendingEnforcement: d.pending_enforcement,
   }));
 
 export const unmarshalClusterEventSchema: z.ZodType<ClusterEvent> = z
@@ -3815,10 +4149,96 @@ export const unmarshalEnforcePolicyComplianceForClusterResponseSchema: z.ZodType
           )
         )
         .optional(),
+      enforce_result: z.string().optional(),
     })
     .transform(d => ({
       hasChanges: d.has_changes,
       changes: d.changes,
+      enforceResult: d.enforce_result,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsSchema: z.ZodType<EnforcePolicyComplianceForClusterResponse_ClusterSettings> =
+  z
+    .object({
+      cluster_name: z.string().optional(),
+      spark_version: z.string().optional(),
+      spark_conf: z.record(z.string(), z.string()).optional(),
+      aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
+      azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
+      gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+      node_type_id: z.string().optional(),
+      driver_node_type_id: z.string().optional(),
+      worker_node_type_flexibility: z
+        .lazy(() => unmarshalNodeTypeFlexibilitySchema)
+        .optional(),
+      driver_node_type_flexibility: z
+        .lazy(() => unmarshalNodeTypeFlexibilitySchema)
+        .optional(),
+      ssh_public_keys: z.array(z.string()).optional(),
+      custom_tags: z.record(z.string(), z.string()).optional(),
+      cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+      spark_env_vars: z.record(z.string(), z.string()).optional(),
+      autotermination_minutes: z.number().optional(),
+      enable_elastic_disk: z.boolean().optional(),
+      init_scripts: z
+        .array(z.lazy(() => unmarshalInitScriptInfoSchema))
+        .optional(),
+      docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+      instance_pool_id: z.string().optional(),
+      single_user_name: z.string().optional(),
+      policy_id: z.string().optional(),
+      enable_local_disk_encryption: z.boolean().optional(),
+      driver_instance_pool_id: z.string().optional(),
+      workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+      data_security_mode: z.string().optional(),
+      runtime_engine: z.string().optional(),
+      kind: z.string().optional(),
+      use_ml_runtime: z.boolean().optional(),
+      is_single_node: z.boolean().optional(),
+      remote_disk_throughput: z.number().optional(),
+      total_initial_remote_disk_size: z.number().optional(),
+      num_workers: z.number().optional(),
+      autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
+    })
+    .transform(d => ({
+      clusterName: d.cluster_name,
+      sparkVersion: d.spark_version,
+      sparkConf: d.spark_conf,
+      awsAttributes: d.aws_attributes,
+      azureAttributes: d.azure_attributes,
+      gcpAttributes: d.gcp_attributes,
+      nodeTypeId: d.node_type_id,
+      driverNodeTypeId: d.driver_node_type_id,
+      workerNodeTypeFlexibility: d.worker_node_type_flexibility,
+      driverNodeTypeFlexibility: d.driver_node_type_flexibility,
+      sshPublicKeys: d.ssh_public_keys,
+      customTags: d.custom_tags,
+      clusterLogConf: d.cluster_log_conf,
+      sparkEnvVars: d.spark_env_vars,
+      autoterminationMinutes: d.autotermination_minutes,
+      enableElasticDisk: d.enable_elastic_disk,
+      initScripts: d.init_scripts,
+      dockerImage: d.docker_image,
+      instancePoolId: d.instance_pool_id,
+      singleUserName: d.single_user_name,
+      policyId: d.policy_id,
+      enableLocalDiskEncryption: d.enable_local_disk_encryption,
+      driverInstancePoolId: d.driver_instance_pool_id,
+      workloadType: d.workload_type,
+      dataSecurityMode: d.data_security_mode,
+      runtimeEngine: d.runtime_engine,
+      kind: d.kind,
+      useMlRuntime: d.use_ml_runtime,
+      isSingleNode: d.is_single_node,
+      remoteDiskThroughput: d.remote_disk_throughput,
+      totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+      size:
+        d.num_workers !== undefined
+          ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
+          : d.autoscale !== undefined
+            ? {$case: 'autoscale' as const, autoscale: d.autoscale}
+            : undefined,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3949,10 +4369,14 @@ export const unmarshalGetPolicyComplianceForClusterResponseSchema: z.ZodType<Get
     .object({
       is_compliant: z.boolean().optional(),
       violations: z.record(z.string(), z.string()).optional(),
+      pending_enforcement: z
+        .lazy(() => unmarshalPendingEnforcementSchema)
+        .optional(),
     })
     .transform(d => ({
       isCompliant: d.is_compliant,
       violations: d.violations,
+      pendingEnforcement: d.pending_enforcement,
     }));
 
 export const unmarshalGetSparkVersionsResponseSchema: z.ZodType<GetSparkVersionsResponse> =
@@ -4247,6 +4671,38 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
       alternateNodeTypeIds: d.alternate_node_type_ids,
     }));
 
+export const unmarshalPendingEnforcementSchema: z.ZodType<PendingEnforcement> =
+  z
+    .object({
+      target_spec: z
+        .lazy(
+          () =>
+            unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsSchema
+        )
+        .optional(),
+      initiate_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      enforcement_status: z.string().optional(),
+      target_changes: z
+        .array(
+          z.lazy(
+            () =>
+              unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsChangeSchema
+          )
+        )
+        .optional(),
+      initiator_user: z.string().optional(),
+    })
+    .transform(d => ({
+      targetSpec: d.target_spec,
+      initiateTime: d.initiate_time,
+      enforcementStatus: d.enforcement_status,
+      targetChanges: d.target_changes,
+      initiatorUser: d.initiator_user,
+    }));
+
 export const unmarshalPermanentDeleteClusterResponseSchema: z.ZodType<PermanentDeleteClusterResponse> =
   z.object({});
 
@@ -4443,6 +4899,16 @@ export const marshalAzureAttributesSchema: z.ZodType = z
     availability: d.availability,
     spot_bid_max_price: d.spotBidMaxPrice,
     capacity_reservation_group: d.capacityReservationGroup,
+  }));
+
+export const marshalCancelPendingClusterEnforcementRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    allowMissing: z.boolean().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    allow_missing: d.allowMissing,
   }));
 
 export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
@@ -4712,10 +5178,12 @@ export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
     .object({
       clusterId: z.string().optional(),
       validateOnly: z.boolean().optional(),
+      enforceMode: z.string().optional(),
     })
     .transform(d => ({
       cluster_id: d.clusterId,
       validate_only: d.validateOnly,
+      enforce_mode: d.enforceMode,
     }));
 
 export const marshalGcpAttributesSchema: z.ZodType = z

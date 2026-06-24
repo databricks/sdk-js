@@ -272,7 +272,7 @@ export interface StableUrl {
   /**
    * The stable URL endpoint. Generated on creation and
    * immutable thereafter. For non-Private-Link workspaces this is
-   * `https://<spog_host>/?c=<connection_id>`. For Private-Link workspaces
+   * `https://<spog_host>/?w=<connection_id>`. For Private-Link workspaces
    * this is the per-connection hostname.
    */
   url?: string | undefined;
@@ -330,7 +330,10 @@ export interface WorkspaceSet {
    * All workspaces must be in the Mission Critical tier.
    */
   workspaceIds?: string[] | undefined;
-  /** Whether to enable control plane DR (notebooks, jobs, clusters, etc.) for this set. */
+  /**
+   * Whether to enable control plane DR (notebooks, jobs, clusters, etc.) for this set.
+   * Defaults to false.
+   */
   replicateWorkspaceAssets?: boolean | undefined;
   /**
    * Resource names of stable URLs associated with this workspace set.

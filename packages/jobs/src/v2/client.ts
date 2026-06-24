@@ -285,7 +285,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<CancelAllRunsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/runs/cancel-all`;
+    const url = `${host}/api/2.2/jobs/runs/cancel-all`;
     const body = marshalRequest(req, marshalCancelAllRunsRequestSchema);
     let resp: CancelAllRunsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -318,7 +318,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<CancelRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/runs/cancel`;
+    const url = `${host}/api/2.2/jobs/runs/cancel`;
     const body = marshalRequest(req, marshalCancelRunRequestSchema);
     let resp: CancelRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -363,7 +363,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<CreateJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/create`;
+    const url = `${host}/api/2.2/jobs/create`;
     const body = marshalRequest(req, marshalCreateJobRequestSchema);
     let resp: CreateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -393,7 +393,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<DeleteJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/delete`;
+    const url = `${host}/api/2.2/jobs/delete`;
     const body = marshalRequest(req, marshalDeleteJobRequestSchema);
     let resp: DeleteJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -423,7 +423,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<DeleteRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/runs/delete`;
+    const url = `${host}/api/2.2/jobs/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunRequestSchema);
     let resp: DeleteRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -788,7 +788,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<RepairRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/jobs/runs/repair`;
+    const url = `${host}/api/2.2/jobs/runs/repair`;
     const body = marshalRequest(req, marshalRepairRunRequestSchema);
     let resp: RepairRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -834,7 +834,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<ResetJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/reset`;
+    const url = `${host}/api/2.2/jobs/reset`;
     const body = marshalRequest(req, marshalResetJobRequestSchema);
     let resp: ResetJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -864,7 +864,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<RunNowResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/run-now`;
+    const url = `${host}/api/2.2/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowRequestSchema);
     let resp: RunNowResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -918,7 +918,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<SubmitRunResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/runs/submit`;
+    const url = `${host}/api/2.2/jobs/runs/submit`;
     const body = marshalRequest(req, marshalSubmitRunRequestSchema);
     let resp: SubmitRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -972,7 +972,7 @@ export class JobsClient {
     options?: CallOptions
   ): Promise<UpdateJobResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/jobs/update`;
+    const url = `${host}/api/2.2/jobs/update`;
     const body = marshalRequest(req, marshalUpdateJobRequestSchema);
     let resp: UpdateJobResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

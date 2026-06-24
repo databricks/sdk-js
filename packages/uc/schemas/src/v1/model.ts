@@ -113,7 +113,6 @@ export interface ListSchemasResponse {
   nextPageToken?: string | undefined;
 }
 
-/** Next ID: 45 */
 export interface SchemaInfo {
   /** Name of schema, relative to parent catalog. */
   name?: string | undefined;
