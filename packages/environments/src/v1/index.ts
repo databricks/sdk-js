@@ -22,6 +22,7 @@ export type {
   CreateWorkspaceBaseEnvironmentRequest,
   DefaultWorkspaceBaseEnvironment,
   DeleteWorkspaceBaseEnvironmentRequest,
+  EnvironmentSpec,
   GetDefaultWorkspaceBaseEnvironmentRequest,
   GetOperationRequest,
   GetWorkspaceBaseEnvironmentRequest,

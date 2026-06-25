@@ -916,10 +916,11 @@ export interface AiRuntimeTask {
    */
   experiment?: string | undefined;
   /**
-   * Deployment specs for this task. Many single-program training algorithms
-   * use a single entry where every node runs the same command. Role-split
-   * workloads (driver + worker, parameter server, separate eval node, etc.)
-   * have multiple entries, each with its own command and compute.
+   * Deployment specs for this task. Exactly one deployment is currently
+   * supported (a single entry where every node runs the same command); this
+   * is a current-Preview constraint. Role-split workloads (driver + worker,
+   * parameter server, separate eval node, etc.) with multiple entries are the
+   * eventual intent but not yet supported.
    */
   deployments?: DeploymentSpec[] | undefined;
   /**
