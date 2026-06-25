@@ -601,6 +601,25 @@ export interface DeleteWorkspaceBaseEnvironmentRequest {
   name?: string | undefined;
 }
 
+/**
+ * Environment specification for a WorkspaceBaseEnvironment.
+ * Contains the environment version and dependencies configuration.
+ */
+export interface EnvironmentSpec {
+  /**
+   * List of pip dependencies, as supported by the version of pip in this environment.
+   * Each dependency is a valid pip requirements file line per https://pip.pypa.io/en/stable/reference/requirements-file-format/.
+   * Allowed dependencies include a requirement specifier, an archive URL, a local project path (such as WSFS or UC Volumes in <Databricks>), or a VCS project URL.
+   */
+  dependencies?: string[] | undefined;
+  /**
+   * Environment version used by the environment.
+   * Each version comes with a specific Python version and a set of Python packages.
+   * The version is a string, consisting of an integer.
+   */
+  environmentVersion?: string | undefined;
+}
+
 /** Request message for GetDefaultWorkspaceBaseEnvironment. */
 export interface GetDefaultWorkspaceBaseEnvironmentRequest {
   /**
@@ -754,6 +773,8 @@ export interface WorkspaceBaseEnvironment {
   isDefault?: boolean | undefined;
   /** The type of base environment (CPU or GPU). */
   baseEnvironmentType?: BaseEnvironmentType | undefined;
+  /** The environment specification containing version and dependencies. */
+  spec?: EnvironmentSpec | undefined;
 }
 
 /** Materialized environment information for a WorkspaceBaseEnvironment. */
@@ -793,6 +814,16 @@ export const unmarshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType<DefaultWo
       cpuWorkspaceBaseEnvironment: d.cpu_workspace_base_environment,
       gpuWorkspaceBaseEnvironment: d.gpu_workspace_base_environment,
     }));
+
+export const unmarshalEnvironmentSpecSchema: z.ZodType<EnvironmentSpec> = z
+  .object({
+    dependencies: z.array(z.string()).optional(),
+    environment_version: z.string().optional(),
+  })
+  .transform(d => ({
+    dependencies: d.dependencies,
+    environmentVersion: d.environment_version,
+  }));
 
 export const unmarshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType<ListWorkspaceBaseEnvironmentsResponse> =
   z
@@ -847,6 +878,7 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
       message: z.string().optional(),
       is_default: z.boolean().optional(),
       base_environment_type: z.string().optional(),
+      spec: z.lazy(() => unmarshalEnvironmentSpecSchema).optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -860,6 +892,7 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
       message: d.message,
       isDefault: d.is_default,
       baseEnvironmentType: d.base_environment_type,
+      spec: d.spec,
     }));
 
 export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
@@ -875,6 +908,16 @@ export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
     name: d.name,
     cpu_workspace_base_environment: d.cpuWorkspaceBaseEnvironment,
     gpu_workspace_base_environment: d.gpuWorkspaceBaseEnvironment,
+  }));
+
+export const marshalEnvironmentSpecSchema: z.ZodType = z
+  .object({
+    dependencies: z.array(z.string()).optional(),
+    environmentVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    dependencies: d.dependencies,
+    environment_version: d.environmentVersion,
   }));
 
 export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
@@ -904,6 +947,7 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     message: z.string().optional(),
     isDefault: z.boolean().optional(),
     baseEnvironmentType: z.string().optional(),
+    spec: z.lazy(() => marshalEnvironmentSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -917,6 +961,7 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     message: d.message,
     is_default: d.isDefault,
     base_environment_type: d.baseEnvironmentType,
+    spec: d.spec,
   }));
 
 const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
