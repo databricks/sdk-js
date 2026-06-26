@@ -75,7 +75,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<BudgetPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/budget-policies`;
+    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies`;
     const body = marshalRequest(req, marshalCreateBudgetPolicyRequestSchema);
     let resp: BudgetPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -102,7 +102,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -122,7 +122,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<BudgetPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
     let resp: BudgetPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -148,7 +148,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<ListBudgetPoliciesResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/budget-policies`;
+    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -214,7 +214,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<BudgetPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policy?.policyId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policy?.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.limitConfig !== undefined) {
       flattenQueryParams(
