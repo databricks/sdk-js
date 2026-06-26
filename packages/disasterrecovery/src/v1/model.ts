@@ -139,10 +139,7 @@ export interface FailoverGroup {
   unityCatalogAssets?: UcReplicationConfig | undefined;
   /** Aggregate state of the failover group. */
   state?: FailoverGroup_State | undefined;
-  /**
-   * Opaque version string for optimistic locking. Server-generated, returned in responses.
-   * Must be provided on Update requests to prevent concurrent modifications.
-   */
+  /** Opaque version string for optimistic locking. Server-generated and returned in responses. */
   etag?: string | undefined;
   /** Time at which this failover group was created. */
   createTime?: Temporal.Instant | undefined;
@@ -319,6 +316,12 @@ export interface UpdateFailoverGroupRequest {
   failoverGroup?: FailoverGroup | undefined;
   /** Comma-separated list of fields to update. */
   updateMask?: FieldMask<FailoverGroup> | undefined;
+  /**
+   * Optional opaque version string for optimistic locking, obtained from a prior read of
+   * the failover group. If provided, the update is rejected unless it matches the failover
+   * group's current etag. If omitted, the update proceeds without an optimistic-lock check.
+   */
+  etag?: string | undefined;
 }
 
 /** A set of workspaces that replicate to each other across regions. */

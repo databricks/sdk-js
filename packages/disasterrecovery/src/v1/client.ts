@@ -431,6 +431,9 @@ export class DisasterRecoveryClient {
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
+    if (req.etag !== undefined) {
+      params.append('etag', req.etag);
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);

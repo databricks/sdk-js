@@ -309,7 +309,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<CreatePersonalizationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     const body = marshalRequest(req, marshalCreatePersonalizationRequestSchema);
     let resp: CreatePersonalizationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -342,7 +342,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<ListInstallationsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -397,7 +397,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<GetListingContentMetadataResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -455,7 +455,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<GetPersonalizationRequestsForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
     let resp: GetPersonalizationRequestsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -487,7 +487,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<GetPublishedListingForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.id ?? ''}`;
     let resp: GetPublishedListingForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -519,7 +519,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<GetPublishedProviderForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/providers/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/providers/${req.id ?? ''}`;
     let resp: GetPublishedProviderForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -551,7 +551,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<CreateInstallationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
     const body = marshalRequest(req, marshalCreateInstallationRequestSchema);
     let resp: CreateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -581,7 +581,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<ListAllInstallationsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/installations`;
+    const url = `${host}/api/2.1/marketplace-consumer/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -643,7 +643,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<ListFulfillmentsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -698,7 +698,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<GetAllPersonalizationRequestsForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/personalization-requests`;
+    const url = `${host}/api/2.1/marketplace-consumer/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -759,7 +759,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<GetPublishedListingsForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -845,7 +845,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<ListPublishedProvidersForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/providers`;
+    const url = `${host}/api/2.1/marketplace-consumer/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -912,7 +912,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<SearchPublishedListingsForConsumerResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/search-listings`;
+    const url = `${host}/api/2.1/marketplace-consumer/search-listings`;
     const params = new URLSearchParams();
     if (req.query !== undefined) {
       params.append('query', req.query);
@@ -991,7 +991,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<DeleteInstallationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     let resp: DeleteInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1025,7 +1025,7 @@ export class MarketplacesClient {
     options?: CallOptions
   ): Promise<UpdateInstallationResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateInstallationRequestSchema);
     let resp: UpdateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
