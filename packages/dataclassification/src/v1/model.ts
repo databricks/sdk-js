@@ -43,8 +43,10 @@ export interface CatalogConfig {
     | {
         $case: 'includedSchemas';
         /**
-         * Schemas to include in the scan. Empty list is not supported as it results in a no-op
-         * scan. If `included_schemas` is not set, all schemas are scanned.
+         * Schemas to include in the scan, each named relative to the parent catalog.
+         * If specified, only listed schemas will be scanned.
+         * Mutually exclusive with `excluded_schemas`: only one may be set per request.
+         * If neither `included_schemas` nor `excluded_schemas` is set, all schemas are scanned.
          */
         includedSchemas: CatalogConfig_SchemaNames;
       }
@@ -59,6 +61,7 @@ export interface CatalogConfig {
 /** Wrapper message for a list of schema names. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CatalogConfig_SchemaNames {
+  /** Schema names, each relative to the parent catalog. Must not be empty. */
   names?: string[] | undefined;
 }
 

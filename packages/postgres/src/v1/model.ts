@@ -1030,6 +1030,11 @@ export interface CreateDatabaseRequest {
   databaseId?: string | undefined;
   /** The desired specification of a Database. */
   database?: Database | undefined;
+  /**
+   * If true, update the database if it already exists instead of returning an
+   * error.
+   */
+  replaceExisting?: boolean | undefined;
 }
 
 export interface CreateEndpointRequest {
@@ -1080,6 +1085,17 @@ export interface CreateRoleRequest {
   roleId?: string | undefined;
   /** The desired specification of a Role. */
   role?: Role | undefined;
+  /**
+   * If true, update the role if it already exists instead of returning an
+   * error.
+   *
+   * When the role already exists, the provided `role` spec fully replaces the
+   * existing one: `membership_roles` is overwritten, not merged. Leaving
+   * `membership_roles` empty clears all of the role's existing memberships,
+   * including `DATABRICKS_SUPERUSER`. Always send the complete desired list of
+   * memberships when using this field.
+   */
+  replaceExisting?: boolean | undefined;
 }
 
 /** Establish a synchronisation to the Postgres database for Reverse ETL for the source table selected from the Unity Catalog. */
@@ -1601,10 +1617,40 @@ export interface GetSyncedTableRequest {
   name?: string | undefined;
 }
 
+/** Configuration for the initial default branch created during project creation. */
+export interface InitialBranchSpec {
+  /** Whether the initial default branch should be protected from deletion. */
+  isProtected?: boolean | undefined;
+}
+
 /** Configuration for the initial Read/Write endpoint created during project creation. */
 export interface InitialEndpointSpec {
   /** Settings for HA configuration of the endpoint. */
   group?: EndpointGroupSpec | undefined;
+  /** The minimum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMinCu?: number | undefined;
+  /** The maximum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMaxCu?: number | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the initial endpoint is automatically suspended.
+         * If specified, should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
 }
 
 export interface ListBranchesRequest {
@@ -1801,6 +1847,12 @@ export interface Project {
    * Empty if the project is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
+  /**
+   * Configuration for the initial default branch created as part of project creation.
+   * Allows overriding branch protection. These settings only apply at creation time
+   * and do not affect resources created after project creation.
+   */
+  initialBranchSpec?: InitialBranchSpec | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
   projectId?: string | undefined;
 }
@@ -1887,6 +1939,8 @@ export interface ProjectStatus {
   branchLogicalSizeLimitBytes?: bigint | undefined;
   /** The current space occupied by the project in storage. */
   syntheticStorageSizeBytes?: bigint | undefined;
+  /** The most recent time when any endpoint of this project was active. */
+  computeLastActiveTime?: Temporal.Instant | undefined;
   /** The budget policy that is applied to the project. */
   budgetPolicyId?: string | undefined;
   /** The effective custom tags associated with the project. */
@@ -2795,13 +2849,39 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     endpointId: d.endpoint_id,
   }));
 
+export const unmarshalInitialBranchSpecSchema: z.ZodType<InitialBranchSpec> = z
+  .object({
+    is_protected: z.boolean().optional(),
+  })
+  .transform(d => ({
+    isProtected: d.is_protected,
+  }));
+
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
       group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
+      autoscaling_limit_min_cu: z.number().optional(),
+      autoscaling_limit_max_cu: z.number().optional(),
+      suspend_timeout_duration: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
+      no_suspension: z.boolean().optional(),
     })
     .transform(d => ({
       group: d.group,
+      autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
+      autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
+      suspension:
+        d.suspend_timeout_duration !== undefined
+          ? {
+              $case: 'suspendTimeoutDuration' as const,
+              suspendTimeoutDuration: d.suspend_timeout_duration,
+            }
+          : d.no_suspension !== undefined
+            ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
+            : undefined,
     }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
@@ -2915,6 +2995,9 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    initial_branch_spec: z
+      .lazy(() => unmarshalInitialBranchSpecSchema)
+      .optional(),
     project_id: z.string().optional(),
   })
   .transform(d => ({
@@ -2927,6 +3010,7 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     initialEndpointSpec: d.initial_endpoint_spec,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
+    initialBranchSpec: d.initial_branch_spec,
     projectId: d.project_id,
   }));
 
@@ -3018,6 +3102,10 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
+    compute_last_active_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     budget_policy_id: z.string().optional(),
     custom_tags: z
       .array(z.lazy(() => unmarshalProjectCustomTagSchema))
@@ -3034,6 +3122,7 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     defaultEndpointSettings: d.default_endpoint_settings,
     branchLogicalSizeLimitBytes: d.branch_logical_size_limit_bytes,
     syntheticStorageSizeBytes: d.synthetic_storage_size_bytes,
+    computeLastActiveTime: d.compute_last_active_time,
     budgetPolicyId: d.budget_policy_id,
     customTags: d.custom_tags,
     owner: d.owner,
@@ -3748,12 +3837,43 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     endpoint: d.endpoint,
   }));
 
+export const marshalInitialBranchSpecSchema: z.ZodType = z
+  .object({
+    isProtected: z.boolean().optional(),
+  })
+  .transform(d => ({
+    is_protected: d.isProtected,
+  }));
+
 export const marshalInitialEndpointSpecSchema: z.ZodType = z
   .object({
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
+    autoscalingLimitMinCu: z.number().optional(),
+    autoscalingLimitMaxCu: z.number().optional(),
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
+      .optional(),
   })
   .transform(d => ({
     group: d.group,
+    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
+    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
   }));
 
 export const marshalNewPipelineSpecSchema: z.ZodType = z
@@ -3793,6 +3913,7 @@ export const marshalProjectSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    initialBranchSpec: z.lazy(() => marshalInitialBranchSpecSchema).optional(),
     projectId: z.string().optional(),
   })
   .transform(d => ({
@@ -3805,6 +3926,7 @@ export const marshalProjectSchema: z.ZodType = z
     initial_endpoint_spec: d.initialEndpointSpec,
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
+    initial_branch_spec: d.initialBranchSpec,
     project_id: d.projectId,
   }));
 
@@ -3889,6 +4011,10 @@ export const marshalProjectStatusSchema: z.ZodType = z
       .optional(),
     branchLogicalSizeLimitBytes: z.bigint().optional(),
     syntheticStorageSizeBytes: z.bigint().optional(),
+    computeLastActiveTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     budgetPolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
     owner: z.string().optional(),
@@ -3903,6 +4029,7 @@ export const marshalProjectStatusSchema: z.ZodType = z
     default_endpoint_settings: d.defaultEndpointSettings,
     branch_logical_size_limit_bytes: d.branchLogicalSizeLimitBytes,
     synthetic_storage_size_bytes: d.syntheticStorageSizeBytes,
+    compute_last_active_time: d.computeLastActiveTime,
     budget_policy_id: d.budgetPolicyId,
     custom_tags: d.customTags,
     owner: d.owner,
@@ -4345,13 +4472,25 @@ const endpointStatusFieldMaskSchema: FieldMaskSchema = {
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
+const initialBranchSpecFieldMaskSchema: FieldMaskSchema = {
+  isProtected: {wire: 'is_protected'},
+};
+
 const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
+  autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
+  autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
+  noSuspension: {wire: 'no_suspension'},
+  suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
 const projectFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   deleteTime: {wire: 'delete_time'},
+  initialBranchSpec: {
+    wire: 'initial_branch_spec',
+    children: () => initialBranchSpecFieldMaskSchema,
+  },
   initialEndpointSpec: {
     wire: 'initial_endpoint_spec',
     children: () => initialEndpointSpecFieldMaskSchema,
@@ -4394,6 +4533,7 @@ const projectSpecFieldMaskSchema: FieldMaskSchema = {
 const projectStatusFieldMaskSchema: FieldMaskSchema = {
   branchLogicalSizeLimitBytes: {wire: 'branch_logical_size_limit_bytes'},
   budgetPolicyId: {wire: 'budget_policy_id'},
+  computeLastActiveTime: {wire: 'compute_last_active_time'},
   customTags: {wire: 'custom_tags'},
   defaultBranch: {wire: 'default_branch'},
   defaultEndpointSettings: {

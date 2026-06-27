@@ -311,6 +311,8 @@ export interface CreateInferenceEndpointRequest {
   /** Email notification settings. */
   emailNotifications?: EmailNotifications | undefined;
   description?: string | undefined;
+  /** Configuration for persisting endpoint telemetry (logs, traces, and metrics) to Unity Catalog tables. */
+  telemetryConfig?: TelemetryConfig | undefined;
 }
 
 export interface CreatePtEndpointRequest {
@@ -668,6 +670,8 @@ export interface InferenceEndpoint {
   description?: string | undefined;
   /** The usage policy associated with serving endpoint. */
   usagePolicyId?: string | undefined;
+  /** Telemetry configuration for the endpoint, including inference-table payload logging. */
+  telemetryConfig?: TelemetryConfig | undefined;
 }
 
 export interface InferenceEndpointDetailed {
@@ -707,6 +711,8 @@ export interface InferenceEndpointDetailed {
   emailNotifications?: EmailNotifications | undefined;
   /** Description of the serving model */
   description?: string | undefined;
+  /** Telemetry configuration for the endpoint, including inference-table payload logging. */
+  telemetryConfig?: TelemetryConfig | undefined;
 }
 
 export interface InferenceEndpointState {
@@ -1072,6 +1078,19 @@ export interface ServedModelLite {
 export interface ServedModelState {
   deployment?: ServedModelDeploymentState | undefined;
   deploymentStateMessage?: string | undefined;
+}
+
+export interface TelemetryConfig {
+  /** Configuration for inference table payload logging, including sampling. */
+  inferenceTableConfig?: TelemetryInferenceTableConfig | undefined;
+}
+
+/** Inference table payload logging configuration */
+export interface TelemetryInferenceTableConfig {
+  /** Fraction of requests sampled for payload logging, in the range [0.0, 1.0], where 1.0 logs all requests. */
+  samplingFraction?: number | undefined;
+  /** The full name of the inference table created for this endpoint. */
+  name?: string | undefined;
 }
 
 export interface TrafficConfig {
@@ -1515,6 +1534,7 @@ export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
     budget_policy_id: z.string().optional(),
     description: z.string().optional(),
     usage_policy_id: z.string().optional(),
+    telemetry_config: z.lazy(() => unmarshalTelemetryConfigSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1530,6 +1550,7 @@ export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
     budgetPolicyId: d.budget_policy_id,
     description: d.description,
     usagePolicyId: d.usage_policy_id,
+    telemetryConfig: d.telemetry_config,
   }));
 
 export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpointDetailed> =
@@ -1563,6 +1584,7 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
         .lazy(() => unmarshalEmailNotificationsSchema)
         .optional(),
       description: z.string().optional(),
+      telemetry_config: z.lazy(() => unmarshalTelemetryConfigSchema).optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1583,6 +1605,7 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
       budgetPolicyId: d.budget_policy_id,
       emailNotifications: d.email_notifications,
       description: d.description,
+      telemetryConfig: d.telemetry_config,
     }));
 
 export const unmarshalInferenceEndpointStateSchema: z.ZodType<InferenceEndpointState> =
@@ -1865,6 +1888,27 @@ export const unmarshalServedModelStateSchema: z.ZodType<ServedModelState> = z
     deploymentStateMessage: d.deployment_state_message,
   }));
 
+export const unmarshalTelemetryConfigSchema: z.ZodType<TelemetryConfig> = z
+  .object({
+    inference_table_config: z
+      .lazy(() => unmarshalTelemetryInferenceTableConfigSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    inferenceTableConfig: d.inference_table_config,
+  }));
+
+export const unmarshalTelemetryInferenceTableConfigSchema: z.ZodType<TelemetryInferenceTableConfig> =
+  z
+    .object({
+      sampling_fraction: z.number().optional(),
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      samplingFraction: d.sampling_fraction,
+      name: d.name,
+    }));
+
 export const unmarshalTrafficConfigSchema: z.ZodType<TrafficConfig> = z
   .object({
     routes: z.array(z.lazy(() => unmarshalRouteSchema)).optional(),
@@ -2068,6 +2112,7 @@ export const marshalCreateInferenceEndpointRequestSchema: z.ZodType = z
       .lazy(() => marshalEmailNotificationsSchema)
       .optional(),
     description: z.string().optional(),
+    telemetryConfig: z.lazy(() => marshalTelemetryConfigSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2079,6 +2124,7 @@ export const marshalCreateInferenceEndpointRequestSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     email_notifications: d.emailNotifications,
     description: d.description,
+    telemetry_config: d.telemetryConfig,
   }));
 
 export const marshalCreatePtEndpointRequestSchema: z.ZodType = z
@@ -2547,6 +2593,26 @@ export const marshalServedModelStateSchema: z.ZodType = z
   .transform(d => ({
     deployment: d.deployment,
     deployment_state_message: d.deploymentStateMessage,
+  }));
+
+export const marshalTelemetryConfigSchema: z.ZodType = z
+  .object({
+    inferenceTableConfig: z
+      .lazy(() => marshalTelemetryInferenceTableConfigSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    inference_table_config: d.inferenceTableConfig,
+  }));
+
+export const marshalTelemetryInferenceTableConfigSchema: z.ZodType = z
+  .object({
+    samplingFraction: z.number().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    sampling_fraction: d.samplingFraction,
+    name: d.name,
   }));
 
 export const marshalTrafficConfigSchema: z.ZodType = z

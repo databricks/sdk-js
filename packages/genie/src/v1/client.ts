@@ -13,6 +13,7 @@ import {
   buildHttpRequest,
   executeCall,
   executeHttpCall,
+  sendAndCheckError,
   marshalRequest,
   parseResponse,
   executeWait,
@@ -20,6 +21,8 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  DownloadMessageAttachmentVisualizationRequest,
+  DownloadMessageAttachmentVisualizationResponse,
   GenieCreateConversationMessageRequest,
   GenieCreateEvalRunRequest,
   GenieCreateMessageCommentRequest,
@@ -150,6 +153,41 @@ export class GenieClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Download a rendered image of a message visualization attachment.
+   * The response body is the raw PNG image, not a JSON payload.
+   * This is only available if the attachment is a visualization and the message status is `COMPLETED`.
+   */
+  async downloadMessageAttachmentVisualization(
+    req: DownloadMessageAttachmentVisualizationRequest,
+    options?: CallOptions
+  ): Promise<DownloadMessageAttachmentVisualizationResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/genie/${req.name ?? ''}/download-visualization`;
+    let resp: DownloadMessageAttachmentVisualizationResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpResp = await sendAndCheckError({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = {
+        contents: httpResp.body ?? undefined,
+      };
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -103,6 +103,7 @@ export type {
   GetProjectRequest,
   GetRoleRequest,
   GetSyncedTableRequest,
+  InitialBranchSpec,
   InitialEndpointSpec,
   ListBranchesRequest,
   ListBranchesResponse,

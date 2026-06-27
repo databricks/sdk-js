@@ -319,6 +319,9 @@ export class PostgresClient {
     if (req.databaseId !== undefined) {
       params.append('database_id', req.databaseId);
     }
+    if (req.replaceExisting !== undefined) {
+      params.append('replace_existing', String(req.replaceExisting));
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.database, marshalDatabaseSchema);
@@ -484,6 +487,9 @@ export class PostgresClient {
     const params = new URLSearchParams();
     if (req.roleId !== undefined) {
       params.append('role_id', req.roleId);
+    }
+    if (req.replaceExisting !== undefined) {
+      params.append('replace_existing', String(req.replaceExisting));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
