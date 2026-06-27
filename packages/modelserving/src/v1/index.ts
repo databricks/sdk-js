@@ -88,6 +88,8 @@ export type {
   ServedModel,
   ServedModelLite,
   ServedModelState,
+  TelemetryConfig,
+  TelemetryInferenceTableConfig,
   TrafficConfig,
   UpdateInferenceEndpointNotificationsRequest,
   UpdateInferenceEndpointNotificationsResponse,
