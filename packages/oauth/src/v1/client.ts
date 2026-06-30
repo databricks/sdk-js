@@ -95,7 +95,7 @@ export class OAuthClient {
   /**
    * Create Custom OAuth App Integration.
    *
-   * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
+   * You can retrieve the custom OAuth app integration via [CustomAppIntegration/get](https://docs.databricks.com/api/account/customappintegration/get).
    */
   async createCustomOAuthAppIntegration(
     req: CreateCustomOAuthAppIntegrationRequest,
@@ -132,7 +132,7 @@ export class OAuthClient {
   /**
    * Create Published OAuth App Integration.
    *
-   * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
+   * You can retrieve the published OAuth app integration via [PublishedAppIntegration/get](https://docs.databricks.com/api/account/publishedappintegration/get).
    */
   async createPublishedOAuthAppIntegration(
     req: CreatePublishedOAuthAppIntegrationRequest,
@@ -168,7 +168,7 @@ export class OAuthClient {
 
   /**
    * Delete an existing Custom OAuth App Integration.
-   * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
+   * You can retrieve the custom OAuth app integration via [CustomAppIntegration/get](https://docs.databricks.com/api/account/customappintegration/get).
    */
   async deleteCustomOAuthAppIntegration(
     req: DeleteCustomOAuthAppIntegrationRequest,
@@ -200,7 +200,7 @@ export class OAuthClient {
 
   /**
    * Delete an existing Published OAuth App Integration.
-   * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
+   * You can retrieve the published OAuth app integration via [PublishedAppIntegration/get](https://docs.databricks.com/api/account/publishedappintegration/get).
    */
   async deletePublishedOAuthAppIntegration(
     req: DeletePublishedOAuthAppIntegrationRequest,
@@ -461,7 +461,7 @@ export class OAuthClient {
 
   /**
    * Updates an existing custom OAuth App Integration.
-   * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
+   * You can retrieve the custom OAuth app integration via [CustomAppIntegration/get](https://docs.databricks.com/api/account/customappintegration/get).
    */
   async updateCustomOAuthAppIntegration(
     req: UpdateCustomOAuthAppIntegrationRequest,
@@ -497,7 +497,7 @@ export class OAuthClient {
 
   /**
    * Updates an existing published OAuth App Integration.
-   * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
+   * You can retrieve the published OAuth app integration via [PublishedAppIntegration/get](https://docs.databricks.com/api/account/publishedappintegration/get).
    */
   async updatePublishedOAuthAppIntegration(
     req: UpdatePublishedOAuthAppIntegrationRequest,
