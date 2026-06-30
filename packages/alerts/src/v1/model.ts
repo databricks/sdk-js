@@ -202,6 +202,7 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: UpdateAlertRequestAlert | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<UpdateAlertRequestAlert> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */

@@ -3,9 +3,17 @@
 import {z} from 'zod';
 
 export interface AddBlockRequest {
-  /** The handle on an open stream. */
+  /**
+   * The handle on an open stream.
+   *
+   * Required. This field must be set in requests.
+   */
   handle?: bigint | undefined;
-  /** The base64-encoded data to append to the stream. This has a limit of 1 MB. */
+  /**
+   * The base64-encoded data to append to the stream. This has a limit of 1 MB.
+   *
+   * Required. This field must be set in requests.
+   */
   data?: Uint8Array | undefined;
 }
 
@@ -13,7 +21,11 @@ export interface AddBlockRequest {
 export interface AddBlockResponse {}
 
 export interface CloseRequest {
-  /** The handle on an open stream. */
+  /**
+   * The handle on an open stream.
+   *
+   * Required. This field must be set in requests.
+   */
   handle?: bigint | undefined;
 }
 
@@ -22,7 +34,11 @@ export interface CloseResponse {}
 
 /** Create a directory */
 export interface CreateDirectoryRequest {
-  /** The absolute path of a directory. */
+  /**
+   * The absolute path of a directory.
+   *
+   * Required. This field must be set in requests.
+   */
   directoryPath?: string | undefined;
 }
 
@@ -30,7 +46,11 @@ export interface CreateDirectoryRequest {
 export interface CreateDirectoryResponse {}
 
 export interface CreateRequest {
-  /** The path of the new file. The path should be the absolute DBFS path. */
+  /**
+   * The path of the new file. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
   /** The flag that specifies whether to overwrite existing file/files. */
   overwrite?: boolean | undefined;
@@ -43,7 +63,11 @@ export interface CreateResponse {
 
 /** Delete a directory */
 export interface DeleteDirectoryRequest {
-  /** The absolute path of a directory. */
+  /**
+   * The absolute path of a directory.
+   *
+   * Required. This field must be set in requests.
+   */
   directoryPath?: string | undefined;
 }
 
@@ -52,7 +76,11 @@ export interface DeleteDirectoryResponse {}
 
 /** Delete a file */
 export interface DeleteFileRequest {
-  /** The absolute path of the file. */
+  /**
+   * The absolute path of the file.
+   *
+   * Required. This field must be set in requests.
+   */
   filePath?: string | undefined;
 }
 
@@ -60,7 +88,11 @@ export interface DeleteFileRequest {
 export interface DeleteFileResponse {}
 
 export interface DeleteRequest {
-  /** The path of the file or directory to delete. The path should be the absolute DBFS path. */
+  /**
+   * The path of the file or directory to delete. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
   /** Whether or not to recursively delete the directory's contents. Deleting empty directories can be done without providing the recursive flag. */
   recursive?: boolean | undefined;
@@ -84,7 +116,11 @@ export interface DirectoryEntry {
 
 /** Download a file */
 export interface DownloadFileRequest {
-  /** The absolute path of the file. */
+  /**
+   * The absolute path of the file.
+   *
+   * Required. This field must be set in requests.
+   */
   filePath?: string | undefined;
   /**
    * The range of bytes to retrieve.
@@ -123,7 +159,11 @@ export interface FileInfo {
 
 /** Get directory metadata */
 export interface GetDirectoryMetadataRequest {
-  /** The absolute path of a directory. */
+  /**
+   * The absolute path of a directory.
+   *
+   * Required. This field must be set in requests.
+   */
   directoryPath?: string | undefined;
 }
 
@@ -132,7 +172,11 @@ export interface GetDirectoryMetadataResponse {}
 
 /** Get file metadata */
 export interface GetFileMetadataRequest {
-  /** The absolute path of the file. */
+  /**
+   * The absolute path of the file.
+   *
+   * Required. This field must be set in requests.
+   */
   filePath?: string | undefined;
   /**
    * The range of bytes to retrieve.
@@ -157,7 +201,11 @@ export interface GetFileMetadataResponse {
 }
 
 export interface GetStatusRequest {
-  /** The path of the file or directory. The path should be the absolute DBFS path. */
+  /**
+   * The path of the file or directory. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
 }
 
@@ -174,7 +222,11 @@ export interface GetStatusResponse {
 
 /** List directory contents */
 export interface ListDirectoryContentsRequest {
-  /** The absolute path of a directory. */
+  /**
+   * The absolute path of a directory.
+   *
+   * Required. This field must be set in requests.
+   */
   directoryPath?: string | undefined;
   /**
    * The maximum number of directory entries to return. The response may contain fewer
@@ -209,7 +261,11 @@ export interface ListDirectoryResponse {
 }
 
 export interface ListStatusRequest {
-  /** The path of the file or directory. The path should be the absolute DBFS path. */
+  /**
+   * The path of the file or directory. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
 }
 
@@ -219,7 +275,11 @@ export interface ListStatusResponse {
 }
 
 export interface MkDirsRequest {
-  /** The path of the new directory. The path should be the absolute DBFS path. */
+  /**
+   * The path of the new directory. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
 }
 
@@ -227,9 +287,17 @@ export interface MkDirsRequest {
 export interface MkDirsResponse {}
 
 export interface MoveRequest {
-  /** The source path of the file or directory. The path should be the absolute DBFS path. */
+  /**
+   * The source path of the file or directory. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   sourcePath?: string | undefined;
-  /** The destination path of the file or directory. The path should be the absolute DBFS path. */
+  /**
+   * The destination path of the file or directory. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationPath?: string | undefined;
 }
 
@@ -237,7 +305,11 @@ export interface MoveRequest {
 export interface MoveResponse {}
 
 export interface PutRequest {
-  /** The path of the new file. The path should be the absolute DBFS path. */
+  /**
+   * The path of the new file. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
   /** This parameter might be absent, and instead a posted file will be used. */
   contents?: Uint8Array | undefined;
@@ -249,7 +321,11 @@ export interface PutRequest {
 export interface PutResponse {}
 
 export interface ReadRequest {
-  /** The path of the file to read. The path should be the absolute DBFS path. */
+  /**
+   * The path of the file to read. The path should be the absolute DBFS path.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
   /** The offset to read from in bytes. */
   offset?: bigint | undefined;
@@ -272,7 +348,11 @@ export interface ReadResponse {
 
 /** Upload a file */
 export interface UploadFileRequest {
-  /** The absolute path of the file. */
+  /**
+   * The absolute path of the file.
+   *
+   * Required. This field must be set in requests.
+   */
   filePath?: string | undefined;
   contents?: ReadableStream | undefined;
   /** If true or unspecified, an existing file will be overwritten. If false, an error will be returned if the path points to an existing file. */

@@ -119,7 +119,11 @@ export interface AggregationFunction {
 
 /** Computes the approximate count of distinct values. */
 export interface ApproxCountDistinctFunction {
-  /** The input column from which the approximate count of distinct values is computed. */
+  /**
+   * The input column from which the approximate count of distinct values is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
   /** The maximum relative standard deviation allowed (default defined by Spark). */
   relativeSd?: number | undefined;
@@ -127,9 +131,17 @@ export interface ApproxCountDistinctFunction {
 
 /** Computes the approximate percentile of values. */
 export interface ApproxPercentileFunction {
-  /** The input column from which the approximate percentile is computed. */
+  /**
+   * The input column from which the approximate percentile is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
-  /** The percentile value to compute (between 0 and 1). */
+  /**
+   * The percentile value to compute (between 0 and 1).
+   *
+   * Required. This field must be set in requests.
+   */
   percentile?: number | undefined;
   /** The accuracy parameter (higher is more accurate but slower). */
   accuracy?: bigint | undefined;
@@ -157,6 +169,8 @@ export interface AvgFunction {
    * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
+   *
+   * Required. This field must be set in requests.
    */
   input?: string | undefined;
 }
@@ -181,7 +195,11 @@ export interface BackfillSource {
 }
 
 export interface BatchCreateMaterializedFeaturesRequest {
-  /** The requests to create materialized features. */
+  /**
+   * The requests to create materialized features.
+   *
+   * Required. This field must be set in requests.
+   */
   requests?: CreateMaterializedFeatureRequest[] | undefined;
 }
 
@@ -194,19 +212,29 @@ export interface ColumnIdentifier {
   /**
    * String representation of the column name using dot-prefixed path notation. For nested fields, the leaf value is what will be present in materialized tables
    * and expected to match at query time. For example, the leaf node of value.trip_details.location_details.pickup_zip is pickup_zip.
+   *
+   * Required. This field must be set in requests.
    */
   variantExprPath?: string | undefined;
 }
 
 /** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime ContinuousWindow */
 export interface ColumnSelection {
-  /** Column name from source to select as the feature value. */
+  /**
+   * Column name from source to select as the feature value.
+   *
+   * Required. This field must be set in requests.
+   */
   column?: string | undefined;
 }
 
 /** Deprecated: use RollingWindow with `delay` instead. */
 export interface ContinuousWindow {
-  /** The duration of the continuous window (must be positive). */
+  /**
+   * The duration of the continuous window (must be positive).
+   *
+   * Required. This field must be set in requests.
+   */
   windowDuration?: Temporal.Duration | undefined;
   /** The offset of the continuous window (must be non-positive). */
   offset?: Temporal.Duration | undefined;
@@ -219,27 +247,42 @@ export interface CountFunction {
    * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
+   *
+   * Required. This field must be set in requests.
    */
   input?: string | undefined;
 }
 
 export interface CreateFeatureRequest {
-  /** Feature to create. */
+  /**
+   * Feature to create.
+   *
+   * Required. This field must be set in requests.
+   */
   feature?: Feature | undefined;
 }
 
 export interface CreateKafkaConfigRequest {
+  /** Required. This field must be set in requests. */
   kafkaConfig?: KafkaConfig | undefined;
 }
 
 export interface CreateMaterializedFeatureRequest {
-  /** The materialized feature to create. */
+  /**
+   * The materialized feature to create.
+   *
+   * Required. This field must be set in requests.
+   */
   materializedFeature?: MaterializedFeature | undefined;
 }
 
 /** Create a Stream, a governed UC entity representing an external streaming data source. */
 export interface CreateStreamRequest {
-  /** The Stream to create. */
+  /**
+   * The Stream to create.
+   *
+   * Required. This field must be set in requests.
+   */
   stream?: Stream | undefined;
 }
 
@@ -276,28 +319,48 @@ export interface DataSource {
 }
 
 export interface DeleteFeatureRequest {
-  /** Name of the feature to delete. */
+  /**
+   * Name of the feature to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   fullName?: string | undefined;
 }
 
 export interface DeleteKafkaConfigRequest {
-  /** Name of the Kafka config to delete. */
+  /**
+   * Name of the Kafka config to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface DeleteMaterializedFeatureRequest {
-  /** The ID of the materialized feature to delete. */
+  /**
+   * The ID of the materialized feature to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   materializedFeatureId?: string | undefined;
 }
 
 /** Delete a Stream by its full three-part name (catalog.schema.stream). */
 export interface DeleteStreamRequest {
-  /** Full three-part name (catalog.schema.stream) of the Stream to delete. */
+  /**
+   * Full three-part name (catalog.schema.stream) of the Stream to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface DeltaTableSource {
-  /** The full three-part (catalog, schema, table) name of the Delta table. */
+  /**
+   * The full three-part (catalog, schema, table) name of the Delta table.
+   *
+   * Required. This field must be set in requests.
+   */
   fullName?: string | undefined;
   /**
    * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
@@ -330,9 +393,17 @@ export interface DeltaTableSource {
  * Temporarily used until UC Kafka Connections gain mTLS support.
  */
 export interface DirectMtlsConfig {
-  /** A comma-separated list of host:port pairs for the Kafka bootstrap servers. */
+  /**
+   * A comma-separated list of host:port pairs for the Kafka bootstrap servers.
+   *
+   * Required. This field must be set in requests.
+   */
   bootstrapServers?: string | undefined;
-  /** Mutual-TLS authentication configuration. */
+  /**
+   * Mutual-TLS authentication configuration.
+   *
+   * Required. This field must be set in requests.
+   */
   mtlsConfig?: MtlsConfig | undefined;
 }
 
@@ -361,6 +432,8 @@ export interface EntityColumn {
    * be present in materialized tables and expected to match at query time.
    * Colon-prefixed notation (e.g., "value:user_id") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -370,20 +443,34 @@ export interface Feature {
    * The full three-part name (catalog, schema, name) of the feature. This is the
    * feature's resource identifier; the catalog_name, schema_name, and name fields
    * below are OUTPUT_ONLY decomposed views of this value.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   fullName?: string | undefined;
-  /** The data source of the feature. */
+  /**
+   * The data source of the feature.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   source?: DataSource | undefined;
   /**
    * Deprecated: Use AggregationFunction.inputs instead. Kept for backwards compatibility.
    * The input columns from which the feature is computed.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   inputs?: string[] | undefined;
-  /** The function by which the feature is computed. */
+  /**
+   * The function by which the feature is computed.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   function?: Function | undefined;
   /**
    * Deprecated: Use Function.aggregation_function.time_window instead. Kept for backwards compatibility.
    * The time window in which the feature is computed.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   timeWindow?: TimeWindow | undefined;
   /** The description of the feature. */
@@ -405,15 +492,35 @@ export interface Feature {
   entities?: EntityColumn[] | undefined;
   /** Column recording time, used for point-in-time joins, backfills, and aggregations. */
   timeseriesColumn?: TimeseriesColumn | undefined;
-  /** Name of parent catalog. */
+  /**
+   * Name of parent catalog.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   catalogName?: string | undefined;
-  /** Name of parent schema relative to its parent catalog. */
+  /**
+   * Name of parent schema relative to its parent catalog.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   schemaName?: string | undefined;
-  /** Name of the feature, extracted from the full three-part name (catalog.schema.name). */
+  /**
+   * Name of the feature, extracted from the full three-part name (catalog.schema.name).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   name?: string | undefined;
-  /** Time at which this feature was created. */
+  /**
+   * Time at which this feature was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: Temporal.Instant | undefined;
-  /** Username of the feature creator. */
+  /**
+   * Username of the feature creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
 }
 
@@ -422,31 +529,59 @@ export interface Feature {
  * Does not support nested or complex types (arrays, maps, structs).
  */
 export interface FieldDefinition {
-  /** The name of the field. */
+  /**
+   * The name of the field.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The scalar data type of the field. */
+  /**
+   * The scalar data type of the field.
+   *
+   * Required. This field must be set in requests.
+   */
   dataType?: ScalarDataType | undefined;
 }
 
 /** Returns the first N distinct values, ordered by the feature's timeseries column. */
 export interface FirstDistinctNFunction {
-  /** The input column from which the first N distinct values are returned. */
+  /**
+   * The input column from which the first N distinct values are returned.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
-  /** The number of distinct values to return. */
+  /**
+   * The number of distinct values to return.
+   *
+   * Required. This field must be set in requests.
+   */
   n?: bigint | undefined;
 }
 
 /** Returns the first value. */
 export interface FirstFunction {
-  /** The input column from which the first value is returned. */
+  /**
+   * The input column from which the first value is returned.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 
 /** Returns the first N values, ordered by the feature's timeseries column. */
 export interface FirstNFunction {
-  /** The input column from which the first N values are returned. */
+  /**
+   * The input column from which the first N values are returned.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
-  /** The number of values to return. */
+  /**
+   * The number of values to return.
+   *
+   * Required. This field must be set in requests.
+   */
   n?: bigint | undefined;
 }
 
@@ -455,7 +590,11 @@ export interface FirstNFunction {
  * This schema only supports scalar types.
  */
 export interface FlatSchema {
-  /** The list of fields in this schema. */
+  /**
+   * The list of fields in this schema.
+   *
+   * Required. This field must be set in requests.
+   */
   fields?: FieldDefinition[] | undefined;
 }
 
@@ -490,30 +629,54 @@ export interface Function {
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Function_ExtraParameter {
-  /** The name of the parameter. */
+  /**
+   * The name of the parameter.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** The value of the parameter. */
+  /**
+   * The value of the parameter.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
 }
 
 export interface GetFeatureRequest {
-  /** Name of the feature to get. */
+  /**
+   * Name of the feature to get.
+   *
+   * Required. This field must be set in requests.
+   */
   fullName?: string | undefined;
 }
 
 export interface GetKafkaConfigRequest {
-  /** Name of the Kafka config to get. */
+  /**
+   * Name of the Kafka config to get.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetMaterializedFeatureRequest {
-  /** The ID of the materialized feature. */
+  /**
+   * The ID of the materialized feature.
+   *
+   * Required. This field must be set in requests.
+   */
   materializedFeatureId?: string | undefined;
 }
 
 /** Get a Stream by its full three-part name (catalog.schema.stream). */
 export interface GetStreamRequest {
-  /** Full three-part name (catalog.schema.stream) of the Stream to get. */
+  /**
+   * Full three-part name (catalog.schema.stream) of the Stream to get.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -526,6 +689,8 @@ export interface IngestionConfig {
    * Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training.
    * This table contains both 1) forward-filled data from the Stream and 2) backfilled data from the BackfillSource (if provided).
    * This table is created and managed by <Databricks> and is deleted when the Stream is deleted.
+   *
+   * Required. This field must be set in requests.
    */
   ingestionDestination?: IngestionDestination | undefined;
   /**
@@ -543,11 +708,21 @@ export interface IngestionConfig {
   /**
    * The ID of the SDP pipeline that continuously copies new events from the streaming source
    * into the ingestion Delta table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   ingestionPipelineId?: string | undefined;
-  /** The ID of the Databricks Job that performs the forward-fill ingestion. */
+  /**
+   * The ID of the Databricks Job that performs the forward-fill ingestion.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   ingestionJobId?: bigint | undefined;
-  /** The ID of the Databricks Job that performs the historical backfill of the ingestion Delta table. */
+  /**
+   * The ID of the Databricks Job that performs the historical backfill of the ingestion Delta table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   backfillJobId?: bigint | undefined;
 }
 
@@ -573,13 +748,27 @@ export interface KafkaConfig {
   /**
    * Name that uniquely identifies this Kafka config within the metastore. This will be the identifier used from the Feature object to reference these configs for a feature.
    * Can be distinct from topic name.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
-  /** A comma-separated list of host/port pairs pointing to Kafka cluster. */
+  /**
+   * A comma-separated list of host/port pairs pointing to Kafka cluster.
+   *
+   * Required. This field must be set in requests.
+   */
   bootstrapServers?: string | undefined;
-  /** Options to configure which Kafka topics to pull data from. */
+  /**
+   * Options to configure which Kafka topics to pull data from.
+   *
+   * Required. This field must be set in requests.
+   */
   subscriptionMode?: SubscriptionMode | undefined;
-  /** Authentication configuration for connection to topics. */
+  /**
+   * Authentication configuration for connection to topics.
+   *
+   * Required. This field must be set in requests.
+   */
   authConfig?: AuthConfig | undefined;
   /** Schema configuration for extracting message keys from topics. At least one of key_schema and value_schema must be provided. */
   keySchema?: SchemaConfig | undefined;
@@ -601,7 +790,11 @@ export interface KafkaConfig {
 }
 
 export interface KafkaSource {
-  /** Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name. */
+  /**
+   * Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
@@ -619,7 +812,11 @@ export interface KafkaSource {
 
 /** Kafka-specific configuration for a Stream. */
 export interface KafkaStreamConfig {
-  /** Options to configure which Kafka topics to pull data from. */
+  /**
+   * Options to configure which Kafka topics to pull data from.
+   *
+   * Required. This field must be set in requests.
+   */
   subscriptionMode?: KafkaSubscriptionMode | undefined;
   /**
    * Optional Kafka source or consumer options, validated against a server-side
@@ -665,23 +862,43 @@ export interface KafkaSubscriptionMode {
 
 /** Returns the last N distinct values, ordered by the feature's timeseries column. */
 export interface LastDistinctNFunction {
-  /** The input column from which the last N distinct values are returned. */
+  /**
+   * The input column from which the last N distinct values are returned.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
-  /** The number of distinct values to return. */
+  /**
+   * The number of distinct values to return.
+   *
+   * Required. This field must be set in requests.
+   */
   n?: bigint | undefined;
 }
 
 /** Returns the last value. */
 export interface LastFunction {
-  /** The input column from which the last value is returned. */
+  /**
+   * The input column from which the last value is returned.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 
 /** Returns the last N values, ordered by the feature's timeseries column. */
 export interface LastNFunction {
-  /** The input column from which the last N values are returned. */
+  /**
+   * The input column from which the last N values are returned.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
-  /** The number of values to return. */
+  /**
+   * The number of values to return.
+   *
+   * Required. This field must be set in requests.
+   */
   n?: bigint | undefined;
 }
 
@@ -702,9 +919,17 @@ export interface ListFeaturesRequest {
   pageToken?: string | undefined;
   /** The maximum number of results to return. */
   pageSize?: number | undefined;
-  /** Name of parent catalog for features of interest. */
+  /**
+   * Name of parent catalog for features of interest.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
-  /** Name of parent schema relative to its parent catalog. */
+  /**
+   * Name of parent schema relative to its parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   schemaName?: string | undefined;
 }
 
@@ -723,7 +948,11 @@ export interface ListKafkaConfigsRequest {
 }
 
 export interface ListKafkaConfigsResponse {
-  /** List of Kafka configs. Schemas are not included in the response. */
+  /**
+   * List of Kafka configs. Schemas are not included in the response.
+   *
+   * Required. This field must be set in requests.
+   */
   kafkaConfigs?: KafkaConfig[] | undefined;
   /** Pagination token to request the next page of results for this query. */
   nextPageToken?: string | undefined;
@@ -785,9 +1014,17 @@ export interface ListStreamsResponse {
 
 /** A materialized feature represents a feature that is continuously computed and stored. */
 export interface MaterializedFeature {
-  /** Server-assigned unique identifier for the materialized feature. */
+  /**
+   * Server-assigned unique identifier for the materialized feature.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   materializedFeatureId?: string | undefined;
-  /** The full name of the feature in Unity Catalog. */
+  /**
+   * The full name of the feature in Unity Catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   featureName?: string | undefined;
   destination?:
     | {
@@ -801,7 +1038,11 @@ export interface MaterializedFeature {
         onlineStoreConfig: OnlineStoreConfig;
       }
     | undefined;
-  /** The fully qualified Unity Catalog path to the table containing the materialized feature (Delta table or Lakebase table). Output only. */
+  /**
+   * The fully qualified Unity Catalog path to the table containing the materialized feature (Delta table or Lakebase table). Output only.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   tableName?: string | undefined;
   /**
    * The schedule state of the materialization pipeline.
@@ -811,6 +1052,8 @@ export interface MaterializedFeature {
   /**
    * The timestamp when the pipeline last ran and updated the materialized feature values.
    * If the pipeline has not run yet, this field will be null.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   lastMaterializationTime?: Temporal.Instant | undefined;
   /**
@@ -818,7 +1061,11 @@ export interface MaterializedFeature {
    * Hidden from GraphQL: superseded by the `trigger` oneof (cron_schedule_trigger), so not exposed to Catalog Explorer.
    */
   cronSchedule?: string | undefined;
-  /** True if this is an online materialized feature. False if it is an offline materialized feature. */
+  /**
+   * True if this is an online materialized feature. False if it is an offline materialized feature.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   isOnline?: boolean | undefined;
   /** The trigger configuration for the materialization pipeline. */
   trigger?:
@@ -846,13 +1093,21 @@ export interface MaterializedFeature {
 
 /** Computes the maximum value. */
 export interface MaxFunction {
-  /** The input column from which the maximum is computed. */
+  /**
+   * The input column from which the maximum is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 
 /** Computes the minimum value. */
 export interface MinFunction {
-  /** The input column from which the minimum is computed. */
+  /**
+   * The input column from which the minimum is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 
@@ -874,23 +1129,37 @@ export interface MtlsConfig {
    * Unity Catalog volume path to the JKS keystore file containing the client certificate
    * and private key. e.g. "/Volumes/<catalog>/<schema>/<volume>/client.jks". The
    * materialization compute must have read permission on this volume.
+   *
+   * Required. This field must be set in requests.
    */
   keystoreLocation?: string | undefined;
-  /** Secret-scope reference for the JKS keystore password. */
+  /**
+   * Secret-scope reference for the JKS keystore password.
+   *
+   * Required. This field must be set in requests.
+   */
   keystorePasswordRef?: SecretScopeReference | undefined;
   /**
    * Secret-scope reference for the private key password. Often the same value as the
    * keystore password (keytool's default), but provided as a separate field because
    * Apache Kafka requires it as a distinct option (kafka.ssl.key.password).
+   *
+   * Required. This field must be set in requests.
    */
   keyPasswordRef?: SecretScopeReference | undefined;
   /**
    * Unity Catalog volume path to the JKS truststore file containing the CA certificate(s)
    * trusted to verify the Kafka broker's server certificate.
    * e.g. "/Volumes/<catalog>/<schema>/<volume>/truststore.jks".
+   *
+   * Required. This field must be set in requests.
    */
   truststoreLocation?: string | undefined;
-  /** Secret-scope reference for the JKS truststore password. */
+  /**
+   * Secret-scope reference for the JKS truststore password.
+   *
+   * Required. This field must be set in requests.
+   */
   truststorePasswordRef?: SecretScopeReference | undefined;
   /**
    * Set to true only when the broker certificate's SAN intentionally does not match
@@ -907,13 +1176,23 @@ export interface MtlsConfig {
 
 /** Configuration for offline store destination. */
 export interface OfflineStoreConfig {
-  /** The Unity Catalog catalog name. */
+  /**
+   * The Unity Catalog catalog name.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
-  /** The Unity Catalog schema name. */
+  /**
+   * The Unity Catalog schema name.
+   *
+   * Required. This field must be set in requests.
+   */
   schemaName?: string | undefined;
   /**
    * Prefix for Unity Catalog table name.
    * The materialized feature will be stored in a table with this prefix and a generated postfix.
+   *
+   * Required. This field must be set in requests.
    */
   tableNamePrefix?: string | undefined;
 }
@@ -923,19 +1202,29 @@ export interface OnlineStoreConfig {
   /**
    * The Unity Catalog catalog name. This name is also used as the Lakebase logical database name.
    * Quoting is handled by the backend where needed, do not pre-quote it.
+   *
+   * Required. This field must be set in requests.
    */
   catalogName?: string | undefined;
   /**
    * The Unity Catalog schema name. This name is also used as the Lakebase schema name under the database.
    * Quoting is handled by the backend where needed, do not pre-quote it.
+   *
+   * Required. This field must be set in requests.
    */
   schemaName?: string | undefined;
   /**
    * Prefix for Unity Catalog table name.
    * The materialized feature will be stored in a Lakebase table with this prefix and a generated postfix.
+   *
+   * Required. This field must be set in requests.
    */
   tableNamePrefix?: string | undefined;
-  /** The name of the target online store. */
+  /**
+   * The name of the target online store.
+   *
+   * Required. This field must be set in requests.
+   */
   onlineStoreName?: string | undefined;
 }
 
@@ -957,7 +1246,11 @@ export interface RequestSource {
  * of the legacy non-positive `ContinuousWindow.offset`.
  */
 export interface RollingWindow {
-  /** The duration of the rolling window (must be positive). */
+  /**
+   * The duration of the rolling window (must be positive).
+   *
+   * Required. This field must be set in requests.
+   */
   windowDuration?: Temporal.Duration | undefined;
   /**
    * The delay applied to the end of the rolling window (must be non-negative).
@@ -981,16 +1274,32 @@ export interface SchemaConfig {
  * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
  */
 export interface SecretScopeReference {
-  /** The <Databricks> secret scope name. */
+  /**
+   * The <Databricks> secret scope name.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** The key within the scope. */
+  /**
+   * The key within the scope.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
 }
 
 export interface SlidingWindow {
-  /** The duration of the sliding window. */
+  /**
+   * The duration of the sliding window.
+   *
+   * Required. This field must be set in requests.
+   */
   windowDuration?: Temporal.Duration | undefined;
-  /** The slide duration (interval by which windows advance, must be positive and less than duration). */
+  /**
+   * The slide duration (interval by which windows advance, must be positive and less than duration).
+   *
+   * Required. This field must be set in requests.
+   */
   slideDuration?: Temporal.Duration | undefined;
 }
 
@@ -1001,13 +1310,19 @@ export interface StddevPopFunction {
    * use dot-prefixed path notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
+   *
+   * Required. This field must be set in requests.
    */
   input?: string | undefined;
 }
 
 /** Computes the sample standard deviation. */
 export interface StddevSampFunction {
-  /** The input column from which the sample standard deviation is computed. */
+  /**
+   * The input column from which the sample standard deviation is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 
@@ -1016,32 +1331,68 @@ export interface StddevSampFunction {
  * The source_config oneof determines the streaming platform source (e.g. Kafka, Kinesis, etc.).
  */
 export interface Stream {
-  /** Full three-part (catalog.schema.stream) name of the stream. */
+  /**
+   * Full three-part (catalog.schema.stream) name of the stream.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** User-provided description. */
   description?: string | undefined;
-  /** Source-specific configuration. Determines the streaming platform source. */
+  /**
+   * Source-specific configuration. Determines the streaming platform source.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceConfig?: StreamSourceConfig | undefined;
-  /** Specifies how to connect and authenticate to the stream platform. */
+  /**
+   * Specifies how to connect and authenticate to the stream platform.
+   *
+   * Required. This field must be set in requests.
+   */
   connectionConfig?: StreamConnectionConfig | undefined;
   /**
    * Schema definitions for the stream. Currently only direct schemas are supported.
    * In a future milestone, we will support schema registries through a UC Connection.
+   *
+   * Required. This field must be set in requests.
    */
   schemaConfig?: StreamSchemaConfig | undefined;
-  /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
+  /**
+   * Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill.
+   *
+   * Required. This field must be set in requests.
+   */
   ingestionConfig?: IngestionConfig | undefined;
-  /** Time at which this Stream was created. */
+  /**
+   * Time at which this Stream was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** Username of the Stream creator. */
+  /**
+   * Username of the Stream creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this Stream was last modified. */
+  /**
+   * Time at which this Stream was last modified.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** Username of user who last modified the Stream. */
+  /**
+   * Username of user who last modified the Stream.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
   /**
    * Indicates whether the principal is limited to retrieving metadata for the
    * associated object through the BROWSE privilege when include_browse is enabled in the request.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   browseOnly?: boolean | undefined;
 }
@@ -1084,7 +1435,11 @@ export interface StreamSchemaConfig {
 
 /** A Stream entity used as a data source for a feature. */
 export interface StreamSource {
-  /** Three-part full name of the Stream (catalog.schema.stream). */
+  /**
+   * Three-part full name of the Stream (catalog.schema.stream).
+   *
+   * Required. This field must be set in requests.
+   */
   fullName?: string | undefined;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
@@ -1139,6 +1494,8 @@ export interface SumFunction {
    * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
+   *
+   * Required. This field must be set in requests.
    */
   input?: string | undefined;
 }
@@ -1164,56 +1521,100 @@ export interface TimeseriesColumn {
    * is what will be present in materialized tables and expected to match at query time.
    * Colon-prefixed notation (e.g., "value:event_timestamp") is supported for
    * backwards compatibility but is deprecated; migrate to dot notation.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 export interface TumblingWindow {
-  /** The duration of each tumbling window (non-overlapping, fixed-duration windows). */
+  /**
+   * The duration of each tumbling window (non-overlapping, fixed-duration windows).
+   *
+   * Required. This field must be set in requests.
+   */
   windowDuration?: Temporal.Duration | undefined;
 }
 
 export interface UpdateFeatureRequest {
-  /** Feature to update. */
+  /**
+   * Feature to update.
+   *
+   * Required. This field must be set in requests.
+   */
   feature?: Feature | undefined;
-  /** The list of fields to update. */
+  /**
+   * The list of fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Feature> | undefined;
 }
 
 export interface UpdateKafkaConfigRequest {
-  /** The Kafka config to update. */
+  /**
+   * The Kafka config to update.
+   *
+   * Required. This field must be set in requests.
+   */
   kafkaConfig?: KafkaConfig | undefined;
-  /** The list of fields to update. */
+  /**
+   * The list of fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<KafkaConfig> | undefined;
 }
 
 export interface UpdateMaterializedFeatureRequest {
-  /** The materialized feature to update. */
+  /**
+   * The materialized feature to update.
+   *
+   * Required. This field must be set in requests.
+   */
   materializedFeature?: MaterializedFeature | undefined;
   /**
    * Provide the materialization feature fields which should be updated.
    * Currently, only the pipeline_state field can be updated.
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<MaterializedFeature> | undefined;
 }
 
 /** Update a Stream. Only fields listed in `update_mask` are mutated. */
 export interface UpdateStreamRequest {
-  /** The Stream to update. */
+  /**
+   * The Stream to update.
+   *
+   * Required. This field must be set in requests.
+   */
   stream?: Stream | undefined;
-  /** The list of fields to update. */
+  /**
+   * The list of fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Stream> | undefined;
 }
 
 /** Computes the population variance. */
 export interface VarPopFunction {
-  /** The input column from which the population variance is computed. */
+  /**
+   * The input column from which the population variance is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 
 /** Computes the sample variance. */
 export interface VarSampFunction {
-  /** The input column from which the sample variance is computed. */
+  /**
+   * The input column from which the sample variance is computed.
+   *
+   * Required. This field must be set in requests.
+   */
   input?: string | undefined;
 }
 

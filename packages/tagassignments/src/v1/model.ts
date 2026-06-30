@@ -5,31 +5,64 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateTagAssignmentRequest {
+  /** Required. This field must be set in requests. */
   tagAssignment?: TagAssignment | undefined;
 }
 
 export interface DeleteTagAssignmentRequest {
-  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
+  /**
+   * The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
-  /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
+  /**
+   * The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name
+   *
+   * Required. This field must be set in requests.
+   */
   entityId?: string | undefined;
-  /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
+  /**
+   * The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed
+   *
+   * Required. This field must be set in requests.
+   */
   tagKey?: string | undefined;
 }
 
 export interface GetTagAssignmentRequest {
-  /** The type of entity to which the tag is assigned.  Allowed values are apps, dashboards, geniespaces, notebooks */
+  /**
+   * The type of entity to which the tag is assigned.  Allowed values are apps, dashboards, geniespaces, notebooks
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
-  /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
+  /**
+   * The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name
+   *
+   * Required. This field must be set in requests.
+   */
   entityId?: string | undefined;
-  /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
+  /**
+   * The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed
+   *
+   * Required. This field must be set in requests.
+   */
   tagKey?: string | undefined;
 }
 
 export interface ListTagAssignmentsRequest {
-  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
+  /**
+   * The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
-  /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
+  /**
+   * The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name
+   *
+   * Required. This field must be set in requests.
+   */
   entityId?: string | undefined;
   /** Optional. Maximum number of tag assignments to return in a single page */
   pageSize?: number | undefined;
@@ -44,18 +77,32 @@ export interface ListTagAssignmentsResponse {
 }
 
 export interface TagAssignment {
-  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
+  /**
+   * The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   entityType?: string | undefined;
-  /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
+  /**
+   * The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   entityId?: string | undefined;
-  /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
+  /**
+   * The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   tagKey?: string | undefined;
   /** The value of the tag */
   tagValue?: string | undefined;
 }
 
 export interface UpdateTagAssignmentRequest {
+  /** Required. This field must be set in requests. */
   tagAssignment?: TagAssignment | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<TagAssignment> | undefined;
 }
 

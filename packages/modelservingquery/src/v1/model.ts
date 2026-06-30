@@ -88,7 +88,11 @@ export interface ExternalModelUsageElement {
 }
 
 export interface QueryEndpointRequest {
-  /** The name of the serving endpoint. This field is required and is provided via the path parameter. */
+  /**
+   * The name of the serving endpoint. This field is required and is provided via the path parameter.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * The prompt string (or array of strings) field used ONLY for __completions external & foundation model__

@@ -139,6 +139,7 @@ export interface CloudResourceContainer {
 }
 
 export interface CreateWorkspaceRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
   /** The human-readable name of the workspace. */
   workspaceName?: string | undefined;
@@ -193,7 +194,9 @@ export interface CreateWorkspaceRequest {
 }
 
 export interface DeleteWorkspaceRequest {
+  /** Required. This field must be set in requests. */
   workspaceId?: bigint | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -230,7 +233,9 @@ export interface GcpManagedNetworkConfig {
 }
 
 export interface GetWorkspaceRequest {
+  /** Required. This field must be set in requests. */
   workspaceId?: bigint | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -246,6 +251,7 @@ export interface GkeConfig {
 }
 
 export interface ListWorkspacesRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -254,28 +260,49 @@ export interface ListWorkspacesResponse {
 }
 
 export interface UpdateWorkspaceRequest {
+  /** Required. This field must be set in requests. */
   customerFacingWorkspace?: Workspace | undefined;
   updateMask?: FieldMask<Workspace> | undefined;
 }
 
 export interface Workspace {
-  /** A unique integer ID for the workspace */
+  /**
+   * A unique integer ID for the workspace
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   workspaceId?: bigint | undefined;
   /** The human-readable name of the workspace. */
   workspaceName?: string | undefined;
   awsRegion?: string | undefined;
-  /** Time in epoch milliseconds when the workspace was created. */
+  /**
+   * Time in epoch milliseconds when the workspace was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creationTime?: bigint | undefined;
   deploymentName?: string | undefined;
-  /** The status of a workspace */
+  /**
+   * The status of a workspace
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   workspaceStatus?: WorkspaceStatus | undefined;
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   accountId?: string | undefined;
   /** ID of the workspace's credential configuration object. */
   credentialsId?: string | undefined;
   /** ID of the workspace's storage configuration object. */
   storageConfigurationId?: string | undefined;
-  /** Message describing the current workspace status. */
+  /**
+   * Message describing the current workspace status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   workspaceStatusMessage?: string | undefined;
   networkConfig?:
     | {
@@ -291,6 +318,7 @@ export interface Workspace {
         gcpManagedNetworkConfig: GcpManagedNetworkConfig;
       }
     | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   pricingTier?: PricingTier | undefined;
   /**
    * ID of the workspace's private access settings object. Only used for PrivateLink. You must specify this ID if you are using [AWS PrivateLink](https://aws.amazon.com/privatelink/) for either front-end (user-to-workspace connection), back-end (data plane to control plane connection), or both connection types.
@@ -312,6 +340,7 @@ export interface Workspace {
    * DEPRECATED. Use `network_id` instead.
    */
   network?: WorkspaceNetwork | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   azureWorkspaceInfo?: AzureWorkspaceInfo | undefined;
   gkeConfig?: GkeConfig | undefined;
   cloudResourceContainer?: CloudResourceContainer | undefined;
@@ -322,9 +351,17 @@ export interface Workspace {
   customTags?: Record<string, string> | undefined;
   /** The object ID of network connectivity config. */
   networkConnectivityConfigId?: string | undefined;
-  /** The storage mode of the workspace. */
+  /**
+   * The storage mode of the workspace.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   storageMode?: StorageMode | undefined;
-  /** The compute mode of the workspace. */
+  /**
+   * The compute mode of the workspace.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   computeMode?: ComputeMode | undefined;
   /**
    * A client owned field used to indicate the workspace status that the client expects to be in.

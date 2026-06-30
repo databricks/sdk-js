@@ -44,30 +44,50 @@ export type FailoverGroup_State =
 
 /** Request to create a new failover group. */
 export interface CreateFailoverGroupRequest {
-  /** The parent resource. Format: accounts/{account_id}. */
+  /**
+   * The parent resource. Format: accounts/{account_id}.
+   *
+   * Required. This field must be set in requests.
+   */
   parent?: string | undefined;
-  /** The failover group to create. */
+  /**
+   * The failover group to create.
+   *
+   * Required. This field must be set in requests.
+   */
   failoverGroup?: FailoverGroup | undefined;
   /** When true, validates the request without creating the failover group. */
   validateOnly?: boolean | undefined;
   /**
    * Client-provided identifier for the failover group. Used to construct the
    * resource name as {parent}/failover-groups/{failover_group_id}.
+   *
+   * Required. This field must be set in requests.
    */
   failoverGroupId?: string | undefined;
 }
 
 /** Request to create a new stable URL for failover-aware workspace access. */
 export interface CreateStableUrlRequest {
-  /** The parent resource. Format: accounts/{account_id}. */
+  /**
+   * The parent resource. Format: accounts/{account_id}.
+   *
+   * Required. This field must be set in requests.
+   */
   parent?: string | undefined;
-  /** The stable URL to create. */
+  /**
+   * The stable URL to create.
+   *
+   * Required. This field must be set in requests.
+   */
   stableUrl?: StableUrl | undefined;
   /** When true, validates the request without creating the stable URL. */
   validateOnly?: boolean | undefined;
   /**
    * Client-provided identifier for the stable URL. Used to construct the
    * resource name as {parent}/stable-urls/{stable_url_id}.
+   *
+   * Required. This field must be set in requests.
    */
   stableUrlId?: string | undefined;
 }
@@ -77,6 +97,8 @@ export interface DeleteFailoverGroupRequest {
   /**
    * The fully qualified resource name of the failover group to delete.
    * Format: accounts/{account_id}/failover-groups/{failover_group_id}.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /**
@@ -91,6 +113,8 @@ export interface DeleteStableUrlRequest {
   /**
    * The fully qualified resource name.
    * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -100,11 +124,15 @@ export interface FailoverFailoverGroupRequest {
   /**
    * The fully qualified resource name of the failover group to failover.
    * Format: accounts/{account_id}/failover-groups/{failover_group_id}.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /**
    * The target primary region. Must be one of the participating regions and different
    * from the current effective_primary_region. Serves as an idempotency check.
+   *
+   * Required. This field must be set in requests.
    */
   targetPrimaryRegion?: string | undefined;
   /**
@@ -112,7 +140,11 @@ export interface FailoverFailoverGroupRequest {
    * current etag. If omitted, the failover proceeds regardless of current state.
    */
   etag?: string | undefined;
-  /** The type of failover to perform. */
+  /**
+   * The type of failover to perform.
+   *
+   * Required. This field must be set in requests.
+   */
   failoverType?: FailoverFailoverGroupRequest_FailoverType | undefined;
 }
 
@@ -124,32 +156,66 @@ export interface FailoverGroup {
   /**
    * Fully qualified resource name in the format
    * accounts/{account_id}/failover-groups/{failover_group_id}.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   name?: string | undefined;
   /**
    * Current effective primary region. Replication flows FROM workspaces in this region.
    * Changes after a successful failover.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectivePrimaryRegion?: string | undefined;
-  /** List of all regions participating in this failover group. */
+  /**
+   * List of all regions participating in this failover group.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   regions?: string[] | undefined;
-  /** Workspace sets, each containing workspaces that replicate to each other. */
+  /**
+   * Workspace sets, each containing workspaces that replicate to each other.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceSets?: WorkspaceSet[] | undefined;
   /** Unity Catalog replication configuration. */
   unityCatalogAssets?: UcReplicationConfig | undefined;
-  /** Aggregate state of the failover group. */
+  /**
+   * Aggregate state of the failover group.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: FailoverGroup_State | undefined;
-  /** Opaque version string for optimistic locking. Server-generated and returned in responses. */
+  /**
+   * Opaque version string for optimistic locking. Server-generated and returned in responses.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   etag?: string | undefined;
-  /** Time at which this failover group was created. */
+  /**
+   * Time at which this failover group was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** Time at which this failover group was last modified. */
+  /**
+   * Time at which this failover group was last modified.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The latest point in time to which data has been replicated. */
+  /**
+   * The latest point in time to which data has been replicated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   replicationPoint?: Temporal.Instant | undefined;
   /**
    * Initial primary region. Used only in Create requests to set the starting
    * primary region. Not returned in responses.
+   *
+   * Required. This field must be set in requests. Input only. Provide this field in requests; it is never returned in responses. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   initialPrimaryRegion?: string | undefined;
 }
@@ -159,6 +225,8 @@ export interface GetFailoverGroupRequest {
   /**
    * The fully qualified resource name of the failover group.
    * Format: accounts/{account_id}/failover-groups/{failover_group_id}.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -168,13 +236,19 @@ export interface GetStableUrlRequest {
   /**
    * The fully qualified resource name.
    * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 /** Request to list failover groups for an account. */
 export interface ListFailoverGroupsRequest {
-  /** The parent resource. Format: accounts/{account_id}. */
+  /**
+   * The parent resource. Format: accounts/{account_id}.
+   *
+   * Required. This field must be set in requests.
+   */
   parent?: string | undefined;
   /**
    * Maximum number of failover groups to return per page:
@@ -205,7 +279,11 @@ export interface ListFailoverGroupsResponse {
 
 /** Request to list stable URLs for an account. */
 export interface ListStableUrlsRequest {
-  /** The parent resource. Format: accounts/{account_id}. */
+  /**
+   * The parent resource. Format: accounts/{account_id}.
+   *
+   * Required. This field must be set in requests.
+   */
   parent?: string | undefined;
   /**
    * Maximum number of stable URLs to return per page:
@@ -239,9 +317,17 @@ export interface ListStableUrlsResponse {
  * The system derives replication direction from effective_primary_region.
  */
 export interface LocationMapping {
-  /** Resource name for this location. */
+  /**
+   * Resource name for this location.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** URI for each region. Each entry maps a region name to a storage URI. */
+  /**
+   * URI for each region. Each entry maps a region name to a storage URI.
+   *
+   * Required. This field must be set in requests.
+   */
   uriByRegion?: LocationMappingEntry[] | undefined;
 }
 
@@ -250,9 +336,17 @@ export interface LocationMapping {
  * Used instead of map<string, string> for proto2 compatibility.
  */
 export interface LocationMappingEntry {
-  /** The region name. */
+  /**
+   * The region name.
+   *
+   * Required. This field must be set in requests.
+   */
   region?: string | undefined;
-  /** The storage URI for this region. */
+  /**
+   * The storage URI for this region.
+   *
+   * Required. This field must be set in requests.
+   */
   uri?: string | undefined;
 }
 
@@ -264,6 +358,8 @@ export interface StableUrl {
   /**
    * Fully qualified resource name.
    * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   name?: string | undefined;
   /**
@@ -271,12 +367,16 @@ export interface StableUrl {
    * immutable thereafter. For non-Private-Link workspaces this is
    * `https://<spog_host>/?w=<connection_id>`. For Private-Link workspaces
    * this is the per-connection hostname.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   url?: string | undefined;
   /**
    * The workspace this stable URL is initially bound to. Used only in Create
    * requests to associate the stable URL with a workspace. Not returned in
    * responses.
+   *
+   * Required. This field must be set in requests. Input only. Provide this field in requests; it is never returned in responses. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   initialWorkspaceId?: string | undefined;
   /**
@@ -284,13 +384,19 @@ export interface StableUrl {
    * currently linked to, in the format
    * `accounts/{account_id}/failover-groups/{failover_group_id}`. Empty when
    * the stable URL is not attached to any failover group.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   failoverGroupName?: string | undefined;
 }
 
 /** A Unity Catalog catalog to replicate. */
 export interface UcCatalog {
-  /** The name of the UC catalog to replicate. */
+  /**
+   * The name of the UC catalog to replicate.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -298,11 +404,17 @@ export interface UcCatalog {
 export interface UcReplicationConfig {
   /** Location mappings - storage URI per region for each location. */
   locationMappings?: LocationMapping[] | undefined;
-  /** UC catalogs to replicate. */
+  /**
+   * UC catalogs to replicate.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogs?: UcCatalog[] | undefined;
   /**
    * The workspace set whose workspaces will be used for data replication
    * of all UC catalogs' underlying storage.
+   *
+   * Required. This field must be set in requests.
    */
   dataReplicationWorkspaceSet?: string | undefined;
 }
@@ -312,9 +424,15 @@ export interface UpdateFailoverGroupRequest {
   /**
    * The failover group with updated fields. The name field identifies the resource
    * and is populated from the URL path.
+   *
+   * Required. This field must be set in requests.
    */
   failoverGroup?: FailoverGroup | undefined;
-  /** Comma-separated list of fields to update. */
+  /**
+   * Comma-separated list of fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<FailoverGroup> | undefined;
   /**
    * Optional opaque version string for optimistic locking, obtained from a prior read of
@@ -326,11 +444,17 @@ export interface UpdateFailoverGroupRequest {
 
 /** A set of workspaces that replicate to each other across regions. */
 export interface WorkspaceSet {
-  /** Resource name for this workspace set. */
+  /**
+   * Resource name for this workspace set.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Workspace IDs in this set. The system derives and validates regions.
    * All workspaces must be in the Mission Critical tier.
+   *
+   * Required. This field must be set in requests.
    */
   workspaceIds?: string[] | undefined;
   /**

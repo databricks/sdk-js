@@ -7,7 +7,11 @@ import {z} from 'zod';
 
 /** <Databricks> app. Supported app: custom mcp, custom agent. */
 export interface App {
-  /** App name */
+  /**
+   * App name
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -16,14 +20,24 @@ export interface CreateExampleRequest {
   /**
    * Parent resource where this example will be created.
    * Format: supervisor-agents/{supervisor_agent_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
-  /** The example to create under the parent Supervisor Agent. */
+  /**
+   * The example to create under the parent Supervisor Agent.
+   *
+   * Required. This field must be set in requests.
+   */
   example?: Example | undefined;
 }
 
 export interface CreateSupervisorAgentRequest {
-  /** The Supervisor Agent to create. */
+  /**
+   * The Supervisor Agent to create.
+   *
+   * Required. This field must be set in requests.
+   */
   supervisorAgent?: SupervisorAgent | undefined;
 }
 
@@ -31,12 +45,17 @@ export interface CreateToolRequest {
   /**
    * Parent resource where this tool will be created.
    * Format: supervisor-agents/{supervisor_agent_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
+  /** Required. This field must be set in requests. */
   tool?: Tool | undefined;
   /**
    * The ID to use for the tool, which will become the final component of
    * the tool's resource name.
+   *
+   * Required. This field must be set in requests.
    */
   toolId?: string | undefined;
 }
@@ -46,6 +65,8 @@ export interface DeleteExampleRequest {
   /**
    * The resource name of the example to delete.
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -54,6 +75,8 @@ export interface DeleteSupervisorAgentRequest {
   /**
    * The resource name of the Supervisor Agent.
    * Format: supervisor-agents/{supervisor_agent_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -62,6 +85,8 @@ export interface DeleteToolRequest {
   /**
    * The resource name of the Tool.
    * Format: supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -76,11 +101,23 @@ export interface Example {
    * supervisor-agents/{supervisor_agent_id}/examples/{example_id}
    */
   name?: string | undefined;
-  /** The example question. */
+  /**
+   * The example question.
+   *
+   * Required. This field must be set in requests.
+   */
   question?: string | undefined;
-  /** Guidelines for answering the question. */
+  /**
+   * Guidelines for answering the question.
+   *
+   * Required. This field must be set in requests.
+   */
   guidelines?: string[] | undefined;
-  /** The universally unique identifier (UUID) of the example. */
+  /**
+   * The universally unique identifier (UUID) of the example.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   exampleId?: string | undefined;
 }
 
@@ -88,6 +125,8 @@ export interface GenieSpace {
   /**
    * Deprecated: use space_id instead. Still REQUIRED for backward compatibility
    * until a future API version removes it.
+   *
+   * Required. This field must be set in requests.
    */
   id?: string | undefined;
 }
@@ -97,6 +136,8 @@ export interface GetExampleRequest {
   /**
    * The resource name of the example.
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -105,6 +146,8 @@ export interface GetSupervisorAgentRequest {
   /**
    * The resource name of the Supervisor Agent.
    * Format: supervisor-agents/{supervisor_agent_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -113,6 +156,8 @@ export interface GetToolRequest {
   /**
    * The resource name of the Tool.
    * Format: supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -120,7 +165,11 @@ export interface GetToolRequest {
 export interface KnowledgeAssistant {
   /** Deprecated: use knowledge_assistant_id instead. */
   servingEndpointName?: string | undefined;
-  /** The ID of the knowledge assistant. */
+  /**
+   * The ID of the knowledge assistant.
+   *
+   * Required. This field must be set in requests.
+   */
   knowledgeAssistantId?: string | undefined;
 }
 
@@ -129,6 +178,8 @@ export interface ListExamplesRequest {
   /**
    * Parent resource to list from.
    * Format: supervisor-agents/{supervisor_agent_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /**
@@ -179,6 +230,8 @@ export interface ListToolsRequest {
   /**
    * Parent resource to list from.
    * Format: supervisor-agents/{supervisor_agent_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   pageSize?: number | undefined;
@@ -196,23 +249,51 @@ export interface SupervisorAgent {
    * Format: supervisor-agents/{supervisor_agent_id}
    */
   name?: string | undefined;
-  /** The display name of the Supervisor Agent, unique at workspace level. */
+  /**
+   * The display name of the Supervisor Agent, unique at workspace level.
+   *
+   * Required. This field must be set in requests.
+   */
   displayName?: string | undefined;
   /** Description of what this agent can do (user-facing). */
   description?: string | undefined;
   /** Optional natural-language instructions for the supervisor agent. */
   instructions?: string | undefined;
-  /** Deprecated: Use supervisor_agent_id instead. */
+  /**
+   * Deprecated: Use supervisor_agent_id instead.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** The universally unique identifier (UUID) of the Supervisor Agent. */
+  /**
+   * The universally unique identifier (UUID) of the Supervisor Agent.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   supervisorAgentId?: string | undefined;
-  /** The creator of the Supervisor Agent. */
+  /**
+   * The creator of the Supervisor Agent.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** Creation timestamp. */
+  /**
+   * Creation timestamp.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The name of the supervisor agent's serving endpoint. */
+  /**
+   * The name of the supervisor agent's serving endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpointName?: string | undefined;
-  /** The MLflow experiment ID. */
+  /**
+   * The MLflow experiment ID.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   experimentId?: string | undefined;
 }
 
@@ -222,9 +303,17 @@ export interface Tool {
    * supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
    */
   name?: string | undefined;
-  /** Deprecated: Use tool_id instead. */
+  /**
+   * Deprecated: Use tool_id instead.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** Tool type. Must be one of: "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "uc_mcp", "app", "volume", "dashboard", "serving_endpoint", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search", "skill". The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively. */
+  /**
+   * Tool type. Must be one of: "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "uc_mcp", "app", "volume", "dashboard", "serving_endpoint", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search", "skill". The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively.
+   *
+   * Required. This field must be set in requests.
+   */
   toolType?: string | undefined;
   /** Specification for the tool type. */
   spec?:
@@ -237,17 +326,26 @@ export interface Tool {
     | undefined;
   /** Description of what this tool does (user-facing). */
   description?: string | undefined;
-  /** User specified id of the Tool. */
+  /**
+   * User specified id of the Tool.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   toolId?: string | undefined;
 }
 
 /** Databricks UC connection. Supported connection: external mcp server. */
 export interface UcConnection {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
 export interface UcFunction {
-  /** Full uc function name */
+  /**
+   * Full uc function name
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -256,8 +354,11 @@ export interface UpdateExampleRequest {
   /**
    * The resource name of the example to update.
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   example?: Example | undefined;
   /**
    * Comma-delimited list of fields to update on the example.
@@ -265,26 +366,48 @@ export interface UpdateExampleRequest {
    * Examples:
    * - `question`
    * - `question,guidelines`
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<Example> | undefined;
 }
 
 export interface UpdateSupervisorAgentRequest {
-  /** The SupervisorAgent to update. */
+  /**
+   * The SupervisorAgent to update.
+   *
+   * Required. This field must be set in requests.
+   */
   supervisorAgent?: SupervisorAgent | undefined;
-  /** Field mask for fields to be updated. */
+  /**
+   * Field mask for fields to be updated.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<SupervisorAgent> | undefined;
 }
 
 export interface UpdateToolRequest {
-  /** The Tool to update. */
+  /**
+   * The Tool to update.
+   *
+   * Required. This field must be set in requests.
+   */
   tool?: Tool | undefined;
-  /** Field mask for fields to be updated. */
+  /**
+   * Field mask for fields to be updated.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Tool> | undefined;
 }
 
 export interface Volume {
-  /** Full uc volume name */
+  /**
+   * Full uc volume name
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 

@@ -120,7 +120,11 @@ export interface AiGatewayRateLimit {
    * with 'endpoint' being the default if not specified.
    */
   key?: string | undefined;
-  /** Renewal period field for a rate limit. Currently, only 'minute' is supported. */
+  /**
+   * Renewal period field for a rate limit. Currently, only 'minute' is supported.
+   *
+   * Required. This field must be set in requests.
+   */
   renewalPeriod?: string | undefined;
   /** Principal field for a user, user group, or service principal to apply rate limiting to. Accepts a user email, group name, or service principal application ID. */
   principal?: string | undefined;
@@ -153,7 +157,11 @@ export interface AiGuardrails {
 }
 
 export interface AmazonBedrockConfig {
-  /** The AWS region to use. Bedrock has to be enabled there. */
+  /**
+   * The AWS region to use. Bedrock has to be enabled there.
+   *
+   * Required. This field must be set in requests.
+   */
   awsRegion?: string | undefined;
   /**
    * The <Databricks> secret key reference for an AWS access key ID with
@@ -175,6 +183,8 @@ export interface AmazonBedrockConfig {
   /**
    * The underlying provider in Amazon Bedrock. Supported values (case
    * insensitive) include: Anthropic, Cohere, AI21Labs, Amazon.
+   *
+   * Required. This field must be set in requests.
    */
   bedrockProvider?: string | undefined;
   /**
@@ -221,7 +231,11 @@ export interface AnthropicConfig {
 }
 
 export interface ApiKeyAuth {
-  /** The name of the API key parameter used for authentication. */
+  /**
+   * The name of the API key parameter used for authentication.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
   /**
    * The <Databricks> secret key reference for an API Key.
@@ -294,6 +308,8 @@ export interface CreateInferenceEndpointRequest {
   /**
    * The name of the serving endpoint. This field is required and must be unique across a <Workspace>.
    * An endpoint name can consist of alphanumeric characters, dashes, and underscores.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /** The core config of the serving endpoint. */
@@ -319,9 +335,15 @@ export interface CreatePtEndpointRequest {
   /**
    * The name of the serving endpoint. This field is required and must be unique across a <Workspace>.
    * An endpoint name can consist of alphanumeric characters, dashes, and underscores.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
-  /** The core config of the serving endpoint. */
+  /**
+   * The core config of the serving endpoint.
+   *
+   * Required. This field must be set in requests.
+   */
   config?: PtEndpointCoreConfig | undefined;
   /** Tags to be attached to the serving endpoint and automatically propagated to billing logs. */
   tags?: EndpointTag[] | undefined;
@@ -335,7 +357,11 @@ export interface CreatePtEndpointRequest {
 
 /** Configs needed to create a custom provider model route. */
 export interface CustomProviderConfig {
-  /** This is a field to provide the URL of the custom provider API. */
+  /**
+   * This is a field to provide the URL of the custom provider API.
+   *
+   * Required. This field must be set in requests.
+   */
   customProviderUrl?: string | undefined;
   /**
    * This is a field to provide bearer token authentication for the custom provider API.
@@ -370,6 +396,8 @@ export interface DatabricksModelServingConfig {
   /**
    * The URL of the <Databricks> workspace containing the model serving endpoint
    * pointed to by this external model.
+   *
+   * Required. This field must be set in requests.
    */
   databricksWorkspaceUrl?: string | undefined;
   /**
@@ -384,6 +412,7 @@ export interface DatabricksModelServingConfig {
 }
 
 export interface DeleteInferenceEndpointRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
@@ -439,7 +468,11 @@ export interface EndpointCoreConfigSummary {
 }
 
 export interface EndpointTag {
-  /** Key field for a serving endpoint tag. */
+  /**
+   * Key field for a serving endpoint tag.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
   /** Optional value field for a serving endpoint tag. */
   value?: string | undefined;
@@ -461,11 +494,23 @@ export interface ExportMetricsResponse {
 
 /** Simple Proto message for testing */
 export interface ExternalFunctionRequest {
-  /** The connection name to use. This is required to identify the external connection. */
+  /**
+   * The connection name to use. This is required to identify the external connection.
+   *
+   * Required. This field must be set in requests.
+   */
   connectionName?: string | undefined;
-  /** The HTTP method to use (e.g., 'GET', 'POST'). */
+  /**
+   * The HTTP method to use (e.g., 'GET', 'POST').
+   *
+   * Required. This field must be set in requests.
+   */
   method?: ExternalFunctionRequest_HttpMethod | undefined;
-  /** The relative path for the API endpoint. This is required. */
+  /**
+   * The relative path for the API endpoint. This is required.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
   /** The JSON payload to send in the request body. */
   json?: string | undefined;
@@ -487,11 +532,23 @@ export interface ExternalFunctionResponse {
 }
 
 export interface ExternalModel {
-  /** The name of the provider for the external model. Currently, the supported providers are 'ai21labs', 'anthropic', 'amazon-bedrock', 'cohere', 'databricks-model-serving', 'google-cloud-vertex-ai', 'openai', 'palm', and 'custom'. */
+  /**
+   * The name of the provider for the external model. Currently, the supported providers are 'ai21labs', 'anthropic', 'amazon-bedrock', 'cohere', 'databricks-model-serving', 'google-cloud-vertex-ai', 'openai', 'palm', and 'custom'.
+   *
+   * Required. This field must be set in requests.
+   */
   provider?: string | undefined;
-  /** The name of the external model. */
+  /**
+   * The name of the external model.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The task type of the external model. */
+  /**
+   * The task type of the external model.
+   *
+   * Required. This field must be set in requests.
+   */
   task?: string | undefined;
   /** external model config. The config corresponding to the provider will be used. */
   config?:
@@ -549,6 +606,8 @@ export interface FallbackConfig {
    * codes (e.g. 500), the request will automatically be round-robin attempted with other served entities in the same
    * endpoint, following the order of served entity list, until a successful response is returned.
    * If all attempts fail, return the last response with the error code.
+   *
+   * Required. This field must be set in requests.
    */
   enabled?: boolean | undefined;
 }
@@ -562,17 +621,29 @@ export interface FoundationModel {
 }
 
 export interface GetExportEndpointMetricsRequest {
-  /** The name of the serving endpoint to retrieve metrics for. This field is required. */
+  /**
+   * The name of the serving endpoint to retrieve metrics for. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetInferenceEndpointRequest {
-  /** The name of the serving endpoint. This field is required. */
+  /**
+   * The name of the serving endpoint. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetInferenceEndpointSchemaRequest {
-  /** The name of the serving endpoint that the served model belongs to. This field is required. */
+  /**
+   * The name of the serving endpoint that the served model belongs to. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -582,26 +653,42 @@ export interface GetOpenApiResponse {
 }
 
 export interface GetServedModelBuildLogsRequest {
-  /** The name of the serving endpoint that the served model belongs to. This field is required. */
+  /**
+   * The name of the serving endpoint that the served model belongs to. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The name of the served model that build logs will be retrieved for. This field is required. */
   servedModelName?: string | undefined;
 }
 
 export interface GetServedModelBuildLogsResponse {
-  /** The logs associated with building the served entity's environment. */
+  /**
+   * The logs associated with building the served entity's environment.
+   *
+   * Required. This field must be set in requests.
+   */
   logs?: string | undefined;
 }
 
 export interface GetServedModelLogsRequest {
-  /** The name of the serving endpoint that the served model belongs to. This field is required. */
+  /**
+   * The name of the serving endpoint that the served model belongs to. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The name of the served model that logs will be retrieved for. This field is required. */
   servedModelName?: string | undefined;
 }
 
 export interface GetServedModelLogsResponse {
-  /** The most recent log lines of the model server processing invocation requests. */
+  /**
+   * The most recent log lines of the model server processing invocation requests.
+   *
+   * Required. This field must be set in requests.
+   */
   logs?: string | undefined;
 }
 
@@ -620,6 +707,8 @@ export interface GoogleCloudVertexAiConfig {
   /**
    * This is the Google Cloud project id that the service account is
    * associated with.
+   *
+   * Required. This field must be set in requests.
    */
   projectId?: string | undefined;
   /**
@@ -628,6 +717,8 @@ export interface GoogleCloudVertexAiConfig {
    * regions.
    *
    * [supported regions]: https://cloud.google.com/vertex-ai/docs/general/locations
+   *
+   * Required. This field must be set in requests.
    */
   region?: string | undefined;
   /**
@@ -859,7 +950,11 @@ export interface PaLmConfig {
 }
 
 export interface PatchInferenceEndpointTagsRequest {
-  /** The name of the serving endpoint who's tags to patch. This field is required. */
+  /**
+   * The name of the serving endpoint who's tags to patch. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** List of endpoint tags to add */
   addTags?: EndpointTag[] | undefined;
@@ -911,10 +1006,18 @@ export interface PtEndpointCoreConfig {
 export interface PtServedModel {
   /** The name of a served entity. It must be unique across an endpoint. A served entity name can consist of alphanumeric characters, dashes, and underscores. If not specified for an external model, this field defaults to external_model.name, with '.' and ':' replaced with '-', and if not specified for other entities, it defaults to entity_name-entity_version. */
   name?: string | undefined;
-  /** The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC), or a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of **catalog_name.schema_name.model_name**. */
+  /**
+   * The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC), or a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of **catalog_name.schema_name.model_name**.
+   *
+   * Required. This field must be set in requests.
+   */
   entityName?: string | undefined;
   entityVersion?: string | undefined;
-  /** The number of model units to be provisioned. */
+  /**
+   * The number of model units to be provisioned.
+   *
+   * Required. This field must be set in requests.
+   */
   provisionedModelUnits?: bigint | undefined;
   /**
    * Whether burst scaling is enabled. When enabled (default), the endpoint can automatically
@@ -925,7 +1028,11 @@ export interface PtServedModel {
 }
 
 export interface PutInferenceEndpointAiGatewayRequest {
-  /** The name of the serving endpoint whose AI Gateway is being updated. This field is required. */
+  /**
+   * The name of the serving endpoint whose AI Gateway is being updated. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Configuration to enable usage tracking using system tables.
@@ -971,7 +1078,11 @@ export interface PutInferenceEndpointAiGatewayResponse {
 }
 
 export interface PutInferenceEndpointConfigRequest {
-  /** The name of the serving endpoint to update. This field is required. */
+  /**
+   * The name of the serving endpoint to update. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The list of served entities under the serving endpoint config. */
   servedEntities?: ServedModel[] | undefined;
@@ -989,7 +1100,11 @@ export interface PutInferenceEndpointConfigRequest {
 }
 
 export interface PutInferenceEndpointRateLimitsRequest {
-  /** The name of the serving endpoint whose rate limits are being updated. This field is required. */
+  /**
+   * The name of the serving endpoint whose rate limits are being updated. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The list of endpoint rate limits. */
   rateLimits?: RateLimit[] | undefined;
@@ -1001,24 +1116,41 @@ export interface PutInferenceEndpointRateLimitsResponse {
 }
 
 export interface PutPtEndpointConfigRequest {
-  /** The name of the pt endpoint to update. This field is required. */
+  /**
+   * The name of the pt endpoint to update. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   config?: PtEndpointCoreConfig | undefined;
 }
 
 export interface RateLimit {
-  /** Used to specify how many calls are allowed for a key within the renewal_period. */
+  /**
+   * Used to specify how many calls are allowed for a key within the renewal_period.
+   *
+   * Required. This field must be set in requests.
+   */
   calls?: bigint | undefined;
   /** Key field for a serving endpoint rate limit. Currently, only 'user' and 'endpoint' are supported, with 'endpoint' being the default if not specified. */
   key?: string | undefined;
-  /** Renewal period field for a serving endpoint rate limit. Currently, only 'minute' is supported. */
+  /**
+   * Renewal period field for a serving endpoint rate limit. Currently, only 'minute' is supported.
+   *
+   * Required. This field must be set in requests.
+   */
   renewalPeriod?: string | undefined;
 }
 
 export interface Route {
   /** The name of the served model this route configures traffic for. */
   servedModelName?: string | undefined;
-  /** The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive. */
+  /**
+   * The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive.
+   *
+   * Required. This field must be set in requests.
+   */
   trafficPercentage?: number | undefined;
   servedEntityName?: string | undefined;
 }
@@ -1051,7 +1183,9 @@ export interface ServedModel {
   burstScalingEnabled?: boolean | undefined;
   /** Whether the compute resources for the served entity should scale down to zero. */
   scaleToZeroEnabled?: boolean | undefined;
+  /** Required. This field must be set in requests. */
   modelName?: string | undefined;
+  /** Required. This field must be set in requests. */
   modelVersion?: string | undefined;
   /** An object containing a set of optional, user-specified environment variable key-value pairs used for serving this entity. Note: this is an experimental feature and subject to change. Example entity environment variables that refer to <Databricks> secrets: `{"OPENAI_API_KEY": "{{secrets/my_scope/my_key}}", "DATABRICKS_TOKEN": "{{secrets/my_scope2/my_key2}}"}` */
   environmentVars?: Record<string, string> | undefined;
@@ -1089,7 +1223,11 @@ export interface TelemetryConfig {
 export interface TelemetryInferenceTableConfig {
   /** Fraction of requests sampled for payload logging, in the range [0.0, 1.0], where 1.0 logs all requests. */
   samplingFraction?: number | undefined;
-  /** The full name of the inference table created for this endpoint. */
+  /**
+   * The full name of the inference table created for this endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   name?: string | undefined;
 }
 
@@ -1099,7 +1237,11 @@ export interface TrafficConfig {
 }
 
 export interface UpdateInferenceEndpointNotificationsRequest {
-  /** The name of the serving endpoint whose notifications are being updated. This field is required. */
+  /**
+   * The name of the serving endpoint whose notifications are being updated. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The email notification settings to update. Specify email addresses to notify when endpoint state changes occur. */
   emailNotifications?: EmailNotifications | undefined;

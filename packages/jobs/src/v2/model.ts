@@ -892,7 +892,11 @@ export interface AccessControlRequest {
 
 /** A storage location in Adls Gen2 */
 export interface Adlsgen2Info {
-  /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
+  /**
+   * abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -913,6 +917,8 @@ export interface AiRuntimeTask {
    * otherwise a new experiment is created. To target a specific MLflow
    * storage location (for example, when running as a service principal), set
    * `mlflow_experiment_directory`.
+   *
+   * Required. This field must be set in requests.
    */
   experiment?: string | undefined;
   /**
@@ -921,6 +927,8 @@ export interface AiRuntimeTask {
    * is a current-Preview constraint. Role-split workloads (driver + worker,
    * parameter server, separate eval node, etc.) with multiple entries are the
    * eventual intent but not yet supported.
+   *
+   * Required. This field must be set in requests.
    */
   deployments?: DeploymentSpec[] | undefined;
   /**
@@ -959,13 +967,25 @@ export interface AiRuntimeTaskOutput {
   /**
    * MLflow experiment ID the run was logged to. Use it to look up the
    * experiment in MLflow APIs or the workspace MLflow UI.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   mlflowExperimentId?: string | undefined;
   /**
    * MLflow run ID for this task execution. Use it to look up the run in
    * MLflow APIs or the workspace MLflow UI.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   mlflowRunId?: string | undefined;
+  /**
+   * Human-readable status message for this run, suitable for display to the
+   * user (for example, that the run is still waiting for GPU compute). Set by
+   * the server only when there is something to surface; empty otherwise.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
+  statusMessage?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1160,7 +1180,11 @@ export interface BaseJob {
   settings?: JobSettings | undefined;
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   createdTime?: bigint | undefined;
-  /** State of the trigger associated with the job. */
+  /**
+   * State of the trigger associated with the job.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   triggerState?: TriggerState | undefined;
   /**
    * Indicates if the job has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/get endpoint.
@@ -1173,9 +1197,15 @@ export interface BaseJob {
    * 1. Budget admins through the account or workspace console
    * 2. Jobs UI in the job details page and Jobs API using `budget_policy_id`
    * 3. Inferred default based on accessible budget policies of the run_as identity on job creation or modification.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveBudgetPolicyId?: string | undefined;
-  /** The id of the usage policy used by this job for cost attribution purposes. */
+  /**
+   * The id of the usage policy used by this job for cost attribution purposes.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUsagePolicyId?: string | undefined;
 }
 
@@ -1252,7 +1282,11 @@ export interface BaseRun {
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
-  /** The id of the usage policy used by this run for cost attribution purposes. */
+  /**
+   * The id of the usage policy used by this run for cost attribution purposes.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUsagePolicyId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
   startTime?: bigint | undefined;
@@ -1282,7 +1316,11 @@ export interface CancelAllRunsRequest {
 export interface CancelAllRunsResponse {}
 
 export interface CancelRunRequest {
-  /** This field is required. */
+  /**
+   * This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: bigint | undefined;
 }
 
@@ -1313,9 +1351,17 @@ export interface CleanRoomTaskRunState {
  * Replaces the deprecated CleanRoomNotebookTask (defined above) which was for V0 service.
  */
 export interface CleanRoomsNotebookTask {
-  /** The clean room that the notebook belongs to. */
+  /**
+   * The clean room that the notebook belongs to.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
-  /** Name of the notebook being run. */
+  /**
+   * Name of the notebook being run.
+   *
+   * Required. This field must be set in requests.
+   */
   notebookName?: string | undefined;
   /**
    * Checksum to validate the freshness of the notebook resource (i.e. the notebook being run is the latest version).
@@ -1601,7 +1647,11 @@ export interface Compute {
 }
 
 export interface ComputeConfig {
-  /** Number of GPUs. */
+  /**
+   * Number of GPUs.
+   *
+   * Required. This field must be set in requests.
+   */
   numGpus?: number | undefined;
   /** IDof the GPU pool to use. */
   gpuNodePoolId?: string | undefined;
@@ -1618,6 +1668,8 @@ export interface ComputeSpec {
    * Hardware accelerator type (for example, `GPU_1xA10` or `GPU_8xH100`).
    * The number of accelerators per node is encoded in the enum value —
    * `GPU_8xH100` means 8 H100 GPUs per node.
+   *
+   * Required. This field must be set in requests.
    */
   acceleratorType?: ComputeSpec_AcceleratorType | undefined;
   /**
@@ -1625,6 +1677,8 @@ export interface ComputeSpec {
    * multiple of the per-node accelerator count encoded in `accelerator_type`.
    * For example, `GPU_8xH100` with `accelerator_count: 16` allocates 2 nodes
    * (8 GPUs per node).
+   *
+   * Required. This field must be set in requests.
    */
   acceleratorCount?: number | undefined;
 }
@@ -1635,11 +1689,21 @@ export interface ConditionTask {
    * * `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.
    *
    * The boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.
+   *
+   * Required. This field must be set in requests.
    */
   op?: ConditionTask_ConditionTaskOperator | undefined;
-  /** The left operand of the condition task. Can be either a string value or a job state or parameter reference. */
+  /**
+   * The left operand of the condition task. Can be either a string value or a job state or parameter reference.
+   *
+   * Required. This field must be set in requests.
+   */
   left?: string | undefined;
-  /** The right operand of the condition task. Can be either a string value or a job state or parameter reference. */
+  /**
+   * The right operand of the condition task. Can be either a string value or a job state or parameter reference.
+   *
+   * Required. This field must be set in requests.
+   */
   right?: string | undefined;
   /** The condition expression evaluation result. Filled in if the task was successfully completed. Can be `"true"` or `"false"` */
   outcome?: string | undefined;
@@ -1768,9 +1832,17 @@ export interface CreateJobResponse {
 }
 
 export interface CronSchedule {
-  /** A Cron expression using Quartz syntax that describes the schedule for a job. See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details. This field is required. */
+  /**
+   * A Cron expression using Quartz syntax that describes the schedule for a job. See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   quartzCronExpression?: string | undefined;
-  /** A Java timezone ID. The schedule for a job is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required. */
+  /**
+   * A Java timezone ID. The schedule for a job is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   timezoneId?: string | undefined;
   /** Indicate whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
@@ -1810,7 +1882,11 @@ export interface DashboardTaskOutput {
 
 /** A storage location in DBFS */
 export interface DbfsStorageInfo {
-  /** dbfs destination, e.g. `dbfs:/my/path` */
+  /**
+   * dbfs destination, e.g. `dbfs:/my/path`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -1887,7 +1963,11 @@ export interface DbtTask {
    * case if no value is provided, the root of the Git repository is used.
    */
   projectDirectory?: string | undefined;
-  /** A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided. */
+  /**
+   * A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided.
+   *
+   * Required. This field must be set in requests.
+   */
   commands?: string[] | undefined;
   /** Optional schema to write to. This parameter is only used when a warehouse_id is also provided. If not provided, the `default` schema is used. */
   schema?: string | undefined;
@@ -1917,7 +1997,11 @@ export interface DbtTask_DbtTaskOutput {
 }
 
 export interface DeleteJobRequest {
-  /** The canonical identifier of the job to delete. This field is required. */
+  /**
+   * The canonical identifier of the job to delete. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
 }
 
@@ -1926,7 +2010,11 @@ export interface DeleteJobRequest {
 export interface DeleteJobResponse {}
 
 export interface DeleteRunRequest {
-  /** ID of the run to delete. */
+  /**
+   * ID of the run to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: bigint | undefined;
 }
 
@@ -1948,9 +2036,15 @@ export interface DeploymentSpec {
    * deployment. The CLI uploads the user's script and populates this.
    * Customers calling the Jobs API directly should upload their script to
    * the workspace first and supply the resulting path here.
+   *
+   * Required. This field must be set in requests.
    */
   commandPath?: string | undefined;
-  /** Compute resources allocated to each node in this deployment. */
+  /**
+   * Compute resources allocated to each node in this deployment.
+   *
+   * Required. This field must be set in requests.
+   */
   compute?: ComputeSpec | undefined;
   /**
    * Optional human-readable name for this deployment (for example, `driver`,
@@ -1981,7 +2075,11 @@ export interface DockerImage {
 }
 
 export interface EnforcePolicyComplianceForJob {
-  /** The ID of the job you want to enforce policy compliance on. */
+  /**
+   * The ID of the job you want to enforce policy compliance on.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /**
    * If set, previews changes made to the job to comply with its policy, but
@@ -2075,7 +2173,11 @@ export interface Environment {
 
 /** Retrieves the export of a job run task. */
 export interface ExportRunRequest {
-  /** The canonical identifier for the run. This field is required. */
+  /**
+   * The canonical identifier for the run. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: bigint | undefined;
   /** Which views to export (CODE, DASHBOARDS, or ALL). Defaults to CODE. */
   viewsToExport?: ViewsToExport | undefined;
@@ -2088,7 +2190,11 @@ export interface ExportRunResponse {
 }
 
 export interface FileArrivalTriggerConfiguration {
-  /** URL to be monitored for file arrivals. The path must point to the root or a subpath of the external location. */
+  /**
+   * URL to be monitored for file arrivals. The path must point to the root or a subpath of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
   /**
    * If set, the trigger starts a run only after the specified amount of time passed since
@@ -2112,6 +2218,8 @@ export interface ForEachTask {
   /**
    * Array for task to iterate on. This can be a JSON string or a reference to
    * an array parameter.
+   *
+   * Required. This field must be set in requests.
    */
   inputs?: string | undefined;
   /**
@@ -2119,7 +2227,11 @@ export interface ForEachTask {
    * Set this value if you want to be able to execute multiple runs of the task concurrently.
    */
   concurrency?: number | undefined;
-  /** Configuration for the task that will be run for each element in the array */
+  /**
+   * Configuration for the task that will be run for each element in the array
+   *
+   * Required. This field must be set in requests.
+   */
   task?: TaskSettings | undefined;
 }
 
@@ -2182,7 +2294,11 @@ export interface GcpAttributes {
 
 /** A storage location in Google Cloud Platform's GCS */
 export interface GcsStorageInfo {
-  /** GCS destination/URI, e.g. `gs://my-bucket/some-prefix` */
+  /**
+   * GCS destination/URI, e.g. `gs://my-bucket/some-prefix`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -2195,7 +2311,11 @@ export interface GcsStorageInfo {
  * PuPr).
  */
 export interface GenAiComputeTask {
-  /** Runtime image */
+  /**
+   * Runtime image
+   *
+   * Required. This field must be set in requests.
+   */
   dlRuntimeImage?: string | undefined;
   compute?: ComputeConfig | undefined;
   /** Command launcher to run the actual script, e.g. bash, python etc. */
@@ -2225,7 +2345,11 @@ export interface GenAiComputeTask {
 
 /** Retrieves information about a single job. */
 export interface GetJobRequest {
-  /** The canonical identifier of the job to retrieve information about. This field is required. */
+  /**
+   * The canonical identifier of the job to retrieve information about. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /** Flag that indicates that trigger state should be included in the response. */
   includeTriggerState?: boolean | undefined;
@@ -2251,7 +2375,11 @@ export interface GetJobResponse {
   settings?: JobSettings | undefined;
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   createdTime?: bigint | undefined;
-  /** State of the trigger associated with the job. */
+  /**
+   * State of the trigger associated with the job.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   triggerState?: TriggerState | undefined;
   /**
    * Indicates if the job has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/get endpoint.
@@ -2264,14 +2392,24 @@ export interface GetJobResponse {
    * 1. Budget admins through the account or workspace console
    * 2. Jobs UI in the job details page and Jobs API using `budget_policy_id`
    * 3. Inferred default based on accessible budget policies of the run_as identity on job creation or modification.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveBudgetPolicyId?: string | undefined;
-  /** The id of the usage policy used by this job for cost attribution purposes. */
+  /**
+   * The id of the usage policy used by this job for cost attribution purposes.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUsagePolicyId?: string | undefined;
 }
 
 export interface GetPolicyComplianceForJobRequest {
-  /** The ID of the job whose compliance status you are requesting. */
+  /**
+   * The ID of the job whose compliance status you are requesting.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
 }
 
@@ -2295,7 +2433,11 @@ export interface GetPolicyComplianceForJobResponse {
 
 /** Retrieves both the output and the metadata of a run. */
 export interface GetRunOutputRequest {
-  /** The canonical identifier for the run. */
+  /**
+   * The canonical identifier for the run.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: bigint | undefined;
 }
 
@@ -2385,6 +2527,8 @@ export interface GetRunRequest {
   /**
    * The canonical identifier of the run for which to retrieve the metadata.
    * This field is required.
+   *
+   * Required. This field must be set in requests.
    */
   runId?: bigint | undefined;
   /** Whether to include the repair history in the response. */
@@ -2471,7 +2615,11 @@ export interface GetRunResponse {
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
-  /** The id of the usage policy used by this run for cost attribution purposes. */
+  /**
+   * The id of the usage policy used by this run for cost attribution purposes.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUsagePolicyId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
   startTime?: bigint | undefined;
@@ -2503,9 +2651,17 @@ export interface GitMetadataSnapshot {
  * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
  */
 export interface GitSource {
-  /** URL of the repository to be cloned by this job. */
+  /**
+   * URL of the repository to be cloned by this job.
+   *
+   * Required. This field must be set in requests.
+   */
   gitUrl?: string | undefined;
-  /** Unique identifier of the service used to host the Git repository. The value is case insensitive. */
+  /**
+   * Unique identifier of the service used to host the Git repository. The value is case insensitive.
+   *
+   * Required. This field must be set in requests.
+   */
   gitProvider?: string | undefined;
   gitReference?:
     | {
@@ -2598,9 +2754,15 @@ export interface JobCluster {
   /**
    * A unique name for the job cluster. This field is required and must be unique within the job.
    * `JobTaskSettings` may refer to this field to determine which cluster to launch for the task execution.
+   *
+   * Required. This field must be set in requests.
    */
   jobClusterKey?: string | undefined;
-  /** If new_cluster, a description of a cluster that is created for each task. */
+  /**
+   * If new_cluster, a description of a cluster that is created for each task.
+   *
+   * Required. This field must be set in requests.
+   */
   newCluster?: ClusterSpec_NewCluster | undefined;
 }
 
@@ -2610,6 +2772,8 @@ export interface JobDeployment {
    *
    * * `BUNDLE`: The job is managed by Databricks Asset Bundle.
    * * `SYSTEM_MANAGED`: The job is managed by <Databricks> and is read-only.
+   *
+   * Required. This field must be set in requests.
    */
   kind?: JobDeployment_DeploymentKind | undefined;
   /** Path of the file that contains deployment metadata. */
@@ -2651,15 +2815,27 @@ export interface JobEmailNotifications {
 }
 
 export interface JobEnvironment {
-  /** The key of an environment. It has to be unique within a job. */
+  /**
+   * The key of an environment. It has to be unique within a job.
+   *
+   * Required. This field must be set in requests.
+   */
   environmentKey?: string | undefined;
   spec?: Environment | undefined;
 }
 
 export interface JobLevelParameter {
-  /** The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.` */
+  /**
+   * The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.`
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Default value of the parameter. */
+  /**
+   * Default value of the parameter.
+   *
+   * Required. This field must be set in requests.
+   */
   default?: string | undefined;
 }
 
@@ -2797,12 +2973,20 @@ export interface JobSettings {
 
 /** The source of the job specification in the remote repository when the job is source controlled. */
 export interface JobSource {
-  /** Path of the job YAML file that contains the job specification. */
+  /**
+   * Path of the job YAML file that contains the job specification.
+   *
+   * Required. This field must be set in requests.
+   */
   jobConfigPath?: string | undefined;
   importFromGitReference?:
     | {
         $case: 'importFromGitBranch';
-        /** Name of the branch which the job is imported from. */
+        /**
+         * Name of the branch which the job is imported from.
+         *
+         * Required. This field must be set in requests.
+         */
         importFromGitBranch: string;
       }
     | undefined;
@@ -2817,9 +3001,15 @@ export interface JobSource {
 }
 
 export interface JobsHealthRule {
+  /** Required. This field must be set in requests. */
   metric?: JobsHealthMetric | undefined;
+  /** Required. This field must be set in requests. */
   op?: JobsHealthOperator | undefined;
-  /** Specifies the threshold value that the health metric should obey to satisfy the health rule. */
+  /**
+   * Specifies the threshold value that the health metric should obey to satisfy the health rule.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: bigint | undefined;
 }
 
@@ -2890,7 +3080,11 @@ export interface Library {
 }
 
 export interface ListJobComplianceForPolicy {
-  /** Canonical unique identifier for the cluster policy. */
+  /**
+   * Canonical unique identifier for the cluster policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
   /**
    * A page token that can be used to navigate to the next page or previous page as
@@ -2907,7 +3101,11 @@ export interface ListJobComplianceForPolicy {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ListJobComplianceForPolicy_JobCompliance {
-  /** Canonical unique identifier for a job. */
+  /**
+   * Canonical unique identifier for a job.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /** Whether this job is in compliance with the latest version of its policy. */
   isCompliant?: boolean | undefined;
@@ -3037,7 +3235,11 @@ export interface ListRunsResponse {
 }
 
 export interface LocalFileInfo {
-  /** local file destination, e.g. `file:/my/local/file.sh` */
+  /**
+   * local file destination, e.g. `file:/my/local/file.sh`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -3047,7 +3249,11 @@ export interface LogAnalyticsInfo {
 }
 
 export interface MavenLibrary {
-  /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
+  /**
+   * Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2".
+   *
+   * Required. This field must be set in requests.
+   */
   coordinates?: string | undefined;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
@@ -3071,7 +3277,11 @@ export interface ModelTriggerConfiguration {
   securableName?: string | undefined;
   /** Aliases of the model versions to monitor. Can only be used in conjunction with condition MODEL_ALIAS_SET. */
   aliases?: string[] | undefined;
-  /** The condition based on which to trigger a job run. */
+  /**
+   * The condition based on which to trigger a job run.
+   *
+   * Required. This field must be set in requests.
+   */
   condition?: ModelTriggerConfiguration_ModelTriggerCondition | undefined;
   /**
    * If set, the trigger starts a run only after the specified amount of time has passed since
@@ -3097,6 +3307,8 @@ export interface NotebookTask {
    * The path of the notebook to be run in the <Databricks> workspace or remote repository.
    * For notebooks stored in the <Databricks> workspace, the path must be absolute and begin with a slash.
    * For notebooks stored in a remote repository, the path must be relative. This field is required.
+   *
+   * Required. This field must be set in requests.
    */
   notebookPath?: string | undefined;
   /**
@@ -3161,9 +3373,17 @@ export interface OutputSchemaInfo {
 export interface PerformanceTarget {}
 
 export interface PeriodicTriggerConfiguration {
-  /** The interval at which the trigger should run. */
+  /**
+   * The interval at which the trigger should run.
+   *
+   * Required. This field must be set in requests.
+   */
   interval?: number | undefined;
-  /** The unit of time for the interval. */
+  /**
+   * The unit of time for the interval.
+   *
+   * Required. This field must be set in requests.
+   */
   unit?: PeriodicTriggerConfiguration_TimeUnit | undefined;
 }
 
@@ -3184,7 +3404,11 @@ export interface PipelineParameters {
 }
 
 export interface PipelineTask {
-  /** The full name of the pipeline task to execute. */
+  /**
+   * The full name of the pipeline task to execute.
+   *
+   * Required. This field must be set in requests.
+   */
   pipelineId?: string | undefined;
   /**
    * Key/value-map of parameters passed to the pipeline execution.
@@ -3266,6 +3490,8 @@ export interface PythonPyPiLibrary {
   /**
    * The name of the pypi package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
+   *
+   * Required. This field must be set in requests.
    */
   package?: string | undefined;
   /**
@@ -3276,9 +3502,17 @@ export interface PythonPyPiLibrary {
 }
 
 export interface PythonWheelTask {
-  /** Name of the package to execute */
+  /**
+   * Name of the package to execute
+   *
+   * Required. This field must be set in requests.
+   */
   packageName?: string | undefined;
-  /** Named entry point to use, if it does not exist in the metadata of the package it executes the function from the package directly using `$packageName.$entryPoint()` */
+  /**
+   * Named entry point to use, if it does not exist in the metadata of the package it executes the function from the package directly using `$packageName.$entryPoint()`
+   *
+   * Required. This field must be set in requests.
+   */
   entryPoint?: string | undefined;
   /** Command-line parameters passed to Python wheel task. Leave it empty if `named_parameters` is not null. */
   parameters?: string[] | undefined;
@@ -3299,12 +3533,20 @@ export interface QueueDetails {
 export interface QueueDetailsCode {}
 
 export interface QueueSettings {
-  /** If true, enable queueing for the job. This is a required field. */
+  /**
+   * If true, enable queueing for the job. This is a required field.
+   *
+   * Required. This field must be set in requests.
+   */
   enabled?: boolean | undefined;
 }
 
 export interface RCranLibrary {
-  /** The name of the CRAN package to install. */
+  /**
+   * The name of the CRAN package to install.
+   *
+   * Required. This field must be set in requests.
+   */
   package?: string | undefined;
   /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
   repo?: string | undefined;
@@ -3334,7 +3576,11 @@ export interface Repair {
 }
 
 export interface RepairRunRequest {
-  /** The job run ID of the run to repair. The run must not be in progress. */
+  /**
+   * The job run ID of the run to repair. The run must not be in progress.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: bigint | undefined;
   /** The ID of the latest repair. This parameter is not required when repairing a run for the first time, but must be provided on subsequent requests to repair the same run. */
   latestRepairId?: bigint | undefined;
@@ -3428,12 +3674,18 @@ export interface RepairRunResponse {
 }
 
 export interface ResetJobRequest {
-  /** The canonical identifier of the job to reset. This field is required. */
+  /**
+   * The canonical identifier of the job to reset. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /**
    * The new settings of the job. These settings completely replace the old settings.
    *
    * Changes to the field `JobBaseSettings.timeout_seconds` are applied to active runs. Changes to other fields are applied to future runs only.
+   *
+   * Required. This field must be set in requests.
    */
   newSettings?: JobSettings | undefined;
 }
@@ -3520,6 +3772,8 @@ export interface ResolvedValues_PipelineTaskResolvedValues {
   /**
    * Key/value-map of parameters passed to the pipeline execution.
    * Limited to 10k characters in total.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   pipelineTaskParameters?: Record<string, string> | undefined;
 }
@@ -3630,7 +3884,11 @@ export interface Run {
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
-  /** The id of the usage policy used by this run for cost attribution purposes. */
+  /**
+   * The id of the usage policy used by this run for cost attribution purposes.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUsagePolicyId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
   startTime?: bigint | undefined;
@@ -3659,7 +3917,11 @@ export interface Run_JobLevelParameters {
 }
 
 export interface RunJobTask {
-  /** ID of the job to trigger. */
+  /**
+   * ID of the job to trigger.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /** Job-level parameters used to trigger the job. */
   jobParameters?: Record<string, string> | undefined;
@@ -3744,7 +4006,11 @@ export interface RunLifeCycleState {}
 export interface RunLifecycleStateV2 {}
 
 export interface RunNowRequest {
-  /** The ID of the job to be executed */
+  /**
+   * The ID of the job to be executed
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
   jobParameters?: Record<string, string> | undefined;
@@ -3964,12 +4230,16 @@ export interface RunTask {
    *
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /**
    * A unique name for the task. This field is used to refer to this task from other tasks.
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
+   *
+   * Required. This field must be set in requests.
    */
   taskKey?: string | undefined;
   /** An optional description for this task. */
@@ -3999,7 +4269,11 @@ export interface RunTask {
     | undefined;
   /** An optional flag to disable the task. If set to true, the task will not run even if it is part of a job. */
   disabled?: boolean | undefined;
-  /** Task level compute configuration. */
+  /**
+   * Task level compute configuration.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   compute?: Compute | undefined;
   /** DO NOT ADD ANY NEW FIELDS TO JobTask OUTSIDE OF THIS ONEOF as it will break the TaskRegistry */
   task?:
@@ -4167,6 +4441,8 @@ export interface RunTaskSettings {
    * A unique name for the task. This field is used to refer to this task from other tasks.
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
+   *
+   * Required. This field must be set in requests.
    */
   taskKey?: string | undefined;
   /** An optional description for this task. */
@@ -4196,7 +4472,11 @@ export interface RunTaskSettings {
     | undefined;
   /** An optional flag to disable the task. If set to true, the task will not run even if it is part of a job. */
   disabled?: boolean | undefined;
-  /** Task level compute configuration. */
+  /**
+   * Task level compute configuration.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   compute?: Compute | undefined;
   /** DO NOT ADD ANY NEW FIELDS TO JobTask OUTSIDE OF THIS ONEOF as it will break the TaskRegistry */
   task?:
@@ -4357,6 +4637,8 @@ export interface S3StorageInfo {
    * S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using
    * cluster iam role, please make sure you set cluster iam role and the role has write access to the
    * destination. Please also note that you cannot use AWS keys to deliver logs.
+   *
+   * Required. This field must be set in requests.
    */
   destination?: string | undefined;
   /**
@@ -4414,7 +4696,11 @@ export interface SparkJarTask {
 }
 
 export interface SparkPythonTask {
-  /** The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the <Databricks> workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required. */
+  /**
+   * The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the <Databricks> workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   pythonFile?: string | undefined;
   /**
    * Command line parameters passed to the Python file.
@@ -4475,7 +4761,11 @@ export interface SqlTask {
         file: SqlTaskFile;
       }
     | undefined;
-  /** The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs. */
+  /**
+   * The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs.
+   *
+   * Required. This field must be set in requests.
+   */
   warehouseId?: string | undefined;
 }
 
@@ -4565,7 +4855,11 @@ export interface SqlTask_SqlStatementOutput {
 }
 
 export interface SqlTaskAlert {
-  /** The canonical identifier of the SQL alert. */
+  /**
+   * The canonical identifier of the SQL alert.
+   *
+   * Required. This field must be set in requests.
+   */
   alertId?: string | undefined;
   /** If specified, alert notifications are sent to subscribers. */
   subscriptions?: SqlTaskSubscription[] | undefined;
@@ -4574,7 +4868,11 @@ export interface SqlTaskAlert {
 }
 
 export interface SqlTaskDashboard {
-  /** The canonical identifier of the SQL dashboard. */
+  /**
+   * The canonical identifier of the SQL dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /** If specified, dashboard snapshots are sent to subscriptions. */
   subscriptions?: SqlTaskSubscription[] | undefined;
@@ -4585,7 +4883,11 @@ export interface SqlTaskDashboard {
 }
 
 export interface SqlTaskFile {
-  /** Path of the SQL file. Must be relative if the source is a remote Git repository and absolute for workspace paths. */
+  /**
+   * Path of the SQL file. Must be relative if the source is a remote Git repository and absolute for workspace paths.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
   /**
    * Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved
@@ -4602,7 +4904,11 @@ export interface SqlTaskQuery {
   queryType?:
     | {
         $case: 'queryId';
-        /** The canonical identifier of the SQL query. */
+        /**
+         * The canonical identifier of the SQL query.
+         *
+         * Required. This field must be set in requests.
+         */
         queryId: string;
       }
     | undefined;
@@ -4668,11 +4974,15 @@ export interface SubmitRunRequest {
   /**
    * The user specified id of the budget policy to use for this one-time run.
    * If not specified, the run will be not be attributed to any budget policy.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   budgetPolicyId?: string | undefined;
   /**
    * The user specified id of the usage policy to use for this one-time run.
    * If not specified, a default usage policy may be applied when creating or modifying the job.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   usagePolicyId?: string | undefined;
 }
@@ -4722,7 +5032,11 @@ export interface TableState {
 }
 
 export interface TableTriggerConfiguration {
-  /** A list of tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`. */
+  /**
+   * A list of tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`.
+   *
+   * Required. This field must be set in requests.
+   */
   tableNames?: string[] | undefined;
   /**
    * If set, the trigger starts a run only after the specified amount of time has passed since
@@ -4746,7 +5060,11 @@ export interface TableTriggerState {
 }
 
 export interface TaskDependency {
-  /** The name of the task this task depends on. */
+  /**
+   * The name of the task this task depends on.
+   *
+   * Required. This field must be set in requests.
+   */
   taskKey?: string | undefined;
   /** Can only be specified on condition task dependencies. The outcome of the dependent task that must be met for this task to run. */
   outcome?: string | undefined;
@@ -4757,6 +5075,8 @@ export interface TaskSettings {
    * A unique name for the task. This field is used to refer to this task from other tasks.
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
+   *
+   * Required. This field must be set in requests.
    */
   taskKey?: string | undefined;
   /**
@@ -4985,7 +5305,11 @@ export interface TriggerState {
 }
 
 export interface UpdateJobRequest {
-  /** The canonical identifier of the job to update. This field is required. */
+  /**
+   * The canonical identifier of the job to update. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   jobId?: bigint | undefined;
   /**
    * The new settings for the job.
@@ -5019,11 +5343,14 @@ export interface VolumesStorageInfo {
   /**
    * UC Volumes destination, e.g. `/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
    * or `dbfs:/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
+   *
+   * Required. This field must be set in requests.
    */
   destination?: string | undefined;
 }
 
 export interface Webhook {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -5051,7 +5378,11 @@ export interface WidgetErrorDetail {
 
 /** Cluster Attributes showing for clusters workload types. */
 export interface WorkloadType {
-  /** defined what type of clients can use the cluster. E.g. Notebooks, Jobs */
+  /**
+   * defined what type of clients can use the cluster. E.g. Notebooks, Jobs
+   *
+   * Required. This field must be set in requests.
+   */
   clients?: WorkloadType_ClientsTypes | undefined;
 }
 
@@ -5065,7 +5396,11 @@ export interface WorkloadType_ClientsTypes {
 
 /** A storage location in Workspace Filesystem (WSFS) */
 export interface WorkspaceStorageInfo {
-  /** wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh` */
+  /**
+   * wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -5100,10 +5435,12 @@ export const unmarshalAiRuntimeTaskOutputSchema: z.ZodType<AiRuntimeTaskOutput> 
     .object({
       mlflow_experiment_id: z.string().optional(),
       mlflow_run_id: z.string().optional(),
+      status_message: z.string().optional(),
     })
     .transform(d => ({
       mlflowExperimentId: d.mlflow_experiment_id,
       mlflowRunId: d.mlflow_run_id,
+      statusMessage: d.status_message,
     }));
 
 export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z

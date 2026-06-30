@@ -25,7 +25,11 @@ export interface EffectivePrivilegeAssignment {
 }
 
 export interface GetEffectivePermissionsRequest {
-  /** Type of securable. */
+  /**
+   * Type of securable.
+   *
+   * Required. This field must be set in requests.
+   */
   securableType?: string | undefined;
   /** Full name of securable. */
   securableFullName?: string | undefined;
@@ -60,7 +64,11 @@ export interface GetEffectivePermissionsResponse {
 }
 
 export interface GetPermissionsRequest {
-  /** Type of securable. */
+  /**
+   * Type of securable.
+   *
+   * Required. This field must be set in requests.
+   */
   securableType?: string | undefined;
   /** Full name of securable. */
   securableFullName?: string | undefined;
@@ -117,7 +125,11 @@ export interface PrivilegeAssignment {
 }
 
 export interface UpdatePermissionsRequest {
-  /** Type of securable. */
+  /**
+   * Type of securable.
+   *
+   * Required. This field must be set in requests.
+   */
   securableType?: string | undefined;
   /** Full name of securable. */
   securableFullName?: string | undefined;

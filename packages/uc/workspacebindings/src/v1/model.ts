@@ -14,7 +14,11 @@ export type BindingType =
   | (string & {});
 
 export interface GetCatalogWorkspaceBindingsRequest {
-  /** The name of the catalog. */
+  /**
+   * The name of the catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
 }
 
@@ -24,9 +28,17 @@ export interface GetCatalogWorkspaceBindingsResponse {
 }
 
 export interface GetWorkspaceBindingsRequest {
-  /** The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location). */
+  /**
+   * The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location).
+   *
+   * Required. This field must be set in requests.
+   */
   securableType?: string | undefined;
-  /** The name of the securable. */
+  /**
+   * The name of the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   securableFullName?: string | undefined;
   /**
    * Maximum number of workspace bindings to return.
@@ -51,7 +63,11 @@ export interface GetWorkspaceBindingsResponse {
 }
 
 export interface UpdateCatalogWorkspaceBindingsRequest {
-  /** The name of the catalog. */
+  /**
+   * The name of the catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
   /** A list of workspace IDs. */
   assignWorkspaces?: bigint[] | undefined;
@@ -65,9 +81,17 @@ export interface UpdateCatalogWorkspaceBindingsResponse {
 }
 
 export interface UpdateWorkspaceBindingsRequest {
-  /** The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location). */
+  /**
+   * The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location).
+   *
+   * Required. This field must be set in requests.
+   */
   securableType?: string | undefined;
-  /** The name of the securable. */
+  /**
+   * The name of the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   securableFullName?: string | undefined;
   /**
    * List of workspace bindings to add. If a binding for the workspace already exists with a
@@ -86,7 +110,11 @@ export interface UpdateWorkspaceBindingsResponse {
 }
 
 export interface WorkspaceBindingInfo {
-  /** Required */
+  /**
+   * Required
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceId?: bigint | undefined;
   /** One of READ_WRITE/READ_ONLY. Default is READ_WRITE. */
   bindingType?: BindingType | undefined;

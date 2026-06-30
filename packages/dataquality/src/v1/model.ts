@@ -136,7 +136,11 @@ export interface AnomalyDetectionConfig {
 
 /** Request to cancel a refresh. */
 export interface CancelRefreshRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -148,15 +152,25 @@ export interface CancelRefreshRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
-  /** Unique id of the refresh operation. */
+  /**
+   * Unique id of the refresh operation.
+   *
+   * Required. This field must be set in requests.
+   */
   refreshId?: bigint | undefined;
 }
 
 /** Response to cancelling a refresh. */
 export interface CancelRefreshResponse {
-  /** The refresh to cancel. */
+  /**
+   * The refresh to cancel.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   refresh?: Refresh | undefined;
 }
 
@@ -174,21 +188,35 @@ export interface CreateRefreshRequest {
 
 /** The data quality monitoring workflow cron schedule. */
 export interface CronSchedule {
-  /** The expression that determines when to run the monitor. See [examples](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html). */
+  /**
+   * The expression that determines when to run the monitor. See [examples](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html).
+   *
+   * Required. This field must be set in requests.
+   */
   quartzCronExpression?: string | undefined;
   /**
    * A Java timezone id. The schedule for a job will be resolved with respect to this timezone.
    * See `Java TimeZone <http://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html>`_ for details.
    * The timezone id (e.g., ``America/Los_Angeles``) in which to evaluate the quartz expression.
+   *
+   * Required. This field must be set in requests.
    */
   timezoneId?: string | undefined;
-  /** Read only field that indicates whether the schedule is paused or not. */
+  /**
+   * Read only field that indicates whether the schedule is paused or not.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   pauseStatus?: CronSchedulePauseStatus | undefined;
 }
 
 /** Data Profiling Configurations. */
 export interface DataProfilingConfig {
-  /** ID of the schema where output tables are created. */
+  /**
+   * ID of the schema where output tables are created.
+   *
+   * Required. This field must be set in requests.
+   */
   outputSchemaId?: string | undefined;
   /**
    * Field for specifying the absolute path to a custom directory to store data-monitoring
@@ -241,51 +269,101 @@ export interface DataProfilingConfig {
    * warehouse will be used.
    */
   warehouseId?: string | undefined;
-  /** Unity Catalog table to monitor. Format: `catalog.schema.table_name` */
+  /**
+   * Unity Catalog table to monitor. Format: `catalog.schema.table_name`
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   monitoredTableName?: string | undefined;
-  /** The data profiling monitor status. */
+  /**
+   * The data profiling monitor status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: DataProfilingStatus | undefined;
-  /** The latest error message for a monitor failure. */
+  /**
+   * The latest error message for a monitor failure.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   latestMonitorFailureMessage?: string | undefined;
-  /** Table that stores profile metrics data. Format: `catalog.schema.table_name`. */
+  /**
+   * Table that stores profile metrics data. Format: `catalog.schema.table_name`.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   profileMetricsTableName?: string | undefined;
-  /** Table that stores drift metrics data. Format: `catalog.schema.table_name`. */
+  /**
+   * Table that stores drift metrics data. Format: `catalog.schema.table_name`.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   driftMetricsTableName?: string | undefined;
   /**
    * Id of dashboard that visualizes the computed metrics.
    * This can be empty if the monitor is in PENDING state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   dashboardId?: string | undefined;
   /**
    * Represents the current monitor configuration version in use. The version will be represented in a
    * numeric fashion (1,2,3...). The field has flexibility to take on negative values, which can indicate corrupted
    * monitor_version numbers.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   monitorVersion?: bigint | undefined;
-  /** The warehouse for dashboard creation */
+  /**
+   * The warehouse for dashboard creation
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveWarehouseId?: string | undefined;
 }
 
 /** Custom metric definition. */
 export interface DataProfilingCustomMetric {
-  /** Name of the metric in the output tables. */
+  /**
+   * Name of the metric in the output tables.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Jinja template for a SQL expression that specifies how to compute the metric. See [create metric definition](https://docs.databricks.com/en/lakehouse-monitoring/custom-metrics.html#create-definition). */
+  /**
+   * Jinja template for a SQL expression that specifies how to compute the metric. See [create metric definition](https://docs.databricks.com/en/lakehouse-monitoring/custom-metrics.html#create-definition).
+   *
+   * Required. This field must be set in requests.
+   */
   definition?: string | undefined;
   /**
    * A list of column names in the input table the metric should be computed for.
    * Can use ``":table"`` to indicate that the metric needs information from multiple columns.
+   *
+   * Required. This field must be set in requests.
    */
   inputColumns?: string[] | undefined;
-  /** The output type of the custom metric. */
+  /**
+   * The output type of the custom metric.
+   *
+   * Required. This field must be set in requests.
+   */
   outputDataType?: string | undefined;
-  /** The type of the custom metric. */
+  /**
+   * The type of the custom metric.
+   *
+   * Required. This field must be set in requests.
+   */
   type?: DataProfilingCustomMetricType | undefined;
 }
 
 /** Request to delete a Monitor. */
 export interface DeleteMonitorRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -297,13 +375,19 @@ export interface DeleteMonitorRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
 }
 
 /** Request to delete a ronitor. */
 export interface DeleteRefreshRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -315,15 +399,25 @@ export interface DeleteRefreshRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
-  /** Unique id of the refresh operation. */
+  /**
+   * Unique id of the refresh operation.
+   *
+   * Required. This field must be set in requests.
+   */
   refreshId?: bigint | undefined;
 }
 
 /** Request to get a Monitor. */
 export interface GetMonitorRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -335,13 +429,19 @@ export interface GetMonitorRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
 }
 
 /** Request to get a refresh. */
 export interface GetRefreshRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -353,25 +453,51 @@ export interface GetRefreshRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
-  /** Unique id of the refresh operation. */
+  /**
+   * Unique id of the refresh operation.
+   *
+   * Required. This field must be set in requests.
+   */
   refreshId?: bigint | undefined;
 }
 
 /** Inference log configuration. */
 export interface InferenceLogConfig {
-  /** Problem type the model aims to solve. */
+  /**
+   * Problem type the model aims to solve.
+   *
+   * Required. This field must be set in requests.
+   */
   problemType?: InferenceProblemType | undefined;
-  /** Column for the timestamp. */
+  /**
+   * Column for the timestamp.
+   *
+   * Required. This field must be set in requests.
+   */
   timestampColumn?: string | undefined;
-  /** List of granularities to use when aggregating data into time windows based on their timestamp. */
+  /**
+   * List of granularities to use when aggregating data into time windows based on their timestamp.
+   *
+   * Required. This field must be set in requests.
+   */
   granularities?: AggregationGranularity[] | undefined;
-  /** Column for the prediction. */
+  /**
+   * Column for the prediction.
+   *
+   * Required. This field must be set in requests.
+   */
   predictionColumn?: string | undefined;
   /** Column for the label. */
   labelColumn?: string | undefined;
-  /** Column for the model identifier. */
+  /**
+   * Column for the model identifier.
+   *
+   * Required. This field must be set in requests.
+   */
   modelIdColumn?: string | undefined;
 }
 
@@ -389,7 +515,11 @@ export interface ListMonitorResponse {
 
 /** Request to list refreshes. */
 export interface ListRefreshRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -401,6 +531,8 @@ export interface ListRefreshRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
   pageToken?: string | undefined;
@@ -415,7 +547,11 @@ export interface ListRefreshResponse {
 
 /** Monitor for the data quality of unity catalog entities such as schema or table. */
 export interface Monitor {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -427,6 +563,8 @@ export interface Monitor {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
   /** Anomaly Detection Configuration, applicable to `schema` object types. */
@@ -452,7 +590,11 @@ export interface NotificationSettings {
 
 /** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
 export interface Refresh {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -464,19 +606,45 @@ export interface Refresh {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
-  /** Unique id of the refresh operation. */
+  /**
+   * Unique id of the refresh operation.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   refreshId?: bigint | undefined;
-  /** The current state of the refresh. */
+  /**
+   * The current state of the refresh.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: RefreshState | undefined;
-  /** An optional message to give insight into the current state of the refresh (e.g. FAILURE messages). */
+  /**
+   * An optional message to give insight into the current state of the refresh (e.g. FAILURE messages).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
-  /** Time when the refresh started (milliseconds since 1/1/1970 UTC). */
+  /**
+   * Time when the refresh started (milliseconds since 1/1/1970 UTC).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   startTimeMs?: bigint | undefined;
-  /** Time when the refresh ended (milliseconds since 1/1/1970 UTC). */
+  /**
+   * Time when the refresh ended (milliseconds since 1/1/1970 UTC).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endTimeMs?: bigint | undefined;
-  /** What triggered the refresh. */
+  /**
+   * What triggered the refresh.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   trigger?: RefreshTrigger | undefined;
 }
 
@@ -486,15 +654,27 @@ export interface SnapshotConfig {}
 
 /** Time series analysis configuration. */
 export interface TimeSeriesConfig {
-  /** Column for the timestamp. */
+  /**
+   * Column for the timestamp.
+   *
+   * Required. This field must be set in requests.
+   */
   timestampColumn?: string | undefined;
-  /** List of granularities to use when aggregating data into time windows based on their timestamp. */
+  /**
+   * List of granularities to use when aggregating data into time windows based on their timestamp.
+   *
+   * Required. This field must be set in requests.
+   */
   granularities?: AggregationGranularity[] | undefined;
 }
 
 /** Request to update a Monitor. */
 export interface UpdateMonitorRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -506,6 +686,8 @@ export interface UpdateMonitorRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
   /** The monitor to update. */
@@ -513,13 +695,19 @@ export interface UpdateMonitorRequest {
   /**
    * The field mask to specify which fields to update as a comma-separated list.
    * Example value: `data_profiling_config.custom_metrics,data_profiling_config.schedule.quartz_cron_expression`
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<Monitor> | undefined;
 }
 
 /** Request to update a refresh. */
 export interface UpdateRefreshRequest {
-  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  /**
+   * The type of the monitored object. Can be one of the following: `schema` or `table`.
+   *
+   * Required. This field must be set in requests.
+   */
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
@@ -531,13 +719,23 @@ export interface UpdateRefreshRequest {
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   *
+   * Required. This field must be set in requests.
    */
   objectId?: string | undefined;
-  /** Unique id of the refresh operation. */
+  /**
+   * Unique id of the refresh operation.
+   *
+   * Required. This field must be set in requests.
+   */
   refreshId?: bigint | undefined;
   /** The refresh to update. */
   refresh?: Refresh | undefined;
-  /** The field mask to specify which fields to update. */
+  /**
+   * The field mask to specify which fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Refresh> | undefined;
 }
 

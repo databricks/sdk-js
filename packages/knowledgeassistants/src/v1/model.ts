@@ -34,14 +34,24 @@ export interface CreateExampleRequest {
   /**
    * Parent resource where this example will be created.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
-  /** The example to create under the parent Knowledge Assistant. */
+  /**
+   * The example to create under the parent Knowledge Assistant.
+   *
+   * Required. This field must be set in requests.
+   */
   example?: Example | undefined;
 }
 
 export interface CreateKnowledgeAssistantRequest {
-  /** The Knowledge Assistant to create. */
+  /**
+   * The Knowledge Assistant to create.
+   *
+   * Required. This field must be set in requests.
+   */
   knowledgeAssistant?: KnowledgeAssistant | undefined;
 }
 
@@ -49,8 +59,11 @@ export interface CreateKnowledgeSourceRequest {
   /**
    * Parent resource where this source will be created.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
+  /** Required. This field must be set in requests. */
   knowledgeSource?: KnowledgeSource | undefined;
 }
 
@@ -59,6 +72,8 @@ export interface DeleteExampleRequest {
   /**
    * The resource name of the example to delete.
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -68,6 +83,8 @@ export interface DeleteKnowledgeAssistantRequest {
   /**
    * The resource name of the knowledge assistant to be deleted.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -76,6 +93,8 @@ export interface DeleteKnowledgeSourceRequest {
   /**
    * The resource name of the Knowledge Source to delete.
    * Format: knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -90,32 +109,60 @@ export interface Example {
    * knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
    */
   name?: string | undefined;
-  /** The example question. */
+  /**
+   * The example question.
+   *
+   * Required. This field must be set in requests.
+   */
   question?: string | undefined;
   /**
    * Guidelines for answering the question. Optional — examples may be created
    * with just a question; the front-end form does not require guidelines.
    */
   guidelines?: string[] | undefined;
-  /** The universally unique identifier (UUID) of the example. */
+  /**
+   * The universally unique identifier (UUID) of the example.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   exampleId?: string | undefined;
-  /** Timestamp when this example was created. */
+  /**
+   * Timestamp when this example was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** Timestamp when this example was last updated. */
+  /**
+   * Timestamp when this example was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
 }
 
 /** FileTableSpec specifies a file table source configuration. */
 export interface FileTableSpec {
-  /** Full UC name of the table, in the format of {CATALOG}.{SCHEMA}.{TABLE_NAME}. */
+  /**
+   * Full UC name of the table, in the format of {CATALOG}.{SCHEMA}.{TABLE_NAME}.
+   *
+   * Required. This field must be set in requests.
+   */
   tableName?: string | undefined;
-  /** The name of the column containing BINARY file content to be indexed. */
+  /**
+   * The name of the column containing BINARY file content to be indexed.
+   *
+   * Required. This field must be set in requests.
+   */
   fileCol?: string | undefined;
 }
 
 /** FilesSpec specifies a files source configuration. */
 export interface FilesSpec {
-  /** A UC volume path that includes a list of files. */
+  /**
+   * A UC volume path that includes a list of files.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
 }
 
@@ -124,6 +171,8 @@ export interface GetExampleRequest {
   /**
    * The resource name of the example.
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -133,6 +182,8 @@ export interface GetKnowledgeAssistantRequest {
   /**
    * The resource name of the knowledge assistant.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -141,17 +192,31 @@ export interface GetKnowledgeSourceRequest {
   /**
    * The resource name of the Knowledge Source.
    * Format: knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 /** IndexSpec specifies a vector search index source configuration. */
 export interface IndexSpec {
-  /** Full UC name of the vector search index, in the format of {CATALOG}.{SCHEMA}.{INDEX_NAME}. */
+  /**
+   * Full UC name of the vector search index, in the format of {CATALOG}.{SCHEMA}.{INDEX_NAME}.
+   *
+   * Required. This field must be set in requests.
+   */
   indexName?: string | undefined;
-  /** The column that includes the document text for retrieval. */
+  /**
+   * The column that includes the document text for retrieval.
+   *
+   * Required. This field must be set in requests.
+   */
   textCol?: string | undefined;
-  /** The column that specifies a link or reference to where the information came from. */
+  /**
+   * The column that specifies a link or reference to where the information came from.
+   *
+   * Required. This field must be set in requests.
+   */
   docUriCol?: string | undefined;
 }
 
@@ -166,15 +231,25 @@ export interface KnowledgeAssistant {
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
   name?: string | undefined;
-  /** State of the Knowledge Assistant. Not returned in List responses. */
+  /**
+   * State of the Knowledge Assistant. Not returned in List responses.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: KnowledgeAssistant_State | undefined;
-  /** Deprecated: use knowledge_assistant_id instead. */
+  /**
+   * Deprecated: use knowledge_assistant_id instead.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
   /**
    * The display name of the Knowledge Assistant, unique at workspace level.
    * Required when creating a Knowledge Assistant.
    * When updating a Knowledge Assistant, optional unless included in
    * update_mask.
+   *
+   * Required. This field must be set in requests.
    */
   displayName?: string | undefined;
   /**
@@ -182,6 +257,8 @@ export interface KnowledgeAssistant {
    * Required when creating a Knowledge Assistant.
    * When updating a Knowledge Assistant, optional unless included in
    * update_mask.
+   *
+   * Required. This field must be set in requests.
    */
   description?: string | undefined;
   /**
@@ -191,15 +268,35 @@ export interface KnowledgeAssistant {
    * modify it.
    */
   instructions?: string | undefined;
-  /** The creator of the Knowledge Assistant. */
+  /**
+   * The creator of the Knowledge Assistant.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** Creation timestamp. */
+  /**
+   * Creation timestamp.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The name of the knowledge assistant agent endpoint. */
+  /**
+   * The name of the knowledge assistant agent endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpointName?: string | undefined;
-  /** The MLflow experiment ID. */
+  /**
+   * The MLflow experiment ID.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   experimentId?: string | undefined;
-  /** Error details when the Knowledge Assistant is in FAILED state. */
+  /**
+   * Error details when the Knowledge Assistant is in FAILED state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   errorInfo?: string | undefined;
 }
 
@@ -219,18 +316,24 @@ export interface KnowledgeSource {
    * Human-readable display name of the knowledge source.
    * Required when creating a Knowledge Source.
    * When updating a Knowledge Source, optional unless included in update_mask.
+   *
+   * Required. This field must be set in requests.
    */
   displayName?: string | undefined;
   /**
    * Description of the knowledge source.
    * Required when creating a Knowledge Source.
    * When updating a Knowledge Source, optional unless included in update_mask.
+   *
+   * Required. This field must be set in requests.
    */
   description?: string | undefined;
   /**
    * The type of the source: "index", "files", or "file_table".
    * Required when creating a Knowledge Source.
    * When updating a Knowledge Source, this field is ignored.
+   *
+   * Required. This field must be set in requests.
    */
   sourceType?: string | undefined;
   /** Specification for the knowledge source type. */
@@ -239,11 +342,21 @@ export interface KnowledgeSource {
     | {$case: 'files'; files: FilesSpec}
     | {$case: 'fileTable'; fileTable: FileTableSpec}
     | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   state?: KnowledgeSource_State | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   id?: string | undefined;
-  /** Timestamp representing the cutoff before which content in this knowledge source is being ingested. */
+  /**
+   * Timestamp representing the cutoff before which content in this knowledge source is being ingested.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   knowledgeCutoffTime?: Temporal.Instant | undefined;
-  /** Timestamp when this knowledge source was created. */
+  /**
+   * Timestamp when this knowledge source was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
 }
 
@@ -252,6 +365,8 @@ export interface ListExamplesRequest {
   /**
    * Parent resource to list from.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /**
@@ -304,6 +419,8 @@ export interface ListKnowledgeSourcesRequest {
   /**
    * Parent resource to list from.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   pageSize?: number | undefined;
@@ -319,6 +436,8 @@ export interface SyncKnowledgeSourcesRequest {
   /**
    * The resource name of the Knowledge Assistant.
    * Format: knowledge-assistants/{knowledge_assistant_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -328,8 +447,11 @@ export interface UpdateExampleRequest {
   /**
    * The resource name of the example to update.
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   example?: Example | undefined;
   /**
    * Comma-delimited list of fields to update on the example.
@@ -337,6 +459,8 @@ export interface UpdateExampleRequest {
    * Examples:
    * - `question`
    * - `question,guidelines`
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<Example> | undefined;
 }
@@ -347,6 +471,8 @@ export interface UpdateKnowledgeAssistantRequest {
    * Only fields listed in update_mask are updated.
    * REQUIRED annotations on Knowledge Assistant fields describe create-time
    * requirements and do not mean all those fields are required for update.
+   *
+   * Required. This field must be set in requests.
    */
   knowledgeAssistant?: KnowledgeAssistant | undefined;
   /**
@@ -355,6 +481,8 @@ export interface UpdateKnowledgeAssistantRequest {
    * Examples:
    * - `display_name`
    * - `description,instructions`
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<KnowledgeAssistant> | undefined;
 }
@@ -363,6 +491,8 @@ export interface UpdateKnowledgeSourceRequest {
   /**
    * The resource name of the Knowledge Source to update.
    * Format: knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /**
@@ -370,6 +500,8 @@ export interface UpdateKnowledgeSourceRequest {
    * Only fields listed in update_mask are updated.
    * REQUIRED annotations on Knowledge Source fields describe create-time
    * requirements and do not mean all those fields are required for update.
+   *
+   * Required. This field must be set in requests.
    */
   knowledgeSource?: KnowledgeSource | undefined;
   /**
@@ -378,6 +510,8 @@ export interface UpdateKnowledgeSourceRequest {
    * Examples:
    * - `display_name`
    * - `display_name,description`
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<KnowledgeSource> | undefined;
 }

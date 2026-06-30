@@ -58,6 +58,8 @@ export interface CustomPolicyTag {
    * - Must be unique among all custom tags of the same policy
    * - Cannot be “budget-policy-name”, “budget-policy-id” or "budget-policy-resolution-result" -
    * these tags are preserved.
+   *
+   * Required. This field must be set in requests.
    */
   key?: string | undefined;
   /** The value of the tag. */
@@ -66,7 +68,11 @@ export interface CustomPolicyTag {
 
 /** Deletes a policy */
 export interface DeleteBudgetPolicyRequest {
-  /** The Id of the policy. */
+  /**
+   * The Id of the policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
   /** The account Id of the customer */
   accountId?: string | undefined;
@@ -95,7 +101,11 @@ export interface Filter {
 }
 
 export interface GetBudgetPolicyRequest {
-  /** The Id of the policy. */
+  /**
+   * The Id of the policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
   /** The account Id of the customer */
   accountId?: string | undefined;
@@ -161,6 +171,8 @@ export interface UpdateBudgetPolicyRequest {
    * The policy to update. `creator_user_id` cannot be specified in the request. All other fields
    * must be specified even if not changed. The `policy_id` is used to identify the policy to
    * update.
+   *
+   * Required. This field must be set in requests.
    */
   policy?: BudgetPolicy | undefined;
   /** The account Id of the customer */

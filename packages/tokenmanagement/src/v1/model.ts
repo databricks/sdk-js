@@ -55,7 +55,11 @@ export interface AdminTokenInfo {
 
 /** Configuration details for creating on-behalf tokens. */
 export interface CreateOnBehalfOfTokenRequest {
-  /** Application ID of the service principal. */
+  /**
+   * Application ID of the service principal.
+   *
+   * Required. This field must be set in requests.
+   */
   applicationId?: string | undefined;
   /** The number of seconds before the token expires. */
   lifetimeSeconds?: bigint | undefined;
@@ -125,8 +129,13 @@ export interface RevokeTokenResponse {}
  * https://docs.databricks.com/api/workspace/api/scopes.
  */
 export interface UpdateTokenRequest {
+  /** Required. This field must be set in requests. */
   token?: AdminTokenInfo | undefined;
-  /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
+  /**
+   * A list of field name under token, For example, {"update_mask": "comment,scopes"}
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<AdminTokenInfo> | undefined;
 }
 

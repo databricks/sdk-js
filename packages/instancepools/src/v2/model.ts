@@ -194,7 +194,11 @@ export interface CreateInstancePoolResponse {
 }
 
 export interface DeleteInstancePoolRequest {
-  /** The instance pool to be terminated. */
+  /**
+   * The instance pool to be terminated.
+   *
+   * Required. This field must be set in requests.
+   */
   instancePoolId?: string | undefined;
 }
 
@@ -275,7 +279,11 @@ export interface DockerImage {
 }
 
 export interface EditInstancePoolRequest {
-  /** Instance pool ID */
+  /**
+   * Instance pool ID
+   *
+   * Required. This field must be set in requests.
+   */
   instancePoolId?: string | undefined;
   /**
    * Pool name requested by the user. Pool name must be unique. Length must be between 1 and 100
@@ -357,7 +365,11 @@ export interface EditInstancePoolRequest {
 export interface EditInstancePoolResponse {}
 
 export interface GetInstancePoolRequest {
-  /** The canonical unique identifier for the instance pool. */
+  /**
+   * The canonical unique identifier for the instance pool.
+   *
+   * Required. This field must be set in requests.
+   */
   instancePoolId?: string | undefined;
 }
 

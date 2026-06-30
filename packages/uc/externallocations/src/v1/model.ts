@@ -28,7 +28,11 @@ export interface AwsSqsQueue {
    * Only required for provided_sqs.
    */
   queueUrl?: string | undefined;
-  /** Unique identifier included in the name of file events managed cloud resources. */
+  /**
+   * Unique identifier included in the name of file events managed cloud resources.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   managedResourceId?: string | undefined;
 }
 
@@ -50,18 +54,34 @@ export interface AzureQueueStorage {
    * Only required for locations with a service principal storage credential
    */
   resourceGroup?: string | undefined;
-  /** Unique identifier included in the name of file events managed cloud resources. */
+  /**
+   * Unique identifier included in the name of file events managed cloud resources.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   managedResourceId?: string | undefined;
 }
 
 export interface CreateExternalLocationRequest {
   /** Skips validation of the storage credential associated with the external location. */
   skipValidation?: boolean | undefined;
-  /** Name of the external location. */
+  /**
+   * Name of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Path URL of the external location. */
+  /**
+   * Path URL of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
-  /** Name of the storage credential used with this location. */
+  /**
+   * Name of the storage credential used with this location.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialName?: string | undefined;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
@@ -94,19 +114,29 @@ export interface CreateExternalLocationRequest {
   isolationMode?: IsolationMode | undefined;
   /** Indicates whether fallback mode is enabled for this external location. When fallback mode is enabled, the access to the location falls back to cluster credentials if UC credentials are not sufficient. */
   fallback?: boolean | undefined;
-  /** The effective value of `enable_file_events` after applying server-side defaults. */
+  /**
+   * The effective value of `enable_file_events` after applying server-side defaults.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveEnableFileEvents?: boolean | undefined;
   /**
    * The effective file event queue configuration after applying server-side defaults.
    * Always populated when a queue is provisioned, regardless of whether the user explicitly
    * set `enable_file_events`. Use this field instead of `file_event_queue` for reading
    * the actual queue state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveFileEventQueue?: FileEventQueue | undefined;
 }
 
 export interface DeleteExternalLocationRequest {
-  /** Name of the external location. */
+  /**
+   * Name of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** Force deletion even if there are dependent external tables or mounts. */
   force?: boolean | undefined;
@@ -127,11 +157,23 @@ export interface EncryptionDetails {
 }
 
 export interface ExternalLocationInfo {
-  /** Name of the external location. */
+  /**
+   * Name of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Path URL of the external location. */
+  /**
+   * Path URL of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
-  /** Name of the storage credential used with this location. */
+  /**
+   * Name of the storage credential used with this location.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialName?: string | undefined;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
@@ -164,13 +206,19 @@ export interface ExternalLocationInfo {
   isolationMode?: IsolationMode | undefined;
   /** Indicates whether fallback mode is enabled for this external location. When fallback mode is enabled, the access to the location falls back to cluster credentials if UC credentials are not sufficient. */
   fallback?: boolean | undefined;
-  /** The effective value of `enable_file_events` after applying server-side defaults. */
+  /**
+   * The effective value of `enable_file_events` after applying server-side defaults.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveEnableFileEvents?: boolean | undefined;
   /**
    * The effective file event queue configuration after applying server-side defaults.
    * Always populated when a queue is provisioned, regardless of whether the user explicitly
    * set `enable_file_events`. Use this field instead of `file_event_queue` for reading
    * the actual queue state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveFileEventQueue?: FileEventQueue | undefined;
 }
@@ -194,12 +242,20 @@ export interface GcpPubsub {
    * Only required for provided_pubsub.
    */
   subscriptionName?: string | undefined;
-  /** Unique identifier included in the name of file events managed cloud resources. */
+  /**
+   * Unique identifier included in the name of file events managed cloud resources.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   managedResourceId?: string | undefined;
 }
 
 export interface GetExternalLocationRequest {
-  /** Name of the external location. */
+  /**
+   * Name of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** Whether to include external locations in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
@@ -247,7 +303,11 @@ export interface SseEncryptionDetails {
 }
 
 export interface UpdateExternalLocationRequest {
-  /** Name of the external location. */
+  /**
+   * Name of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name for the external location. */
   newName?: string | undefined;
@@ -255,11 +315,23 @@ export interface UpdateExternalLocationRequest {
   force?: boolean | undefined;
   /** Skips validation of the storage credential associated with the external location. */
   skipValidation?: boolean | undefined;
-  /** Name of the external location. */
+  /**
+   * Name of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Path URL of the external location. */
+  /**
+   * Path URL of the external location.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
-  /** Name of the storage credential used with this location. */
+  /**
+   * Name of the storage credential used with this location.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialName?: string | undefined;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
@@ -292,13 +364,19 @@ export interface UpdateExternalLocationRequest {
   isolationMode?: IsolationMode | undefined;
   /** Indicates whether fallback mode is enabled for this external location. When fallback mode is enabled, the access to the location falls back to cluster credentials if UC credentials are not sufficient. */
   fallback?: boolean | undefined;
-  /** The effective value of `enable_file_events` after applying server-side defaults. */
+  /**
+   * The effective value of `enable_file_events` after applying server-side defaults.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveEnableFileEvents?: boolean | undefined;
   /**
    * The effective file event queue configuration after applying server-side defaults.
    * Always populated when a queue is provisioned, regardless of whether the user explicitly
    * set `enable_file_events`. Use this field instead of `file_event_queue` for reading
    * the actual queue state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveFileEventQueue?: FileEventQueue | undefined;
 }

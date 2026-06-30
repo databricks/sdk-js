@@ -40,27 +40,58 @@ export interface CreateVolumeRequest {
   owner?: string | undefined;
   /** The comment attached to the volume */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the volume */
+  /**
+   * The three-level (fully qualified) name of the volume
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   fullName?: string | undefined;
-  /** The unique identifier of the volume */
+  /**
+   * The unique identifier of the volume
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   volumeId?: string | undefined;
-  /** The unique identifier of the metastore */
+  /**
+   * The unique identifier of the metastore
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   updatedAt?: bigint | undefined;
-  /** The identifier of the user who updated the volume last time */
+  /**
+   * The identifier of the user who updated the volume last time
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** The AWS access point to use when accesing s3 for this external location. */
+  /**
+   * The AWS access point to use when accesing s3 for this external location.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   accessPoint?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   encryptionDetails?: EncryptionDetails | undefined;
-  /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
+  /**
+   * Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   browseOnly?: boolean | undefined;
 }
 
 export interface DeleteVolumeRequest {
-  /** The three-level (fully qualified) name of the volume */
+  /**
+   * The three-level (fully qualified) name of the volume
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
 }
 
@@ -79,16 +110,28 @@ export interface EncryptionDetails {
 }
 
 export interface GetVolumeRequest {
-  /** The three-level (fully qualified) name of the volume */
+  /**
+   * The three-level (fully qualified) name of the volume
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Whether to include volumes in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListVolumesRequest {
-  /** The identifier of the catalog */
+  /**
+   * The identifier of the catalog
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
-  /** The identifier of the schema */
+  /**
+   * The identifier of the schema
+   *
+   * Required. This field must be set in requests.
+   */
   schemaName?: string | undefined;
   /** Whether to include volumes in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
@@ -129,7 +172,11 @@ export interface SseEncryptionDetails {
 }
 
 export interface UpdateVolumeRequest {
-  /** The three-level (fully qualified) name of the volume */
+  /**
+   * The three-level (fully qualified) name of the volume
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** New name for the volume. */
   newName?: string | undefined;
@@ -151,22 +198,49 @@ export interface UpdateVolumeRequest {
   owner?: string | undefined;
   /** The comment attached to the volume */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the volume */
+  /**
+   * The three-level (fully qualified) name of the volume
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   fullName?: string | undefined;
-  /** The unique identifier of the volume */
+  /**
+   * The unique identifier of the volume
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   volumeId?: string | undefined;
-  /** The unique identifier of the metastore */
+  /**
+   * The unique identifier of the metastore
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   updatedAt?: bigint | undefined;
-  /** The identifier of the user who updated the volume last time */
+  /**
+   * The identifier of the user who updated the volume last time
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** The AWS access point to use when accesing s3 for this external location. */
+  /**
+   * The AWS access point to use when accesing s3 for this external location.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   accessPoint?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   encryptionDetails?: EncryptionDetails | undefined;
-  /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
+  /**
+   * Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   browseOnly?: boolean | undefined;
 }
 
@@ -189,22 +263,49 @@ export interface VolumeInfo {
   owner?: string | undefined;
   /** The comment attached to the volume */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the volume */
+  /**
+   * The three-level (fully qualified) name of the volume
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   fullName?: string | undefined;
-  /** The unique identifier of the volume */
+  /**
+   * The unique identifier of the volume
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   volumeId?: string | undefined;
-  /** The unique identifier of the metastore */
+  /**
+   * The unique identifier of the metastore
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   updatedAt?: bigint | undefined;
-  /** The identifier of the user who updated the volume last time */
+  /**
+   * The identifier of the user who updated the volume last time
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** The AWS access point to use when accesing s3 for this external location. */
+  /**
+   * The AWS access point to use when accesing s3 for this external location.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   accessPoint?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   encryptionDetails?: EncryptionDetails | undefined;
-  /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
+  /**
+   * Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   browseOnly?: boolean | undefined;
 }
 

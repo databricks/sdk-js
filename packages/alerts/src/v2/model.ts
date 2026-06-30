@@ -73,21 +73,49 @@ export type SchedulePauseStatus =
   | (string & {});
 
 export interface Alert {
-  /** UUID identifying the alert. */
+  /**
+   * UUID identifying the alert.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** The display name of the alert. */
+  /**
+   * The display name of the alert.
+   *
+   * Required. This field must be set in requests.
+   */
   displayName?: string | undefined;
-  /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
+  /**
+   * The owner's username. This field is set to "Unavailable" if the user has been deleted.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   ownerUserName?: string | undefined;
-  /** The timestamp indicating when the alert was created. */
+  /**
+   * The timestamp indicating when the alert was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The timestamp indicating when the alert was updated. */
+  /**
+   * The timestamp indicating when the alert was updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
   /** The workspace path of the folder containing the alert. Can only be set on create, and cannot be updated. */
   parentPath?: string | undefined;
-  /** Text of the query to be run. */
+  /**
+   * Text of the query to be run.
+   *
+   * Required. This field must be set in requests.
+   */
   queryText?: string | undefined;
-  /** ID of the SQL warehouse attached to the alert. */
+  /**
+   * ID of the SQL warehouse attached to the alert.
+   *
+   * Required. This field must be set in requests.
+   */
   warehouseId?: string | undefined;
   /**
    * The run as username or application ID of service principal.
@@ -95,9 +123,15 @@ export interface Alert {
    * Deprecated: Use `run_as` field instead. This field will be removed in a future release.
    */
   runAsUserName?: string | undefined;
+  /** Required. This field must be set in requests. */
   evaluation?: AlertEvaluation | undefined;
+  /** Required. This field must be set in requests. */
   schedule?: CronSchedule | undefined;
-  /** Indicates whether the query is trashed. */
+  /**
+   * Indicates whether the query is trashed.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lifecycleState?: AlertLifecycleState | undefined;
   /** Custom summary for the alert. support mustache template. */
   customSummary?: string | undefined;
@@ -115,22 +149,40 @@ export interface Alert {
    * The actual identity that will be used to execute the alert.
    * This is an output-only field that shows the resolved run-as identity after applying
    * permissions and defaults.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveRunAs?: AlertRunAs | undefined;
 }
 
 export interface AlertEvaluation {
-  /** Source column from result to use to evaluate alert */
+  /**
+   * Source column from result to use to evaluate alert
+   *
+   * Required. This field must be set in requests.
+   */
   source?: AlertOperandColumn | undefined;
-  /** Operator used for comparison in alert evaluation. */
+  /**
+   * Operator used for comparison in alert evaluation.
+   *
+   * Required. This field must be set in requests.
+   */
   comparisonOperator?: ComparisonOperator | undefined;
   /** Threshold to user for alert evaluation, can be a column or a value. */
   threshold?: AlertOperand | undefined;
   /** User or Notification Destination to notify when alert is triggered. */
   notification?: AlertNotification | undefined;
-  /** Latest state of alert evaluation. */
+  /**
+   * Latest state of alert evaluation.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: AlertEvaluationState | undefined;
-  /** Timestamp of the last evaluation. */
+  /**
+   * Timestamp of the last evaluation.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lastEvaluatedAt?: Temporal.Instant | undefined;
   /** Alert state if result is empty. Please avoid setting this field to be `UNKNOWN` because `UNKNOWN` state is planned to be deprecated. */
   emptyResultState?: AlertEvaluationState | undefined;
@@ -157,6 +209,7 @@ export interface AlertOperand {
 }
 
 export interface AlertOperandColumn {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   display?: string | undefined;
   /** If not set, the behavior is equivalent to using `First row` in the UI. */
@@ -202,12 +255,16 @@ export interface CronSchedule {
   /**
    * A cron expression using quartz syntax that specifies the schedule for this pipeline.
    * Should use the quartz format described here: http://www.quartz-scheduler.org/documentation/quartz-2.1.7/tutorials/tutorial-lesson-06.html
+   *
+   * Required. This field must be set in requests.
    */
   quartzCronSchedule?: string | undefined;
   /**
    * A Java timezone id. The schedule will be resolved using this timezone.
    * This will be combined with the quartz_cron_schedule to determine the schedule.
    * See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
+   *
+   * Required. This field must be set in requests.
    */
   timezoneId?: string | undefined;
   /** Indicate whether this schedule is paused or not. */
@@ -243,6 +300,7 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: Alert | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<Alert> | undefined;
 }
 

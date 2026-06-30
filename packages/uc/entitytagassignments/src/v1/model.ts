@@ -21,56 +21,113 @@ export type TagAssignmentSourceType =
 
 /** Request to create a new entity tag assignment */
 export interface CreateEntityTagAssignmentRequest {
+  /** Required. This field must be set in requests. */
   tagAssignment?: EntityTagAssignment | undefined;
 }
 
 /** Request to delete an entity tag assignment */
 export interface DeleteEntityTagAssignmentRequest {
-  /** The fully qualified name of the entity to which the tag is assigned */
+  /**
+   * The fully qualified name of the entity to which the tag is assigned
+   *
+   * Required. This field must be set in requests.
+   */
   entityName?: string | undefined;
-  /** Required. The key of the tag to delete */
+  /**
+   * Required. The key of the tag to delete
+   *
+   * Required. This field must be set in requests.
+   */
   tagKey?: string | undefined;
-  /** The type of the entity to which the tag is assigned. */
+  /**
+   * The type of the entity to which the tag is assigned.
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
 }
 
 /** Represents a tag assignment to an entity */
 export interface EntityTagAssignment {
-  /** The fully qualified name of the entity to which the tag is assigned */
+  /**
+   * The fully qualified name of the entity to which the tag is assigned
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   entityName?: string | undefined;
-  /** The key of the tag */
+  /**
+   * The key of the tag
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   tagKey?: string | undefined;
   /** The value of the tag */
   tagValue?: string | undefined;
-  /** The type of the entity to which the tag is assigned. */
+  /**
+   * The type of the entity to which the tag is assigned.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   entityType?: string | undefined;
-  /** The timestamp when the tag assignment was last updated */
+  /**
+   * The timestamp when the tag assignment was last updated
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The user or principal who updated the tag assignment */
+  /**
+   * The user or principal who updated the tag assignment
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** The source type of the tag assignment, e.g., user-assigned or system-assigned */
+  /**
+   * The source type of the tag assignment, e.g., user-assigned or system-assigned
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   sourceType?: TagAssignmentSourceType | undefined;
 }
 
 /** Request to get an entity tag assignment */
 export interface GetEntityTagAssignmentRequest {
-  /** The fully qualified name of the entity to which the tag is assigned */
+  /**
+   * The fully qualified name of the entity to which the tag is assigned
+   *
+   * Required. This field must be set in requests.
+   */
   entityName?: string | undefined;
-  /** Required. The key of the tag */
+  /**
+   * Required. The key of the tag
+   *
+   * Required. This field must be set in requests.
+   */
   tagKey?: string | undefined;
-  /** The type of the entity to which the tag is assigned. */
+  /**
+   * The type of the entity to which the tag is assigned.
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
 }
 
 /** Request to list entity tag assignments */
 export interface ListEntityTagAssignmentsRequest {
-  /** The fully qualified name of the entity to which the tag is assigned */
+  /**
+   * The fully qualified name of the entity to which the tag is assigned
+   *
+   * Required. This field must be set in requests.
+   */
   entityName?: string | undefined;
   /** Optional. Maximum number of tag assignments to return in a single page */
   maxResults?: number | undefined;
   /** Optional. Pagination token to retrieve the next page of results */
   pageToken?: string | undefined;
-  /** The type of the entity to which the tag is assigned. */
+  /**
+   * The type of the entity to which the tag is assigned.
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
 }
 
@@ -83,7 +140,9 @@ export interface ListEntityTagAssignmentsResponse {
 
 /** Request to update an entity tag assignment */
 export interface UpdateEntityTagAssignmentRequest {
+  /** Required. This field must be set in requests. */
   tagAssignment?: EntityTagAssignment | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<EntityTagAssignment> | undefined;
 }
 

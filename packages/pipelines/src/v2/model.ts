@@ -427,7 +427,11 @@ export interface ApplyEnvironmentResponse {}
 
 /** Policy for auto full refresh. */
 export interface AutoFullRefreshPolicy {
-  /** (Required, Mutable) Whether to enable auto full refresh or not. */
+  /**
+   * (Required, Mutable) Whether to enable auto full refresh or not.
+   *
+   * Required. This field must be set in requests.
+   */
   enabled?: boolean | undefined;
   /**
    * (Optional, Mutable) Specify the minimum interval in hours between the timestamp
@@ -661,9 +665,17 @@ export interface DataPlaneId {
 
 /** Location of staged data storage */
 export interface DataStagingOptions {
-  /** (Required, Immutable) The name of the catalog for the connector's staging storage location. */
+  /**
+   * (Required, Immutable) The name of the catalog for the connector's staging storage location.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
-  /** (Required, Immutable) The name of the schema for the connector's staging storage location. */
+  /**
+   * (Required, Immutable) The name of the schema for the connector's staging storage location.
+   *
+   * Required. This field must be set in requests.
+   */
   schemaName?: string | undefined;
   /**
    * (Optional) The Unity Catalog-compatible name for the storage location.
@@ -676,6 +688,7 @@ export interface DataStagingOptions {
 }
 
 export interface DeletePipelineRequest {
+  /** Required. This field must be set in requests. */
   pipelineId?: string | undefined;
   /**
    * If true, deletion will proceed even if resource cleanup fails.
@@ -693,7 +706,11 @@ export interface DeletePipelineRequest {
 export interface DeletePipelineResponse {}
 
 export interface EditPipelineRequest {
-  /** Unique identifier for this pipeline. */
+  /**
+   * Unique identifier for this pipeline.
+   *
+   * Required. This field must be set in requests.
+   */
   pipelineId?: string | undefined;
   /** If false, deployment will fail if name has changed and conflicts the name of another pipeline. */
   allowDuplicateNames?: boolean | undefined;
@@ -864,6 +881,7 @@ export interface Filters {
 }
 
 export interface GetPipelineRequest {
+  /** Required. This field must be set in requests. */
   pipelineId?: string | undefined;
 }
 
@@ -908,9 +926,17 @@ export interface GetPipelineResponse {
 }
 
 export interface GetUpdateRequest {
-  /** The ID of the pipeline. */
+  /**
+   * The ID of the pipeline.
+   *
+   * Required. This field must be set in requests.
+   */
   pipelineId?: string | undefined;
-  /** The ID of the update. */
+  /**
+   * The ID of the update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateId?: string | undefined;
 }
 
@@ -940,6 +966,8 @@ export interface GoogleAdsOptions {
    * (Optional at this level) Manager Account ID (also called MCC Account ID) used to list
    * and access customer accounts under this manager account.
    * Overrides GoogleAdsConfig.manager_account_id from source_configurations when set.
+   *
+   * Required. This field must be set in requests.
    */
   managerAccountId?: string | undefined;
   /**
@@ -963,13 +991,25 @@ export interface GoogleDriveOptions {
 }
 
 export interface IngestionGatewayPipelineDefinition {
-  /** Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source. */
+  /**
+   * Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source.
+   *
+   * Required. This field must be set in requests.
+   */
   connectionName?: string | undefined;
   /** [Deprecated, use connection_name instead] Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source. */
   connectionId?: string | undefined;
-  /** Required, Immutable. The name of the catalog for the gateway pipeline's storage location. */
+  /**
+   * Required, Immutable. The name of the catalog for the gateway pipeline's storage location.
+   *
+   * Required. This field must be set in requests.
+   */
   gatewayStorageCatalog?: string | undefined;
-  /** Required, Immutable. The name of the schema for the gateway pipelines's storage location. */
+  /**
+   * Required, Immutable. The name of the schema for the gateway pipelines's storage location.
+   *
+   * Required. This field must be set in requests.
+   */
   gatewayStorageSchema?: string | undefined;
   /**
    * Optional. The Unity Catalog-compatible name for the gateway storage location.
@@ -1028,6 +1068,8 @@ export interface IngestionPipelineDefinition {
    * The type of the foreign source.
    * The source type will be inferred from the source connection or ingestion gateway.
    * This field is output only and will be ignored if provided.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   sourceType?: IngestionSourceType | undefined;
   /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in the pipeline. */
@@ -1078,11 +1120,23 @@ export interface IngestionPipelineDefinition_IngestionConfig {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_ReportSpec {
-  /** Required. Report URL in the source system. */
+  /**
+   * Required. Report URL in the source system.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceUrl?: string | undefined;
-  /** Required. Destination catalog to store table. */
+  /**
+   * Required. Destination catalog to store table.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationCatalog?: string | undefined;
-  /** Required. Destination schema to store table. */
+  /**
+   * Required. Destination schema to store table.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationSchema?: string | undefined;
   /** Required. Destination table name. The pipeline fails if a table with that name already exists. */
   destinationTable?: string | undefined;
@@ -1096,11 +1150,23 @@ export interface IngestionPipelineDefinition_ReportSpec {
 export interface IngestionPipelineDefinition_SchemaSpec {
   /** The source catalog name. Might be optional depending on the type of source. */
   sourceCatalog?: string | undefined;
-  /** Required. Schema name in the source database. */
+  /**
+   * Required. Schema name in the source database.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceSchema?: string | undefined;
-  /** Required. Destination catalog to store tables. */
+  /**
+   * Required. Destination catalog to store tables.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationCatalog?: string | undefined;
-  /** Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists. */
+  /**
+   * Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationSchema?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in this schema and override the table_configuration defined in the IngestionPipelineDefinition object. */
   tableConfiguration?:
@@ -1116,11 +1182,23 @@ export interface IngestionPipelineDefinition_TableSpec {
   sourceCatalog?: string | undefined;
   /** Schema name in the source database. Might be optional depending on the type of source. */
   sourceSchema?: string | undefined;
-  /** Required. Table name in the source database. */
+  /**
+   * Required. Table name in the source database.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceTable?: string | undefined;
-  /** Required. Destination catalog to store table. */
+  /**
+   * Required. Destination catalog to store table.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationCatalog?: string | undefined;
-  /** Required. Destination schema to store table. */
+  /**
+   * Required. Destination schema to store table.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationSchema?: string | undefined;
   /** Optional. Destination table name. The pipeline fails if a table with that name already exists. If not set, the source table name is used. */
   destinationTable?: string | undefined;
@@ -1436,7 +1514,11 @@ export interface ListPipelinesResponse {
  * sorting or filtering is supported.
  */
 export interface ListUpdatesRequest {
-  /** The pipeline to return updates for. */
+  /**
+   * The pipeline to return updates for.
+   *
+   * Required. This field must be set in requests.
+   */
   pipelineId?: string | undefined;
   /** Page token returned by previous call */
   pageToken?: string | undefined;
@@ -1520,7 +1602,11 @@ export interface Notifications {
 
 /** Proto representing a window */
 export interface OperationTimeWindow {
-  /** An integer between 0 and 23 denoting the start hour for the window in the 24-hour day. */
+  /**
+   * An integer between 0 and 23 denoting the start hour for the window in the 24-hour day.
+   *
+   * Required. This field must be set in requests.
+   */
   startHour?: number | undefined;
   /**
    * Days of week in which the window is allowed to happen
@@ -1761,7 +1847,11 @@ export interface PipelineCluster {
 }
 
 export interface PipelineDeployment {
-  /** The deployment method that manages the pipeline. */
+  /**
+   * The deployment method that manages the pipeline.
+   *
+   * Required. This field must be set in requests.
+   */
   kind?: DeploymentKind | undefined;
   /** The path to the file containing metadata about the deployment. */
   metadataFilePath?: string | undefined;
@@ -1947,9 +2037,15 @@ export interface PipelinesAutoScale {
   /**
    * The minimum number of workers the cluster can scale down to when underutilized.
    * It is also the initial number of workers the cluster will have after creation.
+   *
+   * Required. This field must be set in requests.
    */
   minWorkers?: number | undefined;
-  /** The maximum number of workers to which the cluster can scale up when overloaded. `max_workers` must be strictly greater than `min_workers`. */
+  /**
+   * The maximum number of workers to which the cluster can scale up when overloaded. `max_workers` must be strictly greater than `min_workers`.
+   *
+   * Required. This field must be set in requests.
+   */
   maxWorkers?: number | undefined;
   /**
    * Databricks Enhanced Autoscaling optimizes cluster utilization by automatically
@@ -2209,7 +2305,11 @@ export interface PipelinesJobRunAs {
 }
 
 export interface PipelinesMavenLibrary {
-  /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
+  /**
+   * Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2".
+   *
+   * Required. This field must be set in requests.
+   */
   coordinates?: string | undefined;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
@@ -2293,6 +2393,8 @@ export interface RestartWindow {
   /**
    * An integer between 0 and 23 denoting the start hour for the restart window in the 24-hour day.
    * Continuous pipeline restart is triggered only within a five-hour window starting at this hour.
+   *
+   * Required. This field must be set in requests.
    */
   startHour?: number | undefined;
   /**
@@ -2414,6 +2516,7 @@ export interface StackFrame {
 }
 
 export interface StartUpdateRequest {
+  /** Required. This field must be set in requests. */
   pipelineId?: string | undefined;
   /** If true, this update will reset all tables before running. */
   fullRefresh?: boolean | undefined;
@@ -2456,6 +2559,7 @@ export interface StartUpdateResponse {
 }
 
 export interface StopPipelineRequest {
+  /** Required. This field must be set in requests. */
   pipelineId?: string | undefined;
 }
 

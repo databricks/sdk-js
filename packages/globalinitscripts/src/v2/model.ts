@@ -3,9 +3,17 @@
 import {z} from 'zod';
 
 export interface CreateGlobalInitScriptRequest {
-  /** The name of the script */
+  /**
+   * The name of the script
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The Base64-encoded content of the script. */
+  /**
+   * The Base64-encoded content of the script.
+   *
+   * Required. This field must be set in requests.
+   */
   script?: Uint8Array | undefined;
   /**
    * The position of a global init script, where 0 represents the first script to run, 1 is the second script to run, in ascending order.
@@ -25,7 +33,11 @@ export interface CreateGlobalInitScriptResponse {
 }
 
 export interface DeleteGlobalInitScriptRequest {
-  /** The ID of the global init script. */
+  /**
+   * The ID of the global init script.
+   *
+   * Required. This field must be set in requests.
+   */
   scriptId?: string | undefined;
 }
 
@@ -33,7 +45,11 @@ export interface DeleteGlobalInitScriptRequest {
 export interface DeleteGlobalInitScriptResponse {}
 
 export interface GetGlobalInitScriptRequest {
-  /** The ID of the global init script. */
+  /**
+   * The ID of the global init script.
+   *
+   * Required. This field must be set in requests.
+   */
   scriptId?: string | undefined;
 }
 
@@ -64,11 +80,23 @@ export interface ListGlobalInitScriptsResponse {
 }
 
 export interface UpdateGlobalInitScriptRequest {
-  /** The ID of the global init script. */
+  /**
+   * The ID of the global init script.
+   *
+   * Required. This field must be set in requests.
+   */
   scriptId?: string | undefined;
-  /** The name of the script */
+  /**
+   * The name of the script
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The Base64-encoded content of the script. */
+  /**
+   * The Base64-encoded content of the script.
+   *
+   * Required. This field must be set in requests.
+   */
   script?: Uint8Array | undefined;
   /**
    * The position of a script, where 0 represents the first script to run,

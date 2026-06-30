@@ -60,9 +60,17 @@ export interface CredentialDependency {
 }
 
 export interface DeleteModelVersionRequest {
-  /** The three-level (fully qualified) name of the model version */
+  /**
+   * The three-level (fully qualified) name of the model version
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The integer version number of the model version */
+  /**
+   * The integer version number of the model version
+   *
+   * Required. This field must be set in requests.
+   */
   versionArg?: bigint | undefined;
 }
 
@@ -70,9 +78,17 @@ export interface DeleteModelVersionRequest {
 export interface DeleteModelVersionResponse {}
 
 export interface DeleteRegisteredModelAliasRequest {
-  /** The three-level (fully qualified) name of the registered model */
+  /**
+   * The three-level (fully qualified) name of the registered model
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The name of the alias */
+  /**
+   * The name of the alias
+   *
+   * Required. This field must be set in requests.
+   */
   aliasArg?: string | undefined;
 }
 
@@ -80,7 +96,11 @@ export interface DeleteRegisteredModelAliasRequest {
 export interface DeleteRegisteredModelAliasResponse {}
 
 export interface DeleteRegisteredModelRequest {
-  /** The three-level (fully qualified) name of the registered model */
+  /**
+   * The three-level (fully qualified) name of the registered model
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
 }
 
@@ -108,23 +128,43 @@ export interface DependencyList {
 
 /** A function that is dependent on a SQL object. */
 export interface FunctionDependency {
-  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  /**
+   * Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__.
+   *
+   * Required. This field must be set in requests.
+   */
   functionFullName?: string | undefined;
 }
 
 export interface GetModelVersionByAliasRequest {
-  /** The three-level (fully qualified) name of the registered model */
+  /**
+   * The three-level (fully qualified) name of the registered model
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The name of the alias */
+  /**
+   * The name of the alias
+   *
+   * Required. This field must be set in requests.
+   */
   aliasArg?: string | undefined;
   /** Whether to include aliases associated with the model version in the response */
   includeAliases?: boolean | undefined;
 }
 
 export interface GetModelVersionRequest {
-  /** The three-level (fully qualified) name of the model version */
+  /**
+   * The three-level (fully qualified) name of the model version
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The integer version number of the model version */
+  /**
+   * The integer version number of the model version
+   *
+   * Required. This field must be set in requests.
+   */
   versionArg?: bigint | undefined;
   /** Whether to include aliases associated with the model version in the response */
   includeAliases?: boolean | undefined;
@@ -133,7 +173,11 @@ export interface GetModelVersionRequest {
 }
 
 export interface GetRegisteredModelRequest {
-  /** The three-level (fully qualified) name of the registered model */
+  /**
+   * The three-level (fully qualified) name of the registered model
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Whether to include registered model aliases in the response */
   includeAliases?: boolean | undefined;
@@ -142,7 +186,11 @@ export interface GetRegisteredModelRequest {
 }
 
 export interface ListModelVersionsRequest {
-  /** The full three-level name of the registered model under which to list model versions */
+  /**
+   * The full three-level name of the registered model under which to list model versions
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /**
    * Maximum number of model versions to return.
@@ -304,24 +352,48 @@ export interface RegisteredModelInfo {
 }
 
 export interface SetRegisteredModelAliasRequest {
-  /** The three-level (fully qualified) name of the registered model */
+  /**
+   * The three-level (fully qualified) name of the registered model
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The name of the alias */
+  /**
+   * The name of the alias
+   *
+   * Required. This field must be set in requests.
+   */
   aliasArg?: string | undefined;
-  /** The version number of the model version to which the alias points */
+  /**
+   * The version number of the model version to which the alias points
+   *
+   * Required. This field must be set in requests.
+   */
   versionNum?: bigint | undefined;
 }
 
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
-  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  /**
+   * Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__.
+   *
+   * Required. This field must be set in requests.
+   */
   tableFullName?: string | undefined;
 }
 
 export interface UpdateModelVersionRequest {
-  /** The three-level (fully qualified) name of the model version */
+  /**
+   * The three-level (fully qualified) name of the model version
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The integer version number of the model version */
+  /**
+   * The integer version number of the model version
+   *
+   * Required. This field must be set in requests.
+   */
   versionArg?: bigint | undefined;
   /** The name of the parent registered model of the model version, relative to parent schema */
   modelName?: string | undefined;
@@ -371,7 +443,11 @@ export interface UpdateModelVersionRequest {
 }
 
 export interface UpdateRegisteredModelRequest {
-  /** The three-level (fully qualified) name of the registered model */
+  /**
+   * The three-level (fully qualified) name of the registered model
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** New name for the registered model. */
   newName?: string | undefined;

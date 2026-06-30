@@ -42,22 +42,42 @@ export type ScopeBackendType =
  * on the associated scope point.
  */
 export interface AclItem {
-  /** The principal in which the permission is applied. */
+  /**
+   * The principal in which the permission is applied.
+   *
+   * Required. This field must be set in requests.
+   */
   principal?: string | undefined;
-  /** The permission level applied to the principal. */
+  /**
+   * The permission level applied to the principal.
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AclPermission | undefined;
 }
 
 /** The metadata of the Azure KeyVault for a secret scope of type `AZURE_KEYVAULT` */
 export interface AzureKeyVaultSecretScopeMetadata {
-  /** The resource id of the azure KeyVault that user wants to associate the scope with. */
+  /**
+   * The resource id of the azure KeyVault that user wants to associate the scope with.
+   *
+   * Required. This field must be set in requests.
+   */
   resourceId?: string | undefined;
-  /** The DNS of the KeyVault */
+  /**
+   * The DNS of the KeyVault
+   *
+   * Required. This field must be set in requests.
+   */
   dnsName?: string | undefined;
 }
 
 export interface CreateScopeRequest {
-  /** Scope name requested by the user. Scope names are unique. */
+  /**
+   * Scope name requested by the user. Scope names are unique.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
   /** The principal that is initially granted ``MANAGE`` permission to the created scope. */
   initialManagePrincipal?: string | undefined;
@@ -71,9 +91,17 @@ export interface CreateScopeRequest {
 export interface CreateScopeResponse {}
 
 export interface DeleteAclRequest {
-  /** The name of the scope to remove permissions from. */
+  /**
+   * The name of the scope to remove permissions from.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** The principal to remove an existing ACL from. */
+  /**
+   * The principal to remove an existing ACL from.
+   *
+   * Required. This field must be set in requests.
+   */
   principal?: string | undefined;
 }
 
@@ -81,7 +109,11 @@ export interface DeleteAclRequest {
 export interface DeleteAclResponse {}
 
 export interface DeleteScopeRequest {
-  /** Name of the scope to delete. */
+  /**
+   * Name of the scope to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
 }
 
@@ -89,9 +121,17 @@ export interface DeleteScopeRequest {
 export interface DeleteScopeResponse {}
 
 export interface DeleteSecretRequest {
-  /** The name of the scope that contains the secret to delete. */
+  /**
+   * The name of the scope that contains the secret to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** Name of the secret to delete. */
+  /**
+   * Name of the secret to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
 }
 
@@ -99,16 +139,32 @@ export interface DeleteSecretRequest {
 export interface DeleteSecretResponse {}
 
 export interface GetAclRequest {
-  /** The name of the scope to fetch ACL information from. */
+  /**
+   * The name of the scope to fetch ACL information from.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** The principal to fetch ACL information for. */
+  /**
+   * The principal to fetch ACL information for.
+   *
+   * Required. This field must be set in requests.
+   */
   principal?: string | undefined;
 }
 
 export interface GetSecretRequest {
-  /** The name of the scope that contains the secret. */
+  /**
+   * The name of the scope that contains the secret.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** Name of the secret to fetch value information. */
+  /**
+   * Name of the secret to fetch value information.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
 }
 
@@ -120,7 +176,11 @@ export interface GetSecretResponse {
 }
 
 export interface ListAclsRequest {
-  /** The name of the scope to fetch ACL information from. */
+  /**
+   * The name of the scope to fetch ACL information from.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
 }
 
@@ -138,7 +198,11 @@ export interface ListScopesResponse {
 }
 
 export interface ListSecretsRequest {
-  /** The name of the scope to list secrets within. */
+  /**
+   * The name of the scope to list secrets within.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
 }
 
@@ -148,11 +212,23 @@ export interface ListSecretsResponse {
 }
 
 export interface PutAclRequest {
-  /** The name of the scope to apply permissions to. */
+  /**
+   * The name of the scope to apply permissions to.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** The principal in which the permission is applied. */
+  /**
+   * The principal in which the permission is applied.
+   *
+   * Required. This field must be set in requests.
+   */
   principal?: string | undefined;
-  /** The permission level applied to the principal. */
+  /**
+   * The permission level applied to the principal.
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AclPermission | undefined;
 }
 
@@ -160,9 +236,17 @@ export interface PutAclRequest {
 export interface PutAclResponse {}
 
 export interface PutSecretRequest {
-  /** The name of the scope to which the secret will be associated with. */
+  /**
+   * The name of the scope to which the secret will be associated with.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** A unique name to identify the secret. */
+  /**
+   * A unique name to identify the secret.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
   value?:
     | {

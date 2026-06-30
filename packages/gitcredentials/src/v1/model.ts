@@ -9,6 +9,8 @@ export interface CreateCredentialsRequest {
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
    * (deprecated by AWS, not accepting new customers).
+   *
+   * Required. This field must be set in requests.
    */
   gitProvider?: string | undefined;
   /**
@@ -40,9 +42,17 @@ export interface CreateCredentialsRequest {
 }
 
 export interface CreateCredentialsResponse {
-  /** ID of the credential object in the workspace. */
+  /**
+   * ID of the credential object in the workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialId?: bigint | undefined;
-  /** The Git provider associated with the credential. */
+  /**
+   * The Git provider associated with the credential.
+   *
+   * Required. This field must be set in requests.
+   */
   gitProvider?: string | undefined;
   /**
    * The username provided with your Git provider account and associated with the
@@ -65,7 +75,11 @@ export interface CreateCredentialsResponse {
 }
 
 export interface Credential {
-  /** ID of the credential object in the workspace. */
+  /**
+   * ID of the credential object in the workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialId?: bigint | undefined;
   /**
    * The Git provider associated with the credential. One of `gitHub`, `bitbucketCloud`,
@@ -95,7 +109,11 @@ export interface Credential {
 }
 
 export interface DeleteCredentialsRequest {
-  /** The ID for the corresponding credential to access. */
+  /**
+   * The ID for the corresponding credential to access.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: bigint | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
@@ -105,14 +123,22 @@ export interface DeleteCredentialsRequest {
 export interface DeleteCredentialsResponse {}
 
 export interface GetCredentialsRequest {
-  /** The ID for the corresponding credential to access. */
+  /**
+   * The ID for the corresponding credential to access.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: bigint | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
 }
 
 export interface GetCredentialsResponse {
-  /** ID of the credential object in the workspace. */
+  /**
+   * ID of the credential object in the workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialId?: bigint | undefined;
   /** The Git provider associated with the credential. */
   gitProvider?: string | undefined;
@@ -147,7 +173,11 @@ export interface ListCredentialsResponse {
 }
 
 export interface UpdateCredentialsRequest {
-  /** The ID for the corresponding credential to access. */
+  /**
+   * The ID for the corresponding credential to access.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: bigint | undefined;
   /**
    * The personal access token used to authenticate to the corresponding Git provider.
@@ -161,6 +191,8 @@ export interface UpdateCredentialsRequest {
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
    * (deprecated by AWS, not accepting new customers).
+   *
+   * Required. This field must be set in requests.
    */
   gitProvider?: string | undefined;
   /**

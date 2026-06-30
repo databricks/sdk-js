@@ -205,7 +205,9 @@ export type Visibility =
   | (string & {});
 
 export interface AddExchangeForListingRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
+  /** Required. This field must be set in requests. */
   exchangeId?: string | undefined;
 }
 
@@ -230,6 +232,7 @@ export interface BatchGetProvidersResponse {
 }
 
 export interface ConsumerTerms {
+  /** Required. This field must be set in requests. */
   version?: string | undefined;
 }
 
@@ -242,6 +245,7 @@ export interface ContactInfo {
 }
 
 export interface CreateExchangeFilterRequest {
+  /** Required. This field must be set in requests. */
   filter?: ExchangeFilter | undefined;
 }
 
@@ -250,6 +254,7 @@ export interface CreateExchangeFilterResponse {
 }
 
 export interface CreateExchangeRequest {
+  /** Required. This field must be set in requests. */
   exchange?: Exchange | undefined;
 }
 
@@ -258,8 +263,11 @@ export interface CreateExchangeResponse {
 }
 
 export interface CreateFileRequest {
+  /** Required. This field must be set in requests. */
   fileParent?: FileParent | undefined;
+  /** Required. This field must be set in requests. */
   marketplaceFileType?: MarketplaceFileType | undefined;
+  /** Required. This field must be set in requests. */
   mimeType?: string | undefined;
   displayName?: string | undefined;
 }
@@ -271,6 +279,7 @@ export interface CreateFileResponse {
 }
 
 export interface CreateInstallationRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   shareName?: string | undefined;
   catalogName?: string | undefined;
@@ -285,6 +294,7 @@ export interface CreateInstallationResponse {
 }
 
 export interface CreateListingRequest {
+  /** Required. This field must be set in requests. */
   listing?: Listing | undefined;
 }
 
@@ -297,14 +307,17 @@ export interface CreateListingResponse {
  * also creates a lead (maybe)
  */
 export interface CreatePersonalizationRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   comment?: string | undefined;
+  /** Required. This field must be set in requests. */
   intendedUse?: string | undefined;
   firstName?: string | undefined;
   lastName?: string | undefined;
   company?: string | undefined;
   isFromLighthouse?: boolean | undefined;
   recipientType?: DeltaSharingRecipientType | undefined;
+  /** Required. This field must be set in requests. */
   acceptedConsumerTerms?: ConsumerTerms | undefined;
 }
 
@@ -316,10 +329,12 @@ export interface CreatePersonalizationResponse {
 export interface CreateProviderAnalyticsDashboardRequest {}
 
 export interface CreateProviderAnalyticsDashboardResponse {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
 export interface CreateProviderRequest {
+  /** Required. This field must be set in requests. */
   provider?: ProviderInfo | undefined;
 }
 
@@ -328,11 +343,14 @@ export interface CreateProviderResponse {
 }
 
 export interface DataRefreshInfo {
+  /** Required. This field must be set in requests. */
   interval?: bigint | undefined;
+  /** Required. This field must be set in requests. */
   unit?: DataRefresh | undefined;
 }
 
 export interface DeleteExchangeFilterRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -340,6 +358,7 @@ export interface DeleteExchangeFilterRequest {
 export interface DeleteExchangeFilterResponse {}
 
 export interface DeleteExchangeRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -347,6 +366,7 @@ export interface DeleteExchangeRequest {
 export interface DeleteExchangeResponse {}
 
 export interface DeleteFileRequest {
+  /** Required. This field must be set in requests. */
   fileId?: string | undefined;
 }
 
@@ -354,7 +374,9 @@ export interface DeleteFileRequest {
 export interface DeleteFileResponse {}
 
 export interface DeleteInstallationRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
+  /** Required. This field must be set in requests. */
   installationId?: string | undefined;
 }
 
@@ -362,6 +384,7 @@ export interface DeleteInstallationRequest {
 export interface DeleteInstallationResponse {}
 
 export interface DeleteListingRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -369,6 +392,7 @@ export interface DeleteListingRequest {
 export interface DeleteListingResponse {}
 
 export interface DeleteProviderRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -377,6 +401,7 @@ export interface DeleteProviderResponse {}
 
 export interface Exchange {
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   comment?: string | undefined;
   filters?: ExchangeFilter[] | undefined;
@@ -389,13 +414,16 @@ export interface Exchange {
 
 export interface ExchangeFilter {
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   exchangeId?: string | undefined;
+  /** Required. This field must be set in requests. */
   filterValue?: string | undefined;
   name?: string | undefined;
   createdAt?: bigint | undefined;
   createdBy?: string | undefined;
   updatedAt?: bigint | undefined;
   updatedBy?: string | undefined;
+  /** Required. This field must be set in requests. */
   filterType?: ExchangeFilterType | undefined;
 }
 
@@ -435,6 +463,7 @@ export interface GetAllPersonalizationRequestsForConsumerResponse {
 }
 
 export interface GetExchangeRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -443,6 +472,7 @@ export interface GetExchangeResponse {
 }
 
 export interface GetFileRequest {
+  /** Required. This field must be set in requests. */
   fileId?: string | undefined;
 }
 
@@ -451,6 +481,7 @@ export interface GetFileResponse {
 }
 
 export interface GetInstallationDetailsRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -469,6 +500,7 @@ export interface GetLatestVersionProviderAnalyticsDashboardResponse {
 }
 
 export interface GetListingContentMetadataRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -480,6 +512,7 @@ export interface GetListingContentMetadataResponse {
 }
 
 export interface GetListingRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -493,6 +526,7 @@ export interface GetListingsResponse {
 }
 
 export interface GetPersonalizationRequestsForConsumerRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
 }
 
@@ -511,6 +545,7 @@ export interface GetPersonalizationRequestsForProviderResponse {
 }
 
 export interface GetProviderRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -519,6 +554,7 @@ export interface GetProviderResponse {
 }
 
 export interface GetPublishedListingForConsumerRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -532,6 +568,7 @@ export interface GetPublishedListingsForConsumerResponse {
 }
 
 export interface GetPublishedProviderForConsumerRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -561,6 +598,7 @@ export interface ListAllInstallationsResponse {
 }
 
 export interface ListExchangeFiltersRequest {
+  /** Required. This field must be set in requests. */
   exchangeId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -572,6 +610,7 @@ export interface ListExchangeFiltersResponse {
 }
 
 export interface ListExchangesForListingRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -593,6 +632,7 @@ export interface ListExchangesResponse {
 }
 
 export interface ListFilesRequest {
+  /** Required. This field must be set in requests. */
   fileParent?: FileParent | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -619,12 +659,14 @@ export interface ListInstallationsResponse {
 }
 
 export interface ListListingFulfillmentsRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 export interface ListListingsForExchangeRequest {
+  /** Required. This field must be set in requests. */
   exchangeId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -649,9 +691,14 @@ export interface ListPersonalizationRequestsForConsumerRequest {
 export interface ListProviderAnalyticsDashboardRequest {}
 
 export interface ListProviderAnalyticsDashboardResponse {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
   version?: bigint | undefined;
-  /** dashboard_id will be used to open Lakeview dashboard. */
+  /**
+   * dashboard_id will be used to open Lakeview dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
@@ -698,6 +745,7 @@ export interface ListPublishedProvidersForConsumerResponse {
 
 export interface Listing {
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   summary?: ListingSummary | undefined;
   detail?: ListingDetail | undefined;
 }
@@ -749,6 +797,7 @@ export interface ListingDetail {
 }
 
 export interface ListingFulfillment {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
   fulfillmentType?: FulfillmentType | undefined;
   shareInfo?: ShareInfo | undefined;
@@ -761,6 +810,7 @@ export interface ListingSetting {
 }
 
 export interface ListingSummary {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   subtitle?: string | undefined;
   status?: ListingStatus | undefined;
@@ -774,6 +824,7 @@ export interface ListingSummary {
   publishedAt?: bigint | undefined;
   publishedBy?: string | undefined;
   categories?: Category[] | undefined;
+  /** Required. This field must be set in requests. */
   listingType?: ListingType | undefined;
   createdById?: bigint | undefined;
   updatedById?: bigint | undefined;
@@ -792,6 +843,7 @@ export interface ListingTag {
 
 export interface PersonalizationRequest {
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   consumerRegion?: RegionInfo | undefined;
   contactInfo?: ContactInfo | undefined;
   comment?: string | undefined;
@@ -815,9 +867,11 @@ export interface PersonalizationRequest {
 
 export interface ProviderInfo {
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   description?: string | undefined;
   iconFilePath?: string | undefined;
+  /** Required. This field must be set in requests. */
   businessContactEmail?: string | undefined;
   supportContactEmail?: string | undefined;
   /** is_featured is accessible by consumers only */
@@ -826,7 +880,9 @@ export interface ProviderInfo {
   publishedBy?: string | undefined;
   companyWebsiteLink?: string | undefined;
   iconFileId?: string | undefined;
+  /** Required. This field must be set in requests. */
   termOfServiceLink?: string | undefined;
+  /** Required. This field must be set in requests. */
   privacyPolicyLink?: string | undefined;
   darkModeIconFileId?: string | undefined;
   darkModeIconFilePath?: string | undefined;
@@ -838,6 +894,7 @@ export interface RegionInfo {
 }
 
 export interface RemoveExchangeForListingRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
@@ -845,22 +902,36 @@ export interface RemoveExchangeForListingRequest {
 export interface RemoveExchangeForListingResponse {}
 
 export interface RepoInfo {
-  /** the git repo url e.g. https://github.com/databrickslabs/dolly.git */
+  /**
+   * the git repo url e.g. https://github.com/databrickslabs/dolly.git
+   *
+   * Required. This field must be set in requests.
+   */
   gitRepoUrl?: string | undefined;
 }
 
 export interface RepoInstallation {
-  /** the user-specified repo name for their installed git repo listing */
+  /**
+   * the user-specified repo name for their installed git repo listing
+   *
+   * Required. This field must be set in requests.
+   */
   repoName?: string | undefined;
   /**
    * refers to the full url file path that navigates the user to the repo's entrypoint (e.g. a README.md file, or the repo file view in the unified UI)
    * should just be a relative path
+   *
+   * Required. This field must be set in requests.
    */
   repoPath?: string | undefined;
 }
 
 export interface SearchPublishedListingsForConsumerRequest {
-  /** Fuzzy matches query */
+  /**
+   * Fuzzy matches query
+   *
+   * Required. This field must be set in requests.
+   */
   query?: string | undefined;
   isFree?: boolean | undefined;
   isPrivateExchange?: boolean | undefined;
@@ -880,7 +951,9 @@ export interface SearchPublishedListingsForConsumerResponse {
 }
 
 export interface ShareInfo {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   type?: ListingShareType | undefined;
 }
 
@@ -923,7 +996,9 @@ export interface TokenInfo {
 }
 
 export interface UpdateExchangeFilterRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   filter?: ExchangeFilter | undefined;
 }
 
@@ -932,7 +1007,9 @@ export interface UpdateExchangeFilterResponse {
 }
 
 export interface UpdateExchangeRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   exchange?: Exchange | undefined;
 }
 
@@ -941,8 +1018,11 @@ export interface UpdateExchangeResponse {
 }
 
 export interface UpdateInstallationRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
+  /** Required. This field must be set in requests. */
   installationId?: string | undefined;
+  /** Required. This field must be set in requests. */
   installation?: InstallationDetail | undefined;
   rotateToken?: boolean | undefined;
 }
@@ -952,7 +1032,9 @@ export interface UpdateInstallationResponse {
 }
 
 export interface UpdateListingRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   listing?: Listing | undefined;
 }
 
@@ -961,8 +1043,11 @@ export interface UpdateListingResponse {
 }
 
 export interface UpdatePersonalizationRequestStatusRequest {
+  /** Required. This field must be set in requests. */
   listingId?: string | undefined;
+  /** Required. This field must be set in requests. */
   requestId?: string | undefined;
+  /** Required. This field must be set in requests. */
   status?: PersonalizationRequestStatus | undefined;
   reason?: string | undefined;
   share?: ShareInfo | undefined;
@@ -973,7 +1058,11 @@ export interface UpdatePersonalizationRequestStatusResponse {
 }
 
 export interface UpdateProviderAnalyticsDashboardRequest {
-  /** id is immutable property and can't be updated. */
+  /**
+   * id is immutable property and can't be updated.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /**
    * this is the version of the dashboard template we want to update our user to
@@ -983,15 +1072,25 @@ export interface UpdateProviderAnalyticsDashboardRequest {
 }
 
 export interface UpdateProviderAnalyticsDashboardResponse {
-  /** id & version should be the same as the request */
+  /**
+   * id & version should be the same as the request
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   version?: bigint | undefined;
-  /** this is newly created Lakeview dashboard for the user */
+  /**
+   * this is newly created Lakeview dashboard for the user
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
 export interface UpdateProviderRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
+  /** Required. This field must be set in requests. */
   provider?: ProviderInfo | undefined;
 }
 

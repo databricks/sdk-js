@@ -771,9 +771,15 @@ export interface CreateDefaultWarehouseOverrideRequest {
    * Required. The ID to use for the override, which will become the final component
    * of the override's resource name.
    * Can be a numeric user ID or the literal string "me" for the current user.
+   *
+   * Required. This field must be set in requests.
    */
   defaultWarehouseOverrideId?: string | undefined;
-  /** Required. The default warehouse override to create. */
+  /**
+   * Required. The default warehouse override to create.
+   *
+   * Required. This field must be set in requests.
+   */
   defaultWarehouseOverride?: DefaultWarehouseOverride | undefined;
 }
 
@@ -894,9 +900,17 @@ export interface DefaultWarehouseOverride {
    * Format: default-warehouse-overrides/{default_warehouse_override_id}
    */
   name?: string | undefined;
-  /** The ID component of the resource name (user ID). */
+  /**
+   * The ID component of the resource name (user ID).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   defaultWarehouseOverrideId?: string | undefined;
-  /** The type of override behavior. */
+  /**
+   * The type of override behavior.
+   *
+   * Required. This field must be set in requests.
+   */
   type?: DefaultWarehouseOverrideType | undefined;
   /**
    * The specific warehouse ID when type is CUSTOM.
@@ -911,6 +925,8 @@ export interface DeleteDefaultWarehouseOverrideRequest {
    * Required. The resource name of the default warehouse override to delete.
    * Format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -924,7 +940,11 @@ export interface DeleteWarehouseResponse {}
  * warehouse is retained. Thus, this API is not idempotent.
  */
 export interface EditWarehouseRequest {
-  /** Required. Id of the warehouse to configure. */
+  /**
+   * Required. Id of the warehouse to configure.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /**
    * Logical name for the cluster.
@@ -1030,7 +1050,11 @@ export interface EndpointConfPair {
 }
 
 export interface EndpointHealth {
-  /** Health status of the endpoint. */
+  /**
+   * Health status of the endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: EndpointHealth_Status | undefined;
   /** Deprecated. split into summary and details for security */
   message?: string | undefined;
@@ -1043,7 +1067,11 @@ export interface EndpointHealth {
 }
 
 export interface EndpointInfo {
-  /** unique identifier for warehouse */
+  /**
+   * unique identifier for warehouse
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   id?: string | undefined;
   /**
    * Logical name for the cluster.
@@ -1148,7 +1176,11 @@ export interface EndpointInfo {
   jdbcUrl?: string | undefined;
   /** ODBC parameters for the SQL warehouse */
   odbcParams?: OdbcParams | undefined;
-  /** Optional health status. Assume the warehouse is healthy if this field is not set. */
+  /**
+   * Optional health status. Assume the warehouse is healthy if this field is not set.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   health?: EndpointHealth | undefined;
 }
 
@@ -1167,18 +1199,28 @@ export interface GetDefaultWarehouseOverrideRequest {
    * Required. The resource name of the default warehouse override to retrieve.
    * Format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 /** Fetches the warehouse info for a single SQL warehouse. */
 export interface GetWarehouseRequest {
-  /** Required. Id of the SQL warehouse. */
+  /**
+   * Required. Id of the SQL warehouse.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 export interface GetWarehouseResponse {
-  /** unique identifier for warehouse */
+  /**
+   * unique identifier for warehouse
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   id?: string | undefined;
   /**
    * Logical name for the cluster.
@@ -1283,7 +1325,11 @@ export interface GetWarehouseResponse {
   jdbcUrl?: string | undefined;
   /** ODBC parameters for the SQL warehouse */
   odbcParams?: OdbcParams | undefined;
-  /** Optional health status. Assume the warehouse is healthy if this field is not set. */
+  /**
+   * Optional health status. Assume the warehouse is healthy if this field is not set.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   health?: EndpointHealth | undefined;
 }
 
@@ -1458,6 +1504,8 @@ export interface UpdateDefaultWarehouseOverrideRequest {
    * Required. The default warehouse override to update.
    * The name field must be set in the format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
+   *
+   * Required. This field must be set in requests.
    */
   defaultWarehouseOverride?: DefaultWarehouseOverride | undefined;
   /**
@@ -1465,6 +1513,8 @@ export interface UpdateDefaultWarehouseOverrideRequest {
    * Only the fields specified in the mask will be updated.
    * Use "*" to update all fields.
    * When allow_missing is true, this field is ignored and all fields are applied.
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<DefaultWarehouseOverride> | undefined;
   /**
@@ -1494,7 +1544,11 @@ export interface WarehouseTypePair {
  * This API is idempotent.
  */
 export interface DeleteWarehouseRequest {
-  /** Required. Id of the SQL warehouse. */
+  /**
+   * Required. Id of the SQL warehouse.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
@@ -1527,7 +1581,11 @@ export interface ListWarehousesRequest {
  * This API is idempotent.
  */
 export interface StartRequest {
-  /** Required. Id of the SQL warehouse. */
+  /**
+   * Required. Id of the SQL warehouse.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
@@ -1536,7 +1594,11 @@ export interface StartRequest {
  * This API is idempotent.
  */
 export interface StopRequest {
-  /** Required. Id of the SQL warehouse. */
+  /**
+   * Required. Id of the SQL warehouse.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 

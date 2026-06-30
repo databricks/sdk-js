@@ -60,7 +60,11 @@ export interface CreatePolicyResponse {
 }
 
 export interface DeletePolicyRequest {
-  /** The ID of the policy to delete. */
+  /**
+   * The ID of the policy to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
 }
 
@@ -68,7 +72,11 @@ export interface DeletePolicyRequest {
 export interface DeletePolicyResponse {}
 
 export interface EditPolicyRequest {
-  /** The ID of the policy to update. */
+  /**
+   * The ID of the policy to update.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
   /**
    * Cluster Policy name requested by the user. This has to be unique. Length must be between 1 and 100
@@ -105,7 +113,11 @@ export interface EditPolicyRequest {
 export interface EditPolicyResponse {}
 
 export interface GetPolicyRequest {
-  /** Canonical unique identifier for the Cluster Policy. */
+  /**
+   * Canonical unique identifier for the Cluster Policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
 }
 
@@ -191,7 +203,11 @@ export interface ListPoliciesResponse {
 }
 
 export interface MavenLibrary {
-  /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
+  /**
+   * Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2".
+   *
+   * Required. This field must be set in requests.
+   */
   coordinates?: string | undefined;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
@@ -258,6 +274,8 @@ export interface PythonPyPiLibrary {
   /**
    * The name of the pypi package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
+   *
+   * Required. This field must be set in requests.
    */
   package?: string | undefined;
   /**
@@ -268,7 +286,11 @@ export interface PythonPyPiLibrary {
 }
 
 export interface RCranLibrary {
-  /** The name of the CRAN package to install. */
+  /**
+   * The name of the CRAN package to install.
+   *
+   * Required. This field must be set in requests.
+   */
   package?: string | undefined;
   /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
   repo?: string | undefined;

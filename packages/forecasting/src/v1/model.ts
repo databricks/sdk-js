@@ -21,18 +21,36 @@ export type ForecastingExperiment_State =
   | (string & {});
 
 export interface CreateForecastingExperimentRequest {
-  /** The fully qualified path of a Unity Catalog table, formatted as catalog_name.schema_name.table_name, used as training data for the forecasting model. */
+  /**
+   * The fully qualified path of a Unity Catalog table, formatted as catalog_name.schema_name.table_name, used as training data for the forecasting model.
+   *
+   * Required. This field must be set in requests.
+   */
   trainDataPath?: string | undefined;
-  /** The column in the input training table used as the prediction target for model training. The values in this column are used as the ground truth for model training. */
+  /**
+   * The column in the input training table used as the prediction target for model training. The values in this column are used as the ground truth for model training.
+   *
+   * Required. This field must be set in requests.
+   */
   targetColumn?: string | undefined;
-  /** The column in the input training table that represents each row's timestamp. */
+  /**
+   * The column in the input training table that represents each row's timestamp.
+   *
+   * Required. This field must be set in requests.
+   */
   timeColumn?: string | undefined;
   /**
    * The time interval between consecutive rows in the time series data.
    * Possible values include: '1 second', '1 minute', '5 minutes', '10 minutes', '15 minutes', '30 minutes', 'Hourly', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'.
+   *
+   * Required. This field must be set in requests.
    */
   forecastGranularity?: string | undefined;
-  /** The number of time steps into the future to make predictions, calculated as a multiple of forecast_granularity. This value represents how far ahead the model should forecast. */
+  /**
+   * The number of time steps into the future to make predictions, calculated as a multiple of forecast_granularity. This value represents how far ahead the model should forecast.
+   *
+   * Required. This field must be set in requests.
+   */
   forecastHorizon?: bigint | undefined;
   /** The evaluation metric used to optimize the forecasting model. */
   primaryMetric?: string | undefined;
@@ -83,7 +101,11 @@ export interface ForecastingExperiment {
 }
 
 export interface GetForecastingExperimentRequest {
-  /** The unique ID of a forecasting experiment */
+  /**
+   * The unique ID of a forecasting experiment
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
 }
 

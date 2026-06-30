@@ -123,9 +123,17 @@ export interface ColumnInfo {
 }
 
 export interface CreateEndpointRequest {
-  /** Name of the AI Search endpoint */
+  /**
+   * Name of the AI Search endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Type of endpoint */
+  /**
+   * Type of endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   endpointType?: EndpointType | undefined;
   /** The budget policy id to be applied */
   budgetPolicyId?: string | undefined;
@@ -140,12 +148,25 @@ export interface CreateEndpointRequest {
 }
 
 export interface CreateVectorIndexRequest {
-  /** Name of the index */
+  /**
+   * Name of the index
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Name of the endpoint to be used for serving the index */
+  /**
+   * Name of the endpoint to be used for serving the index
+   *
+   * Required. This field must be set in requests.
+   */
   endpointName?: string | undefined;
-  /** Primary key of the index */
+  /**
+   * Primary key of the index
+   *
+   * Required. This field must be set in requests.
+   */
   primaryKey?: string | undefined;
+  /** Required. This field must be set in requests. */
   indexType?: VectorIndexType | undefined;
   indexSpec?:
     | {
@@ -164,7 +185,11 @@ export interface CreateVectorIndexRequest {
 }
 
 export interface CustomTag {
-  /** Key field for an AI Search endpoint tag. */
+  /**
+   * Key field for an AI Search endpoint tag.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
   /** [Optional] Value field for an AI Search endpoint tag. */
   value?: string | undefined;
@@ -172,9 +197,17 @@ export interface CustomTag {
 
 /** Request payload for deleting data from a vector index. */
 export interface DeleteDataVectorIndexRequest {
-  /** Name of the vector index where data is to be deleted. Must be a Direct Vector Access Index. */
+  /**
+   * Name of the vector index where data is to be deleted. Must be a Direct Vector Access Index.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** List of primary keys for the data to be deleted. */
+  /**
+   * List of primary keys for the data to be deleted.
+   *
+   * Required. This field must be set in requests.
+   */
   primaryKeys?: string[] | undefined;
 }
 
@@ -186,7 +219,11 @@ export interface DeleteDataVectorIndexResponse {
 }
 
 export interface DeleteEndpointRequest {
-  /** Name of the AI Search endpoint */
+  /**
+   * Name of the AI Search endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -194,7 +231,11 @@ export interface DeleteEndpointRequest {
 export interface DeleteEndpointResponse {}
 
 export interface DeleteVectorIndexRequest {
-  /** Name of the index */
+  /**
+   * Name of the index
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -356,12 +397,20 @@ export interface FacetResultData {
 }
 
 export interface GetEndpointRequest {
-  /** Name of the endpoint */
+  /**
+   * Name of the endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetVectorIndexRequest {
-  /** Name of the index */
+  /**
+   * Name of the index
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * If true, the URL returned for the index is guaranteed to be compatible with the reranker.
@@ -390,7 +439,11 @@ export interface ListValue {
 }
 
 export interface ListVectorIndexRequest {
-  /** Name of the endpoint */
+  /**
+   * Name of the endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   endpointName?: string | undefined;
   /** Token for pagination */
   pageToken?: string | undefined;
@@ -472,9 +525,17 @@ export interface MiniVectorIndex {
 }
 
 export interface PatchEndpointBudgetPolicyRequest {
-  /** Name of the AI Search endpoint */
+  /**
+   * Name of the AI Search endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The budget policy id to be applied */
+  /**
+   * The budget policy id to be applied
+   *
+   * Required. This field must be set in requests.
+   */
   budgetPolicyId?: string | undefined;
 }
 
@@ -485,7 +546,11 @@ export interface PatchEndpointBudgetPolicyResponse {
 }
 
 export interface PatchEndpointRequest {
-  /** Name of the AI Search endpoint */
+  /**
+   * Name of the AI Search endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Target QPS for the endpoint. Best-effort; the system does not guarantee this QPS
@@ -496,7 +561,11 @@ export interface PatchEndpointRequest {
 
 /** Request payload for getting next page of results. */
 export interface QueryVectorIndexNextPageRequest {
-  /** Name of the vector index to query. */
+  /**
+   * Name of the vector index to query.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Name of the endpoint. */
   endpointName?: string | undefined;
@@ -505,11 +574,19 @@ export interface QueryVectorIndexNextPageRequest {
 }
 
 export interface QueryVectorIndexRequest {
-  /** Name of the vector index to query. */
+  /**
+   * Name of the vector index to query.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Number of results to return. Defaults to 10. */
   numResults?: number | undefined;
-  /** List of column names to include in the response. */
+  /**
+   * List of column names to include in the response.
+   *
+   * Required. This field must be set in requests.
+   */
   columns?: string[] | undefined;
   /**
    * JSON string representing query filters.
@@ -610,7 +687,11 @@ export interface ResultManifest {
 
 /** Request to retrieve user-visible metrics */
 export interface RetrieveUserVisibleMetricsRequest {
-  /** AI Search endpoint name */
+  /**
+   * AI Search endpoint name
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Start time for metrics query */
   startTime?: Temporal.Instant | undefined;
@@ -633,7 +714,11 @@ export interface RetrieveUserVisibleMetricsResponse {
 }
 
 export interface ScanVectorIndexRequest {
-  /** Name of the vector index to scan. */
+  /**
+   * Name of the vector index to scan.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Number of results to return. Defaults to 10. */
   numResults?: number | undefined;
@@ -655,7 +740,11 @@ export interface Struct {
 }
 
 export interface SyncVectorIndexRequest {
-  /** Name of the vector index to synchronize. Must be a Delta Sync Index. */
+  /**
+   * Name of the vector index to synchronize. Must be a Delta Sync Index.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -663,9 +752,17 @@ export interface SyncVectorIndexRequest {
 export interface SyncVectorIndexResponse {}
 
 export interface UpdateEndpointCustomTagsRequest {
-  /** Name of the AI Search endpoint */
+  /**
+   * Name of the AI Search endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The new custom tags for the AI Search endpoint */
+  /**
+   * The new custom tags for the AI Search endpoint
+   *
+   * Required. This field must be set in requests.
+   */
   customTags?: CustomTag[] | undefined;
 }
 
@@ -677,9 +774,17 @@ export interface UpdateEndpointCustomTagsResponse {
 }
 
 export interface UpsertDataVectorIndexRequest {
-  /** Name of the vector index where data is to be upserted. Must be a Direct Vector Access Index. */
+  /**
+   * Name of the vector index where data is to be upserted. Must be a Direct Vector Access Index.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** JSON string representing the data to be upserted. */
+  /**
+   * JSON string representing the data to be upserted.
+   *
+   * Required. This field must be set in requests.
+   */
   inputsJson?: string | undefined;
 }
 

@@ -17,9 +17,17 @@ export type CatalogType =
   | (string & {});
 
 export interface CreateSchemaRequest {
-  /** Name of schema, relative to parent catalog. */
+  /**
+   * Name of schema, relative to parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Name of parent catalog. */
+  /**
+   * Name of parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
   /** Username of current owner of schema. */
   owner?: string | undefined;
@@ -54,14 +62,22 @@ export interface CreateSchemaRequest {
   browseOnly?: boolean | undefined;
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
 
 export interface DeleteSchemaRequest {
-  /** Full name of the schema. */
+  /**
+   * Full name of the schema.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Force deletion even if the schema is not empty. */
   force?: boolean | undefined;
@@ -71,7 +87,11 @@ export interface DeleteSchemaRequest {
 export interface DeleteSchemaResponse {}
 
 export interface EffectivePredictiveOptimizationFlag {
-  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  /**
+   * Whether predictive optimization should be enabled for this object and objects under it.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
   /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
   inheritedFromType?: string | undefined;
@@ -80,14 +100,22 @@ export interface EffectivePredictiveOptimizationFlag {
 }
 
 export interface GetSchemaRequest {
-  /** Full name of the schema. */
+  /**
+   * Full name of the schema.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Whether to include schemas in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListSchemasRequest {
-  /** Parent catalog for schemas of interest. */
+  /**
+   * Parent catalog for schemas of interest.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
   /**
    * Maximum number of schemas to return.
@@ -114,9 +142,17 @@ export interface ListSchemasResponse {
 }
 
 export interface SchemaInfo {
-  /** Name of schema, relative to parent catalog. */
+  /**
+   * Name of schema, relative to parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Name of parent catalog. */
+  /**
+   * Name of parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
   /** Username of current owner of schema. */
   owner?: string | undefined;
@@ -151,20 +187,36 @@ export interface SchemaInfo {
   browseOnly?: boolean | undefined;
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
 
 export interface UpdateSchemaRequest {
-  /** Full name of the schema. */
+  /**
+   * Full name of the schema.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** New name for the schema. */
   newName?: string | undefined;
-  /** Name of schema, relative to parent catalog. */
+  /**
+   * Name of schema, relative to parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Name of parent catalog. */
+  /**
+   * Name of parent catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
   /** Username of current owner of schema. */
   owner?: string | undefined;
@@ -199,7 +251,11 @@ export interface UpdateSchemaRequest {
   browseOnly?: boolean | undefined;
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
