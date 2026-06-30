@@ -108,6 +108,10 @@ export interface AggregationFunction {
     | {$case: 'stddevSamp'; stddevSamp: StddevSampFunction}
     | {$case: 'varPop'; varPop: VarPopFunction}
     | {$case: 'varSamp'; varSamp: VarSampFunction}
+    | {$case: 'firstN'; firstN: FirstNFunction}
+    | {$case: 'lastN'; lastN: LastNFunction}
+    | {$case: 'firstDistinctN'; firstDistinctN: FirstDistinctNFunction}
+    | {$case: 'lastDistinctN'; lastDistinctN: LastDistinctNFunction}
     | undefined;
   /** The time window over which the aggregation is computed. */
   timeWindow?: TimeWindow | undefined;
@@ -424,10 +428,26 @@ export interface FieldDefinition {
   dataType?: ScalarDataType | undefined;
 }
 
+/** Returns the first N distinct values, ordered by the feature's timeseries column. */
+export interface FirstDistinctNFunction {
+  /** The input column from which the first N distinct values are returned. */
+  input?: string | undefined;
+  /** The number of distinct values to return. */
+  n?: bigint | undefined;
+}
+
 /** Returns the first value. */
 export interface FirstFunction {
   /** The input column from which the first value is returned. */
   input?: string | undefined;
+}
+
+/** Returns the first N values, ordered by the feature's timeseries column. */
+export interface FirstNFunction {
+  /** The input column from which the first N values are returned. */
+  input?: string | undefined;
+  /** The number of values to return. */
+  n?: bigint | undefined;
 }
 
 /**
@@ -643,10 +663,26 @@ export interface KafkaSubscriptionMode {
     | undefined;
 }
 
+/** Returns the last N distinct values, ordered by the feature's timeseries column. */
+export interface LastDistinctNFunction {
+  /** The input column from which the last N distinct values are returned. */
+  input?: string | undefined;
+  /** The number of distinct values to return. */
+  n?: bigint | undefined;
+}
+
 /** Returns the last value. */
 export interface LastFunction {
   /** The input column from which the last value is returned. */
   input?: string | undefined;
+}
+
+/** Returns the last N values, ordered by the feature's timeseries column. */
+export interface LastNFunction {
+  /** The input column from which the last N values are returned. */
+  input?: string | undefined;
+  /** The number of values to return. */
+  n?: bigint | undefined;
 }
 
 /** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
@@ -1201,6 +1237,14 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
       stddev_samp: z.lazy(() => unmarshalStddevSampFunctionSchema).optional(),
       var_pop: z.lazy(() => unmarshalVarPopFunctionSchema).optional(),
       var_samp: z.lazy(() => unmarshalVarSampFunctionSchema).optional(),
+      first_n: z.lazy(() => unmarshalFirstNFunctionSchema).optional(),
+      last_n: z.lazy(() => unmarshalLastNFunctionSchema).optional(),
+      first_distinct_n: z
+        .lazy(() => unmarshalFirstDistinctNFunctionSchema)
+        .optional(),
+      last_distinct_n: z
+        .lazy(() => unmarshalLastDistinctNFunctionSchema)
+        .optional(),
       time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
     })
     .transform(d => ({
@@ -1246,7 +1290,27 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
                                       $case: 'varSamp' as const,
                                       varSamp: d.var_samp,
                                     }
-                                  : undefined,
+                                  : d.first_n !== undefined
+                                    ? {
+                                        $case: 'firstN' as const,
+                                        firstN: d.first_n,
+                                      }
+                                    : d.last_n !== undefined
+                                      ? {
+                                          $case: 'lastN' as const,
+                                          lastN: d.last_n,
+                                        }
+                                      : d.first_distinct_n !== undefined
+                                        ? {
+                                            $case: 'firstDistinctN' as const,
+                                            firstDistinctN: d.first_distinct_n,
+                                          }
+                                        : d.last_distinct_n !== undefined
+                                          ? {
+                                              $case: 'lastDistinctN' as const,
+                                              lastDistinctN: d.last_distinct_n,
+                                            }
+                                          : undefined,
       timeWindow: d.time_window,
     }));
 
@@ -1503,12 +1567,39 @@ export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
     dataType: d.data_type,
   }));
 
+export const unmarshalFirstDistinctNFunctionSchema: z.ZodType<FirstDistinctNFunction> =
+  z
+    .object({
+      input: z.string().optional(),
+      n: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      input: d.input,
+      n: d.n,
+    }));
+
 export const unmarshalFirstFunctionSchema: z.ZodType<FirstFunction> = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalFirstNFunctionSchema: z.ZodType<FirstNFunction> = z
+  .object({
+    input: z.string().optional(),
+    n: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
   }));
 
 export const unmarshalFlatSchemaSchema: z.ZodType<FlatSchema> = z
@@ -1691,12 +1782,39 @@ export const unmarshalKafkaSubscriptionModeSchema: z.ZodType<KafkaSubscriptionMo
               : undefined,
     }));
 
+export const unmarshalLastDistinctNFunctionSchema: z.ZodType<LastDistinctNFunction> =
+  z
+    .object({
+      input: z.string().optional(),
+      n: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      input: d.input,
+      n: d.n,
+    }));
+
 export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalLastNFunctionSchema: z.ZodType<LastNFunction> = z
+  .object({
+    input: z.string().optional(),
+    n: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
   }));
 
 export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
@@ -2221,6 +2339,22 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
           $case: z.literal('varSamp'),
           varSamp: z.lazy(() => marshalVarSampFunctionSchema),
         }),
+        z.object({
+          $case: z.literal('firstN'),
+          firstN: z.lazy(() => marshalFirstNFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('lastN'),
+          lastN: z.lazy(() => marshalLastNFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('firstDistinctN'),
+          firstDistinctN: z.lazy(() => marshalFirstDistinctNFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('lastDistinctN'),
+          lastDistinctN: z.lazy(() => marshalLastDistinctNFunctionSchema),
+        }),
       ])
       .optional(),
     timeWindow: z.lazy(() => marshalTimeWindowSchema).optional(),
@@ -2249,6 +2383,14 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
     }),
     ...(d.operation?.$case === 'varPop' && {var_pop: d.operation.varPop}),
     ...(d.operation?.$case === 'varSamp' && {var_samp: d.operation.varSamp}),
+    ...(d.operation?.$case === 'firstN' && {first_n: d.operation.firstN}),
+    ...(d.operation?.$case === 'lastN' && {last_n: d.operation.lastN}),
+    ...(d.operation?.$case === 'firstDistinctN' && {
+      first_distinct_n: d.operation.firstDistinctN,
+    }),
+    ...(d.operation?.$case === 'lastDistinctN' && {
+      last_distinct_n: d.operation.lastDistinctN,
+    }),
     time_window: d.timeWindow,
   }));
 
@@ -2531,12 +2673,32 @@ export const marshalFieldDefinitionSchema: z.ZodType = z
     data_type: d.dataType,
   }));
 
+export const marshalFirstDistinctNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+    n: z.bigint().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
+  }));
+
 export const marshalFirstFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const marshalFirstNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+    n: z.bigint().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
   }));
 
 export const marshalFlatSchemaSchema: z.ZodType = z
@@ -2714,12 +2876,32 @@ export const marshalKafkaSubscriptionModeSchema: z.ZodType = z
     }),
   }));
 
+export const marshalLastDistinctNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+    n: z.bigint().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
+  }));
+
 export const marshalLastFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const marshalLastNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+    n: z.bigint().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
   }));
 
 export const marshalLineageContextSchema: z.ZodType = z
@@ -3178,7 +3360,17 @@ const aggregationFunctionFieldMaskSchema: FieldMaskSchema = {
     children: () => countFunctionFieldMaskSchema,
   },
   first: {wire: 'first', children: () => firstFunctionFieldMaskSchema},
+  firstDistinctN: {
+    wire: 'first_distinct_n',
+    children: () => firstDistinctNFunctionFieldMaskSchema,
+  },
+  firstN: {wire: 'first_n', children: () => firstNFunctionFieldMaskSchema},
   last: {wire: 'last', children: () => lastFunctionFieldMaskSchema},
+  lastDistinctN: {
+    wire: 'last_distinct_n',
+    children: () => lastDistinctNFunctionFieldMaskSchema,
+  },
+  lastN: {wire: 'last_n', children: () => lastNFunctionFieldMaskSchema},
   max: {wire: 'max', children: () => maxFunctionFieldMaskSchema},
   min: {wire: 'min', children: () => minFunctionFieldMaskSchema},
   stddevPop: {
@@ -3313,8 +3505,18 @@ export function featureFieldMask(...paths: string[]): FieldMask<Feature> {
   return FieldMask.build<Feature>(paths, featureFieldMaskSchema);
 }
 
+const firstDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
+  input: {wire: 'input'},
+  n: {wire: 'n'},
+};
+
 const firstFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
+};
+
+const firstNFunctionFieldMaskSchema: FieldMaskSchema = {
+  input: {wire: 'input'},
+  n: {wire: 'n'},
 };
 
 const flatSchemaFieldMaskSchema: FieldMaskSchema = {
@@ -3412,8 +3614,18 @@ const kafkaSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
   subscribePattern: {wire: 'subscribe_pattern'},
 };
 
+const lastDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
+  input: {wire: 'input'},
+  n: {wire: 'n'},
+};
+
 const lastFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
+};
+
+const lastNFunctionFieldMaskSchema: FieldMaskSchema = {
+  input: {wire: 'input'},
+  n: {wire: 'n'},
 };
 
 const lineageContextFieldMaskSchema: FieldMaskSchema = {

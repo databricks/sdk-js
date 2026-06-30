@@ -111,7 +111,7 @@ export class CleanRoomsClient {
   /**
    * Create a new clean room with the specified collaborators.
    * This method is asynchronous; the returned name field inside the clean_room field can be used to poll the clean room status,
-   * using the :method:cleanrooms/get method.
+   * using the [cleanrooms/get](https://docs.databricks.com/api/workspace/cleanrooms/get) method.
    * When this method returns, the clean room will be in a PROVISIONING state, with only name, owner, comment, created_at and status populated.
    * The clean room will be usable once it enters an ACTIVE state.
    *
@@ -150,7 +150,7 @@ export class CleanRoomsClient {
   /**
    * Create a new clean room with the specified collaborators.
    * This method is asynchronous; the returned name field inside the clean_room field can be used to poll the clean room status,
-   * using the :method:cleanrooms/get method.
+   * using the [cleanrooms/get](https://docs.databricks.com/api/workspace/cleanrooms/get) method.
    * When this method returns, the clean room will be in a PROVISIONING state, with only name, owner, comment, created_at and status populated.
    * The clean room will be usable once it enters an ACTIVE state.
    *

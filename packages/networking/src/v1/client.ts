@@ -557,7 +557,7 @@ export class NetworkingClient {
    * where one CIDR counts as a single value. Attempts to exceed that number return error 400 with `error_code` value `QUOTA_EXCEEDED`.
    * * If the new list would block the calling user's current IP, error 400 is returned with `error_code` value `INVALID_STATE`.
    *
-   * It can take a few minutes for the changes to take effect. **Note**: Your new IP access list has no effect until you enable the feature. See :method:workspaceconf/setStatus
+   * It can take a few minutes for the changes to take effect. **Note**: Your new IP access list has no effect until you enable the feature. See [workspaceconf/setStatus](https://docs.databricks.com/api/workspace/workspaceconf/setstatus)
    */
   async createIpAccessList(
     req: CreateIpAccessListRequest,
@@ -687,7 +687,7 @@ export class NetworkingClient {
    * * If the resulting list would block the calling user's current IP, error 400 is returned with `error_code`
    * value `INVALID_STATE`.
    * It can take a few minutes for the changes to take effect. Note that your resulting IP access list has no
-   * effect until you enable the feature. See :method:workspaceconf/setStatus.
+   * effect until you enable the feature. See [workspaceconf/setStatus](https://docs.databricks.com/api/workspace/workspaceconf/setstatus).
    */
   async replaceIpAccessList(
     req: ReplaceIpAccessListRequest,
@@ -734,7 +734,7 @@ export class NetworkingClient {
    * * If the updated list would block the calling user's current IP, error 400 is returned with `error_code` value `INVALID_STATE`.
    *
    * It can take a few minutes for the changes to take effect. Note that your resulting IP access list has no effect until you enable
-   * the feature. See :method:workspaceconf/setStatus.
+   * the feature. See [workspaceconf/setStatus](https://docs.databricks.com/api/workspace/workspaceconf/setstatus).
    */
   async updateIpAccessList(
     req: UpdateIpAccessListRequest,

@@ -481,7 +481,7 @@ export interface CleanRoomAsset_ForeignTableLocalDetails {
 export interface CleanRoomAsset_Notebook {
   /**
    * Base 64 representation of the notebook contents.
-   * This is the same format as returned by :method:workspace/export with the format of **HTML**.
+   * This is the same format as returned by [workspace/export](https://docs.databricks.com/api/workspace/workspace/export) with the format of **HTML**.
    */
   notebookContent?: string | undefined;
   /** Server generated etag that represents the notebook version. */
