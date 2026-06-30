@@ -64,6 +64,7 @@ export interface AuthorizationDetails_GrantRule {
 }
 
 export interface CreateDashboardRequest {
+  /** Required. This field must be set in requests. */
   dashboard?: Dashboard | undefined;
   /**
    * Sets the default catalog for all datasets in this dashboard.
@@ -80,12 +81,20 @@ export interface CreateDashboardRequest {
 }
 
 export interface CreateScheduleRequest {
-  /** The schedule to create. A dashboard is limited to 10 schedules. */
+  /**
+   * The schedule to create. A dashboard is limited to 10 schedules.
+   *
+   * Required. This field must be set in requests.
+   */
   schedule?: Schedule | undefined;
 }
 
 export interface CreateSubscriptionRequest {
-  /** The subscription to create. A schedule is limited to 100 subscriptions. */
+  /**
+   * The subscription to create. A schedule is limited to 100 subscriptions.
+   *
+   * Required. This field must be set in requests.
+   */
   subscription?: Subscription | undefined;
 }
 
@@ -93,17 +102,25 @@ export interface CronSchedule {
   /**
    * A cron expression using quartz syntax. EX: `0 0 8 * * ?` represents everyday at 8am.
    * See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
+   *
+   * Required. This field must be set in requests.
    */
   quartzCronExpression?: string | undefined;
   /**
    * A Java timezone id. The schedule will be resolved with respect to this timezone.
    * See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.
+   *
+   * Required. This field must be set in requests.
    */
   timezoneId?: string | undefined;
 }
 
 export interface Dashboard {
-  /** UUID identifying the dashboard. */
+  /**
+   * UUID identifying the dashboard.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dashboardId?: string | undefined;
   /** The display name of the dashboard. */
   displayName?: string | undefined;
@@ -111,13 +128,21 @@ export interface Dashboard {
    * The workspace path of the dashboard asset, including the file name.
    * Exported dashboards always have the file extension `.lvdash.json`.
    * This field is excluded in List Dashboards responses.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   path?: string | undefined;
-  /** The timestamp of when the dashboard was created. */
+  /**
+   * The timestamp of when the dashboard was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
   /**
    * The timestamp of when the dashboard was last updated by the user.
    * This field is excluded in List Dashboards responses.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   updateTime?: Temporal.Instant | undefined;
   /** The warehouse ID used to run the dashboard. */
@@ -137,20 +162,34 @@ export interface Dashboard {
    * layout and components.
    */
   serializedDashboard?: string | undefined;
-  /** The state of the dashboard resource. Used for tracking trashed status. */
+  /**
+   * The state of the dashboard resource. Used for tracking trashed status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lifecycleState?: LifecycleState | undefined;
   /**
    * The workspace path of the folder containing the dashboard. Includes leading slash and no
    * trailing slash.
    * This field is excluded in List Dashboards responses.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   parentPath?: string | undefined;
 }
 
 export interface DeleteScheduleRequest {
-  /** UUID identifying the schedule. */
+  /**
+   * UUID identifying the schedule.
+   *
+   * Required. This field must be set in requests.
+   */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard to which the schedule belongs. */
+  /**
+   * UUID identifying the dashboard to which the schedule belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /**
    * The etag for the schedule. Optionally, it can be provided to verify that the schedule has not
@@ -160,11 +199,23 @@ export interface DeleteScheduleRequest {
 }
 
 export interface DeleteSubscriptionRequest {
-  /** UUID identifying the subscription. */
+  /**
+   * UUID identifying the subscription.
+   *
+   * Required. This field must be set in requests.
+   */
   subscriptionId?: string | undefined;
-  /** UUID identifying the schedule which the subscription belongs. */
+  /**
+   * UUID identifying the schedule which the subscription belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard which the subscription belongs. */
+  /**
+   * UUID identifying the dashboard which the subscription belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /**
    * The etag for the subscription. Can be optionally provided to ensure that the subscription has not been
@@ -174,17 +225,29 @@ export interface DeleteSubscriptionRequest {
 }
 
 export interface GetDashboardRequest {
-  /** UUID identifying the dashboard. */
+  /**
+   * UUID identifying the dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
 export interface GetPublishedDashboardRequest {
-  /** UUID identifying the published dashboard. */
+  /**
+   * UUID identifying the published dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
 export interface GetPublishedDashboardTokenInfoRequest {
-  /** UUID identifying the published dashboard. */
+  /**
+   * UUID identifying the published dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /** Provided external value to be included in the custom claim. */
   externalValue?: string | undefined;
@@ -209,18 +272,38 @@ export interface GetPublishedDashboardTokenInfoResponse {
 }
 
 export interface GetScheduleRequest {
-  /** UUID identifying the schedule. */
+  /**
+   * UUID identifying the schedule.
+   *
+   * Required. This field must be set in requests.
+   */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard to which the schedule belongs. */
+  /**
+   * UUID identifying the dashboard to which the schedule belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
 export interface GetSubscriptionRequest {
-  /** UUID identifying the subscription. */
+  /**
+   * UUID identifying the subscription.
+   *
+   * Required. This field must be set in requests.
+   */
   subscriptionId?: string | undefined;
-  /** UUID identifying the schedule which the subscription belongs. */
+  /**
+   * UUID identifying the schedule which the subscription belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard which the subscription belongs. */
+  /**
+   * UUID identifying the dashboard which the subscription belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
@@ -251,7 +334,11 @@ export interface ListDashboardsResponse {
 }
 
 export interface ListSchedulesRequest {
-  /** UUID identifying the dashboard to which the schedules belongs. */
+  /**
+   * UUID identifying the dashboard to which the schedules belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /** The number of schedules to return per page. */
   pageSize?: number | undefined;
@@ -272,9 +359,17 @@ export interface ListSchedulesResponse {
 }
 
 export interface ListSubscriptionsRequest {
-  /** UUID identifying the dashboard which the subscriptions belongs. */
+  /**
+   * UUID identifying the dashboard which the subscriptions belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
-  /** UUID identifying the schedule which the subscriptions belongs. */
+  /**
+   * UUID identifying the schedule which the subscriptions belongs.
+   *
+   * Required. This field must be set in requests.
+   */
   scheduleId?: string | undefined;
   /** The number of subscriptions to return per page. */
   pageSize?: number | undefined;
@@ -295,7 +390,11 @@ export interface ListSubscriptionsResponse {
 }
 
 export interface MigrateDashboardRequest {
-  /** UUID of the dashboard to be migrated. */
+  /**
+   * UUID of the dashboard to be migrated.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceDashboardId?: string | undefined;
   /** Display name for the new Lakeview dashboard. */
   displayName?: string | undefined;
@@ -309,7 +408,11 @@ export interface MigrateDashboardRequest {
 }
 
 export interface PublishDashboardRequest {
-  /** UUID identifying the dashboard to be published. */
+  /**
+   * UUID identifying the dashboard to be published.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /**
    * Flag to indicate if the publisher's credentials should be embedded in the
@@ -325,19 +428,31 @@ export interface PublishDashboardRequest {
 }
 
 export interface PublishedDashboard {
-  /** The display name of the published dashboard. */
+  /**
+   * The display name of the published dashboard.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   displayName?: string | undefined;
   /** The warehouse ID used to run the published dashboard. */
   warehouseId?: string | undefined;
   /** Indicates whether credentials are embedded in the published dashboard. */
   embedCredentials?: boolean | undefined;
-  /** The timestamp of when the published dashboard was last revised. */
+  /**
+   * The timestamp of when the published dashboard was last revised.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   revisionCreateTime?: Temporal.Instant | undefined;
 }
 
 /** Request to revert a dashboard draft to its last published state. */
 export interface RevertDashboardRequest {
-  /** UUID identifying the dashboard. */
+  /**
+   * UUID identifying the dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
   /**
    * The etag for the dashboard. Optionally, it can be provided to verify that the dashboard
@@ -353,11 +468,23 @@ export interface RevertDashboardResponse {
 }
 
 export interface Schedule {
-  /** UUID identifying the schedule. */
+  /**
+   * UUID identifying the schedule.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard to which the schedule belongs. */
+  /**
+   * UUID identifying the dashboard to which the schedule belongs.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dashboardId?: string | undefined;
-  /** The cron expression describing the frequency of the periodic refresh for this schedule. */
+  /**
+   * The cron expression describing the frequency of the periodic refresh for this schedule.
+   *
+   * Required. This field must be set in requests.
+   */
   cronSchedule?: CronSchedule | undefined;
   /** The status indicates whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
@@ -368,33 +495,69 @@ export interface Schedule {
    * that the schedule has not been modified since the last read, and can be optionally provided on delete.
    */
   etag?: string | undefined;
-  /** A timestamp indicating when the schedule was created. */
+  /**
+   * A timestamp indicating when the schedule was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the schedule was last updated. */
+  /**
+   * A timestamp indicating when the schedule was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
   /** The warehouse id to run the dashboard with for the schedule. */
   warehouseId?: string | undefined;
 }
 
 export interface Subscription {
-  /** UUID identifying the subscription. */
+  /**
+   * UUID identifying the subscription.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   subscriptionId?: string | undefined;
-  /** UUID identifying the schedule to which the subscription belongs. */
+  /**
+   * UUID identifying the schedule to which the subscription belongs.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard to which the subscription belongs. */
+  /**
+   * UUID identifying the dashboard to which the subscription belongs.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dashboardId?: string | undefined;
-  /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
+  /**
+   * Subscriber details for users and destinations to be added as subscribers to the schedule.
+   *
+   * Required. This field must be set in requests.
+   */
   subscriber?: Subscription_Subscriber | undefined;
-  /** UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule. */
+  /**
+   * UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdByUserId?: bigint | undefined;
   /**
    * The etag for the subscription. Must be left empty on create, can be optionally provided on delete
    * to ensure that the subscription has not been deleted since the last read.
    */
   etag?: string | undefined;
-  /** A timestamp indicating when the subscription was created. */
+  /**
+   * A timestamp indicating when the subscription was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the subscription was last updated. */
+  /**
+   * A timestamp indicating when the subscription was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
   /**
    * Controls whether notifications are sent to the subscriber for scheduled dashboard refreshes.
@@ -419,18 +582,30 @@ export interface Subscription_Subscriber {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_Destination {
-  /** The canonical identifier of the destination to receive email notification. */
+  /**
+   * The canonical identifier of the destination to receive email notification.
+   *
+   * Required. This field must be set in requests.
+   */
   destinationId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_User {
-  /** UserId of the subscriber. */
+  /**
+   * UserId of the subscriber.
+   *
+   * Required. This field must be set in requests.
+   */
   userId?: bigint | undefined;
 }
 
 export interface TrashDashboardRequest {
-  /** UUID identifying the dashboard. */
+  /**
+   * UUID identifying the dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
@@ -438,7 +613,11 @@ export interface TrashDashboardRequest {
 export interface TrashDashboardResponse {}
 
 export interface UnpublishDashboardRequest {
-  /** UUID identifying the published dashboard. */
+  /**
+   * UUID identifying the published dashboard.
+   *
+   * Required. This field must be set in requests.
+   */
   dashboardId?: string | undefined;
 }
 
@@ -446,6 +625,7 @@ export interface UnpublishDashboardRequest {
 export interface UnpublishDashboardResponse {}
 
 export interface UpdateDashboardRequest {
+  /** Required. This field must be set in requests. */
   dashboard?: Dashboard | undefined;
   /**
    * Sets the default catalog for all datasets in this dashboard.
@@ -462,7 +642,11 @@ export interface UpdateDashboardRequest {
 }
 
 export interface UpdateScheduleRequest {
-  /** The schedule to update. */
+  /**
+   * The schedule to update.
+   *
+   * Required. This field must be set in requests.
+   */
   schedule?: Schedule | undefined;
 }
 

@@ -117,6 +117,8 @@ export interface CancelStatementRequest {
   /**
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required
    * reference for all subsequent calls.
+   *
+   * Required. This field must be set in requests.
    */
   statementId?: string | undefined;
 }
@@ -171,11 +173,15 @@ export interface ExecuteStatementRequest {
   /**
    * The SQL statement to execute. The statement can optionally be parameterized, see `parameters`.
    * The maximum query text size is 16 MiB.
+   *
+   * Required. This field must be set in requests.
    */
   statement?: string | undefined;
   /**
    * Warehouse upon which to execute a statement. See also
    * [What are SQL warehouses?](https://docs.databricks.com/sql/admin/warehouse-type.html)
+   *
+   * Required. This field must be set in requests.
    */
   warehouseId?: string | undefined;
   /**
@@ -398,8 +404,11 @@ export interface GetResultDataRequest {
   /**
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required
    * reference for all subsequent calls.
+   *
+   * Required. This field must be set in requests.
    */
   statementId?: string | undefined;
+  /** Required. This field must be set in requests. */
   chunkIndex?: number | undefined;
 }
 
@@ -407,6 +416,8 @@ export interface GetStatementResultRequest {
   /**
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required
    * reference for all subsequent calls.
+   *
+   * Required. This field must be set in requests.
    */
   statementId?: string | undefined;
 }
@@ -417,6 +428,7 @@ export interface GetStatementResultRequest {
  * QueryTag is the user-facing representation.
  */
 export interface QueryTag {
+  /** Required. This field must be set in requests. */
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -493,7 +505,11 @@ export interface ServiceError {
 }
 
 export interface StatementParameter {
-  /** The name of a parameter marker to be substituted in the statement. */
+  /**
+   * The name of a parameter marker to be substituted in the statement.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The value to substitute, represented as a string. If omitted, the value is interpreted as NULL. */
   value?: string | undefined;

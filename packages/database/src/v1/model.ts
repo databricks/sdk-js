@@ -197,25 +197,33 @@ export type SyncedTableSpec_PgSpecificType =
   | (string & {});
 
 export interface CreateDatabaseCatalogRequest {
+  /** Required. This field must be set in requests. */
   catalog?: DatabaseCatalog | undefined;
 }
 
 export interface CreateDatabaseInstanceRequest {
-  /** Instance to create. */
+  /**
+   * Instance to create.
+   *
+   * Required. This field must be set in requests.
+   */
   databaseInstance?: DatabaseInstance | undefined;
 }
 
 export interface CreateDatabaseInstanceRoleRequest {
   instanceName?: string | undefined;
+  /** Required. This field must be set in requests. */
   databaseInstanceRole?: DatabaseInstanceRole | undefined;
   databaseInstanceName?: string | undefined;
 }
 
 export interface CreateDatabaseTableRequest {
+  /** Required. This field must be set in requests. */
   table?: DatabaseTable | undefined;
 }
 
 export interface CreateSyncedDatabaseTableRequest {
+  /** Required. This field must be set in requests. */
   syncedTable?: SyncedDatabaseTable | undefined;
 }
 
@@ -227,13 +235,27 @@ export interface CustomTag {
 }
 
 export interface DatabaseCatalog {
-  /** The name of the catalog in UC. */
+  /**
+   * The name of the catalog in UC.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The name of the DatabaseInstance housing the database. */
+  /**
+   * The name of the DatabaseInstance housing the database.
+   *
+   * Required. This field must be set in requests.
+   */
   databaseInstanceName?: string | undefined;
-  /** The name of the database (in an instance) associated with the catalog. */
+  /**
+   * The name of the database (in an instance) associated with the catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   databaseName?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   uid?: string | undefined;
+  /** Input only. Provide this field in requests; it is never returned in responses. */
   createDatabaseIfNotExists?: boolean | undefined;
 }
 
@@ -244,19 +266,47 @@ export interface DatabaseCredential {
 
 /** A DatabaseInstance represents a logical Postgres instance, comprised of both compute and storage. */
 export interface DatabaseInstance {
-  /** An immutable UUID identifier for the instance. */
+  /**
+   * An immutable UUID identifier for the instance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
-  /** The name of the instance. This is the unique identifier for the instance. */
+  /**
+   * The name of the instance. This is the unique identifier for the instance.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The email of the creator of the instance. */
+  /**
+   * The email of the creator of the instance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** The DNS endpoint to connect to the instance for read+write access. */
+  /**
+   * The DNS endpoint to connect to the instance for read+write access.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   readWriteDns?: string | undefined;
-  /** The timestamp when the instance was created. */
+  /**
+   * The timestamp when the instance was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creationTime?: Temporal.Instant | undefined;
-  /** The current state of the instance. */
+  /**
+   * The current state of the instance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: DatabaseInstance_State | undefined;
-  /** The version of Postgres running on the instance. */
+  /**
+   * The version of Postgres running on the instance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   pgVersion?: string | undefined;
   /** The sku of the instance. Valid values are "CU_1", "CU_2", "CU_4", "CU_8". */
   capacity?: string | undefined;
@@ -264,19 +314,29 @@ export interface DatabaseInstance {
    * Deprecated. The sku of the instance; this field will always match the value of capacity.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveCapacity?: string | undefined;
-  /** Whether to stop the instance. An input only param, see effective_stopped for the output. */
+  /**
+   * Whether to stop the instance. An input only param, see effective_stopped for the output.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   stopped?: boolean | undefined;
   /**
    * Whether the instance is stopped.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveStopped?: boolean | undefined;
   /**
    * The number of nodes in the instance, composed of 1 primary and 0 or more secondaries. Defaults to
    * 1 primary and 0 secondaries. This field is input only, see effective_node_count for the output.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   nodeCount?: number | undefined;
   /**
@@ -284,25 +344,37 @@ export interface DatabaseInstance {
    * 1 primary and 0 secondaries.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveNodeCount?: number | undefined;
-  /** Whether to enable secondaries to serve read-only traffic. Defaults to false. */
+  /**
+   * Whether to enable secondaries to serve read-only traffic. Defaults to false.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   enableReadableSecondaries?: boolean | undefined;
   /**
    * Whether secondaries serving read-only traffic are enabled. Defaults to false.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveEnableReadableSecondaries?: boolean | undefined;
   /**
    * The DNS endpoint to connect to the instance for read only access. This is only available if
    * enable_readable_secondaries is true.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   readOnlyDns?: string | undefined;
   /**
    * The retention window for the instance. This is the time window in days
    * for which the historical data is retained. The default value is 7 days.
    * Valid values are 2 to 35 days.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   retentionWindowInDays?: number | undefined;
   /**
@@ -310,6 +382,8 @@ export interface DatabaseInstance {
    * for which the historical data is retained.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveRetentionWindowInDays?: number | undefined;
   /**
@@ -317,35 +391,57 @@ export interface DatabaseInstance {
    * child instance.
    * Input: For specifying the parent instance to create a child instance. Optional.
    * Output: Only populated if provided as input to create a child instance.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   parentInstanceRef?: DatabaseInstanceRef | undefined;
   /**
    * The refs of the child instances. This is only available if the instance is
    * parent instance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   childInstanceRefs?: DatabaseInstanceRef[] | undefined;
-  /** Whether to enable PG native password login on the instance. Defaults to false. */
+  /**
+   * Whether to enable PG native password login on the instance. Defaults to false.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   enablePgNativeLogin?: boolean | undefined;
   /**
    * Whether the instance has PG native password login enabled.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveEnablePgNativeLogin?: boolean | undefined;
-  /** The desired usage policy to associate with the instance. */
+  /**
+   * The desired usage policy to associate with the instance.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   usagePolicyId?: string | undefined;
   /**
    * The policy that is applied to the instance.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveUsagePolicyId?: string | undefined;
-  /** Custom tags associated with the instance. This field is only included on create and update responses. */
+  /**
+   * Custom tags associated with the instance. This field is only included on create and update responses.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   customTags?: CustomTag[] | undefined;
   /**
    * The recorded custom tags associated with the instance.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveCustomTags?: CustomTag[] | undefined;
 }
@@ -361,7 +457,11 @@ export interface DatabaseInstance {
  * the child instance.
  */
 export interface DatabaseInstanceRef {
-  /** Id of the ref database instance. */
+  /**
+   * Id of the ref database instance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
   /** Name of the ref database instance. */
   name?: string | undefined;
@@ -370,6 +470,8 @@ export interface DatabaseInstanceRef {
    *
    * Input: For specifying the WAL LSN to create a child instance. Optional.
    * Output: Only populated if provided as input to create a child instance.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   lsn?: string | undefined;
   /**
@@ -379,6 +481,8 @@ export interface DatabaseInstanceRef {
    * was created.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveLsn?: string | undefined;
   /**
@@ -395,7 +499,11 @@ export interface DatabaseInstanceRef {
 
 /** A DatabaseInstanceRole represents a Postgres role in a database instance. */
 export interface DatabaseInstanceRole {
-  /** The name of the role. This is the unique identifier for the role in an instance. */
+  /**
+   * The name of the role. This is the unique identifier for the role in an instance.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** The type of the role. */
   identityType?: DatabaseInstanceRole_IdentityType | undefined;
@@ -407,6 +515,8 @@ export interface DatabaseInstanceRole {
    * The attributes that are applied to the role.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveAttributes?: DatabaseInstanceRole_Attributes | undefined;
   instanceName?: string | undefined;
@@ -427,7 +537,11 @@ export interface DatabaseInstanceRole_Attributes {
 }
 
 export interface DatabaseTable {
-  /** Full three-part (catalog, schema, table) name of the table. */
+  /**
+   * Full three-part (catalog, schema, table) name of the table.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Name of the target database instance. This is required when creating database tables in standard catalogs.
@@ -448,6 +562,7 @@ export interface DatabaseTable {
 }
 
 export interface DeleteDatabaseCatalogRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
@@ -467,7 +582,9 @@ export interface DeleteDatabaseInstanceRequest {
 }
 
 export interface DeleteDatabaseInstanceRoleRequest {
+  /** Required. This field must be set in requests. */
   instanceName?: string | undefined;
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   reassignOwnedTo?: string | undefined;
   /** This is the AIP standard name for the equivalent of Postgres' `IF EXISTS` option */
@@ -475,21 +592,29 @@ export interface DeleteDatabaseInstanceRoleRequest {
 }
 
 export interface DeleteDatabaseTableRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
 export interface DeleteSyncedDatabaseTableRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   /** Optional. When set to true, the actual PostgreSQL table will be dropped from the database. */
   purgeData?: boolean | undefined;
 }
 
 export interface DeltaTableSyncInfo {
-  /** The Delta Lake commit version that was last successfully synced. */
+  /**
+   * The Delta Lake commit version that was last successfully synced.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   deltaCommitVersion?: bigint | undefined;
   /**
    * The timestamp when the above Delta version was committed in the source Delta table.
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   deltaCommitTimestamp?: Temporal.Instant | undefined;
 }
@@ -515,6 +640,7 @@ export interface GenerateDatabaseCredentialRequest {
 }
 
 export interface GetDatabaseCatalogRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
@@ -529,10 +655,12 @@ export interface GetDatabaseInstanceRoleRequest {
 }
 
 export interface GetDatabaseTableRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
 export interface GetSyncedDatabaseTableRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
@@ -560,9 +688,17 @@ export interface ListDatabaseInstanceRolesRequest {
 }
 
 export interface ListDatabaseInstanceRolesResponse {
-  /** List of database instance roles. */
+  /**
+   * List of database instance roles.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   databaseInstanceRoles?: DatabaseInstanceRole[] | undefined;
-  /** Pagination token to request the next page of instances. */
+  /**
+   * Pagination token to request the next page of instances.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   nextPageToken?: string | undefined;
 }
 
@@ -639,13 +775,19 @@ export interface RequestedResource {
 }
 
 export interface SyncedDatabaseTable {
-  /** Full three-part (catalog, schema, table) name of the table. */
+  /**
+   * Full three-part (catalog, schema, table) name of the table.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Name of the target database instance. This is required when creating synced database tables in standard catalogs.
    * This is optional when creating synced database tables in registered catalogs. If this field is specified
    * when creating synced database tables in registered catalogs, the database instance name MUST
    * match that of the registered catalog (or the request will be rejected).
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   databaseInstanceName?: string | undefined;
   /**
@@ -653,6 +795,8 @@ export interface SyncedDatabaseTable {
    * tables inside database catalogs is inferred database instance associated with the catalog.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveDatabaseInstanceName?: string | undefined;
   /**
@@ -666,12 +810,16 @@ export interface SyncedDatabaseTable {
    * When creating a synced table in a standard catalog, this field is required.
    * In this scenario, specifying this field will allow targeting an arbitrary postgres database.
    * Note that this has implications for the `create_database_objects_is_missing` field in `spec`.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   logicalDatabaseName?: string | undefined;
   /**
    * The name of the logical database that this table is registered to.
    * This is an output only field that contains the value computed from the input field combined with
    * server side defaults. Use the field without the effective_ prefix to set the value.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveLogicalDatabaseName?: string | undefined;
   spec?: SyncedTableSpec | undefined;
@@ -679,9 +827,15 @@ export interface SyncedDatabaseTable {
    * The provisioning state of the synced table entity in Unity Catalog. This is distinct from the
    * state of the data synchronization pipeline (i.e. the table may be in "ACTIVE" but the pipeline
    * may be in "PROVISIONING" as it runs asynchronously).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
-  /** Synced Table data synchronization status */
+  /**
+   * Synced Table data synchronization status
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dataSynchronizationStatus?: SyncedTableStatus | undefined;
 }
 
@@ -690,14 +844,24 @@ export interface SyncedDatabaseTable {
  * or the SYNCED_UPDATING_PIPELINE_RESOURCES state.
  */
 export interface SyncedTableContinuousUpdateStatus {
-  /** The last source table Delta version that was successfully synced to the synced table. */
+  /**
+   * The last source table Delta version that was successfully synced to the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   timestamp?: Temporal.Instant | undefined;
-  /** Progress of the initial data synchronization. */
+  /**
+   * Progress of the initial data synchronization.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   initialPipelineSyncProgress?: SyncedTablePipelineProgress | undefined;
 }
 
@@ -711,11 +875,15 @@ export interface SyncedTableFailedStatus {
    * The last source table Delta version that was synced to the synced table.
    * Only populated if the table is still
    * synced and available for serving.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. Only populated if the table is still synced and available for serving.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   timestamp?: Temporal.Instant | undefined;
 }
@@ -725,17 +893,39 @@ export interface SyncedTablePipelineProgress {
   /**
    * The source table Delta version that was last processed by the pipeline. The pipeline may not
    * have completely processed this version yet.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   latestVersionCurrentlyProcessing?: bigint | undefined;
-  /** The number of rows that have been synced in this update. */
+  /**
+   * The number of rows that have been synced in this update.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   syncedRowCount?: bigint | undefined;
-  /** The total number of rows that need to be synced in this update. This number may be an estimate. */
+  /**
+   * The total number of rows that need to be synced in this update. This number may be an estimate.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   totalRowCount?: bigint | undefined;
-  /** The completion ratio of this update. This is a number between 0 and 1. */
+  /**
+   * The completion ratio of this update. This is a number between 0 and 1.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   syncProgressCompletion?: number | undefined;
-  /** The estimated time remaining to complete this update in seconds. */
+  /**
+   * The estimated time remaining to complete this update in seconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   estimatedCompletionTimeSeconds?: number | undefined;
-  /** The current phase of the data synchronization pipeline. */
+  /**
+   * The current phase of the data synchronization pipeline.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   provisioningPhase?: ProvisioningPhase | undefined;
 }
 
@@ -745,16 +935,24 @@ export interface SyncedTablePosition {
    * to the destination (synced) table.
    * Note this is the starting timestamp of the sync operation, not the end time.
    * E.g., for a batch, this is the time when the sync operation started.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   syncStartTimestamp?: Temporal.Instant | undefined;
   /**
    * The end timestamp of the most recent successful synchronization.
    * This is the time when the data is available in the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   syncEndTimestamp?: Temporal.Instant | undefined;
   /** Information about the source system at the time of the last sync. */
   sourceSyncInfo?:
-    | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
+    | {
+        $case: 'deltaTableSyncInfo';
+        /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
+        deltaTableSyncInfo: DeltaTableSyncInfo;
+      }
     | undefined;
 }
 
@@ -766,6 +964,8 @@ export interface SyncedTableProvisioningStatus {
   /**
    * Details about initial data synchronization. Only populated when in the
    * PROVISIONING_INITIAL_SNAPSHOT state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   initialPipelineSyncProgress?: SyncedTablePipelineProgress | undefined;
 }
@@ -786,11 +986,15 @@ export interface SyncedTableSpec {
    * If existing_pipeline_id is defined, the synced table will be bin packed into the existing pipeline
    * referenced. This avoids creating a new pipeline and allows sharing existing compute.
    * In this case, the scheduling_policy of this synced table must match the scheduling policy of the existing pipeline.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   existingPipelineId?: string | undefined;
   /**
    * If true, the synced table's logical database and schema resources in PG
    * will be created if they do not already exist.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   createDatabaseObjectsIfMissing?: boolean | undefined;
   /**
@@ -800,12 +1004,16 @@ export interface SyncedTableSpec {
    * to store intermediate files (checkpoints, event logs etc). The caller must have write permissions to create Delta
    * tables in the specified catalog and schema. Again, note this requires write permissions, whereas the source table
    * only requires read permissions.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
   /**
    * When true, enables accelerated sync mode for the initial data load.
    * This significantly improves performance for large tables.
    * Requires workspace-level enablement.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   acceleratedSync?: boolean | undefined;
   /**
@@ -818,9 +1026,17 @@ export interface SyncedTableSpec {
 /** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTableSpec_TypeOverride {
-  /** Name of the source column whose target PostgreSQL type should be overridden. */
+  /**
+   * Name of the source column whose target PostgreSQL type should be overridden.
+   *
+   * Required. This field must be set in requests.
+   */
   columnName?: string | undefined;
-  /** PostgreSQL-specific target type to use for the column. */
+  /**
+   * PostgreSQL-specific target type to use for the column.
+   *
+   * Required. This field must be set in requests.
+   */
   pgType?: SyncedTableSpec_PgSpecificType | undefined;
   /**
    * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
@@ -831,9 +1047,17 @@ export interface SyncedTableSpec_TypeOverride {
 
 /** Status of a synced table. */
 export interface SyncedTableStatus {
-  /** The state of the synced table. */
+  /**
+   * The state of the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   detailedState?: SyncedTableState | undefined;
-  /** A text description of the current state of the synced table. */
+  /**
+   * A text description of the current state of the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
   /** The detailed status based on the synced table state. */
   detailedStatus?:
@@ -854,6 +1078,8 @@ export interface SyncedTableStatus {
   /**
    * ID of the associated pipeline. The pipeline ID may have been provided by the client
    * (in the case of bin packing), or generated by the server (when creating a new pipeline).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   pipelineId?: string | undefined;
   /**
@@ -867,6 +1093,8 @@ export interface SyncedTableStatus {
    *
    * This top-level field is a convenience for consumers who want easy access to last sync information
    * without having to traverse detailed_status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   lastSync?: SyncedTablePosition | undefined;
 }
@@ -876,37 +1104,66 @@ export interface SyncedTableStatus {
  * or the SYNCED_NO_PENDING_UPDATE state.
  */
 export interface SyncedTableTriggeredUpdateStatus {
-  /** The last source table Delta version that was successfully synced to the synced table. */
+  /**
+   * The last source table Delta version that was successfully synced to the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   timestamp?: Temporal.Instant | undefined;
-  /** Progress of the active data synchronization pipeline. */
+  /**
+   * Progress of the active data synchronization pipeline.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   triggeredUpdateProgress?: SyncedTablePipelineProgress | undefined;
 }
 
 export interface UpdateDatabaseCatalogRequest {
-  /** Note that updating a database catalog is not yet supported. */
+  /**
+   * Note that updating a database catalog is not yet supported.
+   *
+   * Required. This field must be set in requests.
+   */
   databaseCatalog?: DatabaseCatalog | undefined;
-  /** The list of fields to update. Setting this field is not yet supported. */
+  /**
+   * The list of fields to update. Setting this field is not yet supported.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<DatabaseCatalog> | undefined;
 }
 
 export interface UpdateDatabaseInstanceRequest {
+  /** Required. This field must be set in requests. */
   databaseInstance?: DatabaseInstance | undefined;
   /**
    * The list of fields to update. If unspecified, all fields will be updated when possible. To wipe out custom_tags,
    * specify custom_tags in the update_mask with an empty custom_tags map.
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<DatabaseInstance> | undefined;
 }
 
 export interface UpdateSyncedDatabaseTableRequest {
-  /** Note that updating a synced database table is not yet supported. */
+  /**
+   * Note that updating a synced database table is not yet supported.
+   *
+   * Required. This field must be set in requests.
+   */
   syncedTable?: SyncedDatabaseTable | undefined;
-  /** The list of fields to update. Setting this field is not yet supported. */
+  /**
+   * The list of fields to update. Setting this field is not yet supported.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<SyncedDatabaseTable> | undefined;
 }
 

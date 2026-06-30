@@ -356,6 +356,7 @@ export interface QueryMetrics {
  * QueryTag is the user-facing representation.
  */
 export interface QueryTag {
+  /** Required. This field must be set in requests. */
   key?: string | undefined;
   value?: string | undefined;
 }

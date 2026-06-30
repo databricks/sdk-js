@@ -6,14 +6,17 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateTagPolicyRequest {
+  /** Required. This field must be set in requests. */
   tagPolicy?: TagPolicy | undefined;
 }
 
 export interface DeleteTagPolicyRequest {
+  /** Required. This field must be set in requests. */
   tagKey?: string | undefined;
 }
 
 export interface GetTagPolicyRequest {
+  /** Required. This field must be set in requests. */
   tagKey?: string | undefined;
 }
 
@@ -34,22 +37,35 @@ export interface ListTagPoliciesResponse {
 }
 
 export interface TagPolicy {
+  /** Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward. */
   tagKey?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   id?: string | undefined;
   description?: string | undefined;
   values?: Value[] | undefined;
-  /** Timestamp when the tag policy was created */
+  /**
+   * Timestamp when the tag policy was created
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** Timestamp when the tag policy was last updated */
+  /**
+   * Timestamp when the tag policy was last updated
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
 }
 
 export interface UpdateTagPolicyRequest {
+  /** Required. This field must be set in requests. */
   tagPolicy?: TagPolicy | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<TagPolicy> | undefined;
 }
 
 export interface Value {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 

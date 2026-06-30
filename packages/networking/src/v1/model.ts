@@ -394,23 +394,39 @@ export interface AccountNetworkPolicy {
 }
 
 export interface AzurePrivateEndpointInfo {
-  /** The name of the Private Endpoint in the Azure subscription. */
+  /**
+   * The name of the Private Endpoint in the Azure subscription.
+   *
+   * Required. This field must be set in requests.
+   */
   privateEndpointName?: string | undefined;
   /**
    * The GUID of the Private Endpoint resource in the Azure subscription.
    * This is assigned by Azure when the user sets up the Private Endpoint.
+   *
+   * Required. This field must be set in requests.
    */
   privateEndpointResourceGuid?: string | undefined;
-  /** The full resource ID of the Private Endpoint. */
+  /**
+   * The full resource ID of the Private Endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   privateEndpointResourceId?: string | undefined;
-  /** The resource ID of the Databricks Private Link Service that this Private Endpoint connects to. */
+  /**
+   * The resource ID of the Databricks Private Link Service that this Private Endpoint connects to.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   privateLinkServiceId?: string | undefined;
 }
 
 /** Details required to configure a block list or allow list. */
 export interface CreateAccountIpAccessListRequest {
   accountId?: string | undefined;
+  /** Required. This field must be set in requests. */
   label?: string | undefined;
+  /** Required. This field must be set in requests. */
   listType?: AccountIpAccessListType_IpAccessListType | undefined;
   ipAddresses?: string[] | undefined;
 }
@@ -424,15 +440,23 @@ export interface CreateEndpointRequest {
   /**
    * The parent resource name of the account under which the endpoint is created.
    * Format: `accounts/{account_id}`.
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
+  /** Required. This field must be set in requests. */
   endpoint?: Endpoint | undefined;
 }
 
 /** Details required to configure a block list or allow list. */
 export interface CreateIpAccessListRequest {
-  /** Label for the IP access list. This **cannot** be empty. */
+  /**
+   * Label for the IP access list. This **cannot** be empty.
+   *
+   * Required. This field must be set in requests.
+   */
   label?: string | undefined;
+  /** Required. This field must be set in requests. */
   listType?: IpAccessListType | undefined;
   ipAddresses?: string[] | undefined;
 }
@@ -488,13 +512,22 @@ export interface CreateNetworkConnectivityConfiguration {
 }
 
 export interface CreateNetworkPolicyRequest {
-  /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
+  /**
+   * Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Network policy configuration details. */
+  /**
+   * Network policy configuration details.
+   *
+   * Required. This field must be set in requests.
+   */
   networkPolicy?: AccountNetworkPolicy | undefined;
 }
 
 export interface CreateNetworkRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
   /** The human-readable name of the network configuration. */
   networkName?: string | undefined;
@@ -509,6 +542,7 @@ export interface CreateNetworkRequest {
 }
 
 export interface CreatePrivateAccessSettingsRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
   /** The human-readable name of the private access settings object. */
   privateAccessSettingsName?: string | undefined;
@@ -606,6 +640,7 @@ export interface CreatePrivateEndpointRule {
 }
 
 export interface CreateVpcEndpointRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
   /** The human-readable name of the storage configuration. */
   vpcEndpointName?: string | undefined;
@@ -657,6 +692,7 @@ export interface DeleteAccountIpAccessListRequest {
 export interface DeleteAccountIpAccessListResponse {}
 
 export interface DeleteEndpointRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
@@ -692,25 +728,42 @@ export interface DeleteNetworkConnectivityConfigRequest {
 }
 
 export interface DeleteNetworkPolicyRequest {
-  /** The unique identifier of the network policy to delete. */
+  /**
+   * The unique identifier of the network policy to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   networkPolicyId?: string | undefined;
-  /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
+  /**
+   * Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
 }
 
 export interface DeleteNetworkRequest {
-  /** Databricks Account API network configuration ID. */
+  /**
+   * Databricks Account API network configuration ID.
+   *
+   * Required. This field must be set in requests.
+   */
   networkId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface DeletePrivateAccessSettingsRequest {
+  /** Required. This field must be set in requests. */
   privateAccessSettingsId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface DeleteVpcEndpointRequest {
+  /** Required. This field must be set in requests. */
   vpcEndpointId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -812,26 +865,50 @@ export interface EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination {
 
 /** Endpoint represents a cloud networking resource in a user's cloud account and binds it to the <Databricks> account. */
 export interface Endpoint {
-  /** The resource name of the endpoint, which uniquely identifies the endpoint. */
+  /**
+   * The resource name of the endpoint, which uniquely identifies the endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   name?: string | undefined;
-  /** The unique identifier for this endpoint under the account. This field is a UUID generated by <Databricks>. */
+  /**
+   * The unique identifier for this endpoint under the account. This field is a UUID generated by <Databricks>.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   endpointId?: string | undefined;
-  /** The Databricks Account in which the endpoint object exists. */
+  /**
+   * The Databricks Account in which the endpoint object exists.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   accountId?: string | undefined;
   /**
    * The human-readable display name of this endpoint.
    * The input should conform to RFC-1034, which restricts to letters, numbers, and hyphens,
    * with the first character a letter, the last a letter or a number, and a 63 character maximum.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   displayName?: string | undefined;
   /**
    * The use case that determines the type of network connectivity this endpoint provides.
    * This field is automatically determined based on the endpoint configuration and cloud-specific settings.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   useCase?: EndpointUseCase_EndpointUseCase | undefined;
-  /** The cloud provider region where this endpoint is located. */
+  /**
+   * The cloud provider region where this endpoint is located.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   region?: string | undefined;
-  /** The state of the endpoint. The endpoint can only be used if the state is `APPROVED`. */
+  /**
+   * The state of the endpoint. The endpoint can only be used if the state is `APPROVED`.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: EndpointState | undefined;
   /**
    * The cloud info of this endpoint.
@@ -840,11 +917,19 @@ export interface Endpoint {
   endpointInfo?:
     | {
         $case: 'azurePrivateEndpointInfo';
-        /** Info for an Azure private endpoint. */
+        /**
+         * Info for an Azure private endpoint.
+         *
+         * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+         */
         azurePrivateEndpointInfo: AzurePrivateEndpointInfo;
       }
     | undefined;
-  /** The timestamp when the endpoint was created. The timestamp is in RFC 3339 format in UTC timezone. */
+  /**
+   * The timestamp when the endpoint was created. The timestamp is in RFC 3339 format in UTC timezone.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   createTime?: Temporal.Instant | undefined;
 }
 
@@ -852,7 +937,11 @@ export interface Endpoint {
 export interface EndpointUseCase {}
 
 export interface GcpEndpoint {
-  /** Output only. The URI of the created PSC endpoint. */
+  /**
+   * Output only. The URI of the created PSC endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   pscEndpointUri?: string | undefined;
   /** Selects which target services this private endpoint reaches. */
   targetServices?:
@@ -869,29 +958,49 @@ export interface GcpEndpoint {
 }
 
 export interface GcpNetworkInfo {
-  /** The GCP project ID for network resources. This project is where the VPC and subnet resides. */
+  /**
+   * The GCP project ID for network resources. This project is where the VPC and subnet resides.
+   *
+   * Required. This field must be set in requests.
+   */
   networkProjectId?: string | undefined;
-  /** The customer-provided VPC ID. */
+  /**
+   * The customer-provided VPC ID.
+   *
+   * Required. This field must be set in requests.
+   */
   vpcId?: string | undefined;
   /**
    * The customer-provided Subnet ID that will be available to Clusters in Workspaces using this
    * Network.
+   *
+   * Required. This field must be set in requests.
    */
   subnetId?: string | undefined;
+  /** Required. This field must be set in requests. */
   subnetRegion?: string | undefined;
   /**
    * Name of the secondary range within the subnet that will be used by GKE as Pod IP range.
    * This is BYO VPC specific. DB VPC uses network.getGcpManagedNetworkConfig.getGkeClusterPodIpRange
+   *
+   * Required. This field must be set in requests.
    */
   podIpRangeName?: string | undefined;
-  /** Name of the secondary range within the subnet that will be used by GKE as Service IP range. */
+  /**
+   * Name of the secondary range within the subnet that will be used by GKE as Service IP range.
+   *
+   * Required. This field must be set in requests.
+   */
   serviceIpRangeName?: string | undefined;
 }
 
 export interface GcpVpcEndpointInfo {
   pscConnectionId?: string | undefined;
+  /** Required. This field must be set in requests. */
   projectId?: string | undefined;
+  /** Required. This field must be set in requests. */
   pscEndpointName?: string | undefined;
+  /** Required. This field must be set in requests. */
   endpointRegion?: string | undefined;
   serviceAttachmentId?: string | undefined;
 }
@@ -907,6 +1016,7 @@ export interface GetAccountIpAccessListResponse {
 }
 
 export interface GetEndpointRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
@@ -938,26 +1048,46 @@ export interface GetNetworkConnectivityConfigRequest {
 }
 
 export interface GetNetworkPolicyRequest {
-  /** The unique identifier of the network policy to retrieve. */
+  /**
+   * The unique identifier of the network policy to retrieve.
+   *
+   * Required. This field must be set in requests.
+   */
   networkPolicyId?: string | undefined;
-  /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
+  /**
+   * Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
 }
 
 export interface GetNetworkRequest {
-  /** Databricks Account API network configuration ID. */
+  /**
+   * Databricks Account API network configuration ID.
+   *
+   * Required. This field must be set in requests.
+   */
   networkId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface GetPrivateAccessSettingsRequest {
+  /** Required. This field must be set in requests. */
   privateAccessSettingsId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface GetVpcEndpointRequest {
-  /** Databricks VPC endpoint ID. */
+  /**
+   * Databricks VPC endpoint ID.
+   *
+   * Required. This field must be set in requests.
+   */
   vpcEndpointId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -1226,6 +1356,8 @@ export interface ListEndpointsRequest {
   /**
    * The parent resource name of the account to list endpoints for.
    * Format: `accounts/{account_id}`.
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   pageToken?: string | undefined;
@@ -1277,7 +1409,11 @@ export interface ListNetworkConnectivityConfigsResponse {
 }
 
 export interface ListNetworkPoliciesRequest {
-  /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
+  /**
+   * Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /** Pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
@@ -1291,6 +1427,7 @@ export interface ListNetworkPoliciesResponse {
 }
 
 export interface ListNetworkRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -1299,6 +1436,7 @@ export interface ListNetworkResponse {
 }
 
 export interface ListPrivateAccessSettingsRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -1307,6 +1445,7 @@ export interface ListPrivateAccessSettingsResponse {
 }
 
 export interface ListVpcEndpointRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -1620,9 +1759,17 @@ export interface NetworkWarning {
 
 /** * */
 export interface PrivateAccessSettings {
-  /** <Databricks> private access settings ID. */
+  /**
+   * <Databricks> private access settings ID.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   privateAccessSettingsId?: string | undefined;
-  /** The <Databricks> account ID that hosts the private access settings. */
+  /**
+   * The <Databricks> account ID that hosts the private access settings.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   accountId?: string | undefined;
   /** The human-readable name of the private access settings object. */
   privateAccessSettingsName?: string | undefined;
@@ -1649,11 +1796,20 @@ export interface ReplaceAccountIpAccessListRequest {
   accountId?: string | undefined;
   /** The ID for the corresponding IP access list */
   listId?: string | undefined;
-  /** Label for the IP access list. This **cannot** be empty. */
+  /**
+   * Label for the IP access list. This **cannot** be empty.
+   *
+   * Required. This field must be set in requests.
+   */
   label?: string | undefined;
+  /** Required. This field must be set in requests. */
   listType?: AccountIpAccessListType_IpAccessListType | undefined;
   ipAddresses?: string[] | undefined;
-  /** Specifies whether this IP access list is enabled. */
+  /**
+   * Specifies whether this IP access list is enabled.
+   *
+   * Required. This field must be set in requests.
+   */
   enabled?: boolean | undefined;
 }
 
@@ -1666,11 +1822,20 @@ export interface ReplaceAccountIpAccessListResponse {
 export interface ReplaceIpAccessListRequest {
   /** The ID for the corresponding IP access list */
   listId?: string | undefined;
-  /** Label for the IP access list. This **cannot** be empty. */
+  /**
+   * Label for the IP access list. This **cannot** be empty.
+   *
+   * Required. This field must be set in requests.
+   */
   label?: string | undefined;
+  /** Required. This field must be set in requests. */
   listType?: IpAccessListType | undefined;
   ipAddresses?: string[] | undefined;
-  /** Specifies whether this IP access list is enabled. */
+  /**
+   * Specifies whether this IP access list is enabled.
+   *
+   * Required. This field must be set in requests.
+   */
   enabled?: boolean | undefined;
 }
 
@@ -1682,7 +1847,11 @@ export interface ReplaceIpAccessListResponse {
 /** Details required to update an IP access list. */
 export interface UpdateAccountIpAccessListRequest {
   accountId?: string | undefined;
-  /** The ID for the corresponding IP access list */
+  /**
+   * The ID for the corresponding IP access list
+   *
+   * Required. This field must be set in requests.
+   */
   listId?: string | undefined;
   /** Label for the IP access list. This **cannot** be empty. */
   label?: string | undefined;
@@ -1699,7 +1868,11 @@ export interface UpdateAccountIpAccessListResponse {
 
 /** Details required to update an IP access list. */
 export interface UpdateIpAccessListRequest {
-  /** The ID for the corresponding IP access list */
+  /**
+   * The ID for the corresponding IP access list
+   *
+   * Required. This field must be set in requests.
+   */
   listId?: string | undefined;
   /** Label for the IP access list. This **cannot** be empty. */
   label?: string | undefined;
@@ -1723,20 +1896,33 @@ export interface UpdateNccPrivateEndpointRuleRequest {
   /** Your private endpoint rule ID. */
   privateEndpointRuleId?: string | undefined;
   privateEndpointRule?: UpdatePrivateEndpointRule | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<UpdatePrivateEndpointRule> | undefined;
 }
 
 export interface UpdateNetworkPolicyRequest {
-  /** The unique identifier for the network policy. */
+  /**
+   * The unique identifier for the network policy.
+   *
+   * Required. This field must be set in requests.
+   */
   networkPolicyId?: string | undefined;
-  /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
+  /**
+   * Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /** Updated network policy configuration details. */
   networkPolicy?: AccountNetworkPolicy | undefined;
 }
 
 export interface UpdatePrivateAccessSettingsRequest {
-  /** Properties of the new private access settings object. */
+  /**
+   * Properties of the new private access settings object.
+   *
+   * Required. This field must be set in requests.
+   */
   customerFacingPrivateAccessSettings?: PrivateAccessSettings | undefined;
 }
 

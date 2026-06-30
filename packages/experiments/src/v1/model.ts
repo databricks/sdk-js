@@ -57,7 +57,11 @@ export const ViewType = {
 export type ViewType = (typeof ViewType)[keyof typeof ViewType] | (string & {});
 
 export interface CreateExperimentRequest {
-  /** Experiment name. */
+  /**
+   * Experiment name.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Location where all artifacts for the experiment are stored.
@@ -79,7 +83,11 @@ export interface CreateExperimentResponse {
 }
 
 export interface CreateLoggedModelRequest {
-  /** The ID of the experiment that owns the model. */
+  /**
+   * The ID of the experiment that owns the model.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
   /** The name of the model (optional). If not specified one will be generated. */
   name?: string | undefined;
@@ -125,15 +133,29 @@ export interface CreateRunResponse {
  * the model development process.
  */
 export interface Dataset {
-  /** The name of the dataset. E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3” */
+  /**
+   * The name of the dataset. E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3”
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Dataset digest, e.g. an md5 hash of the dataset that uniquely identifies it within datasets of the same name. */
+  /**
+   * Dataset digest, e.g. an md5 hash of the dataset that uniquely identifies it within datasets of the same name.
+   *
+   * Required. This field must be set in requests.
+   */
   digest?: string | undefined;
-  /** The type of the dataset source, e.g. ‘databricks-uc-table’, ‘DBFS’, ‘S3’, ... */
+  /**
+   * The type of the dataset source, e.g. ‘databricks-uc-table’, ‘DBFS’, ‘S3’, ...
+   *
+   * Required. This field must be set in requests.
+   */
   sourceType?: string | undefined;
   /**
    * Source information for the dataset. Note that the source may not exactly reproduce the
    * dataset if it was transformed / modified before use with MLflow.
+   *
+   * Required. This field must be set in requests.
    */
   source?: string | undefined;
   /**
@@ -153,12 +175,20 @@ export interface Dataset {
 export interface DatasetInput {
   /** A list of tags for the dataset input, e.g. a “context” tag with value “training” */
   tags?: InputTag[] | undefined;
-  /** The dataset being used as a Run input. */
+  /**
+   * The dataset being used as a Run input.
+   *
+   * Required. This field must be set in requests.
+   */
   dataset?: Dataset | undefined;
 }
 
 export interface DeleteExperimentRequest {
-  /** ID of the associated experiment. */
+  /**
+   * ID of the associated experiment.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
 }
 
@@ -166,7 +196,11 @@ export interface DeleteExperimentRequest {
 export interface DeleteExperimentResponse {}
 
 export interface DeleteLoggedModelRequest {
-  /** The ID of the logged model to delete. */
+  /**
+   * The ID of the logged model to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
 }
 
@@ -174,9 +208,17 @@ export interface DeleteLoggedModelRequest {
 export interface DeleteLoggedModelResponse {}
 
 export interface DeleteLoggedModelTagRequest {
-  /** The ID of the logged model to delete the tag from. */
+  /**
+   * The ID of the logged model to delete the tag from.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
-  /** The tag key. */
+  /**
+   * The tag key.
+   *
+   * Required. This field must be set in requests.
+   */
   tagKey?: string | undefined;
 }
 
@@ -184,7 +226,11 @@ export interface DeleteLoggedModelTagRequest {
 export interface DeleteLoggedModelTagResponse {}
 
 export interface DeleteRunRequest {
-  /** ID of the run to delete. */
+  /**
+   * ID of the run to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: string | undefined;
 }
 
@@ -192,11 +238,17 @@ export interface DeleteRunRequest {
 export interface DeleteRunResponse {}
 
 export interface DeleteRunsRequest {
-  /** The ID of the experiment containing the runs to delete. */
+  /**
+   * The ID of the experiment containing the runs to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
   /**
    * The maximum creation timestamp in milliseconds since the UNIX epoch for deleting runs. Only runs created prior to
    * or at this timestamp are deleted.
+   *
+   * Required. This field must be set in requests.
    */
   maxTimestampMillis?: bigint | undefined;
   /**
@@ -212,9 +264,17 @@ export interface DeleteRunsResponse {
 }
 
 export interface DeleteTagRequest {
-  /** ID of the run that the tag was logged under. Must be provided. */
+  /**
+   * ID of the run that the tag was logged under. Must be provided.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: string | undefined;
-  /** Name of the tag. Maximum size is 255 bytes. Must be provided. */
+  /**
+   * Name of the tag. Maximum size is 255 bytes. Must be provided.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
 }
 
@@ -261,11 +321,17 @@ export interface FileInfo {
 }
 
 export interface FinalizeLoggedModelRequest {
-  /** The ID of the logged model to finalize. */
+  /**
+   * The ID of the logged model to finalize.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
   /**
    * Whether or not the model is ready for use. ``"LOGGED_MODEL_UPLOAD_FAILED"`` indicates that something went wrong
    * when logging the model weights / agent code.
+   *
+   * Required. This field must be set in requests.
    */
   status?: LoggedModelStatus | undefined;
 }
@@ -276,7 +342,11 @@ export interface FinalizeLoggedModelResponse {
 }
 
 export interface GetExperimentByNameRequest {
-  /** Name of the associated experiment. */
+  /**
+   * Name of the associated experiment.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentName?: string | undefined;
 }
 
@@ -286,7 +356,11 @@ export interface GetExperimentByNameResponse {
 }
 
 export interface GetExperimentRequest {
-  /** ID of the associated experiment. */
+  /**
+   * ID of the associated experiment.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
 }
 
@@ -304,7 +378,11 @@ export interface GetExperimentResponse {
 }
 
 export interface GetLoggedModelRequest {
-  /** The ID of the logged model to retrieve. */
+  /**
+   * The ID of the logged model to retrieve.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
 }
 
@@ -327,7 +405,11 @@ export interface GetMetricHistoryResponse {
 }
 
 export interface GetRunRequest {
-  /** ID of the run to fetch. Must be provided. */
+  /**
+   * ID of the run to fetch. Must be provided.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: string | undefined;
   /**
    * [Deprecated, use `run_id` instead] ID of the run to fetch. This field will
@@ -343,9 +425,17 @@ export interface GetRunResponse {
 
 /** Tag for a dataset input. */
 export interface InputTag {
-  /** The tag key. */
+  /**
+   * The tag key.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** The tag value. */
+  /**
+   * The tag value.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
 }
 
@@ -413,7 +503,11 @@ export interface ListMetricHistoryRequest {
    * will be removed in a future MLflow version.
    */
   runUuid?: string | undefined;
-  /** Name of the metric. */
+  /**
+   * Name of the metric.
+   *
+   * Required. This field must be set in requests.
+   */
   metricKey?: string | undefined;
   /** Token indicating the page of metric histories to fetch. */
   pageToken?: string | undefined;
@@ -448,7 +542,11 @@ export interface LogBatchRequest {
 export interface LogBatchResponse {}
 
 export interface LogInputsRequest {
-  /** ID of the run to log under */
+  /**
+   * ID of the run to log under
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: string | undefined;
   /** Dataset inputs */
   datasets?: DatasetInput[] | undefined;
@@ -460,7 +558,11 @@ export interface LogInputsRequest {
 export interface LogInputsResponse {}
 
 export interface LogLoggedModelParamsRequest {
-  /** The ID of the logged model to log params for. */
+  /**
+   * The ID of the logged model to log params for.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
   /** Parameters to attach to the model. */
   params?: LoggedModelParameter[] | undefined;
@@ -477,11 +579,23 @@ export interface LogMetricRequest {
    * be removed in a future MLflow version.
    */
   runUuid?: string | undefined;
-  /** Name of the metric. */
+  /**
+   * Name of the metric.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** Double value of the metric being logged. */
+  /**
+   * Double value of the metric being logged.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: number | undefined;
-  /** Unix timestamp in milliseconds at the time metric was logged. */
+  /**
+   * Unix timestamp in milliseconds at the time metric was logged.
+   *
+   * Required. This field must be set in requests.
+   */
   timestamp?: bigint | undefined;
   /** Step at which to log the metric */
   step?: bigint | undefined;
@@ -514,7 +628,11 @@ export interface LogModelRequest {
 export interface LogModelResponse {}
 
 export interface LogOutputsRequest {
-  /** The ID of the Run from which to log outputs. */
+  /**
+   * The ID of the Run from which to log outputs.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: string | undefined;
   /** The model outputs from the Run. */
   models?: ModelOutput[] | undefined;
@@ -531,9 +649,17 @@ export interface LogParamRequest {
    * be removed in a future MLflow version.
    */
   runUuid?: string | undefined;
-  /** Name of the param. Maximum size is 255 bytes. */
+  /**
+   * Name of the param. Maximum size is 255 bytes.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** String value of the param being logged. Maximum size is 500 bytes. */
+  /**
+   * String value of the param being logged. Maximum size is 500 bytes.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
 }
 
@@ -638,15 +764,27 @@ export interface Metric {
 
 /** Represents a LoggedModel or Registered Model Version input to a Run. */
 export interface ModelInput {
-  /** The unique identifier of the model. */
+  /**
+   * The unique identifier of the model.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
 }
 
 /** Represents a LoggedModel output of a Run. */
 export interface ModelOutput {
-  /** The unique identifier of the model. */
+  /**
+   * The unique identifier of the model.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
-  /** The step at which the model was produced. */
+  /**
+   * The step at which the model was produced.
+   *
+   * Required. This field must be set in requests.
+   */
   step?: bigint | undefined;
 }
 
@@ -659,7 +797,11 @@ export interface Param {
 }
 
 export interface RestoreExperimentRequest {
-  /** ID of the associated experiment. */
+  /**
+   * ID of the associated experiment.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
 }
 
@@ -667,7 +809,11 @@ export interface RestoreExperimentRequest {
 export interface RestoreExperimentResponse {}
 
 export interface RestoreRunRequest {
-  /** ID of the run to restore. */
+  /**
+   * ID of the run to restore.
+   *
+   * Required. This field must be set in requests.
+   */
   runId?: string | undefined;
 }
 
@@ -675,11 +821,17 @@ export interface RestoreRunRequest {
 export interface RestoreRunResponse {}
 
 export interface RestoreRunsRequest {
-  /** The ID of the experiment containing the runs to restore. */
+  /**
+   * The ID of the experiment containing the runs to restore.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
   /**
    * The minimum deletion timestamp in milliseconds since the UNIX epoch for restoring runs. Only runs deleted no
    * earlier than this timestamp are restored.
+   *
+   * Required. This field must be set in requests.
    */
   minTimestampMillis?: bigint | undefined;
   /**
@@ -824,7 +976,11 @@ export interface SearchLoggedModelsRequest {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SearchLoggedModelsRequest_Dataset {
-  /** The name of the dataset. */
+  /**
+   * The name of the dataset.
+   *
+   * Required. This field must be set in requests.
+   */
   datasetName?: string | undefined;
   /** The digest of the dataset. */
   datasetDigest?: string | undefined;
@@ -832,7 +988,11 @@ export interface SearchLoggedModelsRequest_Dataset {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SearchLoggedModelsRequest_OrderBy {
-  /** The name of the field to order by, e.g. "metrics.accuracy". */
+  /**
+   * The name of the field to order by, e.g. "metrics.accuracy".
+   *
+   * Required. This field must be set in requests.
+   */
   fieldName?: string | undefined;
   /** Whether the search results order is ascending or not. */
   ascending?: boolean | undefined;
@@ -901,11 +1061,23 @@ export interface SearchRunsResponse {
 }
 
 export interface SetExperimentTagRequest {
-  /** ID of the experiment under which to log the tag. Must be provided. */
+  /**
+   * ID of the experiment under which to log the tag. Must be provided.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
-  /** Name of the tag. Keys up to 250 bytes in size are supported. */
+  /**
+   * Name of the tag. Keys up to 250 bytes in size are supported.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** String value of the tag being logged. Values up to 64KB in size are supported. */
+  /**
+   * String value of the tag being logged. Values up to 64KB in size are supported.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
 }
 
@@ -913,7 +1085,11 @@ export interface SetExperimentTagRequest {
 export interface SetExperimentTagResponse {}
 
 export interface SetLoggedModelTagsRequest {
-  /** The ID of the logged model to set the tags on. */
+  /**
+   * The ID of the logged model to set the tags on.
+   *
+   * Required. This field must be set in requests.
+   */
   modelId?: string | undefined;
   /** The tags to set on the logged model. */
   tags?: LoggedModelTag[] | undefined;
@@ -930,9 +1106,17 @@ export interface SetTagRequest {
    * be removed in a future MLflow version.
    */
   runUuid?: string | undefined;
-  /** Name of the tag. Keys up to 250 bytes in size are supported. */
+  /**
+   * Name of the tag. Keys up to 250 bytes in size are supported.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** String value of the tag being logged. Values up to 64KB in size are supported. */
+  /**
+   * String value of the tag being logged. Values up to 64KB in size are supported.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
 }
 
@@ -940,7 +1124,11 @@ export interface SetTagRequest {
 export interface SetTagResponse {}
 
 export interface UpdateExperimentRequest {
-  /** ID of the associated experiment. */
+  /**
+   * ID of the associated experiment.
+   *
+   * Required. This field must be set in requests.
+   */
   experimentId?: string | undefined;
   /** If provided, the experiment's name is changed to the new name. The new name must be unique. */
   newName?: string | undefined;

@@ -3,9 +3,17 @@
 import {z} from 'zod';
 
 export interface DisableSystemSchemaRequest {
-  /** Full name of the system schema. */
+  /**
+   * Full name of the system schema.
+   *
+   * Required. This field must be set in requests.
+   */
   schema?: string | undefined;
-  /** The metastore ID under which the system schema lives. */
+  /**
+   * The metastore ID under which the system schema lives.
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
 }
 
@@ -13,9 +21,17 @@ export interface DisableSystemSchemaRequest {
 export interface DisableSystemSchemaResponse {}
 
 export interface EnableSystemSchemaRequest {
-  /** Full name of the system schema. */
+  /**
+   * Full name of the system schema.
+   *
+   * Required. This field must be set in requests.
+   */
   schema?: string | undefined;
-  /** The metastore ID under which the system schema lives. */
+  /**
+   * The metastore ID under which the system schema lives.
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   /** the catalog for which the system schema is to enabled in */
   catalogName?: string | undefined;
@@ -25,7 +41,11 @@ export interface EnableSystemSchemaRequest {
 export interface EnableSystemSchemaResponse {}
 
 export interface ListSystemSchemasRequest {
-  /** The ID for the metastore in which the system schema resides. */
+  /**
+   * The ID for the metastore in which the system schema resides.
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   /**
    * Maximum number of schemas to return.

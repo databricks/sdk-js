@@ -23,11 +23,19 @@ export type DeltaSharingScope_Enum =
 
 /** The mapping from workspace to metastore. */
 export interface AccountsCreateMetastoreAssignmentRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /** Workspace ID. */
   workspaceId?: bigint | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   metastoreAssignment?: MetastoreAssignment | undefined;
 }
@@ -38,7 +46,11 @@ export interface AccountsCreateMetastoreAssignmentResponse {}
 
 /** Properties of the new metastore. */
 export interface AccountsCreateMetastoreRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   metastoreInfo?: CreateAccountsMetastore | undefined;
 }
@@ -49,11 +61,19 @@ export interface AccountsCreateMetastoreResponse {
 
 /** Delete a metastore assignment to a workspace */
 export interface AccountsDeleteMetastoreAssignmentRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /** Workspace ID. */
   workspaceId?: bigint | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
 }
 
@@ -63,9 +83,17 @@ export interface AccountsDeleteMetastoreAssignmentResponse {}
 
 /** Delete a metastore for the given account */
 export interface AccountsDeleteMetastoreRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   /** Force deletion even if the metastore is not empty. Default is false. */
   force?: boolean | undefined;
@@ -77,9 +105,17 @@ export interface AccountsDeleteMetastoreResponse {}
 
 /** Retrieves the assignment of which metastore to a given workspace */
 export interface AccountsGetMetastoreAssignmentRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Workspace ID. */
+  /**
+   * Workspace ID.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceId?: bigint | undefined;
 }
 
@@ -90,9 +126,17 @@ export interface AccountsGetMetastoreAssignmentResponse {
 
 /** Get a metastore for a given account */
 export interface AccountsGetMetastoreRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
 }
 
@@ -103,7 +147,11 @@ export interface AccountsGetMetastoreResponse {
 
 /** List the metastores for an account */
 export interface AccountsListMetastoresRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
 }
 
@@ -115,9 +163,17 @@ export interface AccountsListMetastoresResponse {
 
 /** Lists all workspace IDs for a given metastore */
 export interface AccountsListWorkspaceIdsForMetastoreRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
 }
 
@@ -128,11 +184,19 @@ export interface AccountsListWorkspaceIdsForMetastoreResponse {
 
 /** The metastore assignment to update. */
 export interface AccountsUpdateMetastoreAssignmentRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /** Workspace ID. */
   workspaceId?: bigint | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   metastoreAssignment?: MetastoreAssignment | undefined;
 }
@@ -143,9 +207,17 @@ export interface AccountsUpdateMetastoreAssignmentResponse {}
 
 /** Properties of the metastore to change. */
 export interface AccountsUpdateMetastoreRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   /** Properties of the metastore to change. */
   metastoreInfo?: UpdateAccountsMetastore | undefined;
@@ -198,14 +270,24 @@ export interface CreateAccountsMetastore {
 }
 
 export interface CreateMetastoreAssignmentRequest {
-  /** A workspace ID. */
+  /**
+   * A workspace ID.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceId?: bigint | undefined;
-  /** The unique ID of the metastore. */
+  /**
+   * The unique ID of the metastore.
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   /**
    * The name of the default catalog in the metastore.
    * This field is deprecated. Please use "Default Namespace API" to
    * configure the default catalog for a <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
    */
   defaultCatalogName?: string | undefined;
 }
@@ -255,9 +337,17 @@ export interface CreateMetastoreRequest {
 }
 
 export interface DeleteMetastoreAssignmentRequest {
-  /** A workspace ID. */
+  /**
+   * A workspace ID.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceId?: bigint | undefined;
-  /** Query for the ID of the metastore to delete. */
+  /**
+   * Query for the ID of the metastore to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
 }
 
@@ -265,7 +355,11 @@ export interface DeleteMetastoreAssignmentRequest {
 export interface DeleteMetastoreAssignmentResponse {}
 
 export interface DeleteMetastoreRequest {
-  /** Unique ID of the metastore. */
+  /**
+   * Unique ID of the metastore.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** Force deletion even if the metastore is not empty. Default is false. */
   force?: boolean | undefined;
@@ -281,7 +375,11 @@ export interface DeltaSharingScope {}
 export interface GetCurrentMetastoreAssignmentRequest {}
 
 export interface GetMetastoreRequest {
-  /** Unique ID of the metastore. */
+  /**
+   * Unique ID of the metastore.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
@@ -355,9 +453,17 @@ export interface ListMetastoresResponse {
 }
 
 export interface MetastoreAssignment {
-  /** The unique ID of the <Databricks> workspace. */
+  /**
+   * The unique ID of the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceId?: bigint | undefined;
-  /** The unique ID of the metastore. */
+  /**
+   * The unique ID of the metastore.
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   /**
    * The name of the default catalog in the metastore. This field is deprecated.
@@ -449,7 +555,11 @@ export interface UpdateAccountsMetastore {
 }
 
 export interface UpdateMetastoreAssignmentRequest {
-  /** A workspace ID. */
+  /**
+   * A workspace ID.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceId?: bigint | undefined;
   /** The unique ID of the metastore. */
   metastoreId?: string | undefined;
@@ -465,7 +575,11 @@ export interface UpdateMetastoreAssignmentRequest {
 export interface UpdateMetastoreAssignmentResponse {}
 
 export interface UpdateMetastoreRequest {
-  /** Unique ID of the metastore. */
+  /**
+   * Unique ID of the metastore.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** New name for the metastore. */
   newName?: string | undefined;

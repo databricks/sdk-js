@@ -29,11 +29,23 @@ export type SecurableType =
   | (string & {});
 
 export interface GetQuotaRequest {
-  /** Securable type of the quota parent. */
+  /**
+   * Securable type of the quota parent.
+   *
+   * Required. This field must be set in requests.
+   */
   parentSecurableType?: string | undefined;
-  /** Full name of the parent resource. Provide the metastore ID if the parent is a metastore. */
+  /**
+   * Full name of the parent resource. Provide the metastore ID if the parent is a metastore.
+   *
+   * Required. This field must be set in requests.
+   */
   parentFullName?: string | undefined;
-  /** Name of the quota. Follows the pattern of the quota type, with "-quota" added as a suffix. */
+  /**
+   * Name of the quota. Follows the pattern of the quota type, with "-quota" added as a suffix.
+   *
+   * Required. This field must be set in requests.
+   */
   quotaName?: string | undefined;
 }
 

@@ -152,19 +152,47 @@ export interface CreateProviderRequest {
   owner?: string | undefined;
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
   recipientProfile?: RecipientProfile | undefined;
-  /** Time at which this Provider was created, in epoch milliseconds. */
+  /**
+   * Time at which this Provider was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of Provider creator. */
+  /**
+   * Username of Provider creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this Provider was created, in epoch milliseconds. */
+  /**
+   * Time at which this Provider was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of user who last modified Provider. */
+  /**
+   * Username of user who last modified Provider.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   cloud?: string | undefined;
-  /** Cloud region of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * Cloud region of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   region?: string | undefined;
-  /** UUID of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * UUID of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
   /** The global UC metastore id of the data provider. This field is only present when the __authentication_type__ is **DATABRICKS**. The identifier is of format __cloud__:__region__:__metastore-uuid__. */
   dataProviderGlobalMetastoreId?: string | undefined;
@@ -199,36 +227,72 @@ export interface CreateRecipientRequest {
   /**
    * Full activation url to retrieve the access token.
    * It will be empty if the token is already retrieved.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   activationUrl?: string | undefined;
-  /** A boolean status field showing whether the Recipient's activation URL has been exercised or not. */
+  /**
+   * A boolean status field showing whether the Recipient's activation URL has been exercised or not.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   activated?: boolean | undefined;
-  /** Time at which this recipient was created, in epoch milliseconds. */
+  /**
+   * Time at which this recipient was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of recipient creator. */
+  /**
+   * Username of recipient creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** This field is only present when the __authentication_type__ is **TOKEN**. */
+  /**
+   * This field is only present when the __authentication_type__ is **TOKEN**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   tokens?: RecipientTokenInfo[] | undefined;
-  /** Time at which the recipient was updated, in epoch milliseconds. */
+  /**
+   * Time at which the recipient was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of recipient updater. */
+  /**
+   * Username of recipient updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
   /**
    * Cloud vendor of the recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   cloud?: string | undefined;
   /**
    * Cloud region of the recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   region?: string | undefined;
   /**
    * Unique identifier of recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   metastoreId?: string | undefined;
-  /** [Create,Update:IGN] common - id of the recipient */
+  /**
+   * [Create,Update:IGN] common - id of the recipient
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
 }
 
@@ -243,27 +307,59 @@ export interface CreateShareRequest {
   storageRoot?: string | undefined;
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
-  /** Time at which this share was created, in epoch milliseconds. */
+  /**
+   * Time at which this share was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of share creator. */
+  /**
+   * Username of share creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this share was updated, in epoch milliseconds. */
+  /**
+   * Time at which this share was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of share updater. */
+  /**
+   * Username of share updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Storage Location URL (full path) for the share. */
+  /**
+   * Storage Location URL (full path) for the share.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   storageLocation?: string | undefined;
 }
 
 export interface DeleteFederationPolicyRequest {
-  /** Name of the recipient. This is the name of the recipient for which the policy is being deleted. */
+  /**
+   * Name of the recipient. This is the name of the recipient for which the policy is being deleted.
+   *
+   * Required. This field must be set in requests.
+   */
   recipientName?: string | undefined;
-  /** Name of the policy. This is the name of the policy to be deleted. */
+  /**
+   * Name of the policy. This is the name of the policy to be deleted.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface DeleteProviderRequest {
-  /** Name of the provider. */
+  /**
+   * Name of the provider.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
@@ -271,7 +367,11 @@ export interface DeleteProviderRequest {
 export interface DeleteProviderResponse {}
 
 export interface DeleteRecipientRequest {
-  /** Name of the recipient. */
+  /**
+   * Name of the recipient.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -279,7 +379,11 @@ export interface DeleteRecipientRequest {
 export interface DeleteRecipientResponse {}
 
 export interface DeleteShareRequest {
-  /** The name of the share. */
+  /**
+   * The name of the share.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -313,13 +417,25 @@ export interface FederationPolicy {
         oidcPolicy: OidcFederationPolicy;
       }
     | undefined;
-  /** System-generated timestamp indicating when the policy was created. */
+  /**
+   * System-generated timestamp indicating when the policy was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   createTime?: Temporal.Instant | undefined;
   /** Description of the policy. This is a user-provided description. */
   comment?: string | undefined;
-  /** System-generated timestamp indicating when the policy was last updated. */
+  /**
+   * System-generated timestamp indicating when the policy was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** Unique, immutable system-generated identifier for the federation policy. */
+  /**
+   * Unique, immutable system-generated identifier for the federation policy.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   id?: string | undefined;
 }
 
@@ -398,7 +514,11 @@ export interface FunctionParameterInfos {
 }
 
 export interface GetActivationUrlInfoRequest {
-  /** The one time activation url. It also accepts activation token. */
+  /**
+   * The one time activation url. It also accepts activation token.
+   *
+   * Required. This field must be set in requests.
+   */
   activationUrl?: string | undefined;
 }
 
@@ -406,19 +526,35 @@ export interface GetActivationUrlInfoRequest {
 export interface GetActivationUrlInfoResponse {}
 
 export interface GetFederationPolicyRequest {
-  /** Name of the recipient. This is the name of the recipient for which the policy is being retrieved. */
+  /**
+   * Name of the recipient. This is the name of the recipient for which the policy is being retrieved.
+   *
+   * Required. This field must be set in requests.
+   */
   recipientName?: string | undefined;
-  /** Name of the policy. This is the name of the policy to be retrieved. */
+  /**
+   * Name of the policy. This is the name of the policy to be retrieved.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetProviderRequest {
-  /** Name of the provider. */
+  /**
+   * Name of the provider.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
 export interface GetRecipientRequest {
-  /** Name of the recipient. */
+  /**
+   * Name of the recipient.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -443,7 +579,11 @@ export interface GetSharePermissionsResponse {
 }
 
 export interface GetShareRequest {
-  /** The name of the share. */
+  /**
+   * The name of the share.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Query for data to include in the share. */
   includeSharedData?: boolean | undefined;
@@ -455,7 +595,11 @@ export interface IpAccessList {
 }
 
 export interface ListFederationPoliciesRequest {
-  /** Name of the recipient. This is the name of the recipient for which the policies are being listed. */
+  /**
+   * Name of the recipient. This is the name of the recipient for which the policies are being listed.
+   *
+   * Required. This field must be set in requests.
+   */
   recipientName?: string | undefined;
   maxResults?: number | undefined;
   pageToken?: string | undefined;
@@ -468,9 +612,17 @@ export interface ListFederationPoliciesResponse {
 
 /** Request to fetch the list of assets of a share that is shared with the recipient. */
 export interface ListProviderShareAssetsRequest {
-  /** The name of the provider who owns the share. */
+  /**
+   * The name of the provider who owns the share.
+   *
+   * Required. This field must be set in requests.
+   */
   providerNameArg?: string | undefined;
-  /** The name of the share. */
+  /**
+   * The name of the share.
+   *
+   * Required. This field must be set in requests.
+   */
   shareNameArg?: string | undefined;
   /** Maximum number of tables to return. */
   tableMaxResults?: number | undefined;
@@ -497,7 +649,11 @@ export interface ListProviderShareAssetsResponse {
 }
 
 export interface ListProviderSharesRequest {
-  /** Name of the provider in which to list shares. */
+  /**
+   * Name of the provider in which to list shares.
+   *
+   * Required. This field must be set in requests.
+   */
   providerNameArg?: string | undefined;
   /**
    * Maximum number of shares to return.
@@ -554,7 +710,11 @@ export interface ListProvidersResponse {
 }
 
 export interface ListRecipientSharePermissionsRequest {
-  /** The name of the Recipient. */
+  /**
+   * The name of the Recipient.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Maximum number of permissions to return.
@@ -601,7 +761,11 @@ export interface ListRecipientsResponse {
 }
 
 export interface ListSharePermissionsRequest {
-  /** The name of the share. */
+  /**
+   * The name of the share.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Maximum number of permissions to return.
@@ -662,7 +826,11 @@ export interface NotebookFile {
  * Refer to https://docs.databricks.com/en/delta-sharing/create-recipient-oidc-fed for more details.
  */
 export interface OidcFederationPolicy {
-  /** The required token issuer, as specified in the 'iss' claim of federated tokens. */
+  /**
+   * The required token issuer, as specified in the 'iss' claim of federated tokens.
+   *
+   * Required. This field must be set in requests.
+   */
   issuer?: string | undefined;
   /**
    * The claim that contains the subject of the token.
@@ -678,6 +846,8 @@ export interface OidcFederationPolicy {
    * - `azp`: Client ID of the OAuth app.
    * - `groups`: Object ID of the group.
    * - `sub`: Subject identifier for other use cases.
+   *
+   * Required. This field must be set in requests.
    */
   subjectClaim?: string | undefined;
   /**
@@ -687,6 +857,8 @@ export interface OidcFederationPolicy {
    * - U2M flow (group access): If the subject claim is `groups`, this must be the Object ID of the group in Entra ID.
    * - U2M flow (user access): If the subject claim is `oid`, this must be the Object ID of the user in Entra ID.
    * - M2M flow (OAuth App access): If the subject claim is `azp`, this must be the client ID of the OAuth app registered in Entra ID.
+   *
+   * Required. This field must be set in requests.
    */
   subject?: string | undefined;
   /**
@@ -757,7 +929,11 @@ export interface PrivilegeAssignment {
 
 /** An object with __properties__ containing map of key-value properties attached to the securable. */
 export interface PropertiesKvPairs {
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 
@@ -773,19 +949,47 @@ export interface ProviderInfo {
   owner?: string | undefined;
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
   recipientProfile?: RecipientProfile | undefined;
-  /** Time at which this Provider was created, in epoch milliseconds. */
+  /**
+   * Time at which this Provider was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of Provider creator. */
+  /**
+   * Username of Provider creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this Provider was created, in epoch milliseconds. */
+  /**
+   * Time at which this Provider was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of user who last modified Provider. */
+  /**
+   * Username of user who last modified Provider.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   cloud?: string | undefined;
-  /** Cloud region of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * Cloud region of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   region?: string | undefined;
-  /** UUID of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * UUID of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
   /** The global UC metastore id of the data provider. This field is only present when the __authentication_type__ is **DATABRICKS**. The identifier is of format __cloud__:__region__:__metastore-uuid__. */
   dataProviderGlobalMetastoreId?: string | undefined;
@@ -825,36 +1029,72 @@ export interface RecipientInfo {
   /**
    * Full activation url to retrieve the access token.
    * It will be empty if the token is already retrieved.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   activationUrl?: string | undefined;
-  /** A boolean status field showing whether the Recipient's activation URL has been exercised or not. */
+  /**
+   * A boolean status field showing whether the Recipient's activation URL has been exercised or not.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   activated?: boolean | undefined;
-  /** Time at which this recipient was created, in epoch milliseconds. */
+  /**
+   * Time at which this recipient was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of recipient creator. */
+  /**
+   * Username of recipient creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** This field is only present when the __authentication_type__ is **TOKEN**. */
+  /**
+   * This field is only present when the __authentication_type__ is **TOKEN**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   tokens?: RecipientTokenInfo[] | undefined;
-  /** Time at which the recipient was updated, in epoch milliseconds. */
+  /**
+   * Time at which the recipient was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of recipient updater. */
+  /**
+   * Username of recipient updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
   /**
    * Cloud vendor of the recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   cloud?: string | undefined;
   /**
    * Cloud region of the recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   region?: string | undefined;
   /**
    * Unique identifier of recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   metastoreId?: string | undefined;
-  /** [Create,Update:IGN] common - id of the recipient */
+  /**
+   * [Create,Update:IGN] common - id of the recipient
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
 }
 
@@ -868,19 +1108,47 @@ export interface RecipientProfile {
 }
 
 export interface RecipientTokenInfo {
-  /** Unique ID of the recipient token. */
+  /**
+   * Unique ID of the recipient token.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** Time at which this recipient token was created, in epoch milliseconds. */
+  /**
+   * Time at which this recipient token was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of recipient token creator. */
+  /**
+   * Username of recipient token creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Full activation URL to retrieve the access token. It will be empty if the token is already retrieved. */
+  /**
+   * Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   activationUrl?: string | undefined;
-  /** Expiration timestamp of the token in epoch milliseconds. */
+  /**
+   * Expiration timestamp of the token in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   expirationTime?: bigint | undefined;
-  /** Time at which this recipient token was updated, in epoch milliseconds. */
+  /**
+   * Time at which this recipient token was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of recipient token updater. */
+  /**
+   * Username of recipient token updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
 }
 
@@ -892,28 +1160,54 @@ export interface RegisteredModelAlias {
 }
 
 export interface RetrieveTokenRequest {
-  /** The one time activation url. It also accepts activation token. */
+  /**
+   * The one time activation url. It also accepts activation token.
+   *
+   * Required. This field must be set in requests.
+   */
   activationUrl?: string | undefined;
 }
 
 export interface RetrieveTokenResponse {
-  /** These field names must follow the delta sharing protocol. */
+  /**
+   * These field names must follow the delta sharing protocol.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   shareCredentialsVersion?: number | undefined;
-  /** The token used to authorize the recipient. */
+  /**
+   * The token used to authorize the recipient.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   bearerToken?: string | undefined;
-  /** The endpoint for the share to be used by the recipient. */
+  /**
+   * The endpoint for the share to be used by the recipient.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpoint?: string | undefined;
-  /** Expiration timestamp of the token in epoch milliseconds. */
+  /**
+   * Expiration timestamp of the token in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   expirationTime?: string | undefined;
 }
 
 export interface RotateRecipientTokenRequest {
-  /** The name of the Recipient. */
+  /**
+   * The name of the Recipient.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * The expiration time of the bearer token in ISO 8601 format. This will set the expiration_time
    * of existing token only to a smaller timestamp, it cannot extend the expiration_time. Use 0 to
    * expire the existing token immediately, negative number will return an error.
+   *
+   * Required. This field must be set in requests.
    */
   existingTokenExpireInSeconds?: bigint | undefined;
 }
@@ -934,15 +1228,35 @@ export interface ShareInfo {
   storageRoot?: string | undefined;
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
-  /** Time at which this share was created, in epoch milliseconds. */
+  /**
+   * Time at which this share was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of share creator. */
+  /**
+   * Username of share creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this share was updated, in epoch milliseconds. */
+  /**
+   * Time at which this share was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of share updater. */
+  /**
+   * Username of share updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Storage Location URL (full path) for the share. */
+  /**
+   * Storage Location URL (full path) for the share.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   storageLocation?: string | undefined;
 }
 
@@ -957,13 +1271,23 @@ export interface SharedDataObject {
   /**
    * A fully qualified name that uniquely identifies a data object.
    * For example, a table's fully qualified name is in the format of `<catalog>.<schema>.<table>`,
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /** The type of the data object. */
   dataObjectType?: string | undefined;
-  /** The time when this data object is added to the share, in epoch milliseconds. */
+  /**
+   * The time when this data object is added to the share, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   addedAt?: bigint | undefined;
-  /** Username of the sharer. */
+  /**
+   * Username of the sharer.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   addedBy?: string | undefined;
   /** A user-provided comment when adding the data object to the share. */
   comment?: string | undefined;
@@ -1089,7 +1413,11 @@ export interface TagKeyValue {
 }
 
 export interface UpdateProviderRequest {
-  /** Name of the provider. */
+  /**
+   * Name of the provider.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name for the provider. */
   newName?: string | undefined;
@@ -1104,26 +1432,58 @@ export interface UpdateProviderRequest {
   owner?: string | undefined;
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
   recipientProfile?: RecipientProfile | undefined;
-  /** Time at which this Provider was created, in epoch milliseconds. */
+  /**
+   * Time at which this Provider was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of Provider creator. */
+  /**
+   * Username of Provider creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this Provider was created, in epoch milliseconds. */
+  /**
+   * Time at which this Provider was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of user who last modified Provider. */
+  /**
+   * Username of user who last modified Provider.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * Cloud vendor of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   cloud?: string | undefined;
-  /** Cloud region of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * Cloud region of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   region?: string | undefined;
-  /** UUID of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**. */
+  /**
+   * UUID of the provider's UC metastore. This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
   /** The global UC metastore id of the data provider. This field is only present when the __authentication_type__ is **DATABRICKS**. The identifier is of format __cloud__:__region__:__metastore-uuid__. */
   dataProviderGlobalMetastoreId?: string | undefined;
 }
 
 export interface UpdateRecipientRequest {
-  /** Name of the recipient. */
+  /**
+   * Name of the recipient.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /**
    * New name for the recipient.
@@ -1158,41 +1518,81 @@ export interface UpdateRecipientRequest {
   /**
    * Full activation url to retrieve the access token.
    * It will be empty if the token is already retrieved.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   activationUrl?: string | undefined;
-  /** A boolean status field showing whether the Recipient's activation URL has been exercised or not. */
+  /**
+   * A boolean status field showing whether the Recipient's activation URL has been exercised or not.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   activated?: boolean | undefined;
-  /** Time at which this recipient was created, in epoch milliseconds. */
+  /**
+   * Time at which this recipient was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of recipient creator. */
+  /**
+   * Username of recipient creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** This field is only present when the __authentication_type__ is **TOKEN**. */
+  /**
+   * This field is only present when the __authentication_type__ is **TOKEN**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   tokens?: RecipientTokenInfo[] | undefined;
-  /** Time at which the recipient was updated, in epoch milliseconds. */
+  /**
+   * Time at which the recipient was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of recipient updater. */
+  /**
+   * Username of recipient updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
   /**
    * Cloud vendor of the recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   cloud?: string | undefined;
   /**
    * Cloud region of the recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   region?: string | undefined;
   /**
    * Unique identifier of recipient's Unity Catalog Metastore.
    * This field is only present when the __authentication_type__ is **DATABRICKS**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   metastoreId?: string | undefined;
-  /** [Create,Update:IGN] common - id of the recipient */
+  /**
+   * [Create,Update:IGN] common - id of the recipient
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
 }
 
 export interface UpdateSharePermissionsRequest {
-  /** The name of the share. */
+  /**
+   * The name of the share.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Optional. Whether to return the latest permissions list of the share in the response. */
   omitPermissionsList?: boolean | undefined;
@@ -1206,7 +1606,11 @@ export interface UpdateSharePermissionsResponse {
 }
 
 export interface UpdateShareRequest {
-  /** The name of the share. */
+  /**
+   * The name of the share.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name for the share. */
   newName?: string | undefined;
@@ -1222,15 +1626,35 @@ export interface UpdateShareRequest {
   storageRoot?: string | undefined;
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
-  /** Time at which this share was created, in epoch milliseconds. */
+  /**
+   * Time at which this share was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** Username of share creator. */
+  /**
+   * Username of share creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this share was updated, in epoch milliseconds. */
+  /**
+   * Time at which this share was updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Username of share updater. */
+  /**
+   * Username of share updater.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Storage Location URL (full path) for the share. */
+  /**
+   * Storage Location URL (full path) for the share.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   storageLocation?: string | undefined;
 }
 

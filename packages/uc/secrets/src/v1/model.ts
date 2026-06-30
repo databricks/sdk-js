@@ -10,6 +10,8 @@ export interface CreateSecretRequest {
   /**
    * The secret object to create. The **name**, **catalog_name**, **schema_name**, and **value**
    * fields are required.
+   *
+   * Required. This field must be set in requests.
    */
   secret?: Secret | undefined;
 }
@@ -19,6 +21,8 @@ export interface DeleteSecretRequest {
   /**
    * The three-level (fully qualified) name of the secret
    * (for example, **catalog_name.schema_name.secret_name**).
+   *
+   * Required. This field must be set in requests.
    */
   fullName?: string | undefined;
 }
@@ -28,6 +32,8 @@ export interface GetSecretRequest {
   /**
    * The three-level (fully qualified) name of the secret
    * (for example, **catalog_name.schema_name.secret_name**).
+   *
+   * Required. This field must be set in requests.
    */
   fullName?: string | undefined;
   /**
@@ -72,11 +78,17 @@ export interface ListSecretsRequest {
 
 /** Response message for ListSecrets. */
 export interface ListSecretsResponse {
-  /** An array of secret objects. */
+  /**
+   * An array of secret objects.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   secrets?: Secret[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
    * **page_token** should be set to this value for the next request.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   nextPageToken?: string | undefined;
 }
@@ -87,51 +99,97 @@ export interface ListSecretsResponse {
  * passwords, tokens, and keys.
  */
 export interface Secret {
-  /** The name of the secret, relative to its parent schema. */
+  /**
+   * The name of the secret, relative to its parent schema.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   name?: string | undefined;
   /**
    * The owner of the secret. Defaults to the creating principal on creation. Can be updated to
    * transfer ownership of the secret to another principal.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   owner?: string | undefined;
   /**
    * The effective owner of the secret, which may differ from the directly-set **owner** due to
    * inheritance.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveOwner?: string | undefined;
-  /** Unique identifier of the metastore hosting the secret. */
+  /**
+   * Unique identifier of the metastore hosting the secret.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
-  /** The time at which this secret was created. */
+  /**
+   * The time at which this secret was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The principal that created the secret. */
+  /**
+   * The principal that created the secret.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** The time at which this secret was last updated. */
+  /**
+   * The time at which this secret was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The principal that last updated the secret. */
+  /**
+   * The principal that last updated the secret.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
   /** User-provided free-form text description of the secret. */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the secret, in the form of **catalog_name.schema_name.secret_name**. */
+  /**
+   * The three-level (fully qualified) name of the secret, in the form of **catalog_name.schema_name.secret_name**.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   fullName?: string | undefined;
-  /** The name of the catalog where the schema and the secret reside. */
+  /**
+   * The name of the catalog where the schema and the secret reside.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   catalogName?: string | undefined;
-  /** The name of the schema where the secret resides. */
+  /**
+   * The name of the schema where the secret resides.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   schemaName?: string | undefined;
   /**
    * The secret value to store. This field is input-only and is not returned in responses — use
    * the **effective_value** field (via GetSecret with **include_value** set to true) to read the
    * secret value. The maximum size is 60 KiB (pre-encryption). Accepted content includes
    * passwords, tokens, keys, and other sensitive credential data.
+   *
+   * Required. This field must be set in requests. Input only. Provide this field in requests; it is never returned in responses.
    */
   value?: string | undefined;
   /**
    * The secret value. Only populated in responses when you have the **READ_SECRET**
    * privilege and **include_value** is set to true in the request. The maximum size is 60 KiB.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   effectiveValue?: string | undefined;
   /**
    * Indicates whether the principal is limited to retrieving metadata for the associated object
    * through the **BROWSE** privilege when **include_browse** is enabled in the request.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   browseOnly?: boolean | undefined;
   /**
@@ -140,6 +198,7 @@ export interface Secret {
    * does not trigger any automatic actions or affect the secret's lifecycle.
    */
   expireTime?: Temporal.Instant | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   externalSecretId?: string | undefined;
 }
 
@@ -148,16 +207,22 @@ export interface UpdateSecretRequest {
   /**
    * The three-level (fully qualified) name of the secret
    * (for example, **catalog_name.schema_name.secret_name**).
+   *
+   * Required. This field must be set in requests.
    */
   fullName?: string | undefined;
   /**
    * The secret object containing the fields to update. Only fields specified in **update_mask**
    * will be updated.
+   *
+   * Required. This field must be set in requests.
    */
   secret?: Secret | undefined;
   /**
    * The field mask specifying which fields of the secret to update. Supported fields: **value**,
    * **comment**, **owner**, **expire_time**.
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<Secret> | undefined;
 }

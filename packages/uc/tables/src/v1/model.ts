@@ -326,8 +326,13 @@ export interface ConnectionDependency {
 }
 
 export interface CreateTableConstraintRequest {
-  /** The full name of the table referenced by the constraint. */
+  /**
+   * The full name of the table referenced by the constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
+  /** Required. This field must be set in requests. */
   constraint?: TableConstraint | undefined;
 }
 
@@ -398,7 +403,11 @@ export interface CreateTableRequest {
   securableKindManifest?: SecurableKindManifest | undefined;
   /** The array of __ColumnInfo__ definitions of the table's columns. */
   columns?: ColumnInfo[] | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 
@@ -409,13 +418,23 @@ export interface CredentialDependency {
 }
 
 export interface DeleteTableConstraintRequest {
-  /** Full name of the table referenced by the constraint. */
+  /**
+   * Full name of the table referenced by the constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
-  /** The name of the constraint to delete. */
+  /**
+   * The name of the constraint to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   constraintName?: string | undefined;
   /**
    * If true, try deleting all child constraints of the current constraint.
    * If false, reject this operation if the current constraint has any child constraints.
+   *
+   * Required. This field must be set in requests.
    */
   cascade?: boolean | undefined;
 }
@@ -424,7 +443,11 @@ export interface DeleteTableConstraintRequest {
 export interface DeleteTableConstraintResponse {}
 
 export interface DeleteTableRequest {
-  /** Full name of the table. */
+  /**
+   * Full name of the table.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
 }
 
@@ -436,7 +459,11 @@ export interface DeleteTableResponse {}
  * This does not contain **delta.*** (input) properties in __TableInfo.properties__.
  */
 export interface DeltaRuntimePropertiesKvPairs {
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   deltaRuntimeProperties?: Record<string, string> | undefined;
 }
 
@@ -460,7 +487,11 @@ export interface DependencyList {
 }
 
 export interface EffectivePredictiveOptimizationFlag {
-  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  /**
+   * Whether predictive optimization should be enabled for this object and objects under it.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
   /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
   inheritedFromType?: string | undefined;
@@ -480,13 +511,29 @@ export interface EncryptionDetails {
 }
 
 export interface ForeignKeyConstraint {
-  /** The name of the constraint. */
+  /**
+   * The name of the constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Column names for this constraint. */
+  /**
+   * Column names for this constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   childColumns?: string[] | undefined;
-  /** The full name of the parent constraint. */
+  /**
+   * The full name of the parent constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   parentTable?: string | undefined;
-  /** Column names for this constraint. */
+  /**
+   * Column names for this constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   parentColumns?: string[] | undefined;
   /** True if the constraint is RELY, false or unset if NORELY. */
   rely?: boolean | undefined;
@@ -494,12 +541,20 @@ export interface ForeignKeyConstraint {
 
 /** A function that is dependent on a SQL object. */
 export interface FunctionDependency {
-  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  /**
+   * Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__.
+   *
+   * Required. This field must be set in requests.
+   */
   functionFullName?: string | undefined;
 }
 
 export interface GetTableRequest {
-  /** Full name of the table. */
+  /**
+   * Full name of the table.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Whether delta metadata should be included in the response. */
   includeDeltaMetadata?: boolean | undefined;
@@ -510,7 +565,11 @@ export interface GetTableRequest {
 }
 
 export interface ListTableSummariesRequest {
-  /** Name of parent catalog for tables of interest. */
+  /**
+   * Name of parent catalog for tables of interest.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
   /**
    * A sql LIKE pattern (% and _) for schema names.
@@ -547,9 +606,17 @@ export interface ListTableSummariesResponse {
 }
 
 export interface ListTablesRequest {
-  /** Name of parent catalog for tables of interest. */
+  /**
+   * Name of parent catalog for tables of interest.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
-  /** Parent schema of tables. */
+  /**
+   * Parent schema of tables.
+   *
+   * Required. This field must be set in requests.
+   */
   schemaName?: string | undefined;
   /**
    * Maximum number of tables to return.
@@ -584,7 +651,11 @@ export interface ListTablesResponse {
 }
 
 export interface NamedTableConstraint {
-  /** The name of the constraint. */
+  /**
+   * The name of the constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -651,9 +722,17 @@ export interface PolicyFunctionArgument {
 }
 
 export interface PrimaryKeyConstraint {
-  /** The name of the constraint. */
+  /**
+   * The name of the constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Column names for this constraint. */
+  /**
+   * Column names for this constraint.
+   *
+   * Required. This field must be set in requests.
+   */
   childColumns?: string[] | undefined;
   /** Column names that represent a timeseries. */
   timeseriesColumns?: string[] | undefined;
@@ -662,11 +741,17 @@ export interface PrimaryKeyConstraint {
 }
 
 export interface RowFilter {
-  /** The full name of the row filter SQL UDF. */
+  /**
+   * The full name of the row filter SQL UDF.
+   *
+   * Required. This field must be set in requests.
+   */
   functionName?: string | undefined;
   /**
    * The list of table columns to be passed as input to the row filter function. The column types
    * should match the types of the filter function arguments.
+   *
+   * Required. This field must be set in requests.
    */
   inputColumnNames?: string[] | undefined;
   /**
@@ -725,12 +810,20 @@ export interface TableConstraint {
 
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
-  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  /**
+   * Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__.
+   *
+   * Required. This field must be set in requests.
+   */
   tableFullName?: string | undefined;
 }
 
 export interface TableExistsRequest {
-  /** Full name of the table. */
+  /**
+   * Full name of the table.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
 }
 
@@ -806,7 +899,11 @@ export interface TableInfo {
   securableKindManifest?: SecurableKindManifest | undefined;
   /** The array of __ColumnInfo__ definitions of the table's columns. */
   columns?: ColumnInfo[] | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 
@@ -819,7 +916,11 @@ export interface TableSummary {
 }
 
 export interface UpdateTableRequest {
-  /** Full name of the table. */
+  /**
+   * Full name of the table.
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Name of table, relative to parent schema. */
   name?: string | undefined;
@@ -887,7 +988,11 @@ export interface UpdateTableRequest {
   securableKindManifest?: SecurableKindManifest | undefined;
   /** The array of __ColumnInfo__ definitions of the table's columns. */
   columns?: ColumnInfo[] | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 

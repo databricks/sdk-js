@@ -45,11 +45,23 @@ export interface DeleteExternalMetadataRequest {
 }
 
 export interface ExternalMetadata {
-  /** Name of the external metadata object. */
+  /**
+   * Name of the external metadata object.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Type of external system. */
+  /**
+   * Type of external system.
+   *
+   * Required. This field must be set in requests.
+   */
   systemType?: SystemType | undefined;
-  /** Type of entity within the external system. */
+  /**
+   * Type of entity within the external system.
+   *
+   * Required. This field must be set in requests.
+   */
   entityType?: string | undefined;
   /** URL associated with the external metadata object. */
   url?: string | undefined;
@@ -61,17 +73,41 @@ export interface ExternalMetadata {
   properties?: Record<string, string> | undefined;
   /** Owner of the external metadata object. */
   owner?: string | undefined;
-  /** Unique identifier of parent metastore. */
+  /**
+   * Unique identifier of parent metastore.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
-  /** Time at which this external metadata object was created. */
+  /**
+   * Time at which this external metadata object was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** Username of external metadata object creator. */
+  /**
+   * Username of external metadata object creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this external metadata object was last modified. */
+  /**
+   * Time at which this external metadata object was last modified.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** Username of user who last modified external metadata object. */
+  /**
+   * Username of user who last modified external metadata object.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedBy?: string | undefined;
-  /** Unique identifier of the external metadata object. */
+  /**
+   * Unique identifier of the external metadata object.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
 }
 
@@ -96,6 +132,7 @@ export interface ListExternalMetadataResponseV2 {
 
 export interface UpdateExternalMetadataRequest {
   externalMetadata?: ExternalMetadata | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<ExternalMetadata> | undefined;
 }
 

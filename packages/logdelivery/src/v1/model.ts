@@ -89,19 +89,35 @@ export interface CreateLogDeliveryConfigurationParams {
    * Log delivery type. Supported values are:
    * * `BILLABLE_USAGE` — Configure [billable usage log delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). For the CSV schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html).
    * * `AUDIT_LOGS` — Configure [audit log delivery](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html). For the JSON schema, see [Configure audit logging](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html)
+   *
+   * Required. This field must be set in requests.
    */
   logType?: LogDeliveryType | undefined;
   /**
    * The file type of log delivery.
    * * If `log_type` is `BILLABLE_USAGE`, this value must be `CSV`. Only the CSV (comma-separated values) format is supported. For the schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html)
    * * If `log_type` is `AUDIT_LOGS`, this value must be `JSON`. Only the JSON (JavaScript Object Notation) format is supported. For the schema, see the [Configuring audit logs](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html).
+   *
+   * Required. This field must be set in requests.
    */
   outputFormat?: LogDeliveryOutputFormat | undefined;
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
+  /**
+   * The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html).
+   *
+   * Required. This field must be set in requests.
+   */
   credentialsId?: string | undefined;
-  /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
+  /**
+   * The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html).
+   *
+   * Required. This field must be set in requests.
+   */
   storageConfigurationId?: string | undefined;
   /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
   workspaceIdsFilter?: bigint[] | undefined;
@@ -124,6 +140,7 @@ export interface CreateLogDeliveryConfigurationParams {
  * Properties of the new log delivery configuration.
  */
 export interface CreateLogDeliveryConfigurationRequest {
+  /** Required. This field must be set in requests. */
   logDeliveryConfiguration?: CreateLogDeliveryConfigurationParams | undefined;
 }
 
@@ -137,9 +154,17 @@ export interface CreateLogDeliveryConfigurationResponse {
  * Get Log Delivery Configuration
  */
 export interface GetLogDeliveryConfigurationRequest {
-  /** The log delivery configuration id of customer */
+  /**
+   * The log delivery configuration id of customer
+   *
+   * Required. This field must be set in requests.
+   */
   configId?: string | undefined;
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
 }
 
@@ -153,7 +178,11 @@ export interface GetLogDeliveryConfigurationResponse {
  * List Log Delivery Configuration
  */
 export interface ListLogDeliveryConfigurationRequest {
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /** The Credentials id to filter the search results with */
   credentialsId?: string | undefined;
@@ -188,19 +217,35 @@ export interface LogDeliveryConfiguration {
    * Log delivery type. Supported values are:
    * * `BILLABLE_USAGE` — Configure [billable usage log delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). For the CSV schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html).
    * * `AUDIT_LOGS` — Configure [audit log delivery](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html). For the JSON schema, see [Configure audit logging](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html)
+   *
+   * Required. This field must be set in requests.
    */
   logType?: LogDeliveryType | undefined;
   /**
    * The file type of log delivery.
    * * If `log_type` is `BILLABLE_USAGE`, this value must be `CSV`. Only the CSV (comma-separated values) format is supported. For the schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html)
    * * If `log_type` is `AUDIT_LOGS`, this value must be `JSON`. Only the JSON (JavaScript Object Notation) format is supported. For the schema, see the [Configuring audit logs](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html).
+   *
+   * Required. This field must be set in requests.
    */
   outputFormat?: LogDeliveryOutputFormat | undefined;
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
+  /**
+   * The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html).
+   *
+   * Required. This field must be set in requests.
+   */
   credentialsId?: string | undefined;
-  /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
+  /**
+   * The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html).
+   *
+   * Required. This field must be set in requests.
+   */
   storageConfigurationId?: string | undefined;
   /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
   workspaceIdsFilter?: bigint[] | undefined;
@@ -226,13 +271,19 @@ export interface LogDeliveryStatus {
    * * `USER_FAILURE`: The latest attempt of log delivery failed because of misconfiguration of customer provided permissions on role or storage.
    * * `SYSTEM_FAILURE`: The latest attempt of log delivery failed because of an <Databricks> internal error. Contact support if it doesn't go away soon.
    * * `NOT_FOUND`: The log delivery status as the configuration has been disabled since the release of this feature or there are no workspaces in the account.
+   *
+   * Required. This field must be set in requests.
    */
   status?: LogDeliveryStatusEnum | undefined;
   /** The UTC time for the latest log delivery attempt. */
   lastAttemptTime?: string | undefined;
   /** The UTC time for the latest successful log delivery. */
   lastSuccessfulAttemptTime?: string | undefined;
-  /** Informative message about the latest log delivery attempt. If the log delivery fails with USER_FAILURE, error details will be provided for fixing misconfigurations in cloud permissions. */
+  /**
+   * Informative message about the latest log delivery attempt. If the log delivery fails with USER_FAILURE, error details will be provided for fixing misconfigurations in cloud permissions.
+   *
+   * Required. This field must be set in requests.
+   */
   message?: string | undefined;
 }
 
@@ -241,11 +292,23 @@ export interface LogDeliveryStatus {
  * Update Log Delivery Configuration
  */
 export interface UpdateLogDeliveryConfigurationRequest {
-  /** The log delivery configuration id of customer */
+  /**
+   * The log delivery configuration id of customer
+   *
+   * Required. This field must be set in requests.
+   */
   configId?: string | undefined;
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html). */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html).
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Status of log delivery configuration. Set to `ENABLED` (enabled) or `DISABLED` (disabled). Defaults to `ENABLED`. You can [enable or disable the configuration](#operation/patch-log-delivery-config-status) later. Deletion of a configuration is not supported, so disable a log delivery configuration that is no longer needed. */
+  /**
+   * Status of log delivery configuration. Set to `ENABLED` (enabled) or `DISABLED` (disabled). Defaults to `ENABLED`. You can [enable or disable the configuration](#operation/patch-log-delivery-config-status) later. Deletion of a configuration is not supported, so disable a log delivery configuration that is no longer needed.
+   *
+   * Required. This field must be set in requests.
+   */
   status?: LogDeliveryConfigStatus | undefined;
 }
 

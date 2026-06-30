@@ -67,6 +67,7 @@ export type ProvisioningInfo_State =
   | (string & {});
 
 export interface AzureEncryptionSettings {
+  /** Required. This field must be set in requests. */
   azureTenantId?: string | undefined;
   azureCmkAccessConnectorId?: string | undefined;
   azureCmkManagedIdentityId?: string | undefined;
@@ -121,7 +122,11 @@ export interface CatalogInfo {
   customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
@@ -176,14 +181,22 @@ export interface CreateCatalogRequest {
   customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
 
 export interface DeleteCatalogRequest {
-  /** The name of the catalog. */
+  /**
+   * The name of the catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** Force deletion even if the catalog is not empty. */
   force?: boolean | undefined;
@@ -193,7 +206,11 @@ export interface DeleteCatalogRequest {
 export interface DeleteCatalogResponse {}
 
 export interface EffectivePredictiveOptimizationFlag {
-  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  /**
+   * Whether predictive optimization should be enabled for this object and objects under it.
+   *
+   * Required. This field must be set in requests.
+   */
   value?: string | undefined;
   /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
   inheritedFromType?: string | undefined;
@@ -215,7 +232,11 @@ export interface EncryptionSettings {
 }
 
 export interface GetCatalogRequest {
-  /** The name of the catalog. */
+  /**
+   * The name of the catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** Whether to include catalogs in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
@@ -260,7 +281,11 @@ export interface ProvisioningInfo {
 }
 
 export interface UpdateCatalogRequest {
-  /** The name of the catalog. */
+  /**
+   * The name of the catalog.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name for the catalog. */
   newName?: string | undefined;
@@ -312,7 +337,11 @@ export interface UpdateCatalogRequest {
   customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;

@@ -372,7 +372,11 @@ export interface CreateUserRequest {
 
 /** Delete a group */
 export interface DeleteAccountGroupRequest {
-  /** Unique ID for a group in the <Databricks> account. */
+  /**
+   * Unique ID for a group in the <Databricks> account.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
@@ -380,7 +384,11 @@ export interface DeleteAccountGroupRequest {
 
 /** Delete a service principal */
 export interface DeleteAccountServicePrincipalRequest {
-  /** Unique ID for a service principal in the <Databricks> account. */
+  /**
+   * Unique ID for a service principal in the <Databricks> account.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
@@ -388,7 +396,11 @@ export interface DeleteAccountServicePrincipalRequest {
 
 /** Delete a user */
 export interface DeleteAccountUserRequest {
-  /** Unique ID for a user in the <Databricks> account. */
+  /**
+   * Unique ID for a user in the <Databricks> account.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
@@ -396,25 +408,41 @@ export interface DeleteAccountUserRequest {
 
 /** Delete a group */
 export interface DeleteGroupRequest {
-  /** Unique ID for a group in the <Databricks> workspace. */
+  /**
+   * Unique ID for a group in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 /** Delete a service principal */
 export interface DeleteServicePrincipalRequest {
-  /** Unique ID for a service principal in the <Databricks> workspace. */
+  /**
+   * Unique ID for a service principal in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 /** Delete a user */
 export interface DeleteUserRequest {
-  /** Unique ID for a user in the <Databricks> workspace. */
+  /**
+   * Unique ID for a user in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 /** Get group details */
 export interface GetAccountGroupRequest {
-  /** Unique ID for a group in the <Databricks> account. */
+  /**
+   * Unique ID for a group in the <Databricks> account.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
@@ -422,7 +450,11 @@ export interface GetAccountGroupRequest {
 
 /** Get service principal details */
 export interface GetAccountServicePrincipalRequest {
-  /** Unique ID for a service principal in the <Databricks> account. */
+  /**
+   * Unique ID for a service principal in the <Databricks> account.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
@@ -438,7 +470,11 @@ export interface GetAccountUserRequest {
   excludedAttributes?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
   filter?: string | undefined;
-  /** Unique ID for a user in the <Databricks> account. */
+  /**
+   * Unique ID for a user in the <Databricks> account.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** Attribute to sort the results. Multi-part paths are supported. For example, `userName`, `name.givenName`, and `emails`. */
   sortBy?: string | undefined;
@@ -452,7 +488,11 @@ export interface GetAccountUserRequest {
 
 /** Get group details */
 export interface GetGroupRequest {
-  /** Unique ID for a group in the <Databricks> workspace. */
+  /**
+   * Unique ID for a group in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
@@ -470,7 +510,11 @@ export interface GetPasswordPermissionsRequest {}
 
 /** Get service principal details */
 export interface GetServicePrincipalRequest {
-  /** Unique ID for a service principal in the <Databricks> workspace. */
+  /**
+   * Unique ID for a service principal in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
@@ -484,7 +528,11 @@ export interface GetUserRequest {
   excludedAttributes?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
   filter?: string | undefined;
-  /** Unique ID for a user in the <Databricks> workspace. */
+  /**
+   * Unique ID for a user in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** Attribute to sort the results. Multi-part paths are supported. For example, `userName`, `name.givenName`, and `emails`. */
   sortBy?: string | undefined;
@@ -777,7 +825,11 @@ export interface Patch {
 }
 
 export interface PatchAccountGroupRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /**
+   * Unique ID in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
@@ -787,7 +839,11 @@ export interface PatchAccountGroupRequest {
 }
 
 export interface PatchAccountServicePrincipalRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /**
+   * Unique ID in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
@@ -797,7 +853,11 @@ export interface PatchAccountServicePrincipalRequest {
 }
 
 export interface PatchAccountUserRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /**
+   * Unique ID in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
@@ -807,7 +867,11 @@ export interface PatchAccountUserRequest {
 }
 
 export interface PatchGroupRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /**
+   * Unique ID in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   operations?: Patch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
@@ -815,7 +879,11 @@ export interface PatchGroupRequest {
 }
 
 export interface PatchServicePrincipalRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /**
+   * Unique ID in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   operations?: Patch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
@@ -823,7 +891,11 @@ export interface PatchServicePrincipalRequest {
 }
 
 export interface PatchUserRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /**
+   * Unique ID in the <Databricks> workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   operations?: Patch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */

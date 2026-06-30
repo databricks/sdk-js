@@ -124,6 +124,7 @@ export type RestrictWorkspaceAdminsMessage_Status =
   | (string & {});
 
 export interface AibiDashboardEmbeddingAccessPolicy {
+  /** Required. This field must be set in requests. */
   accessPolicyType?:
     | AibiDashboardEmbeddingAccessPolicy_AccessPolicyType
     | undefined;
@@ -196,27 +197,46 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {
  * to a workspace. Defaults to ALLOW_ALL.
  */
 export interface CollaborationPlatformConnectivityMessage {
+  /** Required. This field must be set in requests. */
   connectivity?:
     | CollaborationPlatformConnectivityMessage_Connectivity
     | undefined;
 }
 
 export interface GetPublicAccountSettingRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
 export interface GetPublicAccountUserPreferenceRequest {
-  /** <Databricks> account ID of the account being managed. */
+  /**
+   * <Databricks> account ID of the account being managed.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** User ID of the user whose setting is being retrieved. */
+  /**
+   * User ID of the user whose setting is being retrieved.
+   *
+   * Required. This field must be set in requests.
+   */
   userId?: string | undefined;
-  /** User Setting name. */
+  /**
+   * User Setting name.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetPublicWorkspaceSettingRequest {
-  /** Name of the setting */
+  /**
+   * Name of the setting
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -225,7 +245,11 @@ export interface IntegerMessage {
 }
 
 export interface ListAccountSettingsMetadataRequest {
-  /** <Databricks> account ID of the account being managed. */
+  /**
+   * <Databricks> account ID of the account being managed.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /**
    * The maximum number of settings to return. The service may return fewer than this value.
@@ -254,9 +278,17 @@ export interface ListAccountSettingsMetadataResponse {
 }
 
 export interface ListAccountUserPreferencesMetadataRequest {
-  /** <Databricks> account ID of the account being managed. */
+  /**
+   * <Databricks> account ID of the account being managed.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** User ID of the user whose settings metadata is being retrieved. */
+  /**
+   * User ID of the user whose settings metadata is being retrieved.
+   *
+   * Required. This field must be set in requests.
+   */
   userId?: string | undefined;
   /**
    * The maximum number of settings to return. The service may return fewer than this value.
@@ -316,24 +348,45 @@ export interface OperationalEmailCustomRecipientMessage {
 }
 
 export interface PatchPublicAccountSettingRequest {
-  /** <Databricks> account ID of the account being managed. */
+  /**
+   * <Databricks> account ID of the account being managed.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   setting?: Setting | undefined;
 }
 
 export interface PatchPublicAccountUserPreferenceRequest {
-  /** <Databricks> account ID of the account being managed. */
+  /**
+   * <Databricks> account ID of the account being managed.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** User ID of the user whose setting is being updated. */
+  /**
+   * User ID of the user whose setting is being updated.
+   *
+   * Required. This field must be set in requests.
+   */
   userId?: string | undefined;
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   setting?: UserPreference | undefined;
 }
 
 export interface PatchPublicWorkspaceSettingRequest {
-  /** Name of the setting */
+  /**
+   * Name of the setting
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   setting?: Setting | undefined;
 }
 
@@ -342,6 +395,7 @@ export interface PersonalComputeMessage {
 }
 
 export interface RestrictWorkspaceAdminsMessage {
+  /** Required. This field must be set in requests. */
   status?: RestrictWorkspaceAdminsMessage_Status | undefined;
   /**
    * When true, workspace admins cannot create governance tags.
@@ -423,17 +477,29 @@ export interface Setting {
   effectiveValue?:
     | {
         $case: 'effectiveBooleanVal';
-        /** Effective setting value for boolean type setting. This is the final effective value of setting. To set a value use boolean_val. */
+        /**
+         * Effective setting value for boolean type setting. This is the final effective value of setting. To set a value use boolean_val.
+         *
+         * Output only. The server sets this field in responses; any value sent in a request is ignored.
+         */
         effectiveBooleanVal: BooleanMessage;
       }
     | {
         $case: 'effectiveStringVal';
-        /** Effective setting value for string type setting. This is the final effective value of setting. To set a value use string_val. */
+        /**
+         * Effective setting value for string type setting. This is the final effective value of setting. To set a value use string_val.
+         *
+         * Output only. The server sets this field in responses; any value sent in a request is ignored.
+         */
         effectiveStringVal: StringMessage;
       }
     | {
         $case: 'effectiveIntegerVal';
-        /** Effective setting value for integer type setting. This is the final effective value of setting. To set a value use integer_val. */
+        /**
+         * Effective setting value for integer type setting. This is the final effective value of setting. To set a value use integer_val.
+         *
+         * Output only. The server sets this field in responses; any value sent in a request is ignored.
+         */
         effectiveIntegerVal: IntegerMessage;
       }
     | {
@@ -463,17 +529,29 @@ export interface Setting {
       }
     | {
         $case: 'effectiveAllowedAppsUserApiScopes';
-        /** Effective setting value for allowed_apps_user_api_scopes setting. This is the final effective value of setting. To set a value use allowed_apps_user_api_scopes. */
+        /**
+         * Effective setting value for allowed_apps_user_api_scopes setting. This is the final effective value of setting. To set a value use allowed_apps_user_api_scopes.
+         *
+         * Output only. The server sets this field in responses; any value sent in a request is ignored.
+         */
         effectiveAllowedAppsUserApiScopes: AllowedAppsUserApiScopesMessage;
       }
     | {
         $case: 'effectiveOperationalEmailCustomRecipient';
-        /** Effective setting value for operational_email_custom_recipient setting. This is the final effective value of setting. To set a value use operational_email_custom_recipient. */
+        /**
+         * Effective setting value for operational_email_custom_recipient setting. This is the final effective value of setting. To set a value use operational_email_custom_recipient.
+         *
+         * Output only. The server sets this field in responses; any value sent in a request is ignored.
+         */
         effectiveOperationalEmailCustomRecipient: OperationalEmailCustomRecipientMessage;
       }
     | {
         $case: 'effectiveCollaborationPlatformConnectivity';
-        /** Effective setting value for collaboration_platform_connectivity setting. This is the final effective value of setting. To set a value use collaboration_platform_connectivity. */
+        /**
+         * Effective setting value for collaboration_platform_connectivity setting. This is the final effective value of setting. To set a value use collaboration_platform_connectivity.
+         *
+         * Output only. The server sets this field in responses; any value sent in a request is ignored.
+         */
         effectiveCollaborationPlatformConnectivity: CollaborationPlatformConnectivityMessage;
       }
     | undefined;
@@ -527,8 +605,16 @@ export interface UserPreference {
    * The final effective value from server as per the policy evaluation.
    */
   effectiveValue?:
-    | {$case: 'effectiveBooleanVal'; effectiveBooleanVal: BooleanMessage}
-    | {$case: 'effectiveStringVal'; effectiveStringVal: StringMessage}
+    | {
+        $case: 'effectiveBooleanVal';
+        /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
+        effectiveBooleanVal: BooleanMessage;
+      }
+    | {
+        $case: 'effectiveStringVal';
+        /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
+        effectiveStringVal: StringMessage;
+      }
     | undefined;
 }
 

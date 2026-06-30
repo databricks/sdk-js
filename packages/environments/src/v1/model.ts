@@ -554,7 +554,11 @@ export interface ApiError {
 
 /** Request message for CreateWorkspaceBaseEnvironment. */
 export interface CreateWorkspaceBaseEnvironmentRequest {
-  /** Required. The workspace base environment to create. */
+  /**
+   * Required. The workspace base environment to create.
+   *
+   * Required. This field must be set in requests.
+   */
   workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
   /**
    * The ID to use for the workspace base environment, which will become the final component of
@@ -578,6 +582,8 @@ export interface DefaultWorkspaceBaseEnvironment {
   /**
    * The resource name of this singleton resource.
    * Format: default-workspace-base-environment
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   name?: string | undefined;
   /**
@@ -597,6 +603,8 @@ export interface DeleteWorkspaceBaseEnvironmentRequest {
   /**
    * Required. The resource name of the workspace base environment to delete.
    * Format: workspace-base-environments/{workspace_base_environment}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -625,6 +633,8 @@ export interface GetDefaultWorkspaceBaseEnvironmentRequest {
   /**
    * A static resource name of the default workspace base environment.
    * Format: default-workspace-base-environment
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -640,6 +650,8 @@ export interface GetWorkspaceBaseEnvironmentRequest {
   /**
    * Required. The resource name of the workspace base environment to retrieve.
    * Format: workspace-base-environments/{workspace_base_environment}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -714,13 +726,19 @@ export interface RefreshWorkspaceBaseEnvironmentRequest {
   /**
    * Required. The resource name of the workspace base environment to delete.
    * Format: workspace-base-environments/{workspace_base_environment}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 /** Request message for UpdateDefaultWorkspaceBaseEnvironment. */
 export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
-  /** Required. The default workspace base environment configuration to update. */
+  /**
+   * Required. The default workspace base environment configuration to update.
+   *
+   * Required. This field must be set in requests.
+   */
   defaultWorkspaceBaseEnvironment?: DefaultWorkspaceBaseEnvironment | undefined;
   /**
    * Field mask specifying which fields to update. Use comma as the separator for multiple fields (no space).
@@ -729,16 +747,21 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
    *
    * To unset one or both defaults, include the field path(s) in the mask and omit them from the request body.
    * To unset both, you must list both paths explicitly — the wildcard '*' cannot be used to unset fields.
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<DefaultWorkspaceBaseEnvironment> | undefined;
 }
 
 /** Request message for UpdateWorkspaceBaseEnvironment. */
 export interface UpdateWorkspaceBaseEnvironmentRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
   /**
    * Required. The workspace base environment with updated fields.
    * The name field is used to identify the environment to update.
+   *
+   * Required. This field must be set in requests.
    */
   workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
 }
@@ -753,27 +776,63 @@ export interface WorkspaceBaseEnvironment {
    * Format: workspace-base-environments/{workspace-base-environment}
    */
   name?: string | undefined;
-  /** Human-readable display name for the workspace base environment. */
+  /**
+   * Human-readable display name for the workspace base environment.
+   *
+   * Required. This field must be set in requests.
+   */
   displayName?: string | undefined;
   /** The WSFS or UC Volumes path to the environment YAML file. */
   filepath?: string | undefined;
-  /** User ID of the creator. */
+  /**
+   * User ID of the creator.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creatorUserId?: string | undefined;
-  /** Timestamp when the environment was created. */
+  /**
+   * Timestamp when the environment was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** User ID of the last user who updated the environment. */
+  /**
+   * User ID of the last user who updated the environment.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lastUpdatedUserId?: string | undefined;
-  /** Timestamp when the environment was last updated. */
+  /**
+   * Timestamp when the environment was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The status of the materialized workspace base environment. */
+  /**
+   * The status of the materialized workspace base environment.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: WorkspaceBaseEnvironmentCache_Status | undefined;
-  /** Status message providing additional details about the environment status. */
+  /**
+   * Status message providing additional details about the environment status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
-  /** Whether this is the default environment for the workspace. */
+  /**
+   * Whether this is the default environment for the workspace.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   isDefault?: boolean | undefined;
   /** The type of base environment (CPU or GPU). */
   baseEnvironmentType?: BaseEnvironmentType | undefined;
-  /** The environment specification containing version and dependencies. */
+  /**
+   * The environment specification containing version and dependencies.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   spec?: EnvironmentSpec | undefined;
 }
 

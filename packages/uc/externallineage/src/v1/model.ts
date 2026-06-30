@@ -53,15 +53,28 @@ export interface ColumnRelationship {
 }
 
 export interface CreateExternalLineageRelationshipRequest {
+  /** Required. This field must be set in requests. */
   externalLineageRelationship?: CreateRequestExternalLineage | undefined;
 }
 
 export interface CreateRequestExternalLineage {
-  /** Unique identifier of the external lineage relationship. */
+  /**
+   * Unique identifier of the external lineage relationship.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** Source object of the external lineage relationship. */
+  /**
+   * Source object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   source?: ExternalLineageRelationshipObject | undefined;
-  /** Target object of the external lineage relationship. */
+  /**
+   * Target object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   target?: ExternalLineageRelationshipObject | undefined;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
@@ -70,15 +83,28 @@ export interface CreateRequestExternalLineage {
 }
 
 export interface DeleteExternalLineageRelationshipRequest {
+  /** Required. This field must be set in requests. */
   externalLineageRelationship?: DeleteRequestExternalLineage | undefined;
 }
 
 export interface DeleteRequestExternalLineage {
-  /** Unique identifier of the external lineage relationship. */
+  /**
+   * Unique identifier of the external lineage relationship.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** Source object of the external lineage relationship. */
+  /**
+   * Source object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   source?: ExternalLineageRelationshipObject | undefined;
-  /** Target object of the external lineage relationship. */
+  /**
+   * Target object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   target?: ExternalLineageRelationshipObject | undefined;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
@@ -105,11 +131,23 @@ export interface ExternalLineageInfo {
 }
 
 export interface ExternalLineageRelationship {
-  /** Unique identifier of the external lineage relationship. */
+  /**
+   * Unique identifier of the external lineage relationship.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** Source object of the external lineage relationship. */
+  /**
+   * Source object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   source?: ExternalLineageRelationshipObject | undefined;
-  /** Target object of the external lineage relationship. */
+  /**
+   * Target object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   target?: ExternalLineageRelationshipObject | undefined;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
@@ -202,9 +240,15 @@ export interface ListExternalLineageRelationshipsRequest {
    * The object to query external lineage relationships for.
    * Since this field is a query parameter, please flatten the nested fields. For example, if the object is a table, the query parameter should look like:
    * `object_info.table.name=main.sales.customers`
+   *
+   * Required. This field must be set in requests.
    */
   objectInfo?: ExternalLineageRelationshipObject | undefined;
-  /** The lineage direction to filter on. */
+  /**
+   * The lineage direction to filter on.
+   *
+   * Required. This field must be set in requests.
+   */
   lineageDirection?: Direction_LineageDirection | undefined;
   /**
    * Specifies the maximum number of external lineage relationships to return in a single response.
@@ -221,16 +265,30 @@ export interface ListExternalLineageRelationshipsResponse {
 }
 
 export interface UpdateExternalLineageRelationshipRequest {
+  /** Required. This field must be set in requests. */
   externalLineageRelationship?: UpdateRequestExternalLineage | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<UpdateRequestExternalLineage> | undefined;
 }
 
 export interface UpdateRequestExternalLineage {
-  /** Unique identifier of the external lineage relationship. */
+  /**
+   * Unique identifier of the external lineage relationship.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** Source object of the external lineage relationship. */
+  /**
+   * Source object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   source?: ExternalLineageRelationshipObject | undefined;
-  /** Target object of the external lineage relationship. */
+  /**
+   * Target object of the external lineage relationship.
+   *
+   * Required. This field must be set in requests.
+   */
   target?: ExternalLineageRelationshipObject | undefined;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;

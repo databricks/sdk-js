@@ -77,7 +77,11 @@ export interface PublicTokenInfo {
 }
 
 export interface RevokeTokenRequest {
-  /** The ID of the token to be revoked. */
+  /**
+   * The ID of the token to be revoked.
+   *
+   * Required. This field must be set in requests.
+   */
   tokenId?: string | undefined;
 }
 
@@ -89,10 +93,19 @@ export interface RevokeTokenResponse {}
  * https://docs.databricks.com/api/workspace/api/scopes.
  */
 export interface UpdateTokenRequest {
-  /** The SHA-256 hash of the token to be updated. */
+  /**
+   * The SHA-256 hash of the token to be updated.
+   *
+   * Required. This field must be set in requests.
+   */
   tokenId?: string | undefined;
+  /** Required. This field must be set in requests. */
   token?: PublicTokenInfo | undefined;
-  /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
+  /**
+   * A list of field name under token, For example, {"update_mask": "comment,scopes"}
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<PublicTokenInfo> | undefined;
 }
 

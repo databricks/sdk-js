@@ -111,7 +111,9 @@ export interface CreateQueryRequestQuery {
 }
 
 export interface DateRange {
+  /** Required. This field must be set in requests. */
   start?: string | undefined;
+  /** Required. This field must be set in requests. */
   end?: string | undefined;
 }
 
@@ -335,6 +337,7 @@ export interface TrashQueryRequest {
 
 export interface UpdateQueryRequest {
   query?: UpdateQueryRequestQuery | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<UpdateQueryRequestQuery> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */

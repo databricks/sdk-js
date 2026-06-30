@@ -833,53 +833,98 @@ export interface App {
   /**
    * The name of the app. The name must contain only lowercase alphanumeric characters and hyphens.
    * It must be unique within the workspace.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /** The description of the app. */
   description?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   computeStatus?: ComputeStatus | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   appStatus?: ApplicationStatus | undefined;
-  /** The URL of the app once it is deployed. */
+  /**
+   * The URL of the app once it is deployed.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   url?: string | undefined;
   /**
    * The active deployment of the app. A deployment is considered active when it has been deployed
    * to the app compute.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   activeDeployment?: AppDeployment | undefined;
-  /** The creation time of the app. Formatted timestamp in ISO 6801. */
+  /**
+   * The creation time of the app. Formatted timestamp in ISO 6801.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The email of the user that created the app. */
+  /**
+   * The email of the user that created the app.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** The update time of the app. Formatted timestamp in ISO 6801. */
+  /**
+   * The update time of the app. Formatted timestamp in ISO 6801.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The email of the user that last updated the app. */
+  /**
+   * The email of the user that last updated the app.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updater?: string | undefined;
   /**
    * The pending deployment of the app. A deployment is considered pending when it is being prepared
    * for deployment to the app compute.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   pendingDeployment?: AppDeployment | undefined;
   /** Resources for the app. */
   resources?: AppResource[] | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   servicePrincipalId?: bigint | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   servicePrincipalName?: string | undefined;
   /**
    * The default workspace file system path of the source code from which app deployment are
    * created. This field tracks the workspace source code path of the last active deployment.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   defaultSourceCodePath?: string | undefined;
   budgetPolicyId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   effectiveBudgetPolicyId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   servicePrincipalClientId?: string | undefined;
   userApiScopes?: string[] | undefined;
-  /** The unique identifier of the app. */
+  /**
+   * The unique identifier of the app.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** The effective api scopes granted to the user access token. */
+  /**
+   * The effective api scopes granted to the user access token.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUserApiScopes?: string[] | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   oauth2AppIntegrationId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   oauth2AppClientId?: string | undefined;
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   effectiveUsagePolicyId?: string | undefined;
   /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
   computeMinInstances?: number | undefined;
@@ -891,7 +936,11 @@ export interface App {
    */
   gitRepository?: GitRepository | undefined;
   telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
-  /** The URL of the thumbnail image for the app. */
+  /**
+   * The URL of the thumbnail image for the app.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   thumbnailUrl?: string | undefined;
   /** Name of the space this app belongs to. */
   space?: string | undefined;
@@ -911,15 +960,35 @@ export interface AppDeployment {
   gitSource?: GitSource | undefined;
   /** The mode of which the deployment will manage the source code. */
   mode?: AppDeployment_Mode | undefined;
-  /** The deployment artifacts for an app. */
+  /**
+   * The deployment artifacts for an app.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   deploymentArtifacts?: AppDeploymentArtifacts | undefined;
-  /** Status and status message of the deployment */
+  /**
+   * Status and status message of the deployment
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: AppDeploymentStatus | undefined;
-  /** The creation time of the deployment. Formatted timestamp in ISO 6801. */
+  /**
+   * The creation time of the deployment. Formatted timestamp in ISO 6801.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The email of the user creates the deployment. */
+  /**
+   * The email of the user creates the deployment.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** The update time of the deployment. Formatted timestamp in ISO 6801. */
+  /**
+   * The update time of the deployment. Formatted timestamp in ISO 6801.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
   /** The command with which to run the app. This will override the command specified in the app.yaml file. */
   command?: string[] | undefined;
@@ -933,17 +1002,33 @@ export interface AppDeploymentArtifacts {
 }
 
 export interface AppDeploymentStatus {
-  /** State of the deployment. */
+  /**
+   * State of the deployment.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: AppDeployment_State | undefined;
-  /** Message corresponding with the deployment state. */
+  /**
+   * Message corresponding with the deployment state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
 }
 
 /** App manifest definition */
 export interface AppManifest {
-  /** The manifest schema version, for now only 1 is allowed */
+  /**
+   * The manifest schema version, for now only 1 is allowed
+   *
+   * Required. This field must be set in requests.
+   */
   version?: number | undefined;
-  /** Name of the app defined by manifest author / publisher */
+  /**
+   * Name of the app defined by manifest author / publisher
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Description of the app defined by manifest author / publisher */
   description?: string | undefined;
@@ -952,6 +1037,7 @@ export interface AppManifest {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceExperimentSpec {
+  /** Required. This field must be set in requests. */
   permission?:
     | AppManifest_AppResourceExperimentSpec_ExperimentPermission
     | undefined;
@@ -959,19 +1045,31 @@ export interface AppManifest_AppResourceExperimentSpec {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceJobSpec {
-  /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
+  /**
+   * Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AppManifest_AppResourceJobSpec_JobPermission | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSecretSpec {
-  /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
+  /**
+   * Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AppManifest_AppResourceSecretSpec_SecretPermission | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceServingEndpointSpec {
-  /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
+  /**
+   * Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?:
     | AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
     | undefined;
@@ -980,7 +1078,11 @@ export interface AppManifest_AppResourceServingEndpointSpec {
 /** AppResource related fields are copied from app.proto but excludes resource identifiers (e.g. name, id, key, scope, etc.) */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSpec {
-  /** Name of the App Resource. */
+  /**
+   * Name of the App Resource.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Description of the App Resource. */
   description?: string | undefined;
@@ -1008,7 +1110,11 @@ export interface AppManifest_AppResourceSpec {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSqlWarehouseSpec {
-  /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
+  /**
+   * Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?:
     | AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission
     | undefined;
@@ -1016,16 +1122,22 @@ export interface AppManifest_AppResourceSqlWarehouseSpec {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceUcSecurableSpec {
+  /** Required. This field must be set in requests. */
   securableType?:
     | AppManifest_AppResourceUcSecurableSpec_UcSecurableType
     | undefined;
+  /** Required. This field must be set in requests. */
   permission?:
     | AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission
     | undefined;
 }
 
 export interface AppResource {
-  /** Name of the App Resource. */
+  /**
+   * Name of the App Resource.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /** Description of the App Resource. */
   description?: string | undefined;
@@ -1049,26 +1161,42 @@ export interface AppResourceApp {
 }
 
 export interface AppResourceDatabase {
+  /** Required. This field must be set in requests. */
   instanceName?: string | undefined;
+  /** Required. This field must be set in requests. */
   databaseName?: string | undefined;
+  /** Required. This field must be set in requests. */
   permission?: AppResourceDatabase_DatabasePermission | undefined;
 }
 
 export interface AppResourceExperiment {
+  /** Required. This field must be set in requests. */
   experimentId?: string | undefined;
+  /** Required. This field must be set in requests. */
   permission?: AppResourceExperiment_ExperimentPermission | undefined;
 }
 
 export interface AppResourceGenieSpace {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   spaceId?: string | undefined;
+  /** Required. This field must be set in requests. */
   permission?: AppResourceGenieSpace_GenieSpacePermission | undefined;
 }
 
 export interface AppResourceJob {
-  /** Id of the job to grant permission on. */
+  /**
+   * Id of the job to grant permission on.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
-  /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
+  /**
+   * Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AppResourceJob_JobPermission | undefined;
 }
 
@@ -1079,35 +1207,68 @@ export interface AppResourcePostgres {
 }
 
 export interface AppResourceSecret {
-  /** Scope of the secret to grant permission on. */
+  /**
+   * Scope of the secret to grant permission on.
+   *
+   * Required. This field must be set in requests.
+   */
   scope?: string | undefined;
-  /** Key of the secret to grant permission on. */
+  /**
+   * Key of the secret to grant permission on.
+   *
+   * Required. This field must be set in requests.
+   */
   key?: string | undefined;
-  /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
+  /**
+   * Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AppResourceSecret_SecretPermission | undefined;
 }
 
 export interface AppResourceServingEndpoint {
-  /** Name of the serving endpoint to grant permission on. */
+  /**
+   * Name of the serving endpoint to grant permission on.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
+  /**
+   * Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AppResourceServingEndpoint_ServingEndpointPermission | undefined;
 }
 
 export interface AppResourceSqlWarehouse {
-  /** Id of the SQL warehouse to grant permission on. */
+  /**
+   * Id of the SQL warehouse to grant permission on.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
-  /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
+  /**
+   * Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER".
+   *
+   * Required. This field must be set in requests.
+   */
   permission?: AppResourceSqlWarehouse_SqlWarehousePermission | undefined;
 }
 
 export interface AppResourceUcSecurable {
+  /** Required. This field must be set in requests. */
   securableFullName?: string | undefined;
+  /** Required. This field must be set in requests. */
   securableType?: AppResourceUcSecurable_UcSecurableType | undefined;
+  /** Required. This field must be set in requests. */
   permission?: AppResourceUcSecurable_UcSecurablePermission | undefined;
   /**
    * The securable kind from Unity Catalog.
    * See https://docs.databricks.com/api/workspace/tables/get#securable_kind_manifest-securable_kind.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   securableKind?: string | undefined;
 }
@@ -1119,6 +1280,7 @@ export interface AppThumbnail {
 }
 
 export interface AppUpdate {
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   status?: AppUpdate_UpdateStatus | undefined;
   description?: string | undefined;
   budgetPolicyId?: string | undefined;
@@ -1135,34 +1297,59 @@ export interface AppUpdate {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppUpdate_UpdateStatus {
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   state?: AppUpdate_UpdateStatus_UpdateState | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   message?: string | undefined;
 }
 
 export interface ApplicationStatus {
-  /** State of the application. */
+  /**
+   * State of the application.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: ApplicationStatus_ApplicationState | undefined;
-  /** Application status message */
+  /**
+   * Application status message
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
-  /** The number of running instances of this application. */
+  /**
+   * The number of running instances of this application.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   runningInstances?: number | undefined;
 }
 
 export interface AsyncUpdateAppRequest {
   app?: App | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<App> | undefined;
   appName?: string | undefined;
 }
 
 export interface ComputeStatus {
-  /** State of the app compute. */
+  /**
+   * State of the app compute.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: ComputeStatus_ComputeState | undefined;
-  /** Compute status message */
+  /**
+   * Compute status message
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
   /**
    * The number of compute instances currently serving requests for this
    * application. An instance is considered active if it is reachable and ready
    * to handle requests.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   activeInstances?: number | undefined;
 }
@@ -1185,6 +1372,7 @@ export interface CreateCustomTemplateRequest {
 }
 
 export interface CreateSpaceRequest {
+  /** Required. This field must be set in requests. */
   space?: Space | undefined;
 }
 
@@ -1192,18 +1380,37 @@ export interface CustomTemplate {
   /**
    * The name of the template. It must contain only alphanumeric characters, hyphens, underscores, and whitespaces.
    * It must be unique within the workspace.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /** The description of the template. */
   description?: string | undefined;
-  /** The Git repository URL that the template resides in. */
+  /**
+   * The Git repository URL that the template resides in.
+   *
+   * Required. This field must be set in requests.
+   */
   gitRepo?: string | undefined;
-  /** The path to the template within the Git repository. */
+  /**
+   * The path to the template within the Git repository.
+   *
+   * Required. This field must be set in requests.
+   */
   path?: string | undefined;
-  /** The manifest of the template. It defines fields and default values when installing the template. */
+  /**
+   * The manifest of the template. It defines fields and default values when installing the template.
+   *
+   * Required. This field must be set in requests.
+   */
   manifest?: AppManifest | undefined;
-  /** The Git provider of the template. */
+  /**
+   * The Git provider of the template.
+   *
+   * Required. This field must be set in requests.
+   */
   gitProvider?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   creator?: string | undefined;
 }
 
@@ -1218,12 +1425,20 @@ export interface DeleteAppThumbnailRequest {
 }
 
 export interface DeleteCustomTemplateRequest {
-  /** The name of the custom template. */
+  /**
+   * The name of the custom template.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface DeleteSpaceRequest {
-  /** The name of the app space. */
+  /**
+   * The name of the app space.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -1262,7 +1477,11 @@ export interface GetAppUpdateRequest {
 }
 
 export interface GetCustomTemplateRequest {
-  /** The name of the custom template. */
+  /**
+   * The name of the custom template.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -1279,18 +1498,28 @@ export interface GetSpaceRequest {
 
 /** Git repository configuration specifying the location of the repository. */
 export interface GitRepository {
-  /** URL of the Git repository. */
+  /**
+   * URL of the Git repository.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
   /**
    * Git provider. Case insensitive. Supported values: gitHub, gitHubEnterprise, bitbucketCloud,
    * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
+   *
+   * Required. This field must be set in requests.
    */
   provider?: string | undefined;
 }
 
 /** Complete git source specification including repository location and reference. */
 export interface GitSource {
-  /** Git repository configuration. Populated from the app's git_repository configuration. */
+  /**
+   * Git repository configuration. Populated from the app's git_repository configuration.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   gitRepository?: GitRepository | undefined;
   /** Git reference to checkout. Mutually exclusive: branch, tag, or commit. */
   reference?:
@@ -1320,6 +1549,8 @@ export interface GitSource {
    * system after resolving the reference (branch, tag, or commit). If commit is specified
    * directly, this will match commit. If a branch or tag is specified, this contains the
    * commit SHA that the branch or tag pointed to at deployment time.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   resolvedCommit?: string | undefined;
 }
@@ -1429,49 +1660,104 @@ export interface Space {
   /**
    * The name of the app space. The name must contain only lowercase alphanumeric characters and hyphens.
    * It must be unique within the workspace.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /** The description of the app space. */
   description?: string | undefined;
-  /** The status of the app space. */
+  /**
+   * The status of the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: SpaceStatus | undefined;
-  /** The unique identifier of the app space. */
+  /**
+   * The unique identifier of the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   id?: string | undefined;
-  /** The creation time of the app space. Formatted timestamp in ISO 6801. */
+  /**
+   * The creation time of the app space. Formatted timestamp in ISO 6801.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** The email of the user that created the app space. */
+  /**
+   * The email of the user that created the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** The update time of the app space. Formatted timestamp in ISO 6801. */
+  /**
+   * The update time of the app space. Formatted timestamp in ISO 6801.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The email of the user that last updated the app space. */
+  /**
+   * The email of the user that last updated the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updater?: string | undefined;
   /** Resources for the app space. Resources configured at the space level are available to all apps in the space. */
   resources?: AppResource[] | undefined;
   /** OAuth scopes for apps in the space. */
   userApiScopes?: string[] | undefined;
-  /** The effective api scopes granted to the user access token. */
+  /**
+   * The effective api scopes granted to the user access token.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUserApiScopes?: string[] | undefined;
-  /** The service principal ID for the app space. */
+  /**
+   * The service principal ID for the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The service principal name for the app space. */
+  /**
+   * The service principal name for the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   servicePrincipalName?: string | undefined;
-  /** The service principal client ID for the app space. */
+  /**
+   * The service principal client ID for the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   servicePrincipalClientId?: string | undefined;
   /** The usage policy ID for managing cost at the space level. */
   usagePolicyId?: string | undefined;
-  /** The effective usage policy ID used by apps in the space. */
+  /**
+   * The effective usage policy ID used by apps in the space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   effectiveUsagePolicyId?: string | undefined;
 }
 
 export interface SpaceStatus {
-  /** The state of the app space. */
+  /**
+   * The state of the app space.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: SpaceStatus_SpaceState | undefined;
-  /** Message providing context about the current state. */
+  /**
+   * Message providing context about the current state.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
 }
 
 /** Tracks app space update information. */
 export interface SpaceUpdate {
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   status?: SpaceUpdateStatus | undefined;
   description?: string | undefined;
   resources?: AppResource[] | undefined;
@@ -1481,7 +1767,9 @@ export interface SpaceUpdate {
 
 /** Status of an app space update operation */
 export interface SpaceUpdateStatus {
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   state?: SpaceUpdateState | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   message?: string | undefined;
 }
 
@@ -1503,11 +1791,23 @@ export interface TelemetryExportDestination {
 
 /** Unity Catalog Destinations for OTEL telemetry export. */
 export interface UnityCatalog {
-  /** Unity Catalog table for OTEL logs. */
+  /**
+   * Unity Catalog table for OTEL logs.
+   *
+   * Required. This field must be set in requests.
+   */
   logsTable?: string | undefined;
-  /** Unity Catalog table for OTEL metrics. */
+  /**
+   * Unity Catalog table for OTEL metrics.
+   *
+   * Required. This field must be set in requests.
+   */
   metricsTable?: string | undefined;
-  /** Unity Catalog table for OTEL traces (spans). */
+  /**
+   * Unity Catalog table for OTEL traces (spans).
+   *
+   * Required. This field must be set in requests.
+   */
   tracesTable?: string | undefined;
 }
 
@@ -1527,7 +1827,9 @@ export interface UpdateCustomTemplateRequest {
 }
 
 export interface UpdateSpaceRequest {
+  /** Required. This field must be set in requests. */
   space?: Space | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<Space> | undefined;
 }
 

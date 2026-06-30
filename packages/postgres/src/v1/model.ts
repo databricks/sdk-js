@@ -786,7 +786,11 @@ export interface Branch {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   name?: string | undefined;
-  /** System-generated unique ID for the branch. */
+  /**
+   * System-generated unique ID for the branch.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
   /**
    * The project containing this branch (API resource hierarchy).
@@ -794,17 +798,39 @@ export interface Branch {
    *
    * Note: This field indicates where the branch exists in the resource hierarchy.
    * For point-in-time branching from another branch, see `status.source_branch`.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   parent?: string | undefined;
-  /** A timestamp indicating when the branch was created. */
+  /**
+   * A timestamp indicating when the branch was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the branch was last updated. */
+  /**
+   * A timestamp indicating when the branch was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the branch configuration. */
+  /**
+   * The spec contains the branch configuration.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: BranchSpec | undefined;
-  /** The current status of a Branch. */
+  /**
+   * The current status of a Branch.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: BranchStatus | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   branchId?: string | undefined;
 }
 
@@ -816,11 +842,21 @@ export interface BranchSpec {
    * The name of the source branch from which this branch was created (data lineage for point-in-time recovery).
    * If not specified, defaults to the project's default branch.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   sourceBranch?: string | undefined;
-  /** The Log Sequence Number (LSN) on the source branch from which this branch was created. */
+  /**
+   * The Log Sequence Number (LSN) on the source branch from which this branch was created.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   sourceBranchLsn?: string | undefined;
-  /** The point in time on the source branch from which this branch was created. */
+  /**
+   * The point in time on the source branch from which this branch was created.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   sourceBranchTime?: Temporal.Instant | undefined;
   /** When set to true, protects the branch from deletion and reset. Associated compute endpoints and the project cannot be deleted while the branch is protected. */
   isProtected?: boolean | undefined;
@@ -863,36 +899,82 @@ export interface BranchStatus {
   /**
    * The name of the source branch from which this branch was created.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   sourceBranch?: string | undefined;
-  /** The Log Sequence Number (LSN) on the source branch from which this branch was created. */
+  /**
+   * The Log Sequence Number (LSN) on the source branch from which this branch was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   sourceBranchLsn?: string | undefined;
-  /** The point in time on the source branch from which this branch was created. */
+  /**
+   * The point in time on the source branch from which this branch was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   sourceBranchTime?: Temporal.Instant | undefined;
-  /** Whether the branch is the project's default branch. */
+  /**
+   * Whether the branch is the project's default branch.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   default?: boolean | undefined;
-  /** Whether the branch is protected. */
+  /**
+   * Whether the branch is protected.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   isProtected?: boolean | undefined;
-  /** The branch's state, indicating if it is initializing, ready for use, or archived. */
+  /**
+   * The branch's state, indicating if it is initializing, ready for use, or archived.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   currentState?: BranchStatus_State | undefined;
-  /** The pending state of the branch, if a state transition is in progress. */
+  /**
+   * The pending state of the branch, if a state transition is in progress.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   pendingState?: BranchStatus_State | undefined;
-  /** A timestamp indicating when the `current_state` began. */
+  /**
+   * A timestamp indicating when the `current_state` began.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   stateChangeTime?: Temporal.Instant | undefined;
-  /** The logical size of the branch. */
+  /**
+   * The logical size of the branch.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   logicalSizeBytes?: bigint | undefined;
-  /** Absolute expiration time for the branch. Empty if expiration is disabled. */
+  /**
+   * Absolute expiration time for the branch. Empty if expiration is disabled.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   expireTime?: Temporal.Instant | undefined;
-  /** Part of the resource name. */
+  /**
+   * Part of the resource name.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   branchId?: string | undefined;
   /**
    * A timestamp indicating when the branch was deleted.
    * Empty if the branch is not deleted.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   deleteTime?: Temporal.Instant | undefined;
   /**
    * A timestamp indicating when the branch is scheduled to be purged.
    * Empty if the branch is not deleted, otherwise set to a timestamp in the future.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   purgeTime?: Temporal.Instant | undefined;
 }
@@ -904,17 +986,41 @@ export interface Catalog {
    * Format: "catalogs/{catalog_id}".
    */
   name?: string | undefined;
-  /** System-generated unique identifier for the catalog. */
+  /**
+   * System-generated unique identifier for the catalog.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
-  /** The desired state of the Catalog. */
+  /**
+   * The desired state of the Catalog.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: Catalog_CatalogSpec | undefined;
-  /** The observed state of the Catalog. */
+  /**
+   * The observed state of the Catalog.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: Catalog_CatalogStatus | undefined;
-  /** A timestamp indicating when the catalog was created. */
+  /**
+   * A timestamp indicating when the catalog was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the catalog was last updated. */
+  /**
+   * A timestamp indicating when the catalog was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   catalogId?: string | undefined;
 }
 
@@ -936,6 +1042,8 @@ export interface Catalog_CatalogSpec {
    *
    * Doing Point In Time Restore (PITR) prior to the moment before the Postgres DB was registered
    * in the Catalog drops the fact of registration of the database. So the user should avoid doing so.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   postgresDatabase?: string | undefined;
   /**
@@ -957,18 +1065,26 @@ export interface Catalog_CatalogSpec {
 /** The observed state of the Catalog. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Catalog_CatalogStatus {
-  /** The name of the Postgres database associated with the catalog. */
+  /**
+   * The name of the Postgres database associated with the catalog.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   postgresDatabase?: string | undefined;
   /**
    * The resource path of the project associated with the catalog.
    *
    * Format: projects/{project_id}.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   project?: string | undefined;
   /**
    * The resource path of the branch associated with the catalog.
    *
    * Format: projects/{project_id}/branches/{branch_id}.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   branch?: string | undefined;
 }
@@ -980,17 +1096,25 @@ export interface CreateBranchRequest {
   /**
    * The Project where this Branch will be created.
    * Format: projects/{project_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /**
    * The ID to use for the Branch. This becomes the final component of the branch's resource name.
    * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
    * For example, `development` becomes `projects/my-app/branches/development`.
+   *
+   * Required. This field must be set in requests.
    */
   branchId?: string | undefined;
   /** The Branch to create. */
   branch?: Branch | undefined;
-  /** If true, update the branch if it already exists instead of returning an error. */
+  /**
+   * If true, update the branch if it already exists instead of returning an error.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   replaceExisting?: boolean | undefined;
 }
 
@@ -998,16 +1122,27 @@ export interface CreateCatalogRequest {
   /**
    * The ID in the Unity Catalog.
    * It becomes the full resource name, for example "my_catalog" becomes "catalogs/my_catalog".
+   *
+   * Required. This field must be set in requests.
    */
   catalogId?: string | undefined;
+  /** Required. This field must be set in requests. */
   catalog?: Catalog | undefined;
 }
 
 /** Enable Data API for a database. */
 export interface CreateDataApiRequest {
-  /** Parent database: projects/{project_id}/branches/{branch_id}/databases/{database_id} */
+  /**
+   * Parent database: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   *
+   * Required. This field must be set in requests.
+   */
   parent?: string | undefined;
-  /** The Data API configuration to create. */
+  /**
+   * The Data API configuration to create.
+   *
+   * Required. This field must be set in requests.
+   */
   dataApi?: DataApi | undefined;
 }
 
@@ -1015,6 +1150,8 @@ export interface CreateDatabaseRequest {
   /**
    * The Branch where this Database will be created.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /**
@@ -1028,11 +1165,17 @@ export interface CreateDatabaseRequest {
    * If database_id is not specified in the request, it is generated automatically.
    */
   databaseId?: string | undefined;
-  /** The desired specification of a Database. */
+  /**
+   * The desired specification of a Database.
+   *
+   * Required. This field must be set in requests.
+   */
   database?: Database | undefined;
   /**
    * If true, update the database if it already exists instead of returning an
    * error.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   replaceExisting?: boolean | undefined;
 }
@@ -1041,17 +1184,29 @@ export interface CreateEndpointRequest {
   /**
    * The Branch where this Endpoint will be created.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /**
    * The ID to use for the Endpoint. This becomes the final component of the endpoint's resource name.
    * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
    * For example, `primary` becomes `projects/my-app/branches/development/endpoints/primary`.
+   *
+   * Required. This field must be set in requests.
    */
   endpointId?: string | undefined;
-  /** The Endpoint to create. */
+  /**
+   * The Endpoint to create.
+   *
+   * Required. This field must be set in requests.
+   */
   endpoint?: Endpoint | undefined;
-  /** If true, update the endpoint if it already exists instead of returning an error. */
+  /**
+   * If true, update the endpoint if it already exists instead of returning an error.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   replaceExisting?: boolean | undefined;
 }
 
@@ -1060,6 +1215,8 @@ export interface CreateProjectRequest {
    * The ID to use for the Project. This becomes the final component of the project's resource name.
    * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
    * For example, `my-app` becomes `projects/my-app`.
+   *
+   * Required. This field must be set in requests.
    */
   projectId?: string | undefined;
   /** The Project to create. */
@@ -1070,6 +1227,8 @@ export interface CreateRoleRequest {
   /**
    * The Branch where this Role is created.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /**
@@ -1083,7 +1242,11 @@ export interface CreateRoleRequest {
    * If role_id is not specified in the request, it is generated automatically.
    */
   roleId?: string | undefined;
-  /** The desired specification of a Role. */
+  /**
+   * The desired specification of a Role.
+   *
+   * Required. This field must be set in requests.
+   */
   role?: Role | undefined;
   /**
    * If true, update the role if it already exists instead of returning an
@@ -1094,6 +1257,8 @@ export interface CreateRoleRequest {
    * `membership_roles` empty clears all of the role's existing memberships,
    * including `DATABRICKS_SUPERUSER`. Always send the complete desired list of
    * memberships when using this field.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   replaceExisting?: boolean | undefined;
 }
@@ -1111,8 +1276,11 @@ export interface CreateSyncedTableRequest {
    *
    * 1. An online VIEW virtual table in the Unity Catalog accessible via the Lakehouse Federation.
    * 2. Postgres table named "{table}" in schema "{schema}" in the connected Postgres database
+   *
+   * Required. This field must be set in requests.
    */
   syncedTableId?: string | undefined;
+  /** Required. This field must be set in requests. */
   syncedTable?: SyncedTable | undefined;
 }
 
@@ -1126,15 +1294,33 @@ export interface DataApi {
   /**
    * The database containing this Data API configuration.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   parent?: string | undefined;
-  /** A timestamp indicating when the Data API was first enabled. */
+  /**
+   * A timestamp indicating when the Data API was first enabled.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the Data API configuration was last updated. */
+  /**
+   * A timestamp indicating when the Data API configuration was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The desired Data API configuration. */
+  /**
+   * The desired Data API configuration.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: DataApi_DataApiSpec | undefined;
-  /** The observed Data API state (read-only). */
+  /**
+   * The observed Data API state (read-only).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: DataApi_DataApiStatus | undefined;
 }
 
@@ -1183,27 +1369,71 @@ export interface DataApi_DataApiSpec {
 /** Observed state (output-only). */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface DataApi_DataApiStatus {
-  /** Actual aggregate function setting read from the database. */
+  /**
+   * Actual aggregate function setting read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dbAggregatesEnabled?: boolean | undefined;
-  /** Actual extra search path schemas read from the database. */
+  /**
+   * Actual extra search path schemas read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dbExtraSearchPath?: string[] | undefined;
-  /** Actual max rows setting read from the database. */
+  /**
+   * Actual max rows setting read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dbMaxRows?: number | undefined;
-  /** Actual exposed schemas read from the database. */
+  /**
+   * Actual exposed schemas read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   dbSchemas?: string[] | undefined;
-  /** Actual JWT role claim key read from the database. */
+  /**
+   * Actual JWT role claim key read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   jwtRoleClaimKey?: string | undefined;
-  /** Actual JWT cache max lifetime read from the database. */
+  /**
+   * Actual JWT cache max lifetime read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   jwtCacheMaxLifetime?: Temporal.Duration | undefined;
-  /** Actual OpenAPI mode read from the database. */
+  /**
+   * Actual OpenAPI mode read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   openapiMode?: OpenApiMode | undefined;
-  /** Actual CORS allowed origins read from the database. */
+  /**
+   * Actual CORS allowed origins read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   serverCorsAllowedOrigins?: string[] | undefined;
-  /** Actual Server-Timing header setting read from the database. */
+  /**
+   * Actual Server-Timing header setting read from the database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   serverTimingEnabled?: boolean | undefined;
-  /** Data API endpoint URL. */
+  /**
+   * Data API endpoint URL.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   url?: string | undefined;
-  /** Schemas available in the database (for reference when configuring db_schemas). */
+  /**
+   * Schemas available in the database (for reference when configuring db_schemas).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   availableSchemas?: string[] | undefined;
 }
 
@@ -1220,17 +1450,39 @@ export interface Database {
   /**
    * The branch containing this database.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   parent?: string | undefined;
-  /** A timestamp indicating when the database was created. */
+  /**
+   * A timestamp indicating when the database was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the database was last updated. */
+  /**
+   * A timestamp indicating when the database was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The desired state of the Database. */
+  /**
+   * The desired state of the Database.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: Database_DatabaseSpec | undefined;
-  /** The observed state of the Database. */
+  /**
+   * The observed state of the Database.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: Database_DatabaseStatus | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   databaseId?: string | undefined;
 }
 
@@ -1266,7 +1518,11 @@ export interface Database_DatabaseStatus {
   role?: string | undefined;
   /** The name of the Postgres database. */
   postgresDatabase?: string | undefined;
-  /** Part of the resource name. */
+  /**
+   * Part of the resource name.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   databaseId?: string | undefined;
 }
 
@@ -1284,6 +1540,8 @@ export interface DeleteBranchRequest {
   /**
    * The full resource path of the branch to delete.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /** If true, permanently delete the branch; if false, soft delete. */
@@ -1295,13 +1553,19 @@ export interface DeleteCatalogRequest {
    * The full resource path of the catalog to delete.
    *
    * Format: "catalogs/{catalog_id}".
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 /** Disable Data API for a database. */
 export interface DeleteDataApiRequest {
-  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
+  /**
+   * Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -1309,6 +1573,8 @@ export interface DeleteDatabaseRequest {
   /**
    * The resource name of the postgres database.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1317,6 +1583,8 @@ export interface DeleteEndpointRequest {
   /**
    * The full resource path of the endpoint to delete.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1338,6 +1606,8 @@ export interface DeleteRoleRequest {
   /**
    * The full resource path of the role to delete.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /**
@@ -1354,16 +1624,24 @@ export interface DeleteSyncedTableRequest {
   /**
    * The Full resource name of the synced table, of the format "synced_tables/{catalog}.{schema}.{table}",
    * where (catalog, schema, table) are the UC entity names.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 export interface DeltaTableSyncInfo {
-  /** The Delta Lake commit version that was last successfully synced. */
+  /**
+   * The Delta Lake commit version that was last successfully synced.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   deltaCommitVersion?: bigint | undefined;
   /**
    * The timestamp when the above Delta version was committed in the source Delta table.
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   deltaCommitTime?: Temporal.Instant | undefined;
 }
@@ -1374,22 +1652,48 @@ export interface Endpoint {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   name?: string | undefined;
-  /** System-generated unique ID for the endpoint. */
+  /**
+   * System-generated unique ID for the endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
   /**
    * The branch containing this endpoint (API resource hierarchy).
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   parent?: string | undefined;
-  /** A timestamp indicating when the compute endpoint was created. */
+  /**
+   * A timestamp indicating when the compute endpoint was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the compute endpoint was last updated. */
+  /**
+   * A timestamp indicating when the compute endpoint was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state. */
+  /**
+   * The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: EndpointSpec | undefined;
-  /** Current operational status of the compute endpoint. */
+  /**
+   * Current operational status of the compute endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: EndpointStatus | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpointId?: string | undefined;
 }
 
@@ -1397,12 +1701,16 @@ export interface EndpointGroupSpec {
   /**
    * The minimum number of computes in the endpoint group. Currently, this must be equal to max. This must be greater
    * than or equal to 1.
+   *
+   * Required. This field must be set in requests.
    */
   min?: number | undefined;
   /**
    * The maximum number of computes in the endpoint group. Currently, this must be equal to min. Set to 1 for single
    * compute endpoints, to disable HA. To manually suspend all computes in an endpoint group, set disabled to
    * true on the EndpointSpec.
+   *
+   * Required. This field must be set in requests.
    */
   max?: number | undefined;
   /**
@@ -1416,17 +1724,23 @@ export interface EndpointGroupStatus {
   /**
    * The minimum number of computes in the endpoint group. Currently, this must be equal to max. This must be greater
    * than or equal to 1.
+   *
+   * Required. This field must be set in requests.
    */
   min?: number | undefined;
   /**
    * The maximum number of computes in the endpoint group. Currently, this must be equal to min. Set to 1 for single
    * compute endpoints, to disable HA. To manually suspend all computes in an endpoint group, set disabled to
    * true on the EndpointSpec.
+   *
+   * Required. This field must be set in requests.
    */
   max?: number | undefined;
   /**
    * Whether read-only connections to read-write endpoints are allowed. Only relevant if read replicas are configured
    * by specifying size.max > 1.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   enableReadableSecondaries?: boolean | undefined;
 }
@@ -1436,12 +1750,16 @@ export interface EndpointHosts {
   /**
    * The hostname to connect to this endpoint. For read-write endpoints, this is a read-write hostname which connects
    * to the primary compute. For read-only endpoints, this is a read-only hostname which allows read-only operations.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   host?: string | undefined;
   /**
    * An optionally defined read-only host for the endpoint, without pooling. For read-only endpoints,
    * this attribute is always defined and is equivalent to host. For read-write endpoints, this attribute is defined
    * if the enclosing endpoint is a group with greater than 1 computes configured, and has readable secondaries enabled.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   readOnlyHost?: string | undefined;
 }
@@ -1456,7 +1774,11 @@ export interface EndpointSettings {
 }
 
 export interface EndpointSpec {
-  /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
+  /**
+   * The endpoint type. A branch can only have one READ_WRITE endpoint.
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   endpointType?: EndpointType | undefined;
   /** The minimum number of Compute Units. Minimum value is 0.5. */
   autoscalingLimitMinCu?: number | undefined;
@@ -1508,32 +1830,63 @@ export interface EndpointSpec {
 }
 
 export interface EndpointStatus {
-  /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
+  /**
+   * The endpoint type. A branch can only have one READ_WRITE endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpointType?: EndpointType | undefined;
-  /** Contains host information for connecting to the endpoint. */
+  /**
+   * Contains host information for connecting to the endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   hosts?: EndpointHosts | undefined;
-  /** The minimum number of Compute Units. */
+  /**
+   * The minimum number of Compute Units.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   autoscalingLimitMinCu?: number | undefined;
   /**
    * The maximum number of Compute Units. The maximum value is 64.
    * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   autoscalingLimitMaxCu?: number | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   currentState?: EndpointStatus_State | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   pendingState?: EndpointStatus_State | undefined;
   /**
    * Whether to restrict connections to the compute endpoint.
    * Enabling this option schedules a suspend compute operation.
    * A disabled compute endpoint cannot be enabled by a connection or
    * console action.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   disabled?: boolean | undefined;
-  /** Duration of inactivity after which the compute endpoint is automatically suspended. */
+  /**
+   * Duration of inactivity after which the compute endpoint is automatically suspended.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   suspendTimeoutDuration?: Temporal.Duration | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   settings?: EndpointSettings | undefined;
-  /** Details on the HA configuration of the endpoint. */
+  /**
+   * Details on the HA configuration of the endpoint.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   group?: EndpointGroupStatus | undefined;
-  /** Part of the resource name. */
+  /**
+   * Part of the resource name.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpointId?: string | undefined;
 }
 
@@ -1543,14 +1896,46 @@ export interface GenerateDatabaseCredentialRequest {
   /**
    * The endpoint resource name for which this credential will be generated.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
+   *
+   * Required. This field must be set in requests.
    */
   endpoint?: string | undefined;
+  /**
+   * <Databricks> workspace group name. When provided, credentials are generated
+   * with permissions scoped to this group.
+   */
+  groupName?: string | undefined;
+  /**
+   * Expiration information for the credential.
+   * Users can specify either expire_time or ttl.
+   * If unspecified, maximum allowed duration (1 hour) is used.
+   */
+  expiration?:
+    | {
+        $case: 'ttl';
+        /**
+         * The requested time-to-live for the generated credential token.
+         * Must be at least 300 seconds (5 minutes) and at most 3600 seconds (1 hour).
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'expireTime';
+        /**
+         * Timestamp in UTC of when this credential should expire.
+         * Must be at least 300 seconds (5 minutes) and at most 1 hour from the current time.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | undefined;
 }
 
 export interface GetBranchRequest {
   /**
    * The full resource path of the branch to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1560,13 +1945,19 @@ export interface GetCatalogRequest {
    * The full resource path of the catalog to retrieve.
    *
    * Format: "catalogs/{catalog_id}".
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
 
 /** Get Data API configuration for a database. */
 export interface GetDataApiRequest {
-  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
+  /**
+   * Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -1574,6 +1965,8 @@ export interface GetDatabaseRequest {
   /**
    * The name of the Database to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1582,6 +1975,8 @@ export interface GetEndpointRequest {
   /**
    * The full resource path of the endpoint to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1604,6 +1999,8 @@ export interface GetRoleRequest {
   /**
    * The full resource path of the role to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1613,6 +2010,8 @@ export interface GetSyncedTableRequest {
    * The Full resource name of the synced table.
    * Format: "synced_tables/{catalog}.{schema}.{table}",
    * where (catalog, schema, table) are the entity names in the Unity Catalog.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -1657,6 +2056,8 @@ export interface ListBranchesRequest {
   /**
    * The Project that owns this collection of branches.
    * Format: projects/{project_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /** Page token from a previous response. If not provided, returns the first page. */
@@ -1683,6 +2084,8 @@ export interface ListDatabasesRequest {
   /**
    * The Branch that owns this collection of databases.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /** Pagination token to go to the next page of Databases. Requests first page if absent. */
@@ -1702,6 +2105,8 @@ export interface ListEndpointsRequest {
   /**
    * The Branch that owns this collection of endpoints.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /** Page token from a previous response. If not provided, returns the first page. */
@@ -1711,9 +2116,17 @@ export interface ListEndpointsRequest {
 }
 
 export interface ListEndpointsResponse {
-  /** List of compute endpoints in the branch. */
+  /**
+   * List of compute endpoints in the branch.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpoints?: Endpoint[] | undefined;
-  /** Token to request the next page of compute endpoints. */
+  /**
+   * Token to request the next page of compute endpoints.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   nextPageToken?: string | undefined;
 }
 
@@ -1741,6 +2154,8 @@ export interface ListRolesRequest {
   /**
    * The Branch that owns this collection of roles.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   parent?: string | undefined;
   /** Page token from a previous response. If not provided, returns the first page. */
@@ -1820,40 +2235,72 @@ export interface Project {
    * Format: projects/{project_id}
    */
   name?: string | undefined;
-  /** System-generated unique ID for the project. */
+  /**
+   * System-generated unique ID for the project.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
-  /** A timestamp indicating when the project was created. */
+  /**
+   * A timestamp indicating when the project was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the project was last updated. */
+  /**
+   * A timestamp indicating when the project was last updated.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings. */
+  /**
+   * The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: ProjectSpec | undefined;
-  /** The current status of a Project. */
+  /**
+   * The current status of a Project.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: ProjectStatus | undefined;
   /**
    * Configuration settings for the initial Read/Write endpoint created inside the initial branch for a newly
    * created project. If omitted, the initial endpoint created will have default settings, without high availability
    * configured. This field does not apply to any endpoints created after project creation. Use
    * spec.default_endpoint_settings to configure default settings for endpoints created after project creation.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   initialEndpointSpec?: InitialEndpointSpec | undefined;
   /**
    * A timestamp indicating when the project was soft-deleted.
    * Empty if the project is not deleted, otherwise set to a timestamp in the past.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   deleteTime?: Temporal.Instant | undefined;
   /**
    * A timestamp indicating when the project is scheduled for permanent deletion.
    * Empty if the project is not deleted, otherwise set to a timestamp in the future.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   purgeTime?: Temporal.Instant | undefined;
   /**
    * Configuration for the initial default branch created as part of project creation.
    * Allows overriding branch protection. These settings only apply at creation time
    * and do not affect resources created after project creation.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   initialBranchSpec?: InitialBranchSpec | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   projectId?: string | undefined;
 }
 
@@ -1900,7 +2347,11 @@ export interface ProjectOperationMetadata {}
 export interface ProjectSpec {
   /** Human-readable project name. Length should be between 1 and 256 characters. */
   displayName?: string | undefined;
-  /** The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values. */
+  /**
+   * The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   pgVersion?: number | undefined;
   /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days). */
   historyRetentionDuration?: Temporal.Duration | undefined;
@@ -1927,31 +2378,83 @@ export interface ProjectSpec {
 }
 
 export interface ProjectStatus {
-  /** The effective human-readable project name. */
+  /**
+   * The effective human-readable project name.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   displayName?: string | undefined;
-  /** The effective major Postgres version number. */
+  /**
+   * The effective major Postgres version number.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   pgVersion?: number | undefined;
-  /** The effective number of seconds to retain the shared history for point in time recovery. */
+  /**
+   * The effective number of seconds to retain the shared history for point in time recovery.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   historyRetentionDuration?: Temporal.Duration | undefined;
-  /** The effective default endpoint settings. */
+  /**
+   * The effective default endpoint settings.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   defaultEndpointSettings?: ProjectDefaultEndpointSettings | undefined;
-  /** The logical size limit for a branch. */
+  /**
+   * The logical size limit for a branch.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   branchLogicalSizeLimitBytes?: bigint | undefined;
-  /** The current space occupied by the project in storage. */
+  /**
+   * The current space occupied by the project in storage.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   syntheticStorageSizeBytes?: bigint | undefined;
-  /** The most recent time when any endpoint of this project was active. */
+  /**
+   * The most recent time when any endpoint of this project was active.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   computeLastActiveTime?: Temporal.Instant | undefined;
-  /** The budget policy that is applied to the project. */
+  /**
+   * The budget policy that is applied to the project.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   budgetPolicyId?: string | undefined;
-  /** The effective custom tags associated with the project. */
+  /**
+   * The effective custom tags associated with the project.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   customTags?: ProjectCustomTag[] | undefined;
-  /** The email of the project owner. */
+  /**
+   * The email of the project owner.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   owner?: string | undefined;
-  /** Whether to enable PG native password login on all endpoints in this project. */
+  /**
+   * Whether to enable PG native password login on all endpoints in this project.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   enablePgNativeLogin?: boolean | undefined;
-  /** The full resource path of the default branch of the project */
+  /**
+   * The full resource path of the default branch of the project
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   defaultBranch?: string | undefined;
-  /** Part of the resource name. */
+  /**
+   * Part of the resource name.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   projectId?: string | undefined;
 }
 
@@ -1984,15 +2487,31 @@ export interface Role {
   /**
    * The Branch where this Role exists.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   parent?: string | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   createTime?: Temporal.Instant | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the role configuration, including identity type, authentication method, and role attributes. */
+  /**
+   * The spec contains the role configuration, including identity type, authentication method, and role attributes.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
+   */
   spec?: Role_RoleSpec | undefined;
-  /** Current status of the role, including its identity type, authentication method, and role attributes. */
+  /**
+   * Current status of the role, including its identity type, authentication method, and role attributes.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: Role_RoleStatus | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   roleId?: string | undefined;
 }
 
@@ -2076,7 +2595,11 @@ export interface Role_RoleStatus {
   authMethod?: Role_AuthMethod | undefined;
   /** The name of the Postgres role. */
   postgresRole?: string | undefined;
-  /** Part of the resource name. */
+  /**
+   * Part of the resource name.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   roleId?: string | undefined;
 }
 
@@ -2093,17 +2616,32 @@ export interface SyncedTable {
    * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
    */
   name?: string | undefined;
-  /** The Unity Catalog table ID for this synced table. */
+  /**
+   * The Unity Catalog table ID for this synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   uid?: string | undefined;
   /**
    * Configuration details of the synced table, such as the source table, scheduling policy, etc.
    * This attribute is specified at creation time and most fields are returned as is on subsequent queries.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   spec?: SyncedTable_SyncedTableSpec | undefined;
-  /** Synced Table data synchronization status. */
+  /**
+   * Synced Table data synchronization status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: SyncedTable_SyncedTableStatus | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   createTime?: Temporal.Instant | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The part of the name, chosen by the user when the resource was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   syncedTableId?: string | undefined;
 }
 
@@ -2179,9 +2717,17 @@ export interface SyncedTable_SyncedTableSpec {
 /** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableSpec_TypeOverride {
-  /** Name of the source column whose target PostgreSQL type should be overridden. */
+  /**
+   * Name of the source column whose target PostgreSQL type should be overridden.
+   *
+   * Required. This field must be set in requests.
+   */
   columnName?: string | undefined;
-  /** PostgreSQL-specific target type to use for the column. */
+  /**
+   * PostgreSQL-specific target type to use for the column.
+   *
+   * Required. This field must be set in requests.
+   */
   pgType?: SyncedTable_SyncedTableSpec_PgSpecificType | undefined;
   /**
    * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
@@ -2192,30 +2738,63 @@ export interface SyncedTable_SyncedTableSpec_TypeOverride {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableStatus {
-  /** A text description of the current state of the synced table. */
+  /**
+   * A text description of the current state of the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   message?: string | undefined;
-  /** The state of the synced table. */
+  /**
+   * The state of the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   detailedState?: SyncedTableState | undefined;
-  /** Summary of the last successful synchronization from source to destination. */
+  /**
+   * Summary of the last successful synchronization from source to destination.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lastSync?: SyncedTablePosition | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   ongoingSyncProgress?: SyncedTablePipelineProgress | undefined;
-  /** The current phase of the data synchronization pipeline. */
+  /**
+   * The current phase of the data synchronization pipeline.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   provisioningPhase?: ProvisioningPhase | undefined;
-  /** The last source table Delta version that was successfully synced to the synced table. */
+  /**
+   * The last source table Delta version that was successfully synced to the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   lastProcessedCommitVersion?: bigint | undefined;
   /**
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   lastSyncTime?: Temporal.Instant | undefined;
-  /** ID of the associated pipeline. */
+  /**
+   * ID of the associated pipeline.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   pipelineId?: string | undefined;
-  /** The provisioning state of the synced table entity in Unity Catalog. */
+  /**
+   * The provisioning state of the synced table entity in Unity Catalog.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
   /**
    * The full resource name of the project associated with the table.
    *
    * Format: "projects/{project_id}".
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   project?: string | undefined;
 }
@@ -2229,15 +2808,33 @@ export interface SyncedTablePipelineProgress {
   /**
    * The source table Delta version that was last processed by the pipeline. The pipeline may not
    * have completely processed this version yet.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   latestVersionCurrentlyProcessing?: bigint | undefined;
-  /** The number of rows that have been synced in this update. */
+  /**
+   * The number of rows that have been synced in this update.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   syncedRowCount?: bigint | undefined;
-  /** The total number of rows that need to be synced in this update. This number may be an estimate. */
+  /**
+   * The total number of rows that need to be synced in this update. This number may be an estimate.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   totalRowCount?: bigint | undefined;
-  /** The completion ratio of this update. This is a number between 0 and 1. */
+  /**
+   * The completion ratio of this update. This is a number between 0 and 1.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   syncProgressCompletion?: number | undefined;
-  /** The estimated time remaining to complete this update in seconds. */
+  /**
+   * The estimated time remaining to complete this update in seconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   estimatedCompletionTimeSeconds?: number | undefined;
 }
 
@@ -2247,16 +2844,24 @@ export interface SyncedTablePosition {
    * to the destination (synced) table.
    * Note this is the starting timestamp of the sync operation, not the end time.
    * E.g., for a batch, this is the time when the sync operation started.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   syncStartTime?: Temporal.Instant | undefined;
   /**
    * The end timestamp of the most recent successful synchronization.
    * This is the time when the data is available in the synced table.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   syncEndTime?: Temporal.Instant | undefined;
   /** Information about the source system at the time of the last sync. */
   sourceSyncInfo?:
-    | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
+    | {
+        $case: 'deltaTableSyncInfo';
+        /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
+        deltaTableSyncInfo: DeltaTableSyncInfo;
+      }
     | undefined;
 }
 
@@ -2264,6 +2869,8 @@ export interface UndeleteBranchRequest {
   /**
    * The full resource path of the branch to undelete.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -2273,6 +2880,8 @@ export interface UndeleteProjectRequest {
   /**
    * The full resource path of the project to undelete.
    * Format: projects/{project_id}
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
 }
@@ -2283,9 +2892,15 @@ export interface UpdateBranchRequest {
    *
    * The branch's `name` field is used to identify the branch to update.
    * Format: projects/{project_id}/branches/{branch_id}
+   *
+   * Required. This field must be set in requests.
    */
   branch?: Branch | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /**
+   * The list of fields to update. If unspecified, all fields will be updated when possible.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Branch> | undefined;
 }
 
@@ -2294,9 +2909,15 @@ export interface UpdateDataApiRequest {
   /**
    * The Data API configuration to update.
    * The data_api's `name` field identifies the resource.
+   *
+   * Required. This field must be set in requests.
    */
   dataApi?: DataApi | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /**
+   * The list of fields to update. If unspecified, all fields will be updated when possible.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<DataApi> | undefined;
 }
 
@@ -2306,9 +2927,15 @@ export interface UpdateDatabaseRequest {
    *
    * The database's `name` field is used to identify the database to update.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   *
+   * Required. This field must be set in requests.
    */
   database?: Database | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /**
+   * The list of fields to update. If unspecified, all fields will be updated when possible.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Database> | undefined;
 }
 
@@ -2318,9 +2945,15 @@ export interface UpdateEndpointRequest {
    *
    * The endpoint's `name` field is used to identify the endpoint to update.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
+   *
+   * Required. This field must be set in requests.
    */
   endpoint?: Endpoint | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /**
+   * The list of fields to update. If unspecified, all fields will be updated when possible.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Endpoint> | undefined;
 }
 
@@ -2330,9 +2963,15 @@ export interface UpdateProjectRequest {
    *
    * The project's `name` field is used to identify the project to update.
    * Format: projects/{project_id}
+   *
+   * Required. This field must be set in requests.
    */
   project?: Project | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /**
+   * The list of fields to update. If unspecified, all fields will be updated when possible.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<Project> | undefined;
 }
 
@@ -2342,11 +2981,15 @@ export interface UpdateRoleRequest {
    *
    * The role's `name` field is used to identify the role to update.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   *
+   * Required. This field must be set in requests.
    */
   role?: Role | undefined;
   /**
    * The list of fields to update in Postgres Role.
    * If unspecified, all fields will be updated when possible.
+   *
+   * Required. This field must be set in requests.
    */
   updateMask?: FieldMask<Role> | undefined;
 }
@@ -3831,10 +4474,32 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
+    groupName: z.string().optional(),
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     claims: d.claims,
     endpoint: d.endpoint,
+    group_name: d.groupName,
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
   }));
 
 export const marshalInitialBranchSpecSchema: z.ZodType = z

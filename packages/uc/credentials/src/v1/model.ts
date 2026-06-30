@@ -82,9 +82,17 @@ export type ValidateStorageCredentialRequest_Result =
   | (string & {});
 
 export interface AccountsCreateStorageCredentialRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
   credentialInfo?: CreateAccountsStorageCredential | undefined;
   /**
@@ -100,11 +108,23 @@ export interface AccountsCreateStorageCredentialResponse {
 
 /** Deletes a storage credential for an account */
 export interface AccountsDeleteStorageCredentialRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
-  /** Name of the storage credential. */
+  /**
+   * Name of the storage credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** Force deletion even if the Storage Credential is not empty. Default is false. */
   force?: boolean | undefined;
@@ -116,11 +136,23 @@ export interface AccountsDeleteStorageCredentialResponse {}
 
 /** Retrieves a single storage credential */
 export interface AccountsGetStorageCredentialRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
-  /** Required. Name of the storage credential. */
+  /**
+   * Required. Name of the storage credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
@@ -131,9 +163,17 @@ export interface AccountsGetStorageCredentialResponse {
 
 /** Lists all storage credentials for the given account and metastore */
 export interface AccountsListStorageCredentialsRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
 }
 
@@ -145,11 +185,23 @@ export interface AccountsListStorageCredentialsResponse {
 
 /** The storage credential to update. */
 export interface AccountsUpdateStorageCredentialRequest {
-  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  /**
+   * <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** Unity Catalog metastore ID */
+  /**
+   * Unity Catalog metastore ID
+   *
+   * Required. This field must be set in requests.
+   */
   metastoreId?: string | undefined;
-  /** Name of the storage credential. */
+  /**
+   * Name of the storage credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   credentialInfo?: UpdateAccountsStorageCredential | undefined;
   /** Optional. Supplying true to this argument skips validation of the updated set of credentials. */
@@ -178,9 +230,15 @@ export interface AwsIamRole {
   /**
    * The Amazon Resource Name (ARN) of the AWS IAM user managed by <Databricks>.
    * This is the identity that is going to assume the AWS IAM role.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   unityCatalogIamArn?: string | undefined;
-  /** The external ID used in role assumption to prevent the confused deputy problem. */
+  /**
+   * The external ID used in role assumption to prevent the confused deputy problem.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   externalId?: string | undefined;
 }
 
@@ -199,6 +257,8 @@ export interface AzureManagedIdentity {
   /**
    * The Azure resource ID of the Azure Databricks Access Connector. Use the format
    * `/subscriptions/{guid}/resourceGroups/{rg-name}/providers/Microsoft.Databricks/accessConnectors/{connector-name}`.
+   *
+   * Required. This field must be set in requests.
    */
   accessConnectorId?: string | undefined;
   /**
@@ -208,17 +268,33 @@ export interface AzureManagedIdentity {
    * If this field is not provided, then we assume the AzureManagedIdentity is using the system-assigned identity.
    */
   managedIdentityId?: string | undefined;
-  /** The <Databricks> internal ID that represents this managed identity. */
+  /**
+   * The <Databricks> internal ID that represents this managed identity.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   credentialId?: string | undefined;
 }
 
 /** The Azure service principal configuration. Only applicable when purpose is **STORAGE**. */
 export interface AzureServicePrincipal {
-  /** The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application. */
+  /**
+   * The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application.
+   *
+   * Required. This field must be set in requests.
+   */
   directoryId?: string | undefined;
-  /** The application ID of the application registration within the referenced AAD tenant. */
+  /**
+   * The application ID of the application registration within the referenced AAD tenant.
+   *
+   * Required. This field must be set in requests.
+   */
   applicationId?: string | undefined;
-  /** The client secret generated for the above app ID in AAD. */
+  /**
+   * The client secret generated for the above app ID in AAD.
+   *
+   * Required. This field must be set in requests.
+   */
   clientSecret?: string | undefined;
 }
 
@@ -236,11 +312,23 @@ export interface AzureUserDelegationSas {
  * Read more at https://developers.cloudflare.com/r2/api/s3/tokens/
  */
 export interface CloudflareApiToken {
-  /** The access key ID associated with the API token. */
+  /**
+   * The access key ID associated with the API token.
+   *
+   * Required. This field must be set in requests.
+   */
   accessKeyId?: string | undefined;
-  /** The secret access token generated for the above access key ID. */
+  /**
+   * The secret access token generated for the above access key ID.
+   *
+   * Required. This field must be set in requests.
+   */
   secretAccessKey?: string | undefined;
-  /** The ID of the account associated with the API token. */
+  /**
+   * The ID of the account associated with the API token.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
 }
 
@@ -400,12 +488,21 @@ export interface CreateCredentialRequest {
 }
 
 export interface CreateCredentialsRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
-  /** The human-readable name of the credential configuration object. */
+  /**
+   * The human-readable name of the credential configuration object.
+   *
+   * Required. This field must be set in requests.
+   */
   credentialsName?: string | undefined;
   /** (-- NOTE(austin) This oneof is a future-looking definition when we add other clouds --) */
   cloudCredentials?:
-    | {$case: 'awsCredentials'; awsCredentials: CreateCredentialAwsCredentials}
+    | {
+        $case: 'awsCredentials';
+        /** Required. This field must be set in requests. */
+        awsCredentials: CreateCredentialAwsCredentials;
+      }
     | undefined;
 }
 
@@ -577,16 +674,32 @@ export interface Credentials {
  * <Databricks>-created Google Cloud Storage service account.
  */
 export interface DatabricksGcpServiceAccount {
-  /** The email of the service account. */
+  /**
+   * The email of the service account.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   email?: string | undefined;
-  /** The ID that represents the private key for this Service Account */
+  /**
+   * The ID that represents the private key for this Service Account
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   privateKeyId?: string | undefined;
-  /** The <Databricks> internal ID that represents this managed identity. */
+  /**
+   * The <Databricks> internal ID that represents this managed identity.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   credentialId?: string | undefined;
 }
 
 export interface DeleteCredentialRequest {
-  /** Name of the credential. */
+  /**
+   * Name of the credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /**
    * Force an update even if there are dependent services (when purpose is
@@ -600,13 +713,22 @@ export interface DeleteCredentialRequest {
 export interface DeleteCredentialResponse {}
 
 export interface DeleteCredentialsRequest {
-  /** Databricks Account API credential configuration ID */
+  /**
+   * Databricks Account API credential configuration ID
+   *
+   * Required. This field must be set in requests.
+   */
   credentialsId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface DeleteStorageCredentialRequest {
-  /** Name of the storage credential. */
+  /**
+   * Name of the storage credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /**
    * Force an update even if there are dependent external locations or external
@@ -641,9 +763,17 @@ export interface GcpServiceAccountKey {
 }
 
 export interface GenerateTemporaryPathCredentialRequest {
-  /** URL for path-based access. */
+  /**
+   * URL for path-based access.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
-  /** The operation being performed on the path. */
+  /**
+   * The operation being performed on the path.
+   *
+   * Required. This field must be set in requests.
+   */
   operation?: PathOperation | undefined;
   /**
    * Optional. When set to true, the service will not validate that the generated
@@ -774,13 +904,22 @@ export interface GenerateTemporaryVolumeCredentialResponse {
 }
 
 export interface GetCredentialRequest {
-  /** Name of the credential. */
+  /**
+   * Name of the credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
 export interface GetCredentialsRequest {
-  /** Credential configuration ID */
+  /**
+   * Credential configuration ID
+   *
+   * Required. This field must be set in requests.
+   */
   credentialsId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -790,11 +929,16 @@ export interface GetCredentialsRequest {
  * See https://github.com/databricks-eng/universe/pull/857047#discussion_r1924779791 for an example of a case when that wasn't possible.
  */
 export interface GetStorageCredentialRequest {
-  /** Name of the storage credential. */
+  /**
+   * Name of the storage credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
 export interface ListCredentialsPublicRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -1073,7 +1217,11 @@ export interface UpdateAccountsStorageCredential {
 }
 
 export interface UpdateCredentialRequest {
-  /** Name of the credential. */
+  /**
+   * Name of the credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name of credential. */
   newName?: string | undefined;
@@ -1158,7 +1306,11 @@ export interface UpdateCredentialRequest {
 }
 
 export interface UpdateStorageCredentialRequest {
-  /** Name of the storage credential. */
+  /**
+   * Name of the storage credential.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name for the storage credential. */
   newName?: string | undefined;

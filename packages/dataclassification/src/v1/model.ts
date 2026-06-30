@@ -25,9 +25,15 @@ export interface AutoTaggingConfig {
   /**
    * The Classification Tag. For built-in classes this is a system tag (e.g., "class.name",
    * "class.location"); for custom classes it is a user-defined governance tag key.
+   *
+   * Required. This field must be set in requests.
    */
   classificationTag?: string | undefined;
-  /** Whether auto-tagging is enabled or disabled for this classification tag. */
+  /**
+   * Whether auto-tagging is enabled or disabled for this classification tag.
+   *
+   * Required. This field must be set in requests.
+   */
   autoTaggingMode?: AutoTaggingConfig_AutoTaggingMode | undefined;
 }
 
@@ -61,7 +67,11 @@ export interface CatalogConfig {
 /** Wrapper message for a list of schema names. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CatalogConfig_SchemaNames {
-  /** Schema names, each relative to the parent catalog. Must not be empty. */
+  /**
+   * Schema names, each relative to the parent catalog. Must not be empty.
+   *
+   * Required. This field must be set in requests.
+   */
   names?: string[] | undefined;
 }
 
@@ -70,7 +80,11 @@ export interface CatalogConfig_SchemaNames {
  * Creating a config enables Data Classification for the catalog.
  */
 export interface CreateCatalogConfigRequest {
-  /** Parent resource in the format: catalogs/{catalog_name} */
+  /**
+   * Parent resource in the format: catalogs/{catalog_name}
+   *
+   * Required. This field must be set in requests.
+   */
   parent?: string | undefined;
   /** The configuration to create. */
   catalogConfig?: CatalogConfig | undefined;
@@ -81,13 +95,21 @@ export interface CreateCatalogConfigRequest {
  * Deleting the config disables Data Classification for the catalog.
  */
 export interface DeleteCatalogConfigRequest {
-  /** Resource name in the format: catalogs/{catalog_name}/config */
+  /**
+   * Resource name in the format: catalogs/{catalog_name}/config
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 /** Get Data Classification configuration for a catalog. */
 export interface GetCatalogConfigRequest {
-  /** Resource name in the format: catalogs/{catalog_name}/config */
+  /**
+   * Resource name in the format: catalogs/{catalog_name}/config
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -101,9 +123,15 @@ export interface UpdateCatalogConfigRequest {
   /**
    * The configuration to apply to the catalog.
    * The name field in catalog_config identifies which resource to update.
+   *
+   * Required. This field must be set in requests.
    */
   catalogConfig?: CatalogConfig | undefined;
-  /** Field mask specifying which fields to update. */
+  /**
+   * Field mask specifying which fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<CatalogConfig> | undefined;
 }
 

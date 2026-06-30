@@ -6,9 +6,17 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateAccountFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
   /**
    * The identifier for the federation policy. The identifier must contain only lowercase
@@ -16,13 +24,22 @@ export interface CreateAccountFederationPolicyRequest {
    * assigned by <Databricks>.
    */
   policyId?: string | undefined;
+  /** Required. This field must be set in requests. */
   policy?: FederationPolicy | undefined;
 }
 
 export interface CreateServicePrincipalFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
   /**
    * The identifier for the federation policy. The identifier must contain only lowercase
@@ -30,6 +47,7 @@ export interface CreateServicePrincipalFederationPolicyRequest {
    * assigned by <Databricks>.
    */
   policyId?: string | undefined;
+  /** Required. This field must be set in requests. */
   policy?: FederationPolicy | undefined;
 }
 
@@ -60,20 +78,44 @@ export interface CreateServicePrincipalSecretResponse {
 }
 
 export interface DeleteAccountFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The identifier for the federation policy. */
+  /**
+   * The identifier for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
 }
 
 export interface DeleteServicePrincipalFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The identifier for the federation policy. */
+  /**
+   * The identifier for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
 }
 
@@ -97,45 +139,99 @@ export interface FederationPolicy {
    * for Service Principal Federation Policies. Typically an output parameter, which does not need to be
    * specified in create or update requests. If specified in a request, must match the value in the
    * request URL.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   name?: string | undefined;
   /** Description of the federation policy. */
   description?: string | undefined;
   policy?: {$case: 'oidcPolicy'; oidcPolicy: OidcFederationPolicy} | undefined;
-  /** Creation time of the federation policy. */
+  /**
+   * Creation time of the federation policy.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   createTime?: Temporal.Instant | undefined;
-  /** Last update time of the federation policy. */
+  /**
+   * Last update time of the federation policy.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updateTime?: Temporal.Instant | undefined;
-  /** Unique, immutable id of the federation policy. */
+  /**
+   * Unique, immutable id of the federation policy.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   uid?: string | undefined;
-  /** The service principal ID that this federation policy applies to. Output only. Only set for service principal federation policies. */
+  /**
+   * The service principal ID that this federation policy applies to. Output only. Only set for service principal federation policies.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The ID of the federation policy. Output only. */
+  /**
+   * The ID of the federation policy. Output only.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored. Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   policyId?: string | undefined;
 }
 
 export interface GetAccountFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The identifier for the federation policy. */
+  /**
+   * The identifier for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
 }
 
 export interface GetServicePrincipalFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The identifier for the federation policy. */
+  /**
+   * The identifier for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
 }
 
 export interface ListAccountFederationPoliciesRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
   pageSize?: number | undefined;
   pageToken?: string | undefined;
@@ -147,9 +243,17 @@ export interface ListFederationPoliciesResponse {
 }
 
 export interface ListServicePrincipalFederationPoliciesRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
   pageSize?: number | undefined;
   pageToken?: string | undefined;
@@ -236,12 +340,25 @@ export interface ServicePrincipalSecret {
 }
 
 export interface UpdateAccountFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The identifier for the federation policy. */
+  /**
+   * The identifier for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
+  /** Required. This field must be set in requests. */
   policy?: FederationPolicy | undefined;
   /**
    * The field mask specifies which fields of the policy to update. To specify multiple fields
@@ -254,12 +371,25 @@ export interface UpdateAccountFederationPolicyRequest {
 }
 
 export interface UpdateServicePrincipalFederationPolicyRequest {
-  /** The account id for the federation policy. */
+  /**
+   * The account id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
-  /** The service principal id for the federation policy. */
+  /**
+   * The service principal id for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   servicePrincipalId?: bigint | undefined;
-  /** The identifier for the federation policy. */
+  /**
+   * The identifier for the federation policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
+  /** Required. This field must be set in requests. */
   policy?: FederationPolicy | undefined;
   /**
    * The field mask specifies which fields of the policy to update. To specify multiple fields

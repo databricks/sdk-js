@@ -47,14 +47,26 @@ export interface ClusterLibraryStatuses {
 }
 
 export interface ClusterStatusRequest {
-  /** Unique identifier of the cluster whose status should be retrieved. */
+  /**
+   * Unique identifier of the cluster whose status should be retrieved.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
 }
 
 export interface InstallLibrariesRequest {
-  /** Unique identifier for the cluster on which to install these libraries. */
+  /**
+   * Unique identifier for the cluster on which to install these libraries.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
-  /** The libraries to install. */
+  /**
+   * The libraries to install.
+   *
+   * Required. This field must be set in requests.
+   */
   libraries?: Library[] | undefined;
 }
 
@@ -143,7 +155,11 @@ export interface ListAllClusterLibraryStatusesResponse {
 }
 
 export interface MavenLibrary {
-  /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
+  /**
+   * Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2".
+   *
+   * Required. This field must be set in requests.
+   */
   coordinates?: string | undefined;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
@@ -163,6 +179,8 @@ export interface PythonPyPiLibrary {
   /**
    * The name of the pypi package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
+   *
+   * Required. This field must be set in requests.
    */
   package?: string | undefined;
   /**
@@ -173,16 +191,28 @@ export interface PythonPyPiLibrary {
 }
 
 export interface RCranLibrary {
-  /** The name of the CRAN package to install. */
+  /**
+   * The name of the CRAN package to install.
+   *
+   * Required. This field must be set in requests.
+   */
   package?: string | undefined;
   /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
   repo?: string | undefined;
 }
 
 export interface UninstallLibrariesRequest {
-  /** Unique identifier for the cluster on which to uninstall these libraries. */
+  /**
+   * Unique identifier for the cluster on which to uninstall these libraries.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
-  /** The libraries to uninstall. */
+  /**
+   * The libraries to uninstall.
+   *
+   * Required. This field must be set in requests.
+   */
   libraries?: Library[] | undefined;
 }
 

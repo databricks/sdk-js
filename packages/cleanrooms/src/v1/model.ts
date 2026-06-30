@@ -333,6 +333,8 @@ export interface CleanRoom {
   /**
    * The name of the clean room.
    * It should follow [UC securable naming requirements](https://docs.databricks.com/en/data-governance/unity-catalog/index.html#securable-object-naming-requirements).
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   name?: string | undefined;
   /**
@@ -344,20 +346,42 @@ export interface CleanRoom {
   /** This is the <Databricks> username of the owner of the local clean room securable for permission management. */
   owner?: string | undefined;
   comment?: string | undefined;
-  /** When the clean room was created, in epoch milliseconds. */
+  /**
+   * When the clean room was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
-  /** When the clean room was last updated, in epoch milliseconds. */
+  /**
+   * When the clean room was last updated, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   updatedAt?: bigint | undefined;
-  /** Clean room status. */
+  /**
+   * Clean room status.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: CleanRoom_Status_Enum | undefined;
-  /** The alias of the collaborator tied to the local clean room. */
+  /**
+   * The alias of the collaborator tied to the local clean room.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   localCollaboratorAlias?: string | undefined;
   /**
    * Output catalog of the clean room. It is an output only field. Output catalog is manipulated
    * using the separate CreateCleanRoomOutputCatalog API.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   outputCatalog?: CleanRoomOutputCatalog | undefined;
-  /** Whether clean room access is restricted due to [CSP](https://docs.databricks.com/en/security/privacy/security-profile.html) */
+  /**
+   * Whether clean room access is restricted due to [CSP](https://docs.databricks.com/en/security/privacy/security-profile.html)
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   accessRestricted?: CleanRoom_AccessRestricted | undefined;
 }
 
@@ -380,15 +404,33 @@ export interface CleanRoomAsset {
    *
    * For notebooks, the name is the notebook file name.
    * For jar analyses, the name is the jar analysis name.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
-  /** The type of the asset. */
+  /**
+   * The type of the asset.
+   *
+   * Required. This field must be set in requests.
+   */
   assetType?: CleanRoomAsset_AssetType | undefined;
-  /** When the asset is added to the clean room, in epoch milliseconds. */
+  /**
+   * When the asset is added to the clean room, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   addedAt?: bigint | undefined;
-  /** Status of the asset */
+  /**
+   * Status of the asset
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: CleanRoomAsset_Status_Enum | undefined;
-  /** The alias of the collaborator who owns this asset */
+  /**
+   * The alias of the collaborator who owns this asset
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   ownerCollaboratorAlias?: string | undefined;
   /** asset-type specific local information of the asset */
   localDetails?:
@@ -464,7 +506,11 @@ export interface CleanRoomAsset {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CleanRoomAsset_ForeignTable {
-  /** The metadata information of the columns in the foreign table */
+  /**
+   * The metadata information of the columns in the foreign table
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   columns?: ColumnInfo[] | undefined;
 }
 
@@ -473,6 +519,8 @@ export interface CleanRoomAsset_ForeignTableLocalDetails {
   /**
    * The fully qualified name of the foreign table in its owner's local metastore,
    * in the format of *catalog*.*schema*.*foreign_table_name*
+   *
+   * Required. This field must be set in requests.
    */
   localName?: string | undefined;
 }
@@ -482,15 +530,29 @@ export interface CleanRoomAsset_Notebook {
   /**
    * Base 64 representation of the notebook contents.
    * This is the same format as returned by [workspace/export](https://docs.databricks.com/api/workspace/workspace/export) with the format of **HTML**.
+   *
+   * Required. This field must be set in requests.
    */
   notebookContent?: string | undefined;
-  /** Server generated etag that represents the notebook version. */
+  /**
+   * Server generated etag that represents the notebook version.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   etag?: string | undefined;
   /** Aliases of collaborators that can run the notebook. */
   runnerCollaboratorAliases?: string[] | undefined;
-  /** All existing approvals or rejections */
+  /**
+   * All existing approvals or rejections
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   reviews?: CleanRoomNotebookReview[] | undefined;
-  /** Top-level status derived from all reviews */
+  /**
+   * Top-level status derived from all reviews
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   reviewState?: CleanRoomNotebookReview_NotebookReviewState | undefined;
 }
 
@@ -499,7 +561,11 @@ export interface CleanRoomAsset_Status {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CleanRoomAsset_Table {
-  /** The metadata information of the columns in the table */
+  /**
+   * The metadata information of the columns in the table
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   columns?: ColumnInfo[] | undefined;
 }
 
@@ -508,6 +574,8 @@ export interface CleanRoomAsset_TableLocalDetails {
   /**
    * The fully qualified name of the table in its owner's local metastore,
    * in the format of *catalog*.*schema*.*table_name*
+   *
+   * Required. This field must be set in requests.
    */
   localName?: string | undefined;
   /** Partition filtering specification for a shared table. */
@@ -516,7 +584,11 @@ export interface CleanRoomAsset_TableLocalDetails {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CleanRoomAsset_View {
-  /** The metadata information of the columns in the view */
+  /**
+   * The metadata information of the columns in the view
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   columns?: ColumnInfo[] | undefined;
 }
 
@@ -525,6 +597,8 @@ export interface CleanRoomAsset_ViewLocalDetails {
   /**
    * The fully qualified name of the view in its owner's local metastore,
    * in the format of *catalog*.*schema*.*view_name*
+   *
+   * Required. This field must be set in requests.
    */
   localName?: string | undefined;
 }
@@ -534,6 +608,8 @@ export interface CleanRoomAsset_VolumeLocalDetails {
   /**
    * The fully qualified name of the volume in its owner's local metastore,
    * in the format of *catalog*.*schema*.*volume_name*
+   *
+   * Required. This field must be set in requests.
    */
   localName?: string | undefined;
 }
@@ -541,9 +617,17 @@ export interface CleanRoomAsset_VolumeLocalDetails {
 export interface CleanRoomAutoApprovalRule {
   /** The name of the clean room this auto-approval rule belongs to. */
   cleanRoomName?: string | undefined;
-  /** A generated UUID identifying the rule. */
+  /**
+   * A generated UUID identifying the rule.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   ruleId?: string | undefined;
-  /** The owner of the rule to whom the rule applies. */
+  /**
+   * The owner of the rule to whom the rule applies.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   ruleOwnerCollaboratorAlias?: string | undefined;
   /** The auto-approved notebook authors. For 2P, this can only be the other collaborator. */
   authors?:
@@ -572,7 +656,11 @@ export interface CleanRoomAutoApprovalRule {
         runnerCollaboratorAlias: string;
       }
     | undefined;
-  /** Timestamp of when the rule was created, in epoch milliseconds. */
+  /**
+   * Timestamp of when the rule was created, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
 }
 
@@ -583,30 +671,40 @@ export interface CleanRoomCollaborator {
   /**
    * [Organization name](:method:metastores/list#metastores-delta_sharing_organization_name)
    * configured in the metastore
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   organizationName?: string | undefined;
   /**
    * Workspace ID of the user who is receiving the clean room "invitation". Must be specified if
    * invite_recipient_email is specified.
    * It should be empty when the collaborator is the creator of the clean room.
+   *
+   * Input only. Provide this field in requests; it is never returned in responses.
    */
   inviteRecipientWorkspaceId?: bigint | undefined;
   /**
    * Email of the user who is receiving the clean room "invitation". It should be empty
    * for the creator of the clean room, and non-empty for the invitees of the clean room.
    * It is only returned in the output when clean room creator calls GET
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   inviteRecipientEmail?: string | undefined;
   /**
    * Collaborator alias specified by the clean room creator. It is unique across all collaborators of this clean room, and used to derive
    * multiple values internally such as catalog alias and clean room name for single metastore clean rooms.
    * It should follow [UC securable naming requirements](https://docs.databricks.com/en/data-governance/unity-catalog/index.html#securable-object-naming-requirements).
+   *
+   * Required. This field must be set in requests. Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   collaboratorAlias?: string | undefined;
   /**
    * Generated display name for the collaborator. In the case of a single metastore clean room, it is the clean
    * room name. For x-metastore clean rooms, it is the organization name of the metastore. It is not restricted to
    * these values and could change in the future
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   displayName?: string | undefined;
 }
@@ -652,6 +750,7 @@ export interface CleanRoomNotebookTaskRun {
 }
 
 export interface CleanRoomOutputCatalog {
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   status?: CleanRoomOutputCatalog_OutputCatalogStatus | undefined;
   /**
    * The name of the output catalog in UC.
@@ -663,11 +762,23 @@ export interface CleanRoomOutputCatalog {
 
 /** Publicly visible central clean room details. */
 export interface CleanRoomRemoteDetail {
-  /** Central clean room ID. */
+  /**
+   * Central clean room ID.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   centralCleanRoomId?: string | undefined;
-  /** Cloud vendor (aws,azure,gcp) of the central clean room. */
+  /**
+   * Cloud vendor (aws,azure,gcp) of the central clean room.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   cloudVendor?: string | undefined;
-  /** Region of the central clean room. */
+  /**
+   * Region of the central clean room.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   region?: string | undefined;
   /**
    * Collaborators in the central clean room. There should one and only one collaborator
@@ -676,12 +787,23 @@ export interface CleanRoomRemoteDetail {
    * 1. It has the creator's global_metastore_id (determined by caller of CreateCleanRoom).
    *
    * 2. Its invite_recipient_email is empty.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
    */
   collaborators?: CleanRoomCollaborator[] | undefined;
-  /** Collaborator who creates the clean room. */
+  /**
+   * Collaborator who creates the clean room.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: CleanRoomCollaborator | undefined;
-  /** Egress network policy to apply to the central clean room workspace. */
+  /**
+   * Egress network policy to apply to the central clean room workspace.
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   egressNetworkPolicy?: EgressNetworkPolicy | undefined;
+  /** Output only. The server sets this field in responses; any value sent in a request is ignored. */
   complianceSecurityProfile?: ComplianceSecurityProfile | undefined;
 }
 
@@ -757,15 +879,28 @@ export interface ComplianceSecurityProfile {
 }
 
 export interface CreateCleanRoomAssetRequest {
+  /** Required. This field must be set in requests. */
   asset?: CleanRoomAsset | undefined;
 }
 
 export interface CreateCleanRoomAssetReviewRequest {
-  /** Name of the clean room */
+  /**
+   * Name of the clean room
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
-  /** Name of the asset */
+  /**
+   * Name of the asset
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Asset type. Can either be NOTEBOOK_FILE or JAR_ANALYSIS. */
+  /**
+   * Asset type. Can either be NOTEBOOK_FILE or JAR_ANALYSIS.
+   *
+   * Required. This field must be set in requests.
+   */
   assetType?: CleanRoomAsset_AssetType | undefined;
   review?:
     | {$case: 'notebookReview'; notebookReview: NotebookVersionReview}
@@ -785,16 +920,23 @@ export interface CreateCleanRoomAssetReviewResponse {
 }
 
 export interface CreateCleanRoomAutoApprovalRuleRequest {
+  /** Required. This field must be set in requests. */
   autoApprovalRule?: CleanRoomAutoApprovalRule | undefined;
 }
 
 export interface CreateCleanRoomOutputCatalogRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
+  /** Required. This field must be set in requests. */
   outputCatalog?: CleanRoomOutputCatalog | undefined;
 }
 
 export interface CreateCleanRoomOutputCatalogResponse {
+  /** Required. This field must be set in requests. */
   outputCatalog?: CleanRoomOutputCatalog | undefined;
 }
 
@@ -803,11 +945,23 @@ export interface CreateCleanRoomRequest {
 }
 
 export interface DeleteCleanRoomAssetRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
-  /** The type of the asset. */
+  /**
+   * The type of the asset.
+   *
+   * Required. This field must be set in requests.
+   */
   assetType?: CleanRoomAsset_AssetType | undefined;
-  /** The fully qualified name of the asset, it is same as the name field in CleanRoomAsset. */
+  /**
+   * The fully qualified name of the asset, it is same as the name field in CleanRoomAsset.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -819,12 +973,18 @@ export interface DeleteCleanRoomAssetRequest {
 export interface DeleteCleanRoomAssetResponse {}
 
 export interface DeleteCleanRoomAutoApprovalRuleRequest {
+  /** Required. This field must be set in requests. */
   cleanRoomName?: string | undefined;
+  /** Required. This field must be set in requests. */
   ruleId?: string | undefined;
 }
 
 export interface DeleteCleanRoomRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -898,40 +1058,79 @@ export interface EgressNetworkPolicy_InternetAccessPolicy_StorageDestination {
 }
 
 export interface GetCleanRoomAssetRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
-  /** The type of the asset. */
+  /**
+   * The type of the asset.
+   *
+   * Required. This field must be set in requests.
+   */
   assetType?: CleanRoomAsset_AssetType | undefined;
-  /** The fully qualified name of the asset, it is same as the name field in CleanRoomAsset. */
+  /**
+   * The fully qualified name of the asset, it is same as the name field in CleanRoomAsset.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface GetCleanRoomAssetRevisionRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
-  /** Name of the asset. */
+  /**
+   * Name of the asset.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Asset type. Only NOTEBOOK_FILE is supported. */
+  /**
+   * Asset type. Only NOTEBOOK_FILE is supported.
+   *
+   * Required. This field must be set in requests.
+   */
   assetType?: CleanRoomAsset_AssetType | undefined;
   /** Revision etag to fetch. If not provided, the latest revision will be returned. */
   etag?: string | undefined;
 }
 
 export interface GetCleanRoomAutoApprovalRuleRequest {
+  /** Required. This field must be set in requests. */
   cleanRoomName?: string | undefined;
+  /** Required. This field must be set in requests. */
   ruleId?: string | undefined;
 }
 
 export interface GetCleanRoomRequest {
+  /** Required. This field must be set in requests. */
   name?: string | undefined;
 }
 
 export interface ListCleanRoomAssetRevisionsRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
-  /** Name of the asset. */
+  /**
+   * Name of the asset.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Asset type. Only NOTEBOOK_FILE is supported. */
+  /**
+   * Asset type. Only NOTEBOOK_FILE is supported.
+   *
+   * Required. This field must be set in requests.
+   */
   assetType?: CleanRoomAsset_AssetType | undefined;
   /** Maximum number of asset revisions to return. Defaults to 10. */
   pageSize?: number | undefined;
@@ -945,7 +1144,11 @@ export interface ListCleanRoomAssetRevisionsResponse {
 }
 
 export interface ListCleanRoomAssetsRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
@@ -962,6 +1165,7 @@ export interface ListCleanRoomAssetsResponse {
 }
 
 export interface ListCleanRoomAutoApprovalRulesRequest {
+  /** Required. This field must be set in requests. */
   cleanRoomName?: string | undefined;
   /** Maximum number of auto-approval rules to return. Defaults to 100. */
   pageSize?: number | undefined;
@@ -979,7 +1183,11 @@ export interface ListCleanRoomAutoApprovalRulesResponse {
 }
 
 export interface ListCleanRoomNotebookTaskRunsRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   cleanRoomName?: string | undefined;
   /** Notebook name */
   notebookName?: string | undefined;
@@ -1016,9 +1224,17 @@ export interface ListCleanRoomsResponse {
 }
 
 export interface NotebookVersionReview {
-  /** Etag identifying the notebook version */
+  /**
+   * Etag identifying the notebook version
+   *
+   * Required. This field must be set in requests.
+   */
   etag?: string | undefined;
-  /** Review outcome */
+  /**
+   * Review outcome
+   *
+   * Required. This field must be set in requests.
+   */
   reviewState?: CleanRoomNotebookReview_NotebookReviewState | undefined;
   /** Review comment */
   comment?: string | undefined;
@@ -1085,6 +1301,8 @@ export interface UpdateCleanRoomAssetRequest {
   /**
    * The asset to update.
    * The asset's `name` and `asset_type` fields are used to identify the asset to update.
+   *
+   * Required. This field must be set in requests.
    */
   asset?: CleanRoomAsset | undefined;
 }
@@ -1095,7 +1313,11 @@ export interface UpdateCleanRoomAutoApprovalRuleRequest {
 }
 
 export interface UpdateCleanRoomRequest {
-  /** Name of the clean room. */
+  /**
+   * Name of the clean room.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   cleanRoom?: CleanRoom | undefined;
 }

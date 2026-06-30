@@ -3,10 +3,19 @@
 import {z} from 'zod';
 
 export interface CreateStorageConfigurationRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
-  /** The human-readable name of the storage configuration. */
+  /**
+   * The human-readable name of the storage configuration.
+   *
+   * Required. This field must be set in requests.
+   */
   storageConfigurationName?: string | undefined;
-  /** Root S3 bucket information. */
+  /**
+   * Root S3 bucket information.
+   *
+   * Required. This field must be set in requests.
+   */
   rootBucketInfo?: RootBucketInfo | undefined;
   /**
    * Optional IAM role that is used to access the workspace catalog which is created during workspace creation
@@ -18,16 +27,21 @@ export interface CreateStorageConfigurationRequest {
 }
 
 export interface DeleteStorageConfigurationRequest {
+  /** Required. This field must be set in requests. */
   storageConfigurationId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface GetStorageConfigurationRequest {
+  /** Required. This field must be set in requests. */
   storageConfigurationId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
 export interface ListStorageConfigurationRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 

@@ -4,7 +4,11 @@ import {z} from 'zod';
 
 /** Returns the details of a policy family at a specific version */
 export interface GetPolicyFamilyRequest {
-  /** The family ID about which to retrieve information. */
+  /**
+   * The family ID about which to retrieve information.
+   *
+   * Required. This field must be set in requests.
+   */
   policyFamilyId?: string | undefined;
   /** The version number for the family to fetch. Defaults to the latest version. */
   version?: bigint | undefined;

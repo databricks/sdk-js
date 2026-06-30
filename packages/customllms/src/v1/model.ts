@@ -19,13 +19,22 @@ export const State = {
 export type State = (typeof State)[keyof typeof State] | (string & {});
 
 export interface CancelCustomLlmOptimizationRunRequest {
+  /** Required. This field must be set in requests. */
   id?: string | undefined;
 }
 
 export interface CreateCustomLlmRequest {
-  /** Name of the custom LLM. Only alphanumeric characters and dashes allowed. */
+  /**
+   * Name of the custom LLM. Only alphanumeric characters and dashes allowed.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Instructions for the custom LLM to follow */
+  /**
+   * Instructions for the custom LLM to follow
+   *
+   * Required. This field must be set in requests.
+   */
   instructions?: string | undefined;
   /**
    * Datasets used for training and evaluating the model, not for inference.
@@ -44,48 +53,93 @@ export interface CreateCustomLlmRequest {
 
 export interface CustomLlm {
   id?: string | undefined;
-  /** Name of the custom LLM */
+  /**
+   * Name of the custom LLM
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Name of the endpoint that will be used to serve the custom LLM */
+  /**
+   * Name of the endpoint that will be used to serve the custom LLM
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   endpointName?: string | undefined;
-  /** Instructions for the custom LLM to follow */
+  /**
+   * Instructions for the custom LLM to follow
+   *
+   * Required. This field must be set in requests.
+   */
   instructions?: string | undefined;
   /** Datasets used for training and evaluating the model, not for inference */
   datasets?: Dataset[] | undefined;
   /** Guidelines for the custom LLM to adhere to */
   guidelines?: string[] | undefined;
-  /** If optimization is kicked off, tracks the state of the custom LLM */
+  /**
+   * If optimization is kicked off, tracks the state of the custom LLM
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   optimizationState?: State | undefined;
-  /** Creator of the custom LLM */
+  /**
+   * Creator of the custom LLM
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   creator?: string | undefined;
-  /** Creation timestamp of the custom LLM */
+  /**
+   * Creation timestamp of the custom LLM
+   *
+   * Immutable. Set this field when the resource is created; it cannot be changed afterward.
+   */
   creationTime?: Temporal.Instant | undefined;
   agentArtifactPath?: string | undefined;
 }
 
 export interface Dataset {
+  /** Required. This field must be set in requests. */
   table?: Table | undefined;
 }
 
 export interface DeleteCustomLlmRequest {
-  /** The id of the custom llm */
+  /**
+   * The id of the custom llm
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 export interface GetCustomLlmRequest {
-  /** The id of the custom llm */
+  /**
+   * The id of the custom llm
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 export interface StartCustomLlmOptimizationRunRequest {
-  /** The Id of the tile. */
+  /**
+   * The Id of the tile.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
 }
 
 export interface Table {
-  /** Full UC table path in catalog.schema.table_name format */
+  /**
+   * Full UC table path in catalog.schema.table_name format
+   *
+   * Required. This field must be set in requests.
+   */
   tablePath?: string | undefined;
-  /** Name of the request column */
+  /**
+   * Name of the request column
+   *
+   * Required. This field must be set in requests.
+   */
   requestCol?: string | undefined;
   /** Optional: Name of the response column if the data is labeled */
   responseCol?: string | undefined;
@@ -94,9 +148,17 @@ export interface Table {
 export interface UpdateCustomLlmRequest {
   /** The id of the custom llm */
   id?: string | undefined;
-  /** The CustomLlm containing the fields which should be updated. */
+  /**
+   * The CustomLlm containing the fields which should be updated.
+   *
+   * Required. This field must be set in requests.
+   */
   customLlm?: CustomLlm | undefined;
-  /** The list of the CustomLlm fields to update. These should correspond to the values (or lack thereof) present in `custom_llm`. */
+  /**
+   * The list of the CustomLlm fields to update. These should correspond to the values (or lack thereof) present in `custom_llm`.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<CustomLlm> | undefined;
 }
 

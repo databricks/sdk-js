@@ -86,7 +86,9 @@ export interface CreateResponse {
 }
 
 export interface DestroyContextRequest {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
+  /** Required. This field must be set in requests. */
   contextId?: string | undefined;
 }
 
@@ -105,8 +107,11 @@ export interface ExecuteCommandRequest {
 
 /** Request to get the status of a previously submitted command. */
 export interface GetCommandStatusRequest {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
+  /** Required. This field must be set in requests. */
   contextId?: string | undefined;
+  /** Required. This field must be set in requests. */
   commandId?: string | undefined;
 }
 
@@ -118,7 +123,9 @@ export interface GetCommandStatusResponse {
 
 /** Request to retrieve the status of an execution context. */
 export interface GetContextStatusRequest {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
+  /** Required. This field must be set in requests. */
   contextId?: string | undefined;
 }
 

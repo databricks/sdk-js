@@ -110,24 +110,32 @@ export interface Actor {
 }
 
 export interface CheckPolicyRequest {
+  /** Required. This field must be set in requests. */
   actor?: Actor | undefined;
+  /** Required. This field must be set in requests. */
   permission?: string | undefined;
   /**
    * Ex: (servicePrincipal/use, accounts/<account-id>/servicePrincipals/<sp-id>)
    * Ex: (servicePrincipal.ruleSet/update, accounts/<account-id>/servicePrincipals/<sp-id>/ruleSets/default)
+   *
+   * Required. This field must be set in requests.
    */
   resource?: string | undefined;
+  /** Required. This field must be set in requests. */
   consistencyToken?: ConsistencyToken | undefined;
+  /** Required. This field must be set in requests. */
   authzIdentity?: RequestAuthzIdentity | undefined;
   resourceInfo?: ResourceInfo | undefined;
 }
 
 export interface CheckPolicyResponse {
   isPermitted?: boolean | undefined;
+  /** Required. This field must be set in requests. */
   consistencyToken?: ConsistencyToken | undefined;
 }
 
 export interface ConsistencyToken {
+  /** Required. This field must be set in requests. */
   value?: string | undefined;
 }
 
@@ -163,6 +171,8 @@ export interface GetRuleSetRequest {
    * `name=accounts/<ACCOUNT_ID>/groups/<GROUP_ID>/ruleSets/default` | A name for a rule set on the group.
    * `name=accounts/<ACCOUNT_ID>/servicePrincipals/<SERVICE_PRINCIPAL_APPLICATION_ID>/ruleSets/default` | A name for a rule set on the service principal.
    * `name=accounts/<ACCOUNT_ID>/tagPolicies/<TAG_POLICY_ID>/ruleSets/default` | A name for a rule set on the tag policy.
+   *
+   * Required. This field must be set in requests.
    */
   name?: string | undefined;
   /**
@@ -176,6 +186,8 @@ export interface GetRuleSetRequest {
    * :--- | :---
    * `etag=` | An empty etag can only be used in GET to indicate no freshness requirements.
    * `etag=RENUAAABhSweA4NvVmmUYdiU717H3Tgy0UJdor3gE4a+mq/oj9NjAf8ZsQ==` | An etag encoded a specific version of the rule set to get or to be updated.
+   *
+   * Required. This field must be set in requests.
    */
   etag?: string | undefined;
 }
@@ -190,7 +202,11 @@ export interface GrantRule {
    * * servicePrincipals/<SERVICE_PRINCIPAL_APPLICATION_ID>
    */
   principals?: string[] | undefined;
-  /** Role that is assigned to the list of principals. */
+  /**
+   * Role that is assigned to the list of principals.
+   *
+   * Required. This field must be set in requests.
+   */
   role?: string | undefined;
 }
 
@@ -206,6 +222,8 @@ export interface ListAssignableRolesForResourceRequest {
    * `resource=accounts/<ACCOUNT_ID>/groups/<GROUP_ID>` | A resource name for the group.
    * `resource=accounts/<ACCOUNT_ID>/servicePrincipals/<SP_ID>` | A resource name for the service principal.
    * `resource=accounts/<ACCOUNT_ID>/tagPolicies/<TAG_POLICY_ID>` | A resource name for the tag policy.
+   *
+   * Required. This field must be set in requests.
    */
   resource?: string | undefined;
 }
@@ -300,7 +318,11 @@ export interface PrincipalOutput {
 }
 
 export interface ResourceInfo {
-  /** Id of the current resource. */
+  /**
+   * Id of the current resource.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: string | undefined;
   /** Parent resource info for the current resource. The parent may have another parent. */
   parentResourceInfo?: ResourceInfo | undefined;
@@ -309,12 +331,20 @@ export interface ResourceInfo {
 }
 
 export interface Role {
-  /** Role to assign to a principal or a list of principals on a resource. */
+  /**
+   * Role to assign to a principal or a list of principals on a resource.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface RuleSet {
-  /** Name of the rule set. */
+  /**
+   * Name of the rule set.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Identifies the version of the rule set returned.
@@ -324,13 +354,19 @@ export interface RuleSet {
    * make use of the etag in the read -> modify -> write pattern to perform rule set updates in
    * order to avoid race conditions that is get an etag from a GET rule set request, and pass it
    * with the PUT update request to identify the rule set version you are updating.
+   *
+   * Required. This field must be set in requests.
    */
   etag?: string | undefined;
   grantRules?: GrantRule[] | undefined;
 }
 
 export interface RuleSetUpdateRequest {
-  /** Name of the rule set. */
+  /**
+   * Name of the rule set.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
   /**
    * Identifies the version of the rule set returned.
@@ -340,6 +376,8 @@ export interface RuleSetUpdateRequest {
    * make use of the etag in the read -> modify -> write pattern to perform rule set updates in
    * order to avoid race conditions that is get an etag from a GET rule set request, and pass it
    * with the PUT update request to identify the rule set version you are updating.
+   *
+   * Required. This field must be set in requests.
    */
   etag?: string | undefined;
   grantRules?: GrantRule[] | undefined;
@@ -364,8 +402,13 @@ export interface UpdateObjectPermissionsRequest {
 export interface UpdateRuleSetRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
-  /** Name of the rule set. */
+  /**
+   * Name of the rule set.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
+  /** Required. This field must be set in requests. */
   ruleSet?: RuleSetUpdateRequest | undefined;
 }
 

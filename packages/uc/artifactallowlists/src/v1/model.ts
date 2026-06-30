@@ -27,38 +27,86 @@ export type ArtifactMatcher_MatchType =
   | (string & {});
 
 export interface ArtifactAllowlistInfo {
-  /** A list of allowed artifact match patterns. */
+  /**
+   * A list of allowed artifact match patterns.
+   *
+   * Required. This field must be set in requests.
+   */
   artifactMatchers?: ArtifactMatcher[] | undefined;
-  /** Unique identifier of parent metastore. */
+  /**
+   * Unique identifier of parent metastore.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
-  /** Username of the user who set the artifact allowlist. */
+  /**
+   * Username of the user who set the artifact allowlist.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this artifact allowlist was set, in epoch milliseconds. */
+  /**
+   * Time at which this artifact allowlist was set, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
 }
 
 export interface ArtifactMatcher {
-  /** The artifact path or maven coordinate */
+  /**
+   * The artifact path or maven coordinate
+   *
+   * Required. This field must be set in requests.
+   */
   artifact?: string | undefined;
-  /** The pattern matching type of the artifact */
+  /**
+   * The pattern matching type of the artifact
+   *
+   * Required. This field must be set in requests.
+   */
   matchType?: ArtifactMatcher_MatchType | undefined;
 }
 
 export interface GetArtifactAllowlistRequest {
-  /** The artifact type of the allowlist. */
+  /**
+   * The artifact type of the allowlist.
+   *
+   * Required. This field must be set in requests.
+   */
   artifactType?: ArtifactType | undefined;
 }
 
 export interface SetArtifactAllowlistRequest {
-  /** The artifact type of the allowlist. */
+  /**
+   * The artifact type of the allowlist.
+   *
+   * Required. This field must be set in requests.
+   */
   artifactType?: ArtifactType | undefined;
-  /** A list of allowed artifact match patterns. */
+  /**
+   * A list of allowed artifact match patterns.
+   *
+   * Required. This field must be set in requests.
+   */
   artifactMatchers?: ArtifactMatcher[] | undefined;
-  /** Unique identifier of parent metastore. */
+  /**
+   * Unique identifier of parent metastore.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   metastoreId?: string | undefined;
-  /** Username of the user who set the artifact allowlist. */
+  /**
+   * Username of the user who set the artifact allowlist.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdBy?: string | undefined;
-  /** Time at which this artifact allowlist was set, in epoch milliseconds. */
+  /**
+   * Time at which this artifact allowlist was set, in epoch milliseconds.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   createdAt?: bigint | undefined;
 }
 

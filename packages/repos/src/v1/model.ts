@@ -3,7 +3,11 @@
 import {z} from 'zod';
 
 export interface CreateRepoRequest {
-  /** URL of the Git repository to be linked. */
+  /**
+   * URL of the Git repository to be linked.
+   *
+   * Required. This field must be set in requests.
+   */
   url?: string | undefined;
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
@@ -11,6 +15,8 @@ export interface CreateRepoRequest {
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
    * (deprecated by AWS, not accepting new customers).
+   *
+   * Required. This field must be set in requests.
    */
   provider?: string | undefined;
   /**
@@ -47,7 +53,11 @@ export interface CreateRepoResponse {
 }
 
 export interface DeleteRepoRequest {
-  /** The ID for the corresponding repo to delete. */
+  /**
+   * The ID for the corresponding repo to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: bigint | undefined;
 }
 
@@ -55,7 +65,11 @@ export interface DeleteRepoRequest {
 export interface DeleteRepoResponse {}
 
 export interface GetRepoRequest {
-  /** ID of the Git folder (repo) object in the workspace. */
+  /**
+   * ID of the Git folder (repo) object in the workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: bigint | undefined;
 }
 
@@ -147,7 +161,11 @@ export interface SparseCheckoutUpdate {
 }
 
 export interface UpdateRepoRequest {
-  /** ID of the Git folder (repo) object in the workspace. */
+  /**
+   * ID of the Git folder (repo) object in the workspace.
+   *
+   * Required. This field must be set in requests.
+   */
   id?: bigint | undefined;
   /** Branch that the local version of the repo is checked out to. */
   branch?: string | undefined;

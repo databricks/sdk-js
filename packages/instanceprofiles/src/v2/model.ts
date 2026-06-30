@@ -12,7 +12,11 @@ export interface AddInstanceProfileRequest {
    * you can pass this flag to skip the validation and forcibly add the instance profile.
    */
   skipValidation?: boolean | undefined;
-  /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
+  /**
+   * The AWS ARN of the instance profile to register with <Databricks>. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   instanceProfileArn?: string | undefined;
   /**
    * Boolean flag indicating whether the instance profile should only be used in credential
@@ -37,7 +41,11 @@ export interface AddInstanceProfileRequest {
 export interface AddInstanceProfileResponse {}
 
 export interface EditInstanceProfileRequest {
-  /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
+  /**
+   * The AWS ARN of the instance profile to register with <Databricks>. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   instanceProfileArn?: string | undefined;
   /**
    * Boolean flag indicating whether the instance profile should only be used in credential
@@ -62,7 +70,11 @@ export interface EditInstanceProfileRequest {
 export interface EditInstanceProfileResponse {}
 
 export interface InstanceProfile {
-  /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
+  /**
+   * The AWS ARN of the instance profile to register with <Databricks>. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   instanceProfileArn?: string | undefined;
   /**
    * Boolean flag indicating whether the instance profile should only be used in credential
@@ -92,7 +104,11 @@ export interface ListInstanceProfilesResponse {
 }
 
 export interface RemoveInstanceProfileRequest {
-  /** The ARN of the instance profile to remove. This field is required. */
+  /**
+   * The ARN of the instance profile to remove. This field is required.
+   *
+   * Required. This field must be set in requests.
+   */
   instanceProfileArn?: string | undefined;
 }
 

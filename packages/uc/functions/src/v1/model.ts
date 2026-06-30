@@ -165,7 +165,11 @@ export interface CreateFunction {
 }
 
 export interface CreateFunctionRequest {
-  /** Partial __FunctionInfo__ specifying the function to be created. */
+  /**
+   * Partial __FunctionInfo__ specifying the function to be created.
+   *
+   * Required. This field must be set in requests.
+   */
   functionInfo?: CreateFunction | undefined;
 }
 
@@ -176,7 +180,11 @@ export interface CredentialDependency {
 }
 
 export interface DeleteFunctionRequest {
-  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__) . */
+  /**
+   * The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__) .
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Force deletion even if the function is notempty. */
   force?: boolean | undefined;
@@ -206,7 +214,11 @@ export interface DependencyList {
 
 /** A function that is dependent on a SQL object. */
 export interface FunctionDependency {
-  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  /**
+   * Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__.
+   *
+   * Required. This field must be set in requests.
+   */
   functionFullName?: string | undefined;
 }
 
@@ -274,13 +286,25 @@ export interface FunctionInfo {
 }
 
 export interface FunctionParameterInfo {
-  /** Name of Parameter. */
+  /**
+   * Name of Parameter.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** Full data type spec, SQL/catalogString text. */
+  /**
+   * Full data type spec, SQL/catalogString text.
+   *
+   * Required. This field must be set in requests.
+   */
   typeText?: string | undefined;
   /** Full data type spec, JSON-serialized. */
   typeJson?: string | undefined;
-  /** Name of type (INT, STRUCT, MAP, etc.) */
+  /**
+   * Name of type (INT, STRUCT, MAP, etc.)
+   *
+   * Required. This field must be set in requests.
+   */
   typeName?: ColumnTypeName | undefined;
   /** Digits of precision; required on Create for DecimalTypes. */
   typePrecision?: number | undefined;
@@ -288,7 +312,11 @@ export interface FunctionParameterInfo {
   typeScale?: number | undefined;
   /** Format of IntervalType. */
   typeIntervalType?: string | undefined;
-  /** Ordinal position of column (starting at position 0). */
+  /**
+   * Ordinal position of column (starting at position 0).
+   *
+   * Required. This field must be set in requests.
+   */
   position?: number | undefined;
   /** Function parameter mode. */
   parameterMode?: FunctionParameterMode | undefined;
@@ -305,16 +333,28 @@ export interface FunctionParameterInfos {
 }
 
 export interface GetFunctionRequest {
-  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
+  /**
+   * The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__).
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Whether to include functions in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListFunctionsRequest {
-  /** Name of parent catalog for functions of interest. */
+  /**
+   * Name of parent catalog for functions of interest.
+   *
+   * Required. This field must be set in requests.
+   */
   catalogName?: string | undefined;
-  /** Parent schema of functions. */
+  /**
+   * Parent schema of functions.
+   *
+   * Required. This field must be set in requests.
+   */
   schemaName?: string | undefined;
   /** Whether to include functions in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
@@ -342,12 +382,20 @@ export interface ListFunctionsResponse {
 
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
-  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  /**
+   * Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__.
+   *
+   * Required. This field must be set in requests.
+   */
   tableFullName?: string | undefined;
 }
 
 export interface UpdateFunctionRequest {
-  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
+  /**
+   * The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__).
+   *
+   * Required. This field must be set in requests.
+   */
   fullNameArg?: string | undefined;
   /** Name of function, relative to parent schema. */
   name?: string | undefined;

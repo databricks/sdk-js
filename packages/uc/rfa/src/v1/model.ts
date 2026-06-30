@@ -71,21 +71,37 @@ export type SpecialDestination =
 export interface AccessRequestDestinations {
   /** The access request destinations for the securable. */
   destinations?: NotificationDestination[] | undefined;
-  /** The securable for which the access request destinations are being modified or read. */
+  /**
+   * The securable for which the access request destinations are being modified or read.
+   *
+   * Required. This field must be set in requests.
+   */
   securable?: Securable | undefined;
   /**
    * Indicates whether any destinations are hidden from the caller due to a lack of permissions.
    * This value is true if the caller does not have permission to see all destinations.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   areAnyDestinationsHidden?: boolean | undefined;
   /**
    * The source securable from which the destinations are inherited. Either the same value as securable (if destination
    * is set directly on the securable) or the nearest parent securable with destinations set.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   destinationSourceSecurable?: Securable | undefined;
-  /** The type of the securable. Redundant with the type in the securable object, but necessary for Terraform integration */
+  /**
+   * The type of the securable. Redundant with the type in the securable object, but necessary for Terraform integration
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   securableType?: string | undefined;
-  /** The full name of the securable. Redundant with the name in the securable object, but necessary for Terraform integration */
+  /**
+   * The full name of the securable. Redundant with the name in the securable object, but necessary for Terraform integration
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   fullName?: string | undefined;
 }
 
@@ -198,8 +214,11 @@ export interface UpdateAccessRequestDestinationsRequest {
   /**
    * The access request destinations to assign to the securable.
    * For each destination, a **destination_id** and **destination_type** must be defined.
+   *
+   * Required. This field must be set in requests.
    */
   accessRequestDestinations?: AccessRequestDestinations | undefined;
+  /** Required. This field must be set in requests. */
   updateMask?: FieldMask<AccessRequestDestinations> | undefined;
 }
 

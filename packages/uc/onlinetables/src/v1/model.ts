@@ -133,14 +133,24 @@ export interface OnlineTable {
   name?: string | undefined;
   /** Specification of the online table. */
   spec?: OnlineTableSpec | undefined;
-  /** Online Table data synchronization status */
+  /**
+   * Online Table data synchronization status
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   status?: OnlineTableStatus | undefined;
-  /** Data serving REST API URL for this table */
+  /**
+   * Data serving REST API URL for this table
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   tableServingUrl?: string | undefined;
   /**
    * The provisioning state of the online table entity in Unity Catalog. This is distinct from the
    * state of the data synchronization pipeline (i.e. the table may be in "ACTIVE" but the pipeline
    * may be in "PROVISIONING" as it runs asynchronously).
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
    */
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
 }

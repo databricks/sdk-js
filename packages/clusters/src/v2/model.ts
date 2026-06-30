@@ -1084,7 +1084,11 @@ export type ResizeCause_ResizeCause =
 
 /** A storage location in Adls Gen2 */
 export interface Adlsgen2Info {
-  /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
+  /**
+   * abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -1226,7 +1230,11 @@ export interface AzureAttributes {
 
 /** Request to cancel the pending enforcement for a cluster. */
 export interface CancelPendingClusterEnforcementRequest {
-  /** The ID of the cluster to cancel the pending enforcement for. */
+  /**
+   * The ID of the cluster to cancel the pending enforcement for.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   /**
    * If true and no pending enforcement exists, the request will succeed but no action
@@ -1244,8 +1252,13 @@ export interface CancelPendingClusterEnforcementRequest {
 export interface CancelPendingClusterEnforcementResponse {}
 
 export interface ChangeClusterOwnerRequest {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
-  /** New owner of the cluster_id after this RPC. */
+  /**
+   * New owner of the cluster_id after this RPC.
+   *
+   * Required. This field must be set in requests.
+   */
   ownerUsername?: string | undefined;
 }
 
@@ -1253,7 +1266,11 @@ export interface ChangeClusterOwnerRequest {
 export interface ChangeClusterOwnerResponse {}
 
 export interface CloneCluster {
-  /** The cluster that is being cloned. */
+  /**
+   * The cluster that is being cloned.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceClusterId?: string | undefined;
 }
 
@@ -1423,7 +1440,11 @@ export interface ClusterAttributes {
 }
 
 export interface ClusterCompliance {
-  /** Canonical unique identifier for a cluster. */
+  /**
+   * Canonical unique identifier for a cluster.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   /** Whether this cluster is in compliance with the latest version of its policy. */
   isCompliant?: boolean | undefined;
@@ -1441,6 +1462,7 @@ export interface ClusterCompliance {
 }
 
 export interface ClusterEvent {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
   /**
    * The timestamp when the event occurred, stored as the number of milliseconds since
@@ -2162,12 +2184,20 @@ export interface DataPlaneEventDetails {
 
 /** A storage location in DBFS */
 export interface DbfsStorageInfo {
-  /** dbfs destination, e.g. `dbfs:/my/path` */
+  /**
+   * dbfs destination, e.g. `dbfs:/my/path`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
 export interface DeleteClusterRequest {
-  /** The cluster to be terminated. */
+  /**
+   * The cluster to be terminated.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
 }
 
@@ -2194,7 +2224,11 @@ export interface DockerImage {
 }
 
 export interface EditClusterRequest {
-  /** ID of the cluster */
+  /**
+   * ID of the cluster
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   /** When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied. */
   applyPolicyDefaultValues?: boolean | undefined;
@@ -2381,7 +2415,11 @@ export interface EditClusterRequest {
 export interface EditClusterResponse {}
 
 export interface EnforcePolicyComplianceForClusterRequest {
-  /** The ID of the cluster you want to enforce policy compliance on. */
+  /**
+   * The ID of the cluster you want to enforce policy compliance on.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   /**
    * If set, previews the changes that would be made to a cluster
@@ -2739,12 +2777,20 @@ export interface GcpAttributes {
 
 /** A storage location in Google Cloud Platform's GCS */
 export interface GcsStorageInfo {
-  /** GCS destination/URI, e.g. `gs://my-bucket/some-prefix` */
+  /**
+   * GCS destination/URI, e.g. `gs://my-bucket/some-prefix`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
 export interface GetClusterRequest {
-  /** The cluster about which to retrieve information. */
+  /**
+   * The cluster about which to retrieve information.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
 }
 
@@ -2776,7 +2822,11 @@ export interface GetEventsResponse {
 }
 
 export interface GetPolicyComplianceForClusterRequest {
-  /** The ID of the cluster to get the compliance status */
+  /**
+   * The ID of the cluster to get the compliance status
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
 }
 
@@ -2985,7 +3035,11 @@ export interface ListAvailableZonesResponse {
 }
 
 export interface ListClusterComplianceForPolicyRequest {
-  /** Canonical unique identifier for the cluster policy. */
+  /**
+   * Canonical unique identifier for the cluster policy.
+   *
+   * Required. This field must be set in requests.
+   */
   policyId?: string | undefined;
   /**
    * A page token that can be used to navigate to the next page or previous page as
@@ -3037,7 +3091,11 @@ export interface ListClustersResponse {
 }
 
 export interface ListEventsRequest {
-  /** The ID of the cluster to retrieve events about. */
+  /**
+   * The ID of the cluster to retrieve events about.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   /**
    * The start time in epoch milliseconds.
@@ -3093,7 +3151,11 @@ export interface ListNodeTypesResponse {
 }
 
 export interface LocalFileInfo {
-  /** local file destination, e.g. `file:/my/local/file.sh` */
+  /**
+   * local file destination, e.g. `file:/my/local/file.sh`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 
@@ -3122,7 +3184,11 @@ export interface LogSyncStatus {
  * It is defined in proto in case we want to send it over the wire in the future (which is likely)
  */
 export interface NodeInstanceType {
-  /** Unique identifier across instance types */
+  /**
+   * Unique identifier across instance types
+   *
+   * Required. This field must be set in requests.
+   */
   instanceTypeId?: string | undefined;
   /** Number of local disks that are present on this instance. */
   localDisks?: number | undefined;
@@ -3139,25 +3205,45 @@ export interface NodeInstanceType {
  * instance type on which it will be hosted.
  */
 export interface NodeType {
-  /** Unique identifier for this node type. */
+  /**
+   * Unique identifier for this node type.
+   *
+   * Required. This field must be set in requests.
+   */
   nodeTypeId?: string | undefined;
-  /** Memory (in MB) available for this node type. */
+  /**
+   * Memory (in MB) available for this node type.
+   *
+   * Required. This field must be set in requests.
+   */
   memoryMb?: number | undefined;
   /**
    * Number of CPU cores available for this node type.
    * Note that this can be fractional, e.g., 2.5 cores, if the number of cores on a
    * machine instance is not divisible by the number of Spark nodes on that machine.
+   *
+   * Required. This field must be set in requests.
    */
   numCores?: number | undefined;
-  /** A string description associated with this node type, e.g., "r3.xlarge". */
+  /**
+   * A string description associated with this node type, e.g., "r3.xlarge".
+   *
+   * Required. This field must be set in requests.
+   */
   description?: string | undefined;
-  /** An identifier for the type of hardware that this node runs on, e.g., "r3.2xlarge" in AWS. */
+  /**
+   * An identifier for the type of hardware that this node runs on, e.g., "r3.2xlarge" in AWS.
+   *
+   * Required. This field must be set in requests.
+   */
   instanceTypeId?: string | undefined;
   /** Whether the node type is deprecated. Non-deprecated node types offer greater performance. */
   isDeprecated?: boolean | undefined;
   /**
    * A descriptive category for this node type. Examples include "Memory Optimized" and
    * "Compute Optimized".
+   *
+   * Required. This field must be set in requests.
    */
   category?: string | undefined;
   /**
@@ -3230,7 +3316,11 @@ export interface PendingEnforcement {
 }
 
 export interface PermanentDeleteClusterRequest {
-  /** The cluster to be deleted. */
+  /**
+   * The cluster to be deleted.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
 }
 
@@ -3238,6 +3328,7 @@ export interface PermanentDeleteClusterRequest {
 export interface PermanentDeleteClusterResponse {}
 
 export interface PinClusterRequest {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
 }
 
@@ -3248,7 +3339,11 @@ export interface PinClusterResponse {}
 export interface ResizeCause {}
 
 export interface ResizeClusterRequest {
-  /** The cluster to be resized. */
+  /**
+   * The cluster to be resized.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   size?:
     | {
@@ -3280,7 +3375,11 @@ export interface ResizeClusterRequest {
 export interface ResizeClusterResponse {}
 
 export interface RestartClusterRequest {
-  /** The cluster to be started. */
+  /**
+   * The cluster to be started.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   restartUser?: string | undefined;
 }
@@ -3294,6 +3393,8 @@ export interface S3StorageInfo {
    * S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using
    * cluster iam role, please make sure you set cluster iam role and the role has write access to the
    * destination. Please also note that you cannot use AWS keys to deliver logs.
+   *
+   * Required. This field must be set in requests.
    */
   destination?: string | undefined;
   /**
@@ -3381,7 +3482,11 @@ export interface SparkVersion {
 }
 
 export interface StartClusterRequest {
-  /** The cluster to be started. */
+  /**
+   * The cluster to be started.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
 }
 
@@ -3398,6 +3503,7 @@ export interface TerminationReason {
 }
 
 export interface UnpinClusterRequest {
+  /** Required. This field must be set in requests. */
   clusterId?: string | undefined;
 }
 
@@ -3405,11 +3511,19 @@ export interface UnpinClusterRequest {
 export interface UnpinClusterResponse {}
 
 export interface UpdateClusterRequest {
-  /** ID of the cluster. */
+  /**
+   * ID of the cluster.
+   *
+   * Required. This field must be set in requests.
+   */
   clusterId?: string | undefined;
   /** The cluster to be updated. */
   cluster?: UpdateClusterRequest_UpdateClusterResource | undefined;
-  /** Used to specify which cluster attributes and size fields to update. See https://google.aip.dev/161 for more details. */
+  /**
+   * Used to specify which cluster attributes and size fields to update. See https://google.aip.dev/161 for more details.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?:
     | FieldMask<UpdateClusterRequest_UpdateClusterResource>
     | undefined;
@@ -3604,13 +3718,19 @@ export interface VolumesStorageInfo {
   /**
    * UC Volumes destination, e.g. `/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
    * or `dbfs:/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
+   *
+   * Required. This field must be set in requests.
    */
   destination?: string | undefined;
 }
 
 /** Cluster Attributes showing for clusters workload types. */
 export interface WorkloadType {
-  /** defined what type of clients can use the cluster. E.g. Notebooks, Jobs */
+  /**
+   * defined what type of clients can use the cluster. E.g. Notebooks, Jobs
+   *
+   * Required. This field must be set in requests.
+   */
   clients?: WorkloadType_ClientsTypes | undefined;
 }
 
@@ -3624,7 +3744,11 @@ export interface WorkloadType_ClientsTypes {
 
 /** A storage location in Workspace Filesystem (WSFS) */
 export interface WorkspaceStorageInfo {
-  /** wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh` */
+  /**
+   * wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh`
+   *
+   * Required. This field must be set in requests.
+   */
   destination?: string | undefined;
 }
 

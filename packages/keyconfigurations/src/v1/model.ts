@@ -14,7 +14,11 @@ export type CmkUseCase =
   | (string & {});
 
 export interface AwsKeyInfo {
-  /** The AWS KMS key's Amazon Resource Name (ARN). */
+  /**
+   * The AWS KMS key's Amazon Resource Name (ARN).
+   *
+   * Required. This field must be set in requests.
+   */
   keyArn?: string | undefined;
   /** The AWS KMS key alias. */
   keyAlias?: string | undefined;
@@ -49,7 +53,11 @@ export interface AzureKeyInfo {
 }
 
 export interface CreateAwsKeyInfo {
-  /** The AWS KMS key's Amazon Resource Name (ARN). */
+  /**
+   * The AWS KMS key's Amazon Resource Name (ARN).
+   *
+   * Required. This field must be set in requests.
+   */
   keyArn?: string | undefined;
   /** The AWS KMS key alias. */
   keyAlias?: string | undefined;
@@ -84,6 +92,7 @@ export interface CreateAzureKeyInfo {
 }
 
 export interface CreateCustomerManagedKeyRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
   /**
    * (-- The key information. Exactly one of aws_key_info, gcp_key_info, or
@@ -94,7 +103,11 @@ export interface CreateCustomerManagedKeyRequest {
     | {$case: 'gcpKeyInfo'; gcpKeyInfo: CreateGcpKeyInfo}
     | {$case: 'azureKeyInfo'; azureKeyInfo: CreateAzureKeyInfo}
     | undefined;
-  /** The cases that the key can be used for. */
+  /**
+   * The cases that the key can be used for.
+   *
+   * Required. This field must be set in requests.
+   */
   useCases?: CmkUseCase[] | undefined;
 }
 
@@ -102,6 +115,8 @@ export interface CreateGcpKeyInfo {
   /**
    * Globally unique kms key resource id of the form
    * projects/testProjectId/locations/us-east4/keyRings/gcpCmkKeyRing/cryptoKeys/cmk-eastus4
+   *
+   * Required. This field must be set in requests.
    */
   kmsKeyId?: string | undefined;
   /**
@@ -138,8 +153,13 @@ export interface CustomerManagedKey {
 }
 
 export interface DeleteCustomerManagedKeyRequest {
-  /** <Databricks> encryption key configuration ID. */
+  /**
+   * <Databricks> encryption key configuration ID.
+   *
+   * Required. This field must be set in requests.
+   */
   customerManagedKeyId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -147,6 +167,8 @@ export interface GcpKeyInfo {
   /**
    * Globally unique kms key resource id of the form
    * projects/testProjectId/locations/us-east4/keyRings/gcpCmkKeyRing/cryptoKeys/cmk-eastus4
+   *
+   * Required. This field must be set in requests.
    */
   kmsKeyId?: string | undefined;
   /**
@@ -167,8 +189,13 @@ export interface GcpServiceAccount {
 }
 
 export interface GetCustomerManagedKeyRequest {
-  /** <Databricks> encryption key configuration ID. */
+  /**
+   * <Databricks> encryption key configuration ID.
+   *
+   * Required. This field must be set in requests.
+   */
   customerManagedKeyId?: string | undefined;
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 
@@ -178,6 +205,7 @@ export interface KeyAccessConfiguration {
 }
 
 export interface ListCustomerManagedKeyRequest {
+  /** Required. This field must be set in requests. */
   accountId?: string | undefined;
 }
 

@@ -136,7 +136,11 @@ export interface ConnectionInfo {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 
@@ -175,12 +179,20 @@ export interface CreateConnectionRequest {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 
 export interface DeleteConnectionRequest {
-  /** The name of the connection to be deleted. */
+  /**
+   * The name of the connection to be deleted.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
@@ -193,7 +205,11 @@ export interface EnvironmentSettings {
 }
 
 export interface GetConnectionRequest {
-  /** Name of the connection. */
+  /**
+   * Name of the connection.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
 }
 
@@ -227,7 +243,11 @@ export interface ProvisioningInfo {
 }
 
 export interface UpdateConnectionRequest {
-  /** Name of the connection. */
+  /**
+   * Name of the connection.
+   *
+   * Required. This field must be set in requests.
+   */
   nameArg?: string | undefined;
   /** New name for the connection. */
   newName?: string | undefined;
@@ -265,7 +285,11 @@ export interface UpdateConnectionRequest {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-  /** A map of key-value properties attached to the securable. */
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * Required. This field must be set in requests.
+   */
   properties?: Record<string, string> | undefined;
 }
 

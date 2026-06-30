@@ -137,7 +137,11 @@ export interface CreateBudgetConfigurationBudget {
 }
 
 export interface CreateBudgetConfigurationRequest {
-  /** Properties of the new budget configuration. */
+  /**
+   * Properties of the new budget configuration.
+   *
+   * Required. This field must be set in requests.
+   */
   budget?: CreateBudgetConfigurationBudget | undefined;
 }
 
@@ -151,9 +155,17 @@ export interface CreateBudgetConfigurationResponse {
  * Delete budget
  */
 export interface DeleteBudgetConfigurationRequest {
-  /** The <Databricks> budget configuration ID. */
+  /**
+   * The <Databricks> budget configuration ID.
+   *
+   * Required. This field must be set in requests.
+   */
   budgetId?: string | undefined;
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
 }
 
@@ -161,9 +173,17 @@ export interface DeleteBudgetConfigurationRequest {
 export interface DeleteBudgetConfigurationResponse {}
 
 export interface GetBudgetConfigurationRequest {
-  /** The budget configuration ID */
+  /**
+   * The budget configuration ID
+   *
+   * Required. This field must be set in requests.
+   */
   budgetId?: string | undefined;
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   includeSpendStatus?: boolean | undefined;
 }
@@ -173,7 +193,11 @@ export interface GetBudgetConfigurationResponse {
 }
 
 export interface ListBudgetConfigurationsRequest {
-  /** <Databricks> account ID. */
+  /**
+   * <Databricks> account ID.
+   *
+   * Required. This field must be set in requests.
+   */
   accountId?: string | undefined;
   /**
    * A page token received from a previous get all budget configurations call. This token can be used to retrieve the subsequent page.
@@ -211,9 +235,17 @@ export interface UpdateBudgetConfigurationBudget {
 }
 
 export interface UpdateBudgetConfigurationRequest {
-  /** The <Databricks> budget configuration ID. */
+  /**
+   * The <Databricks> budget configuration ID.
+   *
+   * Required. This field must be set in requests.
+   */
   budgetId?: string | undefined;
-  /** The updated budget. This will overwrite the budget specified by the budget ID. */
+  /**
+   * The updated budget. This will overwrite the budget specified by the budget ID.
+   *
+   * Required. This field must be set in requests.
+   */
   budget?: UpdateBudgetConfigurationBudget | undefined;
 }
 

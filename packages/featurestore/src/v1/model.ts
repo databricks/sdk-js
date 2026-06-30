@@ -53,22 +53,38 @@ export type PublishSpec_PublishMode =
   | (string & {});
 
 export interface CreateOnlineStoreRequest {
-  /** Online store to create. */
+  /**
+   * Online store to create.
+   *
+   * Required. This field must be set in requests.
+   */
   onlineStore?: OnlineStore | undefined;
 }
 
 export interface DeleteOnlineStoreRequest {
-  /** Name of the online store to delete. */
+  /**
+   * Name of the online store to delete.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
 export interface DeleteOnlineTableRequest {
-  /** The full three-part (catalog, schema, table) name of the online table. */
+  /**
+   * The full three-part (catalog, schema, table) name of the online table.
+   *
+   * Required. This field must be set in requests.
+   */
   onlineTableName?: string | undefined;
 }
 
 export interface GetOnlineStoreRequest {
-  /** Name of the online store to get. */
+  /**
+   * Name of the online store to get.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
 }
 
@@ -88,15 +104,35 @@ export interface ListOnlineStoresResponse {
 
 /** An OnlineStore is a logical database instance that stores and serves features online. */
 export interface OnlineStore {
-  /** The name of the online store. This is the unique identifier for the online store. */
+  /**
+   * The name of the online store. This is the unique identifier for the online store.
+   *
+   * Required. This field must be set in requests.
+   */
   name?: string | undefined;
-  /** The email of the creator of the online store. */
+  /**
+   * The email of the creator of the online store.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creator?: string | undefined;
-  /** The timestamp when the online store was created. */
+  /**
+   * The timestamp when the online store was created.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   creationTime?: Temporal.Instant | undefined;
-  /** The current state of the online store. */
+  /**
+   * The current state of the online store.
+   *
+   * Output only. The server sets this field in responses; any value sent in a request is ignored.
+   */
   state?: OnlineStore_State | undefined;
-  /** The capacity of the online store. Valid values are "CU_1", "CU_2", "CU_4", "CU_8". */
+  /**
+   * The capacity of the online store. Valid values are "CU_1", "CU_2", "CU_4", "CU_8".
+   *
+   * Required. This field must be set in requests.
+   */
   capacity?: string | undefined;
   /** The number of read replicas for the online store. Defaults to 0. */
   readReplicaCount?: number | undefined;
@@ -105,18 +141,38 @@ export interface OnlineStore {
 }
 
 export interface PublishSpec {
-  /** The name of the target online store. */
+  /**
+   * The name of the target online store.
+   *
+   * Required. This field must be set in requests.
+   */
   onlineStore?: string | undefined;
-  /** The full three-part (catalog, schema, table) name of the online table. */
+  /**
+   * The full three-part (catalog, schema, table) name of the online table.
+   *
+   * Required. This field must be set in requests.
+   */
   onlineTableName?: string | undefined;
-  /** The publish mode of the pipeline that syncs the online table with the source table. */
+  /**
+   * The publish mode of the pipeline that syncs the online table with the source table.
+   *
+   * Required. This field must be set in requests.
+   */
   publishMode?: PublishSpec_PublishMode | undefined;
 }
 
 export interface PublishTableRequest {
-  /** The full three-part (catalog, schema, table) name of the source table. */
+  /**
+   * The full three-part (catalog, schema, table) name of the source table.
+   *
+   * Required. This field must be set in requests.
+   */
   sourceTableName?: string | undefined;
-  /** The specification for publishing the online table from the source table. */
+  /**
+   * The specification for publishing the online table from the source table.
+   *
+   * Required. This field must be set in requests.
+   */
   publishSpec?: PublishSpec | undefined;
 }
 
@@ -128,9 +184,17 @@ export interface PublishTableResponse {
 }
 
 export interface UpdateOnlineStoreRequest {
-  /** Online store to update. */
+  /**
+   * Online store to update.
+   *
+   * Required. This field must be set in requests.
+   */
   onlineStore?: OnlineStore | undefined;
-  /** The list of fields to update. */
+  /**
+   * The list of fields to update.
+   *
+   * Required. This field must be set in requests.
+   */
   updateMask?: FieldMask<OnlineStore> | undefined;
 }
 
