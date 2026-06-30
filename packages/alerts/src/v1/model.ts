@@ -103,8 +103,40 @@ export interface AlertOperandValue {
     | undefined;
 }
 
+export interface CreateAlertCondition {
+  /** Operator used for comparison in alert evaluation. */
+  op?: AlertOperator | undefined;
+  /** Name of the column from the query result to use for comparison in alert evaluation. */
+  operand?: CreateAlertOperand | undefined;
+  /** Threshold value used for comparison in alert evaluation. */
+  threshold?: CreateAlertOperand | undefined;
+  /** Alert state if result is empty. */
+  emptyResultState?: AlertState | undefined;
+}
+
+export interface CreateAlertOperand {
+  /** Only one of the following fields may be set, depending on the type of operand/threshold. */
+  operand?:
+    | {$case: 'value'; value: CreateAlertOperandValue}
+    | {$case: 'column'; column: CreateAlertOperandColumn}
+    | undefined;
+}
+
+export interface CreateAlertOperandColumn {
+  name?: string | undefined;
+}
+
+export interface CreateAlertOperandValue {
+  /** Only one of the following fields may be set, depending on the type of threshold value. */
+  thresholdValue?:
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'doubleValue'; doubleValue: number}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | undefined;
+}
+
 export interface CreateAlertRequest {
-  alert?: CreateAlertRequestAlert | undefined;
+  alert?: CreateCreateAlertRequestAlert | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
 }
@@ -130,6 +162,39 @@ export interface CreateAlertRequestAlert {
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;
+  /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
+  ownerUserName?: string | undefined;
+  /** The workspace path of the folder containing the alert. */
+  parentPath?: string | undefined;
+  /** The timestamp indicating when the alert was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** The timestamp indicating when the alert was updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** Whether to notify alert subscribers when alert returns back to normal. */
+  notifyOnOk?: boolean | undefined;
+}
+
+export interface CreateCreateAlertRequestAlert {
+  /** UUID identifying the alert. */
+  id?: string | undefined;
+  /** The display name of the alert. */
+  displayName?: string | undefined;
+  /** UUID of the query attached to the alert. */
+  queryId?: string | undefined;
+  /** Current state of the alert's trigger status. This field is set to UNKNOWN if the alert has not yet been evaluated or ran into an error during the last evaluation. */
+  state?: AlertState | undefined;
+  /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
+  secondsToRetrigger?: number | undefined;
+  /** The workspace state of the alert. Used for tracking trashed status. */
+  lifecycleState?: LifecycleState | undefined;
+  /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
+  triggerTime?: Temporal.Instant | undefined;
+  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  customBody?: string | undefined;
+  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  customSubject?: string | undefined;
+  /** Trigger conditions of the alert. */
+  condition?: CreateAlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
   /** The workspace path of the folder containing the alert. */
@@ -200,9 +265,41 @@ export interface TrashAlertRequest {
   id?: string | undefined;
 }
 
+export interface UpdateAlertCondition {
+  /** Operator used for comparison in alert evaluation. */
+  op?: AlertOperator | undefined;
+  /** Name of the column from the query result to use for comparison in alert evaluation. */
+  operand?: UpdateAlertOperand | undefined;
+  /** Threshold value used for comparison in alert evaluation. */
+  threshold?: UpdateAlertOperand | undefined;
+  /** Alert state if result is empty. */
+  emptyResultState?: AlertState | undefined;
+}
+
+export interface UpdateAlertOperand {
+  /** Only one of the following fields may be set, depending on the type of operand/threshold. */
+  operand?:
+    | {$case: 'value'; value: UpdateAlertOperandValue}
+    | {$case: 'column'; column: UpdateAlertOperandColumn}
+    | undefined;
+}
+
+export interface UpdateAlertOperandColumn {
+  name?: string | undefined;
+}
+
+export interface UpdateAlertOperandValue {
+  /** Only one of the following fields may be set, depending on the type of threshold value. */
+  thresholdValue?:
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'doubleValue'; doubleValue: number}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | undefined;
+}
+
 export interface UpdateAlertRequest {
-  alert?: UpdateAlertRequestAlert | undefined;
-  updateMask?: FieldMask<UpdateAlertRequestAlert> | undefined;
+  alert?: UpdateUpdateAlertRequestAlert | undefined;
+  updateMask?: FieldMask<UpdateUpdateAlertRequestAlert> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -229,6 +326,39 @@ export interface UpdateAlertRequestAlert {
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;
+  /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
+  ownerUserName?: string | undefined;
+  /** The workspace path of the folder containing the alert. */
+  parentPath?: string | undefined;
+  /** The timestamp indicating when the alert was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** The timestamp indicating when the alert was updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** Whether to notify alert subscribers when alert returns back to normal. */
+  notifyOnOk?: boolean | undefined;
+}
+
+export interface UpdateUpdateAlertRequestAlert {
+  /** UUID identifying the alert. */
+  id?: string | undefined;
+  /** The display name of the alert. */
+  displayName?: string | undefined;
+  /** UUID of the query attached to the alert. */
+  queryId?: string | undefined;
+  /** Current state of the alert's trigger status. This field is set to UNKNOWN if the alert has not yet been evaluated or ran into an error during the last evaluation. */
+  state?: AlertState | undefined;
+  /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
+  secondsToRetrigger?: number | undefined;
+  /** The workspace state of the alert. Used for tracking trashed status. */
+  lifecycleState?: LifecycleState | undefined;
+  /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
+  triggerTime?: Temporal.Instant | undefined;
+  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  customBody?: string | undefined;
+  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  customSubject?: string | undefined;
+  /** Trigger conditions of the alert. */
+  condition?: UpdateAlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
   /** The workspace path of the folder containing the alert. */
@@ -401,11 +531,11 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       notifyOnOk: d.notify_on_ok,
     }));
 
-export const marshalAlertConditionSchema: z.ZodType = z
+export const marshalCreateAlertConditionSchema: z.ZodType = z
   .object({
     op: z.string().optional(),
-    operand: z.lazy(() => marshalAlertOperandSchema).optional(),
-    threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
+    operand: z.lazy(() => marshalCreateAlertOperandSchema).optional(),
+    threshold: z.lazy(() => marshalCreateAlertOperandSchema).optional(),
     emptyResultState: z.string().optional(),
   })
   .transform(d => ({
@@ -415,17 +545,17 @@ export const marshalAlertConditionSchema: z.ZodType = z
     empty_result_state: d.emptyResultState,
   }));
 
-export const marshalAlertOperandSchema: z.ZodType = z
+export const marshalCreateAlertOperandSchema: z.ZodType = z
   .object({
     operand: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('value'),
-          value: z.lazy(() => marshalAlertOperandValueSchema),
+          value: z.lazy(() => marshalCreateAlertOperandValueSchema),
         }),
         z.object({
           $case: z.literal('column'),
-          column: z.lazy(() => marshalAlertOperandColumnSchema),
+          column: z.lazy(() => marshalCreateAlertOperandColumnSchema),
         }),
       ])
       .optional(),
@@ -435,7 +565,7 @@ export const marshalAlertOperandSchema: z.ZodType = z
     ...(d.operand?.$case === 'column' && {column: d.operand.column}),
   }));
 
-export const marshalAlertOperandColumnSchema: z.ZodType = z
+export const marshalCreateAlertOperandColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -443,7 +573,7 @@ export const marshalAlertOperandColumnSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalAlertOperandValueSchema: z.ZodType = z
+export const marshalCreateAlertOperandValueSchema: z.ZodType = z
   .object({
     thresholdValue: z
       .discriminatedUnion('$case', [
@@ -467,7 +597,7 @@ export const marshalAlertOperandValueSchema: z.ZodType = z
 
 export const marshalCreateAlertRequestSchema: z.ZodType = z
   .object({
-    alert: z.lazy(() => marshalCreateAlertRequestAlertSchema).optional(),
+    alert: z.lazy(() => marshalCreateCreateAlertRequestAlertSchema).optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })
   .transform(d => ({
@@ -475,7 +605,7 @@ export const marshalCreateAlertRequestSchema: z.ZodType = z
     auto_resolve_display_name: d.autoResolveDisplayName,
   }));
 
-export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
+export const marshalCreateCreateAlertRequestAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
@@ -489,7 +619,7 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
       .optional(),
     customBody: z.string().optional(),
     customSubject: z.string().optional(),
-    condition: z.lazy(() => marshalAlertConditionSchema).optional(),
+    condition: z.lazy(() => marshalCreateAlertConditionSchema).optional(),
     ownerUserName: z.string().optional(),
     parentPath: z.string().optional(),
     createTime: z
@@ -520,9 +650,73 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
     notify_on_ok: d.notifyOnOk,
   }));
 
+export const marshalUpdateAlertConditionSchema: z.ZodType = z
+  .object({
+    op: z.string().optional(),
+    operand: z.lazy(() => marshalUpdateAlertOperandSchema).optional(),
+    threshold: z.lazy(() => marshalUpdateAlertOperandSchema).optional(),
+    emptyResultState: z.string().optional(),
+  })
+  .transform(d => ({
+    op: d.op,
+    operand: d.operand,
+    threshold: d.threshold,
+    empty_result_state: d.emptyResultState,
+  }));
+
+export const marshalUpdateAlertOperandSchema: z.ZodType = z
+  .object({
+    operand: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('value'),
+          value: z.lazy(() => marshalUpdateAlertOperandValueSchema),
+        }),
+        z.object({
+          $case: z.literal('column'),
+          column: z.lazy(() => marshalUpdateAlertOperandColumnSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.operand?.$case === 'value' && {value: d.operand.value}),
+    ...(d.operand?.$case === 'column' && {column: d.operand.column}),
+  }));
+
+export const marshalUpdateAlertOperandColumnSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUpdateAlertOperandValueSchema: z.ZodType = z
+  .object({
+    thresholdValue: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
+        z.object({$case: z.literal('doubleValue'), doubleValue: z.number()}),
+        z.object({$case: z.literal('boolValue'), boolValue: z.boolean()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.thresholdValue?.$case === 'stringValue' && {
+      string_value: d.thresholdValue.stringValue,
+    }),
+    ...(d.thresholdValue?.$case === 'doubleValue' && {
+      double_value: d.thresholdValue.doubleValue,
+    }),
+    ...(d.thresholdValue?.$case === 'boolValue' && {
+      bool_value: d.thresholdValue.boolValue,
+    }),
+  }));
+
 export const marshalUpdateAlertRequestSchema: z.ZodType = z
   .object({
-    alert: z.lazy(() => marshalUpdateAlertRequestAlertSchema).optional(),
+    alert: z.lazy(() => marshalUpdateUpdateAlertRequestAlertSchema).optional(),
     updateMask: z
       .any()
       .transform((m: FieldMask) => m.toString())
@@ -537,7 +731,7 @@ export const marshalUpdateAlertRequestSchema: z.ZodType = z
     auto_resolve_display_name: d.autoResolveDisplayName,
   }));
 
-export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
+export const marshalUpdateUpdateAlertRequestAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
@@ -551,7 +745,7 @@ export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
       .optional(),
     customBody: z.string().optional(),
     customSubject: z.string().optional(),
-    condition: z.lazy(() => marshalAlertConditionSchema).optional(),
+    condition: z.lazy(() => marshalUpdateAlertConditionSchema).optional(),
     ownerUserName: z.string().optional(),
     parentPath: z.string().optional(),
     createTime: z
@@ -582,30 +776,42 @@ export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
     notify_on_ok: d.notifyOnOk,
   }));
 
-const alertConditionFieldMaskSchema: FieldMaskSchema = {
+const updateAlertConditionFieldMaskSchema: FieldMaskSchema = {
   emptyResultState: {wire: 'empty_result_state'},
   op: {wire: 'op'},
-  operand: {wire: 'operand', children: () => alertOperandFieldMaskSchema},
-  threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},
+  operand: {wire: 'operand', children: () => updateAlertOperandFieldMaskSchema},
+  threshold: {
+    wire: 'threshold',
+    children: () => updateAlertOperandFieldMaskSchema,
+  },
 };
 
-const alertOperandFieldMaskSchema: FieldMaskSchema = {
-  column: {wire: 'column', children: () => alertOperandColumnFieldMaskSchema},
-  value: {wire: 'value', children: () => alertOperandValueFieldMaskSchema},
+const updateAlertOperandFieldMaskSchema: FieldMaskSchema = {
+  column: {
+    wire: 'column',
+    children: () => updateAlertOperandColumnFieldMaskSchema,
+  },
+  value: {
+    wire: 'value',
+    children: () => updateAlertOperandValueFieldMaskSchema,
+  },
 };
 
-const alertOperandColumnFieldMaskSchema: FieldMaskSchema = {
+const updateAlertOperandColumnFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-const alertOperandValueFieldMaskSchema: FieldMaskSchema = {
+const updateAlertOperandValueFieldMaskSchema: FieldMaskSchema = {
   boolValue: {wire: 'bool_value'},
   doubleValue: {wire: 'double_value'},
   stringValue: {wire: 'string_value'},
 };
 
-const updateAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
-  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
+const updateUpdateAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
+  condition: {
+    wire: 'condition',
+    children: () => updateAlertConditionFieldMaskSchema,
+  },
   createTime: {wire: 'create_time'},
   customBody: {wire: 'custom_body'},
   customSubject: {wire: 'custom_subject'},
@@ -622,11 +828,11 @@ const updateAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
   updateTime: {wire: 'update_time'},
 };
 
-export function updateAlertRequestAlertFieldMask(
+export function updateUpdateAlertRequestAlertFieldMask(
   ...paths: string[]
-): FieldMask<UpdateAlertRequestAlert> {
-  return FieldMask.build<UpdateAlertRequestAlert>(
+): FieldMask<UpdateUpdateAlertRequestAlert> {
+  return FieldMask.build<UpdateUpdateAlertRequestAlert>(
     paths,
-    updateAlertRequestAlertFieldMaskSchema
+    updateUpdateAlertRequestAlertFieldMaskSchema
   );
 }

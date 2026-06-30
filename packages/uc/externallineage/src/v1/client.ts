@@ -27,10 +27,10 @@ import type {
   UpdateExternalLineageRelationshipRequest,
 } from './model';
 import {
-  marshalCreateRequestExternalLineageSchema,
+  marshalCreateCreateRequestExternalLineageSchema,
   marshalDeleteRequestExternalLineageSchema,
   marshalExternalLineageRelationshipObjectSchema,
-  marshalUpdateRequestExternalLineageSchema,
+  marshalUpdateUpdateRequestExternalLineageSchema,
   unmarshalExternalLineageRelationshipSchema,
   unmarshalListExternalLineageRelationshipsResponseSchema,
 } from './model';
@@ -77,7 +77,7 @@ export class ExternalLineageClient {
     const url = `${host}/api/2.0/lineage-tracking/external-lineage`;
     const body = marshalRequest(
       req.externalLineageRelationship,
-      marshalCreateRequestExternalLineageSchema
+      marshalCreateCreateRequestExternalLineageSchema
     );
     let resp: ExternalLineageRelationship | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -225,7 +225,7 @@ export class ExternalLineageClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.externalLineageRelationship,
-      marshalUpdateRequestExternalLineageSchema
+      marshalUpdateUpdateRequestExternalLineageSchema
     );
     let resp: ExternalLineageRelationship | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

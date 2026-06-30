@@ -457,21 +457,21 @@ export interface ClonePipelineRequest {
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
   /** Cluster settings for this pipeline deployment. */
-  clusters?: PipelineCluster[] | undefined;
+  clusters?: CreatePipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
-  libraries?: PipelineLibrary[] | undefined;
+  libraries?: CreatePipelineLibrary[] | undefined;
   /** The configuration for a managed ingestion pipeline. These settings cannot be used with the 'libraries', 'schema', 'target', or 'catalog' settings. */
-  ingestionDefinition?: IngestionPipelineDefinition | undefined;
+  ingestionDefinition?: CreateIngestionPipelineDefinition | undefined;
   /** The definition of a gateway pipeline to support change data capture. */
-  gatewayDefinition?: IngestionGatewayPipelineDefinition | undefined;
+  gatewayDefinition?: CreateIngestionGatewayPipelineDefinition | undefined;
   /** Which pipeline trigger to use. Deprecated: Use `continuous` instead. */
-  trigger?: PipelineTrigger | undefined;
+  trigger?: CreatePipelineTrigger | undefined;
   /** Target schema (database) to add tables in this pipeline to. Exactly one of `schema` or `target` must be specified. To publish to Unity Catalog, also specify `catalog`. This legacy field is deprecated for pipeline creation in favor of the `schema` field. */
   target?: string | undefined;
   /** The default schema (database) where tables are read from or published to. */
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
-  filters?: Filters | undefined;
+  filters?: CreateFilters | undefined;
   /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
@@ -485,13 +485,13 @@ export interface ClonePipelineRequest {
   /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
-  notifications?: Notifications[] | undefined;
+  notifications?: CreateNotifications[] | undefined;
   /** Whether serverless compute is enabled for this pipeline. */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
-  deployment?: PipelineDeployment | undefined;
+  deployment?: CreatePipelineDeployment | undefined;
   /** Restart window of this pipeline. */
-  restartWindow?: RestartWindow | undefined;
+  restartWindow?: CreateRestartWindow | undefined;
   /** Budget policy of this pipeline. */
   budgetPolicyId?: string | undefined;
   /**
@@ -501,7 +501,7 @@ export interface ClonePipelineRequest {
    */
   tags?: Record<string, string> | undefined;
   /** Event log configuration for this pipeline */
-  eventLog?: EventLogSpec | undefined;
+  eventLog?: CreateEventLogSpec | undefined;
   /**
    * Root path for this pipeline.
    * This is used as the root directory when editing the pipeline in the <Databricks> user interface and it is
@@ -509,7 +509,7 @@ export interface ClonePipelineRequest {
    */
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
-  environment?: PipelinesEnvironment | undefined;
+  environment?: CreatePipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -562,11 +562,655 @@ export interface ConnectorOptions {
     | undefined;
 }
 
+/** Policy for auto full refresh. */
+export interface CreateAutoFullRefreshPolicy {
+  /** (Required, Mutable) Whether to enable auto full refresh or not. */
+  enabled: boolean;
+  /**
+   * (Optional, Mutable) Specify the minimum interval in hours between the timestamp
+   * at which a table was last full refreshed and the current timestamp for triggering auto full
+   * If unspecified and autoFullRefresh is enabled then by default min_interval_hours is 24 hours.
+   */
+  minIntervalHours?: number | undefined;
+}
+
+/** Confluence specific options for ingestion */
+export interface CreateConfluenceConnectorOptions {
+  /** (Optional) Spaces to filter Confluence data on */
+  includeConfluenceSpaces?: string[] | undefined;
+}
+
+export interface CreateConnectionParameters {
+  /**
+   * Source catalog for initial connection.
+   * This is necessary for schema exploration in some database systems like Oracle, and optional but nice-to-have
+   * in some other database systems like Postgres.
+   * For Oracle databases, this maps to a service name.
+   */
+  sourceCatalog?: string | undefined;
+}
+
+/** Wrapper message for source-specific options to support multiple connector types */
+export interface CreateConnectorOptions {
+  connectorOptions?:
+    | {$case: 'googleAdsOptions'; googleAdsOptions: CreateGoogleAdsOptions}
+    | {$case: 'tiktokAdsOptions'; tiktokAdsOptions: CreateTikTokAdsOptions}
+    | {$case: 'sharepointOptions'; sharepointOptions: CreateSharepointOptions}
+    | {$case: 'gdriveOptions'; gdriveOptions: CreateGoogleDriveOptions}
+    | {$case: 'outlookOptions'; outlookOptions: CreateOutlookOptions}
+    | {$case: 'smartsheetOptions'; smartsheetOptions: CreateSmartsheetOptions}
+    | {$case: 'jiraOptions'; jiraOptions: CreateJiraConnectorOptions}
+    | {
+        $case: 'confluenceOptions';
+        confluenceOptions: CreateConfluenceConnectorOptions;
+      }
+    | {$case: 'metaAdsOptions'; metaAdsOptions: CreateMetaMarketingOptions}
+    | {
+        $case: 'zendeskSupportOptions';
+        zendeskSupportOptions: CreateZendeskSupportOptions;
+      }
+    | {$case: 'kafkaOptions'; kafkaOptions: CreateKafkaOptions}
+    | undefined;
+}
+
+export interface CreateCronTrigger {
+  quartzCronSchedule?: string | undefined;
+  timezoneId?: string | undefined;
+}
+
+/** Location of staged data storage */
+export interface CreateDataStagingOptions {
+  /** (Required, Immutable) The name of the catalog for the connector's staging storage location. */
+  catalogName: string;
+  /** (Required, Immutable) The name of the schema for the connector's staging storage location. */
+  schemaName: string;
+  /**
+   * (Optional) The Unity Catalog-compatible name for the storage location.
+   * This is the volume to use for the data that is extracted by the connector.
+   * Spark Declarative Pipelines system will automatically create the volume under the catalog and schema.
+   * For Combined Cdc Managed Ingestion pipelines default name for the volume would be :
+   * __databricks_ingestion_gateway_staging_data-$pipelineId
+   */
+  volumeName?: string | undefined;
+}
+
+/** Configurable event log parameters. */
+export interface CreateEventLogSpec {
+  /** The name the event log is published to in UC. */
+  name?: string | undefined;
+  /** The UC schema the event log is published under. */
+  schema?: string | undefined;
+  /** The UC catalog the event log is published under. */
+  catalog?: string | undefined;
+}
+
+export interface CreateFileFilter {
+  filter?:
+    | {
+        $case: 'pathFilter';
+        /**
+         * Include files with file names matching the pattern
+         * Based on https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-glob-filter
+         */
+        pathFilter: string;
+      }
+    | {
+        $case: 'modifiedBefore';
+        /**
+         * Include files with modification times occurring before the specified time.
+         * Timestamp format: YYYY-MM-DDTHH:mm:ss (e.g. 2020-06-01T13:00:00)
+         * Based on https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#modification-time-path-filters
+         */
+        modifiedBefore: string;
+      }
+    | {
+        $case: 'modifiedAfter';
+        /**
+         * Include files with modification times occurring after the specified time.
+         * Timestamp format: YYYY-MM-DDTHH:mm:ss (e.g. 2020-06-01T13:00:00)
+         * Based on https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#modification-time-path-filters
+         */
+        modifiedAfter: string;
+      }
+    | undefined;
+}
+
+export interface CreateFileIngestionOptions {
+  /** required for TableSpec */
+  format?: FileIngestionOptions_FileFormat | undefined;
+  /** Generic options */
+  fileFilters?: CreateFileFilter[] | undefined;
+  inferColumnTypes?: boolean | undefined;
+  schemaEvolutionMode?: FileIngestionOptions_SchemaEvolutionMode | undefined;
+  /**
+   * Override inferred schema of specific columns
+   * Based on https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#override-schema-inference-with-schema-hints
+   */
+  schemaHints?: string | undefined;
+  ignoreCorruptFiles?: boolean | undefined;
+  corruptRecordColumn?: string | undefined;
+  rescuedDataColumn?: string | undefined;
+  singleVariantColumn?: string | undefined;
+  /**
+   * Column name case sensitivity
+   * https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#change-case-sensitive-behavior
+   */
+  readerCaseSensitive?: boolean | undefined;
+  /**
+   * Format-specific options
+   * Based on https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/options#file-format-options
+   */
+  formatOptions?: Record<string, string> | undefined;
+}
+
+export interface CreateFilters {
+  /** Paths to include. */
+  include?: string[] | undefined;
+  /** Paths to exclude. */
+  exclude?: string[] | undefined;
+}
+
+export interface CreateGoogleAdsConfig {
+  /**
+   * (Required) Manager Account ID (also called MCC Account ID) used to list and access
+   * customer accounts under this manager account. This is required for fetching the list
+   * of customer accounts during source selection.
+   * If the same field is also set in the object-level GoogleAdsOptions (connector_options),
+   * the object-level value takes precedence over this top-level config.
+   */
+  managerAccountId?: string | undefined;
+}
+
+/**
+ * Google Ads specific options for ingestion (object-level).
+ * When set, these values override the corresponding fields in GoogleAdsConfig
+ * (source_configurations).
+ */
+export interface CreateGoogleAdsOptions {
+  /**
+   * (Optional at this level) Manager Account ID (also called MCC Account ID) used to list
+   * and access customer accounts under this manager account.
+   * Overrides GoogleAdsConfig.manager_account_id from source_configurations when set.
+   */
+  managerAccountId: string;
+  /**
+   * (Optional) Number of days to look back for report tables to capture late-arriving data.
+   * If not specified, defaults to 30 days.
+   */
+  lookbackWindowDays?: number | undefined;
+  /**
+   * (Optional) Start date for the initial sync of report tables in YYYY-MM-DD format.
+   * This determines the earliest date from which to sync historical data.
+   * If not specified, defaults to 2 years of historical data.
+   */
+  syncStartDate?: string | undefined;
+}
+
+export interface CreateGoogleDriveOptions {
+  /** Google Drive URL. */
+  url?: string | undefined;
+  entityType?: GoogleDriveOptions_GoogleDriveEntityType | undefined;
+  fileIngestionOptions?: CreateFileIngestionOptions | undefined;
+}
+
+export interface CreateIngestionGatewayPipelineDefinition {
+  /** Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source. */
+  connectionName: string;
+  /** [Deprecated, use connection_name instead] Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source. */
+  connectionId?: string | undefined;
+  /** Required, Immutable. The name of the catalog for the gateway pipeline's storage location. */
+  gatewayStorageCatalog: string;
+  /** Required, Immutable. The name of the schema for the gateway pipelines's storage location. */
+  gatewayStorageSchema: string;
+  /**
+   * Optional. The Unity Catalog-compatible name for the gateway storage location.
+   * This is the destination to use for the data that is extracted by the gateway.
+   * Spark Declarative Pipelines system will automatically create the storage location under the catalog and schema.
+   */
+  gatewayStorageName?: string | undefined;
+  /** Optional, Internal. Parameters required to establish an initial connection with the source. */
+  connectionParameters?: CreateConnectionParameters | undefined;
+}
+
+export interface CreateIngestionPipelineDefinition {
+  /**
+   * (Required, Mutable) Identifies the data source for the Lakeflow Connect Ingestion pipeline.
+   * Exactly one option must be specified.
+   */
+  source?:
+    | {
+        $case: 'connectionName';
+        /**
+         * The Unity Catalog connection that this ingestion pipeline uses to communicate with the source. This is used with
+         * both connectors for applications like Salesforce, Workday, and so on, and also database connectors like Oracle,
+         * (connector_type = QUERY_BASED OR connector_type = CDC).
+         * If connection name corresponds to database connectors like Oracle, and connector_type is not provided then
+         * connector_type defaults to QUERY_BASED. If connector_type is passed as CDC we use Combined Cdc Managed Ingestion
+         * pipeline.
+         * Under certain conditions, this can be replaced with ingestion_gateway_id to change the connector to Cdc Managed
+         * Ingestion Pipeline with Gateway pipeline.
+         */
+        connectionName: string;
+      }
+    | {
+        $case: 'ingestionGatewayId';
+        /**
+         * Identifier for the gateway that is used by this ingestion pipeline to communicate with the source database.
+         * This is used with CDC connectors to databases like SQL Server using a gateway pipeline (connector_type = CDC).
+         * Under certain conditions, this can be replaced with connection_name to change the connector to Combined Cdc
+         * Managed Ingestion Pipeline.
+         */
+        ingestionGatewayId: string;
+      }
+    | {
+        $case: 'ingestFromUcForeignCatalog';
+        /**
+         * Immutable. If set to true, the pipeline will ingest tables from the
+         * UC foreign catalogs directly without the need to specify a UC connection or ingestion gateway.
+         * The `source_catalog` fields in objects of IngestionConfig are interpreted as
+         * the UC foreign catalogs to ingest from.
+         */
+        ingestFromUcForeignCatalog: boolean;
+      }
+    | undefined;
+  /** Required. Settings specifying tables to replicate and the destination for the replicated tables. */
+  objects?: IngestionPipelineDefinition_CreateIngestionConfig[] | undefined;
+  /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in the pipeline. */
+  tableConfiguration?:
+    | IngestionPipelineDefinition_CreateTableSpecificConfig
+    | undefined;
+  /**
+   * Netsuite only configuration. When the field is set for a netsuite connector,
+   * the jar stored in the field will be validated and added to the classpath of
+   * pipeline's cluster.
+   */
+  netsuiteJarPath?: string | undefined;
+  /** Top-level source configurations */
+  sourceConfigurations?: CreateSourceConfig[] | undefined;
+  /** (Optional) A window that specifies a set of time ranges for snapshot queries in CDC. */
+  fullRefreshWindow?: CreateOperationTimeWindow | undefined;
+  /** (Optional) Connector Type for sources. Ex: CDC, Query Based. */
+  connectorType?: ConnectorType | undefined;
+  /**
+   * (Optional) Location of staged data storage. This is required for migration from Cdc Managed Ingestion Pipeline
+   * with Gateway pipeline to Combined Cdc Managed Ingestion Pipeline.
+   * If not specified, the volume for staged data will be created in catalog and schema/target specified in the
+   * top level pipeline definition.
+   */
+  dataStagingOptions?: CreateDataStagingOptions | undefined;
+}
+
+/** Jira specific options for ingestion */
+export interface CreateJiraConnectorOptions {
+  /** (Optional) Projects to filter Jira data on */
+  includeJiraSpaces?: string[] | undefined;
+}
+
+export interface CreateJsonTransformerOptions {
+  /** Parse the entire value as a single Variant column. */
+  asVariant?: boolean | undefined;
+  /** Inline schema string for JSON parsing (Spark DDL format). */
+  schema?: string | undefined;
+  /** Path to a schema file (.ddl). */
+  schemaFilePath?: string | undefined;
+  /** (Optional) Schema evolution mode for schema inference. */
+  schemaEvolutionMode?: FileIngestionOptions_SchemaEvolutionMode | undefined;
+  /** (Optional) Schema hints as a comma-separated string of "column_name type" pairs. */
+  schemaHints?: string | undefined;
+}
+
+export interface CreateKafkaOptions {
+  /**
+   * Topics to subscribe to.
+   * Only one of topics or topic_pattern must be specified.
+   */
+  topics?: string[] | undefined;
+  /**
+   * Java regex pattern to subscribe to matching topics.
+   * Only one of topics or topic_pattern must be specified.
+   */
+  topicPattern?: string | undefined;
+  /**
+   * (Optional) Transformer for the message key.
+   * If not specified, the key is left as raw bytes.
+   */
+  keyTransformer?: CreateTransformer | undefined;
+  /**
+   * (Optional) Transformer for the message value.
+   * If not specified, the value is left as raw bytes.
+   */
+  valueTransformer?: CreateTransformer | undefined;
+  /**
+   * (Optional) Where to begin reading when no checkpoint exists.
+   * Valid values: "latest" and "earliest". Defaults to "latest".
+   */
+  startingOffset?: string | undefined;
+  /** Internal option to control the maximum number of offsets to process per trigger. */
+  maxOffsetsPerTrigger?: bigint | undefined;
+  /**
+   * Undocumented backdoor mechanism for overriding parameters
+   * to pass to the Kafka client.
+   * This is not supported and may break at any time.
+   */
+  clientConfig?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateManualTrigger {}
+
+/** Meta Marketing (Meta Ads) specific options for ingestion */
+export interface CreateMetaMarketingOptions {
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.level) Granularity of data to pull
+   * (account, ad, adset, campaign)
+   */
+  level?: string | undefined;
+  /** (Optional, DEPRECATED — use custom_report_options.breakdowns) Breakdowns to configure */
+  breakdowns?: string[] | undefined;
+  /** (Optional, DEPRECATED — use custom_report_options.action_breakdowns) Action breakdowns */
+  actionBreakdowns?: string[] | undefined;
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.action_report_time) Timing used to report
+   * action statistics (impression, conversion, mixed, or lifetime)
+   */
+  actionReportTime?: string | undefined;
+  /**
+   * (Optional) Start date in yyyy-MM-dd format (e.g. 2025-01-15). Data added
+   * after this date will be ingested, shared by prebuilt and custom reports.
+   */
+  startDate?: string | undefined;
+  /**
+   * (Optional) Window in days to revisit data during sync to capture
+   * updated conversion data from the API, shared by prebuilt and custom reports.
+   */
+  customInsightsLookbackWindow?: number | undefined;
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.time_increment) Value in string by which to
+   * aggregate statistics (can take all_days, monthly or number of days)
+   */
+  timeIncrement?: string | undefined;
+  /**
+   * (Optional, DEPRECATED — use custom_report_options.action_attribution_windows) Action attribution
+   * windows for insights reporting (e.g. "28d_click", "1d_view")
+   */
+  actionAttributionWindows?: string[] | undefined;
+}
+
+export interface CreateNotebookLibrary {
+  /** The absolute path of the source code. */
+  path?: string | undefined;
+}
+
+export interface CreateNotifications {
+  /** A list of email addresses notified when a configured alert is triggered. */
+  emailRecipients?: string[] | undefined;
+  /**
+   * A list of alerts that trigger the sending of notifications to the configured
+   * destinations. The supported alerts are:
+   *
+   * * `on-update-success`: A pipeline update completes successfully.
+   * * `on-update-failure`: Each time a pipeline update fails.
+   * * `on-update-fatal-failure`: A pipeline update fails with a non-retryable (fatal) error.
+   * * `on-flow-failure`: A single data flow fails.
+   */
+  alerts?: string[] | undefined;
+}
+
+/** Proto representing a window */
+export interface CreateOperationTimeWindow {
+  /** An integer between 0 and 23 denoting the start hour for the window in the 24-hour day. */
+  startHour: number;
+  /**
+   * Days of week in which the window is allowed to happen
+   * If not specified all days of the week will be used.
+   */
+  daysOfWeek?: DayOfWeek[] | undefined;
+  /**
+   * Time zone id of window. See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
+   * If not specified, UTC will be used.
+   */
+  timeZoneId?: string | undefined;
+}
+
+/** Outlook specific options for ingestion */
+export interface CreateOutlookOptions {
+  /** Deprecated. Use include_folders instead. */
+  folderFilter?: string[] | undefined;
+  /** Deprecated. Use include_senders instead. */
+  senderFilter?: string[] | undefined;
+  /** Deprecated. Use include_subjects instead. */
+  subjectFilter?: string[] | undefined;
+  /**
+   * (Optional) Start date for the initial sync in YYYY-MM-DD format.
+   * Format: YYYY-MM-DD (e.g., 2024-01-01)
+   * This determines the earliest date from which to sync historical data.
+   * If not specified, complete history is ingested.
+   */
+  startDate?: string | undefined;
+  /**
+   * (Optional) Defines how the body_content column is populated.
+   * TEXT_HTML: Preserves full formatting, links, and styling.
+   * TEXT_PLAIN: Converts body to plain text. Recommended for AI/RAG pipelines to reduce token usage and noise.
+   */
+  bodyFormat?: OutlookBodyFormat | undefined;
+  /**
+   * (Optional) Controls which attachments to ingest.
+   * If not specified, defaults to ALL.
+   */
+  attachmentMode?: OutlookAttachmentMode | undefined;
+  /**
+   * (Optional) List of mailboxes to sync (e.g. mailbox email addresses or identifiers).
+   * If not specified, all accessible mailboxes are ingested.
+   * Filter semantics: OR between different mailboxes.
+   */
+  includeMailboxes?: string[] | undefined;
+  /**
+   * (Optional) Filter mail folders to include in the sync.
+   * If not specified, all folders will be synced.
+   * Examples: Inbox, Sent Items, Custom_Folder
+   * Filter semantics: OR between different folders.
+   */
+  includeFolders?: string[] | undefined;
+  /**
+   * (Optional) Filter emails by sender address. Uses exact email match.
+   * Examples: user@vendor.com, alerts@system.io, noreply@company.com
+   * If not specified, emails from all senders will be synced.
+   * Filter semantics: OR between different senders.
+   */
+  includeSenders?: string[] | undefined;
+  /**
+   * (Optional) Filter emails by subject line. Values ending with "*" use prefix match (subject starts with
+   * the part before "*"); otherwise substring match (subject contains the value).
+   * Examples: "Invoice" (substring), "Re:*" (prefix), "Support Ticket", "URGENT*"
+   * If not specified, emails with all subjects will be synced.
+   * Filter semantics: OR between different subjects.
+   */
+  includeSubjects?: string[] | undefined;
+}
+
+export interface CreatePathPattern {
+  /** The source code to include for pipelines */
+  include?: string | undefined;
+}
+
+export interface CreatePipelineCluster {
+  /** A label for the cluster specification, either `default` to configure the default cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`. */
+  label?: string | undefined;
+  /** Note: This field won't be persisted. Only API users will check this field. */
+  applyPolicyDefaultValues?: boolean | undefined;
+  /**
+   * An object containing a set of optional, user-specified Spark configuration key-value pairs.
+   * See :method:clusters/create for more details.
+   */
+  sparkConf?: Record<string, string> | undefined;
+  /**
+   * Attributes related to clusters running on Amazon Web Services.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  awsAttributes?: CreatePipelinesAwsAttributes | undefined;
+  /**
+   * Attributes related to clusters running on Microsoft Azure.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  azureAttributes?: CreatePipelinesAzureAttributes | undefined;
+  /**
+   * Attributes related to clusters running on Google Cloud Platform.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  gcpAttributes?: CreatePipelinesGcpAttributes | undefined;
+  /**
+   * This field encodes, through a single value, the resources available to each of
+   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * and optimized for memory or compute intensive workloads. A list of available node
+   * types can be retrieved by using the :method:clusters/listNodeTypes API call.
+   */
+  nodeTypeId?: string | undefined;
+  /**
+   * The node type of the Spark driver.
+   * Note that this field is optional; if unset, the driver node type will be set as the same value
+   * as `node_type_id` defined above.
+   */
+  driverNodeTypeId?: string | undefined;
+  /**
+   * SSH public key contents that will be added to each Spark node in this cluster. The
+   * corresponding private keys can be used to login with the user name `ubuntu` on port `2200`.
+   * Up to 10 keys can be specified.
+   */
+  sshPublicKeys?: string[] | undefined;
+  /**
+   * Additional tags for cluster resources. <Databricks> will tag all cluster resources (e.g., AWS
+   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   *
+   * - Currently, <Databricks> allows at most 45 custom tags
+   *
+   * - Clusters can only reuse cloud resources if the resources' tags are a subset of the cluster tags
+   */
+  customTags?: Record<string, string> | undefined;
+  /**
+   * The configuration for delivering spark logs to a long-term storage destination.
+   * Only dbfs destinations are supported. Only one destination can be specified
+   * for one cluster. If the conf is given, the logs will be delivered to the destination every
+   * `5 mins`. The destination of driver logs is `$destination/$clusterId/driver`, while
+   * the destination of executor logs is `$destination/$clusterId/executor`.
+   */
+  clusterLogConf?: CreatePipelinesClusterLogConf | undefined;
+  /**
+   * An object containing a set of optional, user-specified environment variable key-value pairs.
+   * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
+   * `export X='Y'`) while launching the driver and workers.
+   *
+   * In order to specify an additional set of `SPARK_DAEMON_JAVA_OPTS`, we recommend appending
+   * them to `$SPARK_DAEMON_JAVA_OPTS` as shown in the example below. This ensures that all
+   * default databricks managed environmental variables are included as well.
+   *
+   * Example Spark environment variables:
+   * `{"SPARK_WORKER_MEMORY": "28000m", "SPARK_LOCAL_DIRS": "/local_disk0"}` or
+   * `{"SPARK_DAEMON_JAVA_OPTS": "$SPARK_DAEMON_JAVA_OPTS -Dspark.shuffle.service.enabled=true"}`
+   */
+  sparkEnvVars?: Record<string, string> | undefined;
+  /** The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`. */
+  initScripts?: CreatePipelinesInitScriptInfo[] | undefined;
+  /** The optional ID of the instance pool to which the cluster belongs. */
+  instancePoolId?: string | undefined;
+  /** The ID of the cluster policy used to create the cluster if applicable. */
+  policyId?: string | undefined;
+  /** Whether to enable local disk encryption for the cluster. */
+  enableLocalDiskEncryption?: boolean | undefined;
+  /**
+   * The optional ID of the instance pool for the driver of the cluster belongs.
+   * The pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not
+   * assigned.
+   */
+  driverInstancePoolId?: string | undefined;
+  size?:
+    | {
+        $case: 'numWorkers';
+        /**
+         * Number of worker nodes that this cluster should have. A cluster has one Spark Driver
+         * and `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.
+         *
+         * Note: When reading the properties of a cluster, this field reflects the desired number
+         * of workers rather than the actual current number of workers. For instance, if a cluster
+         * is resized from 5 to 10 workers, this field will immediately be updated to reflect
+         * the target size of 10 workers, whereas the workers listed in `spark_info` will gradually
+         * increase from 5 to 10 as the new nodes are provisioned.
+         */
+        numWorkers: number;
+      }
+    | {
+        $case: 'autoscale';
+        /**
+         * Parameters needed in order to automatically scale clusters up and down based on load.
+         * Note: autoscaling works best with DB runtime versions 3.0 or later.
+         */
+        autoscale: CreatePipelinesAutoScale;
+      }
+    | undefined;
+}
+
+export interface CreatePipelineDeployment {
+  /** The deployment method that manages the pipeline. */
+  kind: DeploymentKind;
+  /** The path to the file containing metadata about the deployment. */
+  metadataFilePath?: string | undefined;
+  /**
+   * ID of the deployment that manages this pipeline. Only set when `kind` is
+   * `BUNDLE`. Used to look up deployment metadata from the Deployment
+   * Metadata service.
+   */
+  deploymentId?: string | undefined;
+  /**
+   * ID of the version of the deployment that produced this pipeline. Only
+   * set when `kind` is `BUNDLE`. Identifies a specific snapshot of the
+   * deployment in the Deployment Metadata service.
+   */
+  versionId?: string | undefined;
+}
+
+export interface CreatePipelineLibrary {
+  lib?:
+    | {
+        $case: 'jar';
+        /** URI of the jar to be installed. Currently only DBFS is supported. */
+        jar: string;
+      }
+    | {
+        $case: 'maven';
+        /** Specification of a maven library to be installed. */
+        maven: CreatePipelinesMavenLibrary;
+      }
+    | {
+        $case: 'whl';
+        /** URI of the whl to be installed. */
+        whl: string;
+      }
+    | {
+        $case: 'notebook';
+        /** The path to a notebook that defines a pipeline and is stored in the <Databricks> workspace. */
+        notebook: CreateNotebookLibrary;
+      }
+    | {
+        $case: 'file';
+        /** The path to a file that defines a pipeline and is stored in the Databricks Repos. */
+        file: CreateNotebookLibrary;
+      }
+    | {
+        $case: 'glob';
+        /**
+         * The unified field to include source codes.
+         * Each entry can be a notebook path, a file path, or a folder path that ends `/\**`.
+         * This field cannot be used together with `notebook` or `file`.
+         */
+        glob: CreatePathPattern;
+      }
+    | undefined;
+}
+
 export interface CreatePipelineRequest {
   /** If false, deployment will fail if name conflicts with that of another pipeline. */
   allowDuplicateNames?: boolean | undefined;
   dryRun?: boolean | undefined;
-  runAs?: PipelinesJobRunAs | undefined;
+  runAs?: CreatePipelinesJobRunAs | undefined;
   /**
    * Key/value map of default parameters to use for pipeline execution.
    * Maximum total size: 10k characters (JSON format)
@@ -581,21 +1225,21 @@ export interface CreatePipelineRequest {
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
   /** Cluster settings for this pipeline deployment. */
-  clusters?: PipelineCluster[] | undefined;
+  clusters?: CreatePipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
-  libraries?: PipelineLibrary[] | undefined;
+  libraries?: CreatePipelineLibrary[] | undefined;
   /** The configuration for a managed ingestion pipeline. These settings cannot be used with the 'libraries', 'schema', 'target', or 'catalog' settings. */
-  ingestionDefinition?: IngestionPipelineDefinition | undefined;
+  ingestionDefinition?: CreateIngestionPipelineDefinition | undefined;
   /** The definition of a gateway pipeline to support change data capture. */
-  gatewayDefinition?: IngestionGatewayPipelineDefinition | undefined;
+  gatewayDefinition?: CreateIngestionGatewayPipelineDefinition | undefined;
   /** Which pipeline trigger to use. Deprecated: Use `continuous` instead. */
-  trigger?: PipelineTrigger | undefined;
+  trigger?: CreatePipelineTrigger | undefined;
   /** Target schema (database) to add tables in this pipeline to. Exactly one of `schema` or `target` must be specified. To publish to Unity Catalog, also specify `catalog`. This legacy field is deprecated for pipeline creation in favor of the `schema` field. */
   target?: string | undefined;
   /** The default schema (database) where tables are read from or published to. */
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
-  filters?: Filters | undefined;
+  filters?: CreateFilters | undefined;
   /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
@@ -609,13 +1253,13 @@ export interface CreatePipelineRequest {
   /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
-  notifications?: Notifications[] | undefined;
+  notifications?: CreateNotifications[] | undefined;
   /** Whether serverless compute is enabled for this pipeline. */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
-  deployment?: PipelineDeployment | undefined;
+  deployment?: CreatePipelineDeployment | undefined;
   /** Restart window of this pipeline. */
-  restartWindow?: RestartWindow | undefined;
+  restartWindow?: CreateRestartWindow | undefined;
   /** Budget policy of this pipeline. */
   budgetPolicyId?: string | undefined;
   /**
@@ -625,7 +1269,7 @@ export interface CreatePipelineRequest {
    */
   tags?: Record<string, string> | undefined;
   /** Event log configuration for this pipeline */
-  eventLog?: EventLogSpec | undefined;
+  eventLog?: CreateEventLogSpec | undefined;
   /**
    * Root path for this pipeline.
    * This is used as the root directory when editing the pipeline in the <Databricks> user interface and it is
@@ -633,7 +1277,7 @@ export interface CreatePipelineRequest {
    */
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
-  environment?: PipelinesEnvironment | undefined;
+  environment?: CreatePipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -645,6 +1289,499 @@ export interface CreatePipelineResponse {
   pipelineId?: string | undefined;
   /** Only returned when dry_run is true. */
   effectiveSettings?: PipelineSpec | undefined;
+}
+
+export interface CreatePipelineTrigger {
+  trigger?:
+    | {$case: 'manual'; manual: CreateManualTrigger}
+    | {$case: 'cron'; cron: CreateCronTrigger}
+    | undefined;
+}
+
+export interface CreatePipelinesAutoScale {
+  /**
+   * The minimum number of workers the cluster can scale down to when underutilized.
+   * It is also the initial number of workers the cluster will have after creation.
+   */
+  minWorkers: number;
+  /** The maximum number of workers to which the cluster can scale up when overloaded. `max_workers` must be strictly greater than `min_workers`. */
+  maxWorkers: number;
+  /**
+   * Databricks Enhanced Autoscaling optimizes cluster utilization by automatically
+   * allocating cluster resources based on workload volume, with minimal impact to
+   * the data processing latency of your pipelines. Enhanced Autoscaling is available
+   * for `updates` clusters only. The legacy autoscaling feature is used for `maintenance`
+   * clusters.
+   */
+  mode?: string | undefined;
+}
+
+/** Attributes set during cluster creation which are related to Amazon Web Services. */
+export interface CreatePipelinesAwsAttributes {
+  /**
+   * The first ``first_on_demand`` nodes of the cluster will be placed on on-demand instances.
+   * If this value is greater than 0, the cluster driver node in particular will be placed on an
+   * on-demand instance. If this value is greater than or equal to the current cluster size, all
+   * nodes will be placed on on-demand instances. If this value is less than the current cluster
+   * size, ``first_on_demand`` nodes will be placed on on-demand instances and the remainder will
+   * be placed on ``availability`` instances. Note that this value does not affect
+   * cluster size and cannot currently be mutated over the lifetime of a cluster.
+   */
+  firstOnDemand?: number | undefined;
+  /**
+   * Availability type used for all subsequent nodes past the ``first_on_demand`` ones.
+   * Note: If ``first_on_demand`` is zero, this availability type will be used for the entire cluster.
+   */
+  availability?: PipelinesAwsAvailability | undefined;
+  /**
+   * Identifier for the availability zone/datacenter in which the cluster resides.
+   * This string will be of a form like "us-west-2a". The provided availability
+   * zone must be in the same region as the <Databricks> deployment. For example, "us-west-2a"
+   * is not a valid zone id if the <Databricks> deployment resides in the "us-east-1" region.
+   * This is an optional field at cluster creation, and if not specified, a default zone will be used.
+   * If the zone specified is "auto", will try to place cluster in a zone with high availability,
+   * and will retry placement in a different AZ if there is not enough capacity.
+   * See [[AutoAZHelper.scala]] for more details.
+   * The list of available zones as well as the default value can be found by using the
+   * `List Zones`_ method.
+   */
+  zoneId?: string | undefined;
+  /**
+   * Nodes for this cluster will only be placed on AWS instances with this instance profile. If
+   * omitted, nodes will be placed on instances without an IAM instance profile. The instance
+   * profile must have previously been added to the <Databricks> environment by an account
+   * administrator.
+   *
+   * This feature may only be available to certain customer plans.
+   *
+   * ***internal
+   * If this field is ommitted, we will pull in the default from the conf if it exists.
+   */
+  instanceProfileArn?: string | undefined;
+  /**
+   * The bid price for AWS spot instances, as a percentage of the corresponding instance type's
+   * on-demand price.
+   * For example, if this field is set to 50, and the cluster needs a new ``r3.xlarge`` spot
+   * instance, then the bid price is half of the price of
+   * on-demand ``r3.xlarge`` instances. Similarly, if this field is set to 200, the bid price is twice
+   * the price of on-demand ``r3.xlarge`` instances. If not specified, the default value is 100.
+   * When spot instances are requested for this cluster, only spot instances whose bid price
+   * percentage matches this field will be considered.
+   * Note that, for safety, we enforce this field to be no more than 10000.
+   *
+   * ***internal
+   * The default value and documentation here should be kept consistent with
+   * CommonConf.defaultSpotBidPricePercent and CommonConf.maxSpotBidPricePercent.
+   */
+  spotBidPricePercent?: number | undefined;
+  /** The type of EBS volumes that will be launched with this cluster. */
+  ebsVolumeType?: PipelinesEbsVolumeType | undefined;
+  /**
+   * The number of volumes launched for each instance. Users can choose up to 10 volumes.
+   * This feature is only enabled for supported node types. Legacy node types cannot specify
+   * custom EBS volumes.
+   * For node types with no instance store, at least one EBS volume needs to be specified;
+   * otherwise, cluster creation will fail.
+   *
+   * These EBS volumes will be mounted at ``/ebs0``, ``/ebs1``, and etc.
+   * Instance store volumes will be mounted at ``/local_disk0``, ``/local_disk1``, and etc.
+   *
+   * If EBS volumes are attached, <Databricks> will configure Spark to use only the EBS volumes for
+   * scratch storage because heterogeneously sized scratch devices can lead to inefficient disk
+   * utilization. If no EBS volumes are attached, <Databricks> will configure Spark to use instance
+   * store volumes.
+   *
+   * Please note that if EBS volumes are specified, then the Spark configuration ``spark.local.dir``
+   * will be overridden.
+   */
+  ebsVolumeCount?: number | undefined;
+  /**
+   * The size of each EBS volume (in GiB) launched for each instance. For general purpose
+   * SSD, this value must be within the range 100 - 4096. For throughput optimized HDD,
+   * this value must be within the range 500 - 4096.
+   */
+  ebsVolumeSize?: number | undefined;
+  ebsVolumeIops?: number | undefined;
+  ebsVolumeThroughput?: number | undefined;
+}
+
+/** Attributes set during cluster creation which are related to Azure. */
+export interface CreatePipelinesAzureAttributes {
+  /**
+   * The first ``first_on_demand`` nodes of the cluster will be placed on on-demand instances.
+   * This value should be greater than 0, to make sure the cluster driver node is placed on an
+   * on-demand instance. If this value is greater than or equal to the current cluster size, all
+   * nodes will be placed on on-demand instances. If this value is less than the current cluster
+   * size, ``first_on_demand`` nodes will be placed on on-demand instances and the remainder will
+   * be placed on ``availability`` instances. Note that this value does not affect
+   * cluster size and cannot currently be mutated over the lifetime of a cluster.
+   */
+  firstOnDemand?: number | undefined;
+  /**
+   * Availability type used for all subsequent nodes past the ``first_on_demand`` ones.
+   * Note: If ``first_on_demand`` is zero (which only happens on pool clusters), this availability
+   * type will be used for the entire cluster.
+   */
+  availability?: PipelinesAzureAvailability | undefined;
+  /**
+   * The max bid price to be used for Azure spot instances.
+   * The Max price for the bid cannot be higher than the on-demand price of the instance.
+   * If not specified, the default value is -1, which specifies that the instance cannot be evicted
+   * on the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.
+   */
+  spotBidMaxPrice?: number | undefined;
+}
+
+/** Cluster log delivery config */
+export interface CreatePipelinesClusterLogConf {
+  storageInfo?:
+    | {
+        $case: 'dbfs';
+        /**
+         * destination needs to be provided. e.g.
+         * ``{ "dbfs" : { "destination" : "dbfs:/home/cluster_log" } }``
+         */
+        dbfs: CreatePipelinesDbfsStorageInfo;
+      }
+    | undefined;
+}
+
+/** A storage location in DBFS */
+export interface CreatePipelinesDbfsStorageInfo {
+  /** dbfs destination, e.g. ``dbfs:/my/path`` */
+  destination?: string | undefined;
+}
+
+/**
+ * The environment entity used to preserve serverless environment side panel, jobs' environment for non-notebook task, and SDP's environment for classic and serverless pipelines.
+ * In this minimal environment spec, only pip dependencies are supported.
+ */
+export interface CreatePipelinesEnvironment {
+  /**
+   * List of pip dependencies, as supported by the version of pip in this environment.
+   * Each dependency is a pip requirement file line https://pip.pypa.io/en/stable/reference/requirements-file-format/
+   * Allowed dependency could be <requirement specifier>, <archive url/path>, <local project path>(WSFS or Volumes in <Databricks>), <vcs project url>
+   */
+  dependencies?: string[] | undefined;
+  /**
+   * The environment version of the serverless Python environment used to execute
+   * customer Python code. Each environment version includes a specific Python
+   * version and a curated set of pre-installed libraries with defined versions,
+   * providing a stable and reproducible execution environment.
+   *
+   * <Databricks> supports a three-year lifecycle for each environment version.
+   * For available versions and their included packages, see
+   * https://docs.databricks.com/aws/en/release-notes/serverless/environment-version/
+   *
+   * The value should be a string representing the environment version number, for example: `"4"`.
+   */
+  environmentVersion?: string | undefined;
+}
+
+/** Attributes set during cluster creation which are related to Gcp. */
+export interface CreatePipelinesGcpAttributes {
+  /**
+   * If provided, the cluster will impersonate the google service account when accessing
+   * gcloud services (like GCS). The google service account
+   * must have previously been added to the <Databricks> environment by an account
+   * administrator.
+   */
+  googleServiceAccount?: string | undefined;
+  /** boot disk size in GB */
+  bootDiskSize?: number | undefined;
+  /**
+   * This field determines whether the spark executors will be scheduled to run on preemptible
+   * VMs, on-demand VMs, or preemptible VMs with a fallback to on-demand VMs if the former is unavailable.
+   */
+  availability?: PipelinesGcpAvailability | undefined;
+  /**
+   * Identifier for the availability zone in which the cluster resides.
+   * This can be one of the following:
+   * - "HA" => High availability, spread nodes across availability zones for a
+   * <Databricks> deployment region [default].
+   * - "AUTO" => <Databricks> picks an availability zone to schedule the cluster on.
+   * - A GCP availability zone => Pick One of the available zones for (machine type + region) from
+   * https://cloud.google.com/compute/docs/regions-zones.
+   */
+  zoneId?: string | undefined;
+  /**
+   * The number of local SSDs to attach to each worker and driver for this cluster. If left unspecified,
+   * the default number of local SSDs for the node type will be used.
+   *
+   * NOTE: Each instance type can only support a certain number of attached local SSDs. The value
+   * specified in local_ssd_count must be valid for BOTH the driver and worker instance type. See
+   * GCP docs here:
+   * https://cloud.google.com/compute/docs/disks#local_ssd_machine_type_restrictions
+   *
+   * Validation is performed at the RPC layer and the RPC will be rejected if the specified
+   * local_ssd_count is invalid.
+   */
+  localSsdCount?: number | undefined;
+}
+
+/** Config for an individual init script */
+export interface CreatePipelinesInitScriptInfo {
+  storageInfo?:
+    | {
+        $case: 'dbfs';
+        /**
+         * destination needs to be provided. e.g.
+         * ``{ "dbfs" : { "destination" : "dbfs:/init-scripts/my_script.sh" } }``
+         */
+        dbfs: CreatePipelinesDbfsStorageInfo;
+      }
+    | {
+        $case: 's3';
+        /**
+         * destination and either region or endpoint should also be provided. e.g.
+         * ``{ "s3": { "destination" : "s3://init-scripts/my_script.sh", "region" : "us-west-2" } }``
+         * Cluster iam role is used to access s3, please make sure the cluster iam role in
+         * ``instance_profile_arn`` has permission to write data to the s3 destination.
+         */
+        s3: CreatePipelinesS3StorageInfo;
+      }
+    | undefined;
+}
+
+/**
+ * Write-only setting, available only in Create/Update calls. Specifies the user or service principal that the pipeline runs as. If not specified, the pipeline runs as the user who created the pipeline.
+ *
+ * Only `user_name` or `service_principal_name` can be specified. If both are specified, an error is thrown.
+ */
+export interface CreatePipelinesJobRunAs {
+  identity?:
+    | {
+        $case: 'userName';
+        /** The email of an active workspace user. Users can only set this field to their own email. */
+        userName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role. */
+        servicePrincipalName: string;
+      }
+    | undefined;
+}
+
+export interface CreatePipelinesMavenLibrary {
+  /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
+  coordinates: string;
+  /**
+   * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
+   * and Spark Packages are searched.
+   */
+  repo?: string | undefined;
+  /**
+   * List of dependencies to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
+   *
+   * Maven dependency exclusions:
+   * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
+   */
+  exclusions?: string[] | undefined;
+}
+
+/** A storage location in Amazon S3 */
+export interface CreatePipelinesS3StorageInfo {
+  /**
+   * S3 destination, e.g. ``s3://my-bucket/some-prefix`` Note that logs will be delivered using
+   * cluster iam role, please make sure you set cluster iam role and the role has write access to the
+   * destination. Please also note that you cannot use AWS keys to deliver logs.
+   */
+  destination?: string | undefined;
+  /**
+   * S3 region, e.g. ``us-west-2``. Either region or endpoint needs to be set. If both are set,
+   * endpoint will be used.
+   */
+  region?: string | undefined;
+  /**
+   * S3 endpoint, e.g. ``https://s3-us-west-2.amazonaws.com``. Either region or endpoint needs to be set.
+   * If both are set, endpoint will be used.
+   */
+  endpoint?: string | undefined;
+  /** Flag to enable server side encryption, ``false`` by default. */
+  enableEncryption?: boolean | undefined;
+  /**
+   * The encryption type, it could be ``sse-s3`` or ``sse-kms``. It will be used only when
+   * encryption is enabled and the default type is ``sse-s3``.
+   */
+  encryptionType?: string | undefined;
+  /** Kms key which will be used if encryption is enabled and encryption type is set to ``sse-kms``. */
+  kmsKey?: string | undefined;
+  /**
+   * Set canned access control list for the logs, e.g. ``bucket-owner-full-control``.
+   * If ``canned_cal`` is set, please make sure the cluster iam role has ``s3:PutObjectAcl`` permission on
+   * the destination bucket and prefix. The full list of possible canned acl can be found at
+   * http://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.
+   * Please also note that by default only the object owner gets full controls. If you are using cross account
+   * role for writing data, you may want to set ``bucket-owner-full-control`` to make bucket owner able to
+   * read the logs.
+   */
+  cannedAcl?: string | undefined;
+}
+
+/** PG-specific catalog-level configuration parameters */
+export interface CreatePostgresCatalogConfig {
+  /** Optional. The Postgres slot configuration to use for logical replication */
+  slotConfig?: CreatePostgresSlotConfig | undefined;
+}
+
+/** PostgresSlotConfig contains the configuration for a Postgres logical replication slot */
+export interface CreatePostgresSlotConfig {
+  /** The name of the logical replication slot to use for the Postgres source */
+  slotName?: string | undefined;
+  /** The name of the publication to use for the Postgres source */
+  publicationName?: string | undefined;
+}
+
+/** Specifies a replace_where predicate override for a replace where flow. */
+export interface CreateReplaceWhereOverride {
+  /** Name of the flow to apply this override to. */
+  flowName?: string | undefined;
+  /**
+   * SQL predicate string to use as replace_where condition.
+   * Example: `date = '2024-10-10' AND city = 'xyz'`
+   */
+  predicateOverride?: string | undefined;
+}
+
+export interface CreateRestartWindow {
+  /**
+   * An integer between 0 and 23 denoting the start hour for the restart window in the 24-hour day.
+   * Continuous pipeline restart is triggered only within a five-hour window starting at this hour.
+   */
+  startHour: number;
+  /**
+   * Days of week in which the restart is allowed to happen (within a five-hour window starting at start_hour).
+   * If not specified all days of the week will be used.
+   */
+  daysOfWeek?: DayOfWeek[] | undefined;
+  /**
+   * Time zone id of restart window. See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
+   * If not specified, UTC will be used.
+   */
+  timeZoneId?: string | undefined;
+}
+
+/** Configuration for rewinding a specific dataset. */
+export interface CreateRewindDatasetSpec {
+  /** The identifier of the dataset (e.g., "main.foo.tbl1"). */
+  identifier?: string | undefined;
+  /** Whether to cascade the rewind to dependent datasets. Must be specified. */
+  cascade?: boolean | undefined;
+  /** Whether to reset checkpoints for this dataset. */
+  resetCheckpoints?: boolean | undefined;
+}
+
+/** Information about a rewind being requested for this pipeline or some of the datasets in it. */
+export interface CreateRewindSpec {
+  /**
+   * The base timestamp to rewind to. Exactly one of rewind_timestamp or rewind_point_id must be
+   * specified.
+   */
+  rewindTimestamp?: string | undefined;
+  /** If true, this is a dry run and we should emit the RewindSummary but not perform the rewind. */
+  dryRun?: boolean | undefined;
+  /**
+   * List of datasets to rewind with specific configuration for each. When not specified,
+   * all datasets will be rewound with cascade = true and reset_checkpoints = true.
+   */
+  datasets?: CreateRewindDatasetSpec[] | undefined;
+}
+
+export interface CreateSharepointOptions {
+  /** Required. The SharePoint URL. */
+  url?: string | undefined;
+  /**
+   * (Optional) The type of SharePoint entity to ingest.
+   * If not specified, defaults to FILE.
+   */
+  entityType?: SharepointOptions_SharepointEntityType | undefined;
+  /** (Optional) File ingestion options for processing files. */
+  fileIngestionOptions?: CreateFileIngestionOptions | undefined;
+}
+
+/** Smartsheet specific options for ingestion */
+export interface CreateSmartsheetOptions {
+  /**
+   * (Optional) When true, maps each column to its Smartsheet-declared type (Text/Number/Date/
+   * Checkbox/etc.). Cells that do not conform to the declared type are set to NULL.
+   * When false, all columns land as STRING. Use false for sheets with irregular data or columns
+   * that frequently violate their own declared type.
+   * If not specified, defaults to true.
+   */
+  enforceSchema?: boolean | undefined;
+}
+
+/** SourceCatalogConfig contains catalog-level custom configuration parameters for each source */
+export interface CreateSourceCatalogConfig {
+  /** Source catalog name */
+  sourceCatalog?: string | undefined;
+  /** Configuration options for the source catalog */
+  options?:
+    | {
+        $case: 'postgres';
+        /** Postgres-specific catalog-level configuration parameters */
+        postgres: CreatePostgresCatalogConfig;
+      }
+    | undefined;
+}
+
+export interface CreateSourceConfig {
+  /** Catalog-level source configuration parameters */
+  catalog?: CreateSourceCatalogConfig | undefined;
+  /**
+   * Connector-specific top-level configuration. Values here act as defaults and
+   * can be overridden by the same field in the object-level connector_options.
+   */
+  connectorConfig?:
+    | {$case: 'googleAdsConfig'; googleAdsConfig: CreateGoogleAdsConfig}
+    | undefined;
+}
+
+/** TikTok Ads specific options for ingestion */
+export interface CreateTikTokAdsOptions {
+  /**
+   * (Optional) Number of days to look back for report tables during incremental sync
+   * to capture late-arriving conversions and attribution data.
+   */
+  lookbackWindowDays?: number | undefined;
+  /**
+   * (Optional) Start date for the initial sync of report tables in YYYY-MM-DD format.
+   * This determines the earliest date from which to sync historical data.
+   */
+  syncStartDate?: string | undefined;
+  /** Deprecated. Use custom_report_options.dimensions instead. */
+  dimensions?: string[] | undefined;
+  /** Deprecated. Use custom_report_options.metrics instead. */
+  metrics?: string[] | undefined;
+  /** Deprecated. Use custom_report_options.report_type instead. */
+  reportType?: TikTokAdsOptions_TikTokReportType | undefined;
+  /** Deprecated. Use custom_report_options.data_level instead. */
+  dataLevel?: TikTokAdsOptions_TikTokDataLevel | undefined;
+  /** Deprecated. Use custom_report_options.query_lifetime instead. */
+  queryLifetime?: boolean | undefined;
+}
+
+/** Specifies how to transform binary data into structured data. */
+export interface CreateTransformer {
+  /** Required: the wire format of the data. */
+  format?: Transformer_Format | undefined;
+  /**
+   * Format-specific configuration. Only required for JSON, Avro, and Protobuf.
+   * STRING format requires no additional config.
+   */
+  config?:
+    | {$case: 'jsonOptions'; jsonOptions: CreateJsonTransformerOptions}
+    | undefined;
+}
+
+/** Zendesk Support specific options for ingestion */
+export interface CreateZendeskSupportOptions {
+  /**
+   * (Optional) Start date in YYYY-MM-DD format for the initial sync.
+   * This determines the earliest date from which to sync historical data.
+   */
+  startDate?: string | undefined;
 }
 
 export interface CronTrigger {
@@ -703,7 +1840,7 @@ export interface EditPipelineRequest {
    * a conflict.
    */
   expectedLastModified?: bigint | undefined;
-  runAs?: PipelinesJobRunAs | undefined;
+  runAs?: CreatePipelinesJobRunAs | undefined;
   /**
    * Key/value map of default parameters to use for pipeline execution.
    * Maximum total size: 10k characters (JSON format)
@@ -718,21 +1855,21 @@ export interface EditPipelineRequest {
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
   /** Cluster settings for this pipeline deployment. */
-  clusters?: PipelineCluster[] | undefined;
+  clusters?: CreatePipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
-  libraries?: PipelineLibrary[] | undefined;
+  libraries?: CreatePipelineLibrary[] | undefined;
   /** The configuration for a managed ingestion pipeline. These settings cannot be used with the 'libraries', 'schema', 'target', or 'catalog' settings. */
-  ingestionDefinition?: IngestionPipelineDefinition | undefined;
+  ingestionDefinition?: CreateIngestionPipelineDefinition | undefined;
   /** The definition of a gateway pipeline to support change data capture. */
-  gatewayDefinition?: IngestionGatewayPipelineDefinition | undefined;
+  gatewayDefinition?: CreateIngestionGatewayPipelineDefinition | undefined;
   /** Which pipeline trigger to use. Deprecated: Use `continuous` instead. */
-  trigger?: PipelineTrigger | undefined;
+  trigger?: CreatePipelineTrigger | undefined;
   /** Target schema (database) to add tables in this pipeline to. Exactly one of `schema` or `target` must be specified. To publish to Unity Catalog, also specify `catalog`. This legacy field is deprecated for pipeline creation in favor of the `schema` field. */
   target?: string | undefined;
   /** The default schema (database) where tables are read from or published to. */
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
-  filters?: Filters | undefined;
+  filters?: CreateFilters | undefined;
   /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
@@ -746,13 +1883,13 @@ export interface EditPipelineRequest {
   /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
-  notifications?: Notifications[] | undefined;
+  notifications?: CreateNotifications[] | undefined;
   /** Whether serverless compute is enabled for this pipeline. */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
-  deployment?: PipelineDeployment | undefined;
+  deployment?: CreatePipelineDeployment | undefined;
   /** Restart window of this pipeline. */
-  restartWindow?: RestartWindow | undefined;
+  restartWindow?: CreateRestartWindow | undefined;
   /** Budget policy of this pipeline. */
   budgetPolicyId?: string | undefined;
   /**
@@ -762,7 +1899,7 @@ export interface EditPipelineRequest {
    */
   tags?: Record<string, string> | undefined;
   /** Event log configuration for this pipeline */
-  eventLog?: EventLogSpec | undefined;
+  eventLog?: CreateEventLogSpec | undefined;
   /**
    * Root path for this pipeline.
    * This is used as the root directory when editing the pipeline in the <Databricks> user interface and it is
@@ -770,7 +1907,7 @@ export interface EditPipelineRequest {
    */
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
-  environment?: PipelinesEnvironment | undefined;
+  environment?: CreatePipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -1056,6 +2193,188 @@ export interface IngestionPipelineDefinition {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_CreateIngestionConfig {
+  sourceTables?:
+    | {
+        $case: 'schema';
+        /** Select all tables from a specific source schema. */
+        schema: IngestionPipelineDefinition_CreateSchemaSpec;
+      }
+    | {
+        $case: 'table';
+        /** Select a specific source table. */
+        table: IngestionPipelineDefinition_CreateTableSpec;
+      }
+    | {
+        $case: 'report';
+        /** Select a specific source report. */
+        report: IngestionPipelineDefinition_CreateReportSpec;
+      }
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_CreateReportSpec {
+  /** Required. Report URL in the source system. */
+  sourceUrl: string;
+  /** Required. Destination catalog to store table. */
+  destinationCatalog: string;
+  /** Required. Destination schema to store table. */
+  destinationSchema: string;
+  /** Required. Destination table name. The pipeline fails if a table with that name already exists. */
+  destinationTable?: string | undefined;
+  /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object. */
+  tableConfiguration?:
+    | IngestionPipelineDefinition_CreateTableSpecificConfig
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_CreateSchemaSpec {
+  /** The source catalog name. Might be optional depending on the type of source. */
+  sourceCatalog?: string | undefined;
+  /** Required. Schema name in the source database. */
+  sourceSchema: string;
+  /** Required. Destination catalog to store tables. */
+  destinationCatalog: string;
+  /** Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists. */
+  destinationSchema: string;
+  /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in this schema and override the table_configuration defined in the IngestionPipelineDefinition object. */
+  tableConfiguration?:
+    | IngestionPipelineDefinition_CreateTableSpecificConfig
+    | undefined;
+  /** (Optional) Source Specific Connector Options */
+  connectorOptions?: CreateConnectorOptions | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_CreateTableSpec {
+  /** Source catalog name. Might be optional depending on the type of source. */
+  sourceCatalog?: string | undefined;
+  /** Schema name in the source database. Might be optional depending on the type of source. */
+  sourceSchema?: string | undefined;
+  /** Required. Table name in the source database. */
+  sourceTable: string;
+  /** Required. Destination catalog to store table. */
+  destinationCatalog: string;
+  /** Required. Destination schema to store table. */
+  destinationSchema: string;
+  /** Optional. Destination table name. The pipeline fails if a table with that name already exists. If not set, the source table name is used. */
+  destinationTable?: string | undefined;
+  /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object and the SchemaSpec. */
+  tableConfiguration?:
+    | IngestionPipelineDefinition_CreateTableSpecificConfig
+    | undefined;
+  /** (Optional) Source Specific Connector Options */
+  connectorOptions?: CreateConnectorOptions | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_CreateTableSpecificConfig {
+  scdType?: ScdType_ScdType | undefined;
+  /** The primary key of the table used to apply changes. */
+  primaryKeys?: string[] | undefined;
+  /** The column names specifying the logical order of events in the source data. Spark Declarative Pipelines uses this sequencing to handle change events that arrive out of order. */
+  sequenceBy?: string[] | undefined;
+  /**
+   * A list of column names to be included for the ingestion.
+   * When not specified, all columns except ones in exclude_columns will be included. Future
+   * columns will be automatically included.
+   * When specified, all other future columns will be automatically excluded from ingestion.
+   * This field in mutually exclusive with `exclude_columns`.
+   */
+  includeColumns?: string[] | undefined;
+  /**
+   * A list of column names to be excluded for the ingestion.
+   * When not specified, include_columns fully controls what columns to be ingested.
+   * When specified, all other columns including future ones will be automatically included for ingestion.
+   * This field in mutually exclusive with `include_columns`.
+   */
+  excludeColumns?: string[] | undefined;
+  /** If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector */
+  salesforceIncludeFormulaFields?: boolean | undefined;
+  /** (Optional) Additional custom parameters for Workday Report */
+  workdayReportParameters?:
+    | IngestionPipelineDefinition_CreateWorkdayReportParameters
+    | undefined;
+  /**
+   * (Optional, Immutable) The row filter condition to be applied to the table.
+   * It must not contain the WHERE keyword, only the actual filter condition.
+   * It must be in DBSQL format.
+   */
+  rowFilter?: string | undefined;
+  queryBasedConnectorConfig?:
+    | IngestionPipelineDefinition_TableSpecificConfig_CreateQueryBasedConnectorConfig
+    | undefined;
+  /**
+   * (Optional, Mutable) Policy for auto full refresh, if enabled pipeline will automatically try
+   * to fix issues by doing a full refresh on the table in the retry run. auto_full_refresh_policy
+   * in table configuration will override the above level auto_full_refresh_policy.
+   * For example,
+   * {
+   * "auto_full_refresh_policy": {
+   * "enabled": true,
+   * "min_interval_hours": 23,
+   * }
+   * }
+   * If unspecified, auto full refresh is disabled.
+   */
+  autoFullRefreshPolicy?: CreateAutoFullRefreshPolicy | undefined;
+  /**
+   * Table properties to set on the destination table.
+   * These are key-value pairs that configure various Delta table behaviors or any user defined properties.
+   * Example: {"delta.feature.variantType": "supported", "delta.enableTypeWidening": "true"}
+   * Note: table_properties in table specific configuration will override the table_properties of the pipeline definition.
+   */
+  tableProperties?: Record<string, string> | undefined;
+  /**
+   * Whether to enable auto clustering on the destination table.
+   * When enabled, Delta will automatically optimize the data layout
+   * based on the clustering columns for improved query performance.
+   * Note: enable_auto_clustering in table specific configuration will override the pipeline definition.
+   * Note: we can only provide enable_auto_clustering or clustering_columns,
+   * added as separate fields as we cannot have repeated field in oneof.
+   */
+  enableAutoClustering?: boolean | undefined;
+  /**
+   * List of column names to use for clustering the destination table.
+   * When specified, the destination Delta table will be clustered by these columns.
+   * This can improve query performance when filtering on these columns.
+   * Note: clustering_columns in table specific configuration will override the pipeline definition.
+   * Note: we can only provide enable_auto_clustering or clustering_columns,
+   * added as separate fields as we cannot have repeated field in oneof.
+   */
+  clusteringColumns?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_CreateWorkdayReportParameters {
+  /**
+   * (Optional) Marks the report as incremental.
+   * This field is deprecated and should not be used. Use `parameters` instead. The incremental behavior is now
+   * controlled by the `parameters` field.
+   */
+  incremental?: boolean | undefined;
+  /**
+   * (Optional) Additional custom parameters for Workday Report
+   * This field is deprecated and should not be used. Use `parameters` instead.
+   */
+  reportParameters?:
+    | IngestionPipelineDefinition_WorkdayReportParameters_CreateQueryKeyValue[]
+    | undefined;
+  /**
+   * Parameters for the Workday report. Each key represents the parameter name (e.g., "start_date", "end_date"),
+   * and the corresponding value is a SQL-like expression used to compute the parameter value at runtime.
+   * Example:
+   * {
+   * "start_date": "{ coalesce(current_offset(), date(\"2025-02-01\")) }",
+   * "end_date": "{ current_date() - INTERVAL 1 DAY }"
+   * }
+   */
+  parameters?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_IngestionConfig {
   sourceTables?:
     | {
@@ -1212,6 +2531,41 @@ export interface IngestionPipelineDefinition_TableSpecificConfig {
 
 /** Configurations that are only applicable for query-based ingestion connectors. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_TableSpecificConfig_CreateQueryBasedConnectorConfig {
+  /**
+   * The names of the monotonically increasing columns in the source table that are used to enable
+   * the table to be read and ingested incrementally through structured streaming.
+   * The columns are allowed to have repeated values but have to be non-decreasing.
+   * If the source data is merged into the destination (e.g., using SCD Type 1 or Type 2), these
+   * columns will implicitly define the `sequence_by` behavior. You can still explicitly set
+   * `sequence_by` to override this default.
+   */
+  cursorColumns?: string[] | undefined;
+  /**
+   * Specifies a SQL WHERE condition that specifies that the source row has been deleted.
+   * This is sometimes referred to as "soft-deletes".
+   * For example: "Operation = 'DELETE'" or "is_deleted = true".
+   * This field is orthogonal to `hard_deletion_sync_interval_in_seconds`,
+   * one for soft-deletes and the other for hard-deletes.
+   * See also the hard_deletion_sync_min_interval_in_seconds field for
+   * handling of "hard deletes" where the source rows are physically removed from the table.
+   */
+  deletionCondition?: string | undefined;
+  /**
+   * Specifies the minimum interval (in seconds) between snapshots on primary keys
+   * for detecting and synchronizing hard deletions—i.e., rows that have been
+   * physically removed from the source table.
+   * This interval acts as a lower bound. If ingestion runs less frequently than
+   * this value, hard deletion synchronization will align with the actual ingestion
+   * frequency instead of happening more often.
+   * If not set, hard deletion synchronization via snapshots is disabled.
+   * This field is mutable and can be updated without triggering a full snapshot.
+   */
+  hardDeletionSyncMinIntervalInSeconds?: bigint | undefined;
+}
+
+/** Configurations that are only applicable for query-based ingestion connectors. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfig {
   /**
    * The names of the monotonically increasing columns in the source table that are used to enable
@@ -1270,6 +2624,20 @@ export interface IngestionPipelineDefinition_WorkdayReportParameters {
    * }
    */
   parameters?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_WorkdayReportParameters_CreateQueryKeyValue {
+  /** Key for the report parameter, can be a column name or other metadata */
+  key?: string | undefined;
+  /**
+   * Value for the report parameter.
+   * Possible values it can take are these sql functions:
+   * 1. coalesce(current_offset(), date("YYYY-MM-DD")) -> if current_offset() is null, then the passed date, else current_offset()
+   * 2. current_date()
+   * 3. date_sub(current_date(), x) -> subtract x (some non-negative integer) days from current date
+   */
+  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2441,14 +3809,14 @@ export interface StartUpdateRequest {
    * The information about the requested rewind operation.
    * If specified this is a rewind mode update.
    */
-  rewindSpec?: RewindSpec | undefined;
+  rewindSpec?: CreateRewindSpec | undefined;
   /** Key/value map of parameters to pass to the pipeline execution */
   parameters?: Record<string, string> | undefined;
   /**
    * A list of predicate overrides for replace_where flows in this update.
    * Only replace_where flows may be specified. Flows not listed use their original predicate.
    */
-  replaceWhereOverrides?: ReplaceWhereOverride[] | undefined;
+  replaceWhereOverrides?: CreateReplaceWhereOverride[] | undefined;
 }
 
 export interface StartUpdateResponse {
@@ -4091,16 +5459,6 @@ export const marshalApplyEnvironmentRequestSchema: z.ZodType = z
     pipeline_id: d.pipelineId,
   }));
 
-export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
-  .object({
-    enabled: z.boolean().optional(),
-    minIntervalHours: z.number().optional(),
-  })
-  .transform(d => ({
-    enabled: d.enabled,
-    min_interval_hours: d.minIntervalHours,
-  }));
-
 export const marshalClonePipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
@@ -4110,33 +5468,41 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     name: z.string().optional(),
     storage: z.string().optional(),
     configuration: z.record(z.string(), z.string()).optional(),
-    clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
-    libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
+    clusters: z
+      .array(z.lazy(() => marshalCreatePipelineClusterSchema))
+      .optional(),
+    libraries: z
+      .array(z.lazy(() => marshalCreatePipelineLibrarySchema))
+      .optional(),
     ingestionDefinition: z
-      .lazy(() => marshalIngestionPipelineDefinitionSchema)
+      .lazy(() => marshalCreateIngestionPipelineDefinitionSchema)
       .optional(),
     gatewayDefinition: z
-      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
+      .lazy(() => marshalCreateIngestionGatewayPipelineDefinitionSchema)
       .optional(),
-    trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
+    trigger: z.lazy(() => marshalCreatePipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
-    filters: z.lazy(() => marshalFiltersSchema).optional(),
+    filters: z.lazy(() => marshalCreateFiltersSchema).optional(),
     continuous: z.boolean().optional(),
     development: z.boolean().optional(),
     photon: z.boolean().optional(),
     edition: z.string().optional(),
     channel: z.string().optional(),
     catalog: z.string().optional(),
-    notifications: z.array(z.lazy(() => marshalNotificationsSchema)).optional(),
+    notifications: z
+      .array(z.lazy(() => marshalCreateNotificationsSchema))
+      .optional(),
     serverless: z.boolean().optional(),
-    deployment: z.lazy(() => marshalPipelineDeploymentSchema).optional(),
-    restartWindow: z.lazy(() => marshalRestartWindowSchema).optional(),
+    deployment: z.lazy(() => marshalCreatePipelineDeploymentSchema).optional(),
+    restartWindow: z.lazy(() => marshalCreateRestartWindowSchema).optional(),
     budgetPolicyId: z.string().optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
+    eventLog: z.lazy(() => marshalCreateEventLogSpecSchema).optional(),
     rootPath: z.string().optional(),
-    environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    environment: z
+      .lazy(() => marshalCreatePipelinesEnvironmentSchema)
+      .optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
     cloneMode: z.string().optional(),
@@ -4177,7 +5543,17 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     clone_mode: d.cloneMode,
   }));
 
-export const marshalConfluenceConnectorOptionsSchema: z.ZodType = z
+export const marshalCreateAutoFullRefreshPolicySchema: z.ZodType = z
+  .object({
+    enabled: z.boolean(),
+    minIntervalHours: z.number().optional(),
+  })
+  .transform(d => ({
+    enabled: d.enabled,
+    min_interval_hours: d.minIntervalHours,
+  }));
+
+export const marshalCreateConfluenceConnectorOptionsSchema: z.ZodType = z
   .object({
     includeConfluenceSpaces: z.array(z.string()).optional(),
   })
@@ -4185,7 +5561,7 @@ export const marshalConfluenceConnectorOptionsSchema: z.ZodType = z
     include_confluence_spaces: d.includeConfluenceSpaces,
   }));
 
-export const marshalConnectionParametersSchema: z.ZodType = z
+export const marshalCreateConnectionParametersSchema: z.ZodType = z
   .object({
     sourceCatalog: z.string().optional(),
   })
@@ -4193,57 +5569,57 @@ export const marshalConnectionParametersSchema: z.ZodType = z
     source_catalog: d.sourceCatalog,
   }));
 
-export const marshalConnectorOptionsSchema: z.ZodType = z
+export const marshalCreateConnectorOptionsSchema: z.ZodType = z
   .object({
     connectorOptions: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('googleAdsOptions'),
-          googleAdsOptions: z.lazy(() => marshalGoogleAdsOptionsSchema),
+          googleAdsOptions: z.lazy(() => marshalCreateGoogleAdsOptionsSchema),
         }),
         z.object({
           $case: z.literal('tiktokAdsOptions'),
-          tiktokAdsOptions: z.lazy(() => marshalTikTokAdsOptionsSchema),
+          tiktokAdsOptions: z.lazy(() => marshalCreateTikTokAdsOptionsSchema),
         }),
         z.object({
           $case: z.literal('sharepointOptions'),
-          sharepointOptions: z.lazy(() => marshalSharepointOptionsSchema),
+          sharepointOptions: z.lazy(() => marshalCreateSharepointOptionsSchema),
         }),
         z.object({
           $case: z.literal('gdriveOptions'),
-          gdriveOptions: z.lazy(() => marshalGoogleDriveOptionsSchema),
+          gdriveOptions: z.lazy(() => marshalCreateGoogleDriveOptionsSchema),
         }),
         z.object({
           $case: z.literal('outlookOptions'),
-          outlookOptions: z.lazy(() => marshalOutlookOptionsSchema),
+          outlookOptions: z.lazy(() => marshalCreateOutlookOptionsSchema),
         }),
         z.object({
           $case: z.literal('smartsheetOptions'),
-          smartsheetOptions: z.lazy(() => marshalSmartsheetOptionsSchema),
+          smartsheetOptions: z.lazy(() => marshalCreateSmartsheetOptionsSchema),
         }),
         z.object({
           $case: z.literal('jiraOptions'),
-          jiraOptions: z.lazy(() => marshalJiraConnectorOptionsSchema),
+          jiraOptions: z.lazy(() => marshalCreateJiraConnectorOptionsSchema),
         }),
         z.object({
           $case: z.literal('confluenceOptions'),
           confluenceOptions: z.lazy(
-            () => marshalConfluenceConnectorOptionsSchema
+            () => marshalCreateConfluenceConnectorOptionsSchema
           ),
         }),
         z.object({
           $case: z.literal('metaAdsOptions'),
-          metaAdsOptions: z.lazy(() => marshalMetaMarketingOptionsSchema),
+          metaAdsOptions: z.lazy(() => marshalCreateMetaMarketingOptionsSchema),
         }),
         z.object({
           $case: z.literal('zendeskSupportOptions'),
           zendeskSupportOptions: z.lazy(
-            () => marshalZendeskSupportOptionsSchema
+            () => marshalCreateZendeskSupportOptionsSchema
           ),
         }),
         z.object({
           $case: z.literal('kafkaOptions'),
-          kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema),
+          kafkaOptions: z.lazy(() => marshalCreateKafkaOptionsSchema),
         }),
       ])
       .optional(),
@@ -4284,43 +5660,508 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     }),
   }));
 
+export const marshalCreateCronTriggerSchema: z.ZodType = z
+  .object({
+    quartzCronSchedule: z.string().optional(),
+    timezoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    quartz_cron_schedule: d.quartzCronSchedule,
+    timezone_id: d.timezoneId,
+  }));
+
+export const marshalCreateDataStagingOptionsSchema: z.ZodType = z
+  .object({
+    catalogName: z.string(),
+    schemaName: z.string(),
+    volumeName: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    volume_name: d.volumeName,
+  }));
+
+export const marshalCreateEventLogSpecSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    schema: z.string().optional(),
+    catalog: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    schema: d.schema,
+    catalog: d.catalog,
+  }));
+
+export const marshalCreateFileFilterSchema: z.ZodType = z
+  .object({
+    filter: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('pathFilter'), pathFilter: z.string()}),
+        z.object({
+          $case: z.literal('modifiedBefore'),
+          modifiedBefore: z.string(),
+        }),
+        z.object({
+          $case: z.literal('modifiedAfter'),
+          modifiedAfter: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.filter?.$case === 'pathFilter' && {path_filter: d.filter.pathFilter}),
+    ...(d.filter?.$case === 'modifiedBefore' && {
+      modified_before: d.filter.modifiedBefore,
+    }),
+    ...(d.filter?.$case === 'modifiedAfter' && {
+      modified_after: d.filter.modifiedAfter,
+    }),
+  }));
+
+export const marshalCreateFileIngestionOptionsSchema: z.ZodType = z
+  .object({
+    format: z.string().optional(),
+    fileFilters: z
+      .array(z.lazy(() => marshalCreateFileFilterSchema))
+      .optional(),
+    inferColumnTypes: z.boolean().optional(),
+    schemaEvolutionMode: z.string().optional(),
+    schemaHints: z.string().optional(),
+    ignoreCorruptFiles: z.boolean().optional(),
+    corruptRecordColumn: z.string().optional(),
+    rescuedDataColumn: z.string().optional(),
+    singleVariantColumn: z.string().optional(),
+    readerCaseSensitive: z.boolean().optional(),
+    formatOptions: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    format: d.format,
+    file_filters: d.fileFilters,
+    infer_column_types: d.inferColumnTypes,
+    schema_evolution_mode: d.schemaEvolutionMode,
+    schema_hints: d.schemaHints,
+    ignore_corrupt_files: d.ignoreCorruptFiles,
+    corrupt_record_column: d.corruptRecordColumn,
+    rescued_data_column: d.rescuedDataColumn,
+    single_variant_column: d.singleVariantColumn,
+    reader_case_sensitive: d.readerCaseSensitive,
+    format_options: d.formatOptions,
+  }));
+
+export const marshalCreateFiltersSchema: z.ZodType = z
+  .object({
+    include: z.array(z.string()).optional(),
+    exclude: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    include: d.include,
+    exclude: d.exclude,
+  }));
+
+export const marshalCreateGoogleAdsConfigSchema: z.ZodType = z
+  .object({
+    managerAccountId: z.string().optional(),
+  })
+  .transform(d => ({
+    manager_account_id: d.managerAccountId,
+  }));
+
+export const marshalCreateGoogleAdsOptionsSchema: z.ZodType = z
+  .object({
+    managerAccountId: z.string(),
+    lookbackWindowDays: z.number().optional(),
+    syncStartDate: z.string().optional(),
+  })
+  .transform(d => ({
+    manager_account_id: d.managerAccountId,
+    lookback_window_days: d.lookbackWindowDays,
+    sync_start_date: d.syncStartDate,
+  }));
+
+export const marshalCreateGoogleDriveOptionsSchema: z.ZodType = z
+  .object({
+    url: z.string().optional(),
+    entityType: z.string().optional(),
+    fileIngestionOptions: z
+      .lazy(() => marshalCreateFileIngestionOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    entity_type: d.entityType,
+    file_ingestion_options: d.fileIngestionOptions,
+  }));
+
+export const marshalCreateIngestionGatewayPipelineDefinitionSchema: z.ZodType =
+  z
+    .object({
+      connectionName: z.string(),
+      connectionId: z.string().optional(),
+      gatewayStorageCatalog: z.string(),
+      gatewayStorageSchema: z.string(),
+      gatewayStorageName: z.string().optional(),
+      connectionParameters: z
+        .lazy(() => marshalCreateConnectionParametersSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      connection_name: d.connectionName,
+      connection_id: d.connectionId,
+      gateway_storage_catalog: d.gatewayStorageCatalog,
+      gateway_storage_schema: d.gatewayStorageSchema,
+      gateway_storage_name: d.gatewayStorageName,
+      connection_parameters: d.connectionParameters,
+    }));
+
+export const marshalCreateIngestionPipelineDefinitionSchema: z.ZodType = z
+  .object({
+    source: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('connectionName'),
+          connectionName: z.string(),
+        }),
+        z.object({
+          $case: z.literal('ingestionGatewayId'),
+          ingestionGatewayId: z.string(),
+        }),
+        z.object({
+          $case: z.literal('ingestFromUcForeignCatalog'),
+          ingestFromUcForeignCatalog: z.boolean(),
+        }),
+      ])
+      .optional(),
+    objects: z
+      .array(
+        z.lazy(
+          () => marshalIngestionPipelineDefinition_CreateIngestionConfigSchema
+        )
+      )
+      .optional(),
+    tableConfiguration: z
+      .lazy(
+        () => marshalIngestionPipelineDefinition_CreateTableSpecificConfigSchema
+      )
+      .optional(),
+    netsuiteJarPath: z.string().optional(),
+    sourceConfigurations: z
+      .array(z.lazy(() => marshalCreateSourceConfigSchema))
+      .optional(),
+    fullRefreshWindow: z
+      .lazy(() => marshalCreateOperationTimeWindowSchema)
+      .optional(),
+    connectorType: z.string().optional(),
+    dataStagingOptions: z
+      .lazy(() => marshalCreateDataStagingOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'connectionName' && {
+      connection_name: d.source.connectionName,
+    }),
+    ...(d.source?.$case === 'ingestionGatewayId' && {
+      ingestion_gateway_id: d.source.ingestionGatewayId,
+    }),
+    ...(d.source?.$case === 'ingestFromUcForeignCatalog' && {
+      ingest_from_uc_foreign_catalog: d.source.ingestFromUcForeignCatalog,
+    }),
+    objects: d.objects,
+    table_configuration: d.tableConfiguration,
+    netsuite_jar_path: d.netsuiteJarPath,
+    source_configurations: d.sourceConfigurations,
+    full_refresh_window: d.fullRefreshWindow,
+    connector_type: d.connectorType,
+    data_staging_options: d.dataStagingOptions,
+  }));
+
+export const marshalCreateJiraConnectorOptionsSchema: z.ZodType = z
+  .object({
+    includeJiraSpaces: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    include_jira_spaces: d.includeJiraSpaces,
+  }));
+
+export const marshalCreateJsonTransformerOptionsSchema: z.ZodType = z
+  .object({
+    asVariant: z.boolean().optional(),
+    schema: z.string().optional(),
+    schemaFilePath: z.string().optional(),
+    schemaEvolutionMode: z.string().optional(),
+    schemaHints: z.string().optional(),
+  })
+  .transform(d => ({
+    as_variant: d.asVariant,
+    schema: d.schema,
+    schema_file_path: d.schemaFilePath,
+    schema_evolution_mode: d.schemaEvolutionMode,
+    schema_hints: d.schemaHints,
+  }));
+
+export const marshalCreateKafkaOptionsSchema: z.ZodType = z
+  .object({
+    topics: z.array(z.string()).optional(),
+    topicPattern: z.string().optional(),
+    keyTransformer: z.lazy(() => marshalCreateTransformerSchema).optional(),
+    valueTransformer: z.lazy(() => marshalCreateTransformerSchema).optional(),
+    startingOffset: z.string().optional(),
+    maxOffsetsPerTrigger: z.bigint().optional(),
+    clientConfig: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    topics: d.topics,
+    topic_pattern: d.topicPattern,
+    key_transformer: d.keyTransformer,
+    value_transformer: d.valueTransformer,
+    starting_offset: d.startingOffset,
+    max_offsets_per_trigger: d.maxOffsetsPerTrigger,
+    client_config: d.clientConfig,
+  }));
+
+export const marshalCreateManualTriggerSchema: z.ZodType = z.object({});
+
+export const marshalCreateMetaMarketingOptionsSchema: z.ZodType = z
+  .object({
+    level: z.string().optional(),
+    breakdowns: z.array(z.string()).optional(),
+    actionBreakdowns: z.array(z.string()).optional(),
+    actionReportTime: z.string().optional(),
+    startDate: z.string().optional(),
+    customInsightsLookbackWindow: z.number().optional(),
+    timeIncrement: z.string().optional(),
+    actionAttributionWindows: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    level: d.level,
+    breakdowns: d.breakdowns,
+    action_breakdowns: d.actionBreakdowns,
+    action_report_time: d.actionReportTime,
+    start_date: d.startDate,
+    custom_insights_lookback_window: d.customInsightsLookbackWindow,
+    time_increment: d.timeIncrement,
+    action_attribution_windows: d.actionAttributionWindows,
+  }));
+
+export const marshalCreateNotebookLibrarySchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+  }));
+
+export const marshalCreateNotificationsSchema: z.ZodType = z
+  .object({
+    emailRecipients: z.array(z.string()).optional(),
+    alerts: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    email_recipients: d.emailRecipients,
+    alerts: d.alerts,
+  }));
+
+export const marshalCreateOperationTimeWindowSchema: z.ZodType = z
+  .object({
+    startHour: z.number(),
+    daysOfWeek: z.array(z.string()).optional(),
+    timeZoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    start_hour: d.startHour,
+    days_of_week: d.daysOfWeek,
+    time_zone_id: d.timeZoneId,
+  }));
+
+export const marshalCreateOutlookOptionsSchema: z.ZodType = z
+  .object({
+    folderFilter: z.array(z.string()).optional(),
+    senderFilter: z.array(z.string()).optional(),
+    subjectFilter: z.array(z.string()).optional(),
+    startDate: z.string().optional(),
+    bodyFormat: z.string().optional(),
+    attachmentMode: z.string().optional(),
+    includeMailboxes: z.array(z.string()).optional(),
+    includeFolders: z.array(z.string()).optional(),
+    includeSenders: z.array(z.string()).optional(),
+    includeSubjects: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    folder_filter: d.folderFilter,
+    sender_filter: d.senderFilter,
+    subject_filter: d.subjectFilter,
+    start_date: d.startDate,
+    body_format: d.bodyFormat,
+    attachment_mode: d.attachmentMode,
+    include_mailboxes: d.includeMailboxes,
+    include_folders: d.includeFolders,
+    include_senders: d.includeSenders,
+    include_subjects: d.includeSubjects,
+  }));
+
+export const marshalCreatePathPatternSchema: z.ZodType = z
+  .object({
+    include: z.string().optional(),
+  })
+  .transform(d => ({
+    include: d.include,
+  }));
+
+export const marshalCreatePipelineClusterSchema: z.ZodType = z
+  .object({
+    label: z.string().optional(),
+    applyPolicyDefaultValues: z.boolean().optional(),
+    sparkConf: z.record(z.string(), z.string()).optional(),
+    awsAttributes: z
+      .lazy(() => marshalCreatePipelinesAwsAttributesSchema)
+      .optional(),
+    azureAttributes: z
+      .lazy(() => marshalCreatePipelinesAzureAttributesSchema)
+      .optional(),
+    gcpAttributes: z
+      .lazy(() => marshalCreatePipelinesGcpAttributesSchema)
+      .optional(),
+    nodeTypeId: z.string().optional(),
+    driverNodeTypeId: z.string().optional(),
+    sshPublicKeys: z.array(z.string()).optional(),
+    customTags: z.record(z.string(), z.string()).optional(),
+    clusterLogConf: z
+      .lazy(() => marshalCreatePipelinesClusterLogConfSchema)
+      .optional(),
+    sparkEnvVars: z.record(z.string(), z.string()).optional(),
+    initScripts: z
+      .array(z.lazy(() => marshalCreatePipelinesInitScriptInfoSchema))
+      .optional(),
+    instancePoolId: z.string().optional(),
+    policyId: z.string().optional(),
+    enableLocalDiskEncryption: z.boolean().optional(),
+    driverInstancePoolId: z.string().optional(),
+    size: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
+        z.object({
+          $case: z.literal('autoscale'),
+          autoscale: z.lazy(() => marshalCreatePipelinesAutoScaleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    label: d.label,
+    apply_policy_default_values: d.applyPolicyDefaultValues,
+    spark_conf: d.sparkConf,
+    aws_attributes: d.awsAttributes,
+    azure_attributes: d.azureAttributes,
+    gcp_attributes: d.gcpAttributes,
+    node_type_id: d.nodeTypeId,
+    driver_node_type_id: d.driverNodeTypeId,
+    ssh_public_keys: d.sshPublicKeys,
+    custom_tags: d.customTags,
+    cluster_log_conf: d.clusterLogConf,
+    spark_env_vars: d.sparkEnvVars,
+    init_scripts: d.initScripts,
+    instance_pool_id: d.instancePoolId,
+    policy_id: d.policyId,
+    enable_local_disk_encryption: d.enableLocalDiskEncryption,
+    driver_instance_pool_id: d.driverInstancePoolId,
+    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
+    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+  }));
+
+export const marshalCreatePipelineDeploymentSchema: z.ZodType = z
+  .object({
+    kind: z.string(),
+    metadataFilePath: z.string().optional(),
+    deploymentId: z.string().optional(),
+    versionId: z.string().optional(),
+  })
+  .transform(d => ({
+    kind: d.kind,
+    metadata_file_path: d.metadataFilePath,
+    deployment_id: d.deploymentId,
+    version_id: d.versionId,
+  }));
+
+export const marshalCreatePipelineLibrarySchema: z.ZodType = z
+  .object({
+    lib: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('jar'), jar: z.string()}),
+        z.object({
+          $case: z.literal('maven'),
+          maven: z.lazy(() => marshalCreatePipelinesMavenLibrarySchema),
+        }),
+        z.object({$case: z.literal('whl'), whl: z.string()}),
+        z.object({
+          $case: z.literal('notebook'),
+          notebook: z.lazy(() => marshalCreateNotebookLibrarySchema),
+        }),
+        z.object({
+          $case: z.literal('file'),
+          file: z.lazy(() => marshalCreateNotebookLibrarySchema),
+        }),
+        z.object({
+          $case: z.literal('glob'),
+          glob: z.lazy(() => marshalCreatePathPatternSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
+    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
+    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
+    ...(d.lib?.$case === 'notebook' && {notebook: d.lib.notebook}),
+    ...(d.lib?.$case === 'file' && {file: d.lib.file}),
+    ...(d.lib?.$case === 'glob' && {glob: d.lib.glob}),
+  }));
+
 export const marshalCreatePipelineRequestSchema: z.ZodType = z
   .object({
     allowDuplicateNames: z.boolean().optional(),
     dryRun: z.boolean().optional(),
-    runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
+    runAs: z.lazy(() => marshalCreatePipelinesJobRunAsSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     storage: z.string().optional(),
     configuration: z.record(z.string(), z.string()).optional(),
-    clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
-    libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
+    clusters: z
+      .array(z.lazy(() => marshalCreatePipelineClusterSchema))
+      .optional(),
+    libraries: z
+      .array(z.lazy(() => marshalCreatePipelineLibrarySchema))
+      .optional(),
     ingestionDefinition: z
-      .lazy(() => marshalIngestionPipelineDefinitionSchema)
+      .lazy(() => marshalCreateIngestionPipelineDefinitionSchema)
       .optional(),
     gatewayDefinition: z
-      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
+      .lazy(() => marshalCreateIngestionGatewayPipelineDefinitionSchema)
       .optional(),
-    trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
+    trigger: z.lazy(() => marshalCreatePipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
-    filters: z.lazy(() => marshalFiltersSchema).optional(),
+    filters: z.lazy(() => marshalCreateFiltersSchema).optional(),
     continuous: z.boolean().optional(),
     development: z.boolean().optional(),
     photon: z.boolean().optional(),
     edition: z.string().optional(),
     channel: z.string().optional(),
     catalog: z.string().optional(),
-    notifications: z.array(z.lazy(() => marshalNotificationsSchema)).optional(),
+    notifications: z
+      .array(z.lazy(() => marshalCreateNotificationsSchema))
+      .optional(),
     serverless: z.boolean().optional(),
-    deployment: z.lazy(() => marshalPipelineDeploymentSchema).optional(),
-    restartWindow: z.lazy(() => marshalRestartWindowSchema).optional(),
+    deployment: z.lazy(() => marshalCreatePipelineDeploymentSchema).optional(),
+    restartWindow: z.lazy(() => marshalCreateRestartWindowSchema).optional(),
     budgetPolicyId: z.string().optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
+    eventLog: z.lazy(() => marshalCreateEventLogSpecSchema).optional(),
     rootPath: z.string().optional(),
-    environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    environment: z
+      .lazy(() => marshalCreatePipelinesEnvironmentSchema)
+      .optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
   })
@@ -4360,26 +6201,365 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     serverless_compute_id: d.serverlessComputeId,
   }));
 
-export const marshalCronTriggerSchema: z.ZodType = z
+export const marshalCreatePipelineTriggerSchema: z.ZodType = z
   .object({
-    quartzCronSchedule: z.string().optional(),
-    timezoneId: z.string().optional(),
+    trigger: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('manual'),
+          manual: z.lazy(() => marshalCreateManualTriggerSchema),
+        }),
+        z.object({
+          $case: z.literal('cron'),
+          cron: z.lazy(() => marshalCreateCronTriggerSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    quartz_cron_schedule: d.quartzCronSchedule,
-    timezone_id: d.timezoneId,
+    ...(d.trigger?.$case === 'manual' && {manual: d.trigger.manual}),
+    ...(d.trigger?.$case === 'cron' && {cron: d.trigger.cron}),
   }));
 
-export const marshalDataStagingOptionsSchema: z.ZodType = z
+export const marshalCreatePipelinesAutoScaleSchema: z.ZodType = z
   .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    volumeName: z.string().optional(),
+    minWorkers: z.number(),
+    maxWorkers: z.number(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-    volume_name: d.volumeName,
+    min_workers: d.minWorkers,
+    max_workers: d.maxWorkers,
+    mode: d.mode,
+  }));
+
+export const marshalCreatePipelinesAwsAttributesSchema: z.ZodType = z
+  .object({
+    firstOnDemand: z.number().optional(),
+    availability: z.string().optional(),
+    zoneId: z.string().optional(),
+    instanceProfileArn: z.string().optional(),
+    spotBidPricePercent: z.number().optional(),
+    ebsVolumeType: z.string().optional(),
+    ebsVolumeCount: z.number().optional(),
+    ebsVolumeSize: z.number().optional(),
+    ebsVolumeIops: z.number().optional(),
+    ebsVolumeThroughput: z.number().optional(),
+  })
+  .transform(d => ({
+    first_on_demand: d.firstOnDemand,
+    availability: d.availability,
+    zone_id: d.zoneId,
+    instance_profile_arn: d.instanceProfileArn,
+    spot_bid_price_percent: d.spotBidPricePercent,
+    ebs_volume_type: d.ebsVolumeType,
+    ebs_volume_count: d.ebsVolumeCount,
+    ebs_volume_size: d.ebsVolumeSize,
+    ebs_volume_iops: d.ebsVolumeIops,
+    ebs_volume_throughput: d.ebsVolumeThroughput,
+  }));
+
+export const marshalCreatePipelinesAzureAttributesSchema: z.ZodType = z
+  .object({
+    firstOnDemand: z.number().optional(),
+    availability: z.string().optional(),
+    spotBidMaxPrice: z.number().optional(),
+  })
+  .transform(d => ({
+    first_on_demand: d.firstOnDemand,
+    availability: d.availability,
+    spot_bid_max_price: d.spotBidMaxPrice,
+  }));
+
+export const marshalCreatePipelinesClusterLogConfSchema: z.ZodType = z
+  .object({
+    storageInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dbfs'),
+          dbfs: z.lazy(() => marshalCreatePipelinesDbfsStorageInfoSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
+  }));
+
+export const marshalCreatePipelinesDbfsStorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
+
+export const marshalCreatePipelinesEnvironmentSchema: z.ZodType = z
+  .object({
+    dependencies: z.array(z.string()).optional(),
+    environmentVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    dependencies: d.dependencies,
+    environment_version: d.environmentVersion,
+  }));
+
+export const marshalCreatePipelinesGcpAttributesSchema: z.ZodType = z
+  .object({
+    googleServiceAccount: z.string().optional(),
+    bootDiskSize: z.number().optional(),
+    availability: z.string().optional(),
+    zoneId: z.string().optional(),
+    localSsdCount: z.number().optional(),
+  })
+  .transform(d => ({
+    google_service_account: d.googleServiceAccount,
+    boot_disk_size: d.bootDiskSize,
+    availability: d.availability,
+    zone_id: d.zoneId,
+    local_ssd_count: d.localSsdCount,
+  }));
+
+export const marshalCreatePipelinesInitScriptInfoSchema: z.ZodType = z
+  .object({
+    storageInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dbfs'),
+          dbfs: z.lazy(() => marshalCreatePipelinesDbfsStorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('s3'),
+          s3: z.lazy(() => marshalCreatePipelinesS3StorageInfoSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
+    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
+  }));
+
+export const marshalCreatePipelinesJobRunAsSchema: z.ZodType = z
+  .object({
+    identity: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
+    ...(d.identity?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.identity.servicePrincipalName,
+    }),
+  }));
+
+export const marshalCreatePipelinesMavenLibrarySchema: z.ZodType = z
+  .object({
+    coordinates: z.string(),
+    repo: z.string().optional(),
+    exclusions: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    coordinates: d.coordinates,
+    repo: d.repo,
+    exclusions: d.exclusions,
+  }));
+
+export const marshalCreatePipelinesS3StorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string().optional(),
+    region: z.string().optional(),
+    endpoint: z.string().optional(),
+    enableEncryption: z.boolean().optional(),
+    encryptionType: z.string().optional(),
+    kmsKey: z.string().optional(),
+    cannedAcl: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    region: d.region,
+    endpoint: d.endpoint,
+    enable_encryption: d.enableEncryption,
+    encryption_type: d.encryptionType,
+    kms_key: d.kmsKey,
+    canned_acl: d.cannedAcl,
+  }));
+
+export const marshalCreatePostgresCatalogConfigSchema: z.ZodType = z
+  .object({
+    slotConfig: z.lazy(() => marshalCreatePostgresSlotConfigSchema).optional(),
+  })
+  .transform(d => ({
+    slot_config: d.slotConfig,
+  }));
+
+export const marshalCreatePostgresSlotConfigSchema: z.ZodType = z
+  .object({
+    slotName: z.string().optional(),
+    publicationName: z.string().optional(),
+  })
+  .transform(d => ({
+    slot_name: d.slotName,
+    publication_name: d.publicationName,
+  }));
+
+export const marshalCreateReplaceWhereOverrideSchema: z.ZodType = z
+  .object({
+    flowName: z.string().optional(),
+    predicateOverride: z.string().optional(),
+  })
+  .transform(d => ({
+    flow_name: d.flowName,
+    predicate_override: d.predicateOverride,
+  }));
+
+export const marshalCreateRestartWindowSchema: z.ZodType = z
+  .object({
+    startHour: z.number(),
+    daysOfWeek: z.array(z.string()).optional(),
+    timeZoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    start_hour: d.startHour,
+    days_of_week: d.daysOfWeek,
+    time_zone_id: d.timeZoneId,
+  }));
+
+export const marshalCreateRewindDatasetSpecSchema: z.ZodType = z
+  .object({
+    identifier: z.string().optional(),
+    cascade: z.boolean().optional(),
+    resetCheckpoints: z.boolean().optional(),
+  })
+  .transform(d => ({
+    identifier: d.identifier,
+    cascade: d.cascade,
+    reset_checkpoints: d.resetCheckpoints,
+  }));
+
+export const marshalCreateRewindSpecSchema: z.ZodType = z
+  .object({
+    rewindTimestamp: z.string().optional(),
+    dryRun: z.boolean().optional(),
+    datasets: z
+      .array(z.lazy(() => marshalCreateRewindDatasetSpecSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    rewind_timestamp: d.rewindTimestamp,
+    dry_run: d.dryRun,
+    datasets: d.datasets,
+  }));
+
+export const marshalCreateSharepointOptionsSchema: z.ZodType = z
+  .object({
+    url: z.string().optional(),
+    entityType: z.string().optional(),
+    fileIngestionOptions: z
+      .lazy(() => marshalCreateFileIngestionOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    entity_type: d.entityType,
+    file_ingestion_options: d.fileIngestionOptions,
+  }));
+
+export const marshalCreateSmartsheetOptionsSchema: z.ZodType = z
+  .object({
+    enforceSchema: z.boolean().optional(),
+  })
+  .transform(d => ({
+    enforce_schema: d.enforceSchema,
+  }));
+
+export const marshalCreateSourceCatalogConfigSchema: z.ZodType = z
+  .object({
+    sourceCatalog: z.string().optional(),
+    options: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('postgres'),
+          postgres: z.lazy(() => marshalCreatePostgresCatalogConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    source_catalog: d.sourceCatalog,
+    ...(d.options?.$case === 'postgres' && {postgres: d.options.postgres}),
+  }));
+
+export const marshalCreateSourceConfigSchema: z.ZodType = z
+  .object({
+    catalog: z.lazy(() => marshalCreateSourceCatalogConfigSchema).optional(),
+    connectorConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('googleAdsConfig'),
+          googleAdsConfig: z.lazy(() => marshalCreateGoogleAdsConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    catalog: d.catalog,
+    ...(d.connectorConfig?.$case === 'googleAdsConfig' && {
+      google_ads_config: d.connectorConfig.googleAdsConfig,
+    }),
+  }));
+
+export const marshalCreateTikTokAdsOptionsSchema: z.ZodType = z
+  .object({
+    lookbackWindowDays: z.number().optional(),
+    syncStartDate: z.string().optional(),
+    dimensions: z.array(z.string()).optional(),
+    metrics: z.array(z.string()).optional(),
+    reportType: z.string().optional(),
+    dataLevel: z.string().optional(),
+    queryLifetime: z.boolean().optional(),
+  })
+  .transform(d => ({
+    lookback_window_days: d.lookbackWindowDays,
+    sync_start_date: d.syncStartDate,
+    dimensions: d.dimensions,
+    metrics: d.metrics,
+    report_type: d.reportType,
+    data_level: d.dataLevel,
+    query_lifetime: d.queryLifetime,
+  }));
+
+export const marshalCreateTransformerSchema: z.ZodType = z
+  .object({
+    format: z.string().optional(),
+    config: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('jsonOptions'),
+          jsonOptions: z.lazy(() => marshalCreateJsonTransformerOptionsSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    format: d.format,
+    ...(d.config?.$case === 'jsonOptions' && {
+      json_options: d.config.jsonOptions,
+    }),
+  }));
+
+export const marshalCreateZendeskSupportOptionsSchema: z.ZodType = z
+  .object({
+    startDate: z.string().optional(),
+  })
+  .transform(d => ({
+    start_date: d.startDate,
   }));
 
 export const marshalEditPipelineRequestSchema: z.ZodType = z
@@ -4387,39 +6567,47 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     pipelineId: z.string().optional(),
     allowDuplicateNames: z.boolean().optional(),
     expectedLastModified: z.bigint().optional(),
-    runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
+    runAs: z.lazy(() => marshalCreatePipelinesJobRunAsSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     storage: z.string().optional(),
     configuration: z.record(z.string(), z.string()).optional(),
-    clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
-    libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
+    clusters: z
+      .array(z.lazy(() => marshalCreatePipelineClusterSchema))
+      .optional(),
+    libraries: z
+      .array(z.lazy(() => marshalCreatePipelineLibrarySchema))
+      .optional(),
     ingestionDefinition: z
-      .lazy(() => marshalIngestionPipelineDefinitionSchema)
+      .lazy(() => marshalCreateIngestionPipelineDefinitionSchema)
       .optional(),
     gatewayDefinition: z
-      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
+      .lazy(() => marshalCreateIngestionGatewayPipelineDefinitionSchema)
       .optional(),
-    trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
+    trigger: z.lazy(() => marshalCreatePipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
-    filters: z.lazy(() => marshalFiltersSchema).optional(),
+    filters: z.lazy(() => marshalCreateFiltersSchema).optional(),
     continuous: z.boolean().optional(),
     development: z.boolean().optional(),
     photon: z.boolean().optional(),
     edition: z.string().optional(),
     channel: z.string().optional(),
     catalog: z.string().optional(),
-    notifications: z.array(z.lazy(() => marshalNotificationsSchema)).optional(),
+    notifications: z
+      .array(z.lazy(() => marshalCreateNotificationsSchema))
+      .optional(),
     serverless: z.boolean().optional(),
-    deployment: z.lazy(() => marshalPipelineDeploymentSchema).optional(),
-    restartWindow: z.lazy(() => marshalRestartWindowSchema).optional(),
+    deployment: z.lazy(() => marshalCreatePipelineDeploymentSchema).optional(),
+    restartWindow: z.lazy(() => marshalCreateRestartWindowSchema).optional(),
     budgetPolicyId: z.string().optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
+    eventLog: z.lazy(() => marshalCreateEventLogSpecSchema).optional(),
     rootPath: z.string().optional(),
-    environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    environment: z
+      .lazy(() => marshalCreatePipelinesEnvironmentSchema)
+      .optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
   })
@@ -4460,197 +6648,8 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     serverless_compute_id: d.serverlessComputeId,
   }));
 
-export const marshalEventLogSpecSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    schema: z.string().optional(),
-    catalog: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    schema: d.schema,
-    catalog: d.catalog,
-  }));
-
-export const marshalFileFilterSchema: z.ZodType = z
-  .object({
-    filter: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('pathFilter'), pathFilter: z.string()}),
-        z.object({
-          $case: z.literal('modifiedBefore'),
-          modifiedBefore: z.string(),
-        }),
-        z.object({
-          $case: z.literal('modifiedAfter'),
-          modifiedAfter: z.string(),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.filter?.$case === 'pathFilter' && {path_filter: d.filter.pathFilter}),
-    ...(d.filter?.$case === 'modifiedBefore' && {
-      modified_before: d.filter.modifiedBefore,
-    }),
-    ...(d.filter?.$case === 'modifiedAfter' && {
-      modified_after: d.filter.modifiedAfter,
-    }),
-  }));
-
-export const marshalFileIngestionOptionsSchema: z.ZodType = z
-  .object({
-    format: z.string().optional(),
-    fileFilters: z.array(z.lazy(() => marshalFileFilterSchema)).optional(),
-    inferColumnTypes: z.boolean().optional(),
-    schemaEvolutionMode: z.string().optional(),
-    schemaHints: z.string().optional(),
-    ignoreCorruptFiles: z.boolean().optional(),
-    corruptRecordColumn: z.string().optional(),
-    rescuedDataColumn: z.string().optional(),
-    singleVariantColumn: z.string().optional(),
-    readerCaseSensitive: z.boolean().optional(),
-    formatOptions: z.record(z.string(), z.string()).optional(),
-  })
-  .transform(d => ({
-    format: d.format,
-    file_filters: d.fileFilters,
-    infer_column_types: d.inferColumnTypes,
-    schema_evolution_mode: d.schemaEvolutionMode,
-    schema_hints: d.schemaHints,
-    ignore_corrupt_files: d.ignoreCorruptFiles,
-    corrupt_record_column: d.corruptRecordColumn,
-    rescued_data_column: d.rescuedDataColumn,
-    single_variant_column: d.singleVariantColumn,
-    reader_case_sensitive: d.readerCaseSensitive,
-    format_options: d.formatOptions,
-  }));
-
-export const marshalFiltersSchema: z.ZodType = z
-  .object({
-    include: z.array(z.string()).optional(),
-    exclude: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    include: d.include,
-    exclude: d.exclude,
-  }));
-
-export const marshalGoogleAdsConfigSchema: z.ZodType = z
-  .object({
-    managerAccountId: z.string().optional(),
-  })
-  .transform(d => ({
-    manager_account_id: d.managerAccountId,
-  }));
-
-export const marshalGoogleAdsOptionsSchema: z.ZodType = z
-  .object({
-    managerAccountId: z.string().optional(),
-    lookbackWindowDays: z.number().optional(),
-    syncStartDate: z.string().optional(),
-  })
-  .transform(d => ({
-    manager_account_id: d.managerAccountId,
-    lookback_window_days: d.lookbackWindowDays,
-    sync_start_date: d.syncStartDate,
-  }));
-
-export const marshalGoogleDriveOptionsSchema: z.ZodType = z
-  .object({
-    url: z.string().optional(),
-    entityType: z.string().optional(),
-    fileIngestionOptions: z
-      .lazy(() => marshalFileIngestionOptionsSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    url: d.url,
-    entity_type: d.entityType,
-    file_ingestion_options: d.fileIngestionOptions,
-  }));
-
-export const marshalIngestionGatewayPipelineDefinitionSchema: z.ZodType = z
-  .object({
-    connectionName: z.string().optional(),
-    connectionId: z.string().optional(),
-    gatewayStorageCatalog: z.string().optional(),
-    gatewayStorageSchema: z.string().optional(),
-    gatewayStorageName: z.string().optional(),
-    connectionParameters: z
-      .lazy(() => marshalConnectionParametersSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    connection_name: d.connectionName,
-    connection_id: d.connectionId,
-    gateway_storage_catalog: d.gatewayStorageCatalog,
-    gateway_storage_schema: d.gatewayStorageSchema,
-    gateway_storage_name: d.gatewayStorageName,
-    connection_parameters: d.connectionParameters,
-  }));
-
-export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
-  .object({
-    source: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('connectionName'),
-          connectionName: z.string(),
-        }),
-        z.object({
-          $case: z.literal('ingestionGatewayId'),
-          ingestionGatewayId: z.string(),
-        }),
-        z.object({
-          $case: z.literal('ingestFromUcForeignCatalog'),
-          ingestFromUcForeignCatalog: z.boolean(),
-        }),
-      ])
-      .optional(),
-    objects: z
-      .array(
-        z.lazy(() => marshalIngestionPipelineDefinition_IngestionConfigSchema)
-      )
-      .optional(),
-    sourceType: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
-    netsuiteJarPath: z.string().optional(),
-    sourceConfigurations: z
-      .array(z.lazy(() => marshalSourceConfigSchema))
-      .optional(),
-    fullRefreshWindow: z
-      .lazy(() => marshalOperationTimeWindowSchema)
-      .optional(),
-    connectorType: z.string().optional(),
-    dataStagingOptions: z
-      .lazy(() => marshalDataStagingOptionsSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.source?.$case === 'connectionName' && {
-      connection_name: d.source.connectionName,
-    }),
-    ...(d.source?.$case === 'ingestionGatewayId' && {
-      ingestion_gateway_id: d.source.ingestionGatewayId,
-    }),
-    ...(d.source?.$case === 'ingestFromUcForeignCatalog' && {
-      ingest_from_uc_foreign_catalog: d.source.ingestFromUcForeignCatalog,
-    }),
-    objects: d.objects,
-    source_type: d.sourceType,
-    table_configuration: d.tableConfiguration,
-    netsuite_jar_path: d.netsuiteJarPath,
-    source_configurations: d.sourceConfigurations,
-    full_refresh_window: d.fullRefreshWindow,
-    connector_type: d.connectorType,
-    data_staging_options: d.dataStagingOptions,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType =
+export const marshalIngestionPipelineDefinition_CreateIngestionConfigSchema: z.ZodType =
   z
     .object({
       sourceTables: z
@@ -4658,19 +6657,19 @@ export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType
           z.object({
             $case: z.literal('schema'),
             schema: z.lazy(
-              () => marshalIngestionPipelineDefinition_SchemaSpecSchema
+              () => marshalIngestionPipelineDefinition_CreateSchemaSpecSchema
             ),
           }),
           z.object({
             $case: z.literal('table'),
             table: z.lazy(
-              () => marshalIngestionPipelineDefinition_TableSpecSchema
+              () => marshalIngestionPipelineDefinition_CreateTableSpecSchema
             ),
           }),
           z.object({
             $case: z.literal('report'),
             report: z.lazy(
-              () => marshalIngestionPipelineDefinition_ReportSpecSchema
+              () => marshalIngestionPipelineDefinition_CreateReportSpecSchema
             ),
           }),
         ])
@@ -4687,72 +6686,88 @@ export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType = z
-  .object({
-    sourceUrl: z.string().optional(),
-    destinationCatalog: z.string().optional(),
-    destinationSchema: z.string().optional(),
-    destinationTable: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    source_url: d.sourceUrl,
-    destination_catalog: d.destinationCatalog,
-    destination_schema: d.destinationSchema,
-    destination_table: d.destinationTable,
-    table_configuration: d.tableConfiguration,
-  }));
+export const marshalIngestionPipelineDefinition_CreateReportSpecSchema: z.ZodType =
+  z
+    .object({
+      sourceUrl: z.string(),
+      destinationCatalog: z.string(),
+      destinationSchema: z.string(),
+      destinationTable: z.string().optional(),
+      tableConfiguration: z
+        .lazy(
+          () =>
+            marshalIngestionPipelineDefinition_CreateTableSpecificConfigSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      source_url: d.sourceUrl,
+      destination_catalog: d.destinationCatalog,
+      destination_schema: d.destinationSchema,
+      destination_table: d.destinationTable,
+      table_configuration: d.tableConfiguration,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
-  .object({
-    sourceCatalog: z.string().optional(),
-    sourceSchema: z.string().optional(),
-    destinationCatalog: z.string().optional(),
-    destinationSchema: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
-    connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
-  })
-  .transform(d => ({
-    source_catalog: d.sourceCatalog,
-    source_schema: d.sourceSchema,
-    destination_catalog: d.destinationCatalog,
-    destination_schema: d.destinationSchema,
-    table_configuration: d.tableConfiguration,
-    connector_options: d.connectorOptions,
-  }));
+export const marshalIngestionPipelineDefinition_CreateSchemaSpecSchema: z.ZodType =
+  z
+    .object({
+      sourceCatalog: z.string().optional(),
+      sourceSchema: z.string(),
+      destinationCatalog: z.string(),
+      destinationSchema: z.string(),
+      tableConfiguration: z
+        .lazy(
+          () =>
+            marshalIngestionPipelineDefinition_CreateTableSpecificConfigSchema
+        )
+        .optional(),
+      connectorOptions: z
+        .lazy(() => marshalCreateConnectorOptionsSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      source_catalog: d.sourceCatalog,
+      source_schema: d.sourceSchema,
+      destination_catalog: d.destinationCatalog,
+      destination_schema: d.destinationSchema,
+      table_configuration: d.tableConfiguration,
+      connector_options: d.connectorOptions,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
-  .object({
-    sourceCatalog: z.string().optional(),
-    sourceSchema: z.string().optional(),
-    sourceTable: z.string().optional(),
-    destinationCatalog: z.string().optional(),
-    destinationSchema: z.string().optional(),
-    destinationTable: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
-    connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
-  })
-  .transform(d => ({
-    source_catalog: d.sourceCatalog,
-    source_schema: d.sourceSchema,
-    source_table: d.sourceTable,
-    destination_catalog: d.destinationCatalog,
-    destination_schema: d.destinationSchema,
-    destination_table: d.destinationTable,
-    table_configuration: d.tableConfiguration,
-    connector_options: d.connectorOptions,
-  }));
+export const marshalIngestionPipelineDefinition_CreateTableSpecSchema: z.ZodType =
+  z
+    .object({
+      sourceCatalog: z.string().optional(),
+      sourceSchema: z.string().optional(),
+      sourceTable: z.string(),
+      destinationCatalog: z.string(),
+      destinationSchema: z.string(),
+      destinationTable: z.string().optional(),
+      tableConfiguration: z
+        .lazy(
+          () =>
+            marshalIngestionPipelineDefinition_CreateTableSpecificConfigSchema
+        )
+        .optional(),
+      connectorOptions: z
+        .lazy(() => marshalCreateConnectorOptionsSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      source_catalog: d.sourceCatalog,
+      source_schema: d.sourceSchema,
+      source_table: d.sourceTable,
+      destination_catalog: d.destinationCatalog,
+      destination_schema: d.destinationSchema,
+      destination_table: d.destinationTable,
+      table_configuration: d.tableConfiguration,
+      connector_options: d.connectorOptions,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType =
+export const marshalIngestionPipelineDefinition_CreateTableSpecificConfigSchema: z.ZodType =
   z
     .object({
       scdType: z.string().optional(),
@@ -4763,18 +6778,19 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       salesforceIncludeFormulaFields: z.boolean().optional(),
       workdayReportParameters: z
         .lazy(
-          () => marshalIngestionPipelineDefinition_WorkdayReportParametersSchema
+          () =>
+            marshalIngestionPipelineDefinition_CreateWorkdayReportParametersSchema
         )
         .optional(),
       rowFilter: z.string().optional(),
       queryBasedConnectorConfig: z
         .lazy(
           () =>
-            marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema
+            marshalIngestionPipelineDefinition_TableSpecificConfig_CreateQueryBasedConnectorConfigSchema
         )
         .optional(),
       autoFullRefreshPolicy: z
-        .lazy(() => marshalAutoFullRefreshPolicySchema)
+        .lazy(() => marshalCreateAutoFullRefreshPolicySchema)
         .optional(),
       tableProperties: z.record(z.string(), z.string()).optional(),
       enableAutoClustering: z.boolean().optional(),
@@ -4797,7 +6813,28 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema: z.ZodType =
+export const marshalIngestionPipelineDefinition_CreateWorkdayReportParametersSchema: z.ZodType =
+  z
+    .object({
+      incremental: z.boolean().optional(),
+      reportParameters: z
+        .array(
+          z.lazy(
+            () =>
+              marshalIngestionPipelineDefinition_WorkdayReportParameters_CreateQueryKeyValueSchema
+          )
+        )
+        .optional(),
+      parameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      incremental: d.incremental,
+      report_parameters: d.reportParameters,
+      parameters: d.parameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngestionPipelineDefinition_TableSpecificConfig_CreateQueryBasedConnectorConfigSchema: z.ZodType =
   z
     .object({
       cursorColumns: z.array(z.string()).optional(),
@@ -4812,28 +6849,7 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedCo
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_WorkdayReportParametersSchema: z.ZodType =
-  z
-    .object({
-      incremental: z.boolean().optional(),
-      reportParameters: z
-        .array(
-          z.lazy(
-            () =>
-              marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema
-          )
-        )
-        .optional(),
-      parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      incremental: d.incremental,
-      report_parameters: d.reportParameters,
-      parameters: d.parameters,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema: z.ZodType =
+export const marshalIngestionPipelineDefinition_WorkdayReportParameters_CreateQueryKeyValueSchema: z.ZodType =
   z
     .object({
       key: z.string().optional(),
@@ -4844,555 +6860,6 @@ export const marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKey
       value: d.value,
     }));
 
-export const marshalJiraConnectorOptionsSchema: z.ZodType = z
-  .object({
-    includeJiraSpaces: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    include_jira_spaces: d.includeJiraSpaces,
-  }));
-
-export const marshalJsonTransformerOptionsSchema: z.ZodType = z
-  .object({
-    asVariant: z.boolean().optional(),
-    schema: z.string().optional(),
-    schemaFilePath: z.string().optional(),
-    schemaEvolutionMode: z.string().optional(),
-    schemaHints: z.string().optional(),
-  })
-  .transform(d => ({
-    as_variant: d.asVariant,
-    schema: d.schema,
-    schema_file_path: d.schemaFilePath,
-    schema_evolution_mode: d.schemaEvolutionMode,
-    schema_hints: d.schemaHints,
-  }));
-
-export const marshalKafkaOptionsSchema: z.ZodType = z
-  .object({
-    topics: z.array(z.string()).optional(),
-    topicPattern: z.string().optional(),
-    keyTransformer: z.lazy(() => marshalTransformerSchema).optional(),
-    valueTransformer: z.lazy(() => marshalTransformerSchema).optional(),
-    startingOffset: z.string().optional(),
-    maxOffsetsPerTrigger: z.bigint().optional(),
-    clientConfig: z.record(z.string(), z.string()).optional(),
-  })
-  .transform(d => ({
-    topics: d.topics,
-    topic_pattern: d.topicPattern,
-    key_transformer: d.keyTransformer,
-    value_transformer: d.valueTransformer,
-    starting_offset: d.startingOffset,
-    max_offsets_per_trigger: d.maxOffsetsPerTrigger,
-    client_config: d.clientConfig,
-  }));
-
-export const marshalManualTriggerSchema: z.ZodType = z.object({});
-
-export const marshalMetaMarketingOptionsSchema: z.ZodType = z
-  .object({
-    level: z.string().optional(),
-    breakdowns: z.array(z.string()).optional(),
-    actionBreakdowns: z.array(z.string()).optional(),
-    actionReportTime: z.string().optional(),
-    startDate: z.string().optional(),
-    customInsightsLookbackWindow: z.number().optional(),
-    timeIncrement: z.string().optional(),
-    actionAttributionWindows: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    level: d.level,
-    breakdowns: d.breakdowns,
-    action_breakdowns: d.actionBreakdowns,
-    action_report_time: d.actionReportTime,
-    start_date: d.startDate,
-    custom_insights_lookback_window: d.customInsightsLookbackWindow,
-    time_increment: d.timeIncrement,
-    action_attribution_windows: d.actionAttributionWindows,
-  }));
-
-export const marshalNotebookLibrarySchema: z.ZodType = z
-  .object({
-    path: z.string().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
-  }));
-
-export const marshalNotificationsSchema: z.ZodType = z
-  .object({
-    emailRecipients: z.array(z.string()).optional(),
-    alerts: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    email_recipients: d.emailRecipients,
-    alerts: d.alerts,
-  }));
-
-export const marshalOperationTimeWindowSchema: z.ZodType = z
-  .object({
-    startHour: z.number().optional(),
-    daysOfWeek: z.array(z.string()).optional(),
-    timeZoneId: z.string().optional(),
-  })
-  .transform(d => ({
-    start_hour: d.startHour,
-    days_of_week: d.daysOfWeek,
-    time_zone_id: d.timeZoneId,
-  }));
-
-export const marshalOutlookOptionsSchema: z.ZodType = z
-  .object({
-    folderFilter: z.array(z.string()).optional(),
-    senderFilter: z.array(z.string()).optional(),
-    subjectFilter: z.array(z.string()).optional(),
-    startDate: z.string().optional(),
-    bodyFormat: z.string().optional(),
-    attachmentMode: z.string().optional(),
-    includeMailboxes: z.array(z.string()).optional(),
-    includeFolders: z.array(z.string()).optional(),
-    includeSenders: z.array(z.string()).optional(),
-    includeSubjects: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    folder_filter: d.folderFilter,
-    sender_filter: d.senderFilter,
-    subject_filter: d.subjectFilter,
-    start_date: d.startDate,
-    body_format: d.bodyFormat,
-    attachment_mode: d.attachmentMode,
-    include_mailboxes: d.includeMailboxes,
-    include_folders: d.includeFolders,
-    include_senders: d.includeSenders,
-    include_subjects: d.includeSubjects,
-  }));
-
-export const marshalPathPatternSchema: z.ZodType = z
-  .object({
-    include: z.string().optional(),
-  })
-  .transform(d => ({
-    include: d.include,
-  }));
-
-export const marshalPipelineClusterSchema: z.ZodType = z
-  .object({
-    label: z.string().optional(),
-    applyPolicyDefaultValues: z.boolean().optional(),
-    sparkConf: z.record(z.string(), z.string()).optional(),
-    awsAttributes: z.lazy(() => marshalPipelinesAwsAttributesSchema).optional(),
-    azureAttributes: z
-      .lazy(() => marshalPipelinesAzureAttributesSchema)
-      .optional(),
-    gcpAttributes: z.lazy(() => marshalPipelinesGcpAttributesSchema).optional(),
-    nodeTypeId: z.string().optional(),
-    driverNodeTypeId: z.string().optional(),
-    sshPublicKeys: z.array(z.string()).optional(),
-    customTags: z.record(z.string(), z.string()).optional(),
-    clusterLogConf: z
-      .lazy(() => marshalPipelinesClusterLogConfSchema)
-      .optional(),
-    sparkEnvVars: z.record(z.string(), z.string()).optional(),
-    initScripts: z
-      .array(z.lazy(() => marshalPipelinesInitScriptInfoSchema))
-      .optional(),
-    instancePoolId: z.string().optional(),
-    policyId: z.string().optional(),
-    enableLocalDiskEncryption: z.boolean().optional(),
-    driverInstancePoolId: z.string().optional(),
-    size: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
-        z.object({
-          $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalPipelinesAutoScaleSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    label: d.label,
-    apply_policy_default_values: d.applyPolicyDefaultValues,
-    spark_conf: d.sparkConf,
-    aws_attributes: d.awsAttributes,
-    azure_attributes: d.azureAttributes,
-    gcp_attributes: d.gcpAttributes,
-    node_type_id: d.nodeTypeId,
-    driver_node_type_id: d.driverNodeTypeId,
-    ssh_public_keys: d.sshPublicKeys,
-    custom_tags: d.customTags,
-    cluster_log_conf: d.clusterLogConf,
-    spark_env_vars: d.sparkEnvVars,
-    init_scripts: d.initScripts,
-    instance_pool_id: d.instancePoolId,
-    policy_id: d.policyId,
-    enable_local_disk_encryption: d.enableLocalDiskEncryption,
-    driver_instance_pool_id: d.driverInstancePoolId,
-    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
-    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
-  }));
-
-export const marshalPipelineDeploymentSchema: z.ZodType = z
-  .object({
-    kind: z.string().optional(),
-    metadataFilePath: z.string().optional(),
-    deploymentId: z.string().optional(),
-    versionId: z.string().optional(),
-  })
-  .transform(d => ({
-    kind: d.kind,
-    metadata_file_path: d.metadataFilePath,
-    deployment_id: d.deploymentId,
-    version_id: d.versionId,
-  }));
-
-export const marshalPipelineLibrarySchema: z.ZodType = z
-  .object({
-    lib: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('jar'), jar: z.string()}),
-        z.object({
-          $case: z.literal('maven'),
-          maven: z.lazy(() => marshalPipelinesMavenLibrarySchema),
-        }),
-        z.object({$case: z.literal('whl'), whl: z.string()}),
-        z.object({
-          $case: z.literal('notebook'),
-          notebook: z.lazy(() => marshalNotebookLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('file'),
-          file: z.lazy(() => marshalNotebookLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('glob'),
-          glob: z.lazy(() => marshalPathPatternSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
-    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
-    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
-    ...(d.lib?.$case === 'notebook' && {notebook: d.lib.notebook}),
-    ...(d.lib?.$case === 'file' && {file: d.lib.file}),
-    ...(d.lib?.$case === 'glob' && {glob: d.lib.glob}),
-  }));
-
-export const marshalPipelineTriggerSchema: z.ZodType = z
-  .object({
-    trigger: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('manual'),
-          manual: z.lazy(() => marshalManualTriggerSchema),
-        }),
-        z.object({
-          $case: z.literal('cron'),
-          cron: z.lazy(() => marshalCronTriggerSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.trigger?.$case === 'manual' && {manual: d.trigger.manual}),
-    ...(d.trigger?.$case === 'cron' && {cron: d.trigger.cron}),
-  }));
-
-export const marshalPipelinesAutoScaleSchema: z.ZodType = z
-  .object({
-    minWorkers: z.number().optional(),
-    maxWorkers: z.number().optional(),
-    mode: z.string().optional(),
-  })
-  .transform(d => ({
-    min_workers: d.minWorkers,
-    max_workers: d.maxWorkers,
-    mode: d.mode,
-  }));
-
-export const marshalPipelinesAwsAttributesSchema: z.ZodType = z
-  .object({
-    firstOnDemand: z.number().optional(),
-    availability: z.string().optional(),
-    zoneId: z.string().optional(),
-    instanceProfileArn: z.string().optional(),
-    spotBidPricePercent: z.number().optional(),
-    ebsVolumeType: z.string().optional(),
-    ebsVolumeCount: z.number().optional(),
-    ebsVolumeSize: z.number().optional(),
-    ebsVolumeIops: z.number().optional(),
-    ebsVolumeThroughput: z.number().optional(),
-  })
-  .transform(d => ({
-    first_on_demand: d.firstOnDemand,
-    availability: d.availability,
-    zone_id: d.zoneId,
-    instance_profile_arn: d.instanceProfileArn,
-    spot_bid_price_percent: d.spotBidPricePercent,
-    ebs_volume_type: d.ebsVolumeType,
-    ebs_volume_count: d.ebsVolumeCount,
-    ebs_volume_size: d.ebsVolumeSize,
-    ebs_volume_iops: d.ebsVolumeIops,
-    ebs_volume_throughput: d.ebsVolumeThroughput,
-  }));
-
-export const marshalPipelinesAzureAttributesSchema: z.ZodType = z
-  .object({
-    firstOnDemand: z.number().optional(),
-    availability: z.string().optional(),
-    spotBidMaxPrice: z.number().optional(),
-  })
-  .transform(d => ({
-    first_on_demand: d.firstOnDemand,
-    availability: d.availability,
-    spot_bid_max_price: d.spotBidMaxPrice,
-  }));
-
-export const marshalPipelinesClusterLogConfSchema: z.ZodType = z
-  .object({
-    storageInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dbfs'),
-          dbfs: z.lazy(() => marshalPipelinesDbfsStorageInfoSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
-  }));
-
-export const marshalPipelinesDbfsStorageInfoSchema: z.ZodType = z
-  .object({
-    destination: z.string().optional(),
-  })
-  .transform(d => ({
-    destination: d.destination,
-  }));
-
-export const marshalPipelinesEnvironmentSchema: z.ZodType = z
-  .object({
-    dependencies: z.array(z.string()).optional(),
-    environmentVersion: z.string().optional(),
-  })
-  .transform(d => ({
-    dependencies: d.dependencies,
-    environment_version: d.environmentVersion,
-  }));
-
-export const marshalPipelinesGcpAttributesSchema: z.ZodType = z
-  .object({
-    googleServiceAccount: z.string().optional(),
-    bootDiskSize: z.number().optional(),
-    availability: z.string().optional(),
-    zoneId: z.string().optional(),
-    localSsdCount: z.number().optional(),
-  })
-  .transform(d => ({
-    google_service_account: d.googleServiceAccount,
-    boot_disk_size: d.bootDiskSize,
-    availability: d.availability,
-    zone_id: d.zoneId,
-    local_ssd_count: d.localSsdCount,
-  }));
-
-export const marshalPipelinesInitScriptInfoSchema: z.ZodType = z
-  .object({
-    storageInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dbfs'),
-          dbfs: z.lazy(() => marshalPipelinesDbfsStorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('s3'),
-          s3: z.lazy(() => marshalPipelinesS3StorageInfoSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
-    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
-  }));
-
-export const marshalPipelinesJobRunAsSchema: z.ZodType = z
-  .object({
-    identity: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('servicePrincipalName'),
-          servicePrincipalName: z.string(),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
-    ...(d.identity?.$case === 'servicePrincipalName' && {
-      service_principal_name: d.identity.servicePrincipalName,
-    }),
-  }));
-
-export const marshalPipelinesMavenLibrarySchema: z.ZodType = z
-  .object({
-    coordinates: z.string().optional(),
-    repo: z.string().optional(),
-    exclusions: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    coordinates: d.coordinates,
-    repo: d.repo,
-    exclusions: d.exclusions,
-  }));
-
-export const marshalPipelinesS3StorageInfoSchema: z.ZodType = z
-  .object({
-    destination: z.string().optional(),
-    region: z.string().optional(),
-    endpoint: z.string().optional(),
-    enableEncryption: z.boolean().optional(),
-    encryptionType: z.string().optional(),
-    kmsKey: z.string().optional(),
-    cannedAcl: z.string().optional(),
-  })
-  .transform(d => ({
-    destination: d.destination,
-    region: d.region,
-    endpoint: d.endpoint,
-    enable_encryption: d.enableEncryption,
-    encryption_type: d.encryptionType,
-    kms_key: d.kmsKey,
-    canned_acl: d.cannedAcl,
-  }));
-
-export const marshalPostgresCatalogConfigSchema: z.ZodType = z
-  .object({
-    slotConfig: z.lazy(() => marshalPostgresSlotConfigSchema).optional(),
-  })
-  .transform(d => ({
-    slot_config: d.slotConfig,
-  }));
-
-export const marshalPostgresSlotConfigSchema: z.ZodType = z
-  .object({
-    slotName: z.string().optional(),
-    publicationName: z.string().optional(),
-  })
-  .transform(d => ({
-    slot_name: d.slotName,
-    publication_name: d.publicationName,
-  }));
-
-export const marshalReplaceWhereOverrideSchema: z.ZodType = z
-  .object({
-    flowName: z.string().optional(),
-    predicateOverride: z.string().optional(),
-  })
-  .transform(d => ({
-    flow_name: d.flowName,
-    predicate_override: d.predicateOverride,
-  }));
-
-export const marshalRestartWindowSchema: z.ZodType = z
-  .object({
-    startHour: z.number().optional(),
-    daysOfWeek: z.array(z.string()).optional(),
-    timeZoneId: z.string().optional(),
-  })
-  .transform(d => ({
-    start_hour: d.startHour,
-    days_of_week: d.daysOfWeek,
-    time_zone_id: d.timeZoneId,
-  }));
-
-export const marshalRewindDatasetSpecSchema: z.ZodType = z
-  .object({
-    identifier: z.string().optional(),
-    cascade: z.boolean().optional(),
-    resetCheckpoints: z.boolean().optional(),
-  })
-  .transform(d => ({
-    identifier: d.identifier,
-    cascade: d.cascade,
-    reset_checkpoints: d.resetCheckpoints,
-  }));
-
-export const marshalRewindSpecSchema: z.ZodType = z
-  .object({
-    rewindTimestamp: z.string().optional(),
-    dryRun: z.boolean().optional(),
-    datasets: z.array(z.lazy(() => marshalRewindDatasetSpecSchema)).optional(),
-  })
-  .transform(d => ({
-    rewind_timestamp: d.rewindTimestamp,
-    dry_run: d.dryRun,
-    datasets: d.datasets,
-  }));
-
-export const marshalSharepointOptionsSchema: z.ZodType = z
-  .object({
-    url: z.string().optional(),
-    entityType: z.string().optional(),
-    fileIngestionOptions: z
-      .lazy(() => marshalFileIngestionOptionsSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    url: d.url,
-    entity_type: d.entityType,
-    file_ingestion_options: d.fileIngestionOptions,
-  }));
-
-export const marshalSmartsheetOptionsSchema: z.ZodType = z
-  .object({
-    enforceSchema: z.boolean().optional(),
-  })
-  .transform(d => ({
-    enforce_schema: d.enforceSchema,
-  }));
-
-export const marshalSourceCatalogConfigSchema: z.ZodType = z
-  .object({
-    sourceCatalog: z.string().optional(),
-    options: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('postgres'),
-          postgres: z.lazy(() => marshalPostgresCatalogConfigSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    source_catalog: d.sourceCatalog,
-    ...(d.options?.$case === 'postgres' && {postgres: d.options.postgres}),
-  }));
-
-export const marshalSourceConfigSchema: z.ZodType = z
-  .object({
-    catalog: z.lazy(() => marshalSourceCatalogConfigSchema).optional(),
-    connectorConfig: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('googleAdsConfig'),
-          googleAdsConfig: z.lazy(() => marshalGoogleAdsConfigSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    catalog: d.catalog,
-    ...(d.connectorConfig?.$case === 'googleAdsConfig' && {
-      google_ads_config: d.connectorConfig.googleAdsConfig,
-    }),
-  }));
-
 export const marshalStartUpdateRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
@@ -5402,10 +6869,10 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     fullRefreshSelection: z.array(z.string()).optional(),
     resetCheckpointSelection: z.array(z.string()).optional(),
     validateOnly: z.boolean().optional(),
-    rewindSpec: z.lazy(() => marshalRewindSpecSchema).optional(),
+    rewindSpec: z.lazy(() => marshalCreateRewindSpecSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
     replaceWhereOverrides: z
-      .array(z.lazy(() => marshalReplaceWhereOverrideSchema))
+      .array(z.lazy(() => marshalCreateReplaceWhereOverrideSchema))
       .optional(),
   })
   .transform(d => ({
@@ -5427,51 +6894,4 @@ export const marshalStopPipelineRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
-  }));
-
-export const marshalTikTokAdsOptionsSchema: z.ZodType = z
-  .object({
-    lookbackWindowDays: z.number().optional(),
-    syncStartDate: z.string().optional(),
-    dimensions: z.array(z.string()).optional(),
-    metrics: z.array(z.string()).optional(),
-    reportType: z.string().optional(),
-    dataLevel: z.string().optional(),
-    queryLifetime: z.boolean().optional(),
-  })
-  .transform(d => ({
-    lookback_window_days: d.lookbackWindowDays,
-    sync_start_date: d.syncStartDate,
-    dimensions: d.dimensions,
-    metrics: d.metrics,
-    report_type: d.reportType,
-    data_level: d.dataLevel,
-    query_lifetime: d.queryLifetime,
-  }));
-
-export const marshalTransformerSchema: z.ZodType = z
-  .object({
-    format: z.string().optional(),
-    config: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('jsonOptions'),
-          jsonOptions: z.lazy(() => marshalJsonTransformerOptionsSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    format: d.format,
-    ...(d.config?.$case === 'jsonOptions' && {
-      json_options: d.config.jsonOptions,
-    }),
-  }));
-
-export const marshalZendeskSupportOptionsSchema: z.ZodType = z
-  .object({
-    startDate: z.string().optional(),
-  })
-  .transform(d => ({
-    start_date: d.startDate,
   }));

@@ -83,6 +83,60 @@ export interface CreateAzureKeyInfo {
   keyAccessConfiguration?: KeyAccessConfiguration | undefined;
 }
 
+export interface CreateCreateAwsKeyInfo {
+  /** The AWS KMS key's Amazon Resource Name (ARN). */
+  keyArn: string;
+  /** The AWS KMS key alias. */
+  keyAlias?: string | undefined;
+  /** The AWS KMS key region. */
+  keyRegion?: string | undefined;
+  /**
+   * This field applies only if the `use_cases` property includes `STORAGE`. If this is set to true or omitted, the key is also used to encrypt
+   * cluster EBS volumes. If you do not want to use this key for encrypting EBS volumes, set to false.
+   */
+  reuseKeyForClusterVolumes?: boolean | undefined;
+}
+
+export interface CreateCreateAzureKeyInfo {
+  /** The base URI of the KeyVault. */
+  keyVaultUri?: string | undefined;
+  /** The name of the key in KeyVault. */
+  keyName?: string | undefined;
+  /** The current key version. */
+  version?: string | undefined;
+  /** The tenant id where the KeyVault lives. */
+  tenantId?: string | undefined;
+  /**
+   * The Disk Encryption Set id that is used to represent the key info used for
+   * Managed Disk BYOK use case
+   */
+  diskEncryptionSetId?: string | undefined;
+  /**
+   * The structure to store key access credential
+   * This is set if the Managed Identity is being used to access the Azure Key Vault key.
+   */
+  keyAccessConfiguration?: CreateKeyAccessConfiguration | undefined;
+}
+
+export interface CreateCreateGcpKeyInfo {
+  /**
+   * Globally unique kms key resource id of the form
+   * projects/testProjectId/locations/us-east4/keyRings/gcpCmkKeyRing/cryptoKeys/cmk-eastus4
+   */
+  kmsKeyId: string;
+  /**
+   * Globally unique service account email that has access to the KMS key.
+   * The service account exists within the Databricks CP project.
+   */
+  gcpServiceAccount?: CreateGcpServiceAccount | undefined;
+  /**
+   * When true, <Databricks> will not use OAuth to grant the service account
+   * access to the KMS key. The customer is responsible for granting access
+   * manually.
+   */
+  manual?: boolean | undefined;
+}
+
 export interface CreateCustomerManagedKeyRequest {
   accountId?: string | undefined;
   /**
@@ -90,9 +144,9 @@ export interface CreateCustomerManagedKeyRequest {
    * azure_key_info must be set, matching the cloud of the account. --)
    */
   keyInfo?:
-    | {$case: 'awsKeyInfo'; awsKeyInfo: CreateAwsKeyInfo}
-    | {$case: 'gcpKeyInfo'; gcpKeyInfo: CreateGcpKeyInfo}
-    | {$case: 'azureKeyInfo'; azureKeyInfo: CreateAzureKeyInfo}
+    | {$case: 'awsKeyInfo'; awsKeyInfo: CreateCreateAwsKeyInfo}
+    | {$case: 'gcpKeyInfo'; gcpKeyInfo: CreateCreateGcpKeyInfo}
+    | {$case: 'azureKeyInfo'; azureKeyInfo: CreateCreateAzureKeyInfo}
     | undefined;
   /** The cases that the key can be used for. */
   useCases?: CmkUseCase[] | undefined;
@@ -115,6 +169,15 @@ export interface CreateGcpKeyInfo {
    * manually.
    */
   manual?: boolean | undefined;
+}
+
+export interface CreateGcpServiceAccount {
+  serviceAccountEmail?: string | undefined;
+}
+
+/** The credential ID that is used to access the key vault. */
+export interface CreateKeyAccessConfiguration {
+  credentialId?: string | undefined;
 }
 
 export interface CustomerManagedKey {
@@ -279,9 +342,9 @@ export const unmarshalKeyAccessConfigurationSchema: z.ZodType<KeyAccessConfigura
       credentialId: d.credential_id,
     }));
 
-export const marshalCreateAwsKeyInfoSchema: z.ZodType = z
+export const marshalCreateCreateAwsKeyInfoSchema: z.ZodType = z
   .object({
-    keyArn: z.string().optional(),
+    keyArn: z.string(),
     keyAlias: z.string().optional(),
     keyRegion: z.string().optional(),
     reuseKeyForClusterVolumes: z.boolean().optional(),
@@ -293,7 +356,7 @@ export const marshalCreateAwsKeyInfoSchema: z.ZodType = z
     reuse_key_for_cluster_volumes: d.reuseKeyForClusterVolumes,
   }));
 
-export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
+export const marshalCreateCreateAzureKeyInfoSchema: z.ZodType = z
   .object({
     keyVaultUri: z.string().optional(),
     keyName: z.string().optional(),
@@ -301,7 +364,7 @@ export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
     tenantId: z.string().optional(),
     diskEncryptionSetId: z.string().optional(),
     keyAccessConfiguration: z
-      .lazy(() => marshalKeyAccessConfigurationSchema)
+      .lazy(() => marshalCreateKeyAccessConfigurationSchema)
       .optional(),
   })
   .transform(d => ({
@@ -313,6 +376,20 @@ export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
     key_access_configuration: d.keyAccessConfiguration,
   }));
 
+export const marshalCreateCreateGcpKeyInfoSchema: z.ZodType = z
+  .object({
+    kmsKeyId: z.string(),
+    gcpServiceAccount: z
+      .lazy(() => marshalCreateGcpServiceAccountSchema)
+      .optional(),
+    manual: z.boolean().optional(),
+  })
+  .transform(d => ({
+    kms_key_id: d.kmsKeyId,
+    gcp_service_account: d.gcpServiceAccount,
+    manual: d.manual,
+  }));
+
 export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -320,15 +397,15 @@ export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('awsKeyInfo'),
-          awsKeyInfo: z.lazy(() => marshalCreateAwsKeyInfoSchema),
+          awsKeyInfo: z.lazy(() => marshalCreateCreateAwsKeyInfoSchema),
         }),
         z.object({
           $case: z.literal('gcpKeyInfo'),
-          gcpKeyInfo: z.lazy(() => marshalCreateGcpKeyInfoSchema),
+          gcpKeyInfo: z.lazy(() => marshalCreateCreateGcpKeyInfoSchema),
         }),
         z.object({
           $case: z.literal('azureKeyInfo'),
-          azureKeyInfo: z.lazy(() => marshalCreateAzureKeyInfoSchema),
+          azureKeyInfo: z.lazy(() => marshalCreateCreateAzureKeyInfoSchema),
         }),
       ])
       .optional(),
@@ -348,19 +425,7 @@ export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
     use_cases: d.useCases,
   }));
 
-export const marshalCreateGcpKeyInfoSchema: z.ZodType = z
-  .object({
-    kmsKeyId: z.string().optional(),
-    gcpServiceAccount: z.lazy(() => marshalGcpServiceAccountSchema).optional(),
-    manual: z.boolean().optional(),
-  })
-  .transform(d => ({
-    kms_key_id: d.kmsKeyId,
-    gcp_service_account: d.gcpServiceAccount,
-    manual: d.manual,
-  }));
-
-export const marshalGcpServiceAccountSchema: z.ZodType = z
+export const marshalCreateGcpServiceAccountSchema: z.ZodType = z
   .object({
     serviceAccountEmail: z.string().optional(),
   })
@@ -368,7 +433,7 @@ export const marshalGcpServiceAccountSchema: z.ZodType = z
     service_account_email: d.serviceAccountEmail,
   }));
 
-export const marshalKeyAccessConfigurationSchema: z.ZodType = z
+export const marshalCreateKeyAccessConfigurationSchema: z.ZodType = z
   .object({
     credentialId: z.string().optional(),
   })

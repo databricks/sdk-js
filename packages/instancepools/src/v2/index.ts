@@ -16,8 +16,16 @@ export {
 } from './model';
 
 export type {
+  CreateDiskSpec,
+  CreateDiskType,
+  CreateDockerBasicAuth,
+  CreateDockerImage,
+  CreateInstancePoolAwsAttributes,
+  CreateInstancePoolAzureAttributes,
+  CreateInstancePoolGcpAttributes,
   CreateInstancePoolRequest,
   CreateInstancePoolResponse,
+  CreateNodeTypeFlexibility,
   DeleteInstancePoolRequest,
   DeleteInstancePoolResponse,
   DiskSpec,

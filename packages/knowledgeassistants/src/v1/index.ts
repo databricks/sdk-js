@@ -9,8 +9,14 @@ export {KnowledgeAssistantsClient} from './client';
 export {KnowledgeAssistant_State, KnowledgeSource_State} from './model';
 
 export type {
+  CreateExample,
   CreateExampleRequest,
+  CreateFileTableSpec,
+  CreateFilesSpec,
+  CreateIndexSpec,
+  CreateKnowledgeAssistant,
   CreateKnowledgeAssistantRequest,
+  CreateKnowledgeSource,
   CreateKnowledgeSourceRequest,
   DeleteExampleRequest,
   DeleteKnowledgeAssistantRequest,
@@ -31,13 +37,19 @@ export type {
   ListKnowledgeSourcesRequest,
   ListKnowledgeSourcesResponse,
   SyncKnowledgeSourcesRequest,
+  UpdateExample,
   UpdateExampleRequest,
+  UpdateFileTableSpec,
+  UpdateFilesSpec,
+  UpdateIndexSpec,
+  UpdateKnowledgeAssistant,
   UpdateKnowledgeAssistantRequest,
+  UpdateKnowledgeSource,
   UpdateKnowledgeSourceRequest,
 } from './model';
 
 export {
-  exampleFieldMask,
-  knowledgeAssistantFieldMask,
-  knowledgeSourceFieldMask,
+  updateExampleFieldMask,
+  updateKnowledgeAssistantFieldMask,
+  updateKnowledgeSourceFieldMask,
 } from './model';

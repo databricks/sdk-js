@@ -800,8 +800,6 @@ export interface Branch {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the branch was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the branch configuration. */
-  spec?: BranchSpec | undefined;
   /** The current status of a Branch. */
   status?: BranchStatus | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
@@ -906,8 +904,6 @@ export interface Catalog {
   name?: string | undefined;
   /** System-generated unique identifier for the catalog. */
   uid?: string | undefined;
-  /** The desired state of the Catalog. */
-  spec?: Catalog_CatalogSpec | undefined;
   /** The observed state of the Catalog. */
   status?: Catalog_CatalogStatus | undefined;
   /** A timestamp indicating when the catalog was created. */
@@ -973,8 +969,54 @@ export interface Catalog_CatalogStatus {
   branch?: string | undefined;
 }
 
+/** The desired state of the Catalog. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Catalog_CreateCatalogSpec {
+  /**
+   * The name of the Postgres database inside the specified Lakebase project and branch to be associated with the UC catalog.
+   * This database must already exist, unless create_database_if_missing is set to true on creation.
+   *
+   * A database can only be registered with one UC catalog at a time.
+   * To re-register a database with a different catalog, the existing catalog must be deleted first.
+   *
+   * A child branch inherits the fact of parent's registration. This means the same-named database
+   * in a child branch cannot be registered with a second catalog
+   * while the parent's registration exists. To allow registering the database of a child branch,
+   * drop and recreate the database on the child branch.
+   * This removes the fact of parent's registration from this branch only.
+   *
+   * Doing Point In Time Restore (PITR) prior to the moment before the Postgres DB was registered
+   * in the Catalog drops the fact of registration of the database. So the user should avoid doing so.
+   */
+  postgresDatabase: string;
+  /**
+   * If set to true, the specified postgres_database is created on behalf of the calling user
+   * if it does not already exist. In this case, the calling user has a role created for
+   * them in Postgres if they do not already have one.
+   *
+   * Defaults to false, meaning that the request fails if the specified postgres_database does not already exist.
+   */
+  createDatabaseIfMissing?: boolean | undefined;
+  /**
+   * The resource path of the branch associated with the catalog.
+   *
+   * Format: projects/{project_id}/branches/{branch_id}.
+   */
+  branch?: string | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CatalogOperationMetadata {}
+
+export interface CreateBranch {
+  /**
+   * Output only. The full resource path of the branch.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the branch configuration. */
+  spec?: CreateBranchSpec | undefined;
+}
 
 export interface CreateBranchRequest {
   /**
@@ -989,9 +1031,68 @@ export interface CreateBranchRequest {
    */
   branchId?: string | undefined;
   /** The Branch to create. */
-  branch?: Branch | undefined;
+  branch?: CreateBranch | undefined;
   /** If true, update the branch if it already exists instead of returning an error. */
   replaceExisting?: boolean | undefined;
+}
+
+export interface CreateBranchSpec {
+  /**
+   * The name of the source branch from which this branch was created (data lineage for point-in-time recovery).
+   * If not specified, defaults to the project's default branch.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  sourceBranch?: string | undefined;
+  /** The Log Sequence Number (LSN) on the source branch from which this branch was created. */
+  sourceBranchLsn?: string | undefined;
+  /** The point in time on the source branch from which this branch was created. */
+  sourceBranchTime?: Temporal.Instant | undefined;
+  /** When set to true, protects the branch from deletion and reset. Associated compute endpoints and the project cannot be deleted while the branch is protected. */
+  isProtected?: boolean | undefined;
+  /**
+   * Expiration configuration for the branch. One of expire_time, ttl, or no_expiry must be provided.
+   * To disable expiration, set no_expiry to true.
+   *
+   * When updating this field, use "spec.expiration" in the update_mask.
+   */
+  expiration?:
+    | {
+        $case: 'expireTime';
+        /**
+         * Absolute expiration timestamp. When set, the branch will expire at this time.
+         * Mutually exclusive with `ttl` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | {
+        $case: 'ttl';
+        /**
+         * Relative time-to-live duration. When set, the branch will expire at creation_time + ttl.
+         * Mutually exclusive with `expire_time` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'noExpiry';
+        /**
+         * Explicitly disable expiration. When set to true, the branch will not expire.
+         * If set to false, the request is invalid; provide either ttl or expire_time instead.
+         * Mutually exclusive with `expire_time` and `ttl`. When updating, use `spec.expiration` in the update_mask.
+         */
+        noExpiry: boolean;
+      }
+    | undefined;
+}
+
+export interface CreateCatalog {
+  /**
+   * Output only. The full resource path of the catalog.
+   *
+   * Format: "catalogs/{catalog_id}".
+   */
+  name?: string | undefined;
+  /** The desired state of the Catalog. */
+  spec?: Catalog_CreateCatalogSpec | undefined;
 }
 
 export interface CreateCatalogRequest {
@@ -1000,7 +1101,18 @@ export interface CreateCatalogRequest {
    * It becomes the full resource name, for example "my_catalog" becomes "catalogs/my_catalog".
    */
   catalogId?: string | undefined;
-  catalog?: Catalog | undefined;
+  catalog?: CreateCatalog | undefined;
+}
+
+/**
+ * DataApi represents the Data API (PostgREST) configuration for a Database.
+ * At most one DataApi per database. Create enables Data API, Delete disables it.
+ */
+export interface CreateDataApi {
+  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
+  name?: string | undefined;
+  /** The desired Data API configuration. */
+  spec?: DataApi_CreateDataApiSpec | undefined;
 }
 
 /** Enable Data API for a database. */
@@ -1008,7 +1120,18 @@ export interface CreateDataApiRequest {
   /** Parent database: projects/{project_id}/branches/{branch_id}/databases/{database_id} */
   parent?: string | undefined;
   /** The Data API configuration to create. */
-  dataApi?: DataApi | undefined;
+  dataApi?: CreateDataApi | undefined;
+}
+
+/** Database represents a Postgres database within a Branch. */
+export interface CreateDatabase {
+  /**
+   * The resource name of the database.
+   * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   */
+  name?: string | undefined;
+  /** The desired state of the Database. */
+  spec?: Database_CreateDatabaseSpec | undefined;
 }
 
 export interface CreateDatabaseRequest {
@@ -1029,12 +1152,41 @@ export interface CreateDatabaseRequest {
    */
   databaseId?: string | undefined;
   /** The desired specification of a Database. */
-  database?: Database | undefined;
+  database?: CreateDatabase | undefined;
   /**
    * If true, update the database if it already exists instead of returning an
    * error.
    */
   replaceExisting?: boolean | undefined;
+}
+
+export interface CreateEndpoint {
+  /**
+   * Output only. The full resource path of the endpoint.
+   * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state. */
+  spec?: CreateEndpointSpec | undefined;
+}
+
+export interface CreateEndpointGroupSpec {
+  /**
+   * The minimum number of computes in the endpoint group. Currently, this must be equal to max. This must be greater
+   * than or equal to 1.
+   */
+  min: number;
+  /**
+   * The maximum number of computes in the endpoint group. Currently, this must be equal to min. Set to 1 for single
+   * compute endpoints, to disable HA. To manually suspend all computes in an endpoint group, set disabled to
+   * true on the EndpointSpec.
+   */
+  max: number;
+  /**
+   * Whether to allow read-only connections to read-write endpoints. Only relevant for read-write endpoints where
+   * size.max > 1.
+   */
+  enableReadableSecondaries?: boolean | undefined;
 }
 
 export interface CreateEndpointRequest {
@@ -1050,9 +1202,178 @@ export interface CreateEndpointRequest {
    */
   endpointId?: string | undefined;
   /** The Endpoint to create. */
-  endpoint?: Endpoint | undefined;
+  endpoint?: CreateEndpoint | undefined;
   /** If true, update the endpoint if it already exists instead of returning an error. */
   replaceExisting?: boolean | undefined;
+}
+
+/** A collection of settings for a compute endpoint. */
+export interface CreateEndpointSettings {
+  /** A raw representation of Postgres settings. */
+  pgSettings?: Record<string, string> | undefined;
+}
+
+export interface CreateEndpointSpec {
+  /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
+  endpointType: EndpointType;
+  /** The minimum number of Compute Units. Minimum value is 0.5. */
+  autoscalingLimitMinCu?: number | undefined;
+  /**
+   * The maximum number of Compute Units. The maximum value is 64.
+   * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
+   */
+  autoscalingLimitMaxCu?: number | undefined;
+  /**
+   * Whether to restrict connections to the compute endpoint.
+   * Enabling this option schedules a suspend compute operation.
+   * A disabled compute endpoint cannot be enabled by a connection or
+   * console action.
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Duration of inactivity after which the compute endpoint is automatically suspended. One of suspend_timeout_duration or no_suspension can be provided.
+   * When not specified default suspension behavior will be used (consult with documentation).
+   *
+   * When updating this field, use "spec.suspension" in the update_mask.
+   */
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the compute endpoint is automatically suspended.
+         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`. When updating, use `spec.suspension` in the update_mask.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.suspension` in the update_mask.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
+  settings?: CreateEndpointSettings | undefined;
+  /**
+   * Settings for optional HA configuration of the endpoint. If unspecified, the endpoint defaults
+   * to non HA settings, with a single compute backing the endpoint (and no readable secondaries
+   * for Read/Write endpoints).
+   */
+  group?: CreateEndpointGroupSpec | undefined;
+}
+
+/** Configuration for the initial default branch created during project creation. */
+export interface CreateInitialBranchSpec {
+  /** Whether the initial default branch should be protected from deletion. */
+  isProtected?: boolean | undefined;
+}
+
+/** Configuration for the initial Read/Write endpoint created during project creation. */
+export interface CreateInitialEndpointSpec {
+  /** Settings for HA configuration of the endpoint. */
+  group?: CreateEndpointGroupSpec | undefined;
+  /** The minimum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMinCu?: number | undefined;
+  /** The maximum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMaxCu?: number | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the initial endpoint is automatically suspended.
+         * If specified, should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
+}
+
+export interface CreateNewPipelineSpec {
+  /**
+   * UC catalog for the pipeline to store intermediate files (checkpoints, event logs etc).
+   * This needs to be a standard catalog where the user has permissions to create Delta tables.
+   */
+  storageCatalog?: string | undefined;
+  /**
+   * UC schema for the pipeline to store intermediate files (checkpoints, event logs etc).
+   * This needs to be in the standard catalog where the user has permissions to create Delta tables.
+   */
+  storageSchema?: string | undefined;
+  /** Budget policy to set on the newly created pipeline. */
+  budgetPolicyId?: string | undefined;
+}
+
+export interface CreateProject {
+  /**
+   * Output only. The full resource path of the project.
+   * Format: projects/{project_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings. */
+  spec?: CreateProjectSpec | undefined;
+  /**
+   * Configuration settings for the initial Read/Write endpoint created inside the initial branch for a newly
+   * created project. If omitted, the initial endpoint created will have default settings, without high availability
+   * configured. This field does not apply to any endpoints created after project creation. Use
+   * spec.default_endpoint_settings to configure default settings for endpoints created after project creation.
+   */
+  initialEndpointSpec?: CreateInitialEndpointSpec | undefined;
+  /**
+   * Configuration for the initial default branch created as part of project creation.
+   * Allows overriding branch protection. These settings only apply at creation time
+   * and do not affect resources created after project creation.
+   */
+  initialBranchSpec?: CreateInitialBranchSpec | undefined;
+}
+
+export interface CreateProjectCustomTag {
+  /** The key of the custom tag. */
+  key?: string | undefined;
+  /** The value of the custom tag. */
+  value?: string | undefined;
+}
+
+/** A collection of settings for a compute endpoint. */
+export interface CreateProjectDefaultEndpointSettings {
+  /** The minimum number of Compute Units. Minimum value is 0.5. */
+  autoscalingLimitMinCu?: number | undefined;
+  /** The maximum number of Compute Units. Minimum value is 0.5. */
+  autoscalingLimitMaxCu?: number | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the compute endpoint is automatically suspended.
+         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
+  /** A raw representation of Postgres settings. */
+  pgSettings?: Record<string, string> | undefined;
 }
 
 export interface CreateProjectRequest {
@@ -1063,7 +1384,62 @@ export interface CreateProjectRequest {
    */
   projectId?: string | undefined;
   /** The Project to create. */
-  project?: Project | undefined;
+  project?: CreateProject | undefined;
+}
+
+export interface CreateProjectSpec {
+  /** Human-readable project name. Length should be between 1 and 256 characters. */
+  displayName?: string | undefined;
+  /** The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values. */
+  pgVersion?: number | undefined;
+  /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days). */
+  historyRetentionDuration?: Temporal.Duration | undefined;
+  defaultEndpointSettings?: CreateProjectDefaultEndpointSettings | undefined;
+  /**
+   * The desired budget policy to associate with the project.
+   * See status.budget_policy_id for the policy that is actually applied to the project.
+   */
+  budgetPolicyId?: string | undefined;
+  /**
+   * Custom tags to associate with the project. Forwarded to LBM for billing and cost tracking.
+   * To update tags, provide the new tag list and include "spec.custom_tags" in the update_mask.
+   * To clear all tags, provide an empty list and include "spec.custom_tags" in the update_mask.
+   * To preserve existing tags, omit this field from the update_mask (or use wildcard "*" which auto-excludes empty tags).
+   */
+  customTags?: CreateProjectCustomTag[] | undefined;
+  /** Whether to enable PG native password login on all endpoints in this project. Defaults to false. */
+  enablePgNativeLogin?: boolean | undefined;
+  /**
+   * The full resource path for the default branch of the project
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  defaultBranch?: string | undefined;
+}
+
+export interface CreateRequestedClaims {
+  permissionSet?: RequestedClaims_PermissionSet | undefined;
+  resources?: CreateRequestedResource[] | undefined;
+}
+
+export interface CreateRequestedResource {
+  resourceName?:
+    | {
+        $case: 'tableName';
+        /** The full Unity Catalog table name. */
+        tableName: string;
+      }
+    | undefined;
+}
+
+/** Role represents a Postgres role within a Branch. */
+export interface CreateRole {
+  /**
+   * Output only. The full resource path of the role.
+   * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the role configuration, including identity type, authentication method, and role attributes. */
+  spec?: Role_CreateRoleSpec | undefined;
 }
 
 export interface CreateRoleRequest {
@@ -1084,7 +1460,7 @@ export interface CreateRoleRequest {
    */
   roleId?: string | undefined;
   /** The desired specification of a Role. */
-  role?: Role | undefined;
+  role?: CreateRole | undefined;
   /**
    * If true, update the role if it already exists instead of returning an
    * error.
@@ -1096,6 +1472,23 @@ export interface CreateRoleRequest {
    * memberships when using this field.
    */
   replaceExisting?: boolean | undefined;
+}
+
+export interface CreateSyncedTable {
+  /**
+   * Output only. The Full resource name of the synced table in Postgres
+   * where (catalog, schema, table) are the UC entity names.
+   *
+   * Format "synced_tables/{catalog}.{schema}.{table}"
+   *
+   * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
+   */
+  name?: string | undefined;
+  /**
+   * Configuration details of the synced table, such as the source table, scheduling policy, etc.
+   * This attribute is specified at creation time and most fields are returned as is on subsequent queries.
+   */
+  spec?: SyncedTable_CreateSyncedTableSpec | undefined;
 }
 
 /** Establish a synchronisation to the Postgres database for Reverse ETL for the source table selected from the Unity Catalog. */
@@ -1113,7 +1506,7 @@ export interface CreateSyncedTableRequest {
    * 2. Postgres table named "{table}" in schema "{schema}" in the connected Postgres database
    */
   syncedTableId?: string | undefined;
-  syncedTable?: SyncedTable | undefined;
+  syncedTable?: CreateSyncedTable | undefined;
 }
 
 /**
@@ -1132,10 +1525,50 @@ export interface DataApi {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the Data API configuration was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The desired Data API configuration. */
-  spec?: DataApi_DataApiSpec | undefined;
   /** The observed Data API state (read-only). */
   status?: DataApi_DataApiStatus | undefined;
+}
+
+/** Desired PostgREST configuration (input). */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DataApi_CreateDataApiSpec {
+  /**
+   * Enable aggregate functions (count, sum, avg, etc.) in Data API responses.
+   * Default: true.
+   */
+  dbAggregatesEnabled?: boolean | undefined;
+  /**
+   * Additional schemas to include in the PostgreSQL search path.
+   * Each entry must be a valid PostgreSQL schema name.
+   */
+  dbExtraSearchPath?: string[] | undefined;
+  /**
+   * Maximum number of rows returned in a single Data API response.
+   * Must be a positive integer.
+   */
+  dbMaxRows?: number | undefined;
+  /**
+   * Database schemas exposed through the Data API.
+   * Each entry must be a valid PostgreSQL schema name (1-63 chars, [a-zA-Z_][a-zA-Z0-9_$]*).
+   * Maximum 100 entries. Default: ["public"].
+   */
+  dbSchemas?: string[] | undefined;
+  /**
+   * JSON path to the role claim in JWT tokens (e.g., ".sub").
+   * Default: ".sub".
+   */
+  jwtRoleClaimKey?: string | undefined;
+  /** Maximum lifetime for cached JWT tokens. Zero duration disables caching. */
+  jwtCacheMaxLifetime?: Temporal.Duration | undefined;
+  /** OpenAPI documentation mode for the Data API endpoint. */
+  openapiMode?: OpenApiMode | undefined;
+  /**
+   * Allowed origins for CORS requests.
+   * Each entry should be a valid origin URL, or use "*" to allow all origins.
+   */
+  serverCorsAllowedOrigins?: string[] | undefined;
+  /** Enable the Server-Timing header in Data API responses. */
+  serverTimingEnabled?: boolean | undefined;
 }
 
 /** Desired PostgREST configuration (input). */
@@ -1207,6 +1640,48 @@ export interface DataApi_DataApiStatus {
   availableSchemas?: string[] | undefined;
 }
 
+/** Desired PostgREST configuration (input). */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DataApi_UpdateDataApiSpec {
+  /**
+   * Enable aggregate functions (count, sum, avg, etc.) in Data API responses.
+   * Default: true.
+   */
+  dbAggregatesEnabled?: boolean | undefined;
+  /**
+   * Additional schemas to include in the PostgreSQL search path.
+   * Each entry must be a valid PostgreSQL schema name.
+   */
+  dbExtraSearchPath?: string[] | undefined;
+  /**
+   * Maximum number of rows returned in a single Data API response.
+   * Must be a positive integer.
+   */
+  dbMaxRows?: number | undefined;
+  /**
+   * Database schemas exposed through the Data API.
+   * Each entry must be a valid PostgreSQL schema name (1-63 chars, [a-zA-Z_][a-zA-Z0-9_$]*).
+   * Maximum 100 entries. Default: ["public"].
+   */
+  dbSchemas?: string[] | undefined;
+  /**
+   * JSON path to the role claim in JWT tokens (e.g., ".sub").
+   * Default: ".sub".
+   */
+  jwtRoleClaimKey?: string | undefined;
+  /** Maximum lifetime for cached JWT tokens. Zero duration disables caching. */
+  jwtCacheMaxLifetime?: Temporal.Duration | undefined;
+  /** OpenAPI documentation mode for the Data API endpoint. */
+  openapiMode?: OpenApiMode | undefined;
+  /**
+   * Allowed origins for CORS requests.
+   * Each entry should be a valid origin URL, or use "*" to allow all origins.
+   */
+  serverCorsAllowedOrigins?: string[] | undefined;
+  /** Enable the Server-Timing header in Data API responses. */
+  serverTimingEnabled?: boolean | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DataApiOperationMetadata {}
 
@@ -1226,12 +1701,33 @@ export interface Database {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the database was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The desired state of the Database. */
-  spec?: Database_DatabaseSpec | undefined;
   /** The observed state of the Database. */
   status?: Database_DatabaseStatus | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
   databaseId?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Database_CreateDatabaseSpec {
+  /**
+   * The name of the role that owns the database.
+   * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   *
+   * To change the owner, pass valid existing Role name when updating the Database
+   *
+   * A database always has an owner.
+   */
+  role?: string | undefined;
+  /**
+   * The name of the Postgres database.
+   *
+   * This expects a valid Postgres identifier as specified in the link below.
+   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+   * Required when creating the Database.
+   *
+   * To rename, pass a valid postgres identifier when updating the Database.
+   */
+  postgresDatabase?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1268,6 +1764,29 @@ export interface Database_DatabaseStatus {
   postgresDatabase?: string | undefined;
   /** Part of the resource name. */
   databaseId?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Database_UpdateDatabaseSpec {
+  /**
+   * The name of the role that owns the database.
+   * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   *
+   * To change the owner, pass valid existing Role name when updating the Database
+   *
+   * A database always has an owner.
+   */
+  role?: string | undefined;
+  /**
+   * The name of the Postgres database.
+   *
+   * This expects a valid Postgres identifier as specified in the link below.
+   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+   * Required when creating the Database.
+   *
+   * To rename, pass a valid postgres identifier when updating the Database.
+   */
+  postgresDatabase?: string | undefined;
 }
 
 export interface DatabaseCredential {
@@ -1385,8 +1904,6 @@ export interface Endpoint {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the compute endpoint was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state. */
-  spec?: EndpointSpec | undefined;
   /** Current operational status of the compute endpoint. */
   status?: EndpointStatus | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
@@ -1539,12 +2056,40 @@ export interface EndpointStatus {
 
 export interface GenerateDatabaseCredentialRequest {
   /** The returned token will be scoped to UC tables with the specified permissions. */
-  claims?: RequestedClaims[] | undefined;
+  claims?: CreateRequestedClaims[] | undefined;
   /**
    * The endpoint resource name for which this credential will be generated.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: string | undefined;
+  /**
+   * <Databricks> workspace group name. When provided, credentials are generated
+   * with permissions scoped to this group.
+   */
+  groupName?: string | undefined;
+  /**
+   * Expiration information for the credential.
+   * Users can specify either expire_time or ttl.
+   * If unspecified, maximum allowed duration (1 hour) is used.
+   */
+  expiration?:
+    | {
+        $case: 'ttl';
+        /**
+         * The requested time-to-live for the generated credential token.
+         * Must be at least 300 seconds (5 minutes) and at most 3600 seconds (1 hour).
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'expireTime';
+        /**
+         * Timestamp in UTC of when this credential should expire.
+         * Must be at least 300 seconds (5 minutes) and at most 1 hour from the current time.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | undefined;
 }
 
 export interface GetBranchRequest {
@@ -1826,17 +2371,8 @@ export interface Project {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the project was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings. */
-  spec?: ProjectSpec | undefined;
   /** The current status of a Project. */
   status?: ProjectStatus | undefined;
-  /**
-   * Configuration settings for the initial Read/Write endpoint created inside the initial branch for a newly
-   * created project. If omitted, the initial endpoint created will have default settings, without high availability
-   * configured. This field does not apply to any endpoints created after project creation. Use
-   * spec.default_endpoint_settings to configure default settings for endpoints created after project creation.
-   */
-  initialEndpointSpec?: InitialEndpointSpec | undefined;
   /**
    * A timestamp indicating when the project was soft-deleted.
    * Empty if the project is not deleted, otherwise set to a timestamp in the past.
@@ -1847,12 +2383,6 @@ export interface Project {
    * Empty if the project is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
-  /**
-   * Configuration for the initial default branch created as part of project creation.
-   * Allows overriding branch protection. These settings only apply at creation time
-   * and do not affect resources created after project creation.
-   */
-  initialBranchSpec?: InitialBranchSpec | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
   projectId?: string | undefined;
 }
@@ -1988,8 +2518,6 @@ export interface Role {
   parent?: string | undefined;
   createTime?: Temporal.Instant | undefined;
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the role configuration, including identity type, authentication method, and role attributes. */
-  spec?: Role_RoleSpec | undefined;
   /** Current status of the role, including its identity type, authentication method, and role attributes. */
   status?: Role_RoleStatus | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
@@ -2007,6 +2535,75 @@ export interface Role_Attributes {
   createdb?: boolean | undefined;
   createrole?: boolean | undefined;
   bypassrls?: boolean | undefined;
+}
+
+/**
+ * Attributes that can be granted to a Postgres role. We are only implementing a subset for now, see xref:
+ * https://www.postgresql.org/docs/16/sql-createrole.html
+ * The values follow Postgres keyword naming e.g. CREATEDB, BYPASSRLS, etc. which is why they don't include typical
+ * underscores between words.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Role_CreateAttributes {
+  createdb?: boolean | undefined;
+  createrole?: boolean | undefined;
+  bypassrls?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Role_CreateRoleSpec {
+  /** An enum value for a standard role that this role is a member of. */
+  membershipRoles?: Role_MembershipRole[] | undefined;
+  /**
+   * The type of role.
+   * When specifying a managed-identity, the chosen role_id must be a valid:
+   *
+   * * application ID for SERVICE_PRINCIPAL
+   * * user email for USER
+   * * group name for GROUP
+   */
+  identityType?: Role_IdentityType | undefined;
+  /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
+  attributes?: Role_CreateAttributes | undefined;
+  /**
+   * Controls how the Postgres role authenticates when a client opens a database
+   * connection. Supported values:
+   *
+   * * LAKEBASE_OAUTH_V1: the role authenticates by presenting a Databricks
+   * OAuth access token derived from the backing managed identity (the
+   * <Databricks> user, service principal, or group named by the role's
+   * `postgres_role`). No static password exists for roles using this method.
+   * * PG_PASSWORD_SCRAM_SHA_256: the role authenticates with a Postgres
+   * password verified server-side using the SCRAM-SHA-256 mechanism.
+   * Lakebase generates a password for the role.
+   * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
+   * roles that exist only to own objects or to aggregate privileges that
+   * are then granted to other, loginable roles.
+   *
+   * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
+   * * For the managed identities, OAUTH is used.
+   * * For the regular postgres roles, authentication based on postgres passwords is used.
+   *
+   * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
+   * is the default auth method (group can login as well).
+   */
+  authMethod?: Role_AuthMethod | undefined;
+  /**
+   * The name of the Postgres role.
+   *
+   * This expects a valid Postgres identifier as specified in the link below.
+   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+   *
+   * Required when creating the Role.
+   *
+   * If you wish to create a Postgres Role backed by a managed <Databricks> identity, then postgres_role
+   * must be one of the following:
+   *
+   * 1. user email for IdentityType.USER
+   * 2. app ID for IdentityType.SERVICE_PRINCIPAL
+   * 2. group name for IdentityType.GROUP
+   */
+  postgresRole?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2080,6 +2677,75 @@ export interface Role_RoleStatus {
   roleId?: string | undefined;
 }
 
+/**
+ * Attributes that can be granted to a Postgres role. We are only implementing a subset for now, see xref:
+ * https://www.postgresql.org/docs/16/sql-createrole.html
+ * The values follow Postgres keyword naming e.g. CREATEDB, BYPASSRLS, etc. which is why they don't include typical
+ * underscores between words.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Role_UpdateAttributes {
+  createdb?: boolean | undefined;
+  createrole?: boolean | undefined;
+  bypassrls?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Role_UpdateRoleSpec {
+  /** An enum value for a standard role that this role is a member of. */
+  membershipRoles?: Role_MembershipRole[] | undefined;
+  /**
+   * The type of role.
+   * When specifying a managed-identity, the chosen role_id must be a valid:
+   *
+   * * application ID for SERVICE_PRINCIPAL
+   * * user email for USER
+   * * group name for GROUP
+   */
+  identityType?: Role_IdentityType | undefined;
+  /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
+  attributes?: Role_UpdateAttributes | undefined;
+  /**
+   * Controls how the Postgres role authenticates when a client opens a database
+   * connection. Supported values:
+   *
+   * * LAKEBASE_OAUTH_V1: the role authenticates by presenting a Databricks
+   * OAuth access token derived from the backing managed identity (the
+   * <Databricks> user, service principal, or group named by the role's
+   * `postgres_role`). No static password exists for roles using this method.
+   * * PG_PASSWORD_SCRAM_SHA_256: the role authenticates with a Postgres
+   * password verified server-side using the SCRAM-SHA-256 mechanism.
+   * Lakebase generates a password for the role.
+   * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
+   * roles that exist only to own objects or to aggregate privileges that
+   * are then granted to other, loginable roles.
+   *
+   * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
+   * * For the managed identities, OAUTH is used.
+   * * For the regular postgres roles, authentication based on postgres passwords is used.
+   *
+   * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
+   * is the default auth method (group can login as well).
+   */
+  authMethod?: Role_AuthMethod | undefined;
+  /**
+   * The name of the Postgres role.
+   *
+   * This expects a valid Postgres identifier as specified in the link below.
+   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+   *
+   * Required when creating the Role.
+   *
+   * If you wish to create a Postgres Role backed by a managed <Databricks> identity, then postgres_role
+   * must be one of the following:
+   *
+   * 1. user email for IdentityType.USER
+   * 2. app ID for IdentityType.SERVICE_PRINCIPAL
+   * 2. group name for IdentityType.GROUP
+   */
+  postgresRole?: string | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RoleOperationMetadata {}
 
@@ -2095,16 +2761,80 @@ export interface SyncedTable {
   name?: string | undefined;
   /** The Unity Catalog table ID for this synced table. */
   uid?: string | undefined;
-  /**
-   * Configuration details of the synced table, such as the source table, scheduling policy, etc.
-   * This attribute is specified at creation time and most fields are returned as is on subsequent queries.
-   */
-  spec?: SyncedTable_SyncedTableSpec | undefined;
   /** Synced Table data synchronization status. */
   status?: SyncedTable_SyncedTableStatus | undefined;
   createTime?: Temporal.Instant | undefined;
   /** The part of the name, chosen by the user when the resource was created. */
   syncedTableId?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SyncedTable_CreateSyncedTableSpec {
+  /**
+   * The Postgres database name where the synced table will be created in.
+   *
+   * If this synced table is created inside a Lakebase Catalog, this attribute can be omitted on creation and is inferred
+   * from the postgres_database associated with the Lakebase Catalog. If specified when inside a Lakebase Catalog, the value must match.
+   *
+   * A value must be specified when creating a synced table inside a Standard Catalog.
+   */
+  postgresDatabase?: string | undefined;
+  /**
+   * The full resource name the branch associated with the table.
+   *
+   * Format: "projects/{project_id}/branches/{branch_id}".
+   */
+  branch?: string | undefined;
+  /** Scheduling policy of the underlying pipeline. */
+  schedulingPolicy?:
+    | SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy
+    | undefined;
+  /**
+   * Three-part (catalog, schema, table) name of the source Delta table.
+   *
+   * For the corresponding destination table, use any of the two:
+   *
+   * * synced_table_id used at the creation of the SyncedTable
+   * * "name" consisting of "synced_tables/" prefix and the full name of the destination table.
+   */
+  sourceTableFullName?: string | undefined;
+  /** Primary Key columns to be used for data insert/update in the destination. */
+  primaryKeyColumns?: string[] | undefined;
+  /** Time series key to deduplicate (tie-break) rows with the same primary key. */
+  timeseriesKey?: string | undefined;
+  /**
+   * ID of an existing pipeline to bin-pack this synced table into.
+   * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
+   *
+   * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
+   */
+  existingPipelineId?: string | undefined;
+  /**
+   * If true, the synced table's logical database and schema resources in PG
+   * will be created if they do not already exist.
+   * The request will fail if this is false and the database/schema do not exist.
+   *
+   * Defaults to true if omitted.
+   */
+  createDatabaseObjectsIfMissing?: boolean | undefined;
+  /**
+   * Specification for creating a new pipeline.
+   * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
+   *
+   * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
+   */
+  newPipelineSpec?: CreateNewPipelineSpec | undefined;
+  /**
+   * When true, enables accelerated sync mode for the initial data load.
+   * This significantly improves performance for large tables.
+   * Requires workspace-level enablement through Lakebase Accelerated Sync preview.
+   */
+  acceleratedSync?: boolean | undefined;
+  /**
+   * Override the default Delta->PG type mapping for specific columns.
+   * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
+   */
+  typeOverrides?: SyncedTable_SyncedTableSpec_CreateTypeOverride[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2174,6 +2904,20 @@ export interface SyncedTable_SyncedTableSpec {
    * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
    */
   typeOverrides?: SyncedTable_SyncedTableSpec_TypeOverride[] | undefined;
+}
+
+/** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SyncedTable_SyncedTableSpec_CreateTypeOverride {
+  /** Name of the source column whose target PostgreSQL type should be overridden. */
+  columnName: string;
+  /** PostgreSQL-specific target type to use for the column. */
+  pgType: SyncedTable_SyncedTableSpec_PgSpecificType;
+  /**
+   * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
+   * (specifies the vector dimension, e.g., 1024).
+   */
+  size?: number | undefined;
 }
 
 /** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
@@ -2277,6 +3021,16 @@ export interface UndeleteProjectRequest {
   name?: string | undefined;
 }
 
+export interface UpdateBranch {
+  /**
+   * Output only. The full resource path of the branch.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the branch configuration. */
+  spec?: UpdateBranchSpec | undefined;
+}
+
 export interface UpdateBranchRequest {
   /**
    * The Branch to update.
@@ -2284,9 +3038,68 @@ export interface UpdateBranchRequest {
    * The branch's `name` field is used to identify the branch to update.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  branch?: Branch | undefined;
+  branch?: UpdateBranch | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: FieldMask<Branch> | undefined;
+  updateMask?: FieldMask<UpdateBranch> | undefined;
+}
+
+export interface UpdateBranchSpec {
+  /**
+   * The name of the source branch from which this branch was created (data lineage for point-in-time recovery).
+   * If not specified, defaults to the project's default branch.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  sourceBranch?: string | undefined;
+  /** The Log Sequence Number (LSN) on the source branch from which this branch was created. */
+  sourceBranchLsn?: string | undefined;
+  /** The point in time on the source branch from which this branch was created. */
+  sourceBranchTime?: Temporal.Instant | undefined;
+  /** When set to true, protects the branch from deletion and reset. Associated compute endpoints and the project cannot be deleted while the branch is protected. */
+  isProtected?: boolean | undefined;
+  /**
+   * Expiration configuration for the branch. One of expire_time, ttl, or no_expiry must be provided.
+   * To disable expiration, set no_expiry to true.
+   *
+   * When updating this field, use "spec.expiration" in the update_mask.
+   */
+  expiration?:
+    | {
+        $case: 'expireTime';
+        /**
+         * Absolute expiration timestamp. When set, the branch will expire at this time.
+         * Mutually exclusive with `ttl` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | {
+        $case: 'ttl';
+        /**
+         * Relative time-to-live duration. When set, the branch will expire at creation_time + ttl.
+         * Mutually exclusive with `expire_time` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'noExpiry';
+        /**
+         * Explicitly disable expiration. When set to true, the branch will not expire.
+         * If set to false, the request is invalid; provide either ttl or expire_time instead.
+         * Mutually exclusive with `expire_time` and `ttl`. When updating, use `spec.expiration` in the update_mask.
+         */
+        noExpiry: boolean;
+      }
+    | undefined;
+}
+
+/**
+ * DataApi represents the Data API (PostgREST) configuration for a Database.
+ * At most one DataApi per database. Create enables Data API, Delete disables it.
+ */
+export interface UpdateDataApi {
+  /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
+  name?: string | undefined;
+  /** The desired Data API configuration. */
+  spec?: DataApi_UpdateDataApiSpec | undefined;
 }
 
 /** Update Data API configuration for a database. */
@@ -2295,9 +3108,20 @@ export interface UpdateDataApiRequest {
    * The Data API configuration to update.
    * The data_api's `name` field identifies the resource.
    */
-  dataApi?: DataApi | undefined;
+  dataApi?: UpdateDataApi | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: FieldMask<DataApi> | undefined;
+  updateMask?: FieldMask<UpdateDataApi> | undefined;
+}
+
+/** Database represents a Postgres database within a Branch. */
+export interface UpdateDatabase {
+  /**
+   * The resource name of the database.
+   * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
+   */
+  name?: string | undefined;
+  /** The desired state of the Database. */
+  spec?: Database_UpdateDatabaseSpec | undefined;
 }
 
 export interface UpdateDatabaseRequest {
@@ -2307,9 +3131,38 @@ export interface UpdateDatabaseRequest {
    * The database's `name` field is used to identify the database to update.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
-  database?: Database | undefined;
+  database?: UpdateDatabase | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: FieldMask<Database> | undefined;
+  updateMask?: FieldMask<UpdateDatabase> | undefined;
+}
+
+export interface UpdateEndpoint {
+  /**
+   * Output only. The full resource path of the endpoint.
+   * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state. */
+  spec?: UpdateEndpointSpec | undefined;
+}
+
+export interface UpdateEndpointGroupSpec {
+  /**
+   * The minimum number of computes in the endpoint group. Currently, this must be equal to max. This must be greater
+   * than or equal to 1.
+   */
+  min?: number | undefined;
+  /**
+   * The maximum number of computes in the endpoint group. Currently, this must be equal to min. Set to 1 for single
+   * compute endpoints, to disable HA. To manually suspend all computes in an endpoint group, set disabled to
+   * true on the EndpointSpec.
+   */
+  max?: number | undefined;
+  /**
+   * Whether to allow read-only connections to read-write endpoints. Only relevant for read-write endpoints where
+   * size.max > 1.
+   */
+  enableReadableSecondaries?: boolean | undefined;
 }
 
 export interface UpdateEndpointRequest {
@@ -2319,9 +3172,163 @@ export interface UpdateEndpointRequest {
    * The endpoint's `name` field is used to identify the endpoint to update.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
-  endpoint?: Endpoint | undefined;
+  endpoint?: UpdateEndpoint | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: FieldMask<Endpoint> | undefined;
+  updateMask?: FieldMask<UpdateEndpoint> | undefined;
+}
+
+/** A collection of settings for a compute endpoint. */
+export interface UpdateEndpointSettings {
+  /** A raw representation of Postgres settings. */
+  pgSettings?: Record<string, string> | undefined;
+}
+
+export interface UpdateEndpointSpec {
+  /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
+  endpointType?: EndpointType | undefined;
+  /** The minimum number of Compute Units. Minimum value is 0.5. */
+  autoscalingLimitMinCu?: number | undefined;
+  /**
+   * The maximum number of Compute Units. The maximum value is 64.
+   * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
+   */
+  autoscalingLimitMaxCu?: number | undefined;
+  /**
+   * Whether to restrict connections to the compute endpoint.
+   * Enabling this option schedules a suspend compute operation.
+   * A disabled compute endpoint cannot be enabled by a connection or
+   * console action.
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Duration of inactivity after which the compute endpoint is automatically suspended. One of suspend_timeout_duration or no_suspension can be provided.
+   * When not specified default suspension behavior will be used (consult with documentation).
+   *
+   * When updating this field, use "spec.suspension" in the update_mask.
+   */
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the compute endpoint is automatically suspended.
+         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`. When updating, use `spec.suspension` in the update_mask.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.suspension` in the update_mask.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
+  settings?: UpdateEndpointSettings | undefined;
+  /**
+   * Settings for optional HA configuration of the endpoint. If unspecified, the endpoint defaults
+   * to non HA settings, with a single compute backing the endpoint (and no readable secondaries
+   * for Read/Write endpoints).
+   */
+  group?: UpdateEndpointGroupSpec | undefined;
+}
+
+/** Configuration for the initial default branch created during project creation. */
+export interface UpdateInitialBranchSpec {
+  /** Whether the initial default branch should be protected from deletion. */
+  isProtected?: boolean | undefined;
+}
+
+/** Configuration for the initial Read/Write endpoint created during project creation. */
+export interface UpdateInitialEndpointSpec {
+  /** Settings for HA configuration of the endpoint. */
+  group?: UpdateEndpointGroupSpec | undefined;
+  /** The minimum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMinCu?: number | undefined;
+  /** The maximum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMaxCu?: number | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the initial endpoint is automatically suspended.
+         * If specified, should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
+}
+
+export interface UpdateProject {
+  /**
+   * Output only. The full resource path of the project.
+   * Format: projects/{project_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings. */
+  spec?: UpdateProjectSpec | undefined;
+  /**
+   * Configuration settings for the initial Read/Write endpoint created inside the initial branch for a newly
+   * created project. If omitted, the initial endpoint created will have default settings, without high availability
+   * configured. This field does not apply to any endpoints created after project creation. Use
+   * spec.default_endpoint_settings to configure default settings for endpoints created after project creation.
+   */
+  initialEndpointSpec?: UpdateInitialEndpointSpec | undefined;
+  /**
+   * Configuration for the initial default branch created as part of project creation.
+   * Allows overriding branch protection. These settings only apply at creation time
+   * and do not affect resources created after project creation.
+   */
+  initialBranchSpec?: UpdateInitialBranchSpec | undefined;
+}
+
+export interface UpdateProjectCustomTag {
+  /** The key of the custom tag. */
+  key?: string | undefined;
+  /** The value of the custom tag. */
+  value?: string | undefined;
+}
+
+/** A collection of settings for a compute endpoint. */
+export interface UpdateProjectDefaultEndpointSettings {
+  /** The minimum number of Compute Units. Minimum value is 0.5. */
+  autoscalingLimitMinCu?: number | undefined;
+  /** The maximum number of Compute Units. Minimum value is 0.5. */
+  autoscalingLimitMaxCu?: number | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the compute endpoint is automatically suspended.
+         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
+  /** A raw representation of Postgres settings. */
+  pgSettings?: Record<string, string> | undefined;
 }
 
 export interface UpdateProjectRequest {
@@ -2331,9 +3338,49 @@ export interface UpdateProjectRequest {
    * The project's `name` field is used to identify the project to update.
    * Format: projects/{project_id}
    */
-  project?: Project | undefined;
+  project?: UpdateProject | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: FieldMask<Project> | undefined;
+  updateMask?: FieldMask<UpdateProject> | undefined;
+}
+
+export interface UpdateProjectSpec {
+  /** Human-readable project name. Length should be between 1 and 256 characters. */
+  displayName?: string | undefined;
+  /** The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values. */
+  pgVersion?: number | undefined;
+  /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days). */
+  historyRetentionDuration?: Temporal.Duration | undefined;
+  defaultEndpointSettings?: UpdateProjectDefaultEndpointSettings | undefined;
+  /**
+   * The desired budget policy to associate with the project.
+   * See status.budget_policy_id for the policy that is actually applied to the project.
+   */
+  budgetPolicyId?: string | undefined;
+  /**
+   * Custom tags to associate with the project. Forwarded to LBM for billing and cost tracking.
+   * To update tags, provide the new tag list and include "spec.custom_tags" in the update_mask.
+   * To clear all tags, provide an empty list and include "spec.custom_tags" in the update_mask.
+   * To preserve existing tags, omit this field from the update_mask (or use wildcard "*" which auto-excludes empty tags).
+   */
+  customTags?: UpdateProjectCustomTag[] | undefined;
+  /** Whether to enable PG native password login on all endpoints in this project. Defaults to false. */
+  enablePgNativeLogin?: boolean | undefined;
+  /**
+   * The full resource path for the default branch of the project
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  defaultBranch?: string | undefined;
+}
+
+/** Role represents a Postgres role within a Branch. */
+export interface UpdateRole {
+  /**
+   * Output only. The full resource path of the role.
+   * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   */
+  name?: string | undefined;
+  /** The spec contains the role configuration, including identity type, authentication method, and role attributes. */
+  spec?: Role_UpdateRoleSpec | undefined;
 }
 
 export interface UpdateRoleRequest {
@@ -2343,12 +3390,12 @@ export interface UpdateRoleRequest {
    * The role's `name` field is used to identify the role to update.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    */
-  role?: Role | undefined;
+  role?: UpdateRole | undefined;
   /**
    * The list of fields to update in Postgres Role.
    * If unspecified, all fields will be updated when possible.
    */
-  updateMask?: FieldMask<Role> | undefined;
+  updateMask?: FieldMask<UpdateRole> | undefined;
 }
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
@@ -2378,7 +3425,6 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalBranchSpecSchema).optional(),
     status: z.lazy(() => unmarshalBranchStatusSchema).optional(),
     branch_id: z.string().optional(),
   })
@@ -2388,47 +3434,12 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
     parent: d.parent,
     createTime: d.create_time,
     updateTime: d.update_time,
-    spec: d.spec,
     status: d.status,
     branchId: d.branch_id,
   }));
 
 export const unmarshalBranchOperationMetadataSchema: z.ZodType<BranchOperationMetadata> =
   z.object({});
-
-export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
-  .object({
-    source_branch: z.string().optional(),
-    source_branch_lsn: z.string().optional(),
-    source_branch_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    is_protected: z.boolean().optional(),
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    ttl: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    no_expiry: z.boolean().optional(),
-  })
-  .transform(d => ({
-    sourceBranch: d.source_branch,
-    sourceBranchLsn: d.source_branch_lsn,
-    sourceBranchTime: d.source_branch_time,
-    isProtected: d.is_protected,
-    expiration:
-      d.expire_time !== undefined
-        ? {$case: 'expireTime' as const, expireTime: d.expire_time}
-        : d.ttl !== undefined
-          ? {$case: 'ttl' as const, ttl: d.ttl}
-          : d.no_expiry !== undefined
-            ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
-            : undefined,
-  }));
 
 export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
   .object({
@@ -2484,7 +3495,6 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    spec: z.lazy(() => unmarshalCatalog_CatalogSpecSchema).optional(),
     status: z.lazy(() => unmarshalCatalog_CatalogStatusSchema).optional(),
     create_time: z
       .string()
@@ -2499,26 +3509,11 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
   .transform(d => ({
     name: d.name,
     uid: d.uid,
-    spec: d.spec,
     status: d.status,
     createTime: d.create_time,
     updateTime: d.update_time,
     catalogId: d.catalog_id,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalog_CatalogSpecSchema: z.ZodType<Catalog_CatalogSpec> =
-  z
-    .object({
-      postgres_database: z.string().optional(),
-      create_database_if_missing: z.boolean().optional(),
-      branch: z.string().optional(),
-    })
-    .transform(d => ({
-      postgresDatabase: d.postgres_database,
-      createDatabaseIfMissing: d.create_database_if_missing,
-      branch: d.branch,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStatus> =
@@ -2549,7 +3544,6 @@ export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalDataApi_DataApiSpecSchema).optional(),
     status: z.lazy(() => unmarshalDataApi_DataApiStatusSchema).optional(),
   })
   .transform(d => ({
@@ -2557,38 +3551,8 @@ export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
     parent: d.parent,
     createTime: d.create_time,
     updateTime: d.update_time,
-    spec: d.spec,
     status: d.status,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDataApi_DataApiSpecSchema: z.ZodType<DataApi_DataApiSpec> =
-  z
-    .object({
-      db_aggregates_enabled: z.boolean().optional(),
-      db_extra_search_path: z.array(z.string()).optional(),
-      db_max_rows: z.number().optional(),
-      db_schemas: z.array(z.string()).optional(),
-      jwt_role_claim_key: z.string().optional(),
-      jwt_cache_max_lifetime: z
-        .string()
-        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-        .optional(),
-      openapi_mode: z.string().optional(),
-      server_cors_allowed_origins: z.array(z.string()).optional(),
-      server_timing_enabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      dbAggregatesEnabled: d.db_aggregates_enabled,
-      dbExtraSearchPath: d.db_extra_search_path,
-      dbMaxRows: d.db_max_rows,
-      dbSchemas: d.db_schemas,
-      jwtRoleClaimKey: d.jwt_role_claim_key,
-      jwtCacheMaxLifetime: d.jwt_cache_max_lifetime,
-      openapiMode: d.openapi_mode,
-      serverCorsAllowedOrigins: d.server_cors_allowed_origins,
-      serverTimingEnabled: d.server_timing_enabled,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDataApi_DataApiStatusSchema: z.ZodType<DataApi_DataApiStatus> =
@@ -2638,7 +3602,6 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => unmarshalDatabase_DatabaseStatusSchema).optional(),
     database_id: z.string().optional(),
   })
@@ -2647,22 +3610,9 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
     parent: d.parent,
     createTime: d.create_time,
     updateTime: d.update_time,
-    spec: d.spec,
     status: d.status,
     databaseId: d.database_id,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDatabase_DatabaseSpecSchema: z.ZodType<Database_DatabaseSpec> =
-  z
-    .object({
-      role: z.string().optional(),
-      postgres_database: z.string().optional(),
-    })
-    .transform(d => ({
-      role: d.role,
-      postgresDatabase: d.postgres_database,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDatabase_DatabaseStatusSchema: z.ZodType<Database_DatabaseStatus> =
@@ -2725,7 +3675,6 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalEndpointSpecSchema).optional(),
     status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
     endpoint_id: z.string().optional(),
   })
@@ -2735,21 +3684,8 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     parent: d.parent,
     createTime: d.create_time,
     updateTime: d.update_time,
-    spec: d.spec,
     status: d.status,
     endpointId: d.endpoint_id,
-  }));
-
-export const unmarshalEndpointGroupSpecSchema: z.ZodType<EndpointGroupSpec> = z
-  .object({
-    min: z.number().optional(),
-    max: z.number().optional(),
-    enable_readable_secondaries: z.boolean().optional(),
-  })
-  .transform(d => ({
-    min: d.min,
-    max: d.max,
-    enableReadableSecondaries: d.enable_readable_secondaries,
   }));
 
 export const unmarshalEndpointGroupStatusSchema: z.ZodType<EndpointGroupStatus> =
@@ -2786,38 +3722,6 @@ export const unmarshalEndpointSettingsSchema: z.ZodType<EndpointSettings> = z
     pgSettings: d.pg_settings,
   }));
 
-export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
-  .object({
-    endpoint_type: z.string().optional(),
-    autoscaling_limit_min_cu: z.number().optional(),
-    autoscaling_limit_max_cu: z.number().optional(),
-    disabled: z.boolean().optional(),
-    suspend_timeout_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    no_suspension: z.boolean().optional(),
-    settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
-    group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
-  })
-  .transform(d => ({
-    endpointType: d.endpoint_type,
-    autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
-    autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
-    disabled: d.disabled,
-    suspension:
-      d.suspend_timeout_duration !== undefined
-        ? {
-            $case: 'suspendTimeoutDuration' as const,
-            suspendTimeoutDuration: d.suspend_timeout_duration,
-          }
-        : d.no_suspension !== undefined
-          ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
-          : undefined,
-    settings: d.settings,
-    group: d.group,
-  }));
-
 export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
     endpoint_type: z.string().optional(),
@@ -2848,41 +3752,6 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     group: d.group,
     endpointId: d.endpoint_id,
   }));
-
-export const unmarshalInitialBranchSpecSchema: z.ZodType<InitialBranchSpec> = z
-  .object({
-    is_protected: z.boolean().optional(),
-  })
-  .transform(d => ({
-    isProtected: d.is_protected,
-  }));
-
-export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
-  z
-    .object({
-      group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
-      autoscaling_limit_min_cu: z.number().optional(),
-      autoscaling_limit_max_cu: z.number().optional(),
-      suspend_timeout_duration: z
-        .string()
-        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-        .optional(),
-      no_suspension: z.boolean().optional(),
-    })
-    .transform(d => ({
-      group: d.group,
-      autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
-      autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
-      suspension:
-        d.suspend_timeout_duration !== undefined
-          ? {
-              $case: 'suspendTimeoutDuration' as const,
-              suspendTimeoutDuration: d.suspend_timeout_duration,
-            }
-          : d.no_suspension !== undefined
-            ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
-            : undefined,
-    }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
   z
@@ -2938,18 +3807,6 @@ export const unmarshalListRolesResponseSchema: z.ZodType<ListRolesResponse> = z
     nextPageToken: d.next_page_token,
   }));
 
-export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
-  .object({
-    storage_catalog: z.string().optional(),
-    storage_schema: z.string().optional(),
-    budget_policy_id: z.string().optional(),
-  })
-  .transform(d => ({
-    storageCatalog: d.storage_catalog,
-    storageSchema: d.storage_schema,
-    budgetPolicyId: d.budget_policy_id,
-  }));
-
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
   .object({
     name: z.string().optional(),
@@ -2982,11 +3839,7 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalProjectSpecSchema).optional(),
     status: z.lazy(() => unmarshalProjectStatusSchema).optional(),
-    initial_endpoint_spec: z
-      .lazy(() => unmarshalInitialEndpointSpecSchema)
-      .optional(),
     delete_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -2995,9 +3848,6 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    initial_branch_spec: z
-      .lazy(() => unmarshalInitialBranchSpecSchema)
-      .optional(),
     project_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3005,12 +3855,9 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     uid: d.uid,
     createTime: d.create_time,
     updateTime: d.update_time,
-    spec: d.spec,
     status: d.status,
-    initialEndpointSpec: d.initial_endpoint_spec,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
-    initialBranchSpec: d.initial_branch_spec,
     projectId: d.project_id,
   }));
 
@@ -3053,35 +3900,6 @@ export const unmarshalProjectDefaultEndpointSettingsSchema: z.ZodType<ProjectDef
 
 export const unmarshalProjectOperationMetadataSchema: z.ZodType<ProjectOperationMetadata> =
   z.object({});
-
-export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
-  .object({
-    display_name: z.string().optional(),
-    pg_version: z.number().optional(),
-    history_retention_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    default_endpoint_settings: z
-      .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
-    budget_policy_id: z.string().optional(),
-    custom_tags: z
-      .array(z.lazy(() => unmarshalProjectCustomTagSchema))
-      .optional(),
-    enable_pg_native_login: z.boolean().optional(),
-    default_branch: z.string().optional(),
-  })
-  .transform(d => ({
-    displayName: d.display_name,
-    pgVersion: d.pg_version,
-    historyRetentionDuration: d.history_retention_duration,
-    defaultEndpointSettings: d.default_endpoint_settings,
-    budgetPolicyId: d.budget_policy_id,
-    customTags: d.custom_tags,
-    enablePgNativeLogin: d.enable_pg_native_login,
-    defaultBranch: d.default_branch,
-  }));
 
 export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
   .object({
@@ -3143,7 +3961,6 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => unmarshalRole_RoleStatusSchema).optional(),
     role_id: z.string().optional(),
   })
@@ -3152,7 +3969,6 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
     parent: d.parent,
     createTime: d.create_time,
     updateTime: d.update_time,
-    spec: d.spec,
     status: d.status,
     roleId: d.role_id,
   }));
@@ -3168,23 +3984,6 @@ export const unmarshalRole_AttributesSchema: z.ZodType<Role_Attributes> = z
     createdb: d.createdb,
     createrole: d.createrole,
     bypassrls: d.bypassrls,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRole_RoleSpecSchema: z.ZodType<Role_RoleSpec> = z
-  .object({
-    membership_roles: z.array(z.string()).optional(),
-    identity_type: z.string().optional(),
-    attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
-    auth_method: z.string().optional(),
-    postgres_role: z.string().optional(),
-  })
-  .transform(d => ({
-    membershipRoles: d.membership_roles,
-    identityType: d.identity_type,
-    attributes: d.attributes,
-    authMethod: d.auth_method,
-    postgresRole: d.postgres_role,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3213,7 +4012,6 @@ export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    spec: z.lazy(() => unmarshalSyncedTable_SyncedTableSpecSchema).optional(),
     status: z
       .lazy(() => unmarshalSyncedTable_SyncedTableStatusSchema)
       .optional(),
@@ -3226,61 +4024,10 @@ export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
   .transform(d => ({
     name: d.name,
     uid: d.uid,
-    spec: d.spec,
     status: d.status,
     createTime: d.create_time,
     syncedTableId: d.synced_table_id,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_SyncedTableSpec> =
-  z
-    .object({
-      postgres_database: z.string().optional(),
-      branch: z.string().optional(),
-      scheduling_policy: z.string().optional(),
-      source_table_full_name: z.string().optional(),
-      primary_key_columns: z.array(z.string()).optional(),
-      timeseries_key: z.string().optional(),
-      existing_pipeline_id: z.string().optional(),
-      create_database_objects_if_missing: z.boolean().optional(),
-      new_pipeline_spec: z
-        .lazy(() => unmarshalNewPipelineSpecSchema)
-        .optional(),
-      accelerated_sync: z.boolean().optional(),
-      type_overrides: z
-        .array(
-          z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      postgresDatabase: d.postgres_database,
-      branch: d.branch,
-      schedulingPolicy: d.scheduling_policy,
-      sourceTableFullName: d.source_table_full_name,
-      primaryKeyColumns: d.primary_key_columns,
-      timeseriesKey: d.timeseries_key,
-      existingPipelineId: d.existing_pipeline_id,
-      createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
-      newPipelineSpec: d.new_pipeline_spec,
-      acceleratedSync: d.accelerated_sync,
-      typeOverrides: d.type_overrides,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType<SyncedTable_SyncedTableSpec_TypeOverride> =
-  z
-    .object({
-      column_name: z.string().optional(),
-      pg_type: z.string().optional(),
-      size: z.number().optional(),
-    })
-    .transform(d => ({
-      columnName: d.column_name,
-      pgType: d.pg_type,
-      size: d.size,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable_SyncedTableStatus> =
@@ -3374,35 +4121,30 @@ export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> 
           : undefined,
     }));
 
-export const marshalBranchSchema: z.ZodType = z
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCatalog_CreateCatalogSpecSchema: z.ZodType = z
+  .object({
+    postgresDatabase: z.string(),
+    createDatabaseIfMissing: z.boolean().optional(),
+    branch: z.string().optional(),
+  })
+  .transform(d => ({
+    postgres_database: d.postgresDatabase,
+    create_database_if_missing: d.createDatabaseIfMissing,
+    branch: d.branch,
+  }));
+
+export const marshalCreateBranchSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    uid: z.string().optional(),
-    parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    spec: z.lazy(() => marshalBranchSpecSchema).optional(),
-    status: z.lazy(() => marshalBranchStatusSchema).optional(),
-    branchId: z.string().optional(),
+    spec: z.lazy(() => marshalCreateBranchSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
-    uid: d.uid,
-    parent: d.parent,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     spec: d.spec,
-    status: d.status,
-    branch_id: d.branchId,
   }));
 
-export const marshalBranchSpecSchema: z.ZodType = z
+export const marshalCreateBranchSpecSchema: z.ZodType = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
@@ -3443,284 +4185,50 @@ export const marshalBranchSpecSchema: z.ZodType = z
     }),
   }));
 
-export const marshalBranchStatusSchema: z.ZodType = z
-  .object({
-    sourceBranch: z.string().optional(),
-    sourceBranchLsn: z.string().optional(),
-    sourceBranchTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    default: z.boolean().optional(),
-    isProtected: z.boolean().optional(),
-    currentState: z.string().optional(),
-    pendingState: z.string().optional(),
-    stateChangeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    logicalSizeBytes: z.bigint().optional(),
-    expireTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    branchId: z.string().optional(),
-    deleteTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    purgeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-  })
-  .transform(d => ({
-    source_branch: d.sourceBranch,
-    source_branch_lsn: d.sourceBranchLsn,
-    source_branch_time: d.sourceBranchTime,
-    default: d.default,
-    is_protected: d.isProtected,
-    current_state: d.currentState,
-    pending_state: d.pendingState,
-    state_change_time: d.stateChangeTime,
-    logical_size_bytes: d.logicalSizeBytes,
-    expire_time: d.expireTime,
-    branch_id: d.branchId,
-    delete_time: d.deleteTime,
-    purge_time: d.purgeTime,
-  }));
-
-export const marshalCatalogSchema: z.ZodType = z
+export const marshalCreateCatalogSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    uid: z.string().optional(),
-    spec: z.lazy(() => marshalCatalog_CatalogSpecSchema).optional(),
-    status: z.lazy(() => marshalCatalog_CatalogStatusSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    catalogId: z.string().optional(),
+    spec: z.lazy(() => marshalCatalog_CreateCatalogSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
-    uid: d.uid,
     spec: d.spec,
-    status: d.status,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    catalog_id: d.catalogId,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCatalog_CatalogSpecSchema: z.ZodType = z
-  .object({
-    postgresDatabase: z.string().optional(),
-    createDatabaseIfMissing: z.boolean().optional(),
-    branch: z.string().optional(),
-  })
-  .transform(d => ({
-    postgres_database: d.postgresDatabase,
-    create_database_if_missing: d.createDatabaseIfMissing,
-    branch: d.branch,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
-  .object({
-    postgresDatabase: z.string().optional(),
-    project: z.string().optional(),
-    branch: z.string().optional(),
-  })
-  .transform(d => ({
-    postgres_database: d.postgresDatabase,
-    project: d.project,
-    branch: d.branch,
-  }));
-
-export const marshalDataApiSchema: z.ZodType = z
+export const marshalCreateDataApiSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    spec: z.lazy(() => marshalDataApi_DataApiSpecSchema).optional(),
-    status: z.lazy(() => marshalDataApi_DataApiStatusSchema).optional(),
+    spec: z.lazy(() => marshalDataApi_CreateDataApiSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
-    parent: d.parent,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     spec: d.spec,
-    status: d.status,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDataApi_DataApiSpecSchema: z.ZodType = z
-  .object({
-    dbAggregatesEnabled: z.boolean().optional(),
-    dbExtraSearchPath: z.array(z.string()).optional(),
-    dbMaxRows: z.number().optional(),
-    dbSchemas: z.array(z.string()).optional(),
-    jwtRoleClaimKey: z.string().optional(),
-    jwtCacheMaxLifetime: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    openapiMode: z.string().optional(),
-    serverCorsAllowedOrigins: z.array(z.string()).optional(),
-    serverTimingEnabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    db_aggregates_enabled: d.dbAggregatesEnabled,
-    db_extra_search_path: d.dbExtraSearchPath,
-    db_max_rows: d.dbMaxRows,
-    db_schemas: d.dbSchemas,
-    jwt_role_claim_key: d.jwtRoleClaimKey,
-    jwt_cache_max_lifetime: d.jwtCacheMaxLifetime,
-    openapi_mode: d.openapiMode,
-    server_cors_allowed_origins: d.serverCorsAllowedOrigins,
-    server_timing_enabled: d.serverTimingEnabled,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDataApi_DataApiStatusSchema: z.ZodType = z
-  .object({
-    dbAggregatesEnabled: z.boolean().optional(),
-    dbExtraSearchPath: z.array(z.string()).optional(),
-    dbMaxRows: z.number().optional(),
-    dbSchemas: z.array(z.string()).optional(),
-    jwtRoleClaimKey: z.string().optional(),
-    jwtCacheMaxLifetime: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    openapiMode: z.string().optional(),
-    serverCorsAllowedOrigins: z.array(z.string()).optional(),
-    serverTimingEnabled: z.boolean().optional(),
-    url: z.string().optional(),
-    availableSchemas: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    db_aggregates_enabled: d.dbAggregatesEnabled,
-    db_extra_search_path: d.dbExtraSearchPath,
-    db_max_rows: d.dbMaxRows,
-    db_schemas: d.dbSchemas,
-    jwt_role_claim_key: d.jwtRoleClaimKey,
-    jwt_cache_max_lifetime: d.jwtCacheMaxLifetime,
-    openapi_mode: d.openapiMode,
-    server_cors_allowed_origins: d.serverCorsAllowedOrigins,
-    server_timing_enabled: d.serverTimingEnabled,
-    url: d.url,
-    available_schemas: d.availableSchemas,
-  }));
-
-export const marshalDatabaseSchema: z.ZodType = z
+export const marshalCreateDatabaseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    spec: z.lazy(() => marshalDatabase_DatabaseSpecSchema).optional(),
-    status: z.lazy(() => marshalDatabase_DatabaseStatusSchema).optional(),
-    databaseId: z.string().optional(),
+    spec: z.lazy(() => marshalDatabase_CreateDatabaseSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
-    parent: d.parent,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     spec: d.spec,
-    status: d.status,
-    database_id: d.databaseId,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDatabase_DatabaseSpecSchema: z.ZodType = z
-  .object({
-    role: z.string().optional(),
-    postgresDatabase: z.string().optional(),
-  })
-  .transform(d => ({
-    role: d.role,
-    postgres_database: d.postgresDatabase,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
-  .object({
-    role: z.string().optional(),
-    postgresDatabase: z.string().optional(),
-    databaseId: z.string().optional(),
-  })
-  .transform(d => ({
-    role: d.role,
-    postgres_database: d.postgresDatabase,
-    database_id: d.databaseId,
-  }));
-
-export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
-  .object({
-    deltaCommitVersion: z.bigint().optional(),
-    deltaCommitTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-  })
-  .transform(d => ({
-    delta_commit_version: d.deltaCommitVersion,
-    delta_commit_time: d.deltaCommitTime,
-  }));
-
-export const marshalEndpointSchema: z.ZodType = z
+export const marshalCreateEndpointSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    uid: z.string().optional(),
-    parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    spec: z.lazy(() => marshalEndpointSpecSchema).optional(),
-    status: z.lazy(() => marshalEndpointStatusSchema).optional(),
-    endpointId: z.string().optional(),
+    spec: z.lazy(() => marshalCreateEndpointSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
-    uid: d.uid,
-    parent: d.parent,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     spec: d.spec,
-    status: d.status,
-    endpoint_id: d.endpointId,
   }));
 
-export const marshalEndpointGroupSpecSchema: z.ZodType = z
+export const marshalCreateEndpointGroupSpecSchema: z.ZodType = z
   .object({
-    min: z.number().optional(),
-    max: z.number().optional(),
+    min: z.number(),
+    max: z.number(),
     enableReadableSecondaries: z.boolean().optional(),
   })
   .transform(d => ({
@@ -3729,29 +4237,7 @@ export const marshalEndpointGroupSpecSchema: z.ZodType = z
     enable_readable_secondaries: d.enableReadableSecondaries,
   }));
 
-export const marshalEndpointGroupStatusSchema: z.ZodType = z
-  .object({
-    min: z.number().optional(),
-    max: z.number().optional(),
-    enableReadableSecondaries: z.boolean().optional(),
-  })
-  .transform(d => ({
-    min: d.min,
-    max: d.max,
-    enable_readable_secondaries: d.enableReadableSecondaries,
-  }));
-
-export const marshalEndpointHostsSchema: z.ZodType = z
-  .object({
-    host: z.string().optional(),
-    readOnlyHost: z.string().optional(),
-  })
-  .transform(d => ({
-    host: d.host,
-    read_only_host: d.readOnlyHost,
-  }));
-
-export const marshalEndpointSettingsSchema: z.ZodType = z
+export const marshalCreateEndpointSettingsSchema: z.ZodType = z
   .object({
     pgSettings: z.record(z.string(), z.string()).optional(),
   })
@@ -3759,9 +4245,9 @@ export const marshalEndpointSettingsSchema: z.ZodType = z
     pg_settings: d.pgSettings,
   }));
 
-export const marshalEndpointSpecSchema: z.ZodType = z
+export const marshalCreateEndpointSpecSchema: z.ZodType = z
   .object({
-    endpointType: z.string().optional(),
+    endpointType: z.string(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     disabled: z.boolean().optional(),
@@ -3778,8 +4264,8 @@ export const marshalEndpointSpecSchema: z.ZodType = z
         z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
       ])
       .optional(),
-    settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
-    group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
+    settings: z.lazy(() => marshalCreateEndpointSettingsSchema).optional(),
+    group: z.lazy(() => marshalCreateEndpointGroupSpecSchema).optional(),
   })
   .transform(d => ({
     endpoint_type: d.endpointType,
@@ -3796,48 +4282,7 @@ export const marshalEndpointSpecSchema: z.ZodType = z
     group: d.group,
   }));
 
-export const marshalEndpointStatusSchema: z.ZodType = z
-  .object({
-    endpointType: z.string().optional(),
-    hosts: z.lazy(() => marshalEndpointHostsSchema).optional(),
-    autoscalingLimitMinCu: z.number().optional(),
-    autoscalingLimitMaxCu: z.number().optional(),
-    currentState: z.string().optional(),
-    pendingState: z.string().optional(),
-    disabled: z.boolean().optional(),
-    suspendTimeoutDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
-    group: z.lazy(() => marshalEndpointGroupStatusSchema).optional(),
-    endpointId: z.string().optional(),
-  })
-  .transform(d => ({
-    endpoint_type: d.endpointType,
-    hosts: d.hosts,
-    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
-    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
-    current_state: d.currentState,
-    pending_state: d.pendingState,
-    disabled: d.disabled,
-    suspend_timeout_duration: d.suspendTimeoutDuration,
-    settings: d.settings,
-    group: d.group,
-    endpoint_id: d.endpointId,
-  }));
-
-export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
-  .object({
-    claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
-    endpoint: z.string().optional(),
-  })
-  .transform(d => ({
-    claims: d.claims,
-    endpoint: d.endpoint,
-  }));
-
-export const marshalInitialBranchSpecSchema: z.ZodType = z
+export const marshalCreateInitialBranchSpecSchema: z.ZodType = z
   .object({
     isProtected: z.boolean().optional(),
   })
@@ -3845,9 +4290,9 @@ export const marshalInitialBranchSpecSchema: z.ZodType = z
     is_protected: d.isProtected,
   }));
 
-export const marshalInitialEndpointSpecSchema: z.ZodType = z
+export const marshalCreateInitialEndpointSpecSchema: z.ZodType = z
   .object({
-    group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
+    group: z.lazy(() => marshalCreateEndpointGroupSpecSchema).optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     suspension: z
@@ -3876,7 +4321,7 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     }),
   }));
 
-export const marshalNewPipelineSpecSchema: z.ZodType = z
+export const marshalCreateNewPipelineSpecSchema: z.ZodType = z
   .object({
     storageCatalog: z.string().optional(),
     storageSchema: z.string().optional(),
@@ -3888,49 +4333,25 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
   }));
 
-export const marshalProjectSchema: z.ZodType = z
+export const marshalCreateProjectSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    uid: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    spec: z.lazy(() => marshalProjectSpecSchema).optional(),
-    status: z.lazy(() => marshalProjectStatusSchema).optional(),
+    spec: z.lazy(() => marshalCreateProjectSpecSchema).optional(),
     initialEndpointSpec: z
-      .lazy(() => marshalInitialEndpointSpecSchema)
+      .lazy(() => marshalCreateInitialEndpointSpecSchema)
       .optional(),
-    deleteTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    initialBranchSpec: z
+      .lazy(() => marshalCreateInitialBranchSpecSchema)
       .optional(),
-    purgeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    initialBranchSpec: z.lazy(() => marshalInitialBranchSpecSchema).optional(),
-    projectId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    uid: d.uid,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     spec: d.spec,
-    status: d.status,
     initial_endpoint_spec: d.initialEndpointSpec,
-    delete_time: d.deleteTime,
-    purge_time: d.purgeTime,
     initial_branch_spec: d.initialBranchSpec,
-    project_id: d.projectId,
   }));
 
-export const marshalProjectCustomTagSchema: z.ZodType = z
+export const marshalCreateProjectCustomTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -3940,7 +4361,7 @@ export const marshalProjectCustomTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
+export const marshalCreateProjectDefaultEndpointSettingsSchema: z.ZodType = z
   .object({
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
@@ -3971,7 +4392,7 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
     pg_settings: d.pgSettings,
   }));
 
-export const marshalProjectSpecSchema: z.ZodType = z
+export const marshalCreateProjectSpecSchema: z.ZodType = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
@@ -3980,10 +4401,12 @@ export const marshalProjectSpecSchema: z.ZodType = z
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
       .optional(),
     defaultEndpointSettings: z
-      .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
+      .lazy(() => marshalCreateProjectDefaultEndpointSettingsSchema)
       .optional(),
     budgetPolicyId: z.string().optional(),
-    customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
+    customTags: z
+      .array(z.lazy(() => marshalCreateProjectCustomTagSchema))
+      .optional(),
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
   })
@@ -3998,57 +4421,19 @@ export const marshalProjectSpecSchema: z.ZodType = z
     default_branch: d.defaultBranch,
   }));
 
-export const marshalProjectStatusSchema: z.ZodType = z
-  .object({
-    displayName: z.string().optional(),
-    pgVersion: z.number().optional(),
-    historyRetentionDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    defaultEndpointSettings: z
-      .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
-    branchLogicalSizeLimitBytes: z.bigint().optional(),
-    syntheticStorageSizeBytes: z.bigint().optional(),
-    computeLastActiveTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    budgetPolicyId: z.string().optional(),
-    customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
-    owner: z.string().optional(),
-    enablePgNativeLogin: z.boolean().optional(),
-    defaultBranch: z.string().optional(),
-    projectId: z.string().optional(),
-  })
-  .transform(d => ({
-    display_name: d.displayName,
-    pg_version: d.pgVersion,
-    history_retention_duration: d.historyRetentionDuration,
-    default_endpoint_settings: d.defaultEndpointSettings,
-    branch_logical_size_limit_bytes: d.branchLogicalSizeLimitBytes,
-    synthetic_storage_size_bytes: d.syntheticStorageSizeBytes,
-    compute_last_active_time: d.computeLastActiveTime,
-    budget_policy_id: d.budgetPolicyId,
-    custom_tags: d.customTags,
-    owner: d.owner,
-    enable_pg_native_login: d.enablePgNativeLogin,
-    default_branch: d.defaultBranch,
-    project_id: d.projectId,
-  }));
-
-export const marshalRequestedClaimsSchema: z.ZodType = z
+export const marshalCreateRequestedClaimsSchema: z.ZodType = z
   .object({
     permissionSet: z.string().optional(),
-    resources: z.array(z.lazy(() => marshalRequestedResourceSchema)).optional(),
+    resources: z
+      .array(z.lazy(() => marshalCreateRequestedResourceSchema))
+      .optional(),
   })
   .transform(d => ({
     permission_set: d.permissionSet,
     resources: d.resources,
   }));
 
-export const marshalRequestedResourceSchema: z.ZodType = z
+export const marshalCreateRequestedResourceSchema: z.ZodType = z
   .object({
     resourceName: z
       .discriminatedUnion('$case', [
@@ -4062,34 +4447,142 @@ export const marshalRequestedResourceSchema: z.ZodType = z
     }),
   }));
 
-export const marshalRoleSchema: z.ZodType = z
+export const marshalCreateRoleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    spec: z.lazy(() => marshalRole_RoleSpecSchema).optional(),
-    status: z.lazy(() => marshalRole_RoleStatusSchema).optional(),
-    roleId: z.string().optional(),
+    spec: z.lazy(() => marshalRole_CreateRoleSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
-    parent: d.parent,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     spec: d.spec,
-    status: d.status,
-    role_id: d.roleId,
+  }));
+
+export const marshalCreateSyncedTableSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z
+      .lazy(() => marshalSyncedTable_CreateSyncedTableSpecSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRole_AttributesSchema: z.ZodType = z
+export const marshalDataApi_CreateDataApiSpecSchema: z.ZodType = z
+  .object({
+    dbAggregatesEnabled: z.boolean().optional(),
+    dbExtraSearchPath: z.array(z.string()).optional(),
+    dbMaxRows: z.number().optional(),
+    dbSchemas: z.array(z.string()).optional(),
+    jwtRoleClaimKey: z.string().optional(),
+    jwtCacheMaxLifetime: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    openapiMode: z.string().optional(),
+    serverCorsAllowedOrigins: z.array(z.string()).optional(),
+    serverTimingEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    db_aggregates_enabled: d.dbAggregatesEnabled,
+    db_extra_search_path: d.dbExtraSearchPath,
+    db_max_rows: d.dbMaxRows,
+    db_schemas: d.dbSchemas,
+    jwt_role_claim_key: d.jwtRoleClaimKey,
+    jwt_cache_max_lifetime: d.jwtCacheMaxLifetime,
+    openapi_mode: d.openapiMode,
+    server_cors_allowed_origins: d.serverCorsAllowedOrigins,
+    server_timing_enabled: d.serverTimingEnabled,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDataApi_UpdateDataApiSpecSchema: z.ZodType = z
+  .object({
+    dbAggregatesEnabled: z.boolean().optional(),
+    dbExtraSearchPath: z.array(z.string()).optional(),
+    dbMaxRows: z.number().optional(),
+    dbSchemas: z.array(z.string()).optional(),
+    jwtRoleClaimKey: z.string().optional(),
+    jwtCacheMaxLifetime: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    openapiMode: z.string().optional(),
+    serverCorsAllowedOrigins: z.array(z.string()).optional(),
+    serverTimingEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    db_aggregates_enabled: d.dbAggregatesEnabled,
+    db_extra_search_path: d.dbExtraSearchPath,
+    db_max_rows: d.dbMaxRows,
+    db_schemas: d.dbSchemas,
+    jwt_role_claim_key: d.jwtRoleClaimKey,
+    jwt_cache_max_lifetime: d.jwtCacheMaxLifetime,
+    openapi_mode: d.openapiMode,
+    server_cors_allowed_origins: d.serverCorsAllowedOrigins,
+    server_timing_enabled: d.serverTimingEnabled,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDatabase_CreateDatabaseSpecSchema: z.ZodType = z
+  .object({
+    role: z.string().optional(),
+    postgresDatabase: z.string().optional(),
+  })
+  .transform(d => ({
+    role: d.role,
+    postgres_database: d.postgresDatabase,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDatabase_UpdateDatabaseSpecSchema: z.ZodType = z
+  .object({
+    role: z.string().optional(),
+    postgresDatabase: z.string().optional(),
+  })
+  .transform(d => ({
+    role: d.role,
+    postgres_database: d.postgresDatabase,
+  }));
+
+export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
+  .object({
+    claims: z
+      .array(z.lazy(() => marshalCreateRequestedClaimsSchema))
+      .optional(),
+    endpoint: z.string().optional(),
+    groupName: z.string().optional(),
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    claims: d.claims,
+    endpoint: d.endpoint,
+    group_name: d.groupName,
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalRole_CreateAttributesSchema: z.ZodType = z
   .object({
     createdb: z.boolean().optional(),
     createrole: z.boolean().optional(),
@@ -4102,11 +4595,11 @@ export const marshalRole_AttributesSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRole_RoleSpecSchema: z.ZodType = z
+export const marshalRole_CreateRoleSpecSchema: z.ZodType = z
   .object({
     membershipRoles: z.array(z.string()).optional(),
     identityType: z.string().optional(),
-    attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
+    attributes: z.lazy(() => marshalRole_CreateAttributesSchema).optional(),
     authMethod: z.string().optional(),
     postgresRole: z.string().optional(),
   })
@@ -4119,14 +4612,26 @@ export const marshalRole_RoleSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRole_RoleStatusSchema: z.ZodType = z
+export const marshalRole_UpdateAttributesSchema: z.ZodType = z
+  .object({
+    createdb: z.boolean().optional(),
+    createrole: z.boolean().optional(),
+    bypassrls: z.boolean().optional(),
+  })
+  .transform(d => ({
+    createdb: d.createdb,
+    createrole: d.createrole,
+    bypassrls: d.bypassrls,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalRole_UpdateRoleSpecSchema: z.ZodType = z
   .object({
     membershipRoles: z.array(z.string()).optional(),
     identityType: z.string().optional(),
-    attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
+    attributes: z.lazy(() => marshalRole_UpdateAttributesSchema).optional(),
     authMethod: z.string().optional(),
     postgresRole: z.string().optional(),
-    roleId: z.string().optional(),
   })
   .transform(d => ({
     membership_roles: d.membershipRoles,
@@ -4134,32 +4639,10 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     attributes: d.attributes,
     auth_method: d.authMethod,
     postgres_role: d.postgresRole,
-    role_id: d.roleId,
-  }));
-
-export const marshalSyncedTableSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    uid: z.string().optional(),
-    spec: z.lazy(() => marshalSyncedTable_SyncedTableSpecSchema).optional(),
-    status: z.lazy(() => marshalSyncedTable_SyncedTableStatusSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    syncedTableId: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    uid: d.uid,
-    spec: d.spec,
-    status: d.status,
-    create_time: d.createTime,
-    synced_table_id: d.syncedTableId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
+export const marshalSyncedTable_CreateSyncedTableSpecSchema: z.ZodType = z
   .object({
     postgresDatabase: z.string().optional(),
     branch: z.string().optional(),
@@ -4169,11 +4652,15 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     timeseriesKey: z.string().optional(),
     existingPipelineId: z.string().optional(),
     createDatabaseObjectsIfMissing: z.boolean().optional(),
-    newPipelineSpec: z.lazy(() => marshalNewPipelineSpecSchema).optional(),
+    newPipelineSpec: z
+      .lazy(() => marshalCreateNewPipelineSpecSchema)
+      .optional(),
     acceleratedSync: z.boolean().optional(),
     typeOverrides: z
       .array(
-        z.lazy(() => marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
+        z.lazy(
+          () => marshalSyncedTable_SyncedTableSpec_CreateTypeOverrideSchema
+        )
       )
       .optional(),
   })
@@ -4192,11 +4679,11 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType =
+export const marshalSyncedTable_SyncedTableSpec_CreateTypeOverrideSchema: z.ZodType =
   z
     .object({
-      columnName: z.string().optional(),
-      pgType: z.string().optional(),
+      columnName: z.string(),
+      pgType: z.string(),
       size: z.number().optional(),
     })
     .transform(d => ({
@@ -4204,81 +4691,6 @@ export const marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType =
       pg_type: d.pgType,
       size: d.size,
     }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
-  .object({
-    message: z.string().optional(),
-    detailedState: z.string().optional(),
-    lastSync: z.lazy(() => marshalSyncedTablePositionSchema).optional(),
-    ongoingSyncProgress: z
-      .lazy(() => marshalSyncedTablePipelineProgressSchema)
-      .optional(),
-    provisioningPhase: z.string().optional(),
-    lastProcessedCommitVersion: z.bigint().optional(),
-    lastSyncTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    pipelineId: z.string().optional(),
-    unityCatalogProvisioningState: z.string().optional(),
-    project: z.string().optional(),
-  })
-  .transform(d => ({
-    message: d.message,
-    detailed_state: d.detailedState,
-    last_sync: d.lastSync,
-    ongoing_sync_progress: d.ongoingSyncProgress,
-    provisioning_phase: d.provisioningPhase,
-    last_processed_commit_version: d.lastProcessedCommitVersion,
-    last_sync_time: d.lastSyncTime,
-    pipeline_id: d.pipelineId,
-    unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
-    project: d.project,
-  }));
-
-export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
-  .object({
-    latestVersionCurrentlyProcessing: z.bigint().optional(),
-    syncedRowCount: z.bigint().optional(),
-    totalRowCount: z.bigint().optional(),
-    syncProgressCompletion: z.number().optional(),
-    estimatedCompletionTimeSeconds: z.number().optional(),
-  })
-  .transform(d => ({
-    latest_version_currently_processing: d.latestVersionCurrentlyProcessing,
-    synced_row_count: d.syncedRowCount,
-    total_row_count: d.totalRowCount,
-    sync_progress_completion: d.syncProgressCompletion,
-    estimated_completion_time_seconds: d.estimatedCompletionTimeSeconds,
-  }));
-
-export const marshalSyncedTablePositionSchema: z.ZodType = z
-  .object({
-    syncStartTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    syncEndTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    sourceSyncInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('deltaTableSyncInfo'),
-          deltaTableSyncInfo: z.lazy(() => marshalDeltaTableSyncInfoSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    sync_start_time: d.syncStartTime,
-    sync_end_time: d.syncEndTime,
-    ...(d.sourceSyncInfo?.$case === 'deltaTableSyncInfo' && {
-      delta_table_sync_info: d.sourceSyncInfo.deltaTableSyncInfo,
-    }),
-  }));
 
 export const marshalUndeleteBranchRequestSchema: z.ZodType = z
   .object({
@@ -4296,22 +4708,331 @@ export const marshalUndeleteProjectRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-const branchFieldMaskSchema: FieldMaskSchema = {
-  branchId: {wire: 'branch_id'},
-  createTime: {wire: 'create_time'},
-  name: {wire: 'name'},
-  parent: {wire: 'parent'},
-  spec: {wire: 'spec', children: () => branchSpecFieldMaskSchema},
-  status: {wire: 'status', children: () => branchStatusFieldMaskSchema},
-  uid: {wire: 'uid'},
-  updateTime: {wire: 'update_time'},
+export const marshalUpdateBranchSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z.lazy(() => marshalUpdateBranchSpecSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
+  }));
+
+export const marshalUpdateBranchSpecSchema: z.ZodType = z
+  .object({
+    sourceBranch: z.string().optional(),
+    sourceBranchLsn: z.string().optional(),
+    sourceBranchTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    isProtected: z.boolean().optional(),
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    source_branch: d.sourceBranch,
+    source_branch_lsn: d.sourceBranchLsn,
+    source_branch_time: d.sourceBranchTime,
+    is_protected: d.isProtected,
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'noExpiry' && {
+      no_expiry: d.expiration.noExpiry,
+    }),
+  }));
+
+export const marshalUpdateDataApiSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z.lazy(() => marshalDataApi_UpdateDataApiSpecSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
+  }));
+
+export const marshalUpdateDatabaseSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z.lazy(() => marshalDatabase_UpdateDatabaseSpecSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
+  }));
+
+export const marshalUpdateEndpointSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z.lazy(() => marshalUpdateEndpointSpecSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
+  }));
+
+export const marshalUpdateEndpointGroupSpecSchema: z.ZodType = z
+  .object({
+    min: z.number().optional(),
+    max: z.number().optional(),
+    enableReadableSecondaries: z.boolean().optional(),
+  })
+  .transform(d => ({
+    min: d.min,
+    max: d.max,
+    enable_readable_secondaries: d.enableReadableSecondaries,
+  }));
+
+export const marshalUpdateEndpointSettingsSchema: z.ZodType = z
+  .object({
+    pgSettings: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    pg_settings: d.pgSettings,
+  }));
+
+export const marshalUpdateEndpointSpecSchema: z.ZodType = z
+  .object({
+    endpointType: z.string().optional(),
+    autoscalingLimitMinCu: z.number().optional(),
+    autoscalingLimitMaxCu: z.number().optional(),
+    disabled: z.boolean().optional(),
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
+      .optional(),
+    settings: z.lazy(() => marshalUpdateEndpointSettingsSchema).optional(),
+    group: z.lazy(() => marshalUpdateEndpointGroupSpecSchema).optional(),
+  })
+  .transform(d => ({
+    endpoint_type: d.endpointType,
+    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
+    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
+    disabled: d.disabled,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
+    settings: d.settings,
+    group: d.group,
+  }));
+
+export const marshalUpdateInitialBranchSpecSchema: z.ZodType = z
+  .object({
+    isProtected: z.boolean().optional(),
+  })
+  .transform(d => ({
+    is_protected: d.isProtected,
+  }));
+
+export const marshalUpdateInitialEndpointSpecSchema: z.ZodType = z
+  .object({
+    group: z.lazy(() => marshalUpdateEndpointGroupSpecSchema).optional(),
+    autoscalingLimitMinCu: z.number().optional(),
+    autoscalingLimitMaxCu: z.number().optional(),
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    group: d.group,
+    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
+    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
+  }));
+
+export const marshalUpdateProjectSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z.lazy(() => marshalUpdateProjectSpecSchema).optional(),
+    initialEndpointSpec: z
+      .lazy(() => marshalUpdateInitialEndpointSpecSchema)
+      .optional(),
+    initialBranchSpec: z
+      .lazy(() => marshalUpdateInitialBranchSpecSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
+    initial_endpoint_spec: d.initialEndpointSpec,
+    initial_branch_spec: d.initialBranchSpec,
+  }));
+
+export const marshalUpdateProjectCustomTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalUpdateProjectDefaultEndpointSettingsSchema: z.ZodType = z
+  .object({
+    autoscalingLimitMinCu: z.number().optional(),
+    autoscalingLimitMaxCu: z.number().optional(),
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
+      .optional(),
+    pgSettings: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
+    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
+    pg_settings: d.pgSettings,
+  }));
+
+export const marshalUpdateProjectSpecSchema: z.ZodType = z
+  .object({
+    displayName: z.string().optional(),
+    pgVersion: z.number().optional(),
+    historyRetentionDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    defaultEndpointSettings: z
+      .lazy(() => marshalUpdateProjectDefaultEndpointSettingsSchema)
+      .optional(),
+    budgetPolicyId: z.string().optional(),
+    customTags: z
+      .array(z.lazy(() => marshalUpdateProjectCustomTagSchema))
+      .optional(),
+    enablePgNativeLogin: z.boolean().optional(),
+    defaultBranch: z.string().optional(),
+  })
+  .transform(d => ({
+    display_name: d.displayName,
+    pg_version: d.pgVersion,
+    history_retention_duration: d.historyRetentionDuration,
+    default_endpoint_settings: d.defaultEndpointSettings,
+    budget_policy_id: d.budgetPolicyId,
+    custom_tags: d.customTags,
+    enable_pg_native_login: d.enablePgNativeLogin,
+    default_branch: d.defaultBranch,
+  }));
+
+export const marshalUpdateRoleSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spec: z.lazy(() => marshalRole_UpdateRoleSpecSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    spec: d.spec,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const dataApi_UpdateDataApiSpecFieldMaskSchema: FieldMaskSchema = {
+  dbAggregatesEnabled: {wire: 'db_aggregates_enabled'},
+  dbExtraSearchPath: {wire: 'db_extra_search_path'},
+  dbMaxRows: {wire: 'db_max_rows'},
+  dbSchemas: {wire: 'db_schemas'},
+  jwtCacheMaxLifetime: {wire: 'jwt_cache_max_lifetime'},
+  jwtRoleClaimKey: {wire: 'jwt_role_claim_key'},
+  openapiMode: {wire: 'openapi_mode'},
+  serverCorsAllowedOrigins: {wire: 'server_cors_allowed_origins'},
+  serverTimingEnabled: {wire: 'server_timing_enabled'},
 };
 
-export function branchFieldMask(...paths: string[]): FieldMask<Branch> {
-  return FieldMask.build<Branch>(paths, branchFieldMaskSchema);
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const database_UpdateDatabaseSpecFieldMaskSchema: FieldMaskSchema = {
+  postgresDatabase: {wire: 'postgres_database'},
+  role: {wire: 'role'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const role_UpdateAttributesFieldMaskSchema: FieldMaskSchema = {
+  bypassrls: {wire: 'bypassrls'},
+  createdb: {wire: 'createdb'},
+  createrole: {wire: 'createrole'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const role_UpdateRoleSpecFieldMaskSchema: FieldMaskSchema = {
+  attributes: {
+    wire: 'attributes',
+    children: () => role_UpdateAttributesFieldMaskSchema,
+  },
+  authMethod: {wire: 'auth_method'},
+  identityType: {wire: 'identity_type'},
+  membershipRoles: {wire: 'membership_roles'},
+  postgresRole: {wire: 'postgres_role'},
+};
+
+const updateBranchFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  spec: {wire: 'spec', children: () => updateBranchSpecFieldMaskSchema},
+};
+
+export function updateBranchFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateBranch> {
+  return FieldMask.build<UpdateBranch>(paths, updateBranchFieldMaskSchema);
 }
 
-const branchSpecFieldMaskSchema: FieldMaskSchema = {
+const updateBranchSpecFieldMaskSchema: FieldMaskSchema = {
   expireTime: {wire: 'expire_time'},
   isProtected: {wire: 'is_protected'},
   noExpiry: {wire: 'no_expiry'},
@@ -4321,194 +5042,107 @@ const branchSpecFieldMaskSchema: FieldMaskSchema = {
   ttl: {wire: 'ttl'},
 };
 
-const branchStatusFieldMaskSchema: FieldMaskSchema = {
-  branchId: {wire: 'branch_id'},
-  currentState: {wire: 'current_state'},
-  default: {wire: 'default'},
-  deleteTime: {wire: 'delete_time'},
-  expireTime: {wire: 'expire_time'},
-  isProtected: {wire: 'is_protected'},
-  logicalSizeBytes: {wire: 'logical_size_bytes'},
-  pendingState: {wire: 'pending_state'},
-  purgeTime: {wire: 'purge_time'},
-  sourceBranch: {wire: 'source_branch'},
-  sourceBranchLsn: {wire: 'source_branch_lsn'},
-  sourceBranchTime: {wire: 'source_branch_time'},
-  stateChangeTime: {wire: 'state_change_time'},
-};
-
-const dataApiFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
+const updateDataApiFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
-  parent: {wire: 'parent'},
-  spec: {wire: 'spec', children: () => dataApi_DataApiSpecFieldMaskSchema},
-  status: {
-    wire: 'status',
-    children: () => dataApi_DataApiStatusFieldMaskSchema,
+  spec: {
+    wire: 'spec',
+    children: () => dataApi_UpdateDataApiSpecFieldMaskSchema,
   },
-  updateTime: {wire: 'update_time'},
 };
 
-export function dataApiFieldMask(...paths: string[]): FieldMask<DataApi> {
-  return FieldMask.build<DataApi>(paths, dataApiFieldMaskSchema);
+export function updateDataApiFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateDataApi> {
+  return FieldMask.build<UpdateDataApi>(paths, updateDataApiFieldMaskSchema);
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const dataApi_DataApiSpecFieldMaskSchema: FieldMaskSchema = {
-  dbAggregatesEnabled: {wire: 'db_aggregates_enabled'},
-  dbExtraSearchPath: {wire: 'db_extra_search_path'},
-  dbMaxRows: {wire: 'db_max_rows'},
-  dbSchemas: {wire: 'db_schemas'},
-  jwtCacheMaxLifetime: {wire: 'jwt_cache_max_lifetime'},
-  jwtRoleClaimKey: {wire: 'jwt_role_claim_key'},
-  openapiMode: {wire: 'openapi_mode'},
-  serverCorsAllowedOrigins: {wire: 'server_cors_allowed_origins'},
-  serverTimingEnabled: {wire: 'server_timing_enabled'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const dataApi_DataApiStatusFieldMaskSchema: FieldMaskSchema = {
-  availableSchemas: {wire: 'available_schemas'},
-  dbAggregatesEnabled: {wire: 'db_aggregates_enabled'},
-  dbExtraSearchPath: {wire: 'db_extra_search_path'},
-  dbMaxRows: {wire: 'db_max_rows'},
-  dbSchemas: {wire: 'db_schemas'},
-  jwtCacheMaxLifetime: {wire: 'jwt_cache_max_lifetime'},
-  jwtRoleClaimKey: {wire: 'jwt_role_claim_key'},
-  openapiMode: {wire: 'openapi_mode'},
-  serverCorsAllowedOrigins: {wire: 'server_cors_allowed_origins'},
-  serverTimingEnabled: {wire: 'server_timing_enabled'},
-  url: {wire: 'url'},
-};
-
-const databaseFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  databaseId: {wire: 'database_id'},
+const updateDatabaseFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
-  parent: {wire: 'parent'},
-  spec: {wire: 'spec', children: () => database_DatabaseSpecFieldMaskSchema},
-  status: {
-    wire: 'status',
-    children: () => database_DatabaseStatusFieldMaskSchema,
+  spec: {
+    wire: 'spec',
+    children: () => database_UpdateDatabaseSpecFieldMaskSchema,
   },
-  updateTime: {wire: 'update_time'},
 };
 
-export function databaseFieldMask(...paths: string[]): FieldMask<Database> {
-  return FieldMask.build<Database>(paths, databaseFieldMaskSchema);
+export function updateDatabaseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateDatabase> {
+  return FieldMask.build<UpdateDatabase>(paths, updateDatabaseFieldMaskSchema);
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const database_DatabaseSpecFieldMaskSchema: FieldMaskSchema = {
-  postgresDatabase: {wire: 'postgres_database'},
-  role: {wire: 'role'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const database_DatabaseStatusFieldMaskSchema: FieldMaskSchema = {
-  databaseId: {wire: 'database_id'},
-  postgresDatabase: {wire: 'postgres_database'},
-  role: {wire: 'role'},
-};
-
-const endpointFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  endpointId: {wire: 'endpoint_id'},
+const updateEndpointFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
-  parent: {wire: 'parent'},
-  spec: {wire: 'spec', children: () => endpointSpecFieldMaskSchema},
-  status: {wire: 'status', children: () => endpointStatusFieldMaskSchema},
-  uid: {wire: 'uid'},
-  updateTime: {wire: 'update_time'},
+  spec: {wire: 'spec', children: () => updateEndpointSpecFieldMaskSchema},
 };
 
-export function endpointFieldMask(...paths: string[]): FieldMask<Endpoint> {
-  return FieldMask.build<Endpoint>(paths, endpointFieldMaskSchema);
+export function updateEndpointFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateEndpoint> {
+  return FieldMask.build<UpdateEndpoint>(paths, updateEndpointFieldMaskSchema);
 }
 
-const endpointGroupSpecFieldMaskSchema: FieldMaskSchema = {
+const updateEndpointGroupSpecFieldMaskSchema: FieldMaskSchema = {
   enableReadableSecondaries: {wire: 'enable_readable_secondaries'},
   max: {wire: 'max'},
   min: {wire: 'min'},
 };
 
-const endpointGroupStatusFieldMaskSchema: FieldMaskSchema = {
-  enableReadableSecondaries: {wire: 'enable_readable_secondaries'},
-  max: {wire: 'max'},
-  min: {wire: 'min'},
-};
-
-const endpointHostsFieldMaskSchema: FieldMaskSchema = {
-  host: {wire: 'host'},
-  readOnlyHost: {wire: 'read_only_host'},
-};
-
-const endpointSettingsFieldMaskSchema: FieldMaskSchema = {
+const updateEndpointSettingsFieldMaskSchema: FieldMaskSchema = {
   pgSettings: {wire: 'pg_settings'},
 };
 
-const endpointSpecFieldMaskSchema: FieldMaskSchema = {
+const updateEndpointSpecFieldMaskSchema: FieldMaskSchema = {
   autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
   autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   disabled: {wire: 'disabled'},
   endpointType: {wire: 'endpoint_type'},
-  group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
+  group: {
+    wire: 'group',
+    children: () => updateEndpointGroupSpecFieldMaskSchema,
+  },
   noSuspension: {wire: 'no_suspension'},
-  settings: {wire: 'settings', children: () => endpointSettingsFieldMaskSchema},
+  settings: {
+    wire: 'settings',
+    children: () => updateEndpointSettingsFieldMaskSchema,
+  },
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
-const endpointStatusFieldMaskSchema: FieldMaskSchema = {
-  autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
-  autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
-  currentState: {wire: 'current_state'},
-  disabled: {wire: 'disabled'},
-  endpointId: {wire: 'endpoint_id'},
-  endpointType: {wire: 'endpoint_type'},
-  group: {wire: 'group', children: () => endpointGroupStatusFieldMaskSchema},
-  hosts: {wire: 'hosts', children: () => endpointHostsFieldMaskSchema},
-  pendingState: {wire: 'pending_state'},
-  settings: {wire: 'settings', children: () => endpointSettingsFieldMaskSchema},
-  suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
-};
-
-const initialBranchSpecFieldMaskSchema: FieldMaskSchema = {
+const updateInitialBranchSpecFieldMaskSchema: FieldMaskSchema = {
   isProtected: {wire: 'is_protected'},
 };
 
-const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
+const updateInitialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
   autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
   autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
-  group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
+  group: {
+    wire: 'group',
+    children: () => updateEndpointGroupSpecFieldMaskSchema,
+  },
   noSuspension: {wire: 'no_suspension'},
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
-const projectFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  deleteTime: {wire: 'delete_time'},
+const updateProjectFieldMaskSchema: FieldMaskSchema = {
   initialBranchSpec: {
     wire: 'initial_branch_spec',
-    children: () => initialBranchSpecFieldMaskSchema,
+    children: () => updateInitialBranchSpecFieldMaskSchema,
   },
   initialEndpointSpec: {
     wire: 'initial_endpoint_spec',
-    children: () => initialEndpointSpecFieldMaskSchema,
+    children: () => updateInitialEndpointSpecFieldMaskSchema,
   },
   name: {wire: 'name'},
-  projectId: {wire: 'project_id'},
-  purgeTime: {wire: 'purge_time'},
-  spec: {wire: 'spec', children: () => projectSpecFieldMaskSchema},
-  status: {wire: 'status', children: () => projectStatusFieldMaskSchema},
-  uid: {wire: 'uid'},
-  updateTime: {wire: 'update_time'},
+  spec: {wire: 'spec', children: () => updateProjectSpecFieldMaskSchema},
 };
 
-export function projectFieldMask(...paths: string[]): FieldMask<Project> {
-  return FieldMask.build<Project>(paths, projectFieldMaskSchema);
+export function updateProjectFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateProject> {
+  return FieldMask.build<UpdateProject>(paths, updateProjectFieldMaskSchema);
 }
 
-const projectDefaultEndpointSettingsFieldMaskSchema: FieldMaskSchema = {
+const updateProjectDefaultEndpointSettingsFieldMaskSchema: FieldMaskSchema = {
   autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
   autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   noSuspension: {wire: 'no_suspension'},
@@ -4516,13 +5150,13 @@ const projectDefaultEndpointSettingsFieldMaskSchema: FieldMaskSchema = {
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
-const projectSpecFieldMaskSchema: FieldMaskSchema = {
+const updateProjectSpecFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
   customTags: {wire: 'custom_tags'},
   defaultBranch: {wire: 'default_branch'},
   defaultEndpointSettings: {
     wire: 'default_endpoint_settings',
-    children: () => projectDefaultEndpointSettingsFieldMaskSchema,
+    children: () => updateProjectDefaultEndpointSettingsFieldMaskSchema,
   },
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
@@ -4530,67 +5164,11 @@ const projectSpecFieldMaskSchema: FieldMaskSchema = {
   pgVersion: {wire: 'pg_version'},
 };
 
-const projectStatusFieldMaskSchema: FieldMaskSchema = {
-  branchLogicalSizeLimitBytes: {wire: 'branch_logical_size_limit_bytes'},
-  budgetPolicyId: {wire: 'budget_policy_id'},
-  computeLastActiveTime: {wire: 'compute_last_active_time'},
-  customTags: {wire: 'custom_tags'},
-  defaultBranch: {wire: 'default_branch'},
-  defaultEndpointSettings: {
-    wire: 'default_endpoint_settings',
-    children: () => projectDefaultEndpointSettingsFieldMaskSchema,
-  },
-  displayName: {wire: 'display_name'},
-  enablePgNativeLogin: {wire: 'enable_pg_native_login'},
-  historyRetentionDuration: {wire: 'history_retention_duration'},
-  owner: {wire: 'owner'},
-  pgVersion: {wire: 'pg_version'},
-  projectId: {wire: 'project_id'},
-  syntheticStorageSizeBytes: {wire: 'synthetic_storage_size_bytes'},
-};
-
-const roleFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
+const updateRoleFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
-  parent: {wire: 'parent'},
-  roleId: {wire: 'role_id'},
-  spec: {wire: 'spec', children: () => role_RoleSpecFieldMaskSchema},
-  status: {wire: 'status', children: () => role_RoleStatusFieldMaskSchema},
-  updateTime: {wire: 'update_time'},
+  spec: {wire: 'spec', children: () => role_UpdateRoleSpecFieldMaskSchema},
 };
 
-export function roleFieldMask(...paths: string[]): FieldMask<Role> {
-  return FieldMask.build<Role>(paths, roleFieldMaskSchema);
+export function updateRoleFieldMask(...paths: string[]): FieldMask<UpdateRole> {
+  return FieldMask.build<UpdateRole>(paths, updateRoleFieldMaskSchema);
 }
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const role_AttributesFieldMaskSchema: FieldMaskSchema = {
-  bypassrls: {wire: 'bypassrls'},
-  createdb: {wire: 'createdb'},
-  createrole: {wire: 'createrole'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const role_RoleSpecFieldMaskSchema: FieldMaskSchema = {
-  attributes: {
-    wire: 'attributes',
-    children: () => role_AttributesFieldMaskSchema,
-  },
-  authMethod: {wire: 'auth_method'},
-  identityType: {wire: 'identity_type'},
-  membershipRoles: {wire: 'membership_roles'},
-  postgresRole: {wire: 'postgres_role'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const role_RoleStatusFieldMaskSchema: FieldMaskSchema = {
-  attributes: {
-    wire: 'attributes',
-    children: () => role_AttributesFieldMaskSchema,
-  },
-  authMethod: {wire: 'auth_method'},
-  identityType: {wire: 'identity_type'},
-  membershipRoles: {wire: 'membership_roles'},
-  postgresRole: {wire: 'postgres_role'},
-  roleId: {wire: 'role_id'},
-};

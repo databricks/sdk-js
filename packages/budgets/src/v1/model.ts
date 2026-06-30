@@ -105,6 +105,24 @@ export interface BudgetConfigurationFilter_Clause {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface BudgetConfigurationFilter_CreateClause {
+  operator?: BudgetConfigurationFilter_Operator | undefined;
+  values?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface BudgetConfigurationFilter_CreateTagClause {
+  key?: string | undefined;
+  value?: BudgetConfigurationFilter_CreateClause | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface BudgetConfigurationFilter_CreateWorkspaceIdClause {
+  operator?: BudgetConfigurationFilter_Operator | undefined;
+  values?: bigint[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface BudgetConfigurationFilter_TagClause {
   key?: string | undefined;
   value?: BudgetConfigurationFilter_Clause | undefined;
@@ -114,6 +132,30 @@ export interface BudgetConfigurationFilter_TagClause {
 export interface BudgetConfigurationFilter_WorkspaceIdClause {
   operator?: BudgetConfigurationFilter_Operator | undefined;
   values?: bigint[] | undefined;
+}
+
+export interface CreateActionConfiguration {
+  /** <Databricks> action configuration ID. */
+  actionConfigurationId?: string | undefined;
+  /** The type of the action. */
+  actionType?: ActionConfigurationType | undefined;
+  /** Target for the action. For example, an email address. */
+  target?: string | undefined;
+}
+
+export interface CreateAlertConfiguration {
+  /** <Databricks> alert configuration ID. */
+  alertConfigurationId?: string | undefined;
+  /** The time window of usage data for the budget. */
+  timePeriod?: AlertConfigurationTimePeriod | undefined;
+  /** The evaluation method to determine when this budget alert is in a triggered state. */
+  triggerType?: AlertConfigurationTriggerType | undefined;
+  /** The way to calculate cost for this budget alert. This is what `quantity_threshold` is measured in. */
+  quantityType?: AlertConfigurationQuantityType | undefined;
+  /** The threshold for the budget alert to determine if it is in a triggered state. The number is evaluated based on `quantity_type`. */
+  quantityThreshold?: string | undefined;
+  /** Configured actions for this alert. These define what happens when an alert enters a triggered state. */
+  actionConfigurations?: CreateActionConfiguration[] | undefined;
 }
 
 export interface CreateBudgetConfigurationBudget {
@@ -136,14 +178,64 @@ export interface CreateBudgetConfigurationBudget {
   displayName?: string | undefined;
 }
 
+export interface CreateBudgetConfigurationFilter {
+  /** If provided, usage must match with the provided <Databricks> workspace IDs. */
+  workspaceId?: BudgetConfigurationFilter_CreateWorkspaceIdClause | undefined;
+  /**
+   * A list of tag keys and values that will limit the budget to usage that includes those specific custom tags.
+   * Tags are case-sensitive and should be entered exactly as they appear in your usage data.
+   */
+  tags?: BudgetConfigurationFilter_CreateTagClause[] | undefined;
+}
+
 export interface CreateBudgetConfigurationRequest {
   /** Properties of the new budget configuration. */
-  budget?: CreateBudgetConfigurationBudget | undefined;
+  budget?: CreateCreateBudgetConfigurationBudget | undefined;
 }
 
 export interface CreateBudgetConfigurationResponse {
   /** The created budget configuration. */
   budget?: BudgetConfiguration | undefined;
+}
+
+export interface CreateCreateBudgetConfigurationBudget {
+  /** <Databricks> budget configuration ID. */
+  budgetConfigurationId?: string | undefined;
+  /** <Databricks> account ID. */
+  accountId?: string | undefined;
+  /** Creation time of this budget configuration. */
+  createTime?: bigint | undefined;
+  /** Update time of this budget configuration. */
+  updateTime?: bigint | undefined;
+  /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
+  alertConfigurations?: CreateAlertConfiguration[] | undefined;
+  /**
+   * Configured filters for this budget. These are applied to your account's usage to limit the scope of what is considered for this budget.
+   * Leave empty to include all usage for this account. All provided filters must be matched for usage to be included.
+   */
+  filter?: CreateBudgetConfigurationFilter | undefined;
+  /** Human-readable name of budget configuration. Max Length: 128 */
+  displayName?: string | undefined;
+}
+
+export interface CreateUpdateBudgetConfigurationBudget {
+  /** <Databricks> budget configuration ID. */
+  budgetConfigurationId?: string | undefined;
+  /** <Databricks> account ID. */
+  accountId?: string | undefined;
+  /** Creation time of this budget configuration. */
+  createTime?: bigint | undefined;
+  /** Update time of this budget configuration. */
+  updateTime?: bigint | undefined;
+  /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
+  alertConfigurations?: CreateAlertConfiguration[] | undefined;
+  /**
+   * Configured filters for this budget. These are applied to your account's usage to limit the scope of what is considered for this budget.
+   * Leave empty to include all usage for this account. All provided filters must be matched for usage to be included.
+   */
+  filter?: CreateBudgetConfigurationFilter | undefined;
+  /** Human-readable name of budget configuration. Max Length: 128 */
+  displayName?: string | undefined;
 }
 
 /**
@@ -214,7 +306,7 @@ export interface UpdateBudgetConfigurationRequest {
   /** The <Databricks> budget configuration ID. */
   budgetId?: string | undefined;
   /** The updated budget. This will overwrite the budget specified by the budget ID. */
-  budget?: UpdateBudgetConfigurationBudget | undefined;
+  budget?: CreateUpdateBudgetConfigurationBudget | undefined;
 }
 
 export interface UpdateBudgetConfigurationResponse {
@@ -383,7 +475,44 @@ export const unmarshalUpdateBudgetConfigurationResponseSchema: z.ZodType<UpdateB
       budget: d.budget,
     }));
 
-export const marshalActionConfigurationSchema: z.ZodType = z
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalBudgetConfigurationFilter_CreateClauseSchema: z.ZodType = z
+  .object({
+    operator: z.string().optional(),
+    values: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    operator: d.operator,
+    values: d.values,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalBudgetConfigurationFilter_CreateTagClauseSchema: z.ZodType =
+  z
+    .object({
+      key: z.string().optional(),
+      value: z
+        .lazy(() => marshalBudgetConfigurationFilter_CreateClauseSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      key: d.key,
+      value: d.value,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalBudgetConfigurationFilter_CreateWorkspaceIdClauseSchema: z.ZodType =
+  z
+    .object({
+      operator: z.string().optional(),
+      values: z.array(z.bigint()).optional(),
+    })
+    .transform(d => ({
+      operator: d.operator,
+      values: d.values,
+    }));
+
+export const marshalCreateActionConfigurationSchema: z.ZodType = z
   .object({
     actionConfigurationId: z.string().optional(),
     actionType: z.string().optional(),
@@ -395,7 +524,7 @@ export const marshalActionConfigurationSchema: z.ZodType = z
     target: d.target,
   }));
 
-export const marshalAlertConfigurationSchema: z.ZodType = z
+export const marshalCreateAlertConfigurationSchema: z.ZodType = z
   .object({
     alertConfigurationId: z.string().optional(),
     timePeriod: z.string().optional(),
@@ -403,7 +532,7 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
     quantityType: z.string().optional(),
     quantityThreshold: z.string().optional(),
     actionConfigurations: z
-      .array(z.lazy(() => marshalActionConfigurationSchema))
+      .array(z.lazy(() => marshalCreateActionConfigurationSchema))
       .optional(),
   })
   .transform(d => ({
@@ -415,13 +544,17 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
     action_configurations: d.actionConfigurations,
   }));
 
-export const marshalBudgetConfigurationFilterSchema: z.ZodType = z
+export const marshalCreateBudgetConfigurationFilterSchema: z.ZodType = z
   .object({
     workspaceId: z
-      .lazy(() => marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema)
+      .lazy(
+        () => marshalBudgetConfigurationFilter_CreateWorkspaceIdClauseSchema
+      )
       .optional(),
     tags: z
-      .array(z.lazy(() => marshalBudgetConfigurationFilter_TagClauseSchema))
+      .array(
+        z.lazy(() => marshalBudgetConfigurationFilter_CreateTagClauseSchema)
+      )
       .optional(),
   })
   .transform(d => ({
@@ -429,52 +562,28 @@ export const marshalBudgetConfigurationFilterSchema: z.ZodType = z
     tags: d.tags,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalBudgetConfigurationFilter_ClauseSchema: z.ZodType = z
+export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
-    operator: z.string().optional(),
-    values: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    operator: d.operator,
-    values: d.values,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z
-      .lazy(() => marshalBudgetConfigurationFilter_ClauseSchema)
+    budget: z
+      .lazy(() => marshalCreateCreateBudgetConfigurationBudgetSchema)
       .optional(),
   })
   .transform(d => ({
-    key: d.key,
-    value: d.value,
+    budget: d.budget,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType =
-  z
-    .object({
-      operator: z.string().optional(),
-      values: z.array(z.bigint()).optional(),
-    })
-    .transform(d => ({
-      operator: d.operator,
-      values: d.values,
-    }));
-
-export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
+export const marshalCreateCreateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
     budgetConfigurationId: z.string().optional(),
     accountId: z.string().optional(),
     createTime: z.bigint().optional(),
     updateTime: z.bigint().optional(),
     alertConfigurations: z
-      .array(z.lazy(() => marshalAlertConfigurationSchema))
+      .array(z.lazy(() => marshalCreateAlertConfigurationSchema))
       .optional(),
-    filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
+    filter: z
+      .lazy(() => marshalCreateBudgetConfigurationFilterSchema)
+      .optional(),
     displayName: z.string().optional(),
   })
   .transform(d => ({
@@ -487,26 +596,18 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
     display_name: d.displayName,
   }));
 
-export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
-  .object({
-    budget: z
-      .lazy(() => marshalCreateBudgetConfigurationBudgetSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    budget: d.budget,
-  }));
-
-export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
+export const marshalCreateUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
     budgetConfigurationId: z.string().optional(),
     accountId: z.string().optional(),
     createTime: z.bigint().optional(),
     updateTime: z.bigint().optional(),
     alertConfigurations: z
-      .array(z.lazy(() => marshalAlertConfigurationSchema))
+      .array(z.lazy(() => marshalCreateAlertConfigurationSchema))
       .optional(),
-    filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
+    filter: z
+      .lazy(() => marshalCreateBudgetConfigurationFilterSchema)
+      .optional(),
     displayName: z.string().optional(),
   })
   .transform(d => ({
@@ -523,7 +624,7 @@ export const marshalUpdateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
     budgetId: z.string().optional(),
     budget: z
-      .lazy(() => marshalUpdateBudgetConfigurationBudgetSchema)
+      .lazy(() => marshalCreateUpdateBudgetConfigurationBudgetSchema)
       .optional(),
   })
   .transform(d => ({

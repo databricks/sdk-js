@@ -31,7 +31,7 @@ export interface CreateCustomLlmRequest {
    * Datasets used for training and evaluating the model, not for inference.
    * Currently, only 1 dataset is accepted.
    */
-  datasets?: Dataset[] | undefined;
+  datasets?: CreateDataset[] | undefined;
   /** Guidelines for the custom LLM to adhere to */
   guidelines?: string[] | undefined;
   /**
@@ -40,6 +40,19 @@ export interface CreateCustomLlmRequest {
    * please provide a destination path where you have write permissions. Please provide this in catalog.schema format.
    */
   agentArtifactPath?: string | undefined;
+}
+
+export interface CreateDataset {
+  table: CreateTable;
+}
+
+export interface CreateTable {
+  /** Full UC table path in catalog.schema.table_name format */
+  tablePath: string;
+  /** Name of the request column */
+  requestCol: string;
+  /** Optional: Name of the response column if the data is labeled */
+  responseCol?: string | undefined;
 }
 
 export interface CustomLlm {
@@ -91,13 +104,43 @@ export interface Table {
   responseCol?: string | undefined;
 }
 
+export interface UpdateCustomLlm {
+  id?: string | undefined;
+  /** Name of the custom LLM */
+  name?: string | undefined;
+  /** Instructions for the custom LLM to follow */
+  instructions?: string | undefined;
+  /** Datasets used for training and evaluating the model, not for inference */
+  datasets?: UpdateDataset[] | undefined;
+  /** Guidelines for the custom LLM to adhere to */
+  guidelines?: string[] | undefined;
+  /** Creator of the custom LLM */
+  creator?: string | undefined;
+  /** Creation timestamp of the custom LLM */
+  creationTime?: Temporal.Instant | undefined;
+  agentArtifactPath?: string | undefined;
+}
+
 export interface UpdateCustomLlmRequest {
   /** The id of the custom llm */
   id?: string | undefined;
   /** The CustomLlm containing the fields which should be updated. */
-  customLlm?: CustomLlm | undefined;
+  customLlm?: UpdateCustomLlm | undefined;
   /** The list of the CustomLlm fields to update. These should correspond to the values (or lack thereof) present in `custom_llm`. */
-  updateMask?: FieldMask<CustomLlm> | undefined;
+  updateMask?: FieldMask<UpdateCustomLlm> | undefined;
+}
+
+export interface UpdateDataset {
+  table?: UpdateTable | undefined;
+}
+
+export interface UpdateTable {
+  /** Full UC table path in catalog.schema.table_name format */
+  tablePath?: string | undefined;
+  /** Name of the request column */
+  requestCol?: string | undefined;
+  /** Optional: Name of the response column if the data is labeled */
+  responseCol?: string | undefined;
 }
 
 export const unmarshalCustomLlmSchema: z.ZodType<CustomLlm> = z
@@ -161,7 +204,7 @@ export const marshalCreateCustomLlmRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     instructions: z.string().optional(),
-    datasets: z.array(z.lazy(() => marshalDatasetSchema)).optional(),
+    datasets: z.array(z.lazy(() => marshalCreateDatasetSchema)).optional(),
     guidelines: z.array(z.string()).optional(),
     agentArtifactPath: z.string().optional(),
   })
@@ -173,41 +216,24 @@ export const marshalCreateCustomLlmRequestSchema: z.ZodType = z
     agent_artifact_path: d.agentArtifactPath,
   }));
 
-export const marshalCustomLlmSchema: z.ZodType = z
+export const marshalCreateDatasetSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    name: z.string().optional(),
-    endpointName: z.string().optional(),
-    instructions: z.string().optional(),
-    datasets: z.array(z.lazy(() => marshalDatasetSchema)).optional(),
-    guidelines: z.array(z.string()).optional(),
-    optimizationState: z.string().optional(),
-    creator: z.string().optional(),
-    creationTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    agentArtifactPath: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    name: d.name,
-    endpoint_name: d.endpointName,
-    instructions: d.instructions,
-    datasets: d.datasets,
-    guidelines: d.guidelines,
-    optimization_state: d.optimizationState,
-    creator: d.creator,
-    creation_time: d.creationTime,
-    agent_artifact_path: d.agentArtifactPath,
-  }));
-
-export const marshalDatasetSchema: z.ZodType = z
-  .object({
-    table: z.lazy(() => marshalTableSchema).optional(),
+    table: z.lazy(() => marshalCreateTableSchema),
   })
   .transform(d => ({
     table: d.table,
+  }));
+
+export const marshalCreateTableSchema: z.ZodType = z
+  .object({
+    tablePath: z.string(),
+    requestCol: z.string(),
+    responseCol: z.string().optional(),
+  })
+  .transform(d => ({
+    table_path: d.tablePath,
+    request_col: d.requestCol,
+    response_col: d.responseCol,
   }));
 
 export const marshalStartCustomLlmOptimizationRunRequestSchema: z.ZodType = z
@@ -218,22 +244,35 @@ export const marshalStartCustomLlmOptimizationRunRequestSchema: z.ZodType = z
     id: d.id,
   }));
 
-export const marshalTableSchema: z.ZodType = z
+export const marshalUpdateCustomLlmSchema: z.ZodType = z
   .object({
-    tablePath: z.string().optional(),
-    requestCol: z.string().optional(),
-    responseCol: z.string().optional(),
+    id: z.string().optional(),
+    name: z.string().optional(),
+    instructions: z.string().optional(),
+    datasets: z.array(z.lazy(() => marshalUpdateDatasetSchema)).optional(),
+    guidelines: z.array(z.string()).optional(),
+    creator: z.string().optional(),
+    creationTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    agentArtifactPath: z.string().optional(),
   })
   .transform(d => ({
-    table_path: d.tablePath,
-    request_col: d.requestCol,
-    response_col: d.responseCol,
+    id: d.id,
+    name: d.name,
+    instructions: d.instructions,
+    datasets: d.datasets,
+    guidelines: d.guidelines,
+    creator: d.creator,
+    creation_time: d.creationTime,
+    agent_artifact_path: d.agentArtifactPath,
   }));
 
 export const marshalUpdateCustomLlmRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    customLlm: z.lazy(() => marshalCustomLlmSchema).optional(),
+    customLlm: z.lazy(() => marshalUpdateCustomLlmSchema).optional(),
     updateMask: z
       .any()
       .transform((m: FieldMask) => m.toString())
@@ -245,19 +284,42 @@ export const marshalUpdateCustomLlmRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-const customLlmFieldMaskSchema: FieldMaskSchema = {
+export const marshalUpdateDatasetSchema: z.ZodType = z
+  .object({
+    table: z.lazy(() => marshalUpdateTableSchema).optional(),
+  })
+  .transform(d => ({
+    table: d.table,
+  }));
+
+export const marshalUpdateTableSchema: z.ZodType = z
+  .object({
+    tablePath: z.string().optional(),
+    requestCol: z.string().optional(),
+    responseCol: z.string().optional(),
+  })
+  .transform(d => ({
+    table_path: d.tablePath,
+    request_col: d.requestCol,
+    response_col: d.responseCol,
+  }));
+
+const updateCustomLlmFieldMaskSchema: FieldMaskSchema = {
   agentArtifactPath: {wire: 'agent_artifact_path'},
   creationTime: {wire: 'creation_time'},
   creator: {wire: 'creator'},
   datasets: {wire: 'datasets'},
-  endpointName: {wire: 'endpoint_name'},
   guidelines: {wire: 'guidelines'},
   id: {wire: 'id'},
   instructions: {wire: 'instructions'},
   name: {wire: 'name'},
-  optimizationState: {wire: 'optimization_state'},
 };
 
-export function customLlmFieldMask(...paths: string[]): FieldMask<CustomLlm> {
-  return FieldMask.build<CustomLlm>(paths, customLlmFieldMaskSchema);
+export function updateCustomLlmFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateCustomLlm> {
+  return FieldMask.build<UpdateCustomLlm>(
+    paths,
+    updateCustomLlmFieldMaskSchema
+  );
 }

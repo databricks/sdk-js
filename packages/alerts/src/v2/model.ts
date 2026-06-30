@@ -194,8 +194,128 @@ export interface AlertSubscription {
     | undefined;
 }
 
+export interface CreateAlert {
+  /** UUID identifying the alert. */
+  id?: string | undefined;
+  /** The display name of the alert. */
+  displayName: string;
+  /** The workspace path of the folder containing the alert. Can only be set on create, and cannot be updated. */
+  parentPath?: string | undefined;
+  /** Text of the query to be run. */
+  queryText: string;
+  /** ID of the SQL warehouse attached to the alert. */
+  warehouseId: string;
+  /**
+   * The run as username or application ID of service principal.
+   * On Create and Update, this field can be set to application ID of an active service principal. Setting this field requires the servicePrincipal/user role.
+   * Deprecated: Use `run_as` field instead. This field will be removed in a future release.
+   */
+  runAsUserName?: string | undefined;
+  evaluation: CreateAlertEvaluation;
+  schedule: CreateCronSchedule;
+  /** Custom summary for the alert. support mustache template. */
+  customSummary?: string | undefined;
+  /** Custom description for the alert. support mustache template. */
+  customDescription?: string | undefined;
+  /**
+   * Specifies the identity that will be used to run the alert.
+   * This field allows you to configure alerts to run as a specific user or service principal.
+   * - For user identity: Set `user_name` to the email of an active workspace user. Users can only set this to their own email.
+   * - For service principal: Set `service_principal_name` to the application ID. Requires the `servicePrincipal/user` role.
+   * If not specified, the alert will run as the request user.
+   */
+  runAs?: CreateAlertRunAs | undefined;
+}
+
+export interface CreateAlertEvaluation {
+  /** Source column from result to use to evaluate alert */
+  source: CreateAlertOperandColumn;
+  /** Operator used for comparison in alert evaluation. */
+  comparisonOperator: ComparisonOperator;
+  /** Threshold to user for alert evaluation, can be a column or a value. */
+  threshold?: CreateAlertOperand | undefined;
+  /** User or Notification Destination to notify when alert is triggered. */
+  notification?: CreateAlertNotification | undefined;
+  /** Alert state if result is empty. Please avoid setting this field to be `UNKNOWN` because `UNKNOWN` state is planned to be deprecated. */
+  emptyResultState?: AlertEvaluationState | undefined;
+}
+
+export interface CreateAlertNotification {
+  subscriptions?: CreateAlertSubscription[] | undefined;
+  /**
+   * Number of seconds an alert waits after being triggered before it is allowed to send another notification.
+   * If set to 0 or omitted, the alert will not send any further notifications after the first trigger
+   * Setting this value to 1 allows the alert to send a notification on every evaluation where the condition is met, effectively making it always retrigger for notification purposes.
+   */
+  retriggerSeconds?: number | undefined;
+  /** Whether to notify alert subscribers when alert returns back to normal. */
+  notifyOnOk?: boolean | undefined;
+}
+
+export interface CreateAlertOperand {
+  /** Only one of the following fields may be set, depending on the type of operand/threshold. */
+  operand?:
+    | {$case: 'column'; column: CreateAlertOperandColumn}
+    | {$case: 'value'; value: CreateAlertOperandValue}
+    | undefined;
+}
+
+export interface CreateAlertOperandColumn {
+  name: string;
+  display?: string | undefined;
+  /** If not set, the behavior is equivalent to using `First row` in the UI. */
+  aggregation?: Aggregation | undefined;
+}
+
+export interface CreateAlertOperandValue {
+  /** Only one of the following fields may be set, depending on the type of threshold value. */
+  value?:
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'doubleValue'; doubleValue: number}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | undefined;
+}
+
 export interface CreateAlertRequest {
-  alert?: Alert | undefined;
+  alert?: CreateAlert | undefined;
+}
+
+export interface CreateAlertRunAs {
+  identity?:
+    | {
+        $case: 'userName';
+        /** The email of an active workspace user. Can only set this field to their own email. */
+        userName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role. */
+        servicePrincipalName: string;
+      }
+    | undefined;
+}
+
+export interface CreateAlertSubscription {
+  subscriptionType?:
+    | {$case: 'userEmail'; userEmail: string}
+    | {$case: 'destinationId'; destinationId: string}
+    | undefined;
+}
+
+export interface CreateCronSchedule {
+  /**
+   * A cron expression using quartz syntax that specifies the schedule for this pipeline.
+   * Should use the quartz format described here: http://www.quartz-scheduler.org/documentation/quartz-2.1.7/tutorials/tutorial-lesson-06.html
+   */
+  quartzCronSchedule: string;
+  /**
+   * A Java timezone id. The schedule will be resolved using this timezone.
+   * This will be combined with the quartz_cron_schedule to determine the schedule.
+   * See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
+   */
+  timezoneId: string;
+  /** Indicate whether this schedule is paused or not. */
+  pauseStatus?: SchedulePauseStatus | undefined;
 }
 
 export interface CronSchedule {
@@ -241,9 +361,129 @@ export interface TrashAlertRequest {
   purge?: boolean | undefined;
 }
 
+export interface UpdateAlert {
+  /** UUID identifying the alert. */
+  id?: string | undefined;
+  /** The display name of the alert. */
+  displayName?: string | undefined;
+  /** The workspace path of the folder containing the alert. Can only be set on create, and cannot be updated. */
+  parentPath?: string | undefined;
+  /** Text of the query to be run. */
+  queryText?: string | undefined;
+  /** ID of the SQL warehouse attached to the alert. */
+  warehouseId?: string | undefined;
+  /**
+   * The run as username or application ID of service principal.
+   * On Create and Update, this field can be set to application ID of an active service principal. Setting this field requires the servicePrincipal/user role.
+   * Deprecated: Use `run_as` field instead. This field will be removed in a future release.
+   */
+  runAsUserName?: string | undefined;
+  evaluation?: UpdateAlertEvaluation | undefined;
+  schedule?: UpdateCronSchedule | undefined;
+  /** Custom summary for the alert. support mustache template. */
+  customSummary?: string | undefined;
+  /** Custom description for the alert. support mustache template. */
+  customDescription?: string | undefined;
+  /**
+   * Specifies the identity that will be used to run the alert.
+   * This field allows you to configure alerts to run as a specific user or service principal.
+   * - For user identity: Set `user_name` to the email of an active workspace user. Users can only set this to their own email.
+   * - For service principal: Set `service_principal_name` to the application ID. Requires the `servicePrincipal/user` role.
+   * If not specified, the alert will run as the request user.
+   */
+  runAs?: UpdateAlertRunAs | undefined;
+}
+
+export interface UpdateAlertEvaluation {
+  /** Source column from result to use to evaluate alert */
+  source?: UpdateAlertOperandColumn | undefined;
+  /** Operator used for comparison in alert evaluation. */
+  comparisonOperator?: ComparisonOperator | undefined;
+  /** Threshold to user for alert evaluation, can be a column or a value. */
+  threshold?: UpdateAlertOperand | undefined;
+  /** User or Notification Destination to notify when alert is triggered. */
+  notification?: UpdateAlertNotification | undefined;
+  /** Alert state if result is empty. Please avoid setting this field to be `UNKNOWN` because `UNKNOWN` state is planned to be deprecated. */
+  emptyResultState?: AlertEvaluationState | undefined;
+}
+
+export interface UpdateAlertNotification {
+  subscriptions?: UpdateAlertSubscription[] | undefined;
+  /**
+   * Number of seconds an alert waits after being triggered before it is allowed to send another notification.
+   * If set to 0 or omitted, the alert will not send any further notifications after the first trigger
+   * Setting this value to 1 allows the alert to send a notification on every evaluation where the condition is met, effectively making it always retrigger for notification purposes.
+   */
+  retriggerSeconds?: number | undefined;
+  /** Whether to notify alert subscribers when alert returns back to normal. */
+  notifyOnOk?: boolean | undefined;
+}
+
+export interface UpdateAlertOperand {
+  /** Only one of the following fields may be set, depending on the type of operand/threshold. */
+  operand?:
+    | {$case: 'column'; column: UpdateAlertOperandColumn}
+    | {$case: 'value'; value: UpdateAlertOperandValue}
+    | undefined;
+}
+
+export interface UpdateAlertOperandColumn {
+  name?: string | undefined;
+  display?: string | undefined;
+  /** If not set, the behavior is equivalent to using `First row` in the UI. */
+  aggregation?: Aggregation | undefined;
+}
+
+export interface UpdateAlertOperandValue {
+  /** Only one of the following fields may be set, depending on the type of threshold value. */
+  value?:
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'doubleValue'; doubleValue: number}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | undefined;
+}
+
 export interface UpdateAlertRequest {
-  alert?: Alert | undefined;
-  updateMask?: FieldMask<Alert> | undefined;
+  alert?: UpdateAlert | undefined;
+  updateMask?: FieldMask<UpdateAlert> | undefined;
+}
+
+export interface UpdateAlertRunAs {
+  identity?:
+    | {
+        $case: 'userName';
+        /** The email of an active workspace user. Can only set this field to their own email. */
+        userName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role. */
+        servicePrincipalName: string;
+      }
+    | undefined;
+}
+
+export interface UpdateAlertSubscription {
+  subscriptionType?:
+    | {$case: 'userEmail'; userEmail: string}
+    | {$case: 'destinationId'; destinationId: string}
+    | undefined;
+}
+
+export interface UpdateCronSchedule {
+  /**
+   * A cron expression using quartz syntax that specifies the schedule for this pipeline.
+   * Should use the quartz format described here: http://www.quartz-scheduler.org/documentation/quartz-2.1.7/tutorials/tutorial-lesson-06.html
+   */
+  quartzCronSchedule?: string | undefined;
+  /**
+   * A Java timezone id. The schedule will be resolved using this timezone.
+   * This will be combined with the quartz_cron_schedule to determine the schedule.
+   * See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
+   */
+  timezoneId?: string | undefined;
+  /** Indicate whether this schedule is paused or not. */
+  pauseStatus?: SchedulePauseStatus | undefined;
 }
 
 export const unmarshalAlertSchema: z.ZodType<Alert> = z
@@ -427,61 +667,40 @@ export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
       nextPageToken: d.next_page_token,
     }));
 
-export const marshalAlertSchema: z.ZodType = z
+export const marshalCreateAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    displayName: z.string().optional(),
-    ownerUserName: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    displayName: z.string(),
     parentPath: z.string().optional(),
-    queryText: z.string().optional(),
-    warehouseId: z.string().optional(),
+    queryText: z.string(),
+    warehouseId: z.string(),
     runAsUserName: z.string().optional(),
-    evaluation: z.lazy(() => marshalAlertEvaluationSchema).optional(),
-    schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
-    lifecycleState: z.string().optional(),
+    evaluation: z.lazy(() => marshalCreateAlertEvaluationSchema),
+    schedule: z.lazy(() => marshalCreateCronScheduleSchema),
     customSummary: z.string().optional(),
     customDescription: z.string().optional(),
-    runAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
-    effectiveRunAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
+    runAs: z.lazy(() => marshalCreateAlertRunAsSchema).optional(),
   })
   .transform(d => ({
     id: d.id,
     display_name: d.displayName,
-    owner_user_name: d.ownerUserName,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     parent_path: d.parentPath,
     query_text: d.queryText,
     warehouse_id: d.warehouseId,
     run_as_user_name: d.runAsUserName,
     evaluation: d.evaluation,
     schedule: d.schedule,
-    lifecycle_state: d.lifecycleState,
     custom_summary: d.customSummary,
     custom_description: d.customDescription,
     run_as: d.runAs,
-    effective_run_as: d.effectiveRunAs,
   }));
 
-export const marshalAlertEvaluationSchema: z.ZodType = z
+export const marshalCreateAlertEvaluationSchema: z.ZodType = z
   .object({
-    source: z.lazy(() => marshalAlertOperandColumnSchema).optional(),
-    comparisonOperator: z.string().optional(),
-    threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
-    notification: z.lazy(() => marshalAlertNotificationSchema).optional(),
-    state: z.string().optional(),
-    lastEvaluatedAt: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    source: z.lazy(() => marshalCreateAlertOperandColumnSchema),
+    comparisonOperator: z.string(),
+    threshold: z.lazy(() => marshalCreateAlertOperandSchema).optional(),
+    notification: z.lazy(() => marshalCreateAlertNotificationSchema).optional(),
     emptyResultState: z.string().optional(),
   })
   .transform(d => ({
@@ -489,15 +708,13 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
     comparison_operator: d.comparisonOperator,
     threshold: d.threshold,
     notification: d.notification,
-    state: d.state,
-    last_evaluated_at: d.lastEvaluatedAt,
     empty_result_state: d.emptyResultState,
   }));
 
-export const marshalAlertNotificationSchema: z.ZodType = z
+export const marshalCreateAlertNotificationSchema: z.ZodType = z
   .object({
     subscriptions: z
-      .array(z.lazy(() => marshalAlertSubscriptionSchema))
+      .array(z.lazy(() => marshalCreateAlertSubscriptionSchema))
       .optional(),
     retriggerSeconds: z.number().optional(),
     notifyOnOk: z.boolean().optional(),
@@ -508,17 +725,17 @@ export const marshalAlertNotificationSchema: z.ZodType = z
     notify_on_ok: d.notifyOnOk,
   }));
 
-export const marshalAlertOperandSchema: z.ZodType = z
+export const marshalCreateAlertOperandSchema: z.ZodType = z
   .object({
     operand: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('column'),
-          column: z.lazy(() => marshalAlertOperandColumnSchema),
+          column: z.lazy(() => marshalCreateAlertOperandColumnSchema),
         }),
         z.object({
           $case: z.literal('value'),
-          value: z.lazy(() => marshalAlertOperandValueSchema),
+          value: z.lazy(() => marshalCreateAlertOperandValueSchema),
         }),
       ])
       .optional(),
@@ -528,9 +745,9 @@ export const marshalAlertOperandSchema: z.ZodType = z
     ...(d.operand?.$case === 'value' && {value: d.operand.value}),
   }));
 
-export const marshalAlertOperandColumnSchema: z.ZodType = z
+export const marshalCreateAlertOperandColumnSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     display: z.string().optional(),
     aggregation: z.string().optional(),
   })
@@ -540,7 +757,7 @@ export const marshalAlertOperandColumnSchema: z.ZodType = z
     aggregation: d.aggregation,
   }));
 
-export const marshalAlertOperandValueSchema: z.ZodType = z
+export const marshalCreateAlertOperandValueSchema: z.ZodType = z
   .object({
     value: z
       .discriminatedUnion('$case', [
@@ -560,7 +777,7 @@ export const marshalAlertOperandValueSchema: z.ZodType = z
     ...(d.value?.$case === 'boolValue' && {bool_value: d.value.boolValue}),
   }));
 
-export const marshalAlertRunAsSchema: z.ZodType = z
+export const marshalCreateAlertRunAsSchema: z.ZodType = z
   .object({
     identity: z
       .discriminatedUnion('$case', [
@@ -579,7 +796,7 @@ export const marshalAlertRunAsSchema: z.ZodType = z
     }),
   }));
 
-export const marshalAlertSubscriptionSchema: z.ZodType = z
+export const marshalCreateAlertSubscriptionSchema: z.ZodType = z
   .object({
     subscriptionType: z
       .discriminatedUnion('$case', [
@@ -600,7 +817,169 @@ export const marshalAlertSubscriptionSchema: z.ZodType = z
     }),
   }));
 
-export const marshalCronScheduleSchema: z.ZodType = z
+export const marshalCreateCronScheduleSchema: z.ZodType = z
+  .object({
+    quartzCronSchedule: z.string(),
+    timezoneId: z.string(),
+    pauseStatus: z.string().optional(),
+  })
+  .transform(d => ({
+    quartz_cron_schedule: d.quartzCronSchedule,
+    timezone_id: d.timezoneId,
+    pause_status: d.pauseStatus,
+  }));
+
+export const marshalUpdateAlertSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    displayName: z.string().optional(),
+    parentPath: z.string().optional(),
+    queryText: z.string().optional(),
+    warehouseId: z.string().optional(),
+    runAsUserName: z.string().optional(),
+    evaluation: z.lazy(() => marshalUpdateAlertEvaluationSchema).optional(),
+    schedule: z.lazy(() => marshalUpdateCronScheduleSchema).optional(),
+    customSummary: z.string().optional(),
+    customDescription: z.string().optional(),
+    runAs: z.lazy(() => marshalUpdateAlertRunAsSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    display_name: d.displayName,
+    parent_path: d.parentPath,
+    query_text: d.queryText,
+    warehouse_id: d.warehouseId,
+    run_as_user_name: d.runAsUserName,
+    evaluation: d.evaluation,
+    schedule: d.schedule,
+    custom_summary: d.customSummary,
+    custom_description: d.customDescription,
+    run_as: d.runAs,
+  }));
+
+export const marshalUpdateAlertEvaluationSchema: z.ZodType = z
+  .object({
+    source: z.lazy(() => marshalUpdateAlertOperandColumnSchema).optional(),
+    comparisonOperator: z.string().optional(),
+    threshold: z.lazy(() => marshalUpdateAlertOperandSchema).optional(),
+    notification: z.lazy(() => marshalUpdateAlertNotificationSchema).optional(),
+    emptyResultState: z.string().optional(),
+  })
+  .transform(d => ({
+    source: d.source,
+    comparison_operator: d.comparisonOperator,
+    threshold: d.threshold,
+    notification: d.notification,
+    empty_result_state: d.emptyResultState,
+  }));
+
+export const marshalUpdateAlertNotificationSchema: z.ZodType = z
+  .object({
+    subscriptions: z
+      .array(z.lazy(() => marshalUpdateAlertSubscriptionSchema))
+      .optional(),
+    retriggerSeconds: z.number().optional(),
+    notifyOnOk: z.boolean().optional(),
+  })
+  .transform(d => ({
+    subscriptions: d.subscriptions,
+    retrigger_seconds: d.retriggerSeconds,
+    notify_on_ok: d.notifyOnOk,
+  }));
+
+export const marshalUpdateAlertOperandSchema: z.ZodType = z
+  .object({
+    operand: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('column'),
+          column: z.lazy(() => marshalUpdateAlertOperandColumnSchema),
+        }),
+        z.object({
+          $case: z.literal('value'),
+          value: z.lazy(() => marshalUpdateAlertOperandValueSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.operand?.$case === 'column' && {column: d.operand.column}),
+    ...(d.operand?.$case === 'value' && {value: d.operand.value}),
+  }));
+
+export const marshalUpdateAlertOperandColumnSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    display: z.string().optional(),
+    aggregation: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display: d.display,
+    aggregation: d.aggregation,
+  }));
+
+export const marshalUpdateAlertOperandValueSchema: z.ZodType = z
+  .object({
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
+        z.object({$case: z.literal('doubleValue'), doubleValue: z.number()}),
+        z.object({$case: z.literal('boolValue'), boolValue: z.boolean()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.value?.$case === 'stringValue' && {
+      string_value: d.value.stringValue,
+    }),
+    ...(d.value?.$case === 'doubleValue' && {
+      double_value: d.value.doubleValue,
+    }),
+    ...(d.value?.$case === 'boolValue' && {bool_value: d.value.boolValue}),
+  }));
+
+export const marshalUpdateAlertRunAsSchema: z.ZodType = z
+  .object({
+    identity: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
+    ...(d.identity?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.identity.servicePrincipalName,
+    }),
+  }));
+
+export const marshalUpdateAlertSubscriptionSchema: z.ZodType = z
+  .object({
+    subscriptionType: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userEmail'), userEmail: z.string()}),
+        z.object({
+          $case: z.literal('destinationId'),
+          destinationId: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.subscriptionType?.$case === 'userEmail' && {
+      user_email: d.subscriptionType.userEmail,
+    }),
+    ...(d.subscriptionType?.$case === 'destinationId' && {
+      destination_id: d.subscriptionType.destinationId,
+    }),
+  }));
+
+export const marshalUpdateCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronSchedule: z.string().optional(),
     timezoneId: z.string().optional(),
@@ -612,77 +991,84 @@ export const marshalCronScheduleSchema: z.ZodType = z
     pause_status: d.pauseStatus,
   }));
 
-const alertFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
+const updateAlertFieldMaskSchema: FieldMaskSchema = {
   customDescription: {wire: 'custom_description'},
   customSummary: {wire: 'custom_summary'},
   displayName: {wire: 'display_name'},
-  effectiveRunAs: {
-    wire: 'effective_run_as',
-    children: () => alertRunAsFieldMaskSchema,
-  },
   evaluation: {
     wire: 'evaluation',
-    children: () => alertEvaluationFieldMaskSchema,
+    children: () => updateAlertEvaluationFieldMaskSchema,
   },
   id: {wire: 'id'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  ownerUserName: {wire: 'owner_user_name'},
   parentPath: {wire: 'parent_path'},
   queryText: {wire: 'query_text'},
-  runAs: {wire: 'run_as', children: () => alertRunAsFieldMaskSchema},
+  runAs: {wire: 'run_as', children: () => updateAlertRunAsFieldMaskSchema},
   runAsUserName: {wire: 'run_as_user_name'},
-  schedule: {wire: 'schedule', children: () => cronScheduleFieldMaskSchema},
-  updateTime: {wire: 'update_time'},
+  schedule: {
+    wire: 'schedule',
+    children: () => updateCronScheduleFieldMaskSchema,
+  },
   warehouseId: {wire: 'warehouse_id'},
 };
 
-export function alertFieldMask(...paths: string[]): FieldMask<Alert> {
-  return FieldMask.build<Alert>(paths, alertFieldMaskSchema);
+export function updateAlertFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateAlert> {
+  return FieldMask.build<UpdateAlert>(paths, updateAlertFieldMaskSchema);
 }
 
-const alertEvaluationFieldMaskSchema: FieldMaskSchema = {
+const updateAlertEvaluationFieldMaskSchema: FieldMaskSchema = {
   comparisonOperator: {wire: 'comparison_operator'},
   emptyResultState: {wire: 'empty_result_state'},
-  lastEvaluatedAt: {wire: 'last_evaluated_at'},
   notification: {
     wire: 'notification',
-    children: () => alertNotificationFieldMaskSchema,
+    children: () => updateAlertNotificationFieldMaskSchema,
   },
-  source: {wire: 'source', children: () => alertOperandColumnFieldMaskSchema},
-  state: {wire: 'state'},
-  threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},
+  source: {
+    wire: 'source',
+    children: () => updateAlertOperandColumnFieldMaskSchema,
+  },
+  threshold: {
+    wire: 'threshold',
+    children: () => updateAlertOperandFieldMaskSchema,
+  },
 };
 
-const alertNotificationFieldMaskSchema: FieldMaskSchema = {
+const updateAlertNotificationFieldMaskSchema: FieldMaskSchema = {
   notifyOnOk: {wire: 'notify_on_ok'},
   retriggerSeconds: {wire: 'retrigger_seconds'},
   subscriptions: {wire: 'subscriptions'},
 };
 
-const alertOperandFieldMaskSchema: FieldMaskSchema = {
-  column: {wire: 'column', children: () => alertOperandColumnFieldMaskSchema},
-  value: {wire: 'value', children: () => alertOperandValueFieldMaskSchema},
+const updateAlertOperandFieldMaskSchema: FieldMaskSchema = {
+  column: {
+    wire: 'column',
+    children: () => updateAlertOperandColumnFieldMaskSchema,
+  },
+  value: {
+    wire: 'value',
+    children: () => updateAlertOperandValueFieldMaskSchema,
+  },
 };
 
-const alertOperandColumnFieldMaskSchema: FieldMaskSchema = {
+const updateAlertOperandColumnFieldMaskSchema: FieldMaskSchema = {
   aggregation: {wire: 'aggregation'},
   display: {wire: 'display'},
   name: {wire: 'name'},
 };
 
-const alertOperandValueFieldMaskSchema: FieldMaskSchema = {
+const updateAlertOperandValueFieldMaskSchema: FieldMaskSchema = {
   boolValue: {wire: 'bool_value'},
   doubleValue: {wire: 'double_value'},
   stringValue: {wire: 'string_value'},
 };
 
-const alertRunAsFieldMaskSchema: FieldMaskSchema = {
+const updateAlertRunAsFieldMaskSchema: FieldMaskSchema = {
   servicePrincipalName: {wire: 'service_principal_name'},
   userName: {wire: 'user_name'},
 };
 
-const cronScheduleFieldMaskSchema: FieldMaskSchema = {
+const updateCronScheduleFieldMaskSchema: FieldMaskSchema = {
   pauseStatus: {wire: 'pause_status'},
   quartzCronSchedule: {wire: 'quartz_cron_schedule'},
   timezoneId: {wire: 'timezone_id'},

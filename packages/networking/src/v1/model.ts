@@ -420,13 +420,249 @@ export interface CreateAccountIpAccessListResponse {
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
+export interface CreateAccountNetworkPolicy {
+  /** The unique identifier for the network policy. */
+  networkPolicyId?: string | undefined;
+  /** The associated account ID for this Network Policy object. */
+  accountId?: string | undefined;
+  /** The network policies applying for egress traffic. */
+  egress?: CreateEgressNetworkPolicy | undefined;
+  /** The network policies applying for ingress traffic. */
+  ingress?: CreateIngressNetworkPolicy | undefined;
+  /**
+   * The ingress policy for dry run mode. Dry run will always run even if the request
+   * is allowed by the ingress policy. When this field is set, the policy will be evaluated
+   * and emit logs only without blocking requests.
+   */
+  ingressDryRun?: CreateIngressNetworkPolicy | undefined;
+}
+
+export interface CreateAzurePrivateEndpointInfo {
+  /** The name of the Private Endpoint in the Azure subscription. */
+  privateEndpointName: string;
+  /**
+   * The GUID of the Private Endpoint resource in the Azure subscription.
+   * This is assigned by Azure when the user sets up the Private Endpoint.
+   */
+  privateEndpointResourceGuid: string;
+}
+
+/** Properties of the new network connectivity configuration. */
+export interface CreateCreateNetworkConnectivityConfiguration {
+  /** <Databricks> network connectivity configuration ID. */
+  networkConnectivityConfigId?: string | undefined;
+  /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
+  accountId?: string | undefined;
+  /**
+   * The name of the network connectivity configuration. The name can contain alphanumeric characters, hyphens,
+   * and underscores. The length must be between 3 and 30 characters. The name must match the regular
+   * expression ^[0-9a-zA-Z-_]{3,30}$
+   */
+  name?: string | undefined;
+  /**
+   * The region for the network connectivity configuration.
+   * Only workspaces in the same region can be attached to the network connectivity configuration.
+   */
+  region?: string | undefined;
+  /** The network connectivity rules that apply to network traffic from your serverless compute resources. */
+  egressConfig?:
+    | CreateCustomerFacingNetworkConnectivityConfigEgressConfig
+    | undefined;
+  /** Time in epoch milliseconds when this object was updated. */
+  updatedTime?: bigint | undefined;
+  /** Time in epoch milliseconds when this object was created. */
+  creationTime?: bigint | undefined;
+}
+
+/**
+ * Properties of the new private endpoint rule.
+ * Note that you must approve the endpoint in Azure portal after initialization.
+ */
+export interface CreateCreatePrivateEndpointRule {
+  /** The ID of a private endpoint rule. */
+  ruleId?: string | undefined;
+  /** The ID of a network connectivity configuration, which is the parent resource of this private endpoint rule object. */
+  networkConnectivityConfigId?: string | undefined;
+  /**
+   * The current status of this private endpoint. The private endpoint rules are effective only if the connection state
+   * is ESTABLISHED. Remember that you must approve new endpoints on your resources in the Cloud console
+   * before they take effect.
+   * The possible values are:
+   * - PENDING: The endpoint has been created and pending approval.
+   * - ESTABLISHED: The endpoint has been approved and is ready to use in your serverless compute resources.
+   * - REJECTED: Connection was rejected by the private link resource owner.
+   * - DISCONNECTED: Connection was removed by the private link resource owner, the private endpoint becomes informative and should be deleted for clean-up.
+   * - EXPIRED: If the endpoint was created but not approved in 14 days, it will be EXPIRED.
+   * - CREATING: The endpoint creation is in progress. Once successfully created, the state will transition to PENDING.
+   * - CREATE_FAILED: The endpoint creation failed. You can check the error_message field for more details.
+   */
+  connectionState?:
+    | NccPrivateEndpointRule_PrivateLinkConnectionState
+    | undefined;
+  /**
+   * Only used by private endpoints to customer-managed private endpoint services.
+   *
+   * Domain names of target private link service.
+   * When updating this field, the full list of target domain_names must be specified.
+   */
+  domainNames?: string[] | undefined;
+  /** Time in epoch milliseconds when this object was created. */
+  creationTime?: bigint | undefined;
+  /** Time in epoch milliseconds when this object was updated. */
+  updatedTime?: bigint | undefined;
+  /** Whether this private endpoint is deactivated. */
+  deactivated?: boolean | undefined;
+  /** Time in epoch milliseconds when this object was deactivated. */
+  deactivatedAt?: bigint | undefined;
+  errorMessage?: string | undefined;
+  /** The Azure resource ID of the target resource. */
+  resourceId?: string | undefined;
+  /**
+   * Not used by customer-managed private endpoint services.
+   *
+   * The sub-resource type (group ID) of the target resource.
+   * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
+   */
+  groupId?: string | undefined;
+  /** The name of the Azure private endpoint resource. */
+  endpointName?: string | undefined;
+  /** <Databricks> account ID. You can find your account ID from the Accounts Console. */
+  accountId?: string | undefined;
+  /** The full target AWS endpoint service name that connects to the destination resources of the private endpoint. */
+  endpointService?: string | undefined;
+  /**
+   * Only used by private endpoints towards AWS S3 service.
+   *
+   * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
+   * The bucket names must be in the same region as the NCC/endpoint service.
+   * When updating this field, we perform full update on this field. Please ensure a full list of desired
+   * resource_names is provided.
+   */
+  resourceNames?: string[] | undefined;
+  /** The AWS VPC endpoint ID. You can use this ID to identify the VPC endpoint created by <Databricks>. */
+  vpcEndpointId?: string | undefined;
+  /**
+   * Update this field to activate/deactivate this private endpoint to allow egress access from
+   * serverless compute resources. Only honored for first-party services on each cloud (e.g. AWS S3).
+   */
+  enabled?: boolean | undefined;
+  endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: CreateGcpEndpoint} | undefined;
+}
+
+export interface CreateCustomerFacingNetworkConnectivityConfigEgressConfig {
+  /**
+   * The network connectivity rules that are applied by default without resource specific configurations.
+   * You can find the stable network information of your serverless compute resources here.
+   */
+  defaultRules?:
+    | NetworkConnectivityConfigEgressConfig_CreateDefaultRule
+    | undefined;
+  /** The network connectivity rules that configured for each destinations. These rules override default rules. */
+  targetRules?:
+    | CustomerFacingNetworkConnectivityConfigEgressConfig_CreateCustomerFacingTargetRule
+    | undefined;
+}
+
+/** The network policies applying for egress traffic. */
+export interface CreateEgressNetworkPolicy {
+  /** The access policy enforced for egress traffic to the internet. */
+  networkAccess?: EgressNetworkPolicy_CreateNetworkAccessPolicy | undefined;
+}
+
+/** Endpoint represents a cloud networking resource in a user's cloud account and binds it to the <Databricks> account. */
+export interface CreateEndpoint {
+  /**
+   * The human-readable display name of this endpoint.
+   * The input should conform to RFC-1034, which restricts to letters, numbers, and hyphens,
+   * with the first character a letter, the last a letter or a number, and a 63 character maximum.
+   */
+  displayName: string;
+  /** The cloud provider region where this endpoint is located. */
+  region: string;
+  /**
+   * The cloud info of this endpoint.
+   * (-- For now it only supports Azure PL, but in future we can support other clouds and more use cases (e.g. public endpoint) --)
+   */
+  endpointInfo?:
+    | {
+        $case: 'azurePrivateEndpointInfo';
+        /** Info for an Azure private endpoint. */
+        azurePrivateEndpointInfo: CreateAzurePrivateEndpointInfo;
+      }
+    | undefined;
+}
+
 export interface CreateEndpointRequest {
   /**
    * The parent resource name of the account under which the endpoint is created.
    * Format: `accounts/{account_id}`.
    */
   parent?: string | undefined;
-  endpoint?: Endpoint | undefined;
+  endpoint?: CreateEndpoint | undefined;
+}
+
+export interface CreateGcpEndpoint {
+  /** Selects which target services this private endpoint reaches. */
+  targetServices?:
+    | {
+        $case: 'serviceAttachment';
+        /**
+         * The full url of the target service attachment.
+         * Example:
+         * projects/my-gcp-project/regions/us-east4/serviceAttachments/my-service-attachment
+         */
+        serviceAttachment: string;
+      }
+    | undefined;
+}
+
+export interface CreateGcpNetworkInfo {
+  /** The GCP project ID for network resources. This project is where the VPC and subnet resides. */
+  networkProjectId: string;
+  /** The customer-provided VPC ID. */
+  vpcId: string;
+  /**
+   * The customer-provided Subnet ID that will be available to Clusters in Workspaces using this
+   * Network.
+   */
+  subnetId: string;
+  subnetRegion: string;
+  /**
+   * Name of the secondary range within the subnet that will be used by GKE as Pod IP range.
+   * This is BYO VPC specific. DB VPC uses network.getGcpManagedNetworkConfig.getGkeClusterPodIpRange
+   */
+  podIpRangeName: string;
+  /** Name of the secondary range within the subnet that will be used by GKE as Service IP range. */
+  serviceIpRangeName: string;
+}
+
+export interface CreateGcpVpcEndpointInfo {
+  pscConnectionId?: string | undefined;
+  projectId: string;
+  pscEndpointName: string;
+  endpointRegion: string;
+  serviceAttachmentId?: string | undefined;
+}
+
+/**
+ * This proto is under development.
+ * The network policies applying for ingress traffic.
+ * Any changes here should also be synced to estore/namespaces/lakehousenetworkmanager/latest.proto.
+ */
+export interface CreateIngressNetworkPolicy {
+  /**
+   * The network policy restrictions for public access to the workspace.
+   * Configures how public internet traffic is allowed or denied access.
+   */
+  publicAccess?: IngressNetworkPolicy_CreatePublicAccess | undefined;
+  /**
+   * The network policy restrictions for private access to the workspace.
+   * Configures how registered private endpoints are allowed or denied access.
+   */
+  privateAccess?: IngressNetworkPolicy_CreatePrivateAccess | undefined;
+  crossWorkspaceAccess?:
+    | IngressNetworkPolicy_CreateCrossWorkspaceAccess
+    | undefined;
 }
 
 /** Details required to configure a block list or allow list. */
@@ -448,7 +684,123 @@ export interface CreateNccPrivateEndpointRuleRequest {
   networkConnectivityConfigId?: string | undefined;
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
-  privateEndpointRule?: CreatePrivateEndpointRule | undefined;
+  privateEndpointRule?: CreateCreatePrivateEndpointRule | undefined;
+}
+
+/**
+ * Properties of the new private endpoint rule.
+ * Note that for private endpoints towards a VPC endpoint service behind a customer-managed NLB,
+ * you must approve the endpoint in AWS console after initialization.
+ */
+export interface CreateNetworkConnectivityConfigAwsPrivateEndpointRule {
+  /** The ID of a private endpoint rule. */
+  ruleId?: string | undefined;
+  /** The ID of a network connectivity configuration, which is the parent resource of this private endpoint rule object. */
+  networkConnectivityConfigId?: string | undefined;
+  /** <Databricks> account ID. You can find your account ID from the Accounts Console. */
+  accountId?: string | undefined;
+  /** The full target AWS endpoint service name that connects to the destination resources of the private endpoint. */
+  endpointService?: string | undefined;
+  /**
+   * Only used by private endpoints towards a VPC endpoint service for customer-managed VPC endpoint service.
+   *
+   * The target AWS resource FQDNs accessible via the VPC endpoint service.
+   * When updating this field, we perform full update on this field. Please ensure a full list of desired domain_names is provided.
+   */
+  domainNames?: string[] | undefined;
+  /**
+   * Only used by private endpoints towards AWS S3 service.
+   *
+   * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
+   * The bucket names must be in the same region as the NCC/endpoint service.
+   * When updating this field, we perform full update on this field.
+   * Please ensure a full list of desired resource_names is provided.
+   */
+  resourceNames?: string[] | undefined;
+  /** The AWS VPC endpoint ID. You can use this ID to identify VPC endpoint created by <Databricks>. */
+  vpcEndpointId?: string | undefined;
+  /**
+   * The current status of this private endpoint. The private endpoint rules are effective only if the connection state
+   * is ESTABLISHED. Remember that you must approve new endpoints on your resources in the AWS console
+   * before they take effect.
+   * The possible values are:
+   * - PENDING: The endpoint has been created and pending approval.
+   * - ESTABLISHED: The endpoint has been approved and is ready to use in your serverless compute resources.
+   * - REJECTED: Connection was rejected by the private link resource owner.
+   * - DISCONNECTED: Connection was removed by the private link resource owner, the private endpoint becomes informative and should be deleted for clean-up.
+   * - EXPIRED: If the endpoint is created but not approved in 14 days, it is EXPIRED.
+   */
+  connectionState?:
+    | NetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
+    | undefined;
+  /** Time in epoch milliseconds when this object was created. */
+  creationTime?: bigint | undefined;
+  /** Time in epoch milliseconds when this object was updated. */
+  updatedTime?: bigint | undefined;
+  /** Whether this private endpoint is deactivated. */
+  deactivated?: boolean | undefined;
+  /** Time in epoch milliseconds when this object was deactivated. */
+  deactivatedAt?: bigint | undefined;
+  /**
+   * Only used by private endpoints towards an AWS S3 service.
+   *
+   * Update this field to activate/deactivate this private endpoint to allow egress access from serverless compute resources.
+   */
+  enabled?: boolean | undefined;
+  errorMessage?: string | undefined;
+}
+
+/**
+ * Properties of the new private endpoint rule.
+ * Note that you must approve the endpoint in Azure portal after initialization.
+ */
+export interface CreateNetworkConnectivityConfigAzurePrivateEndpointRule {
+  /** The ID of a private endpoint rule. */
+  ruleId?: string | undefined;
+  /** The ID of a network connectivity configuration, which is the parent resource of this private endpoint rule object. */
+  networkConnectivityConfigId?: string | undefined;
+  /** The Azure resource ID of the target resource. */
+  resourceId?: string | undefined;
+  /**
+   * Only used by private endpoints to Azure first-party services.
+   *
+   * The sub-resource type (group ID) of the target resource.
+   * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
+   */
+  groupId?: string | undefined;
+  /** The name of the Azure private endpoint resource. */
+  endpointName?: string | undefined;
+  /**
+   * The current status of this private endpoint. The private endpoint rules are effective only if the connection state
+   * is ESTABLISHED. Remember that you must approve new endpoints on your resources in the Azure portal
+   * before they take effect.
+   * The possible values are:
+   * - INIT: (deprecated) The endpoint has been created and pending approval.
+   * - PENDING: The endpoint has been created and pending approval.
+   * - ESTABLISHED: The endpoint has been approved and is ready to use in your serverless compute resources.
+   * - REJECTED: Connection was rejected by the private link resource owner.
+   * - DISCONNECTED: Connection was removed by the private link resource owner, the private endpoint becomes informative and should be deleted for clean-up.
+   * - EXPIRED: If the endpoint was created but not approved in 14 days, it will be EXPIRED.
+   */
+  connectionState?:
+    | NetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
+    | undefined;
+  /** Time in epoch milliseconds when this object was created. */
+  creationTime?: bigint | undefined;
+  /** Time in epoch milliseconds when this object was updated. */
+  updatedTime?: bigint | undefined;
+  /** Whether this private endpoint is deactivated. */
+  deactivated?: boolean | undefined;
+  /** Time in epoch milliseconds when this object was deactivated. */
+  deactivatedAt?: bigint | undefined;
+  /**
+   * Not used by customer-managed private endpoint services.
+   *
+   * Domain names of target private link service.
+   * When updating this field, the full list of target domain_names must be specified.
+   */
+  domainNames?: string[] | undefined;
+  errorMessage?: string | undefined;
 }
 
 /** Properties of the new network connectivity configuration. */
@@ -456,7 +808,7 @@ export interface CreateNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   networkConnectivityConfig?:
-    | CreateNetworkConnectivityConfiguration
+    | CreateCreateNetworkConnectivityConfiguration
     | undefined;
 }
 
@@ -491,7 +843,7 @@ export interface CreateNetworkPolicyRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Network policy configuration details. */
-  networkPolicy?: AccountNetworkPolicy | undefined;
+  networkPolicy?: CreateAccountNetworkPolicy | undefined;
 }
 
 export interface CreateNetworkRequest {
@@ -504,8 +856,41 @@ export interface CreateNetworkRequest {
   subnetIds?: string[] | undefined;
   /** IDs of one to five security groups associated with this network. Security group IDs **cannot** be used in multiple network configurations. */
   securityGroupIds?: string[] | undefined;
-  vpcEndpoints?: NetworkVpcEndpoints | undefined;
-  gcpNetworkInfo?: GcpNetworkInfo | undefined;
+  vpcEndpoints?: CreateNetworkVpcEndpoints | undefined;
+  gcpNetworkInfo?: CreateGcpNetworkInfo | undefined;
+}
+
+export interface CreateNetworkVpcEndpoints {
+  /** The VPC endpoint ID used by this network to access the Databricks REST API. */
+  restApi?: string[] | undefined;
+  /** The VPC endpoint ID used by this network to access the <Databricks> secure cluster connectivity relay. */
+  dataplaneRelay?: string[] | undefined;
+}
+
+/** * */
+export interface CreatePrivateAccessSettings {
+  /** <Databricks> private access settings ID. */
+  privateAccessSettingsId?: string | undefined;
+  /** The <Databricks> account ID that hosts the private access settings. */
+  accountId?: string | undefined;
+  /** The human-readable name of the private access settings object. */
+  privateAccessSettingsName?: string | undefined;
+  /** The AWS region for workspaces attached to this private access settings object. */
+  region?: string | undefined;
+  /** Determines if the workspace can be accessed over public internet. For fully private workspaces, you can optionally specify false, but only if you implement both the front-end and the back-end PrivateLink connections. Otherwise, specify true, which means that public access is enabled. */
+  publicAccessEnabled?: boolean | undefined;
+  /**
+   * The private access level controls which VPC endpoints can connect to the UI or API of any workspace that attaches this private access settings object.
+   * `ACCOUNT` level access (the default) allows only VPC endpoints that are registered in your <Databricks> account connect to your workspace.
+   * `ENDPOINT` level access allows only specified VPC endpoints connect to your workspace. For details, see allowed_vpc_endpoint_ids.
+   */
+  privateAccessLevel?: PrivateAccessLevel | undefined;
+  /**
+   * An array of Databricks VPC endpoint IDs. This is the <Databricks> ID that is returned when registering the VPC endpoint configuration in your <Databricks> account. This is not the ID of the VPC endpoint in AWS.
+   * Only used when private_access_level is set to ENDPOINT. This is an allow list of VPC endpoints that in your account that can connect to your workspace over AWS PrivateLink.
+   * If hybrid access to your workspace is enabled by setting public_access_enabled to true, this control only works for PrivateLink connections. To control how your workspace is accessed via public internet, see IP access lists.
+   */
+  allowedVpcEndpointIds?: string[] | undefined;
 }
 
 export interface CreatePrivateAccessSettingsRequest {
@@ -617,9 +1002,21 @@ export interface CreateVpcEndpointRequest {
     | {
         $case: 'gcpVpcEndpointInfo';
         /** The cloud info of this vpc endpoint. */
-        gcpVpcEndpointInfo: GcpVpcEndpointInfo;
+        gcpVpcEndpointInfo: CreateGcpVpcEndpointInfo;
       }
     | undefined;
+}
+
+export interface CreateWorkspaceNetworkOption {
+  /**
+   * The network policy ID to apply to the workspace. This controls the network access rules
+   * for all serverless compute resources in the workspace. Each workspace can only be
+   * linked to one policy at a time. If no policy is explicitly assigned,
+   * the workspace will use 'default-policy'.
+   */
+  networkPolicyId?: string | undefined;
+  /** The workspace ID. */
+  workspaceId?: bigint | undefined;
 }
 
 export interface CustomerFacingNetworkConnectivityConfigEgressConfig {
@@ -631,6 +1028,18 @@ export interface CustomerFacingNetworkConnectivityConfigEgressConfig {
   /** The network connectivity rules that configured for each destinations. These rules override default rules. */
   targetRules?:
     | CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule
+    | undefined;
+}
+
+/** Target rule controls the egress rules that are dedicated to specific resources. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CustomerFacingNetworkConnectivityConfigEgressConfig_CreateCustomerFacingTargetRule {
+  azurePrivateEndpointRules?:
+    | CreateNetworkConnectivityConfigAzurePrivateEndpointRule[]
+    | undefined;
+  /** AWS private endpoint rule controls the AWS private endpoint based egress rules. */
+  awsPrivateEndpointRules?:
+    | CreateNetworkConnectivityConfigAwsPrivateEndpointRule[]
     | undefined;
 }
 
@@ -721,6 +1130,41 @@ export interface EgressNetworkPolicy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_CreateNetworkAccessPolicy {
+  /** The restriction mode that controls how serverless workloads can access the internet. */
+  restrictionMode?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode
+    | undefined;
+  /** List of internet destinations that serverless workloads are allowed to access when in RESTRICTED_ACCESS mode. */
+  allowedInternetDestinations?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_CreateInternetDestination[]
+    | undefined;
+  /** List of storage destinations that serverless workloads are allowed to access when in RESTRICTED_ACCESS mode. */
+  allowedStorageDestinations?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_CreateStorageDestination[]
+    | undefined;
+  /** Optional. When policy_enforcement is not provided, we default to ENFORCE_MODE_ALL_SERVICES */
+  policyEnforcement?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_CreatePolicyEnforcement
+    | undefined;
+  /**
+   * List of internet destinations that serverless workloads are blocked from accessing.
+   * These destinations are enforced when restriction mode is RESTRICTED_ACCESS or DRY_RUN.
+   * Currently supports DNS_NAME type only; IP_RANGE support is planned.
+   */
+  blockedInternetDestinations?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_CreateInternetDestination[]
+    | undefined;
+  /**
+   * List of <Databricks> workspace destinations that serverless workloads are
+   * allowed to access when in RESTRICTED_ACCESS mode.
+   */
+  allowedDatabricksDestinations?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_CreateDatabricksDestination[]
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EgressNetworkPolicy_NetworkAccessPolicy {
   /** The restriction mode that controls how serverless workloads can access the internet. */
   restrictionMode?:
@@ -753,6 +1197,61 @@ export interface EgressNetworkPolicy_NetworkAccessPolicy {
   allowedDatabricksDestinations?:
     | EgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestination[]
     | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_NetworkAccessPolicy_CreateDatabricksDestination {
+  /** The workspace IDs to allow egress traffic to. */
+  workspaceIds?: bigint[] | undefined;
+}
+
+/**
+ * Users can specify accessible internet destinations when outbound access is restricted.
+ * We only support DNS_NAME (FQDN format) destinations for the time being.
+ * Going forward we may extend support to host names and IP addresses.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_NetworkAccessPolicy_CreateInternetDestination {
+  /** The internet destination to which access will be allowed. Format dependent on the destination type. */
+  destination?: string | undefined;
+  /** The type of internet destination. Currently only DNS_NAME is supported. */
+  internetDestinationType?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_NetworkAccessPolicy_CreatePolicyEnforcement {
+  /**
+   * The mode of policy enforcement. ENFORCED blocks traffic that violates policy,
+   * while DRY_RUN only logs violations without blocking. When not specified,
+   * defaults to ENFORCED.
+   */
+  enforcementMode?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode
+    | undefined;
+  /**
+   * When empty, it means dry run for all products.
+   * When non-empty, it means dry run for specific products and for the other products, they will run in enforced mode.
+   */
+  dryRunModeProductFilter?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter[]
+    | undefined;
+}
+
+/** Users can specify accessible storage destinations. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_NetworkAccessPolicy_CreateStorageDestination {
+  bucketName?: string | undefined;
+  region?: string | undefined;
+  /** The type of storage destination. */
+  storageDestinationType?:
+    | EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType
+    | undefined;
+  /** The Azure storage account name. */
+  azureStorageAccount?: string | undefined;
+  /** The Azure storage service type (blob, dfs, etc.). */
+  azureStorageService?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1026,6 +1525,216 @@ export interface IngressNetworkPolicy_AuthenticationIdentity {
     | IngressNetworkPolicy_AuthenticationIdentity_PrincipalType
     | undefined;
   principalId?: bigint | undefined;
+}
+
+/** Matches account-level Databricks API endpoints for an ingress network policy rule. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateAccountApiDestination {
+  scopes?: string[] | undefined;
+  /** Qualifies the breadth of API access for the listed scopes. See ApiScopeQualifier. */
+  scopeQualifier?: IngressNetworkPolicy_ApiScopeQualifier | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateAccountDatabricksOneDestination {
+  /** Must be set to true. */
+  allDestinations?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateAccountUiDestination {
+  /** Must be set to true. */
+  allDestinations?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateAppsRuntimeDestination {
+  /** Must be set to true. */
+  allDestinations?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateAuthentication {
+  identityType?: IngressNetworkPolicy_Authentication_IdentityType | undefined;
+  /** Valid only when IdentityType is IDENTITY_TYPE_SELECTED_IDENTITIES. */
+  identities?: IngressNetworkPolicy_CreateAuthenticationIdentity[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateAuthenticationIdentity {
+  principalType?:
+    | IngressNetworkPolicy_AuthenticationIdentity_PrincipalType
+    | undefined;
+  principalId?: bigint | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateCrossWorkspaceAccess {
+  restrictionMode?:
+    | IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
+    | undefined;
+  denyRules?:
+    | IngressNetworkPolicy_CreateCrossWorkspaceIngressRule[]
+    | undefined;
+  allowRules?:
+    | IngressNetworkPolicy_CreateCrossWorkspaceIngressRule[]
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateCrossWorkspaceIngressRule {
+  origin?: IngressNetworkPolicy_CreateCrossWorkspaceRequestOrigin | undefined;
+  destination?: IngressNetworkPolicy_CreateRequestDestination | undefined;
+  authentication?: IngressNetworkPolicy_CreateAuthentication | undefined;
+  /** The label for this ingress rule. */
+  label?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateCrossWorkspaceRequestOrigin {
+  source?:
+    | {
+        $case: 'allSourceWorkspaces';
+        /** Matches all source workspaces. */
+        allSourceWorkspaces: boolean;
+      }
+    | {
+        $case: 'selectedWorkspaces';
+        /** Specific source workspace IDs to match. */
+        selectedWorkspaces: IngressNetworkPolicy_CreateWorkspaceIdList;
+      }
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateEndpoints {
+  endpointIds?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateIpRanges {
+  /** We only support IPv4 and IPv4 CIDR notation for now. */
+  ipRanges?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateLakebaseRuntimeDestination {
+  /** Must be set to true. */
+  allDestinations?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreatePrivateAccess {
+  restrictionMode?:
+    | IngressNetworkPolicy_PrivateAccess_RestrictionMode
+    | undefined;
+  denyRules?: IngressNetworkPolicy_CreatePrivateIngressRule[] | undefined;
+  allowRules?: IngressNetworkPolicy_CreatePrivateIngressRule[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreatePrivateIngressRule {
+  origin?: IngressNetworkPolicy_CreatePrivateRequestOrigin | undefined;
+  destination?: IngressNetworkPolicy_CreateRequestDestination | undefined;
+  authentication?: IngressNetworkPolicy_CreateAuthentication | undefined;
+  /** The label for this ingress rule. */
+  label?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreatePrivateRequestOrigin {
+  source?:
+    | {$case: 'endpoints'; endpoints: IngressNetworkPolicy_CreateEndpoints}
+    | {$case: 'allRegisteredEndpoints'; allRegisteredEndpoints: boolean}
+    | {$case: 'azureWorkspacePrivateLink'; azureWorkspacePrivateLink: boolean}
+    | {$case: 'allPrivateAccess'; allPrivateAccess: boolean}
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreatePublicAccess {
+  restrictionMode?:
+    | IngressNetworkPolicy_PublicAccess_RestrictionMode
+    | undefined;
+  denyRules?: IngressNetworkPolicy_CreatePublicIngressRule[] | undefined;
+  allowRules?: IngressNetworkPolicy_CreatePublicIngressRule[] | undefined;
+}
+
+/**
+ * An ingress rule is enforced when a request satisfies all
+ * specified attributes — including request origin, destination, and authentication.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreatePublicIngressRule {
+  origin?: IngressNetworkPolicy_CreatePublicRequestOrigin | undefined;
+  destination?: IngressNetworkPolicy_CreateRequestDestination | undefined;
+  authentication?: IngressNetworkPolicy_CreateAuthentication | undefined;
+  /** The label for this ingress rule. */
+  label?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreatePublicRequestOrigin {
+  source?:
+    | {
+        $case: 'allIpRanges';
+        /** Matches all IPv4 and IPv6 ranges (both public and private). */
+        allIpRanges: boolean;
+      }
+    | {
+        $case: 'includedIpRanges';
+        /** Will not allow IP ranges with private IPs. */
+        includedIpRanges: IngressNetworkPolicy_CreateIpRanges;
+      }
+    | {
+        $case: 'excludedIpRanges';
+        /** Excluded means: all public IP ranges except this one. */
+        excludedIpRanges: IngressNetworkPolicy_CreateIpRanges;
+      }
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateRequestDestination {
+  /**
+   * When true, match all destinations, no other destination fields can be set.
+   * When not set or false, at least one specific destination must be provided.
+   */
+  allDestinations?: boolean | undefined;
+  workspaceUi?: IngressNetworkPolicy_CreateWorkspaceUiDestination | undefined;
+  workspaceApi?: IngressNetworkPolicy_CreateWorkspaceApiDestination | undefined;
+  appsRuntime?: IngressNetworkPolicy_CreateAppsRuntimeDestination | undefined;
+  lakebaseRuntime?:
+    | IngressNetworkPolicy_CreateLakebaseRuntimeDestination
+    | undefined;
+  accountUi?: IngressNetworkPolicy_CreateAccountUiDestination | undefined;
+  accountApi?: IngressNetworkPolicy_CreateAccountApiDestination | undefined;
+  /**
+   * Account DatabricksOne destination is not supported.
+   * DO NOT change the stage of this destination past PRIVATE_PREVIEW.
+   */
+  accountDatabricksOne?:
+    | IngressNetworkPolicy_CreateAccountDatabricksOneDestination
+    | undefined;
+}
+
+/** Matches workspace-level Databricks API endpoints for an ingress network policy rule. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateWorkspaceApiDestination {
+  scopes?: string[] | undefined;
+  /** Qualifies the breadth of API access for the listed scopes. See ApiScopeQualifier. */
+  scopeQualifier?: IngressNetworkPolicy_ApiScopeQualifier | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateWorkspaceIdList {
+  workspaceIds?: bigint[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngressNetworkPolicy_CreateWorkspaceUiDestination {
+  /** Must be set to true. */
+  allDestinations?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1569,6 +2278,17 @@ export interface NetworkConnectivityConfigEgressConfig {}
 
 /** Default rules don't have specific targets. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface NetworkConnectivityConfigEgressConfig_CreateDefaultRule {
+  azureServiceEndpointRule?:
+    | NetworkConnectivityConfigEgressConfig_DefaultRule_CreateAzureServiceEndpointRule
+    | undefined;
+  awsStableIpRule?:
+    | NetworkConnectivityConfigEgressConfig_DefaultRule_CreateAwsStableIpRule
+    | undefined;
+}
+
+/** Default rules don't have specific targets. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface NetworkConnectivityConfigEgressConfig_DefaultRule {
   azureServiceEndpointRule?:
     | NetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRule
@@ -1591,6 +2311,27 @@ export interface NetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRu
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface NetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRule {
+  /** The Azure region in which this service endpoint rule applies.. */
+  targetRegion?: string | undefined;
+  /** The Azure services to which this service endpoint rule applies to. */
+  targetServices?: EgressResourceType[] | undefined;
+  /** The list of subnets from which <Databricks> network traffic originates when accessing your Azure resources. */
+  subnets?: string[] | undefined;
+}
+
+/** The stable AWS IP CIDR blocks. You can use these to configure the firewall of your resources to allow traffic from your <Databricks> workspace. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface NetworkConnectivityConfigEgressConfig_DefaultRule_CreateAwsStableIpRule {
+  /** The list of stable IP CIDR blocks from which <Databricks> network traffic originates when accessing your resources. */
+  cidrBlocks?: string[] | undefined;
+}
+
+/**
+ * The stable Azure service endpoints. You can configure the firewall of your Azure resources
+ * to allow traffic from your <Databricks> serverless compute resources.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface NetworkConnectivityConfigEgressConfig_DefaultRule_CreateAzureServiceEndpointRule {
   /** The Azure region in which this service endpoint rule applies.. */
   targetRegion?: string | undefined;
   /** The Azure services to which this service endpoint rule applies to. */
@@ -1697,6 +2438,21 @@ export interface UpdateAccountIpAccessListResponse {
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
+export interface UpdateGcpEndpoint {
+  /** Selects which target services this private endpoint reaches. */
+  targetServices?:
+    | {
+        $case: 'serviceAttachment';
+        /**
+         * The full url of the target service attachment.
+         * Example:
+         * projects/my-gcp-project/regions/us-east4/serviceAttachments/my-service-attachment
+         */
+        serviceAttachment: string;
+      }
+    | undefined;
+}
+
 /** Details required to update an IP access list. */
 export interface UpdateIpAccessListRequest {
   /** The ID for the corresponding IP access list */
@@ -1722,8 +2478,8 @@ export interface UpdateNccPrivateEndpointRuleRequest {
   accountId?: string | undefined;
   /** Your private endpoint rule ID. */
   privateEndpointRuleId?: string | undefined;
-  privateEndpointRule?: UpdatePrivateEndpointRule | undefined;
-  updateMask?: FieldMask<UpdatePrivateEndpointRule> | undefined;
+  privateEndpointRule?: UpdateUpdatePrivateEndpointRule | undefined;
+  updateMask?: FieldMask<UpdateUpdatePrivateEndpointRule> | undefined;
 }
 
 export interface UpdateNetworkPolicyRequest {
@@ -1732,12 +2488,12 @@ export interface UpdateNetworkPolicyRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Updated network policy configuration details. */
-  networkPolicy?: AccountNetworkPolicy | undefined;
+  networkPolicy?: CreateAccountNetworkPolicy | undefined;
 }
 
 export interface UpdatePrivateAccessSettingsRequest {
   /** Properties of the new private access settings object. */
-  customerFacingPrivateAccessSettings?: PrivateAccessSettings | undefined;
+  customerFacingPrivateAccessSettings?: CreatePrivateAccessSettings | undefined;
 }
 
 /**
@@ -1815,13 +2571,88 @@ export interface UpdatePrivateEndpointRule {
   endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
 }
 
+/**
+ * Properties of the new private endpoint rule.
+ * Note that you must approve the endpoint in Azure portal after initialization.
+ */
+export interface UpdateUpdatePrivateEndpointRule {
+  /** The ID of a private endpoint rule. */
+  ruleId?: string | undefined;
+  /** The ID of a network connectivity configuration, which is the parent resource of this private endpoint rule object. */
+  networkConnectivityConfigId?: string | undefined;
+  /**
+   * The current status of this private endpoint. The private endpoint rules are effective only if the connection state
+   * is ESTABLISHED. Remember that you must approve new endpoints on your resources in the Cloud console
+   * before they take effect.
+   * The possible values are:
+   * - PENDING: The endpoint has been created and pending approval.
+   * - ESTABLISHED: The endpoint has been approved and is ready to use in your serverless compute resources.
+   * - REJECTED: Connection was rejected by the private link resource owner.
+   * - DISCONNECTED: Connection was removed by the private link resource owner, the private endpoint becomes informative and should be deleted for clean-up.
+   * - EXPIRED: If the endpoint was created but not approved in 14 days, it will be EXPIRED.
+   * - CREATING: The endpoint creation is in progress. Once successfully created, the state will transition to PENDING.
+   * - CREATE_FAILED: The endpoint creation failed. You can check the error_message field for more details.
+   */
+  connectionState?:
+    | NccPrivateEndpointRule_PrivateLinkConnectionState
+    | undefined;
+  /**
+   * Only used by private endpoints to customer-managed private endpoint services.
+   *
+   * Domain names of target private link service.
+   * When updating this field, the full list of target domain_names must be specified.
+   */
+  domainNames?: string[] | undefined;
+  /** Time in epoch milliseconds when this object was created. */
+  creationTime?: bigint | undefined;
+  /** Time in epoch milliseconds when this object was updated. */
+  updatedTime?: bigint | undefined;
+  /** Whether this private endpoint is deactivated. */
+  deactivated?: boolean | undefined;
+  /** Time in epoch milliseconds when this object was deactivated. */
+  deactivatedAt?: bigint | undefined;
+  errorMessage?: string | undefined;
+  /** The Azure resource ID of the target resource. */
+  resourceId?: string | undefined;
+  /**
+   * Not used by customer-managed private endpoint services.
+   *
+   * The sub-resource type (group ID) of the target resource.
+   * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
+   */
+  groupId?: string | undefined;
+  /** The name of the Azure private endpoint resource. */
+  endpointName?: string | undefined;
+  /** <Databricks> account ID. You can find your account ID from the Accounts Console. */
+  accountId?: string | undefined;
+  /** The full target AWS endpoint service name that connects to the destination resources of the private endpoint. */
+  endpointService?: string | undefined;
+  /**
+   * Only used by private endpoints towards AWS S3 service.
+   *
+   * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
+   * The bucket names must be in the same region as the NCC/endpoint service.
+   * When updating this field, we perform full update on this field. Please ensure a full list of desired
+   * resource_names is provided.
+   */
+  resourceNames?: string[] | undefined;
+  /** The AWS VPC endpoint ID. You can use this ID to identify the VPC endpoint created by <Databricks>. */
+  vpcEndpointId?: string | undefined;
+  /**
+   * Update this field to activate/deactivate this private endpoint to allow egress access from
+   * serverless compute resources. Only honored for first-party services on each cloud (e.g. AWS S3).
+   */
+  enabled?: boolean | undefined;
+  endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: UpdateGcpEndpoint} | undefined;
+}
+
 export interface UpdateWorkspaceNetworkOptionRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** The workspace ID. */
   workspaceId?: bigint | undefined;
   /** The network option details for the workspace. */
-  workspaceNetworkOption?: WorkspaceNetworkOption | undefined;
+  workspaceNetworkOption?: CreateWorkspaceNetworkOption | undefined;
 }
 
 /** * */
@@ -3177,36 +4008,6 @@ export const unmarshalWorkspaceNetworkOptionSchema: z.ZodType<WorkspaceNetworkOp
       workspaceId: d.workspace_id,
     }));
 
-export const marshalAccountNetworkPolicySchema: z.ZodType = z
-  .object({
-    networkPolicyId: z.string().optional(),
-    accountId: z.string().optional(),
-    egress: z.lazy(() => marshalEgressNetworkPolicySchema).optional(),
-    ingress: z.lazy(() => marshalIngressNetworkPolicySchema).optional(),
-    ingressDryRun: z.lazy(() => marshalIngressNetworkPolicySchema).optional(),
-  })
-  .transform(d => ({
-    network_policy_id: d.networkPolicyId,
-    account_id: d.accountId,
-    egress: d.egress,
-    ingress: d.ingress,
-    ingress_dry_run: d.ingressDryRun,
-  }));
-
-export const marshalAzurePrivateEndpointInfoSchema: z.ZodType = z
-  .object({
-    privateEndpointName: z.string().optional(),
-    privateEndpointResourceGuid: z.string().optional(),
-    privateEndpointResourceId: z.string().optional(),
-    privateLinkServiceId: z.string().optional(),
-  })
-  .transform(d => ({
-    private_endpoint_name: d.privateEndpointName,
-    private_endpoint_resource_guid: d.privateEndpointResourceGuid,
-    private_endpoint_resource_id: d.privateEndpointResourceId,
-    private_link_service_id: d.privateLinkServiceId,
-  }));
-
 export const marshalCreateAccountIpAccessListRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -3221,81 +4022,61 @@ export const marshalCreateAccountIpAccessListRequestSchema: z.ZodType = z
     ip_addresses: d.ipAddresses,
   }));
 
-export const marshalCreateIpAccessListRequestSchema: z.ZodType = z
+export const marshalCreateAccountNetworkPolicySchema: z.ZodType = z
   .object({
-    label: z.string().optional(),
-    listType: z.string().optional(),
-    ipAddresses: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    label: d.label,
-    list_type: d.listType,
-    ip_addresses: d.ipAddresses,
-  }));
-
-export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
-  .object({
-    networkConnectivityConfigId: z.string().optional(),
+    networkPolicyId: z.string().optional(),
     accountId: z.string().optional(),
-    name: z.string().optional(),
-    region: z.string().optional(),
-    egressConfig: z
-      .lazy(
-        () => marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
-      )
+    egress: z.lazy(() => marshalCreateEgressNetworkPolicySchema).optional(),
+    ingress: z.lazy(() => marshalCreateIngressNetworkPolicySchema).optional(),
+    ingressDryRun: z
+      .lazy(() => marshalCreateIngressNetworkPolicySchema)
       .optional(),
-    updatedTime: z.bigint().optional(),
-    creationTime: z.bigint().optional(),
   })
   .transform(d => ({
-    network_connectivity_config_id: d.networkConnectivityConfigId,
+    network_policy_id: d.networkPolicyId,
     account_id: d.accountId,
-    name: d.name,
-    region: d.region,
-    egress_config: d.egressConfig,
-    updated_time: d.updatedTime,
-    creation_time: d.creationTime,
+    egress: d.egress,
+    ingress: d.ingress,
+    ingress_dry_run: d.ingressDryRun,
   }));
 
-export const marshalCreateNetworkRequestSchema: z.ZodType = z
+export const marshalCreateAzurePrivateEndpointInfoSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    networkName: z.string().optional(),
-    vpcId: z.string().optional(),
-    subnetIds: z.array(z.string()).optional(),
-    securityGroupIds: z.array(z.string()).optional(),
-    vpcEndpoints: z.lazy(() => marshalNetworkVpcEndpointsSchema).optional(),
-    gcpNetworkInfo: z.lazy(() => marshalGcpNetworkInfoSchema).optional(),
+    privateEndpointName: z.string(),
+    privateEndpointResourceGuid: z.string(),
   })
   .transform(d => ({
-    account_id: d.accountId,
-    network_name: d.networkName,
-    vpc_id: d.vpcId,
-    subnet_ids: d.subnetIds,
-    security_group_ids: d.securityGroupIds,
-    vpc_endpoints: d.vpcEndpoints,
-    gcp_network_info: d.gcpNetworkInfo,
+    private_endpoint_name: d.privateEndpointName,
+    private_endpoint_resource_guid: d.privateEndpointResourceGuid,
   }));
 
-export const marshalCreatePrivateAccessSettingsRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    privateAccessSettingsName: z.string().optional(),
-    region: z.string().optional(),
-    publicAccessEnabled: z.boolean().optional(),
-    privateAccessLevel: z.string().optional(),
-    allowedVpcEndpointIds: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    private_access_settings_name: d.privateAccessSettingsName,
-    region: d.region,
-    public_access_enabled: d.publicAccessEnabled,
-    private_access_level: d.privateAccessLevel,
-    allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
-  }));
+export const marshalCreateCreateNetworkConnectivityConfigurationSchema: z.ZodType =
+  z
+    .object({
+      networkConnectivityConfigId: z.string().optional(),
+      accountId: z.string().optional(),
+      name: z.string().optional(),
+      region: z.string().optional(),
+      egressConfig: z
+        .lazy(
+          () =>
+            marshalCreateCustomerFacingNetworkConnectivityConfigEgressConfigSchema
+        )
+        .optional(),
+      updatedTime: z.bigint().optional(),
+      creationTime: z.bigint().optional(),
+    })
+    .transform(d => ({
+      network_connectivity_config_id: d.networkConnectivityConfigId,
+      account_id: d.accountId,
+      name: d.name,
+      region: d.region,
+      egress_config: d.egressConfig,
+      updated_time: d.updatedTime,
+      creation_time: d.creationTime,
+    }));
 
-export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
+export const marshalCreateCreatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
     ruleId: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
@@ -3318,7 +4099,7 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('gcpEndpoint'),
-          gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema),
+          gcpEndpoint: z.lazy(() => marshalCreateGcpEndpointSchema),
         }),
       ])
       .optional(),
@@ -3346,43 +4127,19 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
     }),
   }));
 
-export const marshalCreateVpcEndpointRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    vpcEndpointName: z.string().optional(),
-    region: z.string().optional(),
-    awsVpcEndpointId: z.string().optional(),
-    vpcEndpointInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('gcpVpcEndpointInfo'),
-          gcpVpcEndpointInfo: z.lazy(() => marshalGcpVpcEndpointInfoSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    vpc_endpoint_name: d.vpcEndpointName,
-    region: d.region,
-    aws_vpc_endpoint_id: d.awsVpcEndpointId,
-    ...(d.vpcEndpointInfo?.$case === 'gcpVpcEndpointInfo' && {
-      gcp_vpc_endpoint_info: d.vpcEndpointInfo.gcpVpcEndpointInfo,
-    }),
-  }));
-
-export const marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z.ZodType =
+export const marshalCreateCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z.ZodType =
   z
     .object({
       defaultRules: z
         .lazy(
-          () => marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema
+          () =>
+            marshalNetworkConnectivityConfigEgressConfig_CreateDefaultRuleSchema
         )
         .optional(),
       targetRules: z
         .lazy(
           () =>
-            marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema
+            marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CreateCustomerFacingTargetRuleSchema
         )
         .optional(),
     })
@@ -3391,185 +4148,41 @@ export const marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z
       target_rules: d.targetRules,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema: z.ZodType =
-  z
-    .object({
-      azurePrivateEndpointRules: z
-        .array(
-          z.lazy(
-            () => marshalNetworkConnectivityConfigAzurePrivateEndpointRuleSchema
-          )
-        )
-        .optional(),
-      awsPrivateEndpointRules: z
-        .array(
-          z.lazy(
-            () => marshalNetworkConnectivityConfigAwsPrivateEndpointRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      azure_private_endpoint_rules: d.azurePrivateEndpointRules,
-      aws_private_endpoint_rules: d.awsPrivateEndpointRules,
-    }));
-
-export const marshalEgressNetworkPolicySchema: z.ZodType = z
+export const marshalCreateEgressNetworkPolicySchema: z.ZodType = z
   .object({
     networkAccess: z
-      .lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicySchema)
+      .lazy(() => marshalEgressNetworkPolicy_CreateNetworkAccessPolicySchema)
       .optional(),
   })
   .transform(d => ({
     network_access: d.networkAccess,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType = z
+export const marshalCreateEndpointSchema: z.ZodType = z
   .object({
-    restrictionMode: z.string().optional(),
-    allowedInternetDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema
-        )
-      )
-      .optional(),
-    allowedStorageDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema
-        )
-      )
-      .optional(),
-    policyEnforcement: z
-      .lazy(
-        () =>
-          marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema
-      )
-      .optional(),
-    blockedInternetDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema
-        )
-      )
-      .optional(),
-    allowedDatabricksDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinationSchema
-        )
-      )
-      .optional(),
-  })
-  .transform(d => ({
-    restriction_mode: d.restrictionMode,
-    allowed_internet_destinations: d.allowedInternetDestinations,
-    allowed_storage_destinations: d.allowedStorageDestinations,
-    policy_enforcement: d.policyEnforcement,
-    blocked_internet_destinations: d.blockedInternetDestinations,
-    allowed_databricks_destinations: d.allowedDatabricksDestinations,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinationSchema: z.ZodType =
-  z
-    .object({
-      workspaceIds: z.array(z.bigint()).optional(),
-    })
-    .transform(d => ({
-      workspace_ids: d.workspaceIds,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema: z.ZodType =
-  z
-    .object({
-      destination: z.string().optional(),
-      internetDestinationType: z.string().optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-      internet_destination_type: d.internetDestinationType,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType =
-  z
-    .object({
-      enforcementMode: z.string().optional(),
-      dryRunModeProductFilter: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      enforcement_mode: d.enforcementMode,
-      dry_run_mode_product_filter: d.dryRunModeProductFilter,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema: z.ZodType =
-  z
-    .object({
-      bucketName: z.string().optional(),
-      region: z.string().optional(),
-      storageDestinationType: z.string().optional(),
-      azureStorageAccount: z.string().optional(),
-      azureStorageService: z.string().optional(),
-    })
-    .transform(d => ({
-      bucket_name: d.bucketName,
-      region: d.region,
-      storage_destination_type: d.storageDestinationType,
-      azure_storage_account: d.azureStorageAccount,
-      azure_storage_service: d.azureStorageService,
-    }));
-
-export const marshalEndpointSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    endpointId: z.string().optional(),
-    accountId: z.string().optional(),
-    displayName: z.string().optional(),
-    useCase: z.string().optional(),
-    region: z.string().optional(),
-    state: z.string().optional(),
+    displayName: z.string(),
+    region: z.string(),
     endpointInfo: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('azurePrivateEndpointInfo'),
           azurePrivateEndpointInfo: z.lazy(
-            () => marshalAzurePrivateEndpointInfoSchema
+            () => marshalCreateAzurePrivateEndpointInfoSchema
           ),
         }),
       ])
       .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
   })
   .transform(d => ({
-    name: d.name,
-    endpoint_id: d.endpointId,
-    account_id: d.accountId,
     display_name: d.displayName,
-    use_case: d.useCase,
     region: d.region,
-    state: d.state,
     ...(d.endpointInfo?.$case === 'azurePrivateEndpointInfo' && {
       azure_private_endpoint_info: d.endpointInfo.azurePrivateEndpointInfo,
     }),
-    create_time: d.createTime,
   }));
 
-export const marshalGcpEndpointSchema: z.ZodType = z
+export const marshalCreateGcpEndpointSchema: z.ZodType = z
   .object({
-    pscEndpointUri: z.string().optional(),
     targetServices: z
       .discriminatedUnion('$case', [
         z.object({
@@ -3580,20 +4193,19 @@ export const marshalGcpEndpointSchema: z.ZodType = z
       .optional(),
   })
   .transform(d => ({
-    psc_endpoint_uri: d.pscEndpointUri,
     ...(d.targetServices?.$case === 'serviceAttachment' && {
       service_attachment: d.targetServices.serviceAttachment,
     }),
   }));
 
-export const marshalGcpNetworkInfoSchema: z.ZodType = z
+export const marshalCreateGcpNetworkInfoSchema: z.ZodType = z
   .object({
-    networkProjectId: z.string().optional(),
-    vpcId: z.string().optional(),
-    subnetId: z.string().optional(),
-    subnetRegion: z.string().optional(),
-    podIpRangeName: z.string().optional(),
-    serviceIpRangeName: z.string().optional(),
+    networkProjectId: z.string(),
+    vpcId: z.string(),
+    subnetId: z.string(),
+    subnetRegion: z.string(),
+    podIpRangeName: z.string(),
+    serviceIpRangeName: z.string(),
   })
   .transform(d => ({
     network_project_id: d.networkProjectId,
@@ -3604,12 +4216,12 @@ export const marshalGcpNetworkInfoSchema: z.ZodType = z
     service_ip_range_name: d.serviceIpRangeName,
   }));
 
-export const marshalGcpVpcEndpointInfoSchema: z.ZodType = z
+export const marshalCreateGcpVpcEndpointInfoSchema: z.ZodType = z
   .object({
     pscConnectionId: z.string().optional(),
-    projectId: z.string().optional(),
-    pscEndpointName: z.string().optional(),
-    endpointRegion: z.string().optional(),
+    projectId: z.string(),
+    pscEndpointName: z.string(),
+    endpointRegion: z.string(),
     serviceAttachmentId: z.string().optional(),
   })
   .transform(d => ({
@@ -3620,16 +4232,16 @@ export const marshalGcpVpcEndpointInfoSchema: z.ZodType = z
     service_attachment_id: d.serviceAttachmentId,
   }));
 
-export const marshalIngressNetworkPolicySchema: z.ZodType = z
+export const marshalCreateIngressNetworkPolicySchema: z.ZodType = z
   .object({
     publicAccess: z
-      .lazy(() => marshalIngressNetworkPolicy_PublicAccessSchema)
+      .lazy(() => marshalIngressNetworkPolicy_CreatePublicAccessSchema)
       .optional(),
     privateAccess: z
-      .lazy(() => marshalIngressNetworkPolicy_PrivateAccessSchema)
+      .lazy(() => marshalIngressNetworkPolicy_CreatePrivateAccessSchema)
       .optional(),
     crossWorkspaceAccess: z
-      .lazy(() => marshalIngressNetworkPolicy_CrossWorkspaceAccessSchema)
+      .lazy(() => marshalIngressNetworkPolicy_CreateCrossWorkspaceAccessSchema)
       .optional(),
   })
   .transform(d => ({
@@ -3638,402 +4250,19 @@ export const marshalIngressNetworkPolicySchema: z.ZodType = z
     cross_workspace_access: d.crossWorkspaceAccess,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_AccountApiDestinationSchema: z.ZodType =
-  z
-    .object({
-      scopes: z.array(z.string()).optional(),
-      scopeQualifier: z.string().optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-      scope_qualifier: d.scopeQualifier,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_AccountDatabricksOneDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_AccountUiDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_AppsRuntimeDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_AuthenticationSchema: z.ZodType = z
+export const marshalCreateIpAccessListRequestSchema: z.ZodType = z
   .object({
-    identityType: z.string().optional(),
-    identities: z
-      .array(
-        z.lazy(() => marshalIngressNetworkPolicy_AuthenticationIdentitySchema)
-      )
-      .optional(),
-  })
-  .transform(d => ({
-    identity_type: d.identityType,
-    identities: d.identities,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType =
-  z
-    .object({
-      principalType: z.string().optional(),
-      principalId: z.bigint().optional(),
-    })
-    .transform(d => ({
-      principal_type: d.principalType,
-      principal_id: d.principalId,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType =
-  z
-    .object({
-      restrictionMode: z.string().optional(),
-      denyRules: z
-        .array(
-          z.lazy(
-            () => marshalIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema
-          )
-        )
-        .optional(),
-      allowRules: z
-        .array(
-          z.lazy(
-            () => marshalIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restriction_mode: d.restrictionMode,
-      deny_rules: d.denyRules,
-      allow_rules: d.allowRules,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema: z.ZodType =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () => marshalIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(() => marshalIngressNetworkPolicy_RequestDestinationSchema)
-        .optional(),
-      authentication: z
-        .lazy(() => marshalIngressNetworkPolicy_AuthenticationSchema)
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema: z.ZodType =
-  z
-    .object({
-      source: z
-        .discriminatedUnion('$case', [
-          z.object({
-            $case: z.literal('allSourceWorkspaces'),
-            allSourceWorkspaces: z.boolean(),
-          }),
-          z.object({
-            $case: z.literal('selectedWorkspaces'),
-            selectedWorkspaces: z.lazy(
-              () => marshalIngressNetworkPolicy_WorkspaceIdListSchema
-            ),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.source?.$case === 'allSourceWorkspaces' && {
-        all_source_workspaces: d.source.allSourceWorkspaces,
-      }),
-      ...(d.source?.$case === 'selectedWorkspaces' && {
-        selected_workspaces: d.source.selectedWorkspaces,
-      }),
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_EndpointsSchema: z.ZodType = z
-  .object({
-    endpointIds: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    endpoint_ids: d.endpointIds,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_IpRangesSchema: z.ZodType = z
-  .object({
-    ipRanges: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    ip_ranges: d.ipRanges,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_LakebaseRuntimeDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_PrivateAccessSchema: z.ZodType = z
-  .object({
-    restrictionMode: z.string().optional(),
-    denyRules: z
-      .array(z.lazy(() => marshalIngressNetworkPolicy_PrivateIngressRuleSchema))
-      .optional(),
-    allowRules: z
-      .array(z.lazy(() => marshalIngressNetworkPolicy_PrivateIngressRuleSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    restriction_mode: d.restrictionMode,
-    deny_rules: d.denyRules,
-    allow_rules: d.allowRules,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_PrivateIngressRuleSchema: z.ZodType = z
-  .object({
-    origin: z
-      .lazy(() => marshalIngressNetworkPolicy_PrivateRequestOriginSchema)
-      .optional(),
-    destination: z
-      .lazy(() => marshalIngressNetworkPolicy_RequestDestinationSchema)
-      .optional(),
-    authentication: z
-      .lazy(() => marshalIngressNetworkPolicy_AuthenticationSchema)
-      .optional(),
     label: z.string().optional(),
+    listType: z.string().optional(),
+    ipAddresses: z.array(z.string()).optional(),
   })
   .transform(d => ({
-    origin: d.origin,
-    destination: d.destination,
-    authentication: d.authentication,
     label: d.label,
+    list_type: d.listType,
+    ip_addresses: d.ipAddresses,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_PrivateRequestOriginSchema: z.ZodType =
-  z
-    .object({
-      source: z
-        .discriminatedUnion('$case', [
-          z.object({
-            $case: z.literal('endpoints'),
-            endpoints: z.lazy(
-              () => marshalIngressNetworkPolicy_EndpointsSchema
-            ),
-          }),
-          z.object({
-            $case: z.literal('allRegisteredEndpoints'),
-            allRegisteredEndpoints: z.boolean(),
-          }),
-          z.object({
-            $case: z.literal('azureWorkspacePrivateLink'),
-            azureWorkspacePrivateLink: z.boolean(),
-          }),
-          z.object({
-            $case: z.literal('allPrivateAccess'),
-            allPrivateAccess: z.boolean(),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.source?.$case === 'endpoints' && {endpoints: d.source.endpoints}),
-      ...(d.source?.$case === 'allRegisteredEndpoints' && {
-        all_registered_endpoints: d.source.allRegisteredEndpoints,
-      }),
-      ...(d.source?.$case === 'azureWorkspacePrivateLink' && {
-        azure_workspace_private_link: d.source.azureWorkspacePrivateLink,
-      }),
-      ...(d.source?.$case === 'allPrivateAccess' && {
-        all_private_access: d.source.allPrivateAccess,
-      }),
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_PublicAccessSchema: z.ZodType = z
-  .object({
-    restrictionMode: z.string().optional(),
-    denyRules: z
-      .array(z.lazy(() => marshalIngressNetworkPolicy_PublicIngressRuleSchema))
-      .optional(),
-    allowRules: z
-      .array(z.lazy(() => marshalIngressNetworkPolicy_PublicIngressRuleSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    restriction_mode: d.restrictionMode,
-    deny_rules: d.denyRules,
-    allow_rules: d.allowRules,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_PublicIngressRuleSchema: z.ZodType = z
-  .object({
-    origin: z
-      .lazy(() => marshalIngressNetworkPolicy_PublicRequestOriginSchema)
-      .optional(),
-    destination: z
-      .lazy(() => marshalIngressNetworkPolicy_RequestDestinationSchema)
-      .optional(),
-    authentication: z
-      .lazy(() => marshalIngressNetworkPolicy_AuthenticationSchema)
-      .optional(),
-    label: z.string().optional(),
-  })
-  .transform(d => ({
-    origin: d.origin,
-    destination: d.destination,
-    authentication: d.authentication,
-    label: d.label,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_PublicRequestOriginSchema: z.ZodType =
-  z
-    .object({
-      source: z
-        .discriminatedUnion('$case', [
-          z.object({$case: z.literal('allIpRanges'), allIpRanges: z.boolean()}),
-          z.object({
-            $case: z.literal('includedIpRanges'),
-            includedIpRanges: z.lazy(
-              () => marshalIngressNetworkPolicy_IpRangesSchema
-            ),
-          }),
-          z.object({
-            $case: z.literal('excludedIpRanges'),
-            excludedIpRanges: z.lazy(
-              () => marshalIngressNetworkPolicy_IpRangesSchema
-            ),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.source?.$case === 'allIpRanges' && {
-        all_ip_ranges: d.source.allIpRanges,
-      }),
-      ...(d.source?.$case === 'includedIpRanges' && {
-        included_ip_ranges: d.source.includedIpRanges,
-      }),
-      ...(d.source?.$case === 'excludedIpRanges' && {
-        excluded_ip_ranges: d.source.excludedIpRanges,
-      }),
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_RequestDestinationSchema: z.ZodType = z
-  .object({
-    allDestinations: z.boolean().optional(),
-    workspaceUi: z
-      .lazy(() => marshalIngressNetworkPolicy_WorkspaceUiDestinationSchema)
-      .optional(),
-    workspaceApi: z
-      .lazy(() => marshalIngressNetworkPolicy_WorkspaceApiDestinationSchema)
-      .optional(),
-    appsRuntime: z
-      .lazy(() => marshalIngressNetworkPolicy_AppsRuntimeDestinationSchema)
-      .optional(),
-    lakebaseRuntime: z
-      .lazy(() => marshalIngressNetworkPolicy_LakebaseRuntimeDestinationSchema)
-      .optional(),
-    accountUi: z
-      .lazy(() => marshalIngressNetworkPolicy_AccountUiDestinationSchema)
-      .optional(),
-    accountApi: z
-      .lazy(() => marshalIngressNetworkPolicy_AccountApiDestinationSchema)
-      .optional(),
-    accountDatabricksOne: z
-      .lazy(
-        () => marshalIngressNetworkPolicy_AccountDatabricksOneDestinationSchema
-      )
-      .optional(),
-  })
-  .transform(d => ({
-    all_destinations: d.allDestinations,
-    workspace_ui: d.workspaceUi,
-    workspace_api: d.workspaceApi,
-    apps_runtime: d.appsRuntime,
-    lakebase_runtime: d.lakebaseRuntime,
-    account_ui: d.accountUi,
-    account_api: d.accountApi,
-    account_databricks_one: d.accountDatabricksOne,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodType =
-  z
-    .object({
-      scopes: z.array(z.string()).optional(),
-      scopeQualifier: z.string().optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-      scope_qualifier: d.scopeQualifier,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType = z
-  .object({
-    workspaceIds: z.array(z.bigint()).optional(),
-  })
-  .transform(d => ({
-    workspace_ids: d.workspaceIds,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
-
-export const marshalNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType =
+export const marshalCreateNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType =
   z
     .object({
       ruleId: z.string().optional(),
@@ -4068,7 +4297,7 @@ export const marshalNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.Zod
       error_message: d.errorMessage,
     }));
 
-export const marshalNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.ZodType =
+export const marshalCreateNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.ZodType =
   z
     .object({
       ruleId: z.string().optional(),
@@ -4099,53 +4328,29 @@ export const marshalNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.Z
       error_message: d.errorMessage,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z.ZodType =
-  z
-    .object({
-      azureServiceEndpointRule: z
-        .lazy(
-          () =>
-            marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema
-        )
-        .optional(),
-      awsStableIpRule: z
-        .lazy(
-          () =>
-            marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      azure_service_endpoint_rule: d.azureServiceEndpointRule,
-      aws_stable_ip_rule: d.awsStableIpRule,
-    }));
+export const marshalCreateNetworkRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkName: z.string().optional(),
+    vpcId: z.string().optional(),
+    subnetIds: z.array(z.string()).optional(),
+    securityGroupIds: z.array(z.string()).optional(),
+    vpcEndpoints: z
+      .lazy(() => marshalCreateNetworkVpcEndpointsSchema)
+      .optional(),
+    gcpNetworkInfo: z.lazy(() => marshalCreateGcpNetworkInfoSchema).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_name: d.networkName,
+    vpc_id: d.vpcId,
+    subnet_ids: d.subnetIds,
+    security_group_ids: d.securityGroupIds,
+    vpc_endpoints: d.vpcEndpoints,
+    gcp_network_info: d.gcpNetworkInfo,
+  }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema: z.ZodType =
-  z
-    .object({
-      cidrBlocks: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      cidr_blocks: d.cidrBlocks,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema: z.ZodType =
-  z
-    .object({
-      targetRegion: z.string().optional(),
-      targetServices: z.array(z.string()).optional(),
-      subnets: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      target_region: d.targetRegion,
-      target_services: d.targetServices,
-      subnets: d.subnets,
-    }));
-
-export const marshalNetworkVpcEndpointsSchema: z.ZodType = z
+export const marshalCreateNetworkVpcEndpointsSchema: z.ZodType = z
   .object({
     restApi: z.array(z.string()).optional(),
     dataplaneRelay: z.array(z.string()).optional(),
@@ -4155,7 +4360,7 @@ export const marshalNetworkVpcEndpointsSchema: z.ZodType = z
     dataplane_relay: d.dataplaneRelay,
   }));
 
-export const marshalPrivateAccessSettingsSchema: z.ZodType = z
+export const marshalCreatePrivateAccessSettingsSchema: z.ZodType = z
   .object({
     privateAccessSettingsId: z.string().optional(),
     accountId: z.string().optional(),
@@ -4174,6 +4379,672 @@ export const marshalPrivateAccessSettingsSchema: z.ZodType = z
     private_access_level: d.privateAccessLevel,
     allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
   }));
+
+export const marshalCreatePrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    privateAccessSettingsName: z.string().optional(),
+    region: z.string().optional(),
+    publicAccessEnabled: z.boolean().optional(),
+    privateAccessLevel: z.string().optional(),
+    allowedVpcEndpointIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    private_access_settings_name: d.privateAccessSettingsName,
+    region: d.region,
+    public_access_enabled: d.publicAccessEnabled,
+    private_access_level: d.privateAccessLevel,
+    allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
+  }));
+
+export const marshalCreateVpcEndpointRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    vpcEndpointName: z.string().optional(),
+    region: z.string().optional(),
+    awsVpcEndpointId: z.string().optional(),
+    vpcEndpointInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('gcpVpcEndpointInfo'),
+          gcpVpcEndpointInfo: z.lazy(
+            () => marshalCreateGcpVpcEndpointInfoSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    vpc_endpoint_name: d.vpcEndpointName,
+    region: d.region,
+    aws_vpc_endpoint_id: d.awsVpcEndpointId,
+    ...(d.vpcEndpointInfo?.$case === 'gcpVpcEndpointInfo' && {
+      gcp_vpc_endpoint_info: d.vpcEndpointInfo.gcpVpcEndpointInfo,
+    }),
+  }));
+
+export const marshalCreateWorkspaceNetworkOptionSchema: z.ZodType = z
+  .object({
+    networkPolicyId: z.string().optional(),
+    workspaceId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    network_policy_id: d.networkPolicyId,
+    workspace_id: d.workspaceId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CreateCustomerFacingTargetRuleSchema: z.ZodType =
+  z
+    .object({
+      azurePrivateEndpointRules: z
+        .array(
+          z.lazy(
+            () =>
+              marshalCreateNetworkConnectivityConfigAzurePrivateEndpointRuleSchema
+          )
+        )
+        .optional(),
+      awsPrivateEndpointRules: z
+        .array(
+          z.lazy(
+            () =>
+              marshalCreateNetworkConnectivityConfigAwsPrivateEndpointRuleSchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      azure_private_endpoint_rules: d.azurePrivateEndpointRules,
+      aws_private_endpoint_rules: d.awsPrivateEndpointRules,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEgressNetworkPolicy_CreateNetworkAccessPolicySchema: z.ZodType =
+  z
+    .object({
+      restrictionMode: z.string().optional(),
+      allowedInternetDestinations: z
+        .array(
+          z.lazy(
+            () =>
+              marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateInternetDestinationSchema
+          )
+        )
+        .optional(),
+      allowedStorageDestinations: z
+        .array(
+          z.lazy(
+            () =>
+              marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateStorageDestinationSchema
+          )
+        )
+        .optional(),
+      policyEnforcement: z
+        .lazy(
+          () =>
+            marshalEgressNetworkPolicy_NetworkAccessPolicy_CreatePolicyEnforcementSchema
+        )
+        .optional(),
+      blockedInternetDestinations: z
+        .array(
+          z.lazy(
+            () =>
+              marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateInternetDestinationSchema
+          )
+        )
+        .optional(),
+      allowedDatabricksDestinations: z
+        .array(
+          z.lazy(
+            () =>
+              marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateDatabricksDestinationSchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      restriction_mode: d.restrictionMode,
+      allowed_internet_destinations: d.allowedInternetDestinations,
+      allowed_storage_destinations: d.allowedStorageDestinations,
+      policy_enforcement: d.policyEnforcement,
+      blocked_internet_destinations: d.blockedInternetDestinations,
+      allowed_databricks_destinations: d.allowedDatabricksDestinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateDatabricksDestinationSchema: z.ZodType =
+  z
+    .object({
+      workspaceIds: z.array(z.bigint()).optional(),
+    })
+    .transform(d => ({
+      workspace_ids: d.workspaceIds,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateInternetDestinationSchema: z.ZodType =
+  z
+    .object({
+      destination: z.string().optional(),
+      internetDestinationType: z.string().optional(),
+    })
+    .transform(d => ({
+      destination: d.destination,
+      internet_destination_type: d.internetDestinationType,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_CreatePolicyEnforcementSchema: z.ZodType =
+  z
+    .object({
+      enforcementMode: z.string().optional(),
+      dryRunModeProductFilter: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      enforcement_mode: d.enforcementMode,
+      dry_run_mode_product_filter: d.dryRunModeProductFilter,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_CreateStorageDestinationSchema: z.ZodType =
+  z
+    .object({
+      bucketName: z.string().optional(),
+      region: z.string().optional(),
+      storageDestinationType: z.string().optional(),
+      azureStorageAccount: z.string().optional(),
+      azureStorageService: z.string().optional(),
+    })
+    .transform(d => ({
+      bucket_name: d.bucketName,
+      region: d.region,
+      storage_destination_type: d.storageDestinationType,
+      azure_storage_account: d.azureStorageAccount,
+      azure_storage_service: d.azureStorageService,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateAccountApiDestinationSchema: z.ZodType =
+  z
+    .object({
+      scopes: z.array(z.string()).optional(),
+      scopeQualifier: z.string().optional(),
+    })
+    .transform(d => ({
+      scopes: d.scopes,
+      scope_qualifier: d.scopeQualifier,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateAccountDatabricksOneDestinationSchema: z.ZodType =
+  z
+    .object({
+      allDestinations: z.boolean().optional(),
+    })
+    .transform(d => ({
+      all_destinations: d.allDestinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateAccountUiDestinationSchema: z.ZodType =
+  z
+    .object({
+      allDestinations: z.boolean().optional(),
+    })
+    .transform(d => ({
+      all_destinations: d.allDestinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateAppsRuntimeDestinationSchema: z.ZodType =
+  z
+    .object({
+      allDestinations: z.boolean().optional(),
+    })
+    .transform(d => ({
+      all_destinations: d.allDestinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateAuthenticationSchema: z.ZodType =
+  z
+    .object({
+      identityType: z.string().optional(),
+      identities: z
+        .array(
+          z.lazy(
+            () => marshalIngressNetworkPolicy_CreateAuthenticationIdentitySchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      identity_type: d.identityType,
+      identities: d.identities,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateAuthenticationIdentitySchema: z.ZodType =
+  z
+    .object({
+      principalType: z.string().optional(),
+      principalId: z.bigint().optional(),
+    })
+    .transform(d => ({
+      principal_type: d.principalType,
+      principal_id: d.principalId,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateCrossWorkspaceAccessSchema: z.ZodType =
+  z
+    .object({
+      restrictionMode: z.string().optional(),
+      denyRules: z
+        .array(
+          z.lazy(
+            () =>
+              marshalIngressNetworkPolicy_CreateCrossWorkspaceIngressRuleSchema
+          )
+        )
+        .optional(),
+      allowRules: z
+        .array(
+          z.lazy(
+            () =>
+              marshalIngressNetworkPolicy_CreateCrossWorkspaceIngressRuleSchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      restriction_mode: d.restrictionMode,
+      deny_rules: d.denyRules,
+      allow_rules: d.allowRules,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateCrossWorkspaceIngressRuleSchema: z.ZodType =
+  z
+    .object({
+      origin: z
+        .lazy(
+          () =>
+            marshalIngressNetworkPolicy_CreateCrossWorkspaceRequestOriginSchema
+        )
+        .optional(),
+      destination: z
+        .lazy(() => marshalIngressNetworkPolicy_CreateRequestDestinationSchema)
+        .optional(),
+      authentication: z
+        .lazy(() => marshalIngressNetworkPolicy_CreateAuthenticationSchema)
+        .optional(),
+      label: z.string().optional(),
+    })
+    .transform(d => ({
+      origin: d.origin,
+      destination: d.destination,
+      authentication: d.authentication,
+      label: d.label,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateCrossWorkspaceRequestOriginSchema: z.ZodType =
+  z
+    .object({
+      source: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('allSourceWorkspaces'),
+            allSourceWorkspaces: z.boolean(),
+          }),
+          z.object({
+            $case: z.literal('selectedWorkspaces'),
+            selectedWorkspaces: z.lazy(
+              () => marshalIngressNetworkPolicy_CreateWorkspaceIdListSchema
+            ),
+          }),
+        ])
+        .optional(),
+    })
+    .transform(d => ({
+      ...(d.source?.$case === 'allSourceWorkspaces' && {
+        all_source_workspaces: d.source.allSourceWorkspaces,
+      }),
+      ...(d.source?.$case === 'selectedWorkspaces' && {
+        selected_workspaces: d.source.selectedWorkspaces,
+      }),
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateEndpointsSchema: z.ZodType = z
+  .object({
+    endpointIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    endpoint_ids: d.endpointIds,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateIpRangesSchema: z.ZodType = z
+  .object({
+    ipRanges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ip_ranges: d.ipRanges,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateLakebaseRuntimeDestinationSchema: z.ZodType =
+  z
+    .object({
+      allDestinations: z.boolean().optional(),
+    })
+    .transform(d => ({
+      all_destinations: d.allDestinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreatePrivateAccessSchema: z.ZodType =
+  z
+    .object({
+      restrictionMode: z.string().optional(),
+      denyRules: z
+        .array(
+          z.lazy(
+            () => marshalIngressNetworkPolicy_CreatePrivateIngressRuleSchema
+          )
+        )
+        .optional(),
+      allowRules: z
+        .array(
+          z.lazy(
+            () => marshalIngressNetworkPolicy_CreatePrivateIngressRuleSchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      restriction_mode: d.restrictionMode,
+      deny_rules: d.denyRules,
+      allow_rules: d.allowRules,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreatePrivateIngressRuleSchema: z.ZodType =
+  z
+    .object({
+      origin: z
+        .lazy(
+          () => marshalIngressNetworkPolicy_CreatePrivateRequestOriginSchema
+        )
+        .optional(),
+      destination: z
+        .lazy(() => marshalIngressNetworkPolicy_CreateRequestDestinationSchema)
+        .optional(),
+      authentication: z
+        .lazy(() => marshalIngressNetworkPolicy_CreateAuthenticationSchema)
+        .optional(),
+      label: z.string().optional(),
+    })
+    .transform(d => ({
+      origin: d.origin,
+      destination: d.destination,
+      authentication: d.authentication,
+      label: d.label,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreatePrivateRequestOriginSchema: z.ZodType =
+  z
+    .object({
+      source: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('endpoints'),
+            endpoints: z.lazy(
+              () => marshalIngressNetworkPolicy_CreateEndpointsSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('allRegisteredEndpoints'),
+            allRegisteredEndpoints: z.boolean(),
+          }),
+          z.object({
+            $case: z.literal('azureWorkspacePrivateLink'),
+            azureWorkspacePrivateLink: z.boolean(),
+          }),
+          z.object({
+            $case: z.literal('allPrivateAccess'),
+            allPrivateAccess: z.boolean(),
+          }),
+        ])
+        .optional(),
+    })
+    .transform(d => ({
+      ...(d.source?.$case === 'endpoints' && {endpoints: d.source.endpoints}),
+      ...(d.source?.$case === 'allRegisteredEndpoints' && {
+        all_registered_endpoints: d.source.allRegisteredEndpoints,
+      }),
+      ...(d.source?.$case === 'azureWorkspacePrivateLink' && {
+        azure_workspace_private_link: d.source.azureWorkspacePrivateLink,
+      }),
+      ...(d.source?.$case === 'allPrivateAccess' && {
+        all_private_access: d.source.allPrivateAccess,
+      }),
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreatePublicAccessSchema: z.ZodType = z
+  .object({
+    restrictionMode: z.string().optional(),
+    denyRules: z
+      .array(
+        z.lazy(() => marshalIngressNetworkPolicy_CreatePublicIngressRuleSchema)
+      )
+      .optional(),
+    allowRules: z
+      .array(
+        z.lazy(() => marshalIngressNetworkPolicy_CreatePublicIngressRuleSchema)
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    restriction_mode: d.restrictionMode,
+    deny_rules: d.denyRules,
+    allow_rules: d.allowRules,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreatePublicIngressRuleSchema: z.ZodType =
+  z
+    .object({
+      origin: z
+        .lazy(() => marshalIngressNetworkPolicy_CreatePublicRequestOriginSchema)
+        .optional(),
+      destination: z
+        .lazy(() => marshalIngressNetworkPolicy_CreateRequestDestinationSchema)
+        .optional(),
+      authentication: z
+        .lazy(() => marshalIngressNetworkPolicy_CreateAuthenticationSchema)
+        .optional(),
+      label: z.string().optional(),
+    })
+    .transform(d => ({
+      origin: d.origin,
+      destination: d.destination,
+      authentication: d.authentication,
+      label: d.label,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreatePublicRequestOriginSchema: z.ZodType =
+  z
+    .object({
+      source: z
+        .discriminatedUnion('$case', [
+          z.object({$case: z.literal('allIpRanges'), allIpRanges: z.boolean()}),
+          z.object({
+            $case: z.literal('includedIpRanges'),
+            includedIpRanges: z.lazy(
+              () => marshalIngressNetworkPolicy_CreateIpRangesSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('excludedIpRanges'),
+            excludedIpRanges: z.lazy(
+              () => marshalIngressNetworkPolicy_CreateIpRangesSchema
+            ),
+          }),
+        ])
+        .optional(),
+    })
+    .transform(d => ({
+      ...(d.source?.$case === 'allIpRanges' && {
+        all_ip_ranges: d.source.allIpRanges,
+      }),
+      ...(d.source?.$case === 'includedIpRanges' && {
+        included_ip_ranges: d.source.includedIpRanges,
+      }),
+      ...(d.source?.$case === 'excludedIpRanges' && {
+        excluded_ip_ranges: d.source.excludedIpRanges,
+      }),
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateRequestDestinationSchema: z.ZodType =
+  z
+    .object({
+      allDestinations: z.boolean().optional(),
+      workspaceUi: z
+        .lazy(
+          () => marshalIngressNetworkPolicy_CreateWorkspaceUiDestinationSchema
+        )
+        .optional(),
+      workspaceApi: z
+        .lazy(
+          () => marshalIngressNetworkPolicy_CreateWorkspaceApiDestinationSchema
+        )
+        .optional(),
+      appsRuntime: z
+        .lazy(
+          () => marshalIngressNetworkPolicy_CreateAppsRuntimeDestinationSchema
+        )
+        .optional(),
+      lakebaseRuntime: z
+        .lazy(
+          () =>
+            marshalIngressNetworkPolicy_CreateLakebaseRuntimeDestinationSchema
+        )
+        .optional(),
+      accountUi: z
+        .lazy(
+          () => marshalIngressNetworkPolicy_CreateAccountUiDestinationSchema
+        )
+        .optional(),
+      accountApi: z
+        .lazy(
+          () => marshalIngressNetworkPolicy_CreateAccountApiDestinationSchema
+        )
+        .optional(),
+      accountDatabricksOne: z
+        .lazy(
+          () =>
+            marshalIngressNetworkPolicy_CreateAccountDatabricksOneDestinationSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      all_destinations: d.allDestinations,
+      workspace_ui: d.workspaceUi,
+      workspace_api: d.workspaceApi,
+      apps_runtime: d.appsRuntime,
+      lakebase_runtime: d.lakebaseRuntime,
+      account_ui: d.accountUi,
+      account_api: d.accountApi,
+      account_databricks_one: d.accountDatabricksOne,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateWorkspaceApiDestinationSchema: z.ZodType =
+  z
+    .object({
+      scopes: z.array(z.string()).optional(),
+      scopeQualifier: z.string().optional(),
+    })
+    .transform(d => ({
+      scopes: d.scopes,
+      scope_qualifier: d.scopeQualifier,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateWorkspaceIdListSchema: z.ZodType =
+  z
+    .object({
+      workspaceIds: z.array(z.bigint()).optional(),
+    })
+    .transform(d => ({
+      workspace_ids: d.workspaceIds,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngressNetworkPolicy_CreateWorkspaceUiDestinationSchema: z.ZodType =
+  z
+    .object({
+      allDestinations: z.boolean().optional(),
+    })
+    .transform(d => ({
+      all_destinations: d.allDestinations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalNetworkConnectivityConfigEgressConfig_CreateDefaultRuleSchema: z.ZodType =
+  z
+    .object({
+      azureServiceEndpointRule: z
+        .lazy(
+          () =>
+            marshalNetworkConnectivityConfigEgressConfig_DefaultRule_CreateAzureServiceEndpointRuleSchema
+        )
+        .optional(),
+      awsStableIpRule: z
+        .lazy(
+          () =>
+            marshalNetworkConnectivityConfigEgressConfig_DefaultRule_CreateAwsStableIpRuleSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      azure_service_endpoint_rule: d.azureServiceEndpointRule,
+      aws_stable_ip_rule: d.awsStableIpRule,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_CreateAwsStableIpRuleSchema: z.ZodType =
+  z
+    .object({
+      cidrBlocks: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      cidr_blocks: d.cidrBlocks,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_CreateAzureServiceEndpointRuleSchema: z.ZodType =
+  z
+    .object({
+      targetRegion: z.string().optional(),
+      targetServices: z.array(z.string()).optional(),
+      subnets: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      target_region: d.targetRegion,
+      target_services: d.targetServices,
+      subnets: d.subnets,
+    }));
 
 export const marshalReplaceAccountIpAccessListRequestSchema: z.ZodType = z
   .object({
@@ -4227,6 +5098,23 @@ export const marshalUpdateAccountIpAccessListRequestSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
+export const marshalUpdateGcpEndpointSchema: z.ZodType = z
+  .object({
+    targetServices: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('serviceAttachment'),
+          serviceAttachment: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.targetServices?.$case === 'serviceAttachment' && {
+      service_attachment: d.targetServices.serviceAttachment,
+    }),
+  }));
+
 export const marshalUpdateIpAccessListRequestSchema: z.ZodType = z
   .object({
     listId: z.string().optional(),
@@ -4243,7 +5131,7 @@ export const marshalUpdateIpAccessListRequestSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
-export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
+export const marshalUpdateUpdatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
     ruleId: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
@@ -4266,7 +5154,7 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('gcpEndpoint'),
-          gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema),
+          gcpEndpoint: z.lazy(() => marshalUpdateGcpEndpointSchema),
         }),
       ])
       .optional(),
@@ -4294,22 +5182,11 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
     }),
   }));
 
-export const marshalWorkspaceNetworkOptionSchema: z.ZodType = z
-  .object({
-    networkPolicyId: z.string().optional(),
-    workspaceId: z.bigint().optional(),
-  })
-  .transform(d => ({
-    network_policy_id: d.networkPolicyId,
-    workspace_id: d.workspaceId,
-  }));
-
-const gcpEndpointFieldMaskSchema: FieldMaskSchema = {
-  pscEndpointUri: {wire: 'psc_endpoint_uri'},
+const updateGcpEndpointFieldMaskSchema: FieldMaskSchema = {
   serviceAttachment: {wire: 'service_attachment'},
 };
 
-const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
+const updateUpdatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
   accountId: {wire: 'account_id'},
   connectionState: {wire: 'connection_state'},
   creationTime: {wire: 'creation_time'},
@@ -4322,7 +5199,7 @@ const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
   errorMessage: {wire: 'error_message'},
   gcpEndpoint: {
     wire: 'gcp_endpoint',
-    children: () => gcpEndpointFieldMaskSchema,
+    children: () => updateGcpEndpointFieldMaskSchema,
   },
   groupId: {wire: 'group_id'},
   networkConnectivityConfigId: {wire: 'network_connectivity_config_id'},
@@ -4333,11 +5210,11 @@ const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
   vpcEndpointId: {wire: 'vpc_endpoint_id'},
 };
 
-export function updatePrivateEndpointRuleFieldMask(
+export function updateUpdatePrivateEndpointRuleFieldMask(
   ...paths: string[]
-): FieldMask<UpdatePrivateEndpointRule> {
-  return FieldMask.build<UpdatePrivateEndpointRule>(
+): FieldMask<UpdateUpdatePrivateEndpointRule> {
+  return FieldMask.build<UpdateUpdatePrivateEndpointRule>(
     paths,
-    updatePrivateEndpointRuleFieldMaskSchema
+    updateUpdatePrivateEndpointRuleFieldMaskSchema
   );
 }

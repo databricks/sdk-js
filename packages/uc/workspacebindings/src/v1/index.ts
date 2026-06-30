@@ -9,6 +9,7 @@ export {WorkspaceBindingsClient} from './client';
 export {BindingType} from './model';
 
 export type {
+  CreateWorkspaceBindingInfo,
   GetCatalogWorkspaceBindingsRequest,
   GetCatalogWorkspaceBindingsResponse,
   GetWorkspaceBindingsRequest,

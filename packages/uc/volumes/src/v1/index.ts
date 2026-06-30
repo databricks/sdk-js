@@ -9,6 +9,8 @@ export {VolumesClient} from './client';
 export {SseEncryptionAlgorithm, VolumeType} from './model';
 
 export type {
+  CreateEncryptionDetails,
+  CreateSseEncryptionDetails,
   CreateVolumeRequest,
   DeleteVolumeRequest,
   DeleteVolumeResponse,

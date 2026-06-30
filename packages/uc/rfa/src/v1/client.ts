@@ -24,8 +24,8 @@ import type {
   UpdateAccessRequestDestinationsRequest,
 } from './model';
 import {
-  marshalAccessRequestDestinationsSchema,
   marshalBatchCreateAccessRequestsRequestSchema,
+  marshalUpdateAccessRequestDestinationsSchema,
   unmarshalAccessRequestDestinationsSchema,
   unmarshalBatchCreateAccessRequestsResponseSchema,
 } from './model';
@@ -167,7 +167,7 @@ export class RfaClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.accessRequestDestinations,
-      marshalAccessRequestDestinationsSchema
+      marshalUpdateAccessRequestDestinationsSchema
     );
     let resp: AccessRequestDestinations | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

@@ -22,7 +22,7 @@ export interface CreateRepoRequest {
    * If specified, the repo will be created with sparse checkout enabled. You cannot enable/disable
    * sparse checkout after the repo is created.
    */
-  sparseCheckout?: SparseCheckout | undefined;
+  sparseCheckout?: CreateSparseCheckout | undefined;
 }
 
 export interface CreateRepoResponse {
@@ -44,6 +44,26 @@ export interface CreateRepoResponse {
   headCommitId?: string | undefined;
   /** Sparse checkout settings for the Git folder (repo). */
   sparseCheckout?: SparseCheckout | undefined;
+}
+
+/** Sparse checkout configuration, it contains options like cone patterns. */
+export interface CreateSparseCheckout {
+  /**
+   * List of sparse checkout cone patterns, see
+   * [cone mode handling](https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling)
+   * for details.
+   */
+  patterns?: string[] | undefined;
+}
+
+/** Sparse checkout configuration, it contains options like cone patterns. */
+export interface CreateSparseCheckoutUpdate {
+  /**
+   * List of sparse checkout cone patterns, see
+   * [cone mode handling](https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling)
+   * for details.
+   */
+  patterns?: string[] | undefined;
 }
 
 export interface DeleteRepoRequest {
@@ -161,7 +181,7 @@ export interface UpdateRepoRequest {
    * If specified, update the sparse checkout settings. The update will fail if sparse checkout is
    * not enabled for the repo.
    */
-  sparseCheckout?: SparseCheckoutUpdate | undefined;
+  sparseCheckout?: CreateSparseCheckoutUpdate | undefined;
   /**
    * WARNING: DESTRUCTIVE AND IRREVERSIBLE. If true, permanently deletes ALL uncommitted
    * changes in the Git folder — staged, unstaged, and untracked files — before updating.
@@ -279,7 +299,7 @@ export const marshalCreateRepoRequestSchema: z.ZodType = z
     url: z.string().optional(),
     provider: z.string().optional(),
     path: z.string().optional(),
-    sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
+    sparseCheckout: z.lazy(() => marshalCreateSparseCheckoutSchema).optional(),
   })
   .transform(d => ({
     url: d.url,
@@ -288,7 +308,7 @@ export const marshalCreateRepoRequestSchema: z.ZodType = z
     sparse_checkout: d.sparseCheckout,
   }));
 
-export const marshalSparseCheckoutSchema: z.ZodType = z
+export const marshalCreateSparseCheckoutSchema: z.ZodType = z
   .object({
     patterns: z.array(z.string()).optional(),
   })
@@ -296,7 +316,7 @@ export const marshalSparseCheckoutSchema: z.ZodType = z
     patterns: d.patterns,
   }));
 
-export const marshalSparseCheckoutUpdateSchema: z.ZodType = z
+export const marshalCreateSparseCheckoutUpdateSchema: z.ZodType = z
   .object({
     patterns: z.array(z.string()).optional(),
   })
@@ -309,7 +329,9 @@ export const marshalUpdateRepoRequestSchema: z.ZodType = z
     id: z.bigint().optional(),
     branch: z.string().optional(),
     tag: z.string().optional(),
-    sparseCheckout: z.lazy(() => marshalSparseCheckoutUpdateSchema).optional(),
+    sparseCheckout: z
+      .lazy(() => marshalCreateSparseCheckoutUpdateSchema)
+      .optional(),
     dangerouslyForceDiscardAll: z.boolean().optional(),
   })
   .transform(d => ({

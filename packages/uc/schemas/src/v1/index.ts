@@ -9,6 +9,7 @@ export {SchemasClient} from './client';
 export {CatalogType} from './model';
 
 export type {
+  CreateEffectivePredictiveOptimizationFlag,
   CreateSchemaRequest,
   DeleteSchemaRequest,
   DeleteSchemaResponse,

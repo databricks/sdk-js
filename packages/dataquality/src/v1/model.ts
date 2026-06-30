@@ -160,16 +160,191 @@ export interface CancelRefreshResponse {
   refresh?: Refresh | undefined;
 }
 
+/** Anomaly Detection Configurations. */
+export interface CreateAnomalyDetectionConfig {
+  /** List of fully qualified table names to exclude from anomaly detection. */
+  excludedTableFullNames?: string[] | undefined;
+}
+
+/** The data quality monitoring workflow cron schedule. */
+export interface CreateCronSchedule {
+  /** The expression that determines when to run the monitor. See [examples](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html). */
+  quartzCronExpression: string;
+  /**
+   * A Java timezone id. The schedule for a job will be resolved with respect to this timezone.
+   * See `Java TimeZone <http://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html>`_ for details.
+   * The timezone id (e.g., ``America/Los_Angeles``) in which to evaluate the quartz expression.
+   */
+  timezoneId: string;
+}
+
+/** Data Profiling Configurations. */
+export interface CreateDataProfilingConfig {
+  /** ID of the schema where output tables are created. */
+  outputSchemaId: string;
+  /**
+   * Field for specifying the absolute path to a custom directory to store data-monitoring
+   * assets. Normally prepopulated to a default user location via UI and Python APIs.
+   */
+  assetsDir?: string | undefined;
+  /** (--[Create:REQ Update:REQ]--) Analysis config which is used to determine analysis logic. */
+  analysisConfig?:
+    | {
+        $case: 'inferenceLog';
+        /** `Analysis Configuration` for monitoring inference log tables. */
+        inferenceLog: CreateInferenceLogConfig;
+      }
+    | {
+        $case: 'timeSeries';
+        /** `Analysis Configuration` for monitoring time series tables. */
+        timeSeries: CreateTimeSeriesConfig;
+      }
+    | {
+        $case: 'snapshot';
+        /** `Analysis Configuration` for monitoring snapshot tables. */
+        snapshot: CreateSnapshotConfig;
+      }
+    | undefined;
+  /**
+   * List of column expressions to slice data with for targeted analysis. The data is grouped by
+   * each expression independently, resulting in a separate slice for each predicate and its
+   * complements. For example `slicing_exprs=[“col_1”, “col_2 > 10”]` will generate the following
+   * slices: two slices for `col_2 > 10` (True and False), and one slice per unique value in
+   * `col1`. For high-cardinality columns, only the top 100 unique values by frequency will
+   * generate slices.
+   */
+  slicingExprs?: string[] | undefined;
+  /** Custom metrics. */
+  customMetrics?: CreateDataProfilingCustomMetric[] | undefined;
+  /**
+   * Baseline table name.
+   * Baseline data is used to compute drift from the data in the monitored `table_name`.
+   * The baseline table and the monitored table shall have the same schema.
+   */
+  baselineTableName?: string | undefined;
+  /** The cron schedule. */
+  schedule?: CreateCronSchedule | undefined;
+  /** Field for specifying notification settings. */
+  notificationSettings?: CreateNotificationSettings | undefined;
+  /** Whether to skip creating a default dashboard summarizing data quality metrics. */
+  skipBuiltinDashboard?: boolean | undefined;
+  /**
+   * Optional argument to specify the warehouse for dashboard creation. If not specified, the first running
+   * warehouse will be used.
+   */
+  warehouseId?: string | undefined;
+}
+
+/** Custom metric definition. */
+export interface CreateDataProfilingCustomMetric {
+  /** Name of the metric in the output tables. */
+  name: string;
+  /** Jinja template for a SQL expression that specifies how to compute the metric. See [create metric definition](https://docs.databricks.com/en/lakehouse-monitoring/custom-metrics.html#create-definition). */
+  definition: string;
+  /**
+   * A list of column names in the input table the metric should be computed for.
+   * Can use ``":table"`` to indicate that the metric needs information from multiple columns.
+   */
+  inputColumns: string[];
+  /** The output type of the custom metric. */
+  outputDataType: string;
+  /** The type of the custom metric. */
+  type: DataProfilingCustomMetricType;
+}
+
+/** Inference log configuration. */
+export interface CreateInferenceLogConfig {
+  /** Problem type the model aims to solve. */
+  problemType: InferenceProblemType;
+  /** Column for the timestamp. */
+  timestampColumn: string;
+  /** List of granularities to use when aggregating data into time windows based on their timestamp. */
+  granularities: AggregationGranularity[];
+  /** Column for the prediction. */
+  predictionColumn: string;
+  /** Column for the label. */
+  labelColumn?: string | undefined;
+  /** Column for the model identifier. */
+  modelIdColumn: string;
+}
+
+/** Monitor for the data quality of unity catalog entities such as schema or table. */
+export interface CreateMonitor {
+  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  objectType: string;
+  /**
+   * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
+   *
+   * Find the `schema_id` from either:
+   * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
+   *
+   * Find the `table_id` from either:
+   * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   */
+  objectId: string;
+  /** Anomaly Detection Configuration, applicable to `schema` object types. */
+  anomalyDetectionConfig?: CreateAnomalyDetectionConfig | undefined;
+  /**
+   * Data Profiling Configuration, applicable to `table` object types. Exactly one `Analysis Configuration`
+   * must be present.
+   */
+  dataProfilingConfig?: CreateDataProfilingConfig | undefined;
+}
+
 /** Request to create a Monitor. */
 export interface CreateMonitorRequest {
   /** The monitor to create. */
-  monitor?: Monitor | undefined;
+  monitor?: CreateMonitor | undefined;
+}
+
+/** Destination of the data quality monitoring notification. */
+export interface CreateNotificationDestination {
+  /** The list of email addresses to send the notification to. A maximum of 5 email addresses is supported. */
+  emailAddresses?: string[] | undefined;
+}
+
+/** Settings for sending notifications on the data quality monitoring. */
+export interface CreateNotificationSettings {
+  /** Destinations to send notifications on failure/timeout. */
+  onFailure?: CreateNotificationDestination | undefined;
+}
+
+/** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
+export interface CreateRefresh {
+  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  objectType?: string | undefined;
+  /**
+   * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
+   *
+   * Find the `schema_id` from either:
+   * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
+   *
+   * Find the `table_id` from either:
+   * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   */
+  objectId?: string | undefined;
 }
 
 /** Request to create a refresh. */
 export interface CreateRefreshRequest {
   /** The refresh to create */
-  refresh?: Refresh | undefined;
+  refresh?: CreateRefresh | undefined;
+}
+
+/** Snapshot analysis configuration. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateSnapshotConfig {}
+
+/** Time series analysis configuration. */
+export interface CreateTimeSeriesConfig {
+  /** Column for the timestamp. */
+  timestampColumn: string;
+  /** List of granularities to use when aggregating data into time windows based on their timestamp. */
+  granularities: AggregationGranularity[];
 }
 
 /** The data quality monitoring workflow cron schedule. */
@@ -492,6 +667,139 @@ export interface TimeSeriesConfig {
   granularities?: AggregationGranularity[] | undefined;
 }
 
+/** Anomaly Detection Configurations. */
+export interface UpdateAnomalyDetectionConfig {
+  /** List of fully qualified table names to exclude from anomaly detection. */
+  excludedTableFullNames?: string[] | undefined;
+}
+
+/** The data quality monitoring workflow cron schedule. */
+export interface UpdateCronSchedule {
+  /** The expression that determines when to run the monitor. See [examples](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html). */
+  quartzCronExpression?: string | undefined;
+  /**
+   * A Java timezone id. The schedule for a job will be resolved with respect to this timezone.
+   * See `Java TimeZone <http://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html>`_ for details.
+   * The timezone id (e.g., ``America/Los_Angeles``) in which to evaluate the quartz expression.
+   */
+  timezoneId?: string | undefined;
+}
+
+/** Data Profiling Configurations. */
+export interface UpdateDataProfilingConfig {
+  /** ID of the schema where output tables are created. */
+  outputSchemaId?: string | undefined;
+  /**
+   * Field for specifying the absolute path to a custom directory to store data-monitoring
+   * assets. Normally prepopulated to a default user location via UI and Python APIs.
+   */
+  assetsDir?: string | undefined;
+  /** (--[Create:REQ Update:REQ]--) Analysis config which is used to determine analysis logic. */
+  analysisConfig?:
+    | {
+        $case: 'inferenceLog';
+        /** `Analysis Configuration` for monitoring inference log tables. */
+        inferenceLog: UpdateInferenceLogConfig;
+      }
+    | {
+        $case: 'timeSeries';
+        /** `Analysis Configuration` for monitoring time series tables. */
+        timeSeries: UpdateTimeSeriesConfig;
+      }
+    | {
+        $case: 'snapshot';
+        /** `Analysis Configuration` for monitoring snapshot tables. */
+        snapshot: UpdateSnapshotConfig;
+      }
+    | undefined;
+  /**
+   * List of column expressions to slice data with for targeted analysis. The data is grouped by
+   * each expression independently, resulting in a separate slice for each predicate and its
+   * complements. For example `slicing_exprs=[“col_1”, “col_2 > 10”]` will generate the following
+   * slices: two slices for `col_2 > 10` (True and False), and one slice per unique value in
+   * `col1`. For high-cardinality columns, only the top 100 unique values by frequency will
+   * generate slices.
+   */
+  slicingExprs?: string[] | undefined;
+  /** Custom metrics. */
+  customMetrics?: UpdateDataProfilingCustomMetric[] | undefined;
+  /**
+   * Baseline table name.
+   * Baseline data is used to compute drift from the data in the monitored `table_name`.
+   * The baseline table and the monitored table shall have the same schema.
+   */
+  baselineTableName?: string | undefined;
+  /** The cron schedule. */
+  schedule?: UpdateCronSchedule | undefined;
+  /** Field for specifying notification settings. */
+  notificationSettings?: UpdateNotificationSettings | undefined;
+  /** Whether to skip creating a default dashboard summarizing data quality metrics. */
+  skipBuiltinDashboard?: boolean | undefined;
+  /**
+   * Optional argument to specify the warehouse for dashboard creation. If not specified, the first running
+   * warehouse will be used.
+   */
+  warehouseId?: string | undefined;
+}
+
+/** Custom metric definition. */
+export interface UpdateDataProfilingCustomMetric {
+  /** Name of the metric in the output tables. */
+  name?: string | undefined;
+  /** Jinja template for a SQL expression that specifies how to compute the metric. See [create metric definition](https://docs.databricks.com/en/lakehouse-monitoring/custom-metrics.html#create-definition). */
+  definition?: string | undefined;
+  /**
+   * A list of column names in the input table the metric should be computed for.
+   * Can use ``":table"`` to indicate that the metric needs information from multiple columns.
+   */
+  inputColumns?: string[] | undefined;
+  /** The output type of the custom metric. */
+  outputDataType?: string | undefined;
+  /** The type of the custom metric. */
+  type?: DataProfilingCustomMetricType | undefined;
+}
+
+/** Inference log configuration. */
+export interface UpdateInferenceLogConfig {
+  /** Problem type the model aims to solve. */
+  problemType?: InferenceProblemType | undefined;
+  /** Column for the timestamp. */
+  timestampColumn?: string | undefined;
+  /** List of granularities to use when aggregating data into time windows based on their timestamp. */
+  granularities?: AggregationGranularity[] | undefined;
+  /** Column for the prediction. */
+  predictionColumn?: string | undefined;
+  /** Column for the label. */
+  labelColumn?: string | undefined;
+  /** Column for the model identifier. */
+  modelIdColumn?: string | undefined;
+}
+
+/** Monitor for the data quality of unity catalog entities such as schema or table. */
+export interface UpdateMonitor {
+  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  objectType?: string | undefined;
+  /**
+   * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
+   *
+   * Find the `schema_id` from either:
+   * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
+   *
+   * Find the `table_id` from either:
+   * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   */
+  objectId?: string | undefined;
+  /** Anomaly Detection Configuration, applicable to `schema` object types. */
+  anomalyDetectionConfig?: UpdateAnomalyDetectionConfig | undefined;
+  /**
+   * Data Profiling Configuration, applicable to `table` object types. Exactly one `Analysis Configuration`
+   * must be present.
+   */
+  dataProfilingConfig?: UpdateDataProfilingConfig | undefined;
+}
+
 /** Request to update a Monitor. */
 export interface UpdateMonitorRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
@@ -509,12 +817,42 @@ export interface UpdateMonitorRequest {
    */
   objectId?: string | undefined;
   /** The monitor to update. */
-  monitor?: Monitor | undefined;
+  monitor?: UpdateMonitor | undefined;
   /**
    * The field mask to specify which fields to update as a comma-separated list.
    * Example value: `data_profiling_config.custom_metrics,data_profiling_config.schedule.quartz_cron_expression`
    */
-  updateMask?: FieldMask<Monitor> | undefined;
+  updateMask?: FieldMask<UpdateMonitor> | undefined;
+}
+
+/** Destination of the data quality monitoring notification. */
+export interface UpdateNotificationDestination {
+  /** The list of email addresses to send the notification to. A maximum of 5 email addresses is supported. */
+  emailAddresses?: string[] | undefined;
+}
+
+/** Settings for sending notifications on the data quality monitoring. */
+export interface UpdateNotificationSettings {
+  /** Destinations to send notifications on failure/timeout. */
+  onFailure?: UpdateNotificationDestination | undefined;
+}
+
+/** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
+export interface UpdateRefresh {
+  /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
+  objectType?: string | undefined;
+  /**
+   * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
+   *
+   * Find the `schema_id` from either:
+   * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
+   *
+   * Find the `table_id` from either:
+   * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
+   * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
+   */
+  objectId?: string | undefined;
 }
 
 /** Request to update a refresh. */
@@ -536,9 +874,21 @@ export interface UpdateRefreshRequest {
   /** Unique id of the refresh operation. */
   refreshId?: bigint | undefined;
   /** The refresh to update. */
-  refresh?: Refresh | undefined;
+  refresh?: UpdateRefresh | undefined;
   /** The field mask to specify which fields to update. */
-  updateMask?: FieldMask<Refresh> | undefined;
+  updateMask?: FieldMask<UpdateRefresh> | undefined;
+}
+
+/** Snapshot analysis configuration. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateSnapshotConfig {}
+
+/** Time series analysis configuration. */
+export interface UpdateTimeSeriesConfig {
+  /** Column for the timestamp. */
+  timestampColumn?: string | undefined;
+  /** List of granularities to use when aggregating data into time windows based on their timestamp. */
+  granularities?: AggregationGranularity[] | undefined;
 }
 
 export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
@@ -770,14 +1120,6 @@ export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
     granularities: d.granularities,
   }));
 
-export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
-  .object({
-    excludedTableFullNames: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    excluded_table_full_names: d.excludedTableFullNames,
-  }));
-
 export const marshalCancelRefreshRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
@@ -790,57 +1132,55 @@ export const marshalCancelRefreshRequestSchema: z.ZodType = z
     refresh_id: d.refreshId,
   }));
 
-export const marshalCronScheduleSchema: z.ZodType = z
+export const marshalCreateAnomalyDetectionConfigSchema: z.ZodType = z
   .object({
-    quartzCronExpression: z.string().optional(),
-    timezoneId: z.string().optional(),
-    pauseStatus: z.string().optional(),
+    excludedTableFullNames: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    excluded_table_full_names: d.excludedTableFullNames,
+  }));
+
+export const marshalCreateCronScheduleSchema: z.ZodType = z
+  .object({
+    quartzCronExpression: z.string(),
+    timezoneId: z.string(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
     timezone_id: d.timezoneId,
-    pause_status: d.pauseStatus,
   }));
 
-export const marshalDataProfilingConfigSchema: z.ZodType = z
+export const marshalCreateDataProfilingConfigSchema: z.ZodType = z
   .object({
-    outputSchemaId: z.string().optional(),
+    outputSchemaId: z.string(),
     assetsDir: z.string().optional(),
     analysisConfig: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('inferenceLog'),
-          inferenceLog: z.lazy(() => marshalInferenceLogConfigSchema),
+          inferenceLog: z.lazy(() => marshalCreateInferenceLogConfigSchema),
         }),
         z.object({
           $case: z.literal('timeSeries'),
-          timeSeries: z.lazy(() => marshalTimeSeriesConfigSchema),
+          timeSeries: z.lazy(() => marshalCreateTimeSeriesConfigSchema),
         }),
         z.object({
           $case: z.literal('snapshot'),
-          snapshot: z.lazy(() => marshalSnapshotConfigSchema),
+          snapshot: z.lazy(() => marshalCreateSnapshotConfigSchema),
         }),
       ])
       .optional(),
     slicingExprs: z.array(z.string()).optional(),
     customMetrics: z
-      .array(z.lazy(() => marshalDataProfilingCustomMetricSchema))
+      .array(z.lazy(() => marshalCreateDataProfilingCustomMetricSchema))
       .optional(),
     baselineTableName: z.string().optional(),
-    schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    schedule: z.lazy(() => marshalCreateCronScheduleSchema).optional(),
     notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
+      .lazy(() => marshalCreateNotificationSettingsSchema)
       .optional(),
     skipBuiltinDashboard: z.boolean().optional(),
     warehouseId: z.string().optional(),
-    monitoredTableName: z.string().optional(),
-    status: z.string().optional(),
-    latestMonitorFailureMessage: z.string().optional(),
-    profileMetricsTableName: z.string().optional(),
-    driftMetricsTableName: z.string().optional(),
-    dashboardId: z.string().optional(),
-    monitorVersion: z.bigint().optional(),
-    effectiveWarehouseId: z.string().optional(),
   })
   .transform(d => ({
     output_schema_id: d.outputSchemaId,
@@ -861,17 +1201,172 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
     notification_settings: d.notificationSettings,
     skip_builtin_dashboard: d.skipBuiltinDashboard,
     warehouse_id: d.warehouseId,
-    monitored_table_name: d.monitoredTableName,
-    status: d.status,
-    latest_monitor_failure_message: d.latestMonitorFailureMessage,
-    profile_metrics_table_name: d.profileMetricsTableName,
-    drift_metrics_table_name: d.driftMetricsTableName,
-    dashboard_id: d.dashboardId,
-    monitor_version: d.monitorVersion,
-    effective_warehouse_id: d.effectiveWarehouseId,
   }));
 
-export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
+export const marshalCreateDataProfilingCustomMetricSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    definition: z.string(),
+    inputColumns: z.array(z.string()),
+    outputDataType: z.string(),
+    type: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+    definition: d.definition,
+    input_columns: d.inputColumns,
+    output_data_type: d.outputDataType,
+    type: d.type,
+  }));
+
+export const marshalCreateInferenceLogConfigSchema: z.ZodType = z
+  .object({
+    problemType: z.string(),
+    timestampColumn: z.string(),
+    granularities: z.array(z.string()),
+    predictionColumn: z.string(),
+    labelColumn: z.string().optional(),
+    modelIdColumn: z.string(),
+  })
+  .transform(d => ({
+    problem_type: d.problemType,
+    timestamp_column: d.timestampColumn,
+    granularities: d.granularities,
+    prediction_column: d.predictionColumn,
+    label_column: d.labelColumn,
+    model_id_column: d.modelIdColumn,
+  }));
+
+export const marshalCreateMonitorSchema: z.ZodType = z
+  .object({
+    objectType: z.string(),
+    objectId: z.string(),
+    anomalyDetectionConfig: z
+      .lazy(() => marshalCreateAnomalyDetectionConfigSchema)
+      .optional(),
+    dataProfilingConfig: z
+      .lazy(() => marshalCreateDataProfilingConfigSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    anomaly_detection_config: d.anomalyDetectionConfig,
+    data_profiling_config: d.dataProfilingConfig,
+  }));
+
+export const marshalCreateNotificationDestinationSchema: z.ZodType = z
+  .object({
+    emailAddresses: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    email_addresses: d.emailAddresses,
+  }));
+
+export const marshalCreateNotificationSettingsSchema: z.ZodType = z
+  .object({
+    onFailure: z
+      .lazy(() => marshalCreateNotificationDestinationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    on_failure: d.onFailure,
+  }));
+
+export const marshalCreateRefreshSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+  }));
+
+export const marshalCreateSnapshotConfigSchema: z.ZodType = z.object({});
+
+export const marshalCreateTimeSeriesConfigSchema: z.ZodType = z
+  .object({
+    timestampColumn: z.string(),
+    granularities: z.array(z.string()),
+  })
+  .transform(d => ({
+    timestamp_column: d.timestampColumn,
+    granularities: d.granularities,
+  }));
+
+export const marshalUpdateAnomalyDetectionConfigSchema: z.ZodType = z
+  .object({
+    excludedTableFullNames: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    excluded_table_full_names: d.excludedTableFullNames,
+  }));
+
+export const marshalUpdateCronScheduleSchema: z.ZodType = z
+  .object({
+    quartzCronExpression: z.string().optional(),
+    timezoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    quartz_cron_expression: d.quartzCronExpression,
+    timezone_id: d.timezoneId,
+  }));
+
+export const marshalUpdateDataProfilingConfigSchema: z.ZodType = z
+  .object({
+    outputSchemaId: z.string().optional(),
+    assetsDir: z.string().optional(),
+    analysisConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('inferenceLog'),
+          inferenceLog: z.lazy(() => marshalUpdateInferenceLogConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('timeSeries'),
+          timeSeries: z.lazy(() => marshalUpdateTimeSeriesConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('snapshot'),
+          snapshot: z.lazy(() => marshalUpdateSnapshotConfigSchema),
+        }),
+      ])
+      .optional(),
+    slicingExprs: z.array(z.string()).optional(),
+    customMetrics: z
+      .array(z.lazy(() => marshalUpdateDataProfilingCustomMetricSchema))
+      .optional(),
+    baselineTableName: z.string().optional(),
+    schedule: z.lazy(() => marshalUpdateCronScheduleSchema).optional(),
+    notificationSettings: z
+      .lazy(() => marshalUpdateNotificationSettingsSchema)
+      .optional(),
+    skipBuiltinDashboard: z.boolean().optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    output_schema_id: d.outputSchemaId,
+    assets_dir: d.assetsDir,
+    ...(d.analysisConfig?.$case === 'inferenceLog' && {
+      inference_log: d.analysisConfig.inferenceLog,
+    }),
+    ...(d.analysisConfig?.$case === 'timeSeries' && {
+      time_series: d.analysisConfig.timeSeries,
+    }),
+    ...(d.analysisConfig?.$case === 'snapshot' && {
+      snapshot: d.analysisConfig.snapshot,
+    }),
+    slicing_exprs: d.slicingExprs,
+    custom_metrics: d.customMetrics,
+    baseline_table_name: d.baselineTableName,
+    schedule: d.schedule,
+    notification_settings: d.notificationSettings,
+    skip_builtin_dashboard: d.skipBuiltinDashboard,
+    warehouse_id: d.warehouseId,
+  }));
+
+export const marshalUpdateDataProfilingCustomMetricSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     definition: z.string().optional(),
@@ -887,7 +1382,7 @@ export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
     type: d.type,
   }));
 
-export const marshalInferenceLogConfigSchema: z.ZodType = z
+export const marshalUpdateInferenceLogConfigSchema: z.ZodType = z
   .object({
     problemType: z.string().optional(),
     timestampColumn: z.string().optional(),
@@ -905,15 +1400,15 @@ export const marshalInferenceLogConfigSchema: z.ZodType = z
     model_id_column: d.modelIdColumn,
   }));
 
-export const marshalMonitorSchema: z.ZodType = z
+export const marshalUpdateMonitorSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
     anomalyDetectionConfig: z
-      .lazy(() => marshalAnomalyDetectionConfigSchema)
+      .lazy(() => marshalUpdateAnomalyDetectionConfigSchema)
       .optional(),
     dataProfilingConfig: z
-      .lazy(() => marshalDataProfilingConfigSchema)
+      .lazy(() => marshalUpdateDataProfilingConfigSchema)
       .optional(),
   })
   .transform(d => ({
@@ -923,7 +1418,7 @@ export const marshalMonitorSchema: z.ZodType = z
     data_profiling_config: d.dataProfilingConfig,
   }));
 
-export const marshalNotificationDestinationSchema: z.ZodType = z
+export const marshalUpdateNotificationDestinationSchema: z.ZodType = z
   .object({
     emailAddresses: z.array(z.string()).optional(),
   })
@@ -931,39 +1426,29 @@ export const marshalNotificationDestinationSchema: z.ZodType = z
     email_addresses: d.emailAddresses,
   }));
 
-export const marshalNotificationSettingsSchema: z.ZodType = z
+export const marshalUpdateNotificationSettingsSchema: z.ZodType = z
   .object({
-    onFailure: z.lazy(() => marshalNotificationDestinationSchema).optional(),
+    onFailure: z
+      .lazy(() => marshalUpdateNotificationDestinationSchema)
+      .optional(),
   })
   .transform(d => ({
     on_failure: d.onFailure,
   }));
 
-export const marshalRefreshSchema: z.ZodType = z
+export const marshalUpdateRefreshSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
-    refreshId: z.bigint().optional(),
-    state: z.string().optional(),
-    message: z.string().optional(),
-    startTimeMs: z.bigint().optional(),
-    endTimeMs: z.bigint().optional(),
-    trigger: z.string().optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
     object_id: d.objectId,
-    refresh_id: d.refreshId,
-    state: d.state,
-    message: d.message,
-    start_time_ms: d.startTimeMs,
-    end_time_ms: d.endTimeMs,
-    trigger: d.trigger,
   }));
 
-export const marshalSnapshotConfigSchema: z.ZodType = z.object({});
+export const marshalUpdateSnapshotConfigSchema: z.ZodType = z.object({});
 
-export const marshalTimeSeriesConfigSchema: z.ZodType = z
+export const marshalUpdateTimeSeriesConfigSchema: z.ZodType = z
   .object({
     timestampColumn: z.string().optional(),
     granularities: z.array(z.string()).optional(),
@@ -973,49 +1458,46 @@ export const marshalTimeSeriesConfigSchema: z.ZodType = z
     granularities: d.granularities,
   }));
 
-const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {
+const updateAnomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {
   excludedTableFullNames: {wire: 'excluded_table_full_names'},
 };
 
-const cronScheduleFieldMaskSchema: FieldMaskSchema = {
-  pauseStatus: {wire: 'pause_status'},
+const updateCronScheduleFieldMaskSchema: FieldMaskSchema = {
   quartzCronExpression: {wire: 'quartz_cron_expression'},
   timezoneId: {wire: 'timezone_id'},
 };
 
-const dataProfilingConfigFieldMaskSchema: FieldMaskSchema = {
+const updateDataProfilingConfigFieldMaskSchema: FieldMaskSchema = {
   assetsDir: {wire: 'assets_dir'},
   baselineTableName: {wire: 'baseline_table_name'},
   customMetrics: {wire: 'custom_metrics'},
-  dashboardId: {wire: 'dashboard_id'},
-  driftMetricsTableName: {wire: 'drift_metrics_table_name'},
-  effectiveWarehouseId: {wire: 'effective_warehouse_id'},
   inferenceLog: {
     wire: 'inference_log',
-    children: () => inferenceLogConfigFieldMaskSchema,
+    children: () => updateInferenceLogConfigFieldMaskSchema,
   },
-  latestMonitorFailureMessage: {wire: 'latest_monitor_failure_message'},
-  monitorVersion: {wire: 'monitor_version'},
-  monitoredTableName: {wire: 'monitored_table_name'},
   notificationSettings: {
     wire: 'notification_settings',
-    children: () => notificationSettingsFieldMaskSchema,
+    children: () => updateNotificationSettingsFieldMaskSchema,
   },
   outputSchemaId: {wire: 'output_schema_id'},
-  profileMetricsTableName: {wire: 'profile_metrics_table_name'},
-  schedule: {wire: 'schedule', children: () => cronScheduleFieldMaskSchema},
+  schedule: {
+    wire: 'schedule',
+    children: () => updateCronScheduleFieldMaskSchema,
+  },
   skipBuiltinDashboard: {wire: 'skip_builtin_dashboard'},
   slicingExprs: {wire: 'slicing_exprs'},
-  snapshot: {wire: 'snapshot', children: () => snapshotConfigFieldMaskSchema},
-  status: {wire: 'status'},
+  snapshot: {
+    wire: 'snapshot',
+    children: () => updateSnapshotConfigFieldMaskSchema,
+  },
   timeSeries: {
     wire: 'time_series',
-    children: () => timeSeriesConfigFieldMaskSchema,
+    children: () => updateTimeSeriesConfigFieldMaskSchema,
   },
   warehouseId: {wire: 'warehouse_id'},
 };
 
-const inferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
+const updateInferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
   granularities: {wire: 'granularities'},
   labelColumn: {wire: 'label_column'},
   modelIdColumn: {wire: 'model_id_column'},
@@ -1024,52 +1506,50 @@ const inferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
   timestampColumn: {wire: 'timestamp_column'},
 };
 
-const monitorFieldMaskSchema: FieldMaskSchema = {
+const updateMonitorFieldMaskSchema: FieldMaskSchema = {
   anomalyDetectionConfig: {
     wire: 'anomaly_detection_config',
-    children: () => anomalyDetectionConfigFieldMaskSchema,
+    children: () => updateAnomalyDetectionConfigFieldMaskSchema,
   },
   dataProfilingConfig: {
     wire: 'data_profiling_config',
-    children: () => dataProfilingConfigFieldMaskSchema,
+    children: () => updateDataProfilingConfigFieldMaskSchema,
   },
   objectId: {wire: 'object_id'},
   objectType: {wire: 'object_type'},
 };
 
-export function monitorFieldMask(...paths: string[]): FieldMask<Monitor> {
-  return FieldMask.build<Monitor>(paths, monitorFieldMaskSchema);
+export function updateMonitorFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateMonitor> {
+  return FieldMask.build<UpdateMonitor>(paths, updateMonitorFieldMaskSchema);
 }
 
-const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
+const updateNotificationDestinationFieldMaskSchema: FieldMaskSchema = {
   emailAddresses: {wire: 'email_addresses'},
 };
 
-const notificationSettingsFieldMaskSchema: FieldMaskSchema = {
+const updateNotificationSettingsFieldMaskSchema: FieldMaskSchema = {
   onFailure: {
     wire: 'on_failure',
-    children: () => notificationDestinationFieldMaskSchema,
+    children: () => updateNotificationDestinationFieldMaskSchema,
   },
 };
 
-const refreshFieldMaskSchema: FieldMaskSchema = {
-  endTimeMs: {wire: 'end_time_ms'},
-  message: {wire: 'message'},
+const updateRefreshFieldMaskSchema: FieldMaskSchema = {
   objectId: {wire: 'object_id'},
   objectType: {wire: 'object_type'},
-  refreshId: {wire: 'refresh_id'},
-  startTimeMs: {wire: 'start_time_ms'},
-  state: {wire: 'state'},
-  trigger: {wire: 'trigger'},
 };
 
-export function refreshFieldMask(...paths: string[]): FieldMask<Refresh> {
-  return FieldMask.build<Refresh>(paths, refreshFieldMaskSchema);
+export function updateRefreshFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateRefresh> {
+  return FieldMask.build<UpdateRefresh>(paths, updateRefreshFieldMaskSchema);
 }
 
-const snapshotConfigFieldMaskSchema: FieldMaskSchema = {};
+const updateSnapshotConfigFieldMaskSchema: FieldMaskSchema = {};
 
-const timeSeriesConfigFieldMaskSchema: FieldMaskSchema = {
+const updateTimeSeriesConfigFieldMaskSchema: FieldMaskSchema = {
   granularities: {wire: 'granularities'},
   timestampColumn: {wire: 'timestamp_column'},
 };

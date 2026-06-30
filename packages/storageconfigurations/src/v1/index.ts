@@ -7,6 +7,7 @@
 export {StorageConfigurationsClient} from './client';
 
 export type {
+  CreateRootBucketInfo,
   CreateStorageConfigurationRequest,
   DeleteStorageConfigurationRequest,
   GetStorageConfigurationRequest,

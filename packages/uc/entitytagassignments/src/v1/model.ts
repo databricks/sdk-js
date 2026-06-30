@@ -19,9 +19,21 @@ export type TagAssignmentSourceType =
   | (typeof TagAssignmentSourceType)[keyof typeof TagAssignmentSourceType]
   | (string & {});
 
+/** Represents a tag assignment to an entity */
+export interface CreateEntityTagAssignment {
+  /** The fully qualified name of the entity to which the tag is assigned */
+  entityName?: string | undefined;
+  /** The key of the tag */
+  tagKey?: string | undefined;
+  /** The value of the tag */
+  tagValue?: string | undefined;
+  /** The type of the entity to which the tag is assigned. */
+  entityType?: string | undefined;
+}
+
 /** Request to create a new entity tag assignment */
 export interface CreateEntityTagAssignmentRequest {
-  tagAssignment?: EntityTagAssignment | undefined;
+  tagAssignment?: CreateEntityTagAssignment | undefined;
 }
 
 /** Request to delete an entity tag assignment */
@@ -81,10 +93,22 @@ export interface ListEntityTagAssignmentsResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Represents a tag assignment to an entity */
+export interface UpdateEntityTagAssignment {
+  /** The fully qualified name of the entity to which the tag is assigned */
+  entityName?: string | undefined;
+  /** The key of the tag */
+  tagKey?: string | undefined;
+  /** The value of the tag */
+  tagValue?: string | undefined;
+  /** The type of the entity to which the tag is assigned. */
+  entityType?: string | undefined;
+}
+
 /** Request to update an entity tag assignment */
 export interface UpdateEntityTagAssignmentRequest {
-  tagAssignment?: EntityTagAssignment | undefined;
-  updateMask?: FieldMask<EntityTagAssignment> | undefined;
+  tagAssignment?: UpdateEntityTagAssignment | undefined;
+  updateMask?: FieldMask<UpdateEntityTagAssignment> | undefined;
 }
 
 export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> =
@@ -124,44 +148,46 @@ export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEnti
       nextPageToken: d.next_page_token,
     }));
 
-export const marshalEntityTagAssignmentSchema: z.ZodType = z
+export const marshalCreateEntityTagAssignmentSchema: z.ZodType = z
   .object({
     entityName: z.string().optional(),
     tagKey: z.string().optional(),
     tagValue: z.string().optional(),
     entityType: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updatedBy: z.string().optional(),
-    sourceType: z.string().optional(),
   })
   .transform(d => ({
     entity_name: d.entityName,
     tag_key: d.tagKey,
     tag_value: d.tagValue,
     entity_type: d.entityType,
-    update_time: d.updateTime,
-    updated_by: d.updatedBy,
-    source_type: d.sourceType,
   }));
 
-const entityTagAssignmentFieldMaskSchema: FieldMaskSchema = {
+export const marshalUpdateEntityTagAssignmentSchema: z.ZodType = z
+  .object({
+    entityName: z.string().optional(),
+    tagKey: z.string().optional(),
+    tagValue: z.string().optional(),
+    entityType: z.string().optional(),
+  })
+  .transform(d => ({
+    entity_name: d.entityName,
+    tag_key: d.tagKey,
+    tag_value: d.tagValue,
+    entity_type: d.entityType,
+  }));
+
+const updateEntityTagAssignmentFieldMaskSchema: FieldMaskSchema = {
   entityName: {wire: 'entity_name'},
   entityType: {wire: 'entity_type'},
-  sourceType: {wire: 'source_type'},
   tagKey: {wire: 'tag_key'},
   tagValue: {wire: 'tag_value'},
-  updateTime: {wire: 'update_time'},
-  updatedBy: {wire: 'updated_by'},
 };
 
-export function entityTagAssignmentFieldMask(
+export function updateEntityTagAssignmentFieldMask(
   ...paths: string[]
-): FieldMask<EntityTagAssignment> {
-  return FieldMask.build<EntityTagAssignment>(
+): FieldMask<UpdateEntityTagAssignment> {
+  return FieldMask.build<UpdateEntityTagAssignment>(
     paths,
-    entityTagAssignmentFieldMaskSchema
+    updateEntityTagAssignmentFieldMaskSchema
   );
 }

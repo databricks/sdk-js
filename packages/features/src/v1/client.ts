@@ -50,10 +50,14 @@ import type {
 } from './model';
 import {
   marshalBatchCreateMaterializedFeaturesRequestSchema,
-  marshalFeatureSchema,
-  marshalKafkaConfigSchema,
-  marshalMaterializedFeatureSchema,
-  marshalStreamSchema,
+  marshalCreateFeatureSchema,
+  marshalCreateKafkaConfigSchema,
+  marshalCreateMaterializedFeatureSchema,
+  marshalCreateStreamSchema,
+  marshalUpdateFeatureSchema,
+  marshalUpdateKafkaConfigSchema,
+  marshalUpdateMaterializedFeatureSchema,
+  marshalUpdateStreamSchema,
   unmarshalBatchCreateMaterializedFeaturesResponseSchema,
   unmarshalFeatureSchema,
   unmarshalKafkaConfigSchema,
@@ -141,7 +145,7 @@ export class FeaturesClient {
   ): Promise<Feature> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/features`;
-    const body = marshalRequest(req.feature, marshalFeatureSchema);
+    const body = marshalRequest(req.feature, marshalCreateFeatureSchema);
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -175,7 +179,10 @@ export class FeaturesClient {
   ): Promise<KafkaConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/features/kafka-configs`;
-    const body = marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
+    const body = marshalRequest(
+      req.kafkaConfig,
+      marshalCreateKafkaConfigSchema
+    );
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -207,7 +214,7 @@ export class FeaturesClient {
     const url = `${host}/api/2.0/feature-engineering/materialized-features`;
     const body = marshalRequest(
       req.materializedFeature,
-      marshalMaterializedFeatureSchema
+      marshalCreateMaterializedFeatureSchema
     );
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -238,7 +245,7 @@ export class FeaturesClient {
   ): Promise<Stream> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/streams`;
-    const body = marshalRequest(req.stream, marshalStreamSchema);
+    const body = marshalRequest(req.stream, marshalCreateStreamSchema);
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -729,7 +736,7 @@ export class FeaturesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.feature, marshalFeatureSchema);
+    const body = marshalRequest(req.feature, marshalUpdateFeatureSchema);
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -775,7 +782,10 @@ export class FeaturesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
+    const body = marshalRequest(
+      req.kafkaConfig,
+      marshalUpdateKafkaConfigSchema
+    );
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -819,7 +829,7 @@ export class FeaturesClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.materializedFeature,
-      marshalMaterializedFeatureSchema
+      marshalUpdateMaterializedFeatureSchema
     );
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -862,7 +872,7 @@ export class FeaturesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.stream, marshalStreamSchema);
+    const body = marshalRequest(req.stream, marshalUpdateStreamSchema);
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

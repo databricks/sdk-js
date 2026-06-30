@@ -241,24 +241,87 @@ export interface ContactInfo {
   company?: string | undefined;
 }
 
+export interface CreateConsumerTerms {
+  version: string;
+}
+
+export interface CreateDataRefreshInfo {
+  interval: bigint;
+  unit: DataRefresh;
+}
+
+export interface CreateExchange {
+  id?: string | undefined;
+  name: string;
+  comment?: string | undefined;
+  filters?: CreateExchangeFilter[] | undefined;
+  createdAt?: bigint | undefined;
+  createdBy?: string | undefined;
+  updatedAt?: bigint | undefined;
+  updatedBy?: string | undefined;
+  linkedListings?: CreateExchangeListing[] | undefined;
+}
+
+export interface CreateExchangeFilter {
+  id?: string | undefined;
+  exchangeId: string;
+  filterValue: string;
+  name?: string | undefined;
+  createdAt?: bigint | undefined;
+  createdBy?: string | undefined;
+  updatedAt?: bigint | undefined;
+  updatedBy?: string | undefined;
+  filterType: ExchangeFilterType;
+}
+
 export interface CreateExchangeFilterRequest {
-  filter?: ExchangeFilter | undefined;
+  filter?: CreateExchangeFilter | undefined;
 }
 
 export interface CreateExchangeFilterResponse {
   filterId?: string | undefined;
 }
 
+export interface CreateExchangeListing {
+  id?: string | undefined;
+  exchangeId?: string | undefined;
+  exchangeName?: string | undefined;
+  listingId?: string | undefined;
+  listingName?: string | undefined;
+  createdAt?: bigint | undefined;
+  createdBy?: string | undefined;
+}
+
 export interface CreateExchangeRequest {
-  exchange?: Exchange | undefined;
+  exchange?: CreateExchange | undefined;
 }
 
 export interface CreateExchangeResponse {
   exchangeId?: string | undefined;
 }
 
+export interface CreateFileInfo {
+  id?: string | undefined;
+  marketplaceFileType?: MarketplaceFileType | undefined;
+  fileParent?: CreateFileParent | undefined;
+  mimeType?: string | undefined;
+  downloadLink?: string | undefined;
+  createdAt?: bigint | undefined;
+  updatedAt?: bigint | undefined;
+  /** Name displayed to users for applicable files, e.g. embedded notebooks */
+  displayName?: string | undefined;
+  status?: FileStatus | undefined;
+  /** Populated if status is in a failed state with more information on reason for the failure. */
+  statusMessage?: string | undefined;
+}
+
+export interface CreateFileParent {
+  parentId?: string | undefined;
+  fileParentType?: FileParentType | undefined;
+}
+
 export interface CreateFileRequest {
-  fileParent?: FileParent | undefined;
+  fileParent?: CreateFileParent | undefined;
   marketplaceFileType?: MarketplaceFileType | undefined;
   mimeType?: string | undefined;
   displayName?: string | undefined;
@@ -270,26 +333,128 @@ export interface CreateFileResponse {
   fileInfo?: FileInfo | undefined;
 }
 
+export interface CreateInstallationDetail {
+  id?: string | undefined;
+  listingId?: string | undefined;
+  shareName?: string | undefined;
+  catalogName?: string | undefined;
+  installedOn?: bigint | undefined;
+  status?: InstallationStatus | undefined;
+  errorMessage?: string | undefined;
+  listingName?: string | undefined;
+  repoName?: string | undefined;
+  repoPath?: string | undefined;
+  recipientType?: DeltaSharingRecipientType | undefined;
+  tokens?: CreateTokenInfo[] | undefined;
+  tokenDetail?: CreateTokenDetail | undefined;
+}
+
 export interface CreateInstallationRequest {
   listingId?: string | undefined;
   shareName?: string | undefined;
   catalogName?: string | undefined;
   /** for git repo installations */
-  repoDetail?: RepoInstallation | undefined;
+  repoDetail?: CreateRepoInstallation | undefined;
   recipientType?: DeltaSharingRecipientType | undefined;
-  acceptedConsumerTerms?: ConsumerTerms | undefined;
+  acceptedConsumerTerms?: CreateConsumerTerms | undefined;
 }
 
 export interface CreateInstallationResponse {
   installation?: InstallationDetail | undefined;
 }
 
+export interface CreateListing {
+  id?: string | undefined;
+  summary: CreateListingSummary;
+  detail?: CreateListingDetail | undefined;
+}
+
+export interface CreateListingDetail {
+  description?: string | undefined;
+  termsOfService?: string | undefined;
+  documentationLink?: string | undefined;
+  supportLink?: string | undefined;
+  fileIds?: string[] | undefined;
+  privacyPolicyLink?: string | undefined;
+  embeddedNotebookFileInfos?: CreateFileInfo[] | undefined;
+  /** Which geo region the listing data is collected from */
+  geographicalCoverage?: string | undefined;
+  /** Whether the dataset is free or paid */
+  cost?: Cost | undefined;
+  /** What the pricing model is (e.g. paid, subscription, paid upfront); should only be present if cost is paid */
+  pricingModel?: string | undefined;
+  /** How often data is updated */
+  updateFrequency?: CreateDataRefreshInfo | undefined;
+  /** Smallest unit of time in the dataset */
+  collectionGranularity?: CreateDataRefreshInfo | undefined;
+  /** The starting date timestamp for when the data spans */
+  collectionDateStart?: bigint | undefined;
+  /** The ending date timestamp for when the data spans */
+  collectionDateEnd?: bigint | undefined;
+  /** Where/how the data is sourced */
+  dataSource?: string | undefined;
+  /** size of the dataset in GB */
+  size?: number | undefined;
+  /** Type of assets included in the listing. eg. GIT_REPO, DATA_TABLE, MODEL, NOTEBOOK */
+  assets?: AssetType[] | undefined;
+  /**
+   * ID 20, 21 removed don't use
+   * License of the data asset - Required for listings with model based assets
+   */
+  license?: string | undefined;
+  /**
+   * Listing tags - Simple key value pair to annotate listings.
+   * When should I use tags vs dedicated fields?
+   * Using tags avoids the need to add new columns in the database for new annotations.
+   * However, this should be used sparingly since tags are stored as key value pair.
+   * Use tags only:
+   * 1. If the field is optional and won't need to have NOT NULL integrity check
+   * 2. The value is fairly fixed, static and low cardinality (eg. enums).
+   * 3. The value won't be used in filters or joins with other tables.
+   */
+  tags?: CreateListingTag[] | undefined;
+}
+
 export interface CreateListingRequest {
-  listing?: Listing | undefined;
+  listing?: CreateListing | undefined;
 }
 
 export interface CreateListingResponse {
   listingId?: string | undefined;
+}
+
+export interface CreateListingSetting {
+  visibility?: Visibility | undefined;
+}
+
+export interface CreateListingSummary {
+  name: string;
+  subtitle?: string | undefined;
+  status?: ListingStatus | undefined;
+  share?: CreateShareInfo | undefined;
+  providerRegion?: CreateRegionInfo | undefined;
+  setting?: CreateListingSetting | undefined;
+  createdAt?: bigint | undefined;
+  createdBy?: string | undefined;
+  updatedAt?: bigint | undefined;
+  updatedBy?: string | undefined;
+  publishedAt?: bigint | undefined;
+  publishedBy?: string | undefined;
+  categories?: Category[] | undefined;
+  listingType: ListingType;
+  createdById?: bigint | undefined;
+  updatedById?: bigint | undefined;
+  providerId?: string | undefined;
+  exchangeIds?: string[] | undefined;
+  /** if a git repo is being created, a listing will be initialized with this field as opposed to a share */
+  gitRepo?: CreateRepoInfo | undefined;
+}
+
+export interface CreateListingTag {
+  /** Tag name (enum) */
+  tagName?: ListingTagType | undefined;
+  /** String representation of the tag value. Values should be string literals (no complex types) */
+  tagValues?: string[] | undefined;
 }
 
 /**
@@ -305,7 +470,7 @@ export interface CreatePersonalizationRequest {
   company?: string | undefined;
   isFromLighthouse?: boolean | undefined;
   recipientType?: DeltaSharingRecipientType | undefined;
-  acceptedConsumerTerms?: ConsumerTerms | undefined;
+  acceptedConsumerTerms?: CreateConsumerTerms | undefined;
 }
 
 export interface CreatePersonalizationResponse {
@@ -319,12 +484,87 @@ export interface CreateProviderAnalyticsDashboardResponse {
   id?: string | undefined;
 }
 
+export interface CreateProviderInfo {
+  id?: string | undefined;
+  name: string;
+  description?: string | undefined;
+  iconFilePath?: string | undefined;
+  businessContactEmail: string;
+  supportContactEmail?: string | undefined;
+  /** is_featured is accessible by consumers only */
+  isFeatured?: boolean | undefined;
+  /** published_by is only applicable to data aggregators (e.g. Crux) */
+  publishedBy?: string | undefined;
+  companyWebsiteLink?: string | undefined;
+  iconFileId?: string | undefined;
+  termOfServiceLink: string;
+  privacyPolicyLink: string;
+  darkModeIconFileId?: string | undefined;
+  darkModeIconFilePath?: string | undefined;
+}
+
 export interface CreateProviderRequest {
-  provider?: ProviderInfo | undefined;
+  provider?: CreateProviderInfo | undefined;
 }
 
 export interface CreateProviderResponse {
   id?: string | undefined;
+}
+
+export interface CreateRegionInfo {
+  cloud?: string | undefined;
+  region?: string | undefined;
+}
+
+export interface CreateRepoInfo {
+  /** the git repo url e.g. https://github.com/databrickslabs/dolly.git */
+  gitRepoUrl: string;
+}
+
+export interface CreateRepoInstallation {
+  /** the user-specified repo name for their installed git repo listing */
+  repoName: string;
+  /**
+   * refers to the full url file path that navigates the user to the repo's entrypoint (e.g. a README.md file, or the repo file view in the unified UI)
+   * should just be a relative path
+   */
+  repoPath: string;
+}
+
+export interface CreateShareInfo {
+  name: string;
+  type: ListingShareType;
+}
+
+export interface CreateTokenDetail {
+  /**
+   * These field names must follow the delta sharing protocol.
+   * Original message: RetrieveToken.Response in managed-catalog/api/messages/recipient.proto
+   */
+  shareCredentialsVersion?: number | undefined;
+  bearerToken?: string | undefined;
+  endpoint?: string | undefined;
+  expirationTime?: string | undefined;
+}
+
+export interface CreateTokenInfo {
+  /** Unique id of the Recipient Token. */
+  id?: string | undefined;
+  /** Time at which this Recipient Token was created, in epoch milliseconds. */
+  createdAt?: bigint | undefined;
+  /** Username of Recipient Token creator. */
+  createdBy?: string | undefined;
+  /**
+   * Full activation url to retrieve the access token.
+   * It will be empty if the token is already retrieved.
+   */
+  activationUrl?: string | undefined;
+  /** Expiration timestamp of the token in epoch milliseconds. */
+  expirationTime?: bigint | undefined;
+  /** Time at which this Recipient Token was updated, in epoch milliseconds. */
+  updatedAt?: bigint | undefined;
+  /** Username of Recipient Token updater. */
+  updatedBy?: string | undefined;
 }
 
 export interface DataRefreshInfo {
@@ -924,7 +1164,7 @@ export interface TokenInfo {
 
 export interface UpdateExchangeFilterRequest {
   id?: string | undefined;
-  filter?: ExchangeFilter | undefined;
+  filter?: CreateExchangeFilter | undefined;
 }
 
 export interface UpdateExchangeFilterResponse {
@@ -933,7 +1173,7 @@ export interface UpdateExchangeFilterResponse {
 
 export interface UpdateExchangeRequest {
   id?: string | undefined;
-  exchange?: Exchange | undefined;
+  exchange?: CreateExchange | undefined;
 }
 
 export interface UpdateExchangeResponse {
@@ -943,7 +1183,7 @@ export interface UpdateExchangeResponse {
 export interface UpdateInstallationRequest {
   listingId?: string | undefined;
   installationId?: string | undefined;
-  installation?: InstallationDetail | undefined;
+  installation?: CreateInstallationDetail | undefined;
   rotateToken?: boolean | undefined;
 }
 
@@ -953,7 +1193,7 @@ export interface UpdateInstallationResponse {
 
 export interface UpdateListingRequest {
   id?: string | undefined;
-  listing?: Listing | undefined;
+  listing?: CreateListing | undefined;
 }
 
 export interface UpdateListingResponse {
@@ -965,7 +1205,7 @@ export interface UpdatePersonalizationRequestStatusRequest {
   requestId?: string | undefined;
   status?: PersonalizationRequestStatus | undefined;
   reason?: string | undefined;
-  share?: ShareInfo | undefined;
+  share?: CreateShareInfo | undefined;
 }
 
 export interface UpdatePersonalizationRequestStatusResponse {
@@ -992,7 +1232,7 @@ export interface UpdateProviderAnalyticsDashboardResponse {
 
 export interface UpdateProviderRequest {
   id?: string | undefined;
-  provider?: ProviderInfo | undefined;
+  provider?: CreateProviderInfo | undefined;
 }
 
 export interface UpdateProviderResponse {
@@ -1996,127 +2236,38 @@ export const marshalAddExchangeForListingRequestSchema: z.ZodType = z
     exchange_id: d.exchangeId,
   }));
 
-export const marshalConsumerTermsSchema: z.ZodType = z
+export const marshalCreateConsumerTermsSchema: z.ZodType = z
   .object({
-    version: z.string().optional(),
+    version: z.string(),
   })
   .transform(d => ({
     version: d.version,
   }));
 
-export const marshalCreateExchangeFilterRequestSchema: z.ZodType = z
+export const marshalCreateDataRefreshInfoSchema: z.ZodType = z
   .object({
-    filter: z.lazy(() => marshalExchangeFilterSchema).optional(),
-  })
-  .transform(d => ({
-    filter: d.filter,
-  }));
-
-export const marshalCreateExchangeRequestSchema: z.ZodType = z
-  .object({
-    exchange: z.lazy(() => marshalExchangeSchema).optional(),
-  })
-  .transform(d => ({
-    exchange: d.exchange,
-  }));
-
-export const marshalCreateFileRequestSchema: z.ZodType = z
-  .object({
-    fileParent: z.lazy(() => marshalFileParentSchema).optional(),
-    marketplaceFileType: z.string().optional(),
-    mimeType: z.string().optional(),
-    displayName: z.string().optional(),
-  })
-  .transform(d => ({
-    file_parent: d.fileParent,
-    marketplace_file_type: d.marketplaceFileType,
-    mime_type: d.mimeType,
-    display_name: d.displayName,
-  }));
-
-export const marshalCreateInstallationRequestSchema: z.ZodType = z
-  .object({
-    listingId: z.string().optional(),
-    shareName: z.string().optional(),
-    catalogName: z.string().optional(),
-    repoDetail: z.lazy(() => marshalRepoInstallationSchema).optional(),
-    recipientType: z.string().optional(),
-    acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
-  })
-  .transform(d => ({
-    listing_id: d.listingId,
-    share_name: d.shareName,
-    catalog_name: d.catalogName,
-    repo_detail: d.repoDetail,
-    recipient_type: d.recipientType,
-    accepted_consumer_terms: d.acceptedConsumerTerms,
-  }));
-
-export const marshalCreateListingRequestSchema: z.ZodType = z
-  .object({
-    listing: z.lazy(() => marshalListingSchema).optional(),
-  })
-  .transform(d => ({
-    listing: d.listing,
-  }));
-
-export const marshalCreatePersonalizationRequestSchema: z.ZodType = z
-  .object({
-    listingId: z.string().optional(),
-    comment: z.string().optional(),
-    intendedUse: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    company: z.string().optional(),
-    isFromLighthouse: z.boolean().optional(),
-    recipientType: z.string().optional(),
-    acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
-  })
-  .transform(d => ({
-    listing_id: d.listingId,
-    comment: d.comment,
-    intended_use: d.intendedUse,
-    first_name: d.firstName,
-    last_name: d.lastName,
-    company: d.company,
-    is_from_lighthouse: d.isFromLighthouse,
-    recipient_type: d.recipientType,
-    accepted_consumer_terms: d.acceptedConsumerTerms,
-  }));
-
-export const marshalCreateProviderAnalyticsDashboardRequestSchema: z.ZodType =
-  z.object({});
-
-export const marshalCreateProviderRequestSchema: z.ZodType = z
-  .object({
-    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
-  })
-  .transform(d => ({
-    provider: d.provider,
-  }));
-
-export const marshalDataRefreshInfoSchema: z.ZodType = z
-  .object({
-    interval: z.bigint().optional(),
-    unit: z.string().optional(),
+    interval: z.bigint(),
+    unit: z.string(),
   })
   .transform(d => ({
     interval: d.interval,
     unit: d.unit,
   }));
 
-export const marshalExchangeSchema: z.ZodType = z
+export const marshalCreateExchangeSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     comment: z.string().optional(),
-    filters: z.array(z.lazy(() => marshalExchangeFilterSchema)).optional(),
+    filters: z
+      .array(z.lazy(() => marshalCreateExchangeFilterSchema))
+      .optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     linkedListings: z
-      .array(z.lazy(() => marshalExchangeListingSchema))
+      .array(z.lazy(() => marshalCreateExchangeListingSchema))
       .optional(),
   })
   .transform(d => ({
@@ -2131,17 +2282,17 @@ export const marshalExchangeSchema: z.ZodType = z
     linked_listings: d.linkedListings,
   }));
 
-export const marshalExchangeFilterSchema: z.ZodType = z
+export const marshalCreateExchangeFilterSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    exchangeId: z.string().optional(),
-    filterValue: z.string().optional(),
+    exchangeId: z.string(),
+    filterValue: z.string(),
     name: z.string().optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    filterType: z.string().optional(),
+    filterType: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -2155,7 +2306,15 @@ export const marshalExchangeFilterSchema: z.ZodType = z
     filter_type: d.filterType,
   }));
 
-export const marshalExchangeListingSchema: z.ZodType = z
+export const marshalCreateExchangeFilterRequestSchema: z.ZodType = z
+  .object({
+    filter: z.lazy(() => marshalCreateExchangeFilterSchema).optional(),
+  })
+  .transform(d => ({
+    filter: d.filter,
+  }));
+
+export const marshalCreateExchangeListingSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     exchangeId: z.string().optional(),
@@ -2175,11 +2334,19 @@ export const marshalExchangeListingSchema: z.ZodType = z
     created_by: d.createdBy,
   }));
 
-export const marshalFileInfoSchema: z.ZodType = z
+export const marshalCreateExchangeRequestSchema: z.ZodType = z
+  .object({
+    exchange: z.lazy(() => marshalCreateExchangeSchema).optional(),
+  })
+  .transform(d => ({
+    exchange: d.exchange,
+  }));
+
+export const marshalCreateFileInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     marketplaceFileType: z.string().optional(),
-    fileParent: z.lazy(() => marshalFileParentSchema).optional(),
+    fileParent: z.lazy(() => marshalCreateFileParentSchema).optional(),
     mimeType: z.string().optional(),
     downloadLink: z.string().optional(),
     createdAt: z.bigint().optional(),
@@ -2201,7 +2368,7 @@ export const marshalFileInfoSchema: z.ZodType = z
     status_message: d.statusMessage,
   }));
 
-export const marshalFileParentSchema: z.ZodType = z
+export const marshalCreateFileParentSchema: z.ZodType = z
   .object({
     parentId: z.string().optional(),
     fileParentType: z.string().optional(),
@@ -2211,7 +2378,21 @@ export const marshalFileParentSchema: z.ZodType = z
     file_parent_type: d.fileParentType,
   }));
 
-export const marshalInstallationDetailSchema: z.ZodType = z
+export const marshalCreateFileRequestSchema: z.ZodType = z
+  .object({
+    fileParent: z.lazy(() => marshalCreateFileParentSchema).optional(),
+    marketplaceFileType: z.string().optional(),
+    mimeType: z.string().optional(),
+    displayName: z.string().optional(),
+  })
+  .transform(d => ({
+    file_parent: d.fileParent,
+    marketplace_file_type: d.marketplaceFileType,
+    mime_type: d.mimeType,
+    display_name: d.displayName,
+  }));
+
+export const marshalCreateInstallationDetailSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     listingId: z.string().optional(),
@@ -2224,8 +2405,8 @@ export const marshalInstallationDetailSchema: z.ZodType = z
     repoName: z.string().optional(),
     repoPath: z.string().optional(),
     recipientType: z.string().optional(),
-    tokens: z.array(z.lazy(() => marshalTokenInfoSchema)).optional(),
-    tokenDetail: z.lazy(() => marshalTokenDetailSchema).optional(),
+    tokens: z.array(z.lazy(() => marshalCreateTokenInfoSchema)).optional(),
+    tokenDetail: z.lazy(() => marshalCreateTokenDetailSchema).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2243,11 +2424,31 @@ export const marshalInstallationDetailSchema: z.ZodType = z
     token_detail: d.tokenDetail,
   }));
 
-export const marshalListingSchema: z.ZodType = z
+export const marshalCreateInstallationRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    shareName: z.string().optional(),
+    catalogName: z.string().optional(),
+    repoDetail: z.lazy(() => marshalCreateRepoInstallationSchema).optional(),
+    recipientType: z.string().optional(),
+    acceptedConsumerTerms: z
+      .lazy(() => marshalCreateConsumerTermsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    share_name: d.shareName,
+    catalog_name: d.catalogName,
+    repo_detail: d.repoDetail,
+    recipient_type: d.recipientType,
+    accepted_consumer_terms: d.acceptedConsumerTerms,
+  }));
+
+export const marshalCreateListingSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    summary: z.lazy(() => marshalListingSummarySchema).optional(),
-    detail: z.lazy(() => marshalListingDetailSchema).optional(),
+    summary: z.lazy(() => marshalCreateListingSummarySchema),
+    detail: z.lazy(() => marshalCreateListingDetailSchema).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2255,7 +2456,7 @@ export const marshalListingSchema: z.ZodType = z
     detail: d.detail,
   }));
 
-export const marshalListingDetailSchema: z.ZodType = z
+export const marshalCreateListingDetailSchema: z.ZodType = z
   .object({
     description: z.string().optional(),
     termsOfService: z.string().optional(),
@@ -2264,14 +2465,16 @@ export const marshalListingDetailSchema: z.ZodType = z
     fileIds: z.array(z.string()).optional(),
     privacyPolicyLink: z.string().optional(),
     embeddedNotebookFileInfos: z
-      .array(z.lazy(() => marshalFileInfoSchema))
+      .array(z.lazy(() => marshalCreateFileInfoSchema))
       .optional(),
     geographicalCoverage: z.string().optional(),
     cost: z.string().optional(),
     pricingModel: z.string().optional(),
-    updateFrequency: z.lazy(() => marshalDataRefreshInfoSchema).optional(),
+    updateFrequency: z
+      .lazy(() => marshalCreateDataRefreshInfoSchema)
+      .optional(),
     collectionGranularity: z
-      .lazy(() => marshalDataRefreshInfoSchema)
+      .lazy(() => marshalCreateDataRefreshInfoSchema)
       .optional(),
     collectionDateStart: z.bigint().optional(),
     collectionDateEnd: z.bigint().optional(),
@@ -2279,7 +2482,7 @@ export const marshalListingDetailSchema: z.ZodType = z
     size: z.number().optional(),
     assets: z.array(z.string()).optional(),
     license: z.string().optional(),
-    tags: z.array(z.lazy(() => marshalListingTagSchema)).optional(),
+    tags: z.array(z.lazy(() => marshalCreateListingTagSchema)).optional(),
   })
   .transform(d => ({
     description: d.description,
@@ -2303,7 +2506,15 @@ export const marshalListingDetailSchema: z.ZodType = z
     tags: d.tags,
   }));
 
-export const marshalListingSettingSchema: z.ZodType = z
+export const marshalCreateListingRequestSchema: z.ZodType = z
+  .object({
+    listing: z.lazy(() => marshalCreateListingSchema).optional(),
+  })
+  .transform(d => ({
+    listing: d.listing,
+  }));
+
+export const marshalCreateListingSettingSchema: z.ZodType = z
   .object({
     visibility: z.string().optional(),
   })
@@ -2311,14 +2522,14 @@ export const marshalListingSettingSchema: z.ZodType = z
     visibility: d.visibility,
   }));
 
-export const marshalListingSummarySchema: z.ZodType = z
+export const marshalCreateListingSummarySchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     subtitle: z.string().optional(),
     status: z.string().optional(),
-    share: z.lazy(() => marshalShareInfoSchema).optional(),
-    providerRegion: z.lazy(() => marshalRegionInfoSchema).optional(),
-    setting: z.lazy(() => marshalListingSettingSchema).optional(),
+    share: z.lazy(() => marshalCreateShareInfoSchema).optional(),
+    providerRegion: z.lazy(() => marshalCreateRegionInfoSchema).optional(),
+    setting: z.lazy(() => marshalCreateListingSettingSchema).optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
@@ -2326,12 +2537,12 @@ export const marshalListingSummarySchema: z.ZodType = z
     publishedAt: z.bigint().optional(),
     publishedBy: z.string().optional(),
     categories: z.array(z.string()).optional(),
-    listingType: z.string().optional(),
+    listingType: z.string(),
     createdById: z.bigint().optional(),
     updatedById: z.bigint().optional(),
     providerId: z.string().optional(),
     exchangeIds: z.array(z.string()).optional(),
-    gitRepo: z.lazy(() => marshalRepoInfoSchema).optional(),
+    gitRepo: z.lazy(() => marshalCreateRepoInfoSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2355,7 +2566,7 @@ export const marshalListingSummarySchema: z.ZodType = z
     git_repo: d.gitRepo,
   }));
 
-export const marshalListingTagSchema: z.ZodType = z
+export const marshalCreateListingTagSchema: z.ZodType = z
   .object({
     tagName: z.string().optional(),
     tagValues: z.array(z.string()).optional(),
@@ -2365,20 +2576,49 @@ export const marshalListingTagSchema: z.ZodType = z
     tag_values: d.tagValues,
   }));
 
-export const marshalProviderInfoSchema: z.ZodType = z
+export const marshalCreatePersonalizationRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    comment: z.string().optional(),
+    intendedUse: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    company: z.string().optional(),
+    isFromLighthouse: z.boolean().optional(),
+    recipientType: z.string().optional(),
+    acceptedConsumerTerms: z
+      .lazy(() => marshalCreateConsumerTermsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    comment: d.comment,
+    intended_use: d.intendedUse,
+    first_name: d.firstName,
+    last_name: d.lastName,
+    company: d.company,
+    is_from_lighthouse: d.isFromLighthouse,
+    recipient_type: d.recipientType,
+    accepted_consumer_terms: d.acceptedConsumerTerms,
+  }));
+
+export const marshalCreateProviderAnalyticsDashboardRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalCreateProviderInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     iconFilePath: z.string().optional(),
-    businessContactEmail: z.string().optional(),
+    businessContactEmail: z.string(),
     supportContactEmail: z.string().optional(),
     isFeatured: z.boolean().optional(),
     publishedBy: z.string().optional(),
     companyWebsiteLink: z.string().optional(),
     iconFileId: z.string().optional(),
-    termOfServiceLink: z.string().optional(),
-    privacyPolicyLink: z.string().optional(),
+    termOfServiceLink: z.string(),
+    privacyPolicyLink: z.string(),
     darkModeIconFileId: z.string().optional(),
     darkModeIconFilePath: z.string().optional(),
   })
@@ -2399,7 +2639,15 @@ export const marshalProviderInfoSchema: z.ZodType = z
     dark_mode_icon_file_path: d.darkModeIconFilePath,
   }));
 
-export const marshalRegionInfoSchema: z.ZodType = z
+export const marshalCreateProviderRequestSchema: z.ZodType = z
+  .object({
+    provider: z.lazy(() => marshalCreateProviderInfoSchema).optional(),
+  })
+  .transform(d => ({
+    provider: d.provider,
+  }));
+
+export const marshalCreateRegionInfoSchema: z.ZodType = z
   .object({
     cloud: z.string().optional(),
     region: z.string().optional(),
@@ -2409,35 +2657,35 @@ export const marshalRegionInfoSchema: z.ZodType = z
     region: d.region,
   }));
 
-export const marshalRepoInfoSchema: z.ZodType = z
+export const marshalCreateRepoInfoSchema: z.ZodType = z
   .object({
-    gitRepoUrl: z.string().optional(),
+    gitRepoUrl: z.string(),
   })
   .transform(d => ({
     git_repo_url: d.gitRepoUrl,
   }));
 
-export const marshalRepoInstallationSchema: z.ZodType = z
+export const marshalCreateRepoInstallationSchema: z.ZodType = z
   .object({
-    repoName: z.string().optional(),
-    repoPath: z.string().optional(),
+    repoName: z.string(),
+    repoPath: z.string(),
   })
   .transform(d => ({
     repo_name: d.repoName,
     repo_path: d.repoPath,
   }));
 
-export const marshalShareInfoSchema: z.ZodType = z
+export const marshalCreateShareInfoSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    type: z.string().optional(),
+    name: z.string(),
+    type: z.string(),
   })
   .transform(d => ({
     name: d.name,
     type: d.type,
   }));
 
-export const marshalTokenDetailSchema: z.ZodType = z
+export const marshalCreateTokenDetailSchema: z.ZodType = z
   .object({
     shareCredentialsVersion: z.number().optional(),
     bearerToken: z.string().optional(),
@@ -2451,7 +2699,7 @@ export const marshalTokenDetailSchema: z.ZodType = z
     expirationTime: d.expirationTime,
   }));
 
-export const marshalTokenInfoSchema: z.ZodType = z
+export const marshalCreateTokenInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     createdAt: z.bigint().optional(),
@@ -2471,10 +2719,30 @@ export const marshalTokenInfoSchema: z.ZodType = z
     updated_by: d.updatedBy,
   }));
 
+export const marshalFileParentSchema: z.ZodType = z
+  .object({
+    parentId: z.string().optional(),
+    fileParentType: z.string().optional(),
+  })
+  .transform(d => ({
+    parent_id: d.parentId,
+    file_parent_type: d.fileParentType,
+  }));
+
+export const marshalListingTagSchema: z.ZodType = z
+  .object({
+    tagName: z.string().optional(),
+    tagValues: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    tag_name: d.tagName,
+    tag_values: d.tagValues,
+  }));
+
 export const marshalUpdateExchangeFilterRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    filter: z.lazy(() => marshalExchangeFilterSchema).optional(),
+    filter: z.lazy(() => marshalCreateExchangeFilterSchema).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2484,7 +2752,7 @@ export const marshalUpdateExchangeFilterRequestSchema: z.ZodType = z
 export const marshalUpdateExchangeRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    exchange: z.lazy(() => marshalExchangeSchema).optional(),
+    exchange: z.lazy(() => marshalCreateExchangeSchema).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2495,7 +2763,9 @@ export const marshalUpdateInstallationRequestSchema: z.ZodType = z
   .object({
     listingId: z.string().optional(),
     installationId: z.string().optional(),
-    installation: z.lazy(() => marshalInstallationDetailSchema).optional(),
+    installation: z
+      .lazy(() => marshalCreateInstallationDetailSchema)
+      .optional(),
     rotateToken: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2508,7 +2778,7 @@ export const marshalUpdateInstallationRequestSchema: z.ZodType = z
 export const marshalUpdateListingRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    listing: z.lazy(() => marshalListingSchema).optional(),
+    listing: z.lazy(() => marshalCreateListingSchema).optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -2522,7 +2792,7 @@ export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
       requestId: z.string().optional(),
       status: z.string().optional(),
       reason: z.string().optional(),
-      share: z.lazy(() => marshalShareInfoSchema).optional(),
+      share: z.lazy(() => marshalCreateShareInfoSchema).optional(),
     })
     .transform(d => ({
       listing_id: d.listingId,
@@ -2545,7 +2815,7 @@ export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
 export const marshalUpdateProviderRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+    provider: z.lazy(() => marshalCreateProviderInfoSchema).optional(),
   })
   .transform(d => ({
     id: d.id,

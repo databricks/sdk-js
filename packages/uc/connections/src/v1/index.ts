@@ -16,6 +16,8 @@ export {
 export type {
   ConnectionInfo,
   CreateConnectionRequest,
+  CreateEnvironmentSettings,
+  CreateProvisioningInfo,
   DeleteConnectionRequest,
   DeleteConnectionResponse,
   EnvironmentSettings,

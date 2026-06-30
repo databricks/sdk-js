@@ -18,7 +18,15 @@ export {
 
 export type {
   ColumnInfo,
+  CreateCustomTag,
+  CreateDeltaSyncVectorIndexSpecRequest,
+  CreateDirectAccessVectorIndexSpec,
+  CreateEmbeddingSourceColumn,
+  CreateEmbeddingVectorColumn,
   CreateEndpointRequest,
+  CreateMetric,
+  CreateMetricLabel,
+  CreateRerankerConfig,
   CreateVectorIndexRequest,
   CustomTag,
   DeleteDataVectorIndexRequest,
@@ -56,6 +64,7 @@ export type {
   QueryVectorIndexRequest,
   QueryVectorIndexResponse,
   RerankerConfig,
+  RerankerConfig_CreateRerankerParameters,
   RerankerConfig_RerankerParameters,
   ResultData,
   ResultManifest,

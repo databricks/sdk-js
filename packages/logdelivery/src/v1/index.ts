@@ -14,9 +14,11 @@ export {
 } from './model';
 
 export type {
+  CreateCreateLogDeliveryConfigurationParams,
   CreateLogDeliveryConfigurationParams,
   CreateLogDeliveryConfigurationRequest,
   CreateLogDeliveryConfigurationResponse,
+  CreateLogDeliveryStatus,
   GetLogDeliveryConfigurationRequest,
   GetLogDeliveryConfigurationResponse,
   ListLogDeliveryConfigurationRequest,

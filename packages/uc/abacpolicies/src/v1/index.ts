@@ -10,7 +10,12 @@ export {PolicyType, SecurableType} from './model';
 
 export type {
   ColumnMaskOptions,
+  CreateColumnMaskOptions,
+  CreateFunctionArgument,
+  CreateMatchColumn,
+  CreatePolicyInfo,
   CreatePolicyRequest,
+  CreateRowFilterOptions,
   DeletePolicyRequest,
   DeletePolicyResponse,
   FunctionArgument,
@@ -20,7 +25,12 @@ export type {
   MatchColumn,
   PolicyInfo,
   RowFilterOptions,
+  UpdateColumnMaskOptions,
+  UpdateFunctionArgument,
+  UpdateMatchColumn,
+  UpdatePolicyInfo,
   UpdatePolicyRequest,
+  UpdateRowFilterOptions,
 } from './model';
 
-export {policyInfoFieldMask} from './model';
+export {updatePolicyInfoFieldMask} from './model';

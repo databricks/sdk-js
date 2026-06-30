@@ -56,6 +56,43 @@ export const ViewType = {
 } as const;
 export type ViewType = (typeof ViewType)[keyof typeof ViewType] | (string & {});
 
+/**
+ * Dataset. Represents a reference to data used for training, testing, or evaluation during
+ * the model development process.
+ */
+export interface CreateDataset {
+  /** The name of the dataset. E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3” */
+  name: string;
+  /** Dataset digest, e.g. an md5 hash of the dataset that uniquely identifies it within datasets of the same name. */
+  digest: string;
+  /** The type of the dataset source, e.g. ‘databricks-uc-table’, ‘DBFS’, ‘S3’, ... */
+  sourceType: string;
+  /**
+   * Source information for the dataset. Note that the source may not exactly reproduce the
+   * dataset if it was transformed / modified before use with MLflow.
+   */
+  source: string;
+  /**
+   * The schema of the dataset. E.g., MLflow ColSpec JSON for a dataframe, MLflow TensorSpec JSON
+   * for an ndarray, or another schema format.
+   */
+  schema?: string | undefined;
+  /**
+   * The profile of the dataset. Summary statistics for the dataset, such as the number of rows
+   * in a table, the mean / std / mode of each column in a table, or the number of elements
+   * in an array.
+   */
+  profile?: string | undefined;
+}
+
+/** DatasetInput. Represents a dataset and input tags. */
+export interface CreateDatasetInput {
+  /** A list of tags for the dataset input, e.g. a “context” tag with value “training” */
+  tags?: CreateInputTag[] | undefined;
+  /** The dataset being used as a Run input. */
+  dataset: CreateDataset;
+}
+
 export interface CreateExperimentRequest {
   /** Experiment name. */
   name?: string | undefined;
@@ -70,12 +107,36 @@ export interface CreateExperimentRequest {
    * to 250 bytes in size and tag values up to 5000 bytes in size. All storage backends are also
    * guaranteed to support up to 20 tags per request.
    */
-  tags?: ExperimentTag[] | undefined;
+  tags?: CreateExperimentTag[] | undefined;
 }
 
 export interface CreateExperimentResponse {
   /** Unique identifier for the experiment. */
   experimentId?: string | undefined;
+}
+
+/** A tag for an experiment. */
+export interface CreateExperimentTag {
+  /** The tag key. */
+  key?: string | undefined;
+  /** The tag value. */
+  value?: string | undefined;
+}
+
+/** Tag for a dataset input. */
+export interface CreateInputTag {
+  /** The tag key. */
+  key: string;
+  /** The tag value. */
+  value: string;
+}
+
+/** Parameter associated with a LoggedModel. */
+export interface CreateLoggedModelParameter {
+  /** The key identifying this param. */
+  key?: string | undefined;
+  /** The value of this param. */
+  value?: string | undefined;
 }
 
 export interface CreateLoggedModelRequest {
@@ -88,14 +149,74 @@ export interface CreateLoggedModelRequest {
   /** The ID of the run that created the model. */
   sourceRunId?: string | undefined;
   /** Parameters attached to the model. */
-  params?: LoggedModelParameter[] | undefined;
+  params?: CreateLoggedModelParameter[] | undefined;
   /** Tags attached to the model. */
-  tags?: LoggedModelTag[] | undefined;
+  tags?: CreateLoggedModelTag[] | undefined;
 }
 
 export interface CreateLoggedModelResponse {
   /** The newly created logged model. */
   model?: LoggedModel | undefined;
+}
+
+/** Tag for a LoggedModel. */
+export interface CreateLoggedModelTag {
+  /** The tag key. */
+  key?: string | undefined;
+  /** The tag value. */
+  value?: string | undefined;
+}
+
+/** Metric associated with a run, represented as a key-value pair. */
+export interface CreateMetric {
+  /** The key identifying the metric. */
+  key?: string | undefined;
+  /** The value of the metric. */
+  value?: number | undefined;
+  /** The timestamp at which the metric was recorded. */
+  timestamp?: bigint | undefined;
+  /** The step at which the metric was logged. */
+  step?: bigint | undefined;
+  /**
+   * The name of the dataset associated with the metric.
+   * E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3”
+   */
+  datasetName?: string | undefined;
+  /**
+   * The dataset digest of the dataset associated with the metric,
+   * e.g. an md5 hash of the dataset that uniquely identifies it
+   * within datasets of the same name.
+   */
+  datasetDigest?: string | undefined;
+  /**
+   * The ID of the logged model or registered model version associated with
+   * the metric, if applicable.
+   */
+  modelId?: string | undefined;
+  /** The ID of the run containing the metric. */
+  runId?: string | undefined;
+}
+
+/** Represents a LoggedModel or Registered Model Version input to a Run. */
+export interface CreateModelInput {
+  /** The unique identifier of the model. */
+  modelId: string;
+}
+
+/** Represents a LoggedModel output of a Run. */
+export interface CreateModelOutput {
+  /** The unique identifier of the model. */
+  modelId: string;
+  /** The step at which the model was produced. */
+  step: bigint;
+}
+
+/** Param associated with a run. */
+export interface CreateParam {
+  /** Key identifying this param. */
+  key?: string | undefined;
+  /** Value associated with this param. */
+  value?: string | undefined;
 }
 
 export interface CreateRunRequest {
@@ -112,12 +233,20 @@ export interface CreateRunRequest {
   /** Unix timestamp in milliseconds of when the run started. */
   startTime?: bigint | undefined;
   /** Additional metadata for run. */
-  tags?: RunTag[] | undefined;
+  tags?: CreateRunTag[] | undefined;
 }
 
 export interface CreateRunResponse {
   /** The newly created run. */
   run?: Run | undefined;
+}
+
+/** Tag for a run. */
+export interface CreateRunTag {
+  /** The tag key. */
+  key?: string | undefined;
+  /** The tag value. */
+  value?: string | undefined;
 }
 
 /**
@@ -431,17 +560,17 @@ export interface LogBatchRequest {
    * Metrics to log. A single request can contain up to 1000 metrics, and up to 1000
    * metrics, params, and tags in total.
    */
-  metrics?: Metric[] | undefined;
+  metrics?: CreateMetric[] | undefined;
   /**
    * Params to log. A single request can contain up to 100 params, and up to 1000
    * metrics, params, and tags in total.
    */
-  params?: Param[] | undefined;
+  params?: CreateParam[] | undefined;
   /**
    * Tags to log. A single request can contain up to 100 tags, and up to 1000
    * metrics, params, and tags in total.
    */
-  tags?: RunTag[] | undefined;
+  tags?: CreateRunTag[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -451,9 +580,9 @@ export interface LogInputsRequest {
   /** ID of the run to log under */
   runId?: string | undefined;
   /** Dataset inputs */
-  datasets?: DatasetInput[] | undefined;
+  datasets?: CreateDatasetInput[] | undefined;
   /** Model inputs */
-  models?: ModelInput[] | undefined;
+  models?: CreateModelInput[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -463,7 +592,7 @@ export interface LogLoggedModelParamsRequest {
   /** The ID of the logged model to log params for. */
   modelId?: string | undefined;
   /** Parameters to attach to the model. */
-  params?: LoggedModelParameter[] | undefined;
+  params?: CreateLoggedModelParameter[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -517,7 +646,7 @@ export interface LogOutputsRequest {
   /** The ID of the Run from which to log outputs. */
   runId?: string | undefined;
   /** The model outputs from the Run. */
-  models?: ModelOutput[] | undefined;
+  models?: CreateModelOutput[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -813,13 +942,42 @@ export interface SearchLoggedModelsRequest {
    * Metric values from ANY dataset matching the criteria are considered.
    * If no datasets are specified, then metrics across all datasets are considered in the filter.
    */
-  datasets?: SearchLoggedModelsRequest_Dataset[] | undefined;
+  datasets?: SearchLoggedModelsRequest_CreateDataset[] | undefined;
   /** The maximum number of Logged Models to return. The maximum limit is 50. */
   maxResults?: number | undefined;
   /** The list of columns for ordering the results, with additional fields for sorting criteria. */
-  orderBy?: SearchLoggedModelsRequest_OrderBy[] | undefined;
+  orderBy?: SearchLoggedModelsRequest_CreateOrderBy[] | undefined;
   /** The token indicating the page of logged models to fetch. */
   pageToken?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SearchLoggedModelsRequest_CreateDataset {
+  /** The name of the dataset. */
+  datasetName: string;
+  /** The digest of the dataset. */
+  datasetDigest?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SearchLoggedModelsRequest_CreateOrderBy {
+  /** The name of the field to order by, e.g. "metrics.accuracy". */
+  fieldName: string;
+  /** Whether the search results order is ascending or not. */
+  ascending?: boolean | undefined;
+  /**
+   * If ``field_name`` refers to a metric, this field specifies the name of the dataset
+   * associated with the metric. Only metrics associated with the specified dataset name will be
+   * considered for ordering. This field may only be set if ``field_name`` refers to a metric.
+   */
+  datasetName?: string | undefined;
+  /**
+   * If ``field_name`` refers to a metric, this field specifies the digest of the dataset
+   * associated with the metric. Only metrics associated with the specified dataset name
+   * and digest will be considered for ordering. This field may only be set if ``dataset_name``
+   * is also set.
+   */
+  datasetDigest?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -916,7 +1074,7 @@ export interface SetLoggedModelTagsRequest {
   /** The ID of the logged model to set the tags on. */
   modelId?: string | undefined;
   /** The tags to set on the logged model. */
-  tags?: LoggedModelTag[] | undefined;
+  tags?: CreateLoggedModelTag[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1485,58 +1643,12 @@ export const unmarshalUpdateRunResponseSchema: z.ZodType<UpdateRunResponse> = z
     runInfo: d.run_info,
   }));
 
-export const marshalCreateExperimentRequestSchema: z.ZodType = z
+export const marshalCreateDatasetSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    artifactLocation: z.string().optional(),
-    tags: z.array(z.lazy(() => marshalExperimentTagSchema)).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    artifact_location: d.artifactLocation,
-    tags: d.tags,
-  }));
-
-export const marshalCreateLoggedModelRequestSchema: z.ZodType = z
-  .object({
-    experimentId: z.string().optional(),
-    name: z.string().optional(),
-    modelType: z.string().optional(),
-    sourceRunId: z.string().optional(),
-    params: z.array(z.lazy(() => marshalLoggedModelParameterSchema)).optional(),
-    tags: z.array(z.lazy(() => marshalLoggedModelTagSchema)).optional(),
-  })
-  .transform(d => ({
-    experiment_id: d.experimentId,
-    name: d.name,
-    model_type: d.modelType,
-    source_run_id: d.sourceRunId,
-    params: d.params,
-    tags: d.tags,
-  }));
-
-export const marshalCreateRunRequestSchema: z.ZodType = z
-  .object({
-    experimentId: z.string().optional(),
-    userId: z.string().optional(),
-    runName: z.string().optional(),
-    startTime: z.bigint().optional(),
-    tags: z.array(z.lazy(() => marshalRunTagSchema)).optional(),
-  })
-  .transform(d => ({
-    experiment_id: d.experimentId,
-    user_id: d.userId,
-    run_name: d.runName,
-    start_time: d.startTime,
-    tags: d.tags,
-  }));
-
-export const marshalDatasetSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    digest: z.string().optional(),
-    sourceType: z.string().optional(),
-    source: z.string().optional(),
+    name: z.string(),
+    digest: z.string(),
+    sourceType: z.string(),
+    source: z.string(),
     schema: z.string().optional(),
     profile: z.string().optional(),
   })
@@ -1549,14 +1661,162 @@ export const marshalDatasetSchema: z.ZodType = z
     profile: d.profile,
   }));
 
-export const marshalDatasetInputSchema: z.ZodType = z
+export const marshalCreateDatasetInputSchema: z.ZodType = z
   .object({
-    tags: z.array(z.lazy(() => marshalInputTagSchema)).optional(),
-    dataset: z.lazy(() => marshalDatasetSchema).optional(),
+    tags: z.array(z.lazy(() => marshalCreateInputTagSchema)).optional(),
+    dataset: z.lazy(() => marshalCreateDatasetSchema),
   })
   .transform(d => ({
     tags: d.tags,
     dataset: d.dataset,
+  }));
+
+export const marshalCreateExperimentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    artifactLocation: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalCreateExperimentTagSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    artifact_location: d.artifactLocation,
+    tags: d.tags,
+  }));
+
+export const marshalCreateExperimentTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateInputTagSchema: z.ZodType = z
+  .object({
+    key: z.string(),
+    value: z.string(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateLoggedModelParameterSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateLoggedModelRequestSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+    name: z.string().optional(),
+    modelType: z.string().optional(),
+    sourceRunId: z.string().optional(),
+    params: z
+      .array(z.lazy(() => marshalCreateLoggedModelParameterSchema))
+      .optional(),
+    tags: z.array(z.lazy(() => marshalCreateLoggedModelTagSchema)).optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+    name: d.name,
+    model_type: d.modelType,
+    source_run_id: d.sourceRunId,
+    params: d.params,
+    tags: d.tags,
+  }));
+
+export const marshalCreateLoggedModelTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateMetricSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.number().optional(),
+    timestamp: z.bigint().optional(),
+    step: z.bigint().optional(),
+    datasetName: z.string().optional(),
+    datasetDigest: z.string().optional(),
+    modelId: z.string().optional(),
+    runId: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+    timestamp: d.timestamp,
+    step: d.step,
+    dataset_name: d.datasetName,
+    dataset_digest: d.datasetDigest,
+    model_id: d.modelId,
+    run_id: d.runId,
+  }));
+
+export const marshalCreateModelInputSchema: z.ZodType = z
+  .object({
+    modelId: z.string(),
+  })
+  .transform(d => ({
+    model_id: d.modelId,
+  }));
+
+export const marshalCreateModelOutputSchema: z.ZodType = z
+  .object({
+    modelId: z.string(),
+    step: z.bigint(),
+  })
+  .transform(d => ({
+    model_id: d.modelId,
+    step: d.step,
+  }));
+
+export const marshalCreateParamSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateRunRequestSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+    userId: z.string().optional(),
+    runName: z.string().optional(),
+    startTime: z.bigint().optional(),
+    tags: z.array(z.lazy(() => marshalCreateRunTagSchema)).optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+    user_id: d.userId,
+    run_name: d.runName,
+    start_time: d.startTime,
+    tags: d.tags,
+  }));
+
+export const marshalCreateRunTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
   }));
 
 export const marshalDeleteExperimentRequestSchema: z.ZodType = z
@@ -1597,16 +1857,6 @@ export const marshalDeleteTagRequestSchema: z.ZodType = z
     key: d.key,
   }));
 
-export const marshalExperimentTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
@@ -1617,22 +1867,12 @@ export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
     status: d.status,
   }));
 
-export const marshalInputTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalLogBatchRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
-    metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
-    params: z.array(z.lazy(() => marshalParamSchema)).optional(),
-    tags: z.array(z.lazy(() => marshalRunTagSchema)).optional(),
+    metrics: z.array(z.lazy(() => marshalCreateMetricSchema)).optional(),
+    params: z.array(z.lazy(() => marshalCreateParamSchema)).optional(),
+    tags: z.array(z.lazy(() => marshalCreateRunTagSchema)).optional(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -1644,8 +1884,8 @@ export const marshalLogBatchRequestSchema: z.ZodType = z
 export const marshalLogInputsRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
-    datasets: z.array(z.lazy(() => marshalDatasetInputSchema)).optional(),
-    models: z.array(z.lazy(() => marshalModelInputSchema)).optional(),
+    datasets: z.array(z.lazy(() => marshalCreateDatasetInputSchema)).optional(),
+    models: z.array(z.lazy(() => marshalCreateModelInputSchema)).optional(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -1656,7 +1896,9 @@ export const marshalLogInputsRequestSchema: z.ZodType = z
 export const marshalLogLoggedModelParamsRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
-    params: z.array(z.lazy(() => marshalLoggedModelParameterSchema)).optional(),
+    params: z
+      .array(z.lazy(() => marshalCreateLoggedModelParameterSchema))
+      .optional(),
   })
   .transform(d => ({
     model_id: d.modelId,
@@ -1700,7 +1942,7 @@ export const marshalLogModelRequestSchema: z.ZodType = z
 export const marshalLogOutputsRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
-    models: z.array(z.lazy(() => marshalModelOutputSchema)).optional(),
+    models: z.array(z.lazy(() => marshalCreateModelOutputSchema)).optional(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -1717,76 +1959,6 @@ export const marshalLogParamRequestSchema: z.ZodType = z
   .transform(d => ({
     run_id: d.runId,
     run_uuid: d.runUuid,
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalLoggedModelParameterSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalLoggedModelTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalMetricSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.number().optional(),
-    timestamp: z.bigint().optional(),
-    step: z.bigint().optional(),
-    datasetName: z.string().optional(),
-    datasetDigest: z.string().optional(),
-    modelId: z.string().optional(),
-    runId: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-    timestamp: d.timestamp,
-    step: d.step,
-    dataset_name: d.datasetName,
-    dataset_digest: d.datasetDigest,
-    model_id: d.modelId,
-    run_id: d.runId,
-  }));
-
-export const marshalModelInputSchema: z.ZodType = z
-  .object({
-    modelId: z.string().optional(),
-  })
-  .transform(d => ({
-    model_id: d.modelId,
-  }));
-
-export const marshalModelOutputSchema: z.ZodType = z
-  .object({
-    modelId: z.string().optional(),
-    step: z.bigint().optional(),
-  })
-  .transform(d => ({
-    model_id: d.modelId,
-    step: d.step,
-  }));
-
-export const marshalParamSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
     key: d.key,
     value: d.value,
   }));
@@ -1819,16 +1991,6 @@ export const marshalRestoreRunsRequestSchema: z.ZodType = z
     max_runs: d.maxRuns,
   }));
 
-export const marshalRunTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalSearchExperimentsRequestSchema: z.ZodType = z
   .object({
     maxResults: z.bigint().optional(),
@@ -1850,11 +2012,11 @@ export const marshalSearchLoggedModelsRequestSchema: z.ZodType = z
     experimentIds: z.array(z.string()).optional(),
     filter: z.string().optional(),
     datasets: z
-      .array(z.lazy(() => marshalSearchLoggedModelsRequest_DatasetSchema))
+      .array(z.lazy(() => marshalSearchLoggedModelsRequest_CreateDatasetSchema))
       .optional(),
     maxResults: z.number().optional(),
     orderBy: z
-      .array(z.lazy(() => marshalSearchLoggedModelsRequest_OrderBySchema))
+      .array(z.lazy(() => marshalSearchLoggedModelsRequest_CreateOrderBySchema))
       .optional(),
     pageToken: z.string().optional(),
   })
@@ -1868,9 +2030,9 @@ export const marshalSearchLoggedModelsRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSearchLoggedModelsRequest_DatasetSchema: z.ZodType = z
+export const marshalSearchLoggedModelsRequest_CreateDatasetSchema: z.ZodType = z
   .object({
-    datasetName: z.string().optional(),
+    datasetName: z.string(),
     datasetDigest: z.string().optional(),
   })
   .transform(d => ({
@@ -1879,9 +2041,9 @@ export const marshalSearchLoggedModelsRequest_DatasetSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSearchLoggedModelsRequest_OrderBySchema: z.ZodType = z
+export const marshalSearchLoggedModelsRequest_CreateOrderBySchema: z.ZodType = z
   .object({
-    fieldName: z.string().optional(),
+    fieldName: z.string(),
     ascending: z.boolean().optional(),
     datasetName: z.string().optional(),
     datasetDigest: z.string().optional(),
@@ -1926,7 +2088,7 @@ export const marshalSetExperimentTagRequestSchema: z.ZodType = z
 export const marshalSetLoggedModelTagsRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
-    tags: z.array(z.lazy(() => marshalLoggedModelTagSchema)).optional(),
+    tags: z.array(z.lazy(() => marshalCreateLoggedModelTagSchema)).optional(),
   })
   .transform(d => ({
     model_id: d.modelId,

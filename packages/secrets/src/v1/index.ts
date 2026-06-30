@@ -11,6 +11,7 @@ export {AclPermission, ScopeBackendType} from './model';
 export type {
   AclItem,
   AzureKeyVaultSecretScopeMetadata,
+  CreateAzureKeyVaultSecretScopeMetadata,
   CreateScopeRequest,
   CreateScopeResponse,
   DeleteAclRequest,

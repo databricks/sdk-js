@@ -38,8 +38,9 @@ import type {
   UpdateServicePrincipalFederationPolicyRequest,
 } from './model';
 import {
+  marshalCreateFederationPolicySchema,
   marshalCreateServicePrincipalSecretRequestSchema,
-  marshalFederationPolicySchema,
+  marshalUpdateFederationPolicySchema,
   unmarshalCreateServicePrincipalSecretResponseSchema,
   unmarshalDeleteServicePrincipalSecretResponseSchema,
   unmarshalFederationPolicySchema,
@@ -96,7 +97,10 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body = marshalRequest(
+      req.policy,
+      marshalCreateFederationPolicySchema
+    );
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -135,7 +139,10 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body = marshalRequest(
+      req.policy,
+      marshalCreateFederationPolicySchema
+    );
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -397,7 +404,10 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body = marshalRequest(
+      req.policy,
+      marshalUpdateFederationPolicySchema
+    );
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -436,7 +446,10 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body = marshalRequest(
+      req.policy,
+      marshalUpdateFederationPolicySchema
+    );
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -16,7 +16,11 @@ export {
 export type {
   AzureEncryptionSettings,
   CatalogInfo,
+  CreateAzureEncryptionSettings,
   CreateCatalogRequest,
+  CreateEffectivePredictiveOptimizationFlag,
+  CreateEncryptionSettings,
+  CreateProvisioningInfo,
   DeleteCatalogRequest,
   DeleteCatalogResponse,
   EffectivePredictiveOptimizationFlag,

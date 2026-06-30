@@ -24,7 +24,8 @@ import type {
   UpdateCatalogConfigRequest,
 } from './model';
 import {
-  marshalCatalogConfigSchema,
+  marshalCreateCatalogConfigSchema,
+  marshalUpdateCatalogConfigSchema,
   unmarshalCatalogConfigSchema,
 } from './model';
 
@@ -74,7 +75,10 @@ export class DataClassificationClient {
   ): Promise<CatalogConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/data-classification/v1/${req.parent ?? ''}/config`;
-    const body = marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
+    const body = marshalRequest(
+      req.catalogConfig,
+      marshalCreateCatalogConfigSchema
+    );
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -166,7 +170,10 @@ export class DataClassificationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
+    const body = marshalRequest(
+      req.catalogConfig,
+      marshalUpdateCatalogConfigSchema
+    );
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

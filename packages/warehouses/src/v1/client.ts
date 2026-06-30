@@ -49,12 +49,13 @@ import type {
 } from './model';
 import {
   EndpointState,
+  marshalCreateDefaultWarehouseOverrideSchema,
   marshalCreateWarehouseRequestSchema,
-  marshalDefaultWarehouseOverrideSchema,
   marshalEditWarehouseRequestSchema,
   marshalSetWorkspaceWarehouseConfigRequestSchema,
   marshalStartRequestSchema,
   marshalStopRequestSchema,
+  marshalUpdateDefaultWarehouseOverrideSchema,
   unmarshalCreateWarehouseResponseSchema,
   unmarshalDefaultWarehouseOverrideSchema,
   unmarshalDeleteWarehouseResponseSchema,
@@ -122,7 +123,7 @@ export class WarehousesClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.defaultWarehouseOverride,
-      marshalDefaultWarehouseOverrideSchema
+      marshalCreateDefaultWarehouseOverrideSchema
     );
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -646,7 +647,7 @@ export class WarehousesClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.defaultWarehouseOverride,
-      marshalDefaultWarehouseOverrideSchema
+      marshalUpdateDefaultWarehouseOverrideSchema
     );
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

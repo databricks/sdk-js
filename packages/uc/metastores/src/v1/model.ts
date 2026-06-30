@@ -29,7 +29,7 @@ export interface AccountsCreateMetastoreAssignmentRequest {
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
   metastoreId?: string | undefined;
-  metastoreAssignment?: MetastoreAssignment | undefined;
+  metastoreAssignment?: CreateMetastoreAssignment | undefined;
 }
 
 /** The metastore assignment was successfully created. */
@@ -40,7 +40,7 @@ export interface AccountsCreateMetastoreAssignmentResponse {}
 export interface AccountsCreateMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
-  metastoreInfo?: CreateAccountsMetastore | undefined;
+  metastoreInfo?: CreateCreateAccountsMetastore | undefined;
 }
 
 export interface AccountsCreateMetastoreResponse {
@@ -134,7 +134,7 @@ export interface AccountsUpdateMetastoreAssignmentRequest {
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
   metastoreId?: string | undefined;
-  metastoreAssignment?: MetastoreAssignment | undefined;
+  metastoreAssignment?: CreateMetastoreAssignment | undefined;
 }
 
 /** The metastore assignment was successfully updated. */
@@ -148,7 +148,7 @@ export interface AccountsUpdateMetastoreRequest {
   /** Unity Catalog metastore ID */
   metastoreId?: string | undefined;
   /** Properties of the metastore to change. */
-  metastoreInfo?: UpdateAccountsMetastore | undefined;
+  metastoreInfo?: CreateUpdateAccountsMetastore | undefined;
 }
 
 /** The metastore update request succeeded. */
@@ -197,6 +197,59 @@ export interface CreateAccountsMetastore {
   externalAccessEnabled?: boolean | undefined;
 }
 
+export interface CreateCreateAccountsMetastore {
+  /** The user-specified name of the metastore. */
+  name?: string | undefined;
+  /** The storage root URL for metastore */
+  storageRoot?: string | undefined;
+  /** Unique identifier of the metastore's (Default) Data Access Configuration. */
+  defaultDataAccessConfigId?: string | undefined;
+  /** UUID of storage credential to access the metastore storage_root. */
+  storageRootCredentialId?: string | undefined;
+  /** The scope of Delta Sharing enabled for the metastore. */
+  deltaSharingScope?: DeltaSharingScope_Enum | undefined;
+  /** The lifetime of delta sharing recipient token in seconds. */
+  deltaSharingRecipientTokenLifetimeInSeconds?: bigint | undefined;
+  /** The organization name of a Delta Sharing entity, to be used in Databricks-to-Databricks Delta Sharing as the official name. */
+  deltaSharingOrganizationName?: string | undefined;
+  /** The owner of the metastore. */
+  owner?: string | undefined;
+  /** Privilege model version of the metastore, of the form `major.minor` (e.g., `1.0`). */
+  privilegeModelVersion?: string | undefined;
+  /** Cloud region which the metastore serves (e.g., `us-west-2`, `westus`). */
+  region?: string | undefined;
+  /** Unique identifier of metastore. */
+  metastoreId?: string | undefined;
+  /** Time at which this metastore was created, in epoch milliseconds. */
+  createdAt?: bigint | undefined;
+  /** Username of metastore creator. */
+  createdBy?: string | undefined;
+  /** Time at which the metastore was last modified, in epoch milliseconds. */
+  updatedAt?: bigint | undefined;
+  /** Username of user who last modified the metastore. */
+  updatedBy?: string | undefined;
+  /** Name of the storage credential to access the metastore storage_root. */
+  storageRootCredentialName?: string | undefined;
+  /** Cloud vendor of the metastore home shard (e.g., `aws`, `azure`, `gcp`). */
+  cloud?: string | undefined;
+  /** Globally unique metastore ID across clouds and regions, of the form `cloud:region:metastore_id`. */
+  globalMetastoreId?: string | undefined;
+  /** Whether to allow non-DBR clients to directly access entities under the metastore. */
+  externalAccessEnabled?: boolean | undefined;
+}
+
+export interface CreateMetastoreAssignment {
+  /** The unique ID of the <Databricks> workspace. */
+  workspaceId: bigint;
+  /** The unique ID of the metastore. */
+  metastoreId: string;
+  /**
+   * The name of the default catalog in the metastore. This field is deprecated.
+   * Please use "Default Namespace API" to configure the default catalog for a <Databricks> workspace.
+   */
+  defaultCatalogName?: string | undefined;
+}
+
 export interface CreateMetastoreAssignmentRequest {
   /** A workspace ID. */
   workspaceId?: bigint | undefined;
@@ -214,6 +267,47 @@ export interface CreateMetastoreAssignmentRequest {
 export interface CreateMetastoreAssignmentResponse {}
 
 export interface CreateMetastoreRequest {
+  /** The user-specified name of the metastore. */
+  name?: string | undefined;
+  /** The storage root URL for metastore */
+  storageRoot?: string | undefined;
+  /** Unique identifier of the metastore's (Default) Data Access Configuration. */
+  defaultDataAccessConfigId?: string | undefined;
+  /** UUID of storage credential to access the metastore storage_root. */
+  storageRootCredentialId?: string | undefined;
+  /** The scope of Delta Sharing enabled for the metastore. */
+  deltaSharingScope?: DeltaSharingScope_Enum | undefined;
+  /** The lifetime of delta sharing recipient token in seconds. */
+  deltaSharingRecipientTokenLifetimeInSeconds?: bigint | undefined;
+  /** The organization name of a Delta Sharing entity, to be used in Databricks-to-Databricks Delta Sharing as the official name. */
+  deltaSharingOrganizationName?: string | undefined;
+  /** The owner of the metastore. */
+  owner?: string | undefined;
+  /** Privilege model version of the metastore, of the form `major.minor` (e.g., `1.0`). */
+  privilegeModelVersion?: string | undefined;
+  /** Cloud region which the metastore serves (e.g., `us-west-2`, `westus`). */
+  region?: string | undefined;
+  /** Unique identifier of metastore. */
+  metastoreId?: string | undefined;
+  /** Time at which this metastore was created, in epoch milliseconds. */
+  createdAt?: bigint | undefined;
+  /** Username of metastore creator. */
+  createdBy?: string | undefined;
+  /** Time at which the metastore was last modified, in epoch milliseconds. */
+  updatedAt?: bigint | undefined;
+  /** Username of user who last modified the metastore. */
+  updatedBy?: string | undefined;
+  /** Name of the storage credential to access the metastore storage_root. */
+  storageRootCredentialName?: string | undefined;
+  /** Cloud vendor of the metastore home shard (e.g., `aws`, `azure`, `gcp`). */
+  cloud?: string | undefined;
+  /** Globally unique metastore ID across clouds and regions, of the form `cloud:region:metastore_id`. */
+  globalMetastoreId?: string | undefined;
+  /** Whether to allow non-DBR clients to directly access entities under the metastore. */
+  externalAccessEnabled?: boolean | undefined;
+}
+
+export interface CreateUpdateAccountsMetastore {
   /** The user-specified name of the metastore. */
   name?: string | undefined;
   /** The storage root URL for metastore */
@@ -738,7 +832,7 @@ export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =
       workspaceId: z.bigint().optional(),
       metastoreId: z.string().optional(),
       metastoreAssignment: z
-        .lazy(() => marshalMetastoreAssignmentSchema)
+        .lazy(() => marshalCreateMetastoreAssignmentSchema)
         .optional(),
     })
     .transform(d => ({
@@ -752,7 +846,7 @@ export const marshalAccountsCreateMetastoreRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     metastoreInfo: z
-      .lazy(() => marshalCreateAccountsMetastoreSchema)
+      .lazy(() => marshalCreateCreateAccountsMetastoreSchema)
       .optional(),
   })
   .transform(d => ({
@@ -767,7 +861,7 @@ export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
       workspaceId: z.bigint().optional(),
       metastoreId: z.string().optional(),
       metastoreAssignment: z
-        .lazy(() => marshalMetastoreAssignmentSchema)
+        .lazy(() => marshalCreateMetastoreAssignmentSchema)
         .optional(),
     })
     .transform(d => ({
@@ -782,7 +876,7 @@ export const marshalAccountsUpdateMetastoreRequestSchema: z.ZodType = z
     accountId: z.string().optional(),
     metastoreId: z.string().optional(),
     metastoreInfo: z
-      .lazy(() => marshalUpdateAccountsMetastoreSchema)
+      .lazy(() => marshalCreateUpdateAccountsMetastoreSchema)
       .optional(),
   })
   .transform(d => ({
@@ -791,7 +885,7 @@ export const marshalAccountsUpdateMetastoreRequestSchema: z.ZodType = z
     metastore_info: d.metastoreInfo,
   }));
 
-export const marshalCreateAccountsMetastoreSchema: z.ZodType = z
+export const marshalCreateCreateAccountsMetastoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     storageRoot: z.string().optional(),
@@ -834,6 +928,18 @@ export const marshalCreateAccountsMetastoreSchema: z.ZodType = z
     cloud: d.cloud,
     global_metastore_id: d.globalMetastoreId,
     external_access_enabled: d.externalAccessEnabled,
+  }));
+
+export const marshalCreateMetastoreAssignmentSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint(),
+    metastoreId: z.string(),
+    defaultCatalogName: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    metastore_id: d.metastoreId,
+    default_catalog_name: d.defaultCatalogName,
   }));
 
 export const marshalCreateMetastoreAssignmentRequestSchema: z.ZodType = z
@@ -893,19 +999,7 @@ export const marshalCreateMetastoreRequestSchema: z.ZodType = z
     external_access_enabled: d.externalAccessEnabled,
   }));
 
-export const marshalMetastoreAssignmentSchema: z.ZodType = z
-  .object({
-    workspaceId: z.bigint().optional(),
-    metastoreId: z.string().optional(),
-    defaultCatalogName: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_id: d.workspaceId,
-    metastore_id: d.metastoreId,
-    default_catalog_name: d.defaultCatalogName,
-  }));
-
-export const marshalUpdateAccountsMetastoreSchema: z.ZodType = z
+export const marshalCreateUpdateAccountsMetastoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     storageRoot: z.string().optional(),

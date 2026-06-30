@@ -57,12 +57,15 @@ import type {
 } from './model';
 import {
   DatabaseInstance_State,
-  marshalDatabaseCatalogSchema,
-  marshalDatabaseInstanceRoleSchema,
-  marshalDatabaseInstanceSchema,
-  marshalDatabaseTableSchema,
+  marshalCreateDatabaseCatalogSchema,
+  marshalCreateDatabaseInstanceRoleSchema,
+  marshalCreateDatabaseInstanceSchema,
+  marshalCreateDatabaseTableSchema,
+  marshalCreateSyncedDatabaseTableSchema,
   marshalGenerateDatabaseCredentialRequestSchema,
-  marshalSyncedDatabaseTableSchema,
+  marshalUpdateDatabaseCatalogSchema,
+  marshalUpdateDatabaseInstanceSchema,
+  marshalUpdateSyncedDatabaseTableSchema,
   unmarshalDatabaseCatalogSchema,
   unmarshalDatabaseCredentialSchema,
   unmarshalDatabaseInstanceRoleSchema,
@@ -115,7 +118,10 @@ export class DatabaseClient {
   ): Promise<DatabaseCatalog> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/database/catalogs`;
-    const body = marshalRequest(req.catalog, marshalDatabaseCatalogSchema);
+    const body = marshalRequest(
+      req.catalog,
+      marshalCreateDatabaseCatalogSchema
+    );
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -147,7 +153,7 @@ export class DatabaseClient {
     const url = `${host}/api/2.0/database/instances`;
     const body = marshalRequest(
       req.databaseInstance,
-      marshalDatabaseInstanceSchema
+      marshalCreateDatabaseInstanceSchema
     );
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -198,7 +204,7 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.databaseInstanceRole,
-      marshalDatabaseInstanceRoleSchema
+      marshalCreateDatabaseInstanceRoleSchema
     );
     let resp: DatabaseInstanceRole | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -238,7 +244,7 @@ export class DatabaseClient {
   ): Promise<DatabaseTable> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/database/tables`;
-    const body = marshalRequest(req.table, marshalDatabaseTableSchema);
+    const body = marshalRequest(req.table, marshalCreateDatabaseTableSchema);
     let resp: DatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -270,7 +276,7 @@ export class DatabaseClient {
     const url = `${host}/api/2.0/database/synced_tables`;
     const body = marshalRequest(
       req.syncedTable,
-      marshalSyncedDatabaseTableSchema
+      marshalCreateSyncedDatabaseTableSchema
     );
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -898,7 +904,7 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.databaseCatalog,
-      marshalDatabaseCatalogSchema
+      marshalUpdateDatabaseCatalogSchema
     );
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -943,7 +949,7 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.databaseInstance,
-      marshalDatabaseInstanceSchema
+      marshalUpdateDatabaseInstanceSchema
     );
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -988,7 +994,7 @@ export class DatabaseClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.syncedTable,
-      marshalSyncedDatabaseTableSchema
+      marshalUpdateSyncedDatabaseTableSchema
     );
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

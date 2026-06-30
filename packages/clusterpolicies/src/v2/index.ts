@@ -9,8 +9,12 @@ export {ClusterPoliciesClient} from './client';
 export {ListOrder, PolicySortColumn} from './model';
 
 export type {
+  CreateLibrary,
+  CreateMavenLibrary,
   CreatePolicyRequest,
   CreatePolicyResponse,
+  CreatePythonPyPiLibrary,
+  CreateRCranLibrary,
   DeletePolicyRequest,
   DeletePolicyResponse,
   EditPolicyRequest,

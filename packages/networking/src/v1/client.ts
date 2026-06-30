@@ -92,22 +92,22 @@ import type {
   WorkspaceNetworkOption,
 } from './model';
 import {
-  marshalAccountNetworkPolicySchema,
   marshalCreateAccountIpAccessListRequestSchema,
+  marshalCreateAccountNetworkPolicySchema,
+  marshalCreateCreateNetworkConnectivityConfigurationSchema,
+  marshalCreateCreatePrivateEndpointRuleSchema,
+  marshalCreateEndpointSchema,
   marshalCreateIpAccessListRequestSchema,
-  marshalCreateNetworkConnectivityConfigurationSchema,
   marshalCreateNetworkRequestSchema,
   marshalCreatePrivateAccessSettingsRequestSchema,
-  marshalCreatePrivateEndpointRuleSchema,
+  marshalCreatePrivateAccessSettingsSchema,
   marshalCreateVpcEndpointRequestSchema,
-  marshalEndpointSchema,
-  marshalPrivateAccessSettingsSchema,
+  marshalCreateWorkspaceNetworkOptionSchema,
   marshalReplaceAccountIpAccessListRequestSchema,
   marshalReplaceIpAccessListRequestSchema,
   marshalUpdateAccountIpAccessListRequestSchema,
   marshalUpdateIpAccessListRequestSchema,
-  marshalUpdatePrivateEndpointRuleSchema,
-  marshalWorkspaceNetworkOptionSchema,
+  marshalUpdateUpdatePrivateEndpointRuleSchema,
   unmarshalAccountNetworkPolicySchema,
   unmarshalCreateAccountIpAccessListResponseSchema,
   unmarshalCreateIpAccessListResponseSchema,
@@ -411,7 +411,7 @@ export class NetworkingClient {
   ): Promise<Endpoint> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/networking/v1/${req.parent ?? ''}/endpoints`;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body = marshalRequest(req.endpoint, marshalCreateEndpointSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -784,7 +784,7 @@ export class NetworkingClient {
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs`;
     const body = marshalRequest(
       req.networkConnectivityConfig,
-      marshalCreateNetworkConnectivityConfigurationSchema
+      marshalCreateCreateNetworkConnectivityConfigurationSchema
     );
     let resp: NetworkConnectivityConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -923,7 +923,7 @@ export class NetworkingClient {
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules`;
     const body = marshalRequest(
       req.privateEndpointRule,
-      marshalCreatePrivateEndpointRuleSchema
+      marshalCreateCreatePrivateEndpointRuleSchema
     );
     let resp: NccPrivateEndpointRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1069,7 +1069,7 @@ export class NetworkingClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.privateEndpointRule,
-      marshalUpdatePrivateEndpointRuleSchema
+      marshalUpdateUpdatePrivateEndpointRuleSchema
     );
     let resp: NccPrivateEndpointRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1108,7 +1108,7 @@ export class NetworkingClient {
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies`;
     const body = marshalRequest(
       req.networkPolicy,
-      marshalAccountNetworkPolicySchema
+      marshalCreateAccountNetworkPolicySchema
     );
     let resp: AccountNetworkPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1236,7 +1236,7 @@ export class NetworkingClient {
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies/${req.networkPolicyId ?? ''}`;
     const body = marshalRequest(
       req.networkPolicy,
-      marshalAccountNetworkPolicySchema
+      marshalCreateAccountNetworkPolicySchema
     );
     let resp: AccountNetworkPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1630,7 +1630,7 @@ export class NetworkingClient {
     const url = `${host}/api/2.0/accounts/${req.customerFacingPrivateAccessSettings?.accountId ?? accountId ?? ''}/private-access-settings/${req.customerFacingPrivateAccessSettings?.privateAccessSettingsId ?? ''}`;
     const body = marshalRequest(
       req.customerFacingPrivateAccessSettings,
-      marshalPrivateAccessSettingsSchema
+      marshalCreatePrivateAccessSettingsSchema
     );
     let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1692,7 +1692,7 @@ export class NetworkingClient {
     const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/network`;
     const body = marshalRequest(
       req.workspaceNetworkOption,
-      marshalWorkspaceNetworkOptionSchema
+      marshalCreateWorkspaceNetworkOptionSchema
     );
     let resp: WorkspaceNetworkOption | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

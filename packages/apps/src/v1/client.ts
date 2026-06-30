@@ -63,14 +63,15 @@ import {
   AppDeployment_State,
   AppUpdate_UpdateStatus_UpdateState,
   ComputeStatus_ComputeState,
-  marshalAppDeploymentSchema,
-  marshalAppSchema,
   marshalAsyncUpdateAppRequestSchema,
-  marshalCustomTemplateSchema,
-  marshalSpaceSchema,
+  marshalCreateAppDeploymentSchema,
+  marshalCreateAppSchema,
+  marshalCreateCustomTemplateSchema,
+  marshalCreateSpaceSchema,
   marshalStartAppRequestSchema,
   marshalStopAppRequestSchema,
   marshalUpdateAppThumbnailRequestSchema,
+  marshalUpdateSpaceSchema,
   unmarshalAppDeploymentSchema,
   unmarshalAppSchema,
   unmarshalAppThumbnailSchema,
@@ -173,7 +174,7 @@ export class AppsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.app, marshalAppSchema);
+    const body = marshalRequest(req.app, marshalCreateAppSchema);
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -221,7 +222,10 @@ export class AppsClient {
   ): Promise<AppDeployment> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
-    const body = marshalRequest(req.appDeployment, marshalAppDeploymentSchema);
+    const body = marshalRequest(
+      req.appDeployment,
+      marshalCreateAppDeploymentSchema
+    );
     let resp: AppDeployment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -268,7 +272,10 @@ export class AppsClient {
   ): Promise<CustomTemplate> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps-settings/templates`;
-    const body = marshalRequest(req.template, marshalCustomTemplateSchema);
+    const body = marshalRequest(
+      req.template,
+      marshalCreateCustomTemplateSchema
+    );
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -298,7 +305,7 @@ export class AppsClient {
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/app-spaces`;
-    const body = marshalRequest(req.space, marshalSpaceSchema);
+    const body = marshalRequest(req.space, marshalCreateSpaceSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -932,7 +939,7 @@ export class AppsClient {
   async updateApp(req: UpdateAppRequest, options?: CallOptions): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps/${req.app?.name ?? ''}`;
-    const body = marshalRequest(req.app, marshalAppSchema);
+    const body = marshalRequest(req.app, marshalCreateAppSchema);
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -992,7 +999,10 @@ export class AppsClient {
   ): Promise<CustomTemplate> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps-settings/templates/${req.template?.name ?? ''}`;
-    const body = marshalRequest(req.template, marshalCustomTemplateSchema);
+    const body = marshalRequest(
+      req.template,
+      marshalCreateCustomTemplateSchema
+    );
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1028,7 +1038,7 @@ export class AppsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.space, marshalSpaceSchema);
+    const body = marshalRequest(req.space, marshalUpdateSpaceSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
