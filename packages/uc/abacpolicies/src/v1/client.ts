@@ -27,7 +27,8 @@ import type {
   UpdatePolicyRequest,
 } from './model';
 import {
-  marshalPolicyInfoSchema,
+  marshalCreatePolicyInfoSchema,
+  marshalUpdatePolicyInfoSchema,
   unmarshalDeletePolicyResponseSchema,
   unmarshalListPoliciesResponseSchema,
   unmarshalPolicyInfoSchema,
@@ -76,7 +77,7 @@ export class AbacPoliciesClient {
   ): Promise<PolicyInfo> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/unity-catalog/policies`;
-    const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
+    const body = marshalRequest(req.policyInfo, marshalCreatePolicyInfoSchema);
     let resp: PolicyInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -234,7 +235,7 @@ export class AbacPoliciesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
+    const body = marshalRequest(req.policyInfo, marshalUpdatePolicyInfoSchema);
     let resp: PolicyInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

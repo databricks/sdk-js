@@ -167,6 +167,30 @@ export interface ColumnInfo {
   typeIntervalType?: string | undefined;
 }
 
+/**
+ * * A query execution can be annotated with an optional key-value pair to
+ * allow users to attribute the executions by key and optional value to filter by.
+ * QueryTag is the user-facing representation.
+ */
+export interface CreateQueryTag {
+  key: string;
+  value?: string | undefined;
+}
+
+export interface CreateStatementParameter {
+  /** The name of a parameter marker to be substituted in the statement. */
+  name: string;
+  /** The value to substitute, represented as a string. If omitted, the value is interpreted as NULL. */
+  value?: string | undefined;
+  /**
+   * The data type, given as a string. For example: `INT`, `STRING`, `DECIMAL(10,2)`.
+   * If no type is given the type is assumed to be `STRING`. Complex types, such as
+   * `ARRAY`, `MAP`, and `STRUCT` are not supported. For valid types, refer to the
+   * section [Data types](https://docs.databricks.com/sql/language-manual/functions/cast.html) of the SQL language reference.
+   */
+  type?: string | undefined;
+}
+
 export interface ExecuteStatementRequest {
   /**
    * The SQL statement to execute. The statement can optionally be parameterized, see `parameters`.
@@ -327,7 +351,7 @@ export interface ExecuteStatementRequest {
    *
    * Also see the section [Parameter markers](https://docs.databricks.com/sql/language-manual/sql-ref-parameter-marker.html) of the SQL language reference.
    */
-  parameters?: StatementParameter[] | undefined;
+  parameters?: CreateStatementParameter[] | undefined;
   /**
    * An array of query tags to annotate a SQL statement. A query tag
    * consists of a non-empty key and, optionally, a value. To represent a NULL
@@ -345,7 +369,7 @@ export interface ExecuteStatementRequest {
    * ]
    * }
    */
-  queryTags?: QueryTag[] | undefined;
+  queryTags?: CreateQueryTag[] | undefined;
 }
 
 export interface ExternalLink {
@@ -734,6 +758,28 @@ export const marshalCancelStatementRequestSchema: z.ZodType = z
     statement_id: d.statementId,
   }));
 
+export const marshalCreateQueryTagSchema: z.ZodType = z
+  .object({
+    key: z.string(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateStatementParameterSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    value: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    type: d.type,
+  }));
+
 export const marshalExecuteStatementRequestSchema: z.ZodType = z
   .object({
     statement: z.string().optional(),
@@ -747,9 +793,9 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     waitTimeout: z.string().optional(),
     onWaitTimeout: z.string().optional(),
     parameters: z
-      .array(z.lazy(() => marshalStatementParameterSchema))
+      .array(z.lazy(() => marshalCreateStatementParameterSchema))
       .optional(),
-    queryTags: z.array(z.lazy(() => marshalQueryTagSchema)).optional(),
+    queryTags: z.array(z.lazy(() => marshalCreateQueryTagSchema)).optional(),
   })
   .transform(d => ({
     statement: d.statement,
@@ -764,26 +810,4 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     on_wait_timeout: d.onWaitTimeout,
     parameters: d.parameters,
     query_tags: d.queryTags,
-  }));
-
-export const marshalQueryTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalStatementParameterSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    value: z.string().optional(),
-    type: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    value: d.value,
-    type: d.type,
   }));

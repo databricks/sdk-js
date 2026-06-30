@@ -462,6 +462,64 @@ export interface CleanRoomAsset {
     | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateForeignTable {}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateForeignTableLocalDetails {
+  /**
+   * The fully qualified name of the foreign table in its owner's local metastore,
+   * in the format of *catalog*.*schema*.*foreign_table_name*
+   */
+  localName: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateNotebook {
+  /**
+   * Base 64 representation of the notebook contents.
+   * This is the same format as returned by [workspace/export](https://docs.databricks.com/api/workspace/workspace/export) with the format of **HTML**.
+   */
+  notebookContent: string;
+  /** Aliases of collaborators that can run the notebook. */
+  runnerCollaboratorAliases?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateTable {}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateTableLocalDetails {
+  /**
+   * The fully qualified name of the table in its owner's local metastore,
+   * in the format of *catalog*.*schema*.*table_name*
+   */
+  localName: string;
+  /** Partition filtering specification for a shared table. */
+  partitions?: PartitionSpecification_CreatePartition[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateView {}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateViewLocalDetails {
+  /**
+   * The fully qualified name of the view in its owner's local metastore,
+   * in the format of *catalog*.*schema*.*view_name*
+   */
+  localName: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomAsset_CreateVolumeLocalDetails {
+  /**
+   * The fully qualified name of the volume in its owner's local metastore,
+   * in the format of *catalog*.*schema*.*volume_name*
+   */
+  localName: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CleanRoomAsset_ForeignTable {
   /** The metadata information of the columns in the foreign table */
@@ -585,12 +643,6 @@ export interface CleanRoomCollaborator {
    * configured in the metastore
    */
   organizationName?: string | undefined;
-  /**
-   * Workspace ID of the user who is receiving the clean room "invitation". Must be specified if
-   * invite_recipient_email is specified.
-   * It should be empty when the collaborator is the creator of the clean room.
-   */
-  inviteRecipientWorkspaceId?: bigint | undefined;
   /**
    * Email of the user who is receiving the clean room "invitation". It should be empty
    * for the creator of the clean room, and non-empty for the invitees of the clean room.
@@ -756,8 +808,116 @@ export interface ComplianceSecurityProfile {
   complianceStandards?: ComplianceStandard[] | undefined;
 }
 
+export interface CreateCleanRoom {
+  /**
+   * The name of the clean room.
+   * It should follow [UC securable naming requirements](https://docs.databricks.com/en/data-governance/unity-catalog/index.html#securable-object-naming-requirements).
+   */
+  name?: string | undefined;
+  /**
+   * Central clean room details. During creation, users need to specify
+   * cloud_vendor, region, and collaborators.global_metastore_id.
+   * This field will not be filled in the ListCleanRooms call.
+   */
+  remoteDetailedInfo?: CreateCleanRoomRemoteDetail | undefined;
+  /** This is the <Databricks> username of the owner of the local clean room securable for permission management. */
+  owner?: string | undefined;
+  comment?: string | undefined;
+}
+
+/** Metadata of the clean room asset */
+export interface CreateCleanRoomAsset {
+  /**
+   * The name of the clean room this asset belongs to.
+   * This field is required for create operations and populated by the server for responses.
+   */
+  cleanRoomName?: string | undefined;
+  /**
+   * A fully qualified name that uniquely identifies the asset within the clean room.
+   * This is also the name displayed in the clean room UI.
+   *
+   * For UC securable assets (tables, volumes, etc.), the format is *shared_catalog*.*shared_schema*.*asset_name*
+   *
+   * For notebooks, the name is the notebook file name.
+   * For jar analyses, the name is the jar analysis name.
+   */
+  name?: string | undefined;
+  /** The type of the asset. */
+  assetType?: CleanRoomAsset_AssetType | undefined;
+  /** asset-type specific local information of the asset */
+  localDetails?:
+    | {
+        $case: 'tableLocalDetails';
+        /**
+         * Local details for a table that are only available to its owner.
+         * Present if and only if **asset_type** is **TABLE**
+         */
+        tableLocalDetails: CleanRoomAsset_CreateTableLocalDetails;
+      }
+    | {
+        $case: 'volumeLocalDetails';
+        /**
+         * Local details for a volume that are only available to its owner.
+         * Present if and only if **asset_type** is **VOLUME**
+         */
+        volumeLocalDetails: CleanRoomAsset_CreateVolumeLocalDetails;
+      }
+    | {
+        $case: 'viewLocalDetails';
+        /**
+         * Local details for a view that are only available to its owner.
+         * Present if and only if **asset_type** is **VIEW**
+         */
+        viewLocalDetails: CleanRoomAsset_CreateViewLocalDetails;
+      }
+    | {
+        $case: 'foreignTableLocalDetails';
+        /**
+         * Local details for a foreign that are only available to its owner.
+         * Present if and only if **asset_type** is **FOREIGN_TABLE**
+         */
+        foreignTableLocalDetails: CleanRoomAsset_CreateForeignTableLocalDetails;
+      }
+    | undefined;
+  /** the asset-type specific information. Will not be returned by list */
+  details?:
+    | {
+        $case: 'table';
+        /**
+         * Table details available to all collaborators of the clean room.
+         * Present if and only if **asset_type** is **TABLE**
+         */
+        table: CleanRoomAsset_CreateTable;
+      }
+    | {
+        $case: 'notebook';
+        /**
+         * Notebook details available to all collaborators of the clean room.
+         * Present if and only if **asset_type** is **NOTEBOOK_FILE**
+         */
+        notebook: CleanRoomAsset_CreateNotebook;
+      }
+    | {
+        $case: 'view';
+        /**
+         * View details available to all collaborators of the clean room.
+         * Present if and only if **asset_type** is **VIEW**
+         */
+        view: CleanRoomAsset_CreateView;
+      }
+    | {
+        $case: 'foreignTable';
+        /**
+         * Foreign table details available to all collaborators of the clean room.
+         * Present if and only if **asset_type** is **FOREIGN_TABLE**
+         */
+        foreignTable: CleanRoomAsset_CreateForeignTable;
+      }
+    | undefined;
+}
+
 export interface CreateCleanRoomAssetRequest {
-  asset?: CleanRoomAsset | undefined;
+  asset?: CreateCleanRoomAsset | undefined;
 }
 
 export interface CreateCleanRoomAssetReviewRequest {
@@ -768,7 +928,7 @@ export interface CreateCleanRoomAssetReviewRequest {
   /** Asset type. Can either be NOTEBOOK_FILE or JAR_ANALYSIS. */
   assetType?: CleanRoomAsset_AssetType | undefined;
   review?:
-    | {$case: 'notebookReview'; notebookReview: NotebookVersionReview}
+    | {$case: 'notebookReview'; notebookReview: CreateNotebookVersionReview}
     | undefined;
 }
 
@@ -784,22 +944,128 @@ export interface CreateCleanRoomAssetReviewResponse {
     | undefined;
 }
 
+export interface CreateCleanRoomAutoApprovalRule {
+  /** The name of the clean room this auto-approval rule belongs to. */
+  cleanRoomName?: string | undefined;
+  /** A generated UUID identifying the rule. */
+  ruleId?: string | undefined;
+  /** The auto-approved notebook authors. For 2P, this can only be the other collaborator. */
+  authors?:
+    | {
+        $case: 'authorCollaboratorAlias';
+        /**
+         * Collaborator alias of the author covered by the rule.
+         * Only one of `author_collaborator_alias` and `author_scope` can be set.
+         */
+        authorCollaboratorAlias: string;
+      }
+    | {
+        $case: 'authorScope';
+        /**
+         * Scope of authors covered by the rule.
+         * Only one of `author_collaborator_alias` and `author_scope` can be set.
+         */
+        authorScope: CleanRoomAutoApprovalRule_AuthorScope;
+      }
+    | undefined;
+  /** The auto-approved notebook runners. Initially, this can only be one specific runner. */
+  runners?:
+    | {
+        $case: 'runnerCollaboratorAlias';
+        /** Collaborator alias of the runner covered by the rule. */
+        runnerCollaboratorAlias: string;
+      }
+    | undefined;
+}
+
 export interface CreateCleanRoomAutoApprovalRuleRequest {
-  autoApprovalRule?: CleanRoomAutoApprovalRule | undefined;
+  autoApprovalRule?: CreateCleanRoomAutoApprovalRule | undefined;
+}
+
+/** Publicly visible clean room collaborator. */
+export interface CreateCleanRoomCollaborator {
+  /** The global Unity Catalog metastore ID of the collaborator. The identifier is of format cloud:region:metastore-uuid. */
+  globalMetastoreId?: string | undefined;
+  /**
+   * Workspace ID of the user who is receiving the clean room "invitation". Must be specified if
+   * invite_recipient_email is specified.
+   * It should be empty when the collaborator is the creator of the clean room.
+   */
+  inviteRecipientWorkspaceId?: bigint | undefined;
+  /**
+   * Email of the user who is receiving the clean room "invitation". It should be empty
+   * for the creator of the clean room, and non-empty for the invitees of the clean room.
+   * It is only returned in the output when clean room creator calls GET
+   */
+  inviteRecipientEmail?: string | undefined;
+  /**
+   * Collaborator alias specified by the clean room creator. It is unique across all collaborators of this clean room, and used to derive
+   * multiple values internally such as catalog alias and clean room name for single metastore clean rooms.
+   * It should follow [UC securable naming requirements](https://docs.databricks.com/en/data-governance/unity-catalog/index.html#securable-object-naming-requirements).
+   */
+  collaboratorAlias: string;
+}
+
+export interface CreateCleanRoomOutputCatalog {
+  /**
+   * The name of the output catalog in UC.
+   * It should follow [UC securable naming requirements](https://docs.databricks.com/en/data-governance/unity-catalog/index.html#securable-object-naming-requirements).
+   * The field will always exist if status is CREATED.
+   */
+  catalogName?: string | undefined;
 }
 
 export interface CreateCleanRoomOutputCatalogRequest {
   /** Name of the clean room. */
   cleanRoomName?: string | undefined;
-  outputCatalog?: CleanRoomOutputCatalog | undefined;
+  outputCatalog?: CreateCleanRoomOutputCatalog | undefined;
 }
 
 export interface CreateCleanRoomOutputCatalogResponse {
   outputCatalog?: CleanRoomOutputCatalog | undefined;
 }
 
+/** Publicly visible central clean room details. */
+export interface CreateCleanRoomRemoteDetail {
+  /** Cloud vendor (aws,azure,gcp) of the central clean room. */
+  cloudVendor?: string | undefined;
+  /** Region of the central clean room. */
+  region?: string | undefined;
+  /**
+   * Collaborators in the central clean room. There should one and only one collaborator
+   * in the list that satisfies the owner condition:
+   *
+   * 1. It has the creator's global_metastore_id (determined by caller of CreateCleanRoom).
+   *
+   * 2. Its invite_recipient_email is empty.
+   */
+  collaborators?: CreateCleanRoomCollaborator[] | undefined;
+  /** Egress network policy to apply to the central clean room workspace. */
+  egressNetworkPolicy?: CreateEgressNetworkPolicy | undefined;
+}
+
 export interface CreateCleanRoomRequest {
-  cleanRoom?: CleanRoom | undefined;
+  cleanRoom?: CreateCleanRoom | undefined;
+}
+
+/**
+ * The network policies applying for egress traffic.
+ * This message is used by the UI/REST API. We translate this message to the format expected by the
+ * dataplane in Lakehouse Network Manager (for the format expected by the dataplane,
+ * see networkconfig.textproto).
+ */
+export interface CreateEgressNetworkPolicy {
+  /** The access policy enforced for egress traffic to the internet. */
+  internetAccess?: EgressNetworkPolicy_CreateInternetAccessPolicy | undefined;
+}
+
+export interface CreateNotebookVersionReview {
+  /** Etag identifying the notebook version */
+  etag: string;
+  /** Review outcome */
+  reviewState: CleanRoomNotebookReview_NotebookReviewState;
+  /** Review comment */
+  comment?: string | undefined;
 }
 
 export interface DeleteCleanRoomAssetRequest {
@@ -840,6 +1106,23 @@ export interface EgressNetworkPolicy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_CreateInternetAccessPolicy {
+  restrictionMode?:
+    | EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode
+    | undefined;
+  allowedInternetDestinations?:
+    | EgressNetworkPolicy_InternetAccessPolicy_CreateInternetDestination[]
+    | undefined;
+  allowedStorageDestinations?:
+    | EgressNetworkPolicy_InternetAccessPolicy_CreateStorageDestination[]
+    | undefined;
+  /** Optional. If not specified, assume the policy is enforced for all workloads. */
+  logOnlyMode?:
+    | EgressNetworkPolicy_InternetAccessPolicy_CreateLogOnlyMode
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EgressNetworkPolicy_InternetAccessPolicy {
   restrictionMode?:
     | EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode
@@ -854,6 +1137,47 @@ export interface EgressNetworkPolicy_InternetAccessPolicy {
   logOnlyMode?:
     | EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode
     | undefined;
+}
+
+/**
+ * Users can specify accessible internet destinations when outbound access is restricted.
+ * We only support domain name (FQDN) destinations for the time being,
+ * though going forwards we want to support host names and IP addresses.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_InternetAccessPolicy_CreateInternetDestination {
+  destination?: string | undefined;
+  type?:
+    | EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType
+    | undefined;
+  protocol?:
+    | EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_InternetAccessPolicy_CreateLogOnlyMode {
+  logOnlyModeType?:
+    | EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
+    | undefined;
+  workloads?:
+    | EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType[]
+    | undefined;
+}
+
+/** Users can specify accessible storage destinations. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EgressNetworkPolicy_InternetAccessPolicy_CreateStorageDestination {
+  bucketName?: string | undefined;
+  region?: string | undefined;
+  type?:
+    | EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType
+    | undefined;
+  azureStorageAccount?: string | undefined;
+  allowedPaths?: string[] | undefined;
+  azureStorageService?: string | undefined;
+  azureDnsZone?: string | undefined;
+  azureContainer?: string | undefined;
 }
 
 /**
@@ -1035,9 +1359,35 @@ export interface NotebookVersionReview {
 export interface PartitionSpecification {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PartitionSpecification_CreatePartition {
+  /** An array of partition values. */
+  values?: PartitionSpecification_Partition_CreatePartitionValue[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface PartitionSpecification_Partition {
   /** An array of partition values. */
   values?: PartitionSpecification_Partition_PartitionValue[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PartitionSpecification_Partition_CreatePartitionValue {
+  /** The name of the partition column. */
+  name?: string | undefined;
+  /**
+   * The value of the partition column. When this value is not set, it means `null` value.
+   * When this field is set, field `recipient_property_key` can not be set.
+   */
+  value?: string | undefined;
+  /**
+   * The key of a Delta Sharing recipient's property. For example "databricks-account-id".
+   * When this field is set, field `value` can not be set.
+   */
+  recipientPropertyKey?: string | undefined;
+  /** The operator to apply for the value. */
+  op?:
+    | PartitionSpecification_Partition_PartitionValue_PartitionValueOp
+    | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1086,18 +1436,18 @@ export interface UpdateCleanRoomAssetRequest {
    * The asset to update.
    * The asset's `name` and `asset_type` fields are used to identify the asset to update.
    */
-  asset?: CleanRoomAsset | undefined;
+  asset?: CreateCleanRoomAsset | undefined;
 }
 
 export interface UpdateCleanRoomAutoApprovalRuleRequest {
   /** The auto-approval rule to update. The rule_id field is used to identify the rule to update. */
-  autoApprovalRule?: CleanRoomAutoApprovalRule | undefined;
+  autoApprovalRule?: CreateCleanRoomAutoApprovalRule | undefined;
 }
 
 export interface UpdateCleanRoomRequest {
   /** Name of the clean room. */
   name?: string | undefined;
-  cleanRoom?: CleanRoom | undefined;
+  cleanRoom?: CreateCleanRoom | undefined;
 }
 
 export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
@@ -1343,10 +1693,6 @@ export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborat
     .object({
       global_metastore_id: z.string().optional(),
       organization_name: z.string().optional(),
-      invite_recipient_workspace_id: z
-        .union([z.number(), z.bigint()])
-        .transform(v => BigInt(v))
-        .optional(),
       invite_recipient_email: z.string().optional(),
       collaborator_alias: z.string().optional(),
       display_name: z.string().optional(),
@@ -1354,7 +1700,6 @@ export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborat
     .transform(d => ({
       globalMetastoreId: d.global_metastore_id,
       organizationName: d.organization_name,
-      inviteRecipientWorkspaceId: d.invite_recipient_workspace_id,
       inviteRecipientEmail: d.invite_recipient_email,
       collaboratorAlias: d.collaborator_alias,
       displayName: d.display_name,
@@ -1791,66 +2136,113 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
             : undefined,
     }));
 
-export const marshalCleanRoomSchema: z.ZodType = z
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateForeignTableSchema: z.ZodType =
+  z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateForeignTableLocalDetailsSchema: z.ZodType =
+  z
+    .object({
+      localName: z.string(),
+    })
+    .transform(d => ({
+      local_name: d.localName,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateNotebookSchema: z.ZodType = z
+  .object({
+    notebookContent: z.string(),
+    runnerCollaboratorAliases: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    notebook_content: d.notebookContent,
+    runner_collaborator_aliases: d.runnerCollaboratorAliases,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateTableSchema: z.ZodType = z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateTableLocalDetailsSchema: z.ZodType = z
+  .object({
+    localName: z.string(),
+    partitions: z
+      .array(z.lazy(() => marshalPartitionSpecification_CreatePartitionSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    local_name: d.localName,
+    partitions: d.partitions,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateViewSchema: z.ZodType = z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateViewLocalDetailsSchema: z.ZodType = z
+  .object({
+    localName: z.string(),
+  })
+  .transform(d => ({
+    local_name: d.localName,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_CreateVolumeLocalDetailsSchema: z.ZodType = z
+  .object({
+    localName: z.string(),
+  })
+  .transform(d => ({
+    local_name: d.localName,
+  }));
+
+export const marshalCreateCleanRoomSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     remoteDetailedInfo: z
-      .lazy(() => marshalCleanRoomRemoteDetailSchema)
+      .lazy(() => marshalCreateCleanRoomRemoteDetailSchema)
       .optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
-    createdAt: z.bigint().optional(),
-    updatedAt: z.bigint().optional(),
-    status: z.string().optional(),
-    localCollaboratorAlias: z.string().optional(),
-    outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
-    accessRestricted: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     remote_detailed_info: d.remoteDetailedInfo,
     owner: d.owner,
     comment: d.comment,
-    created_at: d.createdAt,
-    updated_at: d.updatedAt,
-    status: d.status,
-    local_collaborator_alias: d.localCollaboratorAlias,
-    output_catalog: d.outputCatalog,
-    access_restricted: d.accessRestricted,
   }));
 
-export const marshalCleanRoomAssetSchema: z.ZodType = z
+export const marshalCreateCleanRoomAssetSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
     name: z.string().optional(),
     assetType: z.string().optional(),
-    addedAt: z.bigint().optional(),
-    status: z.string().optional(),
-    ownerCollaboratorAlias: z.string().optional(),
     localDetails: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('tableLocalDetails'),
           tableLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_TableLocalDetailsSchema
+            () => marshalCleanRoomAsset_CreateTableLocalDetailsSchema
           ),
         }),
         z.object({
           $case: z.literal('volumeLocalDetails'),
           volumeLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_VolumeLocalDetailsSchema
+            () => marshalCleanRoomAsset_CreateVolumeLocalDetailsSchema
           ),
         }),
         z.object({
           $case: z.literal('viewLocalDetails'),
           viewLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_ViewLocalDetailsSchema
+            () => marshalCleanRoomAsset_CreateViewLocalDetailsSchema
           ),
         }),
         z.object({
           $case: z.literal('foreignTableLocalDetails'),
           foreignTableLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_ForeignTableLocalDetailsSchema
+            () => marshalCleanRoomAsset_CreateForeignTableLocalDetailsSchema
           ),
         }),
       ])
@@ -1859,19 +2251,21 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('table'),
-          table: z.lazy(() => marshalCleanRoomAsset_TableSchema),
+          table: z.lazy(() => marshalCleanRoomAsset_CreateTableSchema),
         }),
         z.object({
           $case: z.literal('notebook'),
-          notebook: z.lazy(() => marshalCleanRoomAsset_NotebookSchema),
+          notebook: z.lazy(() => marshalCleanRoomAsset_CreateNotebookSchema),
         }),
         z.object({
           $case: z.literal('view'),
-          view: z.lazy(() => marshalCleanRoomAsset_ViewSchema),
+          view: z.lazy(() => marshalCleanRoomAsset_CreateViewSchema),
         }),
         z.object({
           $case: z.literal('foreignTable'),
-          foreignTable: z.lazy(() => marshalCleanRoomAsset_ForeignTableSchema),
+          foreignTable: z.lazy(
+            () => marshalCleanRoomAsset_CreateForeignTableSchema
+          ),
         }),
       ])
       .optional(),
@@ -1880,9 +2274,6 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
     clean_room_name: d.cleanRoomName,
     name: d.name,
     asset_type: d.assetType,
-    added_at: d.addedAt,
-    status: d.status,
-    owner_collaborator_alias: d.ownerCollaboratorAlias,
     ...(d.localDetails?.$case === 'tableLocalDetails' && {
       table_local_details: d.localDetails.tableLocalDetails,
     }),
@@ -1903,97 +2294,35 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
     }),
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_ForeignTableSchema: z.ZodType = z
+export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
   .object({
-    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    columns: d.columns,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType = z
-  .object({
-    localName: z.string().optional(),
-  })
-  .transform(d => ({
-    local_name: d.localName,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
-  .object({
-    notebookContent: z.string().optional(),
-    etag: z.string().optional(),
-    runnerCollaboratorAliases: z.array(z.string()).optional(),
-    reviews: z
-      .array(z.lazy(() => marshalCleanRoomNotebookReviewSchema))
-      .optional(),
-    reviewState: z.string().optional(),
-  })
-  .transform(d => ({
-    notebook_content: d.notebookContent,
-    etag: d.etag,
-    runner_collaborator_aliases: d.runnerCollaboratorAliases,
-    reviews: d.reviews,
-    review_state: d.reviewState,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_TableSchema: z.ZodType = z
-  .object({
-    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    columns: d.columns,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_TableLocalDetailsSchema: z.ZodType = z
-  .object({
-    localName: z.string().optional(),
-    partitions: z
-      .array(z.lazy(() => marshalPartitionSpecification_PartitionSchema))
+    cleanRoomName: z.string().optional(),
+    name: z.string().optional(),
+    assetType: z.string().optional(),
+    review: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('notebookReview'),
+          notebookReview: z.lazy(
+            () => marshalCreateNotebookVersionReviewSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    local_name: d.localName,
-    partitions: d.partitions,
+    clean_room_name: d.cleanRoomName,
+    name: d.name,
+    asset_type: d.assetType,
+    ...(d.review?.$case === 'notebookReview' && {
+      notebook_review: d.review.notebookReview,
+    }),
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_ViewSchema: z.ZodType = z
-  .object({
-    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    columns: d.columns,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType = z
-  .object({
-    localName: z.string().optional(),
-  })
-  .transform(d => ({
-    local_name: d.localName,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCleanRoomAsset_VolumeLocalDetailsSchema: z.ZodType = z
-  .object({
-    localName: z.string().optional(),
-  })
-  .transform(d => ({
-    local_name: d.localName,
-  }));
-
-export const marshalCleanRoomAutoApprovalRuleSchema: z.ZodType = z
+export const marshalCreateCleanRoomAutoApprovalRuleSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
     ruleId: z.string().optional(),
-    ruleOwnerCollaboratorAlias: z.string().optional(),
     authors: z
       .discriminatedUnion('$case', [
         z.object({
@@ -2011,12 +2340,10 @@ export const marshalCleanRoomAutoApprovalRuleSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    createdAt: z.bigint().optional(),
   })
   .transform(d => ({
     clean_room_name: d.cleanRoomName,
     rule_id: d.ruleId,
-    rule_owner_collaborator_alias: d.ruleOwnerCollaboratorAlias,
     ...(d.authors?.$case === 'authorCollaboratorAlias' && {
       author_collaborator_alias: d.authors.authorCollaboratorAlias,
     }),
@@ -2026,178 +2353,82 @@ export const marshalCleanRoomAutoApprovalRuleSchema: z.ZodType = z
     ...(d.runners?.$case === 'runnerCollaboratorAlias' && {
       runner_collaborator_alias: d.runners.runnerCollaboratorAlias,
     }),
-    created_at: d.createdAt,
-  }));
-
-export const marshalCleanRoomCollaboratorSchema: z.ZodType = z
-  .object({
-    globalMetastoreId: z.string().optional(),
-    organizationName: z.string().optional(),
-    inviteRecipientWorkspaceId: z.bigint().optional(),
-    inviteRecipientEmail: z.string().optional(),
-    collaboratorAlias: z.string().optional(),
-    displayName: z.string().optional(),
-  })
-  .transform(d => ({
-    global_metastore_id: d.globalMetastoreId,
-    organization_name: d.organizationName,
-    invite_recipient_workspace_id: d.inviteRecipientWorkspaceId,
-    invite_recipient_email: d.inviteRecipientEmail,
-    collaborator_alias: d.collaboratorAlias,
-    display_name: d.displayName,
-  }));
-
-export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
-  .object({
-    reviewerCollaboratorAlias: z.string().optional(),
-    createdAtMillis: z.bigint().optional(),
-    reviewState: z.string().optional(),
-    comment: z.string().optional(),
-    reviewSubReason: z.string().optional(),
-  })
-  .transform(d => ({
-    reviewer_collaborator_alias: d.reviewerCollaboratorAlias,
-    created_at_millis: d.createdAtMillis,
-    review_state: d.reviewState,
-    comment: d.comment,
-    review_sub_reason: d.reviewSubReason,
-  }));
-
-export const marshalCleanRoomOutputCatalogSchema: z.ZodType = z
-  .object({
-    status: z.string().optional(),
-    catalogName: z.string().optional(),
-  })
-  .transform(d => ({
-    status: d.status,
-    catalog_name: d.catalogName,
-  }));
-
-export const marshalCleanRoomRemoteDetailSchema: z.ZodType = z
-  .object({
-    centralCleanRoomId: z.string().optional(),
-    cloudVendor: z.string().optional(),
-    region: z.string().optional(),
-    collaborators: z
-      .array(z.lazy(() => marshalCleanRoomCollaboratorSchema))
-      .optional(),
-    creator: z.lazy(() => marshalCleanRoomCollaboratorSchema).optional(),
-    egressNetworkPolicy: z
-      .lazy(() => marshalEgressNetworkPolicySchema)
-      .optional(),
-    complianceSecurityProfile: z
-      .lazy(() => marshalComplianceSecurityProfileSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    central_clean_room_id: d.centralCleanRoomId,
-    cloud_vendor: d.cloudVendor,
-    region: d.region,
-    collaborators: d.collaborators,
-    creator: d.creator,
-    egress_network_policy: d.egressNetworkPolicy,
-    compliance_security_profile: d.complianceSecurityProfile,
-  }));
-
-export const marshalColumnInfoSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    typeText: z.string().optional(),
-    typeName: z.string().optional(),
-    position: z.number().optional(),
-    typePrecision: z.number().optional(),
-    typeScale: z.number().optional(),
-    typeIntervalType: z.string().optional(),
-    typeJson: z.string().optional(),
-    comment: z.string().optional(),
-    nullable: z.boolean().optional(),
-    partitionIndex: z.number().optional(),
-    mask: z.lazy(() => marshalColumnMaskSchema).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    type_text: d.typeText,
-    type_name: d.typeName,
-    position: d.position,
-    type_precision: d.typePrecision,
-    type_scale: d.typeScale,
-    type_interval_type: d.typeIntervalType,
-    type_json: d.typeJson,
-    comment: d.comment,
-    nullable: d.nullable,
-    partition_index: d.partitionIndex,
-    mask: d.mask,
-  }));
-
-export const marshalColumnMaskSchema: z.ZodType = z
-  .object({
-    functionName: z.string().optional(),
-    usingColumnNames: z.array(z.string()).optional(),
-    usingArguments: z
-      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    function_name: d.functionName,
-    using_column_names: d.usingColumnNames,
-    using_arguments: d.usingArguments,
-  }));
-
-export const marshalComplianceSecurityProfileSchema: z.ZodType = z
-  .object({
-    isEnabled: z.boolean().optional(),
-    complianceStandards: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    is_enabled: d.isEnabled,
-    compliance_standards: d.complianceStandards,
-  }));
-
-export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
-  .object({
-    cleanRoomName: z.string().optional(),
-    name: z.string().optional(),
-    assetType: z.string().optional(),
-    review: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('notebookReview'),
-          notebookReview: z.lazy(() => marshalNotebookVersionReviewSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    clean_room_name: d.cleanRoomName,
-    name: d.name,
-    asset_type: d.assetType,
-    ...(d.review?.$case === 'notebookReview' && {
-      notebook_review: d.review.notebookReview,
-    }),
   }));
 
 export const marshalCreateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
   .object({
     autoApprovalRule: z
-      .lazy(() => marshalCleanRoomAutoApprovalRuleSchema)
+      .lazy(() => marshalCreateCleanRoomAutoApprovalRuleSchema)
       .optional(),
   })
   .transform(d => ({
     auto_approval_rule: d.autoApprovalRule,
   }));
 
-export const marshalEgressNetworkPolicySchema: z.ZodType = z
+export const marshalCreateCleanRoomCollaboratorSchema: z.ZodType = z
+  .object({
+    globalMetastoreId: z.string().optional(),
+    inviteRecipientWorkspaceId: z.bigint().optional(),
+    inviteRecipientEmail: z.string().optional(),
+    collaboratorAlias: z.string(),
+  })
+  .transform(d => ({
+    global_metastore_id: d.globalMetastoreId,
+    invite_recipient_workspace_id: d.inviteRecipientWorkspaceId,
+    invite_recipient_email: d.inviteRecipientEmail,
+    collaborator_alias: d.collaboratorAlias,
+  }));
+
+export const marshalCreateCleanRoomOutputCatalogSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+  }));
+
+export const marshalCreateCleanRoomRemoteDetailSchema: z.ZodType = z
+  .object({
+    cloudVendor: z.string().optional(),
+    region: z.string().optional(),
+    collaborators: z
+      .array(z.lazy(() => marshalCreateCleanRoomCollaboratorSchema))
+      .optional(),
+    egressNetworkPolicy: z
+      .lazy(() => marshalCreateEgressNetworkPolicySchema)
+      .optional(),
+  })
+  .transform(d => ({
+    cloud_vendor: d.cloudVendor,
+    region: d.region,
+    collaborators: d.collaborators,
+    egress_network_policy: d.egressNetworkPolicy,
+  }));
+
+export const marshalCreateEgressNetworkPolicySchema: z.ZodType = z
   .object({
     internetAccess: z
-      .lazy(() => marshalEgressNetworkPolicy_InternetAccessPolicySchema)
+      .lazy(() => marshalEgressNetworkPolicy_CreateInternetAccessPolicySchema)
       .optional(),
   })
   .transform(d => ({
     internet_access: d.internetAccess,
   }));
 
+export const marshalCreateNotebookVersionReviewSchema: z.ZodType = z
+  .object({
+    etag: z.string(),
+    reviewState: z.string(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    etag: d.etag,
+    review_state: d.reviewState,
+    comment: d.comment,
+  }));
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType =
+export const marshalEgressNetworkPolicy_CreateInternetAccessPolicySchema: z.ZodType =
   z
     .object({
       restrictionMode: z.string().optional(),
@@ -2205,7 +2436,7 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType =
         .array(
           z.lazy(
             () =>
-              marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema
+              marshalEgressNetworkPolicy_InternetAccessPolicy_CreateInternetDestinationSchema
           )
         )
         .optional(),
@@ -2213,14 +2444,14 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType =
         .array(
           z.lazy(
             () =>
-              marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema
+              marshalEgressNetworkPolicy_InternetAccessPolicy_CreateStorageDestinationSchema
           )
         )
         .optional(),
       logOnlyMode: z
         .lazy(
           () =>
-            marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema
+            marshalEgressNetworkPolicy_InternetAccessPolicy_CreateLogOnlyModeSchema
         )
         .optional(),
     })
@@ -2232,7 +2463,7 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema: z.ZodType =
+export const marshalEgressNetworkPolicy_InternetAccessPolicy_CreateInternetDestinationSchema: z.ZodType =
   z
     .object({
       destination: z.string().optional(),
@@ -2246,7 +2477,7 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestination
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType =
+export const marshalEgressNetworkPolicy_InternetAccessPolicy_CreateLogOnlyModeSchema: z.ZodType =
   z
     .object({
       logOnlyModeType: z.string().optional(),
@@ -2258,7 +2489,7 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema: z.ZodType =
+export const marshalEgressNetworkPolicy_InternetAccessPolicy_CreateStorageDestinationSchema: z.ZodType =
   z
     .object({
       bucketName: z.string().optional(),
@@ -2281,25 +2512,14 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationS
       azure_container: d.azureContainer,
     }));
 
-export const marshalNotebookVersionReviewSchema: z.ZodType = z
-  .object({
-    etag: z.string().optional(),
-    reviewState: z.string().optional(),
-    comment: z.string().optional(),
-  })
-  .transform(d => ({
-    etag: d.etag,
-    review_state: d.reviewState,
-    comment: d.comment,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
+export const marshalPartitionSpecification_CreatePartitionSchema: z.ZodType = z
   .object({
     values: z
       .array(
         z.lazy(
-          () => marshalPartitionSpecification_Partition_PartitionValueSchema
+          () =>
+            marshalPartitionSpecification_Partition_CreatePartitionValueSchema
         )
       )
       .optional(),
@@ -2309,7 +2529,7 @@ export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType =
+export const marshalPartitionSpecification_Partition_CreatePartitionValueSchema: z.ZodType =
   z
     .object({
       name: z.string().optional(),
@@ -2324,24 +2544,10 @@ export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.Zod
       op: d.op,
     }));
 
-export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
-  .object({
-    arg: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('column'), column: z.string()}),
-        z.object({$case: z.literal('constant'), constant: z.string()}),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.arg?.$case === 'column' && {column: d.arg.column}),
-    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
-  }));
-
 export const marshalUpdateCleanRoomRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    cleanRoom: z.lazy(() => marshalCleanRoomSchema).optional(),
+    cleanRoom: z.lazy(() => marshalCreateCleanRoomSchema).optional(),
   })
   .transform(d => ({
     name: d.name,

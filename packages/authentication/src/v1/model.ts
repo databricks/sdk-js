@@ -16,7 +16,57 @@ export interface CreateAccountFederationPolicyRequest {
    * assigned by <Databricks>.
    */
   policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policy?: CreateFederationPolicy | undefined;
+}
+
+export interface CreateFederationPolicy {
+  /** Description of the federation policy. */
+  description?: string | undefined;
+  policy?:
+    | {$case: 'oidcPolicy'; oidcPolicy: CreateOidcFederationPolicy}
+    | undefined;
+}
+
+/** Specifies the policy to use for validating OIDC claims in your federated tokens. */
+export interface CreateOidcFederationPolicy {
+  /** The required token issuer, as specified in the 'iss' claim of federated tokens. */
+  issuer?: string | undefined;
+  /**
+   * The required token subject, as specified in the subject claim of federated tokens.
+   * Must be specified for service principal federation policies. Must not be specified
+   * for account federation policies.
+   */
+  subject?: string | undefined;
+  /**
+   * The allowed token audiences, as specified in the 'aud' claim of federated tokens.
+   * The audience identifier is intended to represent the recipient of the token.
+   * Can be any non-empty string value. As long as the audience in the token matches
+   * at least one audience in the policy, the token is considered a match. If audiences
+   * is unspecified, defaults to your <Databricks> account id.
+   */
+  audiences?: string[] | undefined;
+  /**
+   * The claim that contains the subject of the token. If unspecified, the default value
+   * is 'sub'.
+   */
+  subjectClaim?: string | undefined;
+  /**
+   * URL of the public keys used to validate the signature of federated tokens, in
+   * JWKS format. Most use cases should not need to specify this field. If jwks_uri
+   * and jwks_json are both unspecified (recommended), <Databricks> automatically
+   * fetches the public keys from your issuer’s well known endpoint. Databricks
+   * strongly recommends relying on your issuer’s well known endpoint for discovering
+   * public keys.
+   */
+  jwksUri?: string | undefined;
+  /**
+   * The public keys used to validate the signature of federated tokens, in JWKS format.
+   * Most use cases should not need to specify this field. If jwks_uri and jwks_json
+   * are both unspecified (recommended), <Databricks> automatically fetches the public
+   * keys from your issuer’s well known endpoint. Databricks strongly recommends
+   * relying on your issuer’s well known endpoint for discovering public keys.
+   */
+  jwksJson?: string | undefined;
 }
 
 export interface CreateServicePrincipalFederationPolicyRequest {
@@ -30,7 +80,7 @@ export interface CreateServicePrincipalFederationPolicyRequest {
    * assigned by <Databricks>.
    */
   policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policy?: CreateFederationPolicy | undefined;
 }
 
 export interface CreateServicePrincipalSecretRequest {
@@ -242,7 +292,7 @@ export interface UpdateAccountFederationPolicyRequest {
   servicePrincipalId?: bigint | undefined;
   /** The identifier for the federation policy. */
   policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policy?: UpdateFederationPolicy | undefined;
   /**
    * The field mask specifies which fields of the policy to update. To specify multiple fields
    * in the field mask, use comma as the separator (no space). The special value '*' indicates
@@ -250,7 +300,57 @@ export interface UpdateAccountFederationPolicyRequest {
    * set in the policy provided in the update request will overwrite the corresponding fields
    * in the existing policy. Example value: 'description,oidc_policy.audiences'.
    */
-  updateMask?: FieldMask<FederationPolicy> | undefined;
+  updateMask?: FieldMask<UpdateFederationPolicy> | undefined;
+}
+
+export interface UpdateFederationPolicy {
+  /** Description of the federation policy. */
+  description?: string | undefined;
+  policy?:
+    | {$case: 'oidcPolicy'; oidcPolicy: UpdateOidcFederationPolicy}
+    | undefined;
+}
+
+/** Specifies the policy to use for validating OIDC claims in your federated tokens. */
+export interface UpdateOidcFederationPolicy {
+  /** The required token issuer, as specified in the 'iss' claim of federated tokens. */
+  issuer?: string | undefined;
+  /**
+   * The required token subject, as specified in the subject claim of federated tokens.
+   * Must be specified for service principal federation policies. Must not be specified
+   * for account federation policies.
+   */
+  subject?: string | undefined;
+  /**
+   * The allowed token audiences, as specified in the 'aud' claim of federated tokens.
+   * The audience identifier is intended to represent the recipient of the token.
+   * Can be any non-empty string value. As long as the audience in the token matches
+   * at least one audience in the policy, the token is considered a match. If audiences
+   * is unspecified, defaults to your <Databricks> account id.
+   */
+  audiences?: string[] | undefined;
+  /**
+   * The claim that contains the subject of the token. If unspecified, the default value
+   * is 'sub'.
+   */
+  subjectClaim?: string | undefined;
+  /**
+   * URL of the public keys used to validate the signature of federated tokens, in
+   * JWKS format. Most use cases should not need to specify this field. If jwks_uri
+   * and jwks_json are both unspecified (recommended), <Databricks> automatically
+   * fetches the public keys from your issuer’s well known endpoint. Databricks
+   * strongly recommends relying on your issuer’s well known endpoint for discovering
+   * public keys.
+   */
+  jwksUri?: string | undefined;
+  /**
+   * The public keys used to validate the signature of federated tokens, in JWKS format.
+   * Most use cases should not need to specify this field. If jwks_uri and jwks_json
+   * are both unspecified (recommended), <Databricks> automatically fetches the public
+   * keys from your issuer’s well known endpoint. Databricks strongly recommends
+   * relying on your issuer’s well known endpoint for discovering public keys.
+   */
+  jwksJson?: string | undefined;
 }
 
 export interface UpdateServicePrincipalFederationPolicyRequest {
@@ -260,7 +360,7 @@ export interface UpdateServicePrincipalFederationPolicyRequest {
   servicePrincipalId?: bigint | undefined;
   /** The identifier for the federation policy. */
   policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policy?: UpdateFederationPolicy | undefined;
   /**
    * The field mask specifies which fields of the policy to update. To specify multiple fields
    * in the field mask, use comma as the separator (no space). The special value '*' indicates
@@ -268,7 +368,7 @@ export interface UpdateServicePrincipalFederationPolicyRequest {
    * set in the policy provided in the update request will overwrite the corresponding fields
    * in the existing policy. Example value: 'description,oidc_policy.audiences'.
    */
-  updateMask?: FieldMask<FederationPolicy> | undefined;
+  updateMask?: FieldMask<UpdateFederationPolicy> | undefined;
 }
 
 export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<CreateServicePrincipalSecretResponse> =
@@ -401,57 +501,24 @@ export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSe
       expireTime: d.expire_time,
     }));
 
-export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
+export const marshalCreateFederationPolicySchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    servicePrincipal: z.string().optional(),
-    lifetime: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    service_principal: d.servicePrincipal,
-    lifetime: d.lifetime,
-  }));
-
-export const marshalFederationPolicySchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
     description: z.string().optional(),
     policy: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('oidcPolicy'),
-          oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema),
+          oidcPolicy: z.lazy(() => marshalCreateOidcFederationPolicySchema),
         }),
       ])
       .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    uid: z.string().optional(),
-    servicePrincipalId: z.bigint().optional(),
-    policyId: z.string().optional(),
   })
   .transform(d => ({
-    name: d.name,
     description: d.description,
     ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    uid: d.uid,
-    service_principal_id: d.servicePrincipalId,
-    policy_id: d.policyId,
   }));
 
-export const marshalOidcFederationPolicySchema: z.ZodType = z
+export const marshalCreateOidcFederationPolicySchema: z.ZodType = z
   .object({
     issuer: z.string().optional(),
     subject: z.string().optional(),
@@ -469,30 +536,74 @@ export const marshalOidcFederationPolicySchema: z.ZodType = z
     jwks_json: d.jwksJson,
   }));
 
-const federationPolicyFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
+export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipal: z.string().optional(),
+    lifetime: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal: d.servicePrincipal,
+    lifetime: d.lifetime,
+  }));
+
+export const marshalUpdateFederationPolicySchema: z.ZodType = z
+  .object({
+    description: z.string().optional(),
+    policy: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('oidcPolicy'),
+          oidcPolicy: z.lazy(() => marshalUpdateOidcFederationPolicySchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    description: d.description,
+    ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
+  }));
+
+export const marshalUpdateOidcFederationPolicySchema: z.ZodType = z
+  .object({
+    issuer: z.string().optional(),
+    subject: z.string().optional(),
+    audiences: z.array(z.string()).optional(),
+    subjectClaim: z.string().optional(),
+    jwksUri: z.string().optional(),
+    jwksJson: z.string().optional(),
+  })
+  .transform(d => ({
+    issuer: d.issuer,
+    subject: d.subject,
+    audiences: d.audiences,
+    subject_claim: d.subjectClaim,
+    jwks_uri: d.jwksUri,
+    jwks_json: d.jwksJson,
+  }));
+
+const updateFederationPolicyFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
-  name: {wire: 'name'},
   oidcPolicy: {
     wire: 'oidc_policy',
-    children: () => oidcFederationPolicyFieldMaskSchema,
+    children: () => updateOidcFederationPolicyFieldMaskSchema,
   },
-  policyId: {wire: 'policy_id'},
-  servicePrincipalId: {wire: 'service_principal_id'},
-  uid: {wire: 'uid'},
-  updateTime: {wire: 'update_time'},
 };
 
-export function federationPolicyFieldMask(
+export function updateFederationPolicyFieldMask(
   ...paths: string[]
-): FieldMask<FederationPolicy> {
-  return FieldMask.build<FederationPolicy>(
+): FieldMask<UpdateFederationPolicy> {
+  return FieldMask.build<UpdateFederationPolicy>(
     paths,
-    federationPolicyFieldMaskSchema
+    updateFederationPolicyFieldMaskSchema
   );
 }
 
-const oidcFederationPolicyFieldMaskSchema: FieldMaskSchema = {
+const updateOidcFederationPolicyFieldMaskSchema: FieldMaskSchema = {
   audiences: {wire: 'audiences'},
   issuer: {wire: 'issuer'},
   jwksJson: {wire: 'jwks_json'},

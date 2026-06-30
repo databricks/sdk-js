@@ -34,8 +34,8 @@ import type {
   UserPreference,
 } from './model';
 import {
-  marshalSettingSchema,
-  marshalUserPreferenceSchema,
+  marshalCreateSettingSchema,
+  marshalCreateUserPreferenceSchema,
   unmarshalListAccountSettingsMetadataResponseSchema,
   unmarshalListAccountUserPreferencesMetadataResponseSchema,
   unmarshalListWorkspaceSettingsMetadataResponseSchema,
@@ -358,7 +358,7 @@ export class SettingsClient {
   ): Promise<Setting> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/settings/${req.name ?? ''}`;
-    const body = marshalRequest(req.setting, marshalSettingSchema);
+    const body = marshalRequest(req.setting, marshalCreateSettingSchema);
     let resp: Setting | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -391,7 +391,7 @@ export class SettingsClient {
   ): Promise<UserPreference> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
-    const body = marshalRequest(req.setting, marshalUserPreferenceSchema);
+    const body = marshalRequest(req.setting, marshalCreateUserPreferenceSchema);
     let resp: UserPreference | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -423,7 +423,7 @@ export class SettingsClient {
   ): Promise<Setting> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/settings/${req.name ?? ''}`;
-    const body = marshalRequest(req.setting, marshalSettingSchema);
+    const body = marshalRequest(req.setting, marshalCreateSettingSchema);
     let resp: Setting | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

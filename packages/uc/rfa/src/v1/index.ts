@@ -19,12 +19,19 @@ export type {
   BatchCreateAccessRequestsResponse,
   CreateAccessRequest,
   CreateAccessRequestResponse,
+  CreateCreateAccessRequest,
+  CreatePrincipal,
+  CreateSecurable,
+  CreateSecurablePermissions,
   GetAccessRequestDestinationsRequest,
   NotificationDestination,
   Principal,
   Securable,
   SecurablePermissions,
+  UpdateAccessRequestDestinations,
   UpdateAccessRequestDestinationsRequest,
+  UpdateNotificationDestination,
+  UpdateSecurable,
 } from './model';
 
-export {accessRequestDestinationsFieldMask} from './model';
+export {updateAccessRequestDestinationsFieldMask} from './model';

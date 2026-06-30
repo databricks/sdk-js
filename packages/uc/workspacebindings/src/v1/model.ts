@@ -13,6 +13,13 @@ export type BindingType =
   | (typeof BindingType)[keyof typeof BindingType]
   | (string & {});
 
+export interface CreateWorkspaceBindingInfo {
+  /** Required */
+  workspaceId: bigint;
+  /** One of READ_WRITE/READ_ONLY. Default is READ_WRITE. */
+  bindingType?: BindingType | undefined;
+}
+
 export interface GetCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
   catalogName?: string | undefined;
@@ -74,9 +81,9 @@ export interface UpdateWorkspaceBindingsRequest {
    * different binding_type, adding it again with a new binding_type will update the existing
    * binding (e.g., from READ_WRITE to READ_ONLY).
    */
-  add?: WorkspaceBindingInfo[] | undefined;
+  add?: CreateWorkspaceBindingInfo[] | undefined;
   /** List of workspace bindings to remove. */
-  remove?: WorkspaceBindingInfo[] | undefined;
+  remove?: CreateWorkspaceBindingInfo[] | undefined;
 }
 
 /** A list of workspace IDs that are bound to the securable */
@@ -152,6 +159,16 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
       bindingType: d.binding_type,
     }));
 
+export const marshalCreateWorkspaceBindingInfoSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint(),
+    bindingType: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    binding_type: d.bindingType,
+  }));
+
 export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
@@ -168,22 +185,16 @@ export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
     securableType: z.string().optional(),
     securableFullName: z.string().optional(),
-    add: z.array(z.lazy(() => marshalWorkspaceBindingInfoSchema)).optional(),
-    remove: z.array(z.lazy(() => marshalWorkspaceBindingInfoSchema)).optional(),
+    add: z
+      .array(z.lazy(() => marshalCreateWorkspaceBindingInfoSchema))
+      .optional(),
+    remove: z
+      .array(z.lazy(() => marshalCreateWorkspaceBindingInfoSchema))
+      .optional(),
   })
   .transform(d => ({
     securable_type: d.securableType,
     securable_full_name: d.securableFullName,
     add: d.add,
     remove: d.remove,
-  }));
-
-export const marshalWorkspaceBindingInfoSchema: z.ZodType = z
-  .object({
-    workspaceId: z.bigint().optional(),
-    bindingType: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_id: d.workspaceId,
-    binding_type: d.bindingType,
   }));

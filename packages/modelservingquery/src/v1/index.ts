@@ -14,6 +14,8 @@ export {
 
 export type {
   ChatMessage,
+  CreateChatMessage,
+  CreateDataframeSplitInput,
   DataframeSplitInput,
   EmbeddingsV1ResponseEmbeddingElement,
   ExternalModelUsageElement,

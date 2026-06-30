@@ -10,6 +10,7 @@ export type {
   CreateCustomOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationResponse,
+  CreateTokenAccessPolicy,
   CustomOAuthAppIntegration,
   CustomOAuthAppIntegrationSecret,
   DeleteCustomOAuthAppIntegrationRequest,

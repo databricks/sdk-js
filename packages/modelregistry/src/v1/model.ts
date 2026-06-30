@@ -314,6 +314,26 @@ export interface CreateCommentResponse {
   comment?: CommentObject | undefined;
 }
 
+export interface CreateHttpUrlSpec {
+  /** External HTTPS URL called on event trigger (by using a POST request). */
+  url?: string | undefined;
+  /** Enable/disable SSL certificate validation. Default is true. For self-signed certificates, this field must be false AND the destination server must disable certificate validation as well. For security purposes, it is encouraged to perform secret validation with the HMAC-encoded portion of the payload and acknowledge the risk associated with disabling hostname validation whereby it becomes more likely that requests can be maliciously routed to an unintended host. */
+  enableSslVerification?: boolean | undefined;
+  /** Shared secret required for HMAC encoding payload. The HMAC-encoded payload will be sent in the header as: { "X-Databricks-Signature": $encoded_payload }. */
+  secret?: string | undefined;
+  /** Value of the authorization header that should be sent in the request sent by the wehbook. It should be of the form `"<auth type> <credentials>"`. If set to an empty string, no authorization header will be included in the request. */
+  authorization?: string | undefined;
+}
+
+export interface CreateJobSpec {
+  /** ID of the job that the webhook runs. */
+  jobId?: string | undefined;
+  /** URL of the workspace containing the job that this webhook runs. If not specified, the job’s workspace URL is assumed to be the same as the workspace where the webhook is created. */
+  workspaceUrl?: string | undefined;
+  /** The personal access token used to authorize webhook's job runs. */
+  accessToken?: string | undefined;
+}
+
 export interface CreateModelVersionRequest {
   /** Register model under this name */
   name?: string | undefined;
@@ -325,7 +345,7 @@ export interface CreateModelVersionRequest {
    */
   runId?: string | undefined;
   /** Additional metadata for model version. */
-  tags?: ModelVersionTag[] | undefined;
+  tags?: CreateModelVersionTag[] | undefined;
   /**
    * MLflow run link - this is the exact link of the run that generated this model version,
    * potentially hosted at another instance of MLflow.
@@ -340,17 +360,32 @@ export interface CreateModelVersionResponse {
   modelVersion?: ModelVersion | undefined;
 }
 
+export interface CreateModelVersionTag {
+  /** The tag key. */
+  key?: string | undefined;
+  /** The tag value. */
+  value?: string | undefined;
+}
+
 export interface CreateRegisteredModelRequest {
   /** Register models under this name */
   name?: string | undefined;
   /** Additional metadata for registered model. */
-  tags?: RegisteredModelTag[] | undefined;
+  tags?: CreateRegisteredModelTag[] | undefined;
   /** Optional description for registered model. */
   description?: string | undefined;
 }
 
 export interface CreateRegisteredModelResponse {
   registeredModel?: RegisteredModel | undefined;
+}
+
+/** Tag for a registered model */
+export interface CreateRegisteredModelTag {
+  /** The tag key. */
+  key?: string | undefined;
+  /** The tag value. */
+  value?: string | undefined;
 }
 
 /** Details required to create a registry webhook. */
@@ -396,9 +431,9 @@ export interface CreateRegistryWebhookRequest {
    */
   status?: RegistryWebhookStatus | undefined;
   /** External HTTPS URL called on event trigger (by using a POST request). */
-  httpUrlSpec?: HttpUrlSpec | undefined;
+  httpUrlSpec?: CreateHttpUrlSpec | undefined;
   /** ID of the job that the webhook runs. */
-  jobSpec?: JobSpec | undefined;
+  jobSpec?: CreateJobSpec | undefined;
 }
 
 export interface CreateRegistryWebhookResponse {
@@ -1140,8 +1175,8 @@ export interface UpdateRegistryWebhookRequest {
   /** User-specified description for the webhook. */
   description?: string | undefined;
   status?: RegistryWebhookStatus | undefined;
-  httpUrlSpec?: HttpUrlSpec | undefined;
-  jobSpec?: JobSpec | undefined;
+  httpUrlSpec?: CreateHttpUrlSpec | undefined;
+  jobSpec?: CreateJobSpec | undefined;
 }
 
 export interface UpdateRegistryWebhookResponse {
@@ -1779,12 +1814,38 @@ export const marshalCreateCommentRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
+export const marshalCreateHttpUrlSpecSchema: z.ZodType = z
+  .object({
+    url: z.string().optional(),
+    enableSslVerification: z.boolean().optional(),
+    secret: z.string().optional(),
+    authorization: z.string().optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    enable_ssl_verification: d.enableSslVerification,
+    secret: d.secret,
+    authorization: d.authorization,
+  }));
+
+export const marshalCreateJobSpecSchema: z.ZodType = z
+  .object({
+    jobId: z.string().optional(),
+    workspaceUrl: z.string().optional(),
+    accessToken: z.string().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    workspace_url: d.workspaceUrl,
+    access_token: d.accessToken,
+  }));
+
 export const marshalCreateModelVersionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     source: z.string().optional(),
     runId: z.string().optional(),
-    tags: z.array(z.lazy(() => marshalModelVersionTagSchema)).optional(),
+    tags: z.array(z.lazy(() => marshalCreateModelVersionTagSchema)).optional(),
     runLink: z.string().optional(),
     description: z.string().optional(),
   })
@@ -1797,10 +1858,22 @@ export const marshalCreateModelVersionRequestSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalCreateModelVersionTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
 export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    tags: z.array(z.lazy(() => marshalRegisteredModelTagSchema)).optional(),
+    tags: z
+      .array(z.lazy(() => marshalCreateRegisteredModelTagSchema))
+      .optional(),
     description: z.string().optional(),
   })
   .transform(d => ({
@@ -1809,14 +1882,24 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalCreateRegisteredModelTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
 export const marshalCreateRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     modelName: z.string().optional(),
     events: z.array(z.string()).optional(),
     description: z.string().optional(),
     status: z.string().optional(),
-    httpUrlSpec: z.lazy(() => marshalHttpUrlSpecSchema).optional(),
-    jobSpec: z.lazy(() => marshalJobSpecSchema).optional(),
+    httpUrlSpec: z.lazy(() => marshalCreateHttpUrlSpecSchema).optional(),
+    jobSpec: z.lazy(() => marshalCreateJobSpecSchema).optional(),
   })
   .transform(d => ({
     model_name: d.modelName,
@@ -1841,32 +1924,6 @@ export const marshalCreateTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalHttpUrlSpecSchema: z.ZodType = z
-  .object({
-    url: z.string().optional(),
-    enableSslVerification: z.boolean().optional(),
-    secret: z.string().optional(),
-    authorization: z.string().optional(),
-  })
-  .transform(d => ({
-    url: d.url,
-    enable_ssl_verification: d.enableSslVerification,
-    secret: d.secret,
-    authorization: d.authorization,
-  }));
-
-export const marshalJobSpecSchema: z.ZodType = z
-  .object({
-    jobId: z.string().optional(),
-    workspaceUrl: z.string().optional(),
-    accessToken: z.string().optional(),
-  })
-  .transform(d => ({
-    job_id: d.jobId,
-    workspace_url: d.workspaceUrl,
-    access_token: d.accessToken,
-  }));
-
 export const marshalListLatestVersionsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1875,26 +1932,6 @@ export const marshalListLatestVersionsRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     stages: d.stages,
-  }));
-
-export const marshalModelVersionTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalRegisteredModelTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalRejectTransitionRequestSchema: z.ZodType = z
@@ -2012,8 +2049,8 @@ export const marshalUpdateRegistryWebhookRequestSchema: z.ZodType = z
     events: z.array(z.string()).optional(),
     description: z.string().optional(),
     status: z.string().optional(),
-    httpUrlSpec: z.lazy(() => marshalHttpUrlSpecSchema).optional(),
-    jobSpec: z.lazy(() => marshalJobSpecSchema).optional(),
+    httpUrlSpec: z.lazy(() => marshalCreateHttpUrlSpecSchema).optional(),
+    jobSpec: z.lazy(() => marshalCreateJobSpecSchema).optional(),
   })
   .transform(d => ({
     id: d.id,

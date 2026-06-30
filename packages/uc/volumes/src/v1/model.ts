@@ -21,6 +21,28 @@ export type VolumeType =
   | (typeof VolumeType)[keyof typeof VolumeType]
   | (string & {});
 
+/** Encryption options that apply to clients connecting to cloud storage. */
+export interface CreateEncryptionDetails {
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: CreateSseEncryptionDetails;
+      }
+    | undefined;
+}
+
+/** Server-Side Encryption properties for clients communicating with AWS s3. */
+export interface CreateSseEncryptionDetails {
+  /** Sets the value of the 'x-amz-server-side-encryption' header in S3 request. */
+  algorithm?: SseEncryptionAlgorithm | undefined;
+  /**
+   * Optional. The ARN of the SSE-KMS key used with the S3 location, when algorithm = "SSE-KMS".
+   * Sets the value of the 'x-amz-server-side-encryption-aws-kms-key-id' header.
+   */
+  awsKmsKeyArn?: string | undefined;
+}
+
 export interface CreateVolumeRequest {
   /** The name of the volume */
   name?: string | undefined;
@@ -54,7 +76,7 @@ export interface CreateVolumeRequest {
   updatedBy?: string | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
-  encryptionDetails?: EncryptionDetails | undefined;
+  encryptionDetails?: CreateEncryptionDetails | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
 }
@@ -165,7 +187,7 @@ export interface UpdateVolumeRequest {
   updatedBy?: string | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
-  encryptionDetails?: EncryptionDetails | undefined;
+  encryptionDetails?: CreateEncryptionDetails | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
 }
@@ -297,6 +319,35 @@ export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
     browseOnly: d.browse_only,
   }));
 
+export const marshalCreateEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(
+            () => marshalCreateSseEncryptionDetailsSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
+  }));
+
+export const marshalCreateSseEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    algorithm: z.string().optional(),
+    awsKmsKeyArn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    aws_kms_key_arn: d.awsKmsKeyArn,
+  }));
+
 export const marshalCreateVolumeRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -314,7 +365,9 @@ export const marshalCreateVolumeRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     accessPoint: z.string().optional(),
-    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    encryptionDetails: z
+      .lazy(() => marshalCreateEncryptionDetailsSchema)
+      .optional(),
     browseOnly: z.boolean().optional(),
   })
   .transform(d => ({
@@ -337,33 +390,6 @@ export const marshalCreateVolumeRequestSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
-export const marshalEncryptionDetailsSchema: z.ZodType = z
-  .object({
-    encryptionDetailsType: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('sseEncryptionDetails'),
-          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
-      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
-    }),
-  }));
-
-export const marshalSseEncryptionDetailsSchema: z.ZodType = z
-  .object({
-    algorithm: z.string().optional(),
-    awsKmsKeyArn: z.string().optional(),
-  })
-  .transform(d => ({
-    algorithm: d.algorithm,
-    aws_kms_key_arn: d.awsKmsKeyArn,
-  }));
-
 export const marshalUpdateVolumeRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
@@ -383,7 +409,9 @@ export const marshalUpdateVolumeRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     accessPoint: z.string().optional(),
-    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    encryptionDetails: z
+      .lazy(() => marshalCreateEncryptionDetailsSchema)
+      .optional(),
     browseOnly: z.boolean().optional(),
   })
   .transform(d => ({

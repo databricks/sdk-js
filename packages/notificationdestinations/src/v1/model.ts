@@ -24,11 +24,86 @@ export interface Config {
     | undefined;
 }
 
+export interface CreateConfig {
+  config?:
+    | {$case: 'slack'; slack: CreateSlackConfig}
+    | {$case: 'email'; email: CreateEmailConfig}
+    | {$case: 'genericWebhook'; genericWebhook: CreateGenericWebhookConfig}
+    | {$case: 'pagerduty'; pagerduty: CreatePagerdutyConfig}
+    | {$case: 'microsoftTeams'; microsoftTeams: CreateMicrosoftTeamsConfig}
+    | undefined;
+}
+
+export interface CreateEmailConfig {
+  /** Email addresses to notify. */
+  addresses?: string[] | undefined;
+}
+
+export interface CreateGenericWebhookConfig {
+  /** [Input-Only] URL for webhook. */
+  url?: string | undefined;
+  /** [Output-Only] Whether URL is set. */
+  urlSet?: boolean | undefined;
+  /** [Input-Only][Optional] Username for webhook. */
+  username?: string | undefined;
+  /** [Output-Only] Whether username is set. */
+  usernameSet?: boolean | undefined;
+  /** [Input-Only][Optional] Password for webhook. */
+  password?: string | undefined;
+  /** [Output-Only] Whether password is set. */
+  passwordSet?: boolean | undefined;
+}
+
+export interface CreateMicrosoftTeamsConfig {
+  /** [Input-Only] URL for Microsoft Teams webhook. */
+  url?: string | undefined;
+  /** [Output-Only] Whether URL is set. */
+  urlSet?: boolean | undefined;
+  /** [Input-Only] App ID for Microsoft Teams App. */
+  appId?: string | undefined;
+  /** [Output-Only] Whether App ID is set. */
+  appIdSet?: boolean | undefined;
+  /** [Input-Only] Secret for Microsoft Teams App authentication. */
+  authSecret?: string | undefined;
+  /** [Output-Only] Whether secret is set. */
+  authSecretSet?: boolean | undefined;
+  /** [Input-Only] Channel URL for Microsoft Teams App. */
+  channelUrl?: string | undefined;
+  /** [Output-Only] Whether Channel URL is set. */
+  channelUrlSet?: boolean | undefined;
+  /** [Input-Only] Tenant ID for Microsoft Teams App. */
+  tenantId?: string | undefined;
+  /** [Output-Only] Whether Tenant ID is set. */
+  tenantIdSet?: boolean | undefined;
+}
+
 export interface CreateNotificationDestinationRequest {
   /** The display name for the notification destination. */
   displayName?: string | undefined;
   /** The configuration for the notification destination. Must wrap EXACTLY one of the nested configs. */
-  config?: Config | undefined;
+  config?: CreateConfig | undefined;
+}
+
+export interface CreatePagerdutyConfig {
+  /** [Input-Only] Integration key for PagerDuty. */
+  integrationKey?: string | undefined;
+  /** [Output-Only] Whether integration key is set. */
+  integrationKeySet?: boolean | undefined;
+}
+
+export interface CreateSlackConfig {
+  /** [Input-Only] URL for Slack destination. */
+  url?: string | undefined;
+  /** [Output-Only] Whether URL is set. */
+  urlSet?: boolean | undefined;
+  /** [Input-Only] OAuth token for Slack authentication. */
+  oauthToken?: string | undefined;
+  /** [Output-Only] Whether OAuth token is set. */
+  oauthTokenSet?: boolean | undefined;
+  /** [Input-Only] Slack channel ID for notifications. */
+  channelId?: string | undefined;
+  /** [Output-Only] Whether channel ID is set. */
+  channelIdSet?: boolean | undefined;
 }
 
 export interface DeleteNotificationDestinationRequest {
@@ -146,7 +221,7 @@ export interface UpdateNotificationDestinationRequest {
   /** The display name for the notification destination. */
   displayName?: string | undefined;
   /** The configuration for the notification destination. Must wrap EXACTLY one of the nested configs. */
-  config?: Config | undefined;
+  config?: CreateConfig | undefined;
 }
 
 export const unmarshalConfigSchema: z.ZodType<Config> = z
@@ -309,29 +384,29 @@ export const unmarshalSlackConfigSchema: z.ZodType<SlackConfig> = z
     channelIdSet: d.channel_id_set,
   }));
 
-export const marshalConfigSchema: z.ZodType = z
+export const marshalCreateConfigSchema: z.ZodType = z
   .object({
     config: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('slack'),
-          slack: z.lazy(() => marshalSlackConfigSchema),
+          slack: z.lazy(() => marshalCreateSlackConfigSchema),
         }),
         z.object({
           $case: z.literal('email'),
-          email: z.lazy(() => marshalEmailConfigSchema),
+          email: z.lazy(() => marshalCreateEmailConfigSchema),
         }),
         z.object({
           $case: z.literal('genericWebhook'),
-          genericWebhook: z.lazy(() => marshalGenericWebhookConfigSchema),
+          genericWebhook: z.lazy(() => marshalCreateGenericWebhookConfigSchema),
         }),
         z.object({
           $case: z.literal('pagerduty'),
-          pagerduty: z.lazy(() => marshalPagerdutyConfigSchema),
+          pagerduty: z.lazy(() => marshalCreatePagerdutyConfigSchema),
         }),
         z.object({
           $case: z.literal('microsoftTeams'),
-          microsoftTeams: z.lazy(() => marshalMicrosoftTeamsConfigSchema),
+          microsoftTeams: z.lazy(() => marshalCreateMicrosoftTeamsConfigSchema),
         }),
       ])
       .optional(),
@@ -348,17 +423,7 @@ export const marshalConfigSchema: z.ZodType = z
     }),
   }));
 
-export const marshalCreateNotificationDestinationRequestSchema: z.ZodType = z
-  .object({
-    displayName: z.string().optional(),
-    config: z.lazy(() => marshalConfigSchema).optional(),
-  })
-  .transform(d => ({
-    display_name: d.displayName,
-    config: d.config,
-  }));
-
-export const marshalEmailConfigSchema: z.ZodType = z
+export const marshalCreateEmailConfigSchema: z.ZodType = z
   .object({
     addresses: z.array(z.string()).optional(),
   })
@@ -366,7 +431,7 @@ export const marshalEmailConfigSchema: z.ZodType = z
     addresses: d.addresses,
   }));
 
-export const marshalGenericWebhookConfigSchema: z.ZodType = z
+export const marshalCreateGenericWebhookConfigSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     urlSet: z.boolean().optional(),
@@ -384,7 +449,7 @@ export const marshalGenericWebhookConfigSchema: z.ZodType = z
     password_set: d.passwordSet,
   }));
 
-export const marshalMicrosoftTeamsConfigSchema: z.ZodType = z
+export const marshalCreateMicrosoftTeamsConfigSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     urlSet: z.boolean().optional(),
@@ -410,7 +475,17 @@ export const marshalMicrosoftTeamsConfigSchema: z.ZodType = z
     tenant_id_set: d.tenantIdSet,
   }));
 
-export const marshalPagerdutyConfigSchema: z.ZodType = z
+export const marshalCreateNotificationDestinationRequestSchema: z.ZodType = z
+  .object({
+    displayName: z.string().optional(),
+    config: z.lazy(() => marshalCreateConfigSchema).optional(),
+  })
+  .transform(d => ({
+    display_name: d.displayName,
+    config: d.config,
+  }));
+
+export const marshalCreatePagerdutyConfigSchema: z.ZodType = z
   .object({
     integrationKey: z.string().optional(),
     integrationKeySet: z.boolean().optional(),
@@ -420,7 +495,7 @@ export const marshalPagerdutyConfigSchema: z.ZodType = z
     integration_key_set: d.integrationKeySet,
   }));
 
-export const marshalSlackConfigSchema: z.ZodType = z
+export const marshalCreateSlackConfigSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     urlSet: z.boolean().optional(),
@@ -442,7 +517,7 @@ export const marshalUpdateNotificationDestinationRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
-    config: z.lazy(() => marshalConfigSchema).optional(),
+    config: z.lazy(() => marshalCreateConfigSchema).optional(),
   })
   .transform(d => ({
     id: d.id,

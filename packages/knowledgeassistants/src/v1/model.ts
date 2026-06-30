@@ -29,6 +29,25 @@ export type KnowledgeSource_State =
   | (typeof KnowledgeSource_State)[keyof typeof KnowledgeSource_State]
   | (string & {});
 
+/**
+ * An example associated with a Knowledge Assistant.
+ * Contains a question and guidelines for how the assistant should respond.
+ */
+export interface CreateExample {
+  /**
+   * Full resource name:
+   * knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
+   */
+  name?: string | undefined;
+  /** The example question. */
+  question: string;
+  /**
+   * Guidelines for answering the question. Optional — examples may be created
+   * with just a question; the front-end form does not require guidelines.
+   */
+  guidelines?: string[] | undefined;
+}
+
 /** Create an example. */
 export interface CreateExampleRequest {
   /**
@@ -37,12 +56,108 @@ export interface CreateExampleRequest {
    */
   parent?: string | undefined;
   /** The example to create under the parent Knowledge Assistant. */
-  example?: Example | undefined;
+  example?: CreateExample | undefined;
+}
+
+/** FileTableSpec specifies a file table source configuration. */
+export interface CreateFileTableSpec {
+  /** Full UC name of the table, in the format of {CATALOG}.{SCHEMA}.{TABLE_NAME}. */
+  tableName: string;
+  /** The name of the column containing BINARY file content to be indexed. */
+  fileCol: string;
+}
+
+/** FilesSpec specifies a files source configuration. */
+export interface CreateFilesSpec {
+  /** A UC volume path that includes a list of files. */
+  path: string;
+}
+
+/** IndexSpec specifies a vector search index source configuration. */
+export interface CreateIndexSpec {
+  /** Full UC name of the vector search index, in the format of {CATALOG}.{SCHEMA}.{INDEX_NAME}. */
+  indexName: string;
+  /** The column that includes the document text for retrieval. */
+  textCol: string;
+  /** The column that specifies a link or reference to where the information came from. */
+  docUriCol: string;
+}
+
+/**
+ * Entity message that represents a knowledge assistant.
+ * Note: REQUIRED annotations below represent create-time requirements.
+ * For updates, required fields are determined by the update mask.
+ */
+export interface CreateKnowledgeAssistant {
+  /**
+   * The resource name of the Knowledge Assistant.
+   * Format: knowledge-assistants/{knowledge_assistant_id}
+   */
+  name?: string | undefined;
+  /**
+   * The display name of the Knowledge Assistant, unique at workspace level.
+   * Required when creating a Knowledge Assistant.
+   * When updating a Knowledge Assistant, optional unless included in
+   * update_mask.
+   */
+  displayName: string;
+  /**
+   * Description of what this agent can do (user-facing).
+   * Required when creating a Knowledge Assistant.
+   * When updating a Knowledge Assistant, optional unless included in
+   * update_mask.
+   */
+  description: string;
+  /**
+   * Additional global instructions on how the agent should generate answers.
+   * Optional on create and update.
+   * When updating a Knowledge Assistant, include this field in update_mask to
+   * modify it.
+   */
+  instructions?: string | undefined;
 }
 
 export interface CreateKnowledgeAssistantRequest {
   /** The Knowledge Assistant to create. */
-  knowledgeAssistant?: KnowledgeAssistant | undefined;
+  knowledgeAssistant?: CreateKnowledgeAssistant | undefined;
+}
+
+/**
+ * KnowledgeSource represents a source of knowledge for the KnowledgeAssistant.
+ * Used in create/update requests and returned in Get/List responses.
+ * Note: REQUIRED annotations below represent create-time requirements.
+ * For updates, required fields are determined by the update mask.
+ */
+export interface CreateKnowledgeSource {
+  /**
+   * Full resource name:
+   * knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
+   */
+  name?: string | undefined;
+  /**
+   * Human-readable display name of the knowledge source.
+   * Required when creating a Knowledge Source.
+   * When updating a Knowledge Source, optional unless included in update_mask.
+   */
+  displayName: string;
+  /**
+   * Description of the knowledge source.
+   * Required when creating a Knowledge Source.
+   * When updating a Knowledge Source, optional unless included in update_mask.
+   */
+  description: string;
+  /**
+   * The type of the source: "index", "files", or "file_table".
+   * Required when creating a Knowledge Source.
+   * When updating a Knowledge Source, this field is ignored.
+   */
+  sourceType: string;
+  /** Specification for the knowledge source type. */
+  spec?:
+    | {$case: 'index'; index: CreateIndexSpec}
+    | {$case: 'files'; files: CreateFilesSpec}
+    | {$case: 'fileTable'; fileTable: CreateFileTableSpec}
+    | undefined;
 }
 
 export interface CreateKnowledgeSourceRequest {
@@ -51,7 +166,7 @@ export interface CreateKnowledgeSourceRequest {
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
   parent?: string | undefined;
-  knowledgeSource?: KnowledgeSource | undefined;
+  knowledgeSource?: CreateKnowledgeSource | undefined;
 }
 
 /** Delete an example. */
@@ -323,6 +438,25 @@ export interface SyncKnowledgeSourcesRequest {
   name?: string | undefined;
 }
 
+/**
+ * An example associated with a Knowledge Assistant.
+ * Contains a question and guidelines for how the assistant should respond.
+ */
+export interface UpdateExample {
+  /**
+   * Full resource name:
+   * knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
+   */
+  name?: string | undefined;
+  /** The example question. */
+  question?: string | undefined;
+  /**
+   * Guidelines for answering the question. Optional — examples may be created
+   * with just a question; the front-end form does not require guidelines.
+   */
+  guidelines?: string[] | undefined;
+}
+
 /** Update an example. */
 export interface UpdateExampleRequest {
   /**
@@ -330,7 +464,7 @@ export interface UpdateExampleRequest {
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
    */
   name?: string | undefined;
-  example?: Example | undefined;
+  example?: UpdateExample | undefined;
   /**
    * Comma-delimited list of fields to update on the example.
    * Allowed values: `question`, `guidelines`.
@@ -338,7 +472,65 @@ export interface UpdateExampleRequest {
    * - `question`
    * - `question,guidelines`
    */
-  updateMask?: FieldMask<Example> | undefined;
+  updateMask?: FieldMask<UpdateExample> | undefined;
+}
+
+/** FileTableSpec specifies a file table source configuration. */
+export interface UpdateFileTableSpec {
+  /** Full UC name of the table, in the format of {CATALOG}.{SCHEMA}.{TABLE_NAME}. */
+  tableName?: string | undefined;
+  /** The name of the column containing BINARY file content to be indexed. */
+  fileCol?: string | undefined;
+}
+
+/** FilesSpec specifies a files source configuration. */
+export interface UpdateFilesSpec {
+  /** A UC volume path that includes a list of files. */
+  path?: string | undefined;
+}
+
+/** IndexSpec specifies a vector search index source configuration. */
+export interface UpdateIndexSpec {
+  /** Full UC name of the vector search index, in the format of {CATALOG}.{SCHEMA}.{INDEX_NAME}. */
+  indexName?: string | undefined;
+  /** The column that includes the document text for retrieval. */
+  textCol?: string | undefined;
+  /** The column that specifies a link or reference to where the information came from. */
+  docUriCol?: string | undefined;
+}
+
+/**
+ * Entity message that represents a knowledge assistant.
+ * Note: REQUIRED annotations below represent create-time requirements.
+ * For updates, required fields are determined by the update mask.
+ */
+export interface UpdateKnowledgeAssistant {
+  /**
+   * The resource name of the Knowledge Assistant.
+   * Format: knowledge-assistants/{knowledge_assistant_id}
+   */
+  name?: string | undefined;
+  /**
+   * The display name of the Knowledge Assistant, unique at workspace level.
+   * Required when creating a Knowledge Assistant.
+   * When updating a Knowledge Assistant, optional unless included in
+   * update_mask.
+   */
+  displayName?: string | undefined;
+  /**
+   * Description of what this agent can do (user-facing).
+   * Required when creating a Knowledge Assistant.
+   * When updating a Knowledge Assistant, optional unless included in
+   * update_mask.
+   */
+  description?: string | undefined;
+  /**
+   * Additional global instructions on how the agent should generate answers.
+   * Optional on create and update.
+   * When updating a Knowledge Assistant, include this field in update_mask to
+   * modify it.
+   */
+  instructions?: string | undefined;
 }
 
 export interface UpdateKnowledgeAssistantRequest {
@@ -348,7 +540,7 @@ export interface UpdateKnowledgeAssistantRequest {
    * REQUIRED annotations on Knowledge Assistant fields describe create-time
    * requirements and do not mean all those fields are required for update.
    */
-  knowledgeAssistant?: KnowledgeAssistant | undefined;
+  knowledgeAssistant?: UpdateKnowledgeAssistant | undefined;
   /**
    * Comma-delimited list of fields to update on the Knowledge Assistant.
    * Allowed values: `display_name`, `description`, `instructions`.
@@ -356,7 +548,45 @@ export interface UpdateKnowledgeAssistantRequest {
    * - `display_name`
    * - `description,instructions`
    */
-  updateMask?: FieldMask<KnowledgeAssistant> | undefined;
+  updateMask?: FieldMask<UpdateKnowledgeAssistant> | undefined;
+}
+
+/**
+ * KnowledgeSource represents a source of knowledge for the KnowledgeAssistant.
+ * Used in create/update requests and returned in Get/List responses.
+ * Note: REQUIRED annotations below represent create-time requirements.
+ * For updates, required fields are determined by the update mask.
+ */
+export interface UpdateKnowledgeSource {
+  /**
+   * Full resource name:
+   * knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
+   */
+  name?: string | undefined;
+  /**
+   * Human-readable display name of the knowledge source.
+   * Required when creating a Knowledge Source.
+   * When updating a Knowledge Source, optional unless included in update_mask.
+   */
+  displayName?: string | undefined;
+  /**
+   * Description of the knowledge source.
+   * Required when creating a Knowledge Source.
+   * When updating a Knowledge Source, optional unless included in update_mask.
+   */
+  description?: string | undefined;
+  /**
+   * The type of the source: "index", "files", or "file_table".
+   * Required when creating a Knowledge Source.
+   * When updating a Knowledge Source, this field is ignored.
+   */
+  sourceType?: string | undefined;
+  /** Specification for the knowledge source type. */
+  spec?:
+    | {$case: 'index'; index: UpdateIndexSpec}
+    | {$case: 'files'; files: UpdateFilesSpec}
+    | {$case: 'fileTable'; fileTable: UpdateFileTableSpec}
+    | undefined;
 }
 
 export interface UpdateKnowledgeSourceRequest {
@@ -371,7 +601,7 @@ export interface UpdateKnowledgeSourceRequest {
    * REQUIRED annotations on Knowledge Source fields describe create-time
    * requirements and do not mean all those fields are required for update.
    */
-  knowledgeSource?: KnowledgeSource | undefined;
+  knowledgeSource?: UpdateKnowledgeSource | undefined;
   /**
    * Comma-delimited list of fields to update on the Knowledge Source.
    * Allowed values: `display_name`, `description`.
@@ -379,7 +609,7 @@ export interface UpdateKnowledgeSourceRequest {
    * - `display_name`
    * - `display_name,description`
    */
-  updateMask?: FieldMask<KnowledgeSource> | undefined;
+  updateMask?: FieldMask<UpdateKnowledgeSource> | undefined;
 }
 
 export const unmarshalExampleSchema: z.ZodType<Example> = z
@@ -544,31 +774,116 @@ export const unmarshalListKnowledgeSourcesResponseSchema: z.ZodType<ListKnowledg
       nextPageToken: d.next_page_token,
     }));
 
-export const marshalExampleSchema: z.ZodType = z
+export const marshalCreateExampleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    question: z.string().optional(),
+    question: z.string(),
     guidelines: z.array(z.string()).optional(),
-    exampleId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
     question: d.question,
     guidelines: d.guidelines,
-    example_id: d.exampleId,
-    create_time: d.createTime,
-    update_time: d.updateTime,
   }));
 
-export const marshalFileTableSpecSchema: z.ZodType = z
+export const marshalCreateFileTableSpecSchema: z.ZodType = z
+  .object({
+    tableName: z.string(),
+    fileCol: z.string(),
+  })
+  .transform(d => ({
+    table_name: d.tableName,
+    file_col: d.fileCol,
+  }));
+
+export const marshalCreateFilesSpecSchema: z.ZodType = z
+  .object({
+    path: z.string(),
+  })
+  .transform(d => ({
+    path: d.path,
+  }));
+
+export const marshalCreateIndexSpecSchema: z.ZodType = z
+  .object({
+    indexName: z.string(),
+    textCol: z.string(),
+    docUriCol: z.string(),
+  })
+  .transform(d => ({
+    index_name: d.indexName,
+    text_col: d.textCol,
+    doc_uri_col: d.docUriCol,
+  }));
+
+export const marshalCreateKnowledgeAssistantSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    displayName: z.string(),
+    description: z.string(),
+    instructions: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display_name: d.displayName,
+    description: d.description,
+    instructions: d.instructions,
+  }));
+
+export const marshalCreateKnowledgeSourceSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    displayName: z.string(),
+    description: z.string(),
+    sourceType: z.string(),
+    spec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('index'),
+          index: z.lazy(() => marshalCreateIndexSpecSchema),
+        }),
+        z.object({
+          $case: z.literal('files'),
+          files: z.lazy(() => marshalCreateFilesSpecSchema),
+        }),
+        z.object({
+          $case: z.literal('fileTable'),
+          fileTable: z.lazy(() => marshalCreateFileTableSpecSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display_name: d.displayName,
+    description: d.description,
+    source_type: d.sourceType,
+    ...(d.spec?.$case === 'index' && {index: d.spec.index}),
+    ...(d.spec?.$case === 'files' && {files: d.spec.files}),
+    ...(d.spec?.$case === 'fileTable' && {file_table: d.spec.fileTable}),
+  }));
+
+export const marshalSyncKnowledgeSourcesRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUpdateExampleSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    question: z.string().optional(),
+    guidelines: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    question: d.question,
+    guidelines: d.guidelines,
+  }));
+
+export const marshalUpdateFileTableSpecSchema: z.ZodType = z
   .object({
     tableName: z.string().optional(),
     fileCol: z.string().optional(),
@@ -578,7 +893,7 @@ export const marshalFileTableSpecSchema: z.ZodType = z
     file_col: d.fileCol,
   }));
 
-export const marshalFilesSpecSchema: z.ZodType = z
+export const marshalUpdateFilesSpecSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
   })
@@ -586,7 +901,7 @@ export const marshalFilesSpecSchema: z.ZodType = z
     path: d.path,
   }));
 
-export const marshalIndexSpecSchema: z.ZodType = z
+export const marshalUpdateIndexSpecSchema: z.ZodType = z
   .object({
     indexName: z.string().optional(),
     textCol: z.string().optional(),
@@ -598,38 +913,21 @@ export const marshalIndexSpecSchema: z.ZodType = z
     doc_uri_col: d.docUriCol,
   }));
 
-export const marshalKnowledgeAssistantSchema: z.ZodType = z
+export const marshalUpdateKnowledgeAssistantSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    state: z.string().optional(),
-    id: z.string().optional(),
     displayName: z.string().optional(),
     description: z.string().optional(),
     instructions: z.string().optional(),
-    creator: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    endpointName: z.string().optional(),
-    experimentId: z.string().optional(),
-    errorInfo: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    state: d.state,
-    id: d.id,
     display_name: d.displayName,
     description: d.description,
     instructions: d.instructions,
-    creator: d.creator,
-    create_time: d.createTime,
-    endpoint_name: d.endpointName,
-    experiment_id: d.experimentId,
-    error_info: d.errorInfo,
   }));
 
-export const marshalKnowledgeSourceSchema: z.ZodType = z
+export const marshalUpdateKnowledgeSourceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     displayName: z.string().optional(),
@@ -639,27 +937,17 @@ export const marshalKnowledgeSourceSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('index'),
-          index: z.lazy(() => marshalIndexSpecSchema),
+          index: z.lazy(() => marshalUpdateIndexSpecSchema),
         }),
         z.object({
           $case: z.literal('files'),
-          files: z.lazy(() => marshalFilesSpecSchema),
+          files: z.lazy(() => marshalUpdateFilesSpecSchema),
         }),
         z.object({
           $case: z.literal('fileTable'),
-          fileTable: z.lazy(() => marshalFileTableSpecSchema),
+          fileTable: z.lazy(() => marshalUpdateFileTableSpecSchema),
         }),
       ])
-      .optional(),
-    state: z.string().optional(),
-    id: z.string().optional(),
-    knowledgeCutoffTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
       .optional(),
   })
   .transform(d => ({
@@ -670,90 +958,69 @@ export const marshalKnowledgeSourceSchema: z.ZodType = z
     ...(d.spec?.$case === 'index' && {index: d.spec.index}),
     ...(d.spec?.$case === 'files' && {files: d.spec.files}),
     ...(d.spec?.$case === 'fileTable' && {file_table: d.spec.fileTable}),
-    state: d.state,
-    id: d.id,
-    knowledge_cutoff_time: d.knowledgeCutoffTime,
-    create_time: d.createTime,
   }));
 
-export const marshalSyncKnowledgeSourcesRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-const exampleFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  exampleId: {wire: 'example_id'},
+const updateExampleFieldMaskSchema: FieldMaskSchema = {
   guidelines: {wire: 'guidelines'},
   name: {wire: 'name'},
   question: {wire: 'question'},
-  updateTime: {wire: 'update_time'},
 };
 
-export function exampleFieldMask(...paths: string[]): FieldMask<Example> {
-  return FieldMask.build<Example>(paths, exampleFieldMaskSchema);
+export function updateExampleFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateExample> {
+  return FieldMask.build<UpdateExample>(paths, updateExampleFieldMaskSchema);
 }
 
-const fileTableSpecFieldMaskSchema: FieldMaskSchema = {
+const updateFileTableSpecFieldMaskSchema: FieldMaskSchema = {
   fileCol: {wire: 'file_col'},
   tableName: {wire: 'table_name'},
 };
 
-const filesSpecFieldMaskSchema: FieldMaskSchema = {
+const updateFilesSpecFieldMaskSchema: FieldMaskSchema = {
   path: {wire: 'path'},
 };
 
-const indexSpecFieldMaskSchema: FieldMaskSchema = {
+const updateIndexSpecFieldMaskSchema: FieldMaskSchema = {
   docUriCol: {wire: 'doc_uri_col'},
   indexName: {wire: 'index_name'},
   textCol: {wire: 'text_col'},
 };
 
-const knowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  creator: {wire: 'creator'},
+const updateKnowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
   displayName: {wire: 'display_name'},
-  endpointName: {wire: 'endpoint_name'},
-  errorInfo: {wire: 'error_info'},
-  experimentId: {wire: 'experiment_id'},
-  id: {wire: 'id'},
   instructions: {wire: 'instructions'},
   name: {wire: 'name'},
-  state: {wire: 'state'},
 };
 
-export function knowledgeAssistantFieldMask(
+export function updateKnowledgeAssistantFieldMask(
   ...paths: string[]
-): FieldMask<KnowledgeAssistant> {
-  return FieldMask.build<KnowledgeAssistant>(
+): FieldMask<UpdateKnowledgeAssistant> {
+  return FieldMask.build<UpdateKnowledgeAssistant>(
     paths,
-    knowledgeAssistantFieldMaskSchema
+    updateKnowledgeAssistantFieldMaskSchema
   );
 }
 
-const knowledgeSourceFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
+const updateKnowledgeSourceFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
   displayName: {wire: 'display_name'},
-  fileTable: {wire: 'file_table', children: () => fileTableSpecFieldMaskSchema},
-  files: {wire: 'files', children: () => filesSpecFieldMaskSchema},
-  id: {wire: 'id'},
-  index: {wire: 'index', children: () => indexSpecFieldMaskSchema},
-  knowledgeCutoffTime: {wire: 'knowledge_cutoff_time'},
+  fileTable: {
+    wire: 'file_table',
+    children: () => updateFileTableSpecFieldMaskSchema,
+  },
+  files: {wire: 'files', children: () => updateFilesSpecFieldMaskSchema},
+  index: {wire: 'index', children: () => updateIndexSpecFieldMaskSchema},
   name: {wire: 'name'},
   sourceType: {wire: 'source_type'},
-  state: {wire: 'state'},
 };
 
-export function knowledgeSourceFieldMask(
+export function updateKnowledgeSourceFieldMask(
   ...paths: string[]
-): FieldMask<KnowledgeSource> {
-  return FieldMask.build<KnowledgeSource>(
+): FieldMask<UpdateKnowledgeSource> {
+  return FieldMask.build<UpdateKnowledgeSource>(
     paths,
-    knowledgeSourceFieldMaskSchema
+    updateKnowledgeSourceFieldMaskSchema
   );
 }

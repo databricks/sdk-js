@@ -62,9 +62,136 @@ export interface ColumnMaskOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+export interface CreateColumnMaskOptions {
+  /**
+   * The fully qualified name of the column mask function.
+   * The function is called on each row of the target table.
+   * The function's first argument and its return type should match the type of the masked column.
+   * Required on create and update.
+   */
+  functionName: string;
+  /**
+   * The alias of the column to be masked. The alias must refer to one of matched columns.
+   * The values of the column is passed to the column mask function as the first argument.
+   * Required on create and update.
+   */
+  onColumn: string;
+  /**
+   * Optional list of column aliases or constant literals to be passed as additional arguments to the column mask function.
+   * The type of each column should match the positional argument of the column mask function.
+   */
+  using?: CreateFunctionArgument[] | undefined;
+}
+
+export interface CreateFunctionArgument {
+  /** A positional argument pass to a row filter or column mask function. */
+  arg?:
+    | {
+        $case: 'alias';
+        /** The alias of a matched column. */
+        alias: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | undefined;
+}
+
+export interface CreateMatchColumn {
+  /** The condition expression used to match a table column. */
+  condition?: string | undefined;
+  /** Optional alias of the matched column. */
+  alias?: string | undefined;
+}
+
+export interface CreatePolicyInfo {
+  /**
+   * Type of the securable on which the policy is defined.
+   * Only `CATALOG`, `SCHEMA` and `TABLE` are supported at this moment.
+   * Required on create.
+   */
+  onSecurableType?: SecurableType | undefined;
+  /**
+   * Full name of the securable on which the policy is defined.
+   * Required on create.
+   */
+  onSecurableFullname?: string | undefined;
+  /**
+   * Name of the policy. Required on create and optional on update.
+   * To rename the policy, set `name` to a different value on update.
+   */
+  name?: string | undefined;
+  /** Optional description of the policy. */
+  comment?: string | undefined;
+  /**
+   * List of user or group names that the policy applies to.
+   * Required on create and optional on update.
+   */
+  toPrincipals: string[];
+  /** Optional list of user or group names that should be excluded from the policy. */
+  exceptPrincipals?: string[] | undefined;
+  /**
+   * Type of securables that the policy should take effect on.
+   * Only `TABLE` is supported at this moment.
+   * Required on create and optional on update.
+   */
+  forSecurableType: SecurableType;
+  /** Optional condition when the policy should take effect. */
+  whenCondition?: string | undefined;
+  /** Type of the policy. Required on create. */
+  policyType: PolicyType;
+  /**
+   * (--[Create:REQ Update:OPT] Type-specific options for the Policy--)
+   * Type-specific options for the policy.
+   */
+  options?:
+    | {
+        $case: 'rowFilter';
+        /**
+         * Options for row filter policies. Valid only if `policy_type` is `POLICY_TYPE_ROW_FILTER`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        rowFilter: CreateRowFilterOptions;
+      }
+    | {
+        $case: 'columnMask';
+        /**
+         * Options for column mask policies. Valid only if `policy_type` is `POLICY_TYPE_COLUMN_MASK`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        columnMask: CreateColumnMaskOptions;
+      }
+    | undefined;
+  /**
+   * Optional list of condition expressions used to match table columns.
+   * Only valid when `for_securable_type` is `TABLE`.
+   * When specified, the policy only applies to tables whose columns satisfy all match conditions.
+   */
+  matchColumns?: CreateMatchColumn[] | undefined;
+}
+
 export interface CreatePolicyRequest {
   /** Required. The policy to create. */
-  policyInfo?: PolicyInfo | undefined;
+  policyInfo?: CreatePolicyInfo | undefined;
+}
+
+export interface CreateRowFilterOptions {
+  /**
+   * The fully qualified name of the row filter function.
+   * The function is called on each row of the target table. It should return a boolean value
+   * indicating whether the row should be visible to the user.
+   * Required on create and update.
+   */
+  functionName: string;
+  /**
+   * Optional list of column aliases or constant literals to be passed as arguments to the row filter function.
+   * The type of each column should match the positional argument of the row filter function.
+   */
+  using?: CreateFunctionArgument[] | undefined;
 }
 
 export interface DeletePolicyRequest {
@@ -234,6 +361,118 @@ export interface RowFilterOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+export interface UpdateColumnMaskOptions {
+  /**
+   * The fully qualified name of the column mask function.
+   * The function is called on each row of the target table.
+   * The function's first argument and its return type should match the type of the masked column.
+   * Required on create and update.
+   */
+  functionName?: string | undefined;
+  /**
+   * The alias of the column to be masked. The alias must refer to one of matched columns.
+   * The values of the column is passed to the column mask function as the first argument.
+   * Required on create and update.
+   */
+  onColumn?: string | undefined;
+  /**
+   * Optional list of column aliases or constant literals to be passed as additional arguments to the column mask function.
+   * The type of each column should match the positional argument of the column mask function.
+   */
+  using?: UpdateFunctionArgument[] | undefined;
+}
+
+export interface UpdateFunctionArgument {
+  /** A positional argument pass to a row filter or column mask function. */
+  arg?:
+    | {
+        $case: 'alias';
+        /** The alias of a matched column. */
+        alias: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | undefined;
+}
+
+export interface UpdateMatchColumn {
+  /** The condition expression used to match a table column. */
+  condition?: string | undefined;
+  /** Optional alias of the matched column. */
+  alias?: string | undefined;
+}
+
+export interface UpdatePolicyInfo {
+  /**
+   * Type of the securable on which the policy is defined.
+   * Only `CATALOG`, `SCHEMA` and `TABLE` are supported at this moment.
+   * Required on create.
+   */
+  onSecurableType?: SecurableType | undefined;
+  /**
+   * Full name of the securable on which the policy is defined.
+   * Required on create.
+   */
+  onSecurableFullname?: string | undefined;
+  /**
+   * Name of the policy. Required on create and optional on update.
+   * To rename the policy, set `name` to a different value on update.
+   */
+  name?: string | undefined;
+  /** Optional description of the policy. */
+  comment?: string | undefined;
+  /**
+   * List of user or group names that the policy applies to.
+   * Required on create and optional on update.
+   */
+  toPrincipals?: string[] | undefined;
+  /** Optional list of user or group names that should be excluded from the policy. */
+  exceptPrincipals?: string[] | undefined;
+  /**
+   * Type of securables that the policy should take effect on.
+   * Only `TABLE` is supported at this moment.
+   * Required on create and optional on update.
+   */
+  forSecurableType?: SecurableType | undefined;
+  /** Optional condition when the policy should take effect. */
+  whenCondition?: string | undefined;
+  /** Type of the policy. Required on create. */
+  policyType?: PolicyType | undefined;
+  /**
+   * (--[Create:REQ Update:OPT] Type-specific options for the Policy--)
+   * Type-specific options for the policy.
+   */
+  options?:
+    | {
+        $case: 'rowFilter';
+        /**
+         * Options for row filter policies. Valid only if `policy_type` is `POLICY_TYPE_ROW_FILTER`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        rowFilter: UpdateRowFilterOptions;
+      }
+    | {
+        $case: 'columnMask';
+        /**
+         * Options for column mask policies. Valid only if `policy_type` is `POLICY_TYPE_COLUMN_MASK`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        columnMask: UpdateColumnMaskOptions;
+      }
+    | undefined;
+  /**
+   * Optional list of condition expressions used to match table columns.
+   * Only valid when `for_securable_type` is `TABLE`.
+   * When specified, the policy only applies to tables whose columns satisfy all match conditions.
+   */
+  matchColumns?: UpdateMatchColumn[] | undefined;
+}
+
 export interface UpdatePolicyRequest {
   /** Required. The type of the securable to update the policy for. */
   onSecurableType?: string | undefined;
@@ -250,12 +489,27 @@ export interface UpdatePolicyRequest {
    * Users can use the update mask to explicitly unset optional fields such as
    * `exception_principals` and `when_condition`.
    */
-  policyInfo?: PolicyInfo | undefined;
+  policyInfo?: UpdatePolicyInfo | undefined;
   /**
    * Optional. The update mask field for specifying user intentions on which
    * fields to update in the request.
    */
-  updateMask?: FieldMask<PolicyInfo> | undefined;
+  updateMask?: FieldMask<UpdatePolicyInfo> | undefined;
+}
+
+export interface UpdateRowFilterOptions {
+  /**
+   * The fully qualified name of the row filter function.
+   * The function is called on each row of the target table. It should return a boolean value
+   * indicating whether the row should be visible to the user.
+   * Required on create and update.
+   */
+  functionName?: string | undefined;
+  /**
+   * Optional list of column aliases or constant literals to be passed as arguments to the row filter function.
+   * The type of each column should match the positional argument of the row filter function.
+   */
+  using?: UpdateFunctionArgument[] | undefined;
 }
 
 export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
@@ -368,11 +622,13 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     using: d.using,
   }));
 
-export const marshalColumnMaskOptionsSchema: z.ZodType = z
+export const marshalCreateColumnMaskOptionsSchema: z.ZodType = z
   .object({
-    functionName: z.string().optional(),
-    onColumn: z.string().optional(),
-    using: z.array(z.lazy(() => marshalFunctionArgumentSchema)).optional(),
+    functionName: z.string(),
+    onColumn: z.string(),
+    using: z
+      .array(z.lazy(() => marshalCreateFunctionArgumentSchema))
+      .optional(),
   })
   .transform(d => ({
     function_name: d.functionName,
@@ -380,7 +636,7 @@ export const marshalColumnMaskOptionsSchema: z.ZodType = z
     using: d.using,
   }));
 
-export const marshalFunctionArgumentSchema: z.ZodType = z
+export const marshalCreateFunctionArgumentSchema: z.ZodType = z
   .object({
     arg: z
       .discriminatedUnion('$case', [
@@ -394,7 +650,7 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
   }));
 
-export const marshalMatchColumnSchema: z.ZodType = z
+export const marshalCreateMatchColumnSchema: z.ZodType = z
   .object({
     condition: z.string().optional(),
     alias: z.string().optional(),
@@ -404,38 +660,34 @@ export const marshalMatchColumnSchema: z.ZodType = z
     alias: d.alias,
   }));
 
-export const marshalPolicyInfoSchema: z.ZodType = z
+export const marshalCreatePolicyInfoSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
     onSecurableType: z.string().optional(),
     onSecurableFullname: z.string().optional(),
     name: z.string().optional(),
     comment: z.string().optional(),
-    toPrincipals: z.array(z.string()).optional(),
+    toPrincipals: z.array(z.string()),
     exceptPrincipals: z.array(z.string()).optional(),
-    forSecurableType: z.string().optional(),
+    forSecurableType: z.string(),
     whenCondition: z.string().optional(),
-    policyType: z.string().optional(),
+    policyType: z.string(),
     options: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('rowFilter'),
-          rowFilter: z.lazy(() => marshalRowFilterOptionsSchema),
+          rowFilter: z.lazy(() => marshalCreateRowFilterOptionsSchema),
         }),
         z.object({
           $case: z.literal('columnMask'),
-          columnMask: z.lazy(() => marshalColumnMaskOptionsSchema),
+          columnMask: z.lazy(() => marshalCreateColumnMaskOptionsSchema),
         }),
       ])
       .optional(),
-    matchColumns: z.array(z.lazy(() => marshalMatchColumnSchema)).optional(),
-    createdAt: z.bigint().optional(),
-    createdBy: z.string().optional(),
-    updatedAt: z.bigint().optional(),
-    updatedBy: z.string().optional(),
+    matchColumns: z
+      .array(z.lazy(() => marshalCreateMatchColumnSchema))
+      .optional(),
   })
   .transform(d => ({
-    id: d.id,
     on_securable_type: d.onSecurableType,
     on_securable_fullname: d.onSecurableFullname,
     name: d.name,
@@ -450,39 +702,128 @@ export const marshalPolicyInfoSchema: z.ZodType = z
       column_mask: d.options.columnMask,
     }),
     match_columns: d.matchColumns,
-    created_at: d.createdAt,
-    created_by: d.createdBy,
-    updated_at: d.updatedAt,
-    updated_by: d.updatedBy,
   }));
 
-export const marshalRowFilterOptionsSchema: z.ZodType = z
+export const marshalCreateRowFilterOptionsSchema: z.ZodType = z
   .object({
-    functionName: z.string().optional(),
-    using: z.array(z.lazy(() => marshalFunctionArgumentSchema)).optional(),
+    functionName: z.string(),
+    using: z
+      .array(z.lazy(() => marshalCreateFunctionArgumentSchema))
+      .optional(),
   })
   .transform(d => ({
     function_name: d.functionName,
     using: d.using,
   }));
 
-const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
+export const marshalUpdateColumnMaskOptionsSchema: z.ZodType = z
+  .object({
+    functionName: z.string().optional(),
+    onColumn: z.string().optional(),
+    using: z
+      .array(z.lazy(() => marshalUpdateFunctionArgumentSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    function_name: d.functionName,
+    on_column: d.onColumn,
+    using: d.using,
+  }));
+
+export const marshalUpdateFunctionArgumentSchema: z.ZodType = z
+  .object({
+    arg: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('alias'), alias: z.string()}),
+        z.object({$case: z.literal('constant'), constant: z.string()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.arg?.$case === 'alias' && {alias: d.arg.alias}),
+    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+  }));
+
+export const marshalUpdateMatchColumnSchema: z.ZodType = z
+  .object({
+    condition: z.string().optional(),
+    alias: z.string().optional(),
+  })
+  .transform(d => ({
+    condition: d.condition,
+    alias: d.alias,
+  }));
+
+export const marshalUpdatePolicyInfoSchema: z.ZodType = z
+  .object({
+    onSecurableType: z.string().optional(),
+    onSecurableFullname: z.string().optional(),
+    name: z.string().optional(),
+    comment: z.string().optional(),
+    toPrincipals: z.array(z.string()).optional(),
+    exceptPrincipals: z.array(z.string()).optional(),
+    forSecurableType: z.string().optional(),
+    whenCondition: z.string().optional(),
+    policyType: z.string().optional(),
+    options: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('rowFilter'),
+          rowFilter: z.lazy(() => marshalUpdateRowFilterOptionsSchema),
+        }),
+        z.object({
+          $case: z.literal('columnMask'),
+          columnMask: z.lazy(() => marshalUpdateColumnMaskOptionsSchema),
+        }),
+      ])
+      .optional(),
+    matchColumns: z
+      .array(z.lazy(() => marshalUpdateMatchColumnSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    on_securable_type: d.onSecurableType,
+    on_securable_fullname: d.onSecurableFullname,
+    name: d.name,
+    comment: d.comment,
+    to_principals: d.toPrincipals,
+    except_principals: d.exceptPrincipals,
+    for_securable_type: d.forSecurableType,
+    when_condition: d.whenCondition,
+    policy_type: d.policyType,
+    ...(d.options?.$case === 'rowFilter' && {row_filter: d.options.rowFilter}),
+    ...(d.options?.$case === 'columnMask' && {
+      column_mask: d.options.columnMask,
+    }),
+    match_columns: d.matchColumns,
+  }));
+
+export const marshalUpdateRowFilterOptionsSchema: z.ZodType = z
+  .object({
+    functionName: z.string().optional(),
+    using: z
+      .array(z.lazy(() => marshalUpdateFunctionArgumentSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    function_name: d.functionName,
+    using: d.using,
+  }));
+
+const updateColumnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
   functionName: {wire: 'function_name'},
   onColumn: {wire: 'on_column'},
   using: {wire: 'using'},
 };
 
-const policyInfoFieldMaskSchema: FieldMaskSchema = {
+const updatePolicyInfoFieldMaskSchema: FieldMaskSchema = {
   columnMask: {
     wire: 'column_mask',
-    children: () => columnMaskOptionsFieldMaskSchema,
+    children: () => updateColumnMaskOptionsFieldMaskSchema,
   },
   comment: {wire: 'comment'},
-  createdAt: {wire: 'created_at'},
-  createdBy: {wire: 'created_by'},
   exceptPrincipals: {wire: 'except_principals'},
   forSecurableType: {wire: 'for_securable_type'},
-  id: {wire: 'id'},
   matchColumns: {wire: 'match_columns'},
   name: {wire: 'name'},
   onSecurableFullname: {wire: 'on_securable_fullname'},
@@ -490,19 +831,22 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   policyType: {wire: 'policy_type'},
   rowFilter: {
     wire: 'row_filter',
-    children: () => rowFilterOptionsFieldMaskSchema,
+    children: () => updateRowFilterOptionsFieldMaskSchema,
   },
   toPrincipals: {wire: 'to_principals'},
-  updatedAt: {wire: 'updated_at'},
-  updatedBy: {wire: 'updated_by'},
   whenCondition: {wire: 'when_condition'},
 };
 
-export function policyInfoFieldMask(...paths: string[]): FieldMask<PolicyInfo> {
-  return FieldMask.build<PolicyInfo>(paths, policyInfoFieldMaskSchema);
+export function updatePolicyInfoFieldMask(
+  ...paths: string[]
+): FieldMask<UpdatePolicyInfo> {
+  return FieldMask.build<UpdatePolicyInfo>(
+    paths,
+    updatePolicyInfoFieldMaskSchema
+  );
 }
 
-const rowFilterOptionsFieldMaskSchema: FieldMaskSchema = {
+const updateRowFilterOptionsFieldMaskSchema: FieldMaskSchema = {
   functionName: {wire: 'function_name'},
   using: {wire: 'using'},
 };

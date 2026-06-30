@@ -15,8 +15,18 @@ export {
 } from './model';
 
 export type {
+  CreateCreateQueryRequestQuery,
+  CreateDateRange,
+  CreateDateRangeValue,
+  CreateDateValue,
+  CreateEnumValue,
+  CreateMultiValuesOptions,
+  CreateNumericValue,
+  CreateQueryBackedValue,
+  CreateQueryParameter,
   CreateQueryRequest,
   CreateQueryRequestQuery,
+  CreateTextValue,
   DateRange,
   DateRangeValue,
   DateValue,
@@ -35,9 +45,19 @@ export type {
   QueryParameter,
   TextValue,
   TrashQueryRequest,
+  UpdateDateRange,
+  UpdateDateRangeValue,
+  UpdateDateValue,
+  UpdateEnumValue,
+  UpdateMultiValuesOptions,
+  UpdateNumericValue,
+  UpdateQueryBackedValue,
+  UpdateQueryParameter,
   UpdateQueryRequest,
   UpdateQueryRequestQuery,
+  UpdateTextValue,
+  UpdateUpdateQueryRequestQuery,
   Visualization,
 } from './model';
 
-export {updateQueryRequestQueryFieldMask} from './model';
+export {updateUpdateQueryRequestQueryFieldMask} from './model';

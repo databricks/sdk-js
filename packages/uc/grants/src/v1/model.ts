@@ -2,6 +2,18 @@
 
 import {z} from 'zod';
 
+export interface CreatePermissionsChange {
+  /**
+   * The principal whose privileges we are changing.
+   * Only one of principal or principal_id should be specified, never both at the same time.
+   */
+  principal?: string | undefined;
+  /** The set of privileges to add. */
+  add?: string[] | undefined;
+  /** The set of privileges to remove. */
+  remove?: string[] | undefined;
+}
+
 export interface EffectivePrivilege {
   /** The privilege assigned to the principal. */
   privilege?: string | undefined;
@@ -122,7 +134,7 @@ export interface UpdatePermissionsRequest {
   /** Full name of securable. */
   securableFullName?: string | undefined;
   /** Array of permissions change objects. */
-  changes?: PermissionsChange[] | undefined;
+  changes?: CreatePermissionsChange[] | undefined;
 }
 
 export interface UpdatePermissionsResponse {
@@ -204,7 +216,7 @@ export const unmarshalUpdatePermissionsResponseSchema: z.ZodType<UpdatePermissio
       privilegeAssignments: d.privilege_assignments,
     }));
 
-export const marshalPermissionsChangeSchema: z.ZodType = z
+export const marshalCreatePermissionsChangeSchema: z.ZodType = z
   .object({
     principal: z.string().optional(),
     add: z.array(z.string()).optional(),
@@ -220,7 +232,9 @@ export const marshalUpdatePermissionsRequestSchema: z.ZodType = z
   .object({
     securableType: z.string().optional(),
     securableFullName: z.string().optional(),
-    changes: z.array(z.lazy(() => marshalPermissionsChangeSchema)).optional(),
+    changes: z
+      .array(z.lazy(() => marshalCreatePermissionsChangeSchema))
+      .optional(),
   })
   .transform(d => ({
     securable_type: d.securableType,

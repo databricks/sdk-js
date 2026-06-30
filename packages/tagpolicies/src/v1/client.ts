@@ -26,7 +26,8 @@ import type {
   UpdateTagPolicyRequest,
 } from './model';
 import {
-  marshalTagPolicySchema,
+  marshalCreateTagPolicySchema,
+  marshalUpdateTagPolicySchema,
   unmarshalListTagPoliciesResponseSchema,
   unmarshalTagPolicySchema,
 } from './model';
@@ -71,7 +72,7 @@ export class TagPoliciesClient {
   ): Promise<TagPolicy> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/tag-policies`;
-    const body = marshalRequest(req.tagPolicy, marshalTagPolicySchema);
+    const body = marshalRequest(req.tagPolicy, marshalCreateTagPolicySchema);
     let resp: TagPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -214,7 +215,7 @@ export class TagPoliciesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tagPolicy, marshalTagPolicySchema);
+    const body = marshalRequest(req.tagPolicy, marshalUpdateTagPolicySchema);
     let resp: TagPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

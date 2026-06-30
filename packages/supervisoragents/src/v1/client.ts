@@ -40,9 +40,12 @@ import type {
   UpdateToolRequest,
 } from './model';
 import {
-  marshalExampleSchema,
-  marshalSupervisorAgentSchema,
-  marshalToolSchema,
+  marshalCreateExampleSchema,
+  marshalCreateSupervisorAgentSchema,
+  marshalCreateToolSchema,
+  marshalUpdateExampleSchema,
+  marshalUpdateSupervisorAgentSchema,
+  marshalUpdateToolSchema,
   unmarshalExampleSchema,
   unmarshalListExamplesResponseSchema,
   unmarshalListSupervisorAgentsResponseSchema,
@@ -91,7 +94,7 @@ export class SupervisorAgentsClient {
   ): Promise<Example> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/${req.parent ?? ''}/examples`;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const body = marshalRequest(req.example, marshalCreateExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -123,7 +126,7 @@ export class SupervisorAgentsClient {
     const url = `${host}/api/2.1/supervisor-agents`;
     const body = marshalRequest(
       req.supervisorAgent,
-      marshalSupervisorAgentSchema
+      marshalCreateSupervisorAgentSchema
     );
     let resp: SupervisorAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -160,7 +163,7 @@ export class SupervisorAgentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tool, marshalToolSchema);
+    const body = marshalRequest(req.tool, marshalCreateToolSchema);
     let resp: Tool | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -523,7 +526,7 @@ export class SupervisorAgentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const body = marshalRequest(req.example, marshalUpdateExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -570,7 +573,7 @@ export class SupervisorAgentsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.supervisorAgent,
-      marshalSupervisorAgentSchema
+      marshalUpdateSupervisorAgentSchema
     );
     let resp: SupervisorAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -616,7 +619,7 @@ export class SupervisorAgentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tool, marshalToolSchema);
+    const body = marshalRequest(req.tool, marshalUpdateToolSchema);
     let resp: Tool | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

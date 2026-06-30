@@ -96,7 +96,7 @@ export interface BatchCreateAccessRequestsRequest {
    *
    * At most 30 requests per API call.
    */
-  requests?: CreateAccessRequest[] | undefined;
+  requests?: CreateCreateAccessRequest[] | undefined;
 }
 
 export interface BatchCreateAccessRequestsResponse {
@@ -133,6 +133,65 @@ export interface CreateAccessRequestResponse {
   behalfOf?: Principal | undefined;
   /** The access request destinations for all the securables the principal requested. */
   requestDestinations?: AccessRequestDestinations[] | undefined;
+}
+
+export interface CreateCreateAccessRequest {
+  /**
+   * Optional. The principal this request is for.
+   * Empty `behalf_of` defaults to the requester's identity.
+   *
+   * Principals must be unique across the API call.
+   */
+  behalfOf?: CreatePrincipal | undefined;
+  /**
+   * Optional. Comment associated with the request.
+   *
+   * At most 200 characters, can only contain lowercase/uppercase
+   * letters (a-z, A-Z), numbers (0-9), punctuation, and spaces.
+   */
+  comment?: string | undefined;
+  /**
+   * List of securables and their corresponding requested UC privileges.
+   *
+   * At most 30 securables can be requested for a principal per batched call.
+   * Each securable can only be requested once per principal.
+   */
+  securablePermissions?: CreateSecurablePermissions[] | undefined;
+}
+
+export interface CreatePrincipal {
+  /** <Databricks> user, group or service principal ID. */
+  id?: string | undefined;
+  principalType?: PrincipalType | undefined;
+}
+
+/**
+ * Generic definition of a securable, which is uniquely defined in a metastore
+ * by its type and full name.
+ */
+export interface CreateSecurable {
+  /**
+   * Required. The type of securable (catalog/schema/table).
+   * Optional if resource_name is present.
+   */
+  type?: SecurableType | undefined;
+  /**
+   * Required. The full name of the catalog/schema/table.
+   * Optional if resource_name is present.
+   */
+  fullName?: string | undefined;
+  /**
+   * Optional. The name of the Share object that contains the securable when the securable is
+   * getting shared in D2D Delta Sharing.
+   */
+  providerShare?: string | undefined;
+}
+
+export interface CreateSecurablePermissions {
+  /** The securable for which the access request destinations are being requested. */
+  securable?: CreateSecurable | undefined;
+  /** List of requested Unity Catalog permissions. */
+  permissions?: string[] | undefined;
 }
 
 export interface GetAccessRequestDestinationsRequest {
@@ -194,13 +253,59 @@ export interface SecurablePermissions {
   permissions?: string[] | undefined;
 }
 
+export interface UpdateAccessRequestDestinations {
+  /** The access request destinations for the securable. */
+  destinations?: UpdateNotificationDestination[] | undefined;
+  /** The securable for which the access request destinations are being modified or read. */
+  securable?: UpdateSecurable | undefined;
+}
+
 export interface UpdateAccessRequestDestinationsRequest {
   /**
    * The access request destinations to assign to the securable.
    * For each destination, a **destination_id** and **destination_type** must be defined.
    */
-  accessRequestDestinations?: AccessRequestDestinations | undefined;
-  updateMask?: FieldMask<AccessRequestDestinations> | undefined;
+  accessRequestDestinations?: UpdateAccessRequestDestinations | undefined;
+  updateMask?: FieldMask<UpdateAccessRequestDestinations> | undefined;
+}
+
+export interface UpdateNotificationDestination {
+  /**
+   * The identifier for the destination. This is the email address for EMAIL destinations, the URL for URL destinations,
+   * or the unique <Databricks> notification destination ID for all other external destinations.
+   */
+  destinationId?: string | undefined;
+  /** The type of the destination. */
+  destinationType?: DestinationType | undefined;
+  /**
+   * This field is used to denote whether the destination is the email of the owner of the securable object.
+   * The special destination cannot be assigned to a securable and only represents the default destination of the securable.
+   * The securable types that support default special destinations are: "catalog", "external_location", "connection", "credential", and "metastore".
+   * The **destination_type** of a **special_destination** is always EMAIL.
+   */
+  specialDestination?: SpecialDestination | undefined;
+}
+
+/**
+ * Generic definition of a securable, which is uniquely defined in a metastore
+ * by its type and full name.
+ */
+export interface UpdateSecurable {
+  /**
+   * Required. The type of securable (catalog/schema/table).
+   * Optional if resource_name is present.
+   */
+  type?: SecurableType | undefined;
+  /**
+   * Required. The full name of the catalog/schema/table.
+   * Optional if resource_name is present.
+   */
+  fullName?: string | undefined;
+  /**
+   * Optional. The name of the Share object that contains the securable when the securable is
+   * getting shared in D2D Delta Sharing.
+   */
+  providerShare?: string | undefined;
 }
 
 export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDestinations> =
@@ -285,42 +390,22 @@ export const unmarshalSecurableSchema: z.ZodType<Securable> = z
     providerShare: d.provider_share,
   }));
 
-export const marshalAccessRequestDestinationsSchema: z.ZodType = z
-  .object({
-    destinations: z
-      .array(z.lazy(() => marshalNotificationDestinationSchema))
-      .optional(),
-    securable: z.lazy(() => marshalSecurableSchema).optional(),
-    areAnyDestinationsHidden: z.boolean().optional(),
-    destinationSourceSecurable: z.lazy(() => marshalSecurableSchema).optional(),
-    securableType: z.string().optional(),
-    fullName: z.string().optional(),
-  })
-  .transform(d => ({
-    destinations: d.destinations,
-    securable: d.securable,
-    are_any_destinations_hidden: d.areAnyDestinationsHidden,
-    destination_source_securable: d.destinationSourceSecurable,
-    securable_type: d.securableType,
-    full_name: d.fullName,
-  }));
-
 export const marshalBatchCreateAccessRequestsRequestSchema: z.ZodType = z
   .object({
     requests: z
-      .array(z.lazy(() => marshalCreateAccessRequestSchema))
+      .array(z.lazy(() => marshalCreateCreateAccessRequestSchema))
       .optional(),
   })
   .transform(d => ({
     requests: d.requests,
   }));
 
-export const marshalCreateAccessRequestSchema: z.ZodType = z
+export const marshalCreateCreateAccessRequestSchema: z.ZodType = z
   .object({
-    behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
+    behalfOf: z.lazy(() => marshalCreatePrincipalSchema).optional(),
     comment: z.string().optional(),
     securablePermissions: z
-      .array(z.lazy(() => marshalSecurablePermissionsSchema))
+      .array(z.lazy(() => marshalCreateSecurablePermissionsSchema))
       .optional(),
   })
   .transform(d => ({
@@ -329,19 +414,7 @@ export const marshalCreateAccessRequestSchema: z.ZodType = z
     securable_permissions: d.securablePermissions,
   }));
 
-export const marshalNotificationDestinationSchema: z.ZodType = z
-  .object({
-    destinationId: z.string().optional(),
-    destinationType: z.string().optional(),
-    specialDestination: z.string().optional(),
-  })
-  .transform(d => ({
-    destination_id: d.destinationId,
-    destination_type: d.destinationType,
-    special_destination: d.specialDestination,
-  }));
-
-export const marshalPrincipalSchema: z.ZodType = z
+export const marshalCreatePrincipalSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     principalType: z.string().optional(),
@@ -351,7 +424,7 @@ export const marshalPrincipalSchema: z.ZodType = z
     principal_type: d.principalType,
   }));
 
-export const marshalSecurableSchema: z.ZodType = z
+export const marshalCreateSecurableSchema: z.ZodType = z
   .object({
     type: z.string().optional(),
     fullName: z.string().optional(),
@@ -363,9 +436,9 @@ export const marshalSecurableSchema: z.ZodType = z
     provider_share: d.providerShare,
   }));
 
-export const marshalSecurablePermissionsSchema: z.ZodType = z
+export const marshalCreateSecurablePermissionsSchema: z.ZodType = z
   .object({
-    securable: z.lazy(() => marshalSecurableSchema).optional(),
+    securable: z.lazy(() => marshalCreateSecurableSchema).optional(),
     permissions: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -373,28 +446,60 @@ export const marshalSecurablePermissionsSchema: z.ZodType = z
     permissions: d.permissions,
   }));
 
-const accessRequestDestinationsFieldMaskSchema: FieldMaskSchema = {
-  areAnyDestinationsHidden: {wire: 'are_any_destinations_hidden'},
-  destinationSourceSecurable: {
-    wire: 'destination_source_securable',
-    children: () => securableFieldMaskSchema,
-  },
+export const marshalUpdateAccessRequestDestinationsSchema: z.ZodType = z
+  .object({
+    destinations: z
+      .array(z.lazy(() => marshalUpdateNotificationDestinationSchema))
+      .optional(),
+    securable: z.lazy(() => marshalUpdateSecurableSchema).optional(),
+  })
+  .transform(d => ({
+    destinations: d.destinations,
+    securable: d.securable,
+  }));
+
+export const marshalUpdateNotificationDestinationSchema: z.ZodType = z
+  .object({
+    destinationId: z.string().optional(),
+    destinationType: z.string().optional(),
+    specialDestination: z.string().optional(),
+  })
+  .transform(d => ({
+    destination_id: d.destinationId,
+    destination_type: d.destinationType,
+    special_destination: d.specialDestination,
+  }));
+
+export const marshalUpdateSecurableSchema: z.ZodType = z
+  .object({
+    type: z.string().optional(),
+    fullName: z.string().optional(),
+    providerShare: z.string().optional(),
+  })
+  .transform(d => ({
+    type: d.type,
+    full_name: d.fullName,
+    provider_share: d.providerShare,
+  }));
+
+const updateAccessRequestDestinationsFieldMaskSchema: FieldMaskSchema = {
   destinations: {wire: 'destinations'},
-  fullName: {wire: 'full_name'},
-  securable: {wire: 'securable', children: () => securableFieldMaskSchema},
-  securableType: {wire: 'securable_type'},
+  securable: {
+    wire: 'securable',
+    children: () => updateSecurableFieldMaskSchema,
+  },
 };
 
-export function accessRequestDestinationsFieldMask(
+export function updateAccessRequestDestinationsFieldMask(
   ...paths: string[]
-): FieldMask<AccessRequestDestinations> {
-  return FieldMask.build<AccessRequestDestinations>(
+): FieldMask<UpdateAccessRequestDestinations> {
+  return FieldMask.build<UpdateAccessRequestDestinations>(
     paths,
-    accessRequestDestinationsFieldMaskSchema
+    updateAccessRequestDestinationsFieldMaskSchema
   );
 }
 
-const securableFieldMaskSchema: FieldMaskSchema = {
+const updateSecurableFieldMaskSchema: FieldMaskSchema = {
   fullName: {wire: 'full_name'},
   providerShare: {wire: 'provider_share'},
   type: {wire: 'type'},

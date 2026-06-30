@@ -9,13 +9,15 @@ export {EntityTagAssignmentsClient} from './client';
 export {TagAssignmentSourceType} from './model';
 
 export type {
+  CreateEntityTagAssignment,
   CreateEntityTagAssignmentRequest,
   DeleteEntityTagAssignmentRequest,
   EntityTagAssignment,
   GetEntityTagAssignmentRequest,
   ListEntityTagAssignmentsRequest,
   ListEntityTagAssignmentsResponse,
+  UpdateEntityTagAssignment,
   UpdateEntityTagAssignmentRequest,
 } from './model';
 
-export {entityTagAssignmentFieldMask} from './model';
+export {updateEntityTagAssignmentFieldMask} from './model';

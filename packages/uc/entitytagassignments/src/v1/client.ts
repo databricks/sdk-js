@@ -26,7 +26,8 @@ import type {
   UpdateEntityTagAssignmentRequest,
 } from './model';
 import {
-  marshalEntityTagAssignmentSchema,
+  marshalCreateEntityTagAssignmentSchema,
+  marshalUpdateEntityTagAssignmentSchema,
   unmarshalEntityTagAssignmentSchema,
   unmarshalListEntityTagAssignmentsResponseSchema,
 } from './model';
@@ -82,7 +83,7 @@ export class EntityTagAssignmentsClient {
     const url = `${host}/api/2.1/unity-catalog/entity-tag-assignments`;
     const body = marshalRequest(
       req.tagAssignment,
-      marshalEntityTagAssignmentSchema
+      marshalCreateEntityTagAssignmentSchema
     );
     let resp: EntityTagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -254,7 +255,7 @@ export class EntityTagAssignmentsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.tagAssignment,
-      marshalEntityTagAssignmentSchema
+      marshalUpdateEntityTagAssignmentSchema
     );
     let resp: EntityTagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

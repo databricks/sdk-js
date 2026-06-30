@@ -32,7 +32,7 @@ import type {
 import {
   WorkspaceStatus,
   marshalCreateWorkspaceRequestSchema,
-  marshalWorkspaceSchema,
+  marshalUpdateWorkspaceSchema,
   unmarshalWorkspaceSchema,
 } from './model';
 
@@ -235,7 +235,7 @@ export class WorkspacesClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.customerFacingWorkspace,
-      marshalWorkspaceSchema
+      marshalUpdateWorkspaceSchema
     );
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

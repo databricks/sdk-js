@@ -26,7 +26,8 @@ import type {
   UpdateSecretRequest,
 } from './model';
 import {
-  marshalSecretSchema,
+  marshalCreateSecretSchema,
+  marshalUpdateSecretSchema,
   unmarshalListSecretsResponseSchema,
   unmarshalSecretSchema,
 } from './model';
@@ -79,7 +80,7 @@ export class SecretsClient {
   ): Promise<Secret> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/unity-catalog/secrets`;
-    const body = marshalRequest(req.secret, marshalSecretSchema);
+    const body = marshalRequest(req.secret, marshalCreateSecretSchema);
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -266,7 +267,7 @@ export class SecretsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.secret, marshalSecretSchema);
+    const body = marshalRequest(req.secret, marshalUpdateSecretSchema);
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -68,8 +68,155 @@ export type DateValue_DynamicDate =
   | (typeof DateValue_DynamicDate)[keyof typeof DateValue_DynamicDate]
   | (string & {});
 
+export interface CreateCreateQueryRequestQuery {
+  /** UUID identifying the query. */
+  id?: string | undefined;
+  /** Display name of the query that appears in list views, widget headings, and on the query page. */
+  displayName?: string | undefined;
+  /** General description that conveys additional information about this query such as usage notes. */
+  description?: string | undefined;
+  /** Username of the user that owns the query. */
+  ownerUserName?: string | undefined;
+  /** ID of the SQL warehouse attached to the query. */
+  warehouseId?: string | undefined;
+  /** Text of the query to be run. */
+  queryText?: string | undefined;
+  /** Sets the "Run as" role for the object. */
+  runAsMode?: RunAsMode | undefined;
+  /** Indicates whether the query is trashed. */
+  lifecycleState?: LifecycleState | undefined;
+  /** Username of the user who last saved changes to this query. */
+  lastModifierUserName?: string | undefined;
+  /** Workspace path of the workspace folder containing the object. */
+  parentPath?: string | undefined;
+  tags?: string[] | undefined;
+  /** Timestamp when this query was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Timestamp when this query was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** List of query parameter definitions. */
+  parameters?: CreateQueryParameter[] | undefined;
+  /** Whether to apply a 1000 row limit to the query result. */
+  applyAutoLimit?: boolean | undefined;
+  /** Name of the catalog where this query will be executed. */
+  catalog?: string | undefined;
+  /** Name of the schema where this query will be executed. */
+  schema?: string | undefined;
+}
+
+export interface CreateDateRange {
+  start: string;
+  end: string;
+}
+
+export interface CreateDateRangeValue {
+  value?:
+    | {
+        $case: 'dynamicDateRangeValue';
+        /** Dynamic date-time range value based on current date-time. */
+        dynamicDateRangeValue: DateRangeValue_DynamicDateRange;
+      }
+    | {
+        $case: 'dateRangeValue';
+        /** Manually specified date-time range value. */
+        dateRangeValue: CreateDateRange;
+      }
+    | undefined;
+  /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
+  precision?: DatePrecision | undefined;
+  startDayOfWeek?: number | undefined;
+}
+
+export interface CreateDateValue {
+  value?:
+    | {
+        $case: 'dynamicDateValue';
+        /** Dynamic date-time value based on current date-time. */
+        dynamicDateValue: DateValue_DynamicDate;
+      }
+    | {
+        $case: 'dateValue';
+        /** Manually specified date-time value. */
+        dateValue: string;
+      }
+    | undefined;
+  /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
+  precision?: DatePrecision | undefined;
+}
+
+export interface CreateEnumValue {
+  /** List of selected query parameter values. */
+  values?: string[] | undefined;
+  /** List of valid query parameter values, newline delimited. */
+  enumOptions?: string | undefined;
+  /** If specified, allows multiple values to be selected for this parameter. */
+  multiValuesOptions?: CreateMultiValuesOptions | undefined;
+}
+
+export interface CreateMultiValuesOptions {
+  /** Character that prefixes each selected parameter value. */
+  prefix?: string | undefined;
+  /** Character that separates each selected parameter value. Defaults to a comma. */
+  separator?: string | undefined;
+  /** Character that suffixes each selected parameter value. */
+  suffix?: string | undefined;
+}
+
+export interface CreateNumericValue {
+  value?: number | undefined;
+}
+
+export interface CreateQueryBackedValue {
+  /** List of selected query parameter values. */
+  values?: string[] | undefined;
+  /** UUID of the query that provides the parameter values. */
+  queryId?: string | undefined;
+  /** If specified, allows multiple values to be selected for this parameter. */
+  multiValuesOptions?: CreateMultiValuesOptions | undefined;
+}
+
+export interface CreateQueryParameter {
+  /** Text displayed in the user-facing parameter widget in the UI. */
+  title?: string | undefined;
+  /** Literal parameter marker that appears between double curly braces in the query text. */
+  name?: string | undefined;
+  /** Only one of the following fields may be set, depending on the type of parameter. */
+  parameterValue?:
+    | {
+        $case: 'textValue';
+        /** Text query parameter value. */
+        textValue: CreateTextValue;
+      }
+    | {
+        $case: 'numericValue';
+        /** Numeric query parameter value. */
+        numericValue: CreateNumericValue;
+      }
+    | {
+        $case: 'enumValue';
+        /** Dropdown query parameter value. */
+        enumValue: CreateEnumValue;
+      }
+    | {
+        $case: 'dateValue';
+        /** Date query parameter value. Can only specify one of `dynamic_date_value` or `date_value`. */
+        dateValue: CreateDateValue;
+      }
+    | {
+        $case: 'dateRangeValue';
+        /** Date-range query parameter value. Can only specify one of `dynamic_date_range_value` or `date_range_value`. */
+        dateRangeValue: CreateDateRangeValue;
+      }
+    | {
+        $case: 'queryBackedValue';
+        /** Query-based dropdown query parameter value. */
+        queryBackedValue: CreateQueryBackedValue;
+      }
+    | undefined;
+}
+
 export interface CreateQueryRequest {
-  query?: CreateQueryRequestQuery | undefined;
+  query?: CreateCreateQueryRequestQuery | undefined;
   /** If true, automatically resolve query display name conflicts. Otherwise, fail the request if the query's display name conflicts with an existing query's display name. */
   autoResolveDisplayName?: boolean | undefined;
 }
@@ -108,6 +255,10 @@ export interface CreateQueryRequestQuery {
   catalog?: string | undefined;
   /** Name of the schema where this query will be executed. */
   schema?: string | undefined;
+}
+
+export interface CreateTextValue {
+  value?: string | undefined;
 }
 
 export interface DateRange {
@@ -333,9 +484,120 @@ export interface TrashQueryRequest {
   id?: string | undefined;
 }
 
+export interface UpdateDateRange {
+  start?: string | undefined;
+  end?: string | undefined;
+}
+
+export interface UpdateDateRangeValue {
+  value?:
+    | {
+        $case: 'dynamicDateRangeValue';
+        /** Dynamic date-time range value based on current date-time. */
+        dynamicDateRangeValue: DateRangeValue_DynamicDateRange;
+      }
+    | {
+        $case: 'dateRangeValue';
+        /** Manually specified date-time range value. */
+        dateRangeValue: UpdateDateRange;
+      }
+    | undefined;
+  /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
+  precision?: DatePrecision | undefined;
+  startDayOfWeek?: number | undefined;
+}
+
+export interface UpdateDateValue {
+  value?:
+    | {
+        $case: 'dynamicDateValue';
+        /** Dynamic date-time value based on current date-time. */
+        dynamicDateValue: DateValue_DynamicDate;
+      }
+    | {
+        $case: 'dateValue';
+        /** Manually specified date-time value. */
+        dateValue: string;
+      }
+    | undefined;
+  /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
+  precision?: DatePrecision | undefined;
+}
+
+export interface UpdateEnumValue {
+  /** List of selected query parameter values. */
+  values?: string[] | undefined;
+  /** List of valid query parameter values, newline delimited. */
+  enumOptions?: string | undefined;
+  /** If specified, allows multiple values to be selected for this parameter. */
+  multiValuesOptions?: UpdateMultiValuesOptions | undefined;
+}
+
+export interface UpdateMultiValuesOptions {
+  /** Character that prefixes each selected parameter value. */
+  prefix?: string | undefined;
+  /** Character that separates each selected parameter value. Defaults to a comma. */
+  separator?: string | undefined;
+  /** Character that suffixes each selected parameter value. */
+  suffix?: string | undefined;
+}
+
+export interface UpdateNumericValue {
+  value?: number | undefined;
+}
+
+export interface UpdateQueryBackedValue {
+  /** List of selected query parameter values. */
+  values?: string[] | undefined;
+  /** UUID of the query that provides the parameter values. */
+  queryId?: string | undefined;
+  /** If specified, allows multiple values to be selected for this parameter. */
+  multiValuesOptions?: UpdateMultiValuesOptions | undefined;
+}
+
+export interface UpdateQueryParameter {
+  /** Text displayed in the user-facing parameter widget in the UI. */
+  title?: string | undefined;
+  /** Literal parameter marker that appears between double curly braces in the query text. */
+  name?: string | undefined;
+  /** Only one of the following fields may be set, depending on the type of parameter. */
+  parameterValue?:
+    | {
+        $case: 'textValue';
+        /** Text query parameter value. */
+        textValue: UpdateTextValue;
+      }
+    | {
+        $case: 'numericValue';
+        /** Numeric query parameter value. */
+        numericValue: UpdateNumericValue;
+      }
+    | {
+        $case: 'enumValue';
+        /** Dropdown query parameter value. */
+        enumValue: UpdateEnumValue;
+      }
+    | {
+        $case: 'dateValue';
+        /** Date query parameter value. Can only specify one of `dynamic_date_value` or `date_value`. */
+        dateValue: UpdateDateValue;
+      }
+    | {
+        $case: 'dateRangeValue';
+        /** Date-range query parameter value. Can only specify one of `dynamic_date_range_value` or `date_range_value`. */
+        dateRangeValue: UpdateDateRangeValue;
+      }
+    | {
+        $case: 'queryBackedValue';
+        /** Query-based dropdown query parameter value. */
+        queryBackedValue: UpdateQueryBackedValue;
+      }
+    | undefined;
+}
+
 export interface UpdateQueryRequest {
-  query?: UpdateQueryRequestQuery | undefined;
-  updateMask?: FieldMask<UpdateQueryRequestQuery> | undefined;
+  query?: UpdateUpdateQueryRequestQuery | undefined;
+  updateMask?: FieldMask<UpdateUpdateQueryRequestQuery> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -369,6 +631,46 @@ export interface UpdateQueryRequestQuery {
   updateTime?: Temporal.Instant | undefined;
   /** List of query parameter definitions. */
   parameters?: QueryParameter[] | undefined;
+  /** Whether to apply a 1000 row limit to the query result. */
+  applyAutoLimit?: boolean | undefined;
+  /** Name of the catalog where this query will be executed. */
+  catalog?: string | undefined;
+  /** Name of the schema where this query will be executed. */
+  schema?: string | undefined;
+}
+
+export interface UpdateTextValue {
+  value?: string | undefined;
+}
+
+export interface UpdateUpdateQueryRequestQuery {
+  /** UUID identifying the query. */
+  id?: string | undefined;
+  /** Display name of the query that appears in list views, widget headings, and on the query page. */
+  displayName?: string | undefined;
+  /** General description that conveys additional information about this query such as usage notes. */
+  description?: string | undefined;
+  /** Username of the user that owns the query. */
+  ownerUserName?: string | undefined;
+  /** ID of the SQL warehouse attached to the query. */
+  warehouseId?: string | undefined;
+  /** Text of the query to be run. */
+  queryText?: string | undefined;
+  /** Sets the "Run as" role for the object. */
+  runAsMode?: RunAsMode | undefined;
+  /** Indicates whether the query is trashed. */
+  lifecycleState?: LifecycleState | undefined;
+  /** Username of the user who last saved changes to this query. */
+  lastModifierUserName?: string | undefined;
+  /** Workspace path of the workspace folder containing the object. */
+  parentPath?: string | undefined;
+  tags?: string[] | undefined;
+  /** Timestamp when this query was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Timestamp when this query was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** List of query parameter definitions. */
+  parameters?: UpdateQueryParameter[] | undefined;
   /** Whether to apply a 1000 row limit to the query result. */
   applyAutoLimit?: boolean | undefined;
   /** Name of the catalog where this query will be executed. */
@@ -693,17 +995,7 @@ export const unmarshalVisualizationSchema: z.ZodType<Visualization> = z
     queryId: d.query_id,
   }));
 
-export const marshalCreateQueryRequestSchema: z.ZodType = z
-  .object({
-    query: z.lazy(() => marshalCreateQueryRequestQuerySchema).optional(),
-    autoResolveDisplayName: z.boolean().optional(),
-  })
-  .transform(d => ({
-    query: d.query,
-    auto_resolve_display_name: d.autoResolveDisplayName,
-  }));
-
-export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
+export const marshalCreateCreateQueryRequestQuerySchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
@@ -724,7 +1016,9 @@ export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
+    parameters: z
+      .array(z.lazy(() => marshalCreateQueryParameterSchema))
+      .optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
@@ -749,17 +1043,17 @@ export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
     schema: d.schema,
   }));
 
-export const marshalDateRangeSchema: z.ZodType = z
+export const marshalCreateDateRangeSchema: z.ZodType = z
   .object({
-    start: z.string().optional(),
-    end: z.string().optional(),
+    start: z.string(),
+    end: z.string(),
   })
   .transform(d => ({
     start: d.start,
     end: d.end,
   }));
 
-export const marshalDateRangeValueSchema: z.ZodType = z
+export const marshalCreateDateRangeValueSchema: z.ZodType = z
   .object({
     value: z
       .discriminatedUnion('$case', [
@@ -769,7 +1063,7 @@ export const marshalDateRangeValueSchema: z.ZodType = z
         }),
         z.object({
           $case: z.literal('dateRangeValue'),
-          dateRangeValue: z.lazy(() => marshalDateRangeSchema),
+          dateRangeValue: z.lazy(() => marshalCreateDateRangeSchema),
         }),
       ])
       .optional(),
@@ -787,7 +1081,7 @@ export const marshalDateRangeValueSchema: z.ZodType = z
     start_day_of_week: d.startDayOfWeek,
   }));
 
-export const marshalDateValueSchema: z.ZodType = z
+export const marshalCreateDateValueSchema: z.ZodType = z
   .object({
     value: z
       .discriminatedUnion('$case', [
@@ -808,12 +1102,12 @@ export const marshalDateValueSchema: z.ZodType = z
     precision: d.precision,
   }));
 
-export const marshalEnumValueSchema: z.ZodType = z
+export const marshalCreateEnumValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
     enumOptions: z.string().optional(),
     multiValuesOptions: z
-      .lazy(() => marshalMultiValuesOptionsSchema)
+      .lazy(() => marshalCreateMultiValuesOptionsSchema)
       .optional(),
   })
   .transform(d => ({
@@ -822,7 +1116,7 @@ export const marshalEnumValueSchema: z.ZodType = z
     multi_values_options: d.multiValuesOptions,
   }));
 
-export const marshalMultiValuesOptionsSchema: z.ZodType = z
+export const marshalCreateMultiValuesOptionsSchema: z.ZodType = z
   .object({
     prefix: z.string().optional(),
     separator: z.string().optional(),
@@ -834,7 +1128,7 @@ export const marshalMultiValuesOptionsSchema: z.ZodType = z
     suffix: d.suffix,
   }));
 
-export const marshalNumericValueSchema: z.ZodType = z
+export const marshalCreateNumericValueSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
   })
@@ -842,12 +1136,12 @@ export const marshalNumericValueSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalQueryBackedValueSchema: z.ZodType = z
+export const marshalCreateQueryBackedValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
     queryId: z.string().optional(),
     multiValuesOptions: z
-      .lazy(() => marshalMultiValuesOptionsSchema)
+      .lazy(() => marshalCreateMultiValuesOptionsSchema)
       .optional(),
   })
   .transform(d => ({
@@ -856,7 +1150,7 @@ export const marshalQueryBackedValueSchema: z.ZodType = z
     multi_values_options: d.multiValuesOptions,
   }));
 
-export const marshalQueryParameterSchema: z.ZodType = z
+export const marshalCreateQueryParameterSchema: z.ZodType = z
   .object({
     title: z.string().optional(),
     name: z.string().optional(),
@@ -864,27 +1158,27 @@ export const marshalQueryParameterSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('textValue'),
-          textValue: z.lazy(() => marshalTextValueSchema),
+          textValue: z.lazy(() => marshalCreateTextValueSchema),
         }),
         z.object({
           $case: z.literal('numericValue'),
-          numericValue: z.lazy(() => marshalNumericValueSchema),
+          numericValue: z.lazy(() => marshalCreateNumericValueSchema),
         }),
         z.object({
           $case: z.literal('enumValue'),
-          enumValue: z.lazy(() => marshalEnumValueSchema),
+          enumValue: z.lazy(() => marshalCreateEnumValueSchema),
         }),
         z.object({
           $case: z.literal('dateValue'),
-          dateValue: z.lazy(() => marshalDateValueSchema),
+          dateValue: z.lazy(() => marshalCreateDateValueSchema),
         }),
         z.object({
           $case: z.literal('dateRangeValue'),
-          dateRangeValue: z.lazy(() => marshalDateRangeValueSchema),
+          dateRangeValue: z.lazy(() => marshalCreateDateRangeValueSchema),
         }),
         z.object({
           $case: z.literal('queryBackedValue'),
-          queryBackedValue: z.lazy(() => marshalQueryBackedValueSchema),
+          queryBackedValue: z.lazy(() => marshalCreateQueryBackedValueSchema),
         }),
       ])
       .optional(),
@@ -912,7 +1206,17 @@ export const marshalQueryParameterSchema: z.ZodType = z
     }),
   }));
 
-export const marshalTextValueSchema: z.ZodType = z
+export const marshalCreateQueryRequestSchema: z.ZodType = z
+  .object({
+    query: z.lazy(() => marshalCreateCreateQueryRequestQuerySchema).optional(),
+    autoResolveDisplayName: z.boolean().optional(),
+  })
+  .transform(d => ({
+    query: d.query,
+    auto_resolve_display_name: d.autoResolveDisplayName,
+  }));
+
+export const marshalCreateTextValueSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
   })
@@ -920,9 +1224,172 @@ export const marshalTextValueSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalUpdateDateRangeSchema: z.ZodType = z
+  .object({
+    start: z.string().optional(),
+    end: z.string().optional(),
+  })
+  .transform(d => ({
+    start: d.start,
+    end: d.end,
+  }));
+
+export const marshalUpdateDateRangeValueSchema: z.ZodType = z
+  .object({
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dynamicDateRangeValue'),
+          dynamicDateRangeValue: z.string(),
+        }),
+        z.object({
+          $case: z.literal('dateRangeValue'),
+          dateRangeValue: z.lazy(() => marshalUpdateDateRangeSchema),
+        }),
+      ])
+      .optional(),
+    precision: z.string().optional(),
+    startDayOfWeek: z.number().optional(),
+  })
+  .transform(d => ({
+    ...(d.value?.$case === 'dynamicDateRangeValue' && {
+      dynamic_date_range_value: d.value.dynamicDateRangeValue,
+    }),
+    ...(d.value?.$case === 'dateRangeValue' && {
+      date_range_value: d.value.dateRangeValue,
+    }),
+    precision: d.precision,
+    start_day_of_week: d.startDayOfWeek,
+  }));
+
+export const marshalUpdateDateValueSchema: z.ZodType = z
+  .object({
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dynamicDateValue'),
+          dynamicDateValue: z.string(),
+        }),
+        z.object({$case: z.literal('dateValue'), dateValue: z.string()}),
+      ])
+      .optional(),
+    precision: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.value?.$case === 'dynamicDateValue' && {
+      dynamic_date_value: d.value.dynamicDateValue,
+    }),
+    ...(d.value?.$case === 'dateValue' && {date_value: d.value.dateValue}),
+    precision: d.precision,
+  }));
+
+export const marshalUpdateEnumValueSchema: z.ZodType = z
+  .object({
+    values: z.array(z.string()).optional(),
+    enumOptions: z.string().optional(),
+    multiValuesOptions: z
+      .lazy(() => marshalUpdateMultiValuesOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+    enum_options: d.enumOptions,
+    multi_values_options: d.multiValuesOptions,
+  }));
+
+export const marshalUpdateMultiValuesOptionsSchema: z.ZodType = z
+  .object({
+    prefix: z.string().optional(),
+    separator: z.string().optional(),
+    suffix: z.string().optional(),
+  })
+  .transform(d => ({
+    prefix: d.prefix,
+    separator: d.separator,
+    suffix: d.suffix,
+  }));
+
+export const marshalUpdateNumericValueSchema: z.ZodType = z
+  .object({
+    value: z.number().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+  }));
+
+export const marshalUpdateQueryBackedValueSchema: z.ZodType = z
+  .object({
+    values: z.array(z.string()).optional(),
+    queryId: z.string().optional(),
+    multiValuesOptions: z
+      .lazy(() => marshalUpdateMultiValuesOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+    query_id: d.queryId,
+    multi_values_options: d.multiValuesOptions,
+  }));
+
+export const marshalUpdateQueryParameterSchema: z.ZodType = z
+  .object({
+    title: z.string().optional(),
+    name: z.string().optional(),
+    parameterValue: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('textValue'),
+          textValue: z.lazy(() => marshalUpdateTextValueSchema),
+        }),
+        z.object({
+          $case: z.literal('numericValue'),
+          numericValue: z.lazy(() => marshalUpdateNumericValueSchema),
+        }),
+        z.object({
+          $case: z.literal('enumValue'),
+          enumValue: z.lazy(() => marshalUpdateEnumValueSchema),
+        }),
+        z.object({
+          $case: z.literal('dateValue'),
+          dateValue: z.lazy(() => marshalUpdateDateValueSchema),
+        }),
+        z.object({
+          $case: z.literal('dateRangeValue'),
+          dateRangeValue: z.lazy(() => marshalUpdateDateRangeValueSchema),
+        }),
+        z.object({
+          $case: z.literal('queryBackedValue'),
+          queryBackedValue: z.lazy(() => marshalUpdateQueryBackedValueSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    title: d.title,
+    name: d.name,
+    ...(d.parameterValue?.$case === 'textValue' && {
+      text_value: d.parameterValue.textValue,
+    }),
+    ...(d.parameterValue?.$case === 'numericValue' && {
+      numeric_value: d.parameterValue.numericValue,
+    }),
+    ...(d.parameterValue?.$case === 'enumValue' && {
+      enum_value: d.parameterValue.enumValue,
+    }),
+    ...(d.parameterValue?.$case === 'dateValue' && {
+      date_value: d.parameterValue.dateValue,
+    }),
+    ...(d.parameterValue?.$case === 'dateRangeValue' && {
+      date_range_value: d.parameterValue.dateRangeValue,
+    }),
+    ...(d.parameterValue?.$case === 'queryBackedValue' && {
+      query_backed_value: d.parameterValue.queryBackedValue,
+    }),
+  }));
+
 export const marshalUpdateQueryRequestSchema: z.ZodType = z
   .object({
-    query: z.lazy(() => marshalUpdateQueryRequestQuerySchema).optional(),
+    query: z.lazy(() => marshalUpdateUpdateQueryRequestQuerySchema).optional(),
     updateMask: z
       .any()
       .transform((m: FieldMask) => m.toString())
@@ -937,7 +1404,15 @@ export const marshalUpdateQueryRequestSchema: z.ZodType = z
     auto_resolve_display_name: d.autoResolveDisplayName,
   }));
 
-export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
+export const marshalUpdateTextValueSchema: z.ZodType = z
+  .object({
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+  }));
+
+export const marshalUpdateUpdateQueryRequestQuerySchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
@@ -958,7 +1433,9 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
+    parameters: z
+      .array(z.lazy(() => marshalUpdateQueryParameterSchema))
+      .optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
@@ -983,7 +1460,7 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
     schema: d.schema,
   }));
 
-const updateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
+const updateUpdateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
   applyAutoLimit: {wire: 'apply_auto_limit'},
   catalog: {wire: 'catalog'},
   createTime: {wire: 'create_time'},
@@ -1003,11 +1480,11 @@ const updateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
   warehouseId: {wire: 'warehouse_id'},
 };
 
-export function updateQueryRequestQueryFieldMask(
+export function updateUpdateQueryRequestQueryFieldMask(
   ...paths: string[]
-): FieldMask<UpdateQueryRequestQuery> {
-  return FieldMask.build<UpdateQueryRequestQuery>(
+): FieldMask<UpdateUpdateQueryRequestQuery> {
+  return FieldMask.build<UpdateUpdateQueryRequestQuery>(
     paths,
-    updateQueryRequestQueryFieldMaskSchema
+    updateUpdateQueryRequestQueryFieldMaskSchema
   );
 }

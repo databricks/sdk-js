@@ -101,6 +101,100 @@ export interface ConnectionDependency {
   connectionName?: string | undefined;
 }
 
+/** A connection that is dependent on a SQL object. */
+export interface CreateConnectionDependency {
+  /** Full name of the dependent connection, in the form of __connection_name__. */
+  connectionName?: string | undefined;
+}
+
+export interface CreateCreateFunction {
+  /** Name of function, relative to parent schema. */
+  name?: string | undefined;
+  /** Name of parent Catalog. */
+  catalogName?: string | undefined;
+  /** Name of parent Schema relative to its parent Catalog. */
+  schemaName?: string | undefined;
+  /** Function input parameters. */
+  inputParams?: CreateFunctionParameterInfos | undefined;
+  /** Scalar function return data type. */
+  dataType?: ColumnTypeName | undefined;
+  /** Pretty printed function data type. */
+  fullDataType?: string | undefined;
+  /** Function language. When **EXTERNAL** is used, the language of the routine function should be specified in the **external_language** field, and the **return_params** of the function cannot be used (as **TABLE** return type is not supported), and the **sql_data_access** field must be **NO_SQL**. */
+  routineBody?: FunctionInfo_RoutineBody | undefined;
+  /** Function body. */
+  routineDefinition?: string | undefined;
+  /** Function parameter style. **S** is the value for SQL. */
+  parameterStyle?: FunctionInfo_ParameterStyle | undefined;
+  /** Whether the function is deterministic. */
+  isDeterministic?: boolean | undefined;
+  /** Function SQL data access. */
+  sqlDataAccess?: FunctionInfo_SqlDataAccess | undefined;
+  /** Function null call. */
+  isNullCall?: boolean | undefined;
+  /** Function security type. */
+  securityType?: FunctionInfo_SecurityType | undefined;
+  /** Specific name of the function; Reserved for future use. */
+  specificName?: string | undefined;
+  /** Table function return parameters. */
+  returnParams?: CreateFunctionParameterInfos | undefined;
+  /** External function name. */
+  externalName?: string | undefined;
+  /** External function language. */
+  externalLanguage?: string | undefined;
+  /** List of schemes whose objects can be referenced without qualification. */
+  sqlPath?: string | undefined;
+  /** Username of current owner of the function. */
+  owner?: string | undefined;
+  /** User-provided free-form text description. */
+  comment?: string | undefined;
+  /** JSON-serialized key-value pair map, encoded (escaped) as a string. */
+  properties?: string | undefined;
+  /** function dependencies. */
+  routineDependencies?: CreateDependencyList | undefined;
+  /** Unique identifier of parent metastore. */
+  metastoreId?: string | undefined;
+  /** Full name of Function, in form of **catalog_name**.**schema_name**.**function_name** */
+  fullName?: string | undefined;
+  /** Time at which this function was created, in epoch milliseconds. */
+  createdAt?: bigint | undefined;
+  /** Username of function creator. */
+  createdBy?: string | undefined;
+  /** Time at which this function was last modified, in epoch milliseconds. */
+  updatedAt?: bigint | undefined;
+  /** Username of user who last modified the function. */
+  updatedBy?: string | undefined;
+  /** Id of Function, relative to parent schema. */
+  functionId?: string | undefined;
+  /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
+  browseOnly?: boolean | undefined;
+}
+
+/** A credential that is dependent on a SQL object. */
+export interface CreateCredentialDependency {
+  /** Full name of the dependent credential, in the form of __credential_name__. */
+  credentialName?: string | undefined;
+}
+
+/**
+ * A dependency of a SQL object. One of the following fields must be defined:
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
+ */
+export interface CreateDependency {
+  value?:
+    | {$case: 'table'; table: CreateTableDependency}
+    | {$case: 'function'; function: CreateFunctionDependency}
+    | {$case: 'connection'; connection: CreateConnectionDependency}
+    | {$case: 'credential'; credential: CreateCredentialDependency}
+    | undefined;
+}
+
+/** A list of dependencies. */
+export interface CreateDependencyList {
+  /** Array of dependencies. */
+  dependencies?: CreateDependency[] | undefined;
+}
+
 export interface CreateFunction {
   /** Name of function, relative to parent schema. */
   name?: string | undefined;
@@ -164,9 +258,52 @@ export interface CreateFunction {
   browseOnly?: boolean | undefined;
 }
 
+/** A function that is dependent on a SQL object. */
+export interface CreateFunctionDependency {
+  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  functionFullName: string;
+}
+
+export interface CreateFunctionParameterInfo {
+  /** Name of Parameter. */
+  name: string;
+  /** Full data type spec, SQL/catalogString text. */
+  typeText: string;
+  /** Full data type spec, JSON-serialized. */
+  typeJson?: string | undefined;
+  /** Name of type (INT, STRUCT, MAP, etc.) */
+  typeName: ColumnTypeName;
+  /** Digits of precision; required on Create for DecimalTypes. */
+  typePrecision?: number | undefined;
+  /** Digits to right of decimal; Required on Create for DecimalTypes. */
+  typeScale?: number | undefined;
+  /** Format of IntervalType. */
+  typeIntervalType?: string | undefined;
+  /** Ordinal position of column (starting at position 0). */
+  position: number;
+  /** Function parameter mode. */
+  parameterMode?: FunctionParameterMode | undefined;
+  /** Function parameter type. */
+  parameterType?: FunctionParameterType | undefined;
+  /** Default value of the parameter. */
+  parameterDefault?: string | undefined;
+  /** User-provided free-form text description. */
+  comment?: string | undefined;
+}
+
+export interface CreateFunctionParameterInfos {
+  parameters?: CreateFunctionParameterInfo[] | undefined;
+}
+
 export interface CreateFunctionRequest {
   /** Partial __FunctionInfo__ specifying the function to be created. */
-  functionInfo?: CreateFunction | undefined;
+  functionInfo?: CreateCreateFunction | undefined;
+}
+
+/** A table that is dependent on a SQL object. */
+export interface CreateTableDependency {
+  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  tableFullName: string;
 }
 
 /** A credential that is dependent on a SQL object. */
@@ -356,7 +493,7 @@ export interface UpdateFunctionRequest {
   /** Name of parent Schema relative to its parent Catalog. */
   schemaName?: string | undefined;
   /** Function input parameters. */
-  inputParams?: FunctionParameterInfos | undefined;
+  inputParams?: CreateFunctionParameterInfos | undefined;
   /** Scalar function return data type. */
   dataType?: ColumnTypeName | undefined;
   /** Pretty printed function data type. */
@@ -378,7 +515,7 @@ export interface UpdateFunctionRequest {
   /** Specific name of the function; Reserved for future use. */
   specificName?: string | undefined;
   /** Table function return parameters. */
-  returnParams?: FunctionParameterInfos | undefined;
+  returnParams?: CreateFunctionParameterInfos | undefined;
   /** External function name. */
   externalName?: string | undefined;
   /** External function language. */
@@ -392,7 +529,7 @@ export interface UpdateFunctionRequest {
   /** JSON-serialized key-value pair map, encoded (escaped) as a string. */
   properties?: string | undefined;
   /** function dependencies. */
-  routineDependencies?: DependencyList | undefined;
+  routineDependencies?: CreateDependencyList | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Full name of Function, in form of **catalog_name**.**schema_name**.**function_name** */
@@ -608,7 +745,7 @@ export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
     tableFullName: d.table_full_name,
   }));
 
-export const marshalConnectionDependencySchema: z.ZodType = z
+export const marshalCreateConnectionDependencySchema: z.ZodType = z
   .object({
     connectionName: z.string().optional(),
   })
@@ -616,12 +753,14 @@ export const marshalConnectionDependencySchema: z.ZodType = z
     connection_name: d.connectionName,
   }));
 
-export const marshalCreateFunctionSchema: z.ZodType = z
+export const marshalCreateCreateFunctionSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
-    inputParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
+    inputParams: z
+      .lazy(() => marshalCreateFunctionParameterInfosSchema)
+      .optional(),
     dataType: z.string().optional(),
     fullDataType: z.string().optional(),
     routineBody: z.string().optional(),
@@ -632,14 +771,18 @@ export const marshalCreateFunctionSchema: z.ZodType = z
     isNullCall: z.boolean().optional(),
     securityType: z.string().optional(),
     specificName: z.string().optional(),
-    returnParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
+    returnParams: z
+      .lazy(() => marshalCreateFunctionParameterInfosSchema)
+      .optional(),
     externalName: z.string().optional(),
     externalLanguage: z.string().optional(),
     sqlPath: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     properties: z.string().optional(),
-    routineDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
+    routineDependencies: z
+      .lazy(() => marshalCreateDependencyListSchema)
+      .optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
     createdAt: z.bigint().optional(),
@@ -682,15 +825,7 @@ export const marshalCreateFunctionSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
-export const marshalCreateFunctionRequestSchema: z.ZodType = z
-  .object({
-    functionInfo: z.lazy(() => marshalCreateFunctionSchema).optional(),
-  })
-  .transform(d => ({
-    function_info: d.functionInfo,
-  }));
-
-export const marshalCredentialDependencySchema: z.ZodType = z
+export const marshalCreateCredentialDependencySchema: z.ZodType = z
   .object({
     credentialName: z.string().optional(),
   })
@@ -698,25 +833,25 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
-export const marshalDependencySchema: z.ZodType = z
+export const marshalCreateDependencySchema: z.ZodType = z
   .object({
     value: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('table'),
-          table: z.lazy(() => marshalTableDependencySchema),
+          table: z.lazy(() => marshalCreateTableDependencySchema),
         }),
         z.object({
           $case: z.literal('function'),
-          function: z.lazy(() => marshalFunctionDependencySchema),
+          function: z.lazy(() => marshalCreateFunctionDependencySchema),
         }),
         z.object({
           $case: z.literal('connection'),
-          connection: z.lazy(() => marshalConnectionDependencySchema),
+          connection: z.lazy(() => marshalCreateConnectionDependencySchema),
         }),
         z.object({
           $case: z.literal('credential'),
-          credential: z.lazy(() => marshalCredentialDependencySchema),
+          credential: z.lazy(() => marshalCreateCredentialDependencySchema),
         }),
       ])
       .optional(),
@@ -728,32 +863,34 @@ export const marshalDependencySchema: z.ZodType = z
     ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
   }));
 
-export const marshalDependencyListSchema: z.ZodType = z
+export const marshalCreateDependencyListSchema: z.ZodType = z
   .object({
-    dependencies: z.array(z.lazy(() => marshalDependencySchema)).optional(),
+    dependencies: z
+      .array(z.lazy(() => marshalCreateDependencySchema))
+      .optional(),
   })
   .transform(d => ({
     dependencies: d.dependencies,
   }));
 
-export const marshalFunctionDependencySchema: z.ZodType = z
+export const marshalCreateFunctionDependencySchema: z.ZodType = z
   .object({
-    functionFullName: z.string().optional(),
+    functionFullName: z.string(),
   })
   .transform(d => ({
     function_full_name: d.functionFullName,
   }));
 
-export const marshalFunctionParameterInfoSchema: z.ZodType = z
+export const marshalCreateFunctionParameterInfoSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    typeText: z.string().optional(),
+    name: z.string(),
+    typeText: z.string(),
     typeJson: z.string().optional(),
-    typeName: z.string().optional(),
+    typeName: z.string(),
     typePrecision: z.number().optional(),
     typeScale: z.number().optional(),
     typeIntervalType: z.string().optional(),
-    position: z.number().optional(),
+    position: z.number(),
     parameterMode: z.string().optional(),
     parameterType: z.string().optional(),
     parameterDefault: z.string().optional(),
@@ -774,19 +911,27 @@ export const marshalFunctionParameterInfoSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalFunctionParameterInfosSchema: z.ZodType = z
+export const marshalCreateFunctionParameterInfosSchema: z.ZodType = z
   .object({
     parameters: z
-      .array(z.lazy(() => marshalFunctionParameterInfoSchema))
+      .array(z.lazy(() => marshalCreateFunctionParameterInfoSchema))
       .optional(),
   })
   .transform(d => ({
     parameters: d.parameters,
   }));
 
-export const marshalTableDependencySchema: z.ZodType = z
+export const marshalCreateFunctionRequestSchema: z.ZodType = z
   .object({
-    tableFullName: z.string().optional(),
+    functionInfo: z.lazy(() => marshalCreateCreateFunctionSchema).optional(),
+  })
+  .transform(d => ({
+    function_info: d.functionInfo,
+  }));
+
+export const marshalCreateTableDependencySchema: z.ZodType = z
+  .object({
+    tableFullName: z.string(),
   })
   .transform(d => ({
     table_full_name: d.tableFullName,
@@ -798,7 +943,9 @@ export const marshalUpdateFunctionRequestSchema: z.ZodType = z
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
-    inputParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
+    inputParams: z
+      .lazy(() => marshalCreateFunctionParameterInfosSchema)
+      .optional(),
     dataType: z.string().optional(),
     fullDataType: z.string().optional(),
     routineBody: z.string().optional(),
@@ -809,14 +956,18 @@ export const marshalUpdateFunctionRequestSchema: z.ZodType = z
     isNullCall: z.boolean().optional(),
     securityType: z.string().optional(),
     specificName: z.string().optional(),
-    returnParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
+    returnParams: z
+      .lazy(() => marshalCreateFunctionParameterInfosSchema)
+      .optional(),
     externalName: z.string().optional(),
     externalLanguage: z.string().optional(),
     sqlPath: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     properties: z.string().optional(),
-    routineDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
+    routineDependencies: z
+      .lazy(() => marshalCreateDependencyListSchema)
+      .optional(),
     metastoreId: z.string().optional(),
     fullName: z.string().optional(),
     createdAt: z.bigint().optional(),

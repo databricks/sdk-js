@@ -133,11 +133,91 @@ export type UpdateShareRequest_SharedDataObjectUpdate_Action =
   | (typeof UpdateShareRequest_SharedDataObjectUpdate_Action)[keyof typeof UpdateShareRequest_SharedDataObjectUpdate_Action]
   | (string & {});
 
+export interface CreateFederationPolicy {
+  /**
+   * Name of the federation policy. A recipient can have multiple policies with different names.
+   * The name must contain only lowercase alphanumeric characters, numbers, and hyphens.
+   */
+  name?: string | undefined;
+  policy?:
+    | {
+        $case: 'oidcPolicy';
+        /** Specifies the policy to use for validating OIDC claims in the federated tokens. */
+        oidcPolicy: CreateOidcFederationPolicy;
+      }
+    | undefined;
+  /** Description of the policy. This is a user-provided description. */
+  comment?: string | undefined;
+}
+
 export interface CreateFederationPolicyRequest {
   /** Name of the recipient. This is the name of the recipient for which the policy is being created. */
   recipientName?: string | undefined;
   /** Name of the policy. This is the name of the policy to be created. */
-  policy?: FederationPolicy | undefined;
+  policy?: CreateFederationPolicy | undefined;
+}
+
+export interface CreateIpAccessList {
+  /** Allowed IP Addresses in CIDR notation. Limit of 100. */
+  allowedIpAddresses?: string[] | undefined;
+}
+
+/**
+ * Specifies the policy to use for validating OIDC claims in your federated tokens from Delta Sharing Clients.
+ * Refer to https://docs.databricks.com/en/delta-sharing/create-recipient-oidc-fed for more details.
+ */
+export interface CreateOidcFederationPolicy {
+  /** The required token issuer, as specified in the 'iss' claim of federated tokens. */
+  issuer: string;
+  /**
+   * The claim that contains the subject of the token.
+   * Depending on the identity provider and the use case (U2M or M2M), this can vary:
+   * - For Entra ID (AAD):
+   * * U2M flow (group access): Use `groups`.
+   * * U2M flow (user access): Use `oid`.
+   * * M2M flow (OAuth App access): Use `azp`.
+   * - For other IdPs, refer to the specific IdP documentation.
+   *
+   * Supported `subject_claim` values are:
+   * - `oid`: Object ID of the user.
+   * - `azp`: Client ID of the OAuth app.
+   * - `groups`: Object ID of the group.
+   * - `sub`: Subject identifier for other use cases.
+   */
+  subjectClaim: string;
+  /**
+   * The required token subject, as specified in the subject claim of federated tokens.
+   * The subject claim identifies the identity of the user or machine accessing the resource.
+   * Examples for Entra ID (AAD):
+   * - U2M flow (group access): If the subject claim is `groups`, this must be the Object ID of the group in Entra ID.
+   * - U2M flow (user access): If the subject claim is `oid`, this must be the Object ID of the user in Entra ID.
+   * - M2M flow (OAuth App access): If the subject claim is `azp`, this must be the client ID of the OAuth app registered in Entra ID.
+   */
+  subject: string;
+  /**
+   * The allowed token audiences, as specified in the 'aud' claim of federated tokens.
+   * The audience identifier is intended to represent the recipient of the token.
+   * Can be any non-empty string value. As long as the audience in the token matches at least one audience in the policy,
+   */
+  audiences?: string[] | undefined;
+}
+
+export interface CreatePermissionsChange {
+  /**
+   * The principal whose privileges we are changing.
+   * Only one of principal or principal_id should be specified, never both at the same time.
+   */
+  principal?: string | undefined;
+  /** The set of privileges to add. */
+  add?: string[] | undefined;
+  /** The set of privileges to remove. */
+  remove?: string[] | undefined;
+}
+
+/** An object with __properties__ containing map of key-value properties attached to the securable. */
+export interface CreatePropertiesKvPairs {
+  /** A map of key-value properties attached to the securable. */
+  properties: Record<string, string>;
 }
 
 export interface CreateProviderRequest {
@@ -151,7 +231,7 @@ export interface CreateProviderRequest {
   /** Username of Provider owner. */
   owner?: string | undefined;
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
-  recipientProfile?: RecipientProfile | undefined;
+  recipientProfile?: CreateRecipientProfile | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** Username of Provider creator. */
@@ -168,6 +248,15 @@ export interface CreateProviderRequest {
   metastoreId?: string | undefined;
   /** The global UC metastore id of the data provider. This field is only present when the __authentication_type__ is **DATABRICKS**. The identifier is of format __cloud__:__region__:__metastore-uuid__. */
   dataProviderGlobalMetastoreId?: string | undefined;
+}
+
+export interface CreateRecipientProfile {
+  /** The version number of the recipient's credentials on a share. */
+  shareCredentialsVersion?: number | undefined;
+  /** The endpoint for the share to be used by the recipient. */
+  endpoint?: string | undefined;
+  /** The token used to authorize the recipient. */
+  bearerToken?: string | undefined;
 }
 
 export interface CreateRecipientRequest {
@@ -187,13 +276,13 @@ export interface CreateRecipientRequest {
   /** Description about the recipient. */
   comment?: string | undefined;
   /** IP Access List */
-  ipAccessList?: IpAccessList | undefined;
+  ipAccessList?: CreateIpAccessList | undefined;
   /**
    * Recipient properties as map of string key-value pairs.
    * When provided in update request, the specified properties will override the existing
    * properties. To add and remove properties, one would need to perform a read-modify-write.
    */
-  propertiesKvpairs?: PropertiesKvPairs | undefined;
+  propertiesKvpairs?: CreatePropertiesKvPairs | undefined;
   /** Expiration timestamp of the token, in epoch milliseconds. */
   expirationTime?: bigint | undefined;
   /**
@@ -208,7 +297,7 @@ export interface CreateRecipientRequest {
   /** Username of recipient creator. */
   createdBy?: string | undefined;
   /** This field is only present when the __authentication_type__ is **TOKEN**. */
-  tokens?: RecipientTokenInfo[] | undefined;
+  tokens?: CreateRecipientTokenInfo[] | undefined;
   /** Time at which the recipient was updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of recipient updater. */
@@ -232,6 +321,9 @@ export interface CreateRecipientRequest {
   id?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateRecipientTokenInfo {}
+
 export interface CreateShareRequest {
   /** Name of the share. */
   name?: string | undefined;
@@ -242,7 +334,7 @@ export interface CreateShareRequest {
   /** Storage root URL for the share. */
   storageRoot?: string | undefined;
   /** A list of shared data objects within the share. */
-  objects?: SharedDataObject[] | undefined;
+  objects?: CreateSharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** Username of share creator. */
@@ -253,6 +345,96 @@ export interface CreateShareRequest {
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for the share. */
   storageLocation?: string | undefined;
+}
+
+export interface CreateSharedDataObject {
+  /**
+   * A fully qualified name that uniquely identifies a data object.
+   * For example, a table's fully qualified name is in the format of `<catalog>.<schema>.<table>`,
+   */
+  name: string;
+  /** The type of the data object. */
+  dataObjectType?: string | undefined;
+  /** A user-provided comment when adding the data object to the share. */
+  comment?: string | undefined;
+  /**
+   * A user-provided alias name for table-like data objects within the share.
+   *
+   * Use this field for table-like objects (for example: TABLE, VIEW, MATERIALIZED_VIEW, STREAMING_TABLE, FOREIGN_TABLE).
+   * For non-table objects (for example: VOLUME, MODEL, NOTEBOOK_FILE, FUNCTION), use `string_shared_as` instead.
+   *
+   * Important: For non-table objects, this field must be omitted entirely.
+   *
+   * Format: Must be a 2-part name `<schema_name>.<table_name>` (e.g., "sales_schema.orders_table")
+   * - Both schema and table names must contain only alphanumeric characters and underscores
+   * - No periods, spaces, forward slashes, or control characters are allowed within each part
+   * - Do not include the catalog name (use 2 parts, not 3)
+   *
+   * Behavior:
+   * - If not provided, the service automatically generates the alias as `<schema>.<table>` from the object's original name
+   * - If you don't want to specify this field, omit it entirely from the request (do not pass an empty string)
+   * - The `shared_as` name must be unique within the share
+   *
+   * Examples:
+   * - Valid: "analytics_schema.customer_view"
+   * - Invalid: "catalog.analytics_schema.customer_view" (3 parts not allowed)
+   * - Invalid: "analytics-schema.customer-view" (hyphens not allowed)
+   */
+  sharedAs?: string | undefined;
+  /** Whether to enable cdf or indicate if cdf is enabled on the shared object. */
+  cdfEnabled?: boolean | undefined;
+  /** Whether to enable or disable sharing of data history. If not specified, the default is **DISABLED**. */
+  historyDataSharingStatus?:
+    | SharedDataObject_HistoryDataSharingStatus_Enum
+    | undefined;
+  /**
+   * The start version associated with the object.
+   * This allows data providers to control the lowest object version that is accessible by clients.
+   * If specified, clients can query snapshots or changes for versions >= start_version.
+   * If not specified, clients can only query starting from the version of the object at the time
+   * it was added to the share.
+   *
+   * NOTE: The start_version should be <= the `current` version of the object.
+   */
+  startVersion?: bigint | undefined;
+  /** One of: **ACTIVE**, **PERMISSION_DENIED**. */
+  status?: SharedDataObject_Status_Enum | undefined;
+  /**
+   * The content of the notebook file when the data object type is NOTEBOOK_FILE.
+   * This should be base64 encoded.
+   * Required for adding a NOTEBOOK_FILE, optional for updating, ignored for other types.
+   */
+  content?: string | undefined;
+  /**
+   * A user-provided alias name for non-table data objects within the share.
+   *
+   * Use this field for non-table objects (for example: VOLUME, MODEL, NOTEBOOK_FILE, FUNCTION).
+   * For table-like objects (for example: TABLE, VIEW, MATERIALIZED_VIEW, STREAMING_TABLE, FOREIGN_TABLE), use `shared_as` instead.
+   *
+   * Important: For table-like objects, this field must be omitted entirely.
+   *
+   * Format:
+   * - For VOLUME: Must be a 2-part name `<schema_name>.<volume_name>` (e.g., "data_schema.ml_models")
+   * - For FUNCTION: Must be a 2-part name `<schema_name>.<function_name>` (e.g., "udf_schema.calculate_tax")
+   * - For MODEL: Must be a 2-part name `<schema_name>.<model_name>` (e.g., "models.prediction_model")
+   * - For NOTEBOOK_FILE: Should be the notebook file name (e.g., "analysis_notebook.py")
+   * - All names must contain only alphanumeric characters and underscores
+   * - No periods, spaces, forward slashes, or control characters are allowed within each part
+   *
+   * Behavior:
+   * - If not provided, the service automatically generates the alias from the object's original name
+   * - If you don't want to specify this field, omit it entirely from the request (do not pass an empty string)
+   * - The `string_shared_as` name must be unique for objects of the same type within the share
+   *
+   * Examples:
+   * - Valid for VOLUME: "data_schema.training_data"
+   * - Valid for FUNCTION: "analytics.calculate_revenue"
+   * - Invalid: "catalog.data_schema.training_data" (3 parts not allowed for volumes)
+   * - Invalid: "data-schema.training-data" (hyphens not allowed)
+   */
+  stringSharedAs?: string | undefined;
+  /** Array of partitions for the shared data. */
+  partitions?: PartitionSpecification_CreatePartition[] | undefined;
 }
 
 export interface DeleteFederationPolicyRequest {
@@ -708,9 +890,35 @@ export interface OidcFederationPolicy {
 export interface PartitionSpecification {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PartitionSpecification_CreatePartition {
+  /** An array of partition values. */
+  values?: PartitionSpecification_Partition_CreatePartitionValue[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface PartitionSpecification_Partition {
   /** An array of partition values. */
   values?: PartitionSpecification_Partition_PartitionValue[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PartitionSpecification_Partition_CreatePartitionValue {
+  /** The name of the partition column. */
+  name?: string | undefined;
+  /**
+   * The value of the partition column. When this value is not set, it means `null` value.
+   * When this field is set, field `recipient_property_key` can not be set.
+   */
+  value?: string | undefined;
+  /**
+   * The key of a Delta Sharing recipient's property. For example "databricks-account-id".
+   * When this field is set, field `value` can not be set.
+   */
+  recipientPropertyKey?: string | undefined;
+  /** The operator to apply for the value. */
+  op?:
+    | PartitionSpecification_Partition_PartitionValue_PartitionValueOp
+    | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1103,7 +1311,7 @@ export interface UpdateProviderRequest {
   /** Username of Provider owner. */
   owner?: string | undefined;
   /** The recipient profile. This field is only present when the authentication_type is `TOKEN` or `OAUTH_CLIENT_CREDENTIALS`. */
-  recipientProfile?: RecipientProfile | undefined;
+  recipientProfile?: CreateRecipientProfile | undefined;
   /** Time at which this Provider was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** Username of Provider creator. */
@@ -1146,13 +1354,13 @@ export interface UpdateRecipientRequest {
   /** Description about the recipient. */
   comment?: string | undefined;
   /** IP Access List */
-  ipAccessList?: IpAccessList | undefined;
+  ipAccessList?: CreateIpAccessList | undefined;
   /**
    * Recipient properties as map of string key-value pairs.
    * When provided in update request, the specified properties will override the existing
    * properties. To add and remove properties, one would need to perform a read-modify-write.
    */
-  propertiesKvpairs?: PropertiesKvPairs | undefined;
+  propertiesKvpairs?: CreatePropertiesKvPairs | undefined;
   /** Expiration timestamp of the token, in epoch milliseconds. */
   expirationTime?: bigint | undefined;
   /**
@@ -1167,7 +1375,7 @@ export interface UpdateRecipientRequest {
   /** Username of recipient creator. */
   createdBy?: string | undefined;
   /** This field is only present when the __authentication_type__ is **TOKEN**. */
-  tokens?: RecipientTokenInfo[] | undefined;
+  tokens?: CreateRecipientTokenInfo[] | undefined;
   /** Time at which the recipient was updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of recipient updater. */
@@ -1197,7 +1405,7 @@ export interface UpdateSharePermissionsRequest {
   /** Optional. Whether to return the latest permissions list of the share in the response. */
   omitPermissionsList?: boolean | undefined;
   /** Array of permissions change objects. */
-  changes?: PermissionsChange[] | undefined;
+  changes?: CreatePermissionsChange[] | undefined;
 }
 
 export interface UpdateSharePermissionsResponse {
@@ -1211,7 +1419,7 @@ export interface UpdateShareRequest {
   /** New name for the share. */
   newName?: string | undefined;
   /** Array of shared data object updates. */
-  updates?: UpdateShareRequest_SharedDataObjectUpdate[] | undefined;
+  updates?: UpdateShareRequest_CreateSharedDataObjectUpdate[] | undefined;
   /** Name of the share. */
   name?: string | undefined;
   /** Username of current owner of share. */
@@ -1221,7 +1429,7 @@ export interface UpdateShareRequest {
   /** Storage root URL for the share. */
   storageRoot?: string | undefined;
   /** A list of shared data objects within the share. */
-  objects?: SharedDataObject[] | undefined;
+  objects?: CreateSharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** Username of share creator. */
@@ -1232,6 +1440,14 @@ export interface UpdateShareRequest {
   updatedBy?: string | undefined;
   /** Storage Location URL (full path) for the share. */
   storageLocation?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface UpdateShareRequest_CreateSharedDataObjectUpdate {
+  /** One of: **ADD**, **REMOVE**, **UPDATE**. */
+  action?: UpdateShareRequest_SharedDataObjectUpdate_Action | undefined;
+  /** The data object that is being added, removed, or updated. The maximum number update data objects allowed is a 100. */
+  dataObject?: CreateSharedDataObject | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1959,6 +2175,67 @@ export const unmarshalVolumeSchema: z.ZodType<Volume> = z
     tags: d.tags,
   }));
 
+export const marshalCreateFederationPolicySchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    policy: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('oidcPolicy'),
+          oidcPolicy: z.lazy(() => marshalCreateOidcFederationPolicySchema),
+        }),
+      ])
+      .optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
+    comment: d.comment,
+  }));
+
+export const marshalCreateIpAccessListSchema: z.ZodType = z
+  .object({
+    allowedIpAddresses: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    allowed_ip_addresses: d.allowedIpAddresses,
+  }));
+
+export const marshalCreateOidcFederationPolicySchema: z.ZodType = z
+  .object({
+    issuer: z.string(),
+    subjectClaim: z.string(),
+    subject: z.string(),
+    audiences: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    issuer: d.issuer,
+    subject_claim: d.subjectClaim,
+    subject: d.subject,
+    audiences: d.audiences,
+  }));
+
+export const marshalCreatePermissionsChangeSchema: z.ZodType = z
+  .object({
+    principal: z.string().optional(),
+    add: z.array(z.string()).optional(),
+    remove: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    add: d.add,
+    remove: d.remove,
+  }));
+
+export const marshalCreatePropertiesKvPairsSchema: z.ZodType = z
+  .object({
+    properties: z.record(z.string(), z.string()),
+  })
+  .transform(d => ({
+    properties: d.properties,
+  }));
+
 export const marshalCreateProviderRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1966,7 +2243,9 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
     recipientProfileStr: z.string().optional(),
     comment: z.string().optional(),
     owner: z.string().optional(),
-    recipientProfile: z.lazy(() => marshalRecipientProfileSchema).optional(),
+    recipientProfile: z
+      .lazy(() => marshalCreateRecipientProfileSchema)
+      .optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
@@ -1993,6 +2272,18 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
     data_provider_global_metastore_id: d.dataProviderGlobalMetastoreId,
   }));
 
+export const marshalCreateRecipientProfileSchema: z.ZodType = z
+  .object({
+    shareCredentialsVersion: z.number().optional(),
+    endpoint: z.string().optional(),
+    bearerToken: z.string().optional(),
+  })
+  .transform(d => ({
+    share_credentials_version: d.shareCredentialsVersion,
+    endpoint: d.endpoint,
+    bearer_token: d.bearerToken,
+  }));
+
 export const marshalCreateRecipientRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2001,14 +2292,18 @@ export const marshalCreateRecipientRequestSchema: z.ZodType = z
     dataRecipientGlobalMetastoreId: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
-    ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
-    propertiesKvpairs: z.lazy(() => marshalPropertiesKvPairsSchema).optional(),
+    ipAccessList: z.lazy(() => marshalCreateIpAccessListSchema).optional(),
+    propertiesKvpairs: z
+      .lazy(() => marshalCreatePropertiesKvPairsSchema)
+      .optional(),
     expirationTime: z.bigint().optional(),
     activationUrl: z.string().optional(),
     activated: z.boolean().optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    tokens: z.array(z.lazy(() => marshalRecipientTokenInfoSchema)).optional(),
+    tokens: z
+      .array(z.lazy(() => marshalCreateRecipientTokenInfoSchema))
+      .optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     cloud: z.string().optional(),
@@ -2039,13 +2334,17 @@ export const marshalCreateRecipientRequestSchema: z.ZodType = z
     id: d.id,
   }));
 
+export const marshalCreateRecipientTokenInfoSchema: z.ZodType = z.object({});
+
 export const marshalCreateShareRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
-    objects: z.array(z.lazy(() => marshalSharedDataObjectSchema)).optional(),
+    objects: z
+      .array(z.lazy(() => marshalCreateSharedDataObjectSchema))
+      .optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
@@ -2065,66 +2364,44 @@ export const marshalCreateShareRequestSchema: z.ZodType = z
     storage_location: d.storageLocation,
   }));
 
-export const marshalFederationPolicySchema: z.ZodType = z
+export const marshalCreateSharedDataObjectSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    policy: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('oidcPolicy'),
-          oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema),
-        }),
-      ])
-      .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    name: z.string(),
+    dataObjectType: z.string().optional(),
     comment: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    sharedAs: z.string().optional(),
+    cdfEnabled: z.boolean().optional(),
+    historyDataSharingStatus: z.string().optional(),
+    startVersion: z.bigint().optional(),
+    status: z.string().optional(),
+    content: z.string().optional(),
+    stringSharedAs: z.string().optional(),
+    partitions: z
+      .array(z.lazy(() => marshalPartitionSpecification_CreatePartitionSchema))
       .optional(),
-    id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
-    create_time: d.createTime,
+    data_object_type: d.dataObjectType,
     comment: d.comment,
-    update_time: d.updateTime,
-    id: d.id,
-  }));
-
-export const marshalIpAccessListSchema: z.ZodType = z
-  .object({
-    allowedIpAddresses: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    allowed_ip_addresses: d.allowedIpAddresses,
-  }));
-
-export const marshalOidcFederationPolicySchema: z.ZodType = z
-  .object({
-    issuer: z.string().optional(),
-    subjectClaim: z.string().optional(),
-    subject: z.string().optional(),
-    audiences: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    issuer: d.issuer,
-    subject_claim: d.subjectClaim,
-    subject: d.subject,
-    audiences: d.audiences,
+    shared_as: d.sharedAs,
+    cdf_enabled: d.cdfEnabled,
+    history_data_sharing_status: d.historyDataSharingStatus,
+    start_version: d.startVersion,
+    status: d.status,
+    content: d.content,
+    string_shared_as: d.stringSharedAs,
+    partitions: d.partitions,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
+export const marshalPartitionSpecification_CreatePartitionSchema: z.ZodType = z
   .object({
     values: z
       .array(
         z.lazy(
-          () => marshalPartitionSpecification_Partition_PartitionValueSchema
+          () =>
+            marshalPartitionSpecification_Partition_CreatePartitionValueSchema
         )
       )
       .optional(),
@@ -2134,7 +2411,7 @@ export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType =
+export const marshalPartitionSpecification_Partition_CreatePartitionValueSchema: z.ZodType =
   z
     .object({
       name: z.string().optional(),
@@ -2149,58 +2426,6 @@ export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.Zod
       op: d.op,
     }));
 
-export const marshalPermissionsChangeSchema: z.ZodType = z
-  .object({
-    principal: z.string().optional(),
-    add: z.array(z.string()).optional(),
-    remove: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    principal: d.principal,
-    add: d.add,
-    remove: d.remove,
-  }));
-
-export const marshalPropertiesKvPairsSchema: z.ZodType = z
-  .object({
-    properties: z.record(z.string(), z.string()).optional(),
-  })
-  .transform(d => ({
-    properties: d.properties,
-  }));
-
-export const marshalRecipientProfileSchema: z.ZodType = z
-  .object({
-    shareCredentialsVersion: z.number().optional(),
-    endpoint: z.string().optional(),
-    bearerToken: z.string().optional(),
-  })
-  .transform(d => ({
-    share_credentials_version: d.shareCredentialsVersion,
-    endpoint: d.endpoint,
-    bearer_token: d.bearerToken,
-  }));
-
-export const marshalRecipientTokenInfoSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    createdAt: z.bigint().optional(),
-    createdBy: z.string().optional(),
-    activationUrl: z.string().optional(),
-    expirationTime: z.bigint().optional(),
-    updatedAt: z.bigint().optional(),
-    updatedBy: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    created_at: d.createdAt,
-    created_by: d.createdBy,
-    activation_url: d.activationUrl,
-    expiration_time: d.expirationTime,
-    updated_at: d.updatedAt,
-    updated_by: d.updatedBy,
-  }));
-
 export const marshalRotateRecipientTokenRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2209,40 +2434,6 @@ export const marshalRotateRecipientTokenRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     existing_token_expire_in_seconds: d.existingTokenExpireInSeconds,
-  }));
-
-export const marshalSharedDataObjectSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    dataObjectType: z.string().optional(),
-    addedAt: z.bigint().optional(),
-    addedBy: z.string().optional(),
-    comment: z.string().optional(),
-    sharedAs: z.string().optional(),
-    cdfEnabled: z.boolean().optional(),
-    historyDataSharingStatus: z.string().optional(),
-    startVersion: z.bigint().optional(),
-    status: z.string().optional(),
-    content: z.string().optional(),
-    stringSharedAs: z.string().optional(),
-    partitions: z
-      .array(z.lazy(() => marshalPartitionSpecification_PartitionSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    data_object_type: d.dataObjectType,
-    added_at: d.addedAt,
-    added_by: d.addedBy,
-    comment: d.comment,
-    shared_as: d.sharedAs,
-    cdf_enabled: d.cdfEnabled,
-    history_data_sharing_status: d.historyDataSharingStatus,
-    start_version: d.startVersion,
-    status: d.status,
-    content: d.content,
-    string_shared_as: d.stringSharedAs,
-    partitions: d.partitions,
   }));
 
 export const marshalUpdateProviderRequestSchema: z.ZodType = z
@@ -2254,7 +2445,9 @@ export const marshalUpdateProviderRequestSchema: z.ZodType = z
     recipientProfileStr: z.string().optional(),
     comment: z.string().optional(),
     owner: z.string().optional(),
-    recipientProfile: z.lazy(() => marshalRecipientProfileSchema).optional(),
+    recipientProfile: z
+      .lazy(() => marshalCreateRecipientProfileSchema)
+      .optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
@@ -2293,14 +2486,18 @@ export const marshalUpdateRecipientRequestSchema: z.ZodType = z
     dataRecipientGlobalMetastoreId: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
-    ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
-    propertiesKvpairs: z.lazy(() => marshalPropertiesKvPairsSchema).optional(),
+    ipAccessList: z.lazy(() => marshalCreateIpAccessListSchema).optional(),
+    propertiesKvpairs: z
+      .lazy(() => marshalCreatePropertiesKvPairsSchema)
+      .optional(),
     expirationTime: z.bigint().optional(),
     activationUrl: z.string().optional(),
     activated: z.boolean().optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
-    tokens: z.array(z.lazy(() => marshalRecipientTokenInfoSchema)).optional(),
+    tokens: z
+      .array(z.lazy(() => marshalCreateRecipientTokenInfoSchema))
+      .optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     cloud: z.string().optional(),
@@ -2337,7 +2534,9 @@ export const marshalUpdateSharePermissionsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     omitPermissionsList: z.boolean().optional(),
-    changes: z.array(z.lazy(() => marshalPermissionsChangeSchema)).optional(),
+    changes: z
+      .array(z.lazy(() => marshalCreatePermissionsChangeSchema))
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2351,14 +2550,18 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
     newName: z.string().optional(),
     updates: z
       .array(
-        z.lazy(() => marshalUpdateShareRequest_SharedDataObjectUpdateSchema)
+        z.lazy(
+          () => marshalUpdateShareRequest_CreateSharedDataObjectUpdateSchema
+        )
       )
       .optional(),
     name: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
-    objects: z.array(z.lazy(() => marshalSharedDataObjectSchema)).optional(),
+    objects: z
+      .array(z.lazy(() => marshalCreateSharedDataObjectSchema))
+      .optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
@@ -2382,11 +2585,11 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateShareRequest_SharedDataObjectUpdateSchema: z.ZodType =
+export const marshalUpdateShareRequest_CreateSharedDataObjectUpdateSchema: z.ZodType =
   z
     .object({
       action: z.string().optional(),
-      dataObject: z.lazy(() => marshalSharedDataObjectSchema).optional(),
+      dataObject: z.lazy(() => marshalCreateSharedDataObjectSchema).optional(),
     })
     .transform(d => ({
       action: d.action,

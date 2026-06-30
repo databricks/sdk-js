@@ -18,8 +18,17 @@ export {
 
 export type {
   ConnectionDependency,
+  CreateConnectionDependency,
+  CreateCreateFunction,
+  CreateCredentialDependency,
+  CreateDependency,
+  CreateDependencyList,
   CreateFunction,
+  CreateFunctionDependency,
+  CreateFunctionParameterInfo,
+  CreateFunctionParameterInfos,
   CreateFunctionRequest,
+  CreateTableDependency,
   CredentialDependency,
   DeleteFunctionRequest,
   DeleteFunctionResponse,

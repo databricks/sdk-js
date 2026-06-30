@@ -1024,6 +1024,70 @@ export interface AppManifest_AppResourceUcSecurableSpec {
     | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceExperimentSpec {
+  permission: AppManifest_AppResourceExperimentSpec_ExperimentPermission;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceJobSpec {
+  /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
+  permission: AppManifest_AppResourceJobSpec_JobPermission;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceSecretSpec {
+  /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
+  permission: AppManifest_AppResourceSecretSpec_SecretPermission;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceServingEndpointSpec {
+  /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
+  permission: AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission;
+}
+
+/** AppResource related fields are copied from app.proto but excludes resource identifiers (e.g. name, id, key, scope, etc.) */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceSpec {
+  /** Name of the App Resource. */
+  name: string;
+  /** Description of the App Resource. */
+  description?: string | undefined;
+  resource?:
+    | {$case: 'secretSpec'; secretSpec: AppManifest_CreateAppResourceSecretSpec}
+    | {
+        $case: 'sqlWarehouseSpec';
+        sqlWarehouseSpec: AppManifest_CreateAppResourceSqlWarehouseSpec;
+      }
+    | {
+        $case: 'servingEndpointSpec';
+        servingEndpointSpec: AppManifest_CreateAppResourceServingEndpointSpec;
+      }
+    | {$case: 'jobSpec'; jobSpec: AppManifest_CreateAppResourceJobSpec}
+    | {
+        $case: 'ucSecurableSpec';
+        ucSecurableSpec: AppManifest_CreateAppResourceUcSecurableSpec;
+      }
+    | {
+        $case: 'experimentSpec';
+        experimentSpec: AppManifest_CreateAppResourceExperimentSpec;
+      }
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceSqlWarehouseSpec {
+  /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
+  permission: AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AppManifest_CreateAppResourceUcSecurableSpec {
+  securableType: AppManifest_AppResourceUcSecurableSpec_UcSecurableType;
+  permission: AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission;
+}
+
 export interface AppResource {
   /** Name of the App Resource. */
   name?: string | undefined;
@@ -1149,8 +1213,8 @@ export interface ApplicationStatus {
 }
 
 export interface AsyncUpdateAppRequest {
-  app?: App | undefined;
-  updateMask?: FieldMask<App> | undefined;
+  app?: UpdateApp | undefined;
+  updateMask?: FieldMask<UpdateApp> | undefined;
   appName?: string | undefined;
 }
 
@@ -1167,25 +1231,283 @@ export interface ComputeStatus {
   activeInstances?: number | undefined;
 }
 
+export interface CreateApp {
+  /**
+   * The name of the app. The name must contain only lowercase alphanumeric characters and hyphens.
+   * It must be unique within the workspace.
+   */
+  name?: string | undefined;
+  /** The description of the app. */
+  description?: string | undefined;
+  /** Resources for the app. */
+  resources?: CreateAppResource[] | undefined;
+  budgetPolicyId?: string | undefined;
+  userApiScopes?: string[] | undefined;
+  computeSize?: ComputeSize | undefined;
+  usagePolicyId?: string | undefined;
+  /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
+  computeMinInstances?: number | undefined;
+  /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
+  computeMaxInstances?: number | undefined;
+  /**
+   * Git repository configuration for app deployments. When specified, deployments can
+   * reference code from this repository by providing only the git reference (branch, tag, or commit).
+   */
+  gitRepository?: CreateGitRepository | undefined;
+  telemetryExportDestinations?: CreateTelemetryExportDestination[] | undefined;
+  /** Name of the space this app belongs to. */
+  space?: string | undefined;
+}
+
+export interface CreateAppDeployment {
+  /** The unique id of the deployment. */
+  deploymentId?: string | undefined;
+  /**
+   * The workspace file system path of the source code used to create the app deployment. This is different from
+   * `deployment_artifacts.source_code_path`, which is the path used by the deployed app. The former refers
+   * to the original source code location of the app in the workspace during deployment creation, whereas
+   * the latter provides a system generated stable snapshotted source code path used by the deployment.
+   */
+  sourceCodePath?: string | undefined;
+  /** Git repository to use as the source for the app deployment. */
+  gitSource?: CreateGitSource | undefined;
+  /** The mode of which the deployment will manage the source code. */
+  mode?: AppDeployment_Mode | undefined;
+  /** The command with which to run the app. This will override the command specified in the app.yaml file. */
+  command?: string[] | undefined;
+  /** The environment variables to set in the app runtime environment. This will override the environment variables specified in the app.yaml file. */
+  envVars?: CreateEnvVar[] | undefined;
+}
+
 export interface CreateAppDeploymentRequest {
   /** The name of the app. */
   appName?: string | undefined;
   /** The app deployment configuration. */
-  appDeployment?: AppDeployment | undefined;
+  appDeployment?: CreateAppDeployment | undefined;
+}
+
+/** App manifest definition */
+export interface CreateAppManifest {
+  /** The manifest schema version, for now only 1 is allowed */
+  version: number;
+  /** Name of the app defined by manifest author / publisher */
+  name: string;
+  /** Description of the app defined by manifest author / publisher */
+  description?: string | undefined;
+  resourceSpecs?: AppManifest_CreateAppResourceSpec[] | undefined;
 }
 
 export interface CreateAppRequest {
-  app?: App | undefined;
+  app?: CreateApp | undefined;
   /** If true, the app will not be started after creation. */
   noCompute?: boolean | undefined;
 }
 
+export interface CreateAppResource {
+  /** Name of the App Resource. */
+  name: string;
+  /** Description of the App Resource. */
+  description?: string | undefined;
+  resource?:
+    | {$case: 'secret'; secret: CreateAppResourceSecret}
+    | {$case: 'sqlWarehouse'; sqlWarehouse: CreateAppResourceSqlWarehouse}
+    | {
+        $case: 'servingEndpoint';
+        servingEndpoint: CreateAppResourceServingEndpoint;
+      }
+    | {$case: 'job'; job: CreateAppResourceJob}
+    | {$case: 'ucSecurable'; ucSecurable: CreateAppResourceUcSecurable}
+    | {$case: 'database'; database: CreateAppResourceDatabase}
+    | {$case: 'genieSpace'; genieSpace: CreateAppResourceGenieSpace}
+    | {$case: 'experiment'; experiment: CreateAppResourceExperiment}
+    | {$case: 'app'; app: CreateAppResourceApp}
+    | {$case: 'postgres'; postgres: CreateAppResourcePostgres}
+    | undefined;
+}
+
+export interface CreateAppResourceApp {
+  name?: string | undefined;
+  permission?: AppResourceApp_AppPermission | undefined;
+}
+
+export interface CreateAppResourceDatabase {
+  instanceName: string;
+  databaseName: string;
+  permission: AppResourceDatabase_DatabasePermission;
+}
+
+export interface CreateAppResourceExperiment {
+  experimentId: string;
+  permission: AppResourceExperiment_ExperimentPermission;
+}
+
+export interface CreateAppResourceGenieSpace {
+  name: string;
+  spaceId: string;
+  permission: AppResourceGenieSpace_GenieSpacePermission;
+}
+
+export interface CreateAppResourceJob {
+  /** Id of the job to grant permission on. */
+  id: string;
+  /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
+  permission: AppResourceJob_JobPermission;
+}
+
+export interface CreateAppResourcePostgres {
+  branch?: string | undefined;
+  database?: string | undefined;
+  permission?: AppResourcePostgres_PostgresPermission | undefined;
+}
+
+export interface CreateAppResourceSecret {
+  /** Scope of the secret to grant permission on. */
+  scope: string;
+  /** Key of the secret to grant permission on. */
+  key: string;
+  /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
+  permission: AppResourceSecret_SecretPermission;
+}
+
+export interface CreateAppResourceServingEndpoint {
+  /** Name of the serving endpoint to grant permission on. */
+  name: string;
+  /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
+  permission: AppResourceServingEndpoint_ServingEndpointPermission;
+}
+
+export interface CreateAppResourceSqlWarehouse {
+  /** Id of the SQL warehouse to grant permission on. */
+  id: string;
+  /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
+  permission: AppResourceSqlWarehouse_SqlWarehousePermission;
+}
+
+export interface CreateAppResourceUcSecurable {
+  securableFullName: string;
+  securableType: AppResourceUcSecurable_UcSecurableType;
+  permission: AppResourceUcSecurable_UcSecurablePermission;
+}
+
+/** The thumbnail for an app. */
+export interface CreateAppThumbnail {
+  /** The thumbnail image bytes. */
+  thumbnail?: Uint8Array | undefined;
+}
+
+export interface CreateCustomTemplate {
+  /**
+   * The name of the template. It must contain only alphanumeric characters, hyphens, underscores, and whitespaces.
+   * It must be unique within the workspace.
+   */
+  name?: string | undefined;
+  /** The description of the template. */
+  description?: string | undefined;
+  /** The Git repository URL that the template resides in. */
+  gitRepo: string;
+  /** The path to the template within the Git repository. */
+  path: string;
+  /** The manifest of the template. It defines fields and default values when installing the template. */
+  manifest: CreateAppManifest;
+  /** The Git provider of the template. */
+  gitProvider: string;
+}
+
 export interface CreateCustomTemplateRequest {
-  template?: CustomTemplate | undefined;
+  template?: CreateCustomTemplate | undefined;
+}
+
+export interface CreateEnvVar {
+  /** The name of the environment variable. */
+  name?: string | undefined;
+  source?:
+    | {
+        $case: 'value';
+        /** The value for the environment variable. */
+        value: string;
+      }
+    | {
+        $case: 'valueFrom';
+        /** The name of an external <Databricks> resource that contains the value, such as a secret or a database table. */
+        valueFrom: string;
+      }
+    | undefined;
+}
+
+/** Git repository configuration specifying the location of the repository. */
+export interface CreateGitRepository {
+  /** URL of the Git repository. */
+  url: string;
+  /**
+   * Git provider. Case insensitive. Supported values: gitHub, gitHubEnterprise, bitbucketCloud,
+   * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
+   */
+  provider: string;
+}
+
+/** Complete git source specification including repository location and reference. */
+export interface CreateGitSource {
+  /** Git reference to checkout. Mutually exclusive: branch, tag, or commit. */
+  reference?:
+    | {
+        $case: 'branch';
+        /** Git branch to checkout. */
+        branch: string;
+      }
+    | {
+        $case: 'tag';
+        /** Git tag to checkout. */
+        tag: string;
+      }
+    | {
+        $case: 'commit';
+        /** Git commit SHA to checkout. */
+        commit: string;
+      }
+    | undefined;
+  /**
+   * Relative path to the app source code within the Git repository. If not specified, the root
+   * of the repository is used.
+   */
+  sourceCodePath?: string | undefined;
+}
+
+export interface CreateSpace {
+  /**
+   * The name of the app space. The name must contain only lowercase alphanumeric characters and hyphens.
+   * It must be unique within the workspace.
+   */
+  name?: string | undefined;
+  /** The description of the app space. */
+  description?: string | undefined;
+  /** Resources for the app space. Resources configured at the space level are available to all apps in the space. */
+  resources?: CreateAppResource[] | undefined;
+  /** OAuth scopes for apps in the space. */
+  userApiScopes?: string[] | undefined;
+  /** The usage policy ID for managing cost at the space level. */
+  usagePolicyId?: string | undefined;
 }
 
 export interface CreateSpaceRequest {
-  space?: Space | undefined;
+  space?: CreateSpace | undefined;
+}
+
+/** A single telemetry export destination with its configuration and status. */
+export interface CreateTelemetryExportDestination {
+  /** Destination type and configuration (writable). */
+  destination?:
+    | {$case: 'unityCatalog'; unityCatalog: CreateUnityCatalog}
+    | undefined;
+}
+
+/** Unity Catalog Destinations for OTEL telemetry export. */
+export interface CreateUnityCatalog {
+  /** Unity Catalog table for OTEL logs. */
+  logsTable: string;
+  /** Unity Catalog table for OTEL metrics. */
+  metricsTable: string;
+  /** Unity Catalog table for OTEL traces (spans). */
+  tracesTable: string;
 }
 
 export interface CustomTemplate {
@@ -1511,24 +1833,183 @@ export interface UnityCatalog {
   tracesTable?: string | undefined;
 }
 
+export interface UpdateApp {
+  /**
+   * The name of the app. The name must contain only lowercase alphanumeric characters and hyphens.
+   * It must be unique within the workspace.
+   */
+  name?: string | undefined;
+  /** The description of the app. */
+  description?: string | undefined;
+  /** Resources for the app. */
+  resources?: UpdateAppResource[] | undefined;
+  budgetPolicyId?: string | undefined;
+  userApiScopes?: string[] | undefined;
+  computeSize?: ComputeSize | undefined;
+  usagePolicyId?: string | undefined;
+  /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
+  computeMinInstances?: number | undefined;
+  /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
+  computeMaxInstances?: number | undefined;
+  /**
+   * Git repository configuration for app deployments. When specified, deployments can
+   * reference code from this repository by providing only the git reference (branch, tag, or commit).
+   */
+  gitRepository?: UpdateGitRepository | undefined;
+  telemetryExportDestinations?: UpdateTelemetryExportDestination[] | undefined;
+  /** Name of the space this app belongs to. */
+  space?: string | undefined;
+}
+
 export interface UpdateAppRequest {
-  app?: App | undefined;
+  app?: CreateApp | undefined;
+}
+
+export interface UpdateAppResource {
+  /** Name of the App Resource. */
+  name?: string | undefined;
+  /** Description of the App Resource. */
+  description?: string | undefined;
+  resource?:
+    | {$case: 'secret'; secret: UpdateAppResourceSecret}
+    | {$case: 'sqlWarehouse'; sqlWarehouse: UpdateAppResourceSqlWarehouse}
+    | {
+        $case: 'servingEndpoint';
+        servingEndpoint: UpdateAppResourceServingEndpoint;
+      }
+    | {$case: 'job'; job: UpdateAppResourceJob}
+    | {$case: 'ucSecurable'; ucSecurable: UpdateAppResourceUcSecurable}
+    | {$case: 'database'; database: UpdateAppResourceDatabase}
+    | {$case: 'genieSpace'; genieSpace: UpdateAppResourceGenieSpace}
+    | {$case: 'experiment'; experiment: UpdateAppResourceExperiment}
+    | {$case: 'app'; app: UpdateAppResourceApp}
+    | {$case: 'postgres'; postgres: UpdateAppResourcePostgres}
+    | undefined;
+}
+
+export interface UpdateAppResourceApp {
+  name?: string | undefined;
+  permission?: AppResourceApp_AppPermission | undefined;
+}
+
+export interface UpdateAppResourceDatabase {
+  instanceName?: string | undefined;
+  databaseName?: string | undefined;
+  permission?: AppResourceDatabase_DatabasePermission | undefined;
+}
+
+export interface UpdateAppResourceExperiment {
+  experimentId?: string | undefined;
+  permission?: AppResourceExperiment_ExperimentPermission | undefined;
+}
+
+export interface UpdateAppResourceGenieSpace {
+  name?: string | undefined;
+  spaceId?: string | undefined;
+  permission?: AppResourceGenieSpace_GenieSpacePermission | undefined;
+}
+
+export interface UpdateAppResourceJob {
+  /** Id of the job to grant permission on. */
+  id?: string | undefined;
+  /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
+  permission?: AppResourceJob_JobPermission | undefined;
+}
+
+export interface UpdateAppResourcePostgres {
+  branch?: string | undefined;
+  database?: string | undefined;
+  permission?: AppResourcePostgres_PostgresPermission | undefined;
+}
+
+export interface UpdateAppResourceSecret {
+  /** Scope of the secret to grant permission on. */
+  scope?: string | undefined;
+  /** Key of the secret to grant permission on. */
+  key?: string | undefined;
+  /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
+  permission?: AppResourceSecret_SecretPermission | undefined;
+}
+
+export interface UpdateAppResourceServingEndpoint {
+  /** Name of the serving endpoint to grant permission on. */
+  name?: string | undefined;
+  /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
+  permission?: AppResourceServingEndpoint_ServingEndpointPermission | undefined;
+}
+
+export interface UpdateAppResourceSqlWarehouse {
+  /** Id of the SQL warehouse to grant permission on. */
+  id?: string | undefined;
+  /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
+  permission?: AppResourceSqlWarehouse_SqlWarehousePermission | undefined;
+}
+
+export interface UpdateAppResourceUcSecurable {
+  securableFullName?: string | undefined;
+  securableType?: AppResourceUcSecurable_UcSecurableType | undefined;
+  permission?: AppResourceUcSecurable_UcSecurablePermission | undefined;
 }
 
 export interface UpdateAppThumbnailRequest {
   /** The name of the app. */
   name?: string | undefined;
   /** The app thumbnail to set. */
-  appThumbnail?: AppThumbnail | undefined;
+  appThumbnail?: CreateAppThumbnail | undefined;
 }
 
 export interface UpdateCustomTemplateRequest {
-  template?: CustomTemplate | undefined;
+  template?: CreateCustomTemplate | undefined;
+}
+
+/** Git repository configuration specifying the location of the repository. */
+export interface UpdateGitRepository {
+  /** URL of the Git repository. */
+  url?: string | undefined;
+  /**
+   * Git provider. Case insensitive. Supported values: gitHub, gitHubEnterprise, bitbucketCloud,
+   * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
+   */
+  provider?: string | undefined;
+}
+
+export interface UpdateSpace {
+  /**
+   * The name of the app space. The name must contain only lowercase alphanumeric characters and hyphens.
+   * It must be unique within the workspace.
+   */
+  name?: string | undefined;
+  /** The description of the app space. */
+  description?: string | undefined;
+  /** Resources for the app space. Resources configured at the space level are available to all apps in the space. */
+  resources?: UpdateAppResource[] | undefined;
+  /** OAuth scopes for apps in the space. */
+  userApiScopes?: string[] | undefined;
+  /** The usage policy ID for managing cost at the space level. */
+  usagePolicyId?: string | undefined;
 }
 
 export interface UpdateSpaceRequest {
-  space?: Space | undefined;
-  updateMask?: FieldMask<Space> | undefined;
+  space?: UpdateSpace | undefined;
+  updateMask?: FieldMask<UpdateSpace> | undefined;
+}
+
+/** A single telemetry export destination with its configuration and status. */
+export interface UpdateTelemetryExportDestination {
+  /** Destination type and configuration (writable). */
+  destination?:
+    | {$case: 'unityCatalog'; unityCatalog: UpdateUnityCatalog}
+    | undefined;
+}
+
+/** Unity Catalog Destinations for OTEL telemetry export. */
+export interface UpdateUnityCatalog {
+  /** Unity Catalog table for OTEL logs. */
+  logsTable?: string | undefined;
+  /** Unity Catalog table for OTEL metrics. */
+  metricsTable?: string | undefined;
+  /** Unity Catalog table for OTEL traces (spans). */
+  tracesTable?: string | undefined;
 }
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
@@ -2302,230 +2783,85 @@ export const unmarshalUnityCatalogSchema: z.ZodType<UnityCatalog> = z
     tracesTable: d.traces_table,
   }));
 
-export const marshalAppSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    description: z.string().optional(),
-    computeStatus: z.lazy(() => marshalComputeStatusSchema).optional(),
-    appStatus: z.lazy(() => marshalApplicationStatusSchema).optional(),
-    url: z.string().optional(),
-    activeDeployment: z.lazy(() => marshalAppDeploymentSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    creator: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updater: z.string().optional(),
-    pendingDeployment: z.lazy(() => marshalAppDeploymentSchema).optional(),
-    resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
-    servicePrincipalId: z.bigint().optional(),
-    servicePrincipalName: z.string().optional(),
-    defaultSourceCodePath: z.string().optional(),
-    budgetPolicyId: z.string().optional(),
-    effectiveBudgetPolicyId: z.string().optional(),
-    servicePrincipalClientId: z.string().optional(),
-    userApiScopes: z.array(z.string()).optional(),
-    id: z.string().optional(),
-    effectiveUserApiScopes: z.array(z.string()).optional(),
-    oauth2AppIntegrationId: z.string().optional(),
-    oauth2AppClientId: z.string().optional(),
-    computeSize: z.string().optional(),
-    usagePolicyId: z.string().optional(),
-    effectiveUsagePolicyId: z.string().optional(),
-    computeMinInstances: z.number().optional(),
-    computeMaxInstances: z.number().optional(),
-    gitRepository: z.lazy(() => marshalGitRepositorySchema).optional(),
-    telemetryExportDestinations: z
-      .array(z.lazy(() => marshalTelemetryExportDestinationSchema))
-      .optional(),
-    thumbnailUrl: z.string().optional(),
-    space: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    description: d.description,
-    compute_status: d.computeStatus,
-    app_status: d.appStatus,
-    url: d.url,
-    active_deployment: d.activeDeployment,
-    create_time: d.createTime,
-    creator: d.creator,
-    update_time: d.updateTime,
-    updater: d.updater,
-    pending_deployment: d.pendingDeployment,
-    resources: d.resources,
-    service_principal_id: d.servicePrincipalId,
-    service_principal_name: d.servicePrincipalName,
-    default_source_code_path: d.defaultSourceCodePath,
-    budget_policy_id: d.budgetPolicyId,
-    effective_budget_policy_id: d.effectiveBudgetPolicyId,
-    service_principal_client_id: d.servicePrincipalClientId,
-    user_api_scopes: d.userApiScopes,
-    id: d.id,
-    effective_user_api_scopes: d.effectiveUserApiScopes,
-    oauth2_app_integration_id: d.oauth2AppIntegrationId,
-    oauth2_app_client_id: d.oauth2AppClientId,
-    compute_size: d.computeSize,
-    usage_policy_id: d.usagePolicyId,
-    effective_usage_policy_id: d.effectiveUsagePolicyId,
-    compute_min_instances: d.computeMinInstances,
-    compute_max_instances: d.computeMaxInstances,
-    git_repository: d.gitRepository,
-    telemetry_export_destinations: d.telemetryExportDestinations,
-    thumbnail_url: d.thumbnailUrl,
-    space: d.space,
-  }));
-
-export const marshalAppDeploymentSchema: z.ZodType = z
-  .object({
-    deploymentId: z.string().optional(),
-    sourceCodePath: z.string().optional(),
-    gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
-    mode: z.string().optional(),
-    deploymentArtifacts: z
-      .lazy(() => marshalAppDeploymentArtifactsSchema)
-      .optional(),
-    status: z.lazy(() => marshalAppDeploymentStatusSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    creator: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    command: z.array(z.string()).optional(),
-    envVars: z.array(z.lazy(() => marshalEnvVarSchema)).optional(),
-  })
-  .transform(d => ({
-    deployment_id: d.deploymentId,
-    source_code_path: d.sourceCodePath,
-    git_source: d.gitSource,
-    mode: d.mode,
-    deployment_artifacts: d.deploymentArtifacts,
-    status: d.status,
-    create_time: d.createTime,
-    creator: d.creator,
-    update_time: d.updateTime,
-    command: d.command,
-    env_vars: d.envVars,
-  }));
-
-export const marshalAppDeploymentArtifactsSchema: z.ZodType = z
-  .object({
-    sourceCodePath: z.string().optional(),
-  })
-  .transform(d => ({
-    source_code_path: d.sourceCodePath,
-  }));
-
-export const marshalAppDeploymentStatusSchema: z.ZodType = z
-  .object({
-    state: z.string().optional(),
-    message: z.string().optional(),
-  })
-  .transform(d => ({
-    state: d.state,
-    message: d.message,
-  }));
-
-export const marshalAppManifestSchema: z.ZodType = z
-  .object({
-    version: z.number().optional(),
-    name: z.string().optional(),
-    description: z.string().optional(),
-    resourceSpecs: z
-      .array(z.lazy(() => marshalAppManifest_AppResourceSpecSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    version: d.version,
-    name: d.name,
-    description: d.description,
-    resource_specs: d.resourceSpecs,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
-  .object({
-    permission: z.string().optional(),
-  })
-  .transform(d => ({
-    permission: d.permission,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
-  .object({
-    permission: z.string().optional(),
-  })
-  .transform(d => ({
-    permission: d.permission,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceSecretSpecSchema: z.ZodType = z
-  .object({
-    permission: z.string().optional(),
-  })
-  .transform(d => ({
-    permission: d.permission,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType =
+export const marshalAppManifest_CreateAppResourceExperimentSpecSchema: z.ZodType =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
+export const marshalAppManifest_CreateAppResourceJobSpecSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    permission: z.string(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAppManifest_CreateAppResourceSecretSpecSchema: z.ZodType = z
+  .object({
+    permission: z.string(),
+  })
+  .transform(d => ({
+    permission: d.permission,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAppManifest_CreateAppResourceServingEndpointSpecSchema: z.ZodType =
+  z
+    .object({
+      permission: z.string(),
+    })
+    .transform(d => ({
+      permission: d.permission,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAppManifest_CreateAppResourceSpecSchema: z.ZodType = z
+  .object({
+    name: z.string(),
     description: z.string().optional(),
     resource: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('secretSpec'),
           secretSpec: z.lazy(
-            () => marshalAppManifest_AppResourceSecretSpecSchema
+            () => marshalAppManifest_CreateAppResourceSecretSpecSchema
           ),
         }),
         z.object({
           $case: z.literal('sqlWarehouseSpec'),
           sqlWarehouseSpec: z.lazy(
-            () => marshalAppManifest_AppResourceSqlWarehouseSpecSchema
+            () => marshalAppManifest_CreateAppResourceSqlWarehouseSpecSchema
           ),
         }),
         z.object({
           $case: z.literal('servingEndpointSpec'),
           servingEndpointSpec: z.lazy(
-            () => marshalAppManifest_AppResourceServingEndpointSpecSchema
+            () => marshalAppManifest_CreateAppResourceServingEndpointSpecSchema
           ),
         }),
         z.object({
           $case: z.literal('jobSpec'),
-          jobSpec: z.lazy(() => marshalAppManifest_AppResourceJobSpecSchema),
+          jobSpec: z.lazy(
+            () => marshalAppManifest_CreateAppResourceJobSpecSchema
+          ),
         }),
         z.object({
           $case: z.literal('ucSecurableSpec'),
           ucSecurableSpec: z.lazy(
-            () => marshalAppManifest_AppResourceUcSecurableSpecSchema
+            () => marshalAppManifest_CreateAppResourceUcSecurableSpecSchema
           ),
         }),
         z.object({
           $case: z.literal('experimentSpec'),
           experimentSpec: z.lazy(
-            () => marshalAppManifest_AppResourceExperimentSpecSchema
+            () => marshalAppManifest_CreateAppResourceExperimentSpecSchema
           ),
         }),
       ])
@@ -2553,72 +2889,157 @@ export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
-  .object({
-    permission: z.string().optional(),
-  })
-  .transform(d => ({
-    permission: d.permission,
-  }));
+export const marshalAppManifest_CreateAppResourceSqlWarehouseSpecSchema: z.ZodType =
+  z
+    .object({
+      permission: z.string(),
+    })
+    .transform(d => ({
+      permission: d.permission,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType = z
+export const marshalAppManifest_CreateAppResourceUcSecurableSpecSchema: z.ZodType =
+  z
+    .object({
+      securableType: z.string(),
+      permission: z.string(),
+    })
+    .transform(d => ({
+      securable_type: d.securableType,
+      permission: d.permission,
+    }));
+
+export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
   .object({
-    securableType: z.string().optional(),
-    permission: z.string().optional(),
+    app: z.lazy(() => marshalUpdateAppSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    appName: z.string().optional(),
   })
   .transform(d => ({
-    securable_type: d.securableType,
-    permission: d.permission,
+    app: d.app,
+    update_mask: d.updateMask,
+    app_name: d.appName,
   }));
 
-export const marshalAppResourceSchema: z.ZodType = z
+export const marshalCreateAppSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
+    description: z.string().optional(),
+    resources: z.array(z.lazy(() => marshalCreateAppResourceSchema)).optional(),
+    budgetPolicyId: z.string().optional(),
+    userApiScopes: z.array(z.string()).optional(),
+    computeSize: z.string().optional(),
+    usagePolicyId: z.string().optional(),
+    computeMinInstances: z.number().optional(),
+    computeMaxInstances: z.number().optional(),
+    gitRepository: z.lazy(() => marshalCreateGitRepositorySchema).optional(),
+    telemetryExportDestinations: z
+      .array(z.lazy(() => marshalCreateTelemetryExportDestinationSchema))
+      .optional(),
+    space: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    resources: d.resources,
+    budget_policy_id: d.budgetPolicyId,
+    user_api_scopes: d.userApiScopes,
+    compute_size: d.computeSize,
+    usage_policy_id: d.usagePolicyId,
+    compute_min_instances: d.computeMinInstances,
+    compute_max_instances: d.computeMaxInstances,
+    git_repository: d.gitRepository,
+    telemetry_export_destinations: d.telemetryExportDestinations,
+    space: d.space,
+  }));
+
+export const marshalCreateAppDeploymentSchema: z.ZodType = z
+  .object({
+    deploymentId: z.string().optional(),
+    sourceCodePath: z.string().optional(),
+    gitSource: z.lazy(() => marshalCreateGitSourceSchema).optional(),
+    mode: z.string().optional(),
+    command: z.array(z.string()).optional(),
+    envVars: z.array(z.lazy(() => marshalCreateEnvVarSchema)).optional(),
+  })
+  .transform(d => ({
+    deployment_id: d.deploymentId,
+    source_code_path: d.sourceCodePath,
+    git_source: d.gitSource,
+    mode: d.mode,
+    command: d.command,
+    env_vars: d.envVars,
+  }));
+
+export const marshalCreateAppManifestSchema: z.ZodType = z
+  .object({
+    version: z.number(),
+    name: z.string(),
+    description: z.string().optional(),
+    resourceSpecs: z
+      .array(z.lazy(() => marshalAppManifest_CreateAppResourceSpecSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    version: d.version,
+    name: d.name,
+    description: d.description,
+    resource_specs: d.resourceSpecs,
+  }));
+
+export const marshalCreateAppResourceSchema: z.ZodType = z
+  .object({
+    name: z.string(),
     description: z.string().optional(),
     resource: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('secret'),
-          secret: z.lazy(() => marshalAppResourceSecretSchema),
+          secret: z.lazy(() => marshalCreateAppResourceSecretSchema),
         }),
         z.object({
           $case: z.literal('sqlWarehouse'),
-          sqlWarehouse: z.lazy(() => marshalAppResourceSqlWarehouseSchema),
+          sqlWarehouse: z.lazy(
+            () => marshalCreateAppResourceSqlWarehouseSchema
+          ),
         }),
         z.object({
           $case: z.literal('servingEndpoint'),
           servingEndpoint: z.lazy(
-            () => marshalAppResourceServingEndpointSchema
+            () => marshalCreateAppResourceServingEndpointSchema
           ),
         }),
         z.object({
           $case: z.literal('job'),
-          job: z.lazy(() => marshalAppResourceJobSchema),
+          job: z.lazy(() => marshalCreateAppResourceJobSchema),
         }),
         z.object({
           $case: z.literal('ucSecurable'),
-          ucSecurable: z.lazy(() => marshalAppResourceUcSecurableSchema),
+          ucSecurable: z.lazy(() => marshalCreateAppResourceUcSecurableSchema),
         }),
         z.object({
           $case: z.literal('database'),
-          database: z.lazy(() => marshalAppResourceDatabaseSchema),
+          database: z.lazy(() => marshalCreateAppResourceDatabaseSchema),
         }),
         z.object({
           $case: z.literal('genieSpace'),
-          genieSpace: z.lazy(() => marshalAppResourceGenieSpaceSchema),
+          genieSpace: z.lazy(() => marshalCreateAppResourceGenieSpaceSchema),
         }),
         z.object({
           $case: z.literal('experiment'),
-          experiment: z.lazy(() => marshalAppResourceExperimentSchema),
+          experiment: z.lazy(() => marshalCreateAppResourceExperimentSchema),
         }),
         z.object({
           $case: z.literal('app'),
-          app: z.lazy(() => marshalAppResourceAppSchema),
+          app: z.lazy(() => marshalCreateAppResourceAppSchema),
         }),
         z.object({
           $case: z.literal('postgres'),
-          postgres: z.lazy(() => marshalAppResourcePostgresSchema),
+          postgres: z.lazy(() => marshalCreateAppResourcePostgresSchema),
         }),
       ])
       .optional(),
@@ -2648,7 +3069,7 @@ export const marshalAppResourceSchema: z.ZodType = z
     ...(d.resource?.$case === 'postgres' && {postgres: d.resource.postgres}),
   }));
 
-export const marshalAppResourceAppSchema: z.ZodType = z
+export const marshalCreateAppResourceAppSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     permission: z.string().optional(),
@@ -2658,11 +3079,11 @@ export const marshalAppResourceAppSchema: z.ZodType = z
     permission: d.permission,
   }));
 
-export const marshalAppResourceDatabaseSchema: z.ZodType = z
+export const marshalCreateAppResourceDatabaseSchema: z.ZodType = z
   .object({
-    instanceName: z.string().optional(),
-    databaseName: z.string().optional(),
-    permission: z.string().optional(),
+    instanceName: z.string(),
+    databaseName: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     instance_name: d.instanceName,
@@ -2670,21 +3091,21 @@ export const marshalAppResourceDatabaseSchema: z.ZodType = z
     permission: d.permission,
   }));
 
-export const marshalAppResourceExperimentSchema: z.ZodType = z
+export const marshalCreateAppResourceExperimentSchema: z.ZodType = z
   .object({
-    experimentId: z.string().optional(),
-    permission: z.string().optional(),
+    experimentId: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     experiment_id: d.experimentId,
     permission: d.permission,
   }));
 
-export const marshalAppResourceGenieSpaceSchema: z.ZodType = z
+export const marshalCreateAppResourceGenieSpaceSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    spaceId: z.string().optional(),
-    permission: z.string().optional(),
+    name: z.string(),
+    spaceId: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2692,17 +3113,17 @@ export const marshalAppResourceGenieSpaceSchema: z.ZodType = z
     permission: d.permission,
   }));
 
-export const marshalAppResourceJobSchema: z.ZodType = z
+export const marshalCreateAppResourceJobSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    permission: z.string().optional(),
+    id: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     id: d.id,
     permission: d.permission,
   }));
 
-export const marshalAppResourcePostgresSchema: z.ZodType = z
+export const marshalCreateAppResourcePostgresSchema: z.ZodType = z
   .object({
     branch: z.string().optional(),
     database: z.string().optional(),
@@ -2714,11 +3135,11 @@ export const marshalAppResourcePostgresSchema: z.ZodType = z
     permission: d.permission,
   }));
 
-export const marshalAppResourceSecretSchema: z.ZodType = z
+export const marshalCreateAppResourceSecretSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-    permission: z.string().optional(),
+    scope: z.string(),
+    key: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -2726,41 +3147,39 @@ export const marshalAppResourceSecretSchema: z.ZodType = z
     permission: d.permission,
   }));
 
-export const marshalAppResourceServingEndpointSchema: z.ZodType = z
+export const marshalCreateAppResourceServingEndpointSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    permission: z.string().optional(),
+    name: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     name: d.name,
     permission: d.permission,
   }));
 
-export const marshalAppResourceSqlWarehouseSchema: z.ZodType = z
+export const marshalCreateAppResourceSqlWarehouseSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    permission: z.string().optional(),
+    id: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     id: d.id,
     permission: d.permission,
   }));
 
-export const marshalAppResourceUcSecurableSchema: z.ZodType = z
+export const marshalCreateAppResourceUcSecurableSchema: z.ZodType = z
   .object({
-    securableFullName: z.string().optional(),
-    securableType: z.string().optional(),
-    permission: z.string().optional(),
-    securableKind: z.string().optional(),
+    securableFullName: z.string(),
+    securableType: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     securable_full_name: d.securableFullName,
     securable_type: d.securableType,
     permission: d.permission,
-    securable_kind: d.securableKind,
   }));
 
-export const marshalAppThumbnailSchema: z.ZodType = z
+export const marshalCreateAppThumbnailSchema: z.ZodType = z
   .object({
     thumbnail: z
       .any()
@@ -2773,54 +3192,14 @@ export const marshalAppThumbnailSchema: z.ZodType = z
     thumbnail: d.thumbnail,
   }));
 
-export const marshalApplicationStatusSchema: z.ZodType = z
-  .object({
-    state: z.string().optional(),
-    message: z.string().optional(),
-    runningInstances: z.number().optional(),
-  })
-  .transform(d => ({
-    state: d.state,
-    message: d.message,
-    running_instances: d.runningInstances,
-  }));
-
-export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
-  .object({
-    app: z.lazy(() => marshalAppSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
-    appName: z.string().optional(),
-  })
-  .transform(d => ({
-    app: d.app,
-    update_mask: d.updateMask,
-    app_name: d.appName,
-  }));
-
-export const marshalComputeStatusSchema: z.ZodType = z
-  .object({
-    state: z.string().optional(),
-    message: z.string().optional(),
-    activeInstances: z.number().optional(),
-  })
-  .transform(d => ({
-    state: d.state,
-    message: d.message,
-    active_instances: d.activeInstances,
-  }));
-
-export const marshalCustomTemplateSchema: z.ZodType = z
+export const marshalCreateCustomTemplateSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    gitRepo: z.string().optional(),
-    path: z.string().optional(),
-    manifest: z.lazy(() => marshalAppManifestSchema).optional(),
-    gitProvider: z.string().optional(),
-    creator: z.string().optional(),
+    gitRepo: z.string(),
+    path: z.string(),
+    manifest: z.lazy(() => marshalCreateAppManifestSchema),
+    gitProvider: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2829,10 +3208,9 @@ export const marshalCustomTemplateSchema: z.ZodType = z
     path: d.path,
     manifest: d.manifest,
     git_provider: d.gitProvider,
-    creator: d.creator,
   }));
 
-export const marshalEnvVarSchema: z.ZodType = z
+export const marshalCreateEnvVarSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     source: z
@@ -2848,19 +3226,18 @@ export const marshalEnvVarSchema: z.ZodType = z
     ...(d.source?.$case === 'valueFrom' && {value_from: d.source.valueFrom}),
   }));
 
-export const marshalGitRepositorySchema: z.ZodType = z
+export const marshalCreateGitRepositorySchema: z.ZodType = z
   .object({
-    url: z.string().optional(),
-    provider: z.string().optional(),
+    url: z.string(),
+    provider: z.string(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
   }));
 
-export const marshalGitSourceSchema: z.ZodType = z
+export const marshalCreateGitSourceSchema: z.ZodType = z
   .object({
-    gitRepository: z.lazy(() => marshalGitRepositorySchema).optional(),
     reference: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('branch'), branch: z.string()}),
@@ -2869,69 +3246,57 @@ export const marshalGitSourceSchema: z.ZodType = z
       ])
       .optional(),
     sourceCodePath: z.string().optional(),
-    resolvedCommit: z.string().optional(),
   })
   .transform(d => ({
-    git_repository: d.gitRepository,
     ...(d.reference?.$case === 'branch' && {branch: d.reference.branch}),
     ...(d.reference?.$case === 'tag' && {tag: d.reference.tag}),
     ...(d.reference?.$case === 'commit' && {commit: d.reference.commit}),
     source_code_path: d.sourceCodePath,
-    resolved_commit: d.resolvedCommit,
   }));
 
-export const marshalSpaceSchema: z.ZodType = z
+export const marshalCreateSpaceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    status: z.lazy(() => marshalSpaceStatusSchema).optional(),
-    id: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    creator: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updater: z.string().optional(),
-    resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
+    resources: z.array(z.lazy(() => marshalCreateAppResourceSchema)).optional(),
     userApiScopes: z.array(z.string()).optional(),
-    effectiveUserApiScopes: z.array(z.string()).optional(),
-    servicePrincipalId: z.bigint().optional(),
-    servicePrincipalName: z.string().optional(),
-    servicePrincipalClientId: z.string().optional(),
     usagePolicyId: z.string().optional(),
-    effectiveUsagePolicyId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     description: d.description,
-    status: d.status,
-    id: d.id,
-    create_time: d.createTime,
-    creator: d.creator,
-    update_time: d.updateTime,
-    updater: d.updater,
     resources: d.resources,
     user_api_scopes: d.userApiScopes,
-    effective_user_api_scopes: d.effectiveUserApiScopes,
-    service_principal_id: d.servicePrincipalId,
-    service_principal_name: d.servicePrincipalName,
-    service_principal_client_id: d.servicePrincipalClientId,
     usage_policy_id: d.usagePolicyId,
-    effective_usage_policy_id: d.effectiveUsagePolicyId,
   }));
 
-export const marshalSpaceStatusSchema: z.ZodType = z
+export const marshalCreateTelemetryExportDestinationSchema: z.ZodType = z
   .object({
-    state: z.string().optional(),
-    message: z.string().optional(),
+    destination: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('unityCatalog'),
+          unityCatalog: z.lazy(() => marshalCreateUnityCatalogSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    state: d.state,
-    message: d.message,
+    ...(d.destination?.$case === 'unityCatalog' && {
+      unity_catalog: d.destination.unityCatalog,
+    }),
+  }));
+
+export const marshalCreateUnityCatalogSchema: z.ZodType = z
+  .object({
+    logsTable: z.string(),
+    metricsTable: z.string(),
+    tracesTable: z.string(),
+  })
+  .transform(d => ({
+    logs_table: d.logsTable,
+    metrics_table: d.metricsTable,
+    traces_table: d.tracesTable,
   }));
 
 export const marshalStartAppRequestSchema: z.ZodType = z
@@ -2950,13 +3315,269 @@ export const marshalStopAppRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalTelemetryExportDestinationSchema: z.ZodType = z
+export const marshalUpdateAppSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    resources: z.array(z.lazy(() => marshalUpdateAppResourceSchema)).optional(),
+    budgetPolicyId: z.string().optional(),
+    userApiScopes: z.array(z.string()).optional(),
+    computeSize: z.string().optional(),
+    usagePolicyId: z.string().optional(),
+    computeMinInstances: z.number().optional(),
+    computeMaxInstances: z.number().optional(),
+    gitRepository: z.lazy(() => marshalUpdateGitRepositorySchema).optional(),
+    telemetryExportDestinations: z
+      .array(z.lazy(() => marshalUpdateTelemetryExportDestinationSchema))
+      .optional(),
+    space: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    resources: d.resources,
+    budget_policy_id: d.budgetPolicyId,
+    user_api_scopes: d.userApiScopes,
+    compute_size: d.computeSize,
+    usage_policy_id: d.usagePolicyId,
+    compute_min_instances: d.computeMinInstances,
+    compute_max_instances: d.computeMaxInstances,
+    git_repository: d.gitRepository,
+    telemetry_export_destinations: d.telemetryExportDestinations,
+    space: d.space,
+  }));
+
+export const marshalUpdateAppResourceSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    resource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('secret'),
+          secret: z.lazy(() => marshalUpdateAppResourceSecretSchema),
+        }),
+        z.object({
+          $case: z.literal('sqlWarehouse'),
+          sqlWarehouse: z.lazy(
+            () => marshalUpdateAppResourceSqlWarehouseSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('servingEndpoint'),
+          servingEndpoint: z.lazy(
+            () => marshalUpdateAppResourceServingEndpointSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('job'),
+          job: z.lazy(() => marshalUpdateAppResourceJobSchema),
+        }),
+        z.object({
+          $case: z.literal('ucSecurable'),
+          ucSecurable: z.lazy(() => marshalUpdateAppResourceUcSecurableSchema),
+        }),
+        z.object({
+          $case: z.literal('database'),
+          database: z.lazy(() => marshalUpdateAppResourceDatabaseSchema),
+        }),
+        z.object({
+          $case: z.literal('genieSpace'),
+          genieSpace: z.lazy(() => marshalUpdateAppResourceGenieSpaceSchema),
+        }),
+        z.object({
+          $case: z.literal('experiment'),
+          experiment: z.lazy(() => marshalUpdateAppResourceExperimentSchema),
+        }),
+        z.object({
+          $case: z.literal('app'),
+          app: z.lazy(() => marshalUpdateAppResourceAppSchema),
+        }),
+        z.object({
+          $case: z.literal('postgres'),
+          postgres: z.lazy(() => marshalUpdateAppResourcePostgresSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    ...(d.resource?.$case === 'secret' && {secret: d.resource.secret}),
+    ...(d.resource?.$case === 'sqlWarehouse' && {
+      sql_warehouse: d.resource.sqlWarehouse,
+    }),
+    ...(d.resource?.$case === 'servingEndpoint' && {
+      serving_endpoint: d.resource.servingEndpoint,
+    }),
+    ...(d.resource?.$case === 'job' && {job: d.resource.job}),
+    ...(d.resource?.$case === 'ucSecurable' && {
+      uc_securable: d.resource.ucSecurable,
+    }),
+    ...(d.resource?.$case === 'database' && {database: d.resource.database}),
+    ...(d.resource?.$case === 'genieSpace' && {
+      genie_space: d.resource.genieSpace,
+    }),
+    ...(d.resource?.$case === 'experiment' && {
+      experiment: d.resource.experiment,
+    }),
+    ...(d.resource?.$case === 'app' && {app: d.resource.app}),
+    ...(d.resource?.$case === 'postgres' && {postgres: d.resource.postgres}),
+  }));
+
+export const marshalUpdateAppResourceAppSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceDatabaseSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    databaseName: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    database_name: d.databaseName,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceExperimentSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceGenieSpaceSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    spaceId: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    space_id: d.spaceId,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceJobSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourcePostgresSchema: z.ZodType = z
+  .object({
+    branch: z.string().optional(),
+    database: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    branch: d.branch,
+    database: d.database,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceSecretSchema: z.ZodType = z
+  .object({
+    scope: z.string().optional(),
+    key: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+    key: d.key,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceServingEndpointSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceSqlWarehouseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppResourceUcSecurableSchema: z.ZodType = z
+  .object({
+    securableFullName: z.string().optional(),
+    securableType: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    securable_full_name: d.securableFullName,
+    securable_type: d.securableType,
+    permission: d.permission,
+  }));
+
+export const marshalUpdateAppThumbnailRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    appThumbnail: z.lazy(() => marshalCreateAppThumbnailSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    app_thumbnail: d.appThumbnail,
+  }));
+
+export const marshalUpdateGitRepositorySchema: z.ZodType = z
+  .object({
+    url: z.string().optional(),
+    provider: z.string().optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    provider: d.provider,
+  }));
+
+export const marshalUpdateSpaceSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    resources: z.array(z.lazy(() => marshalUpdateAppResourceSchema)).optional(),
+    userApiScopes: z.array(z.string()).optional(),
+    usagePolicyId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    resources: d.resources,
+    user_api_scopes: d.userApiScopes,
+    usage_policy_id: d.usagePolicyId,
+  }));
+
+export const marshalUpdateTelemetryExportDestinationSchema: z.ZodType = z
   .object({
     destination: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('unityCatalog'),
-          unityCatalog: z.lazy(() => marshalUnityCatalogSchema),
+          unityCatalog: z.lazy(() => marshalUpdateUnityCatalogSchema),
         }),
       ])
       .optional(),
@@ -2967,7 +3588,7 @@ export const marshalTelemetryExportDestinationSchema: z.ZodType = z
     }),
   }));
 
-export const marshalUnityCatalogSchema: z.ZodType = z
+export const marshalUpdateUnityCatalogSchema: z.ZodType = z
   .object({
     logsTable: z.string().optional(),
     metricsTable: z.string().optional(),
@@ -2979,149 +3600,43 @@ export const marshalUnityCatalogSchema: z.ZodType = z
     traces_table: d.tracesTable,
   }));
 
-export const marshalUpdateAppThumbnailRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    appThumbnail: z.lazy(() => marshalAppThumbnailSchema).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    app_thumbnail: d.appThumbnail,
-  }));
-
-const appFieldMaskSchema: FieldMaskSchema = {
-  activeDeployment: {
-    wire: 'active_deployment',
-    children: () => appDeploymentFieldMaskSchema,
-  },
-  appStatus: {
-    wire: 'app_status',
-    children: () => applicationStatusFieldMaskSchema,
-  },
+const updateAppFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
   computeMaxInstances: {wire: 'compute_max_instances'},
   computeMinInstances: {wire: 'compute_min_instances'},
   computeSize: {wire: 'compute_size'},
-  computeStatus: {
-    wire: 'compute_status',
-    children: () => computeStatusFieldMaskSchema,
-  },
-  createTime: {wire: 'create_time'},
-  creator: {wire: 'creator'},
-  defaultSourceCodePath: {wire: 'default_source_code_path'},
   description: {wire: 'description'},
-  effectiveBudgetPolicyId: {wire: 'effective_budget_policy_id'},
-  effectiveUsagePolicyId: {wire: 'effective_usage_policy_id'},
-  effectiveUserApiScopes: {wire: 'effective_user_api_scopes'},
   gitRepository: {
     wire: 'git_repository',
-    children: () => gitRepositoryFieldMaskSchema,
+    children: () => updateGitRepositoryFieldMaskSchema,
   },
-  id: {wire: 'id'},
   name: {wire: 'name'},
-  oauth2AppClientId: {wire: 'oauth2_app_client_id'},
-  oauth2AppIntegrationId: {wire: 'oauth2_app_integration_id'},
-  pendingDeployment: {
-    wire: 'pending_deployment',
-    children: () => appDeploymentFieldMaskSchema,
-  },
   resources: {wire: 'resources'},
-  servicePrincipalClientId: {wire: 'service_principal_client_id'},
-  servicePrincipalId: {wire: 'service_principal_id'},
-  servicePrincipalName: {wire: 'service_principal_name'},
   space: {wire: 'space'},
   telemetryExportDestinations: {wire: 'telemetry_export_destinations'},
-  thumbnailUrl: {wire: 'thumbnail_url'},
-  updateTime: {wire: 'update_time'},
-  updater: {wire: 'updater'},
-  url: {wire: 'url'},
   usagePolicyId: {wire: 'usage_policy_id'},
   userApiScopes: {wire: 'user_api_scopes'},
 };
 
-export function appFieldMask(...paths: string[]): FieldMask<App> {
-  return FieldMask.build<App>(paths, appFieldMaskSchema);
+export function updateAppFieldMask(...paths: string[]): FieldMask<UpdateApp> {
+  return FieldMask.build<UpdateApp>(paths, updateAppFieldMaskSchema);
 }
 
-const appDeploymentFieldMaskSchema: FieldMaskSchema = {
-  command: {wire: 'command'},
-  createTime: {wire: 'create_time'},
-  creator: {wire: 'creator'},
-  deploymentArtifacts: {
-    wire: 'deployment_artifacts',
-    children: () => appDeploymentArtifactsFieldMaskSchema,
-  },
-  deploymentId: {wire: 'deployment_id'},
-  envVars: {wire: 'env_vars'},
-  gitSource: {wire: 'git_source', children: () => gitSourceFieldMaskSchema},
-  mode: {wire: 'mode'},
-  sourceCodePath: {wire: 'source_code_path'},
-  status: {wire: 'status', children: () => appDeploymentStatusFieldMaskSchema},
-  updateTime: {wire: 'update_time'},
-};
-
-const appDeploymentArtifactsFieldMaskSchema: FieldMaskSchema = {
-  sourceCodePath: {wire: 'source_code_path'},
-};
-
-const appDeploymentStatusFieldMaskSchema: FieldMaskSchema = {
-  message: {wire: 'message'},
-  state: {wire: 'state'},
-};
-
-const applicationStatusFieldMaskSchema: FieldMaskSchema = {
-  message: {wire: 'message'},
-  runningInstances: {wire: 'running_instances'},
-  state: {wire: 'state'},
-};
-
-const computeStatusFieldMaskSchema: FieldMaskSchema = {
-  activeInstances: {wire: 'active_instances'},
-  message: {wire: 'message'},
-  state: {wire: 'state'},
-};
-
-const gitRepositoryFieldMaskSchema: FieldMaskSchema = {
+const updateGitRepositoryFieldMaskSchema: FieldMaskSchema = {
   provider: {wire: 'provider'},
   url: {wire: 'url'},
 };
 
-const gitSourceFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch'},
-  commit: {wire: 'commit'},
-  gitRepository: {
-    wire: 'git_repository',
-    children: () => gitRepositoryFieldMaskSchema,
-  },
-  resolvedCommit: {wire: 'resolved_commit'},
-  sourceCodePath: {wire: 'source_code_path'},
-  tag: {wire: 'tag'},
-};
-
-const spaceFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  creator: {wire: 'creator'},
+const updateSpaceFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
-  effectiveUsagePolicyId: {wire: 'effective_usage_policy_id'},
-  effectiveUserApiScopes: {wire: 'effective_user_api_scopes'},
-  id: {wire: 'id'},
   name: {wire: 'name'},
   resources: {wire: 'resources'},
-  servicePrincipalClientId: {wire: 'service_principal_client_id'},
-  servicePrincipalId: {wire: 'service_principal_id'},
-  servicePrincipalName: {wire: 'service_principal_name'},
-  status: {wire: 'status', children: () => spaceStatusFieldMaskSchema},
-  updateTime: {wire: 'update_time'},
-  updater: {wire: 'updater'},
   usagePolicyId: {wire: 'usage_policy_id'},
   userApiScopes: {wire: 'user_api_scopes'},
 };
 
-export function spaceFieldMask(...paths: string[]): FieldMask<Space> {
-  return FieldMask.build<Space>(paths, spaceFieldMaskSchema);
+export function updateSpaceFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateSpace> {
+  return FieldMask.build<UpdateSpace>(paths, updateSpaceFieldMaskSchema);
 }
-
-const spaceStatusFieldMaskSchema: FieldMaskSchema = {
-  message: {wire: 'message'},
-  state: {wire: 'state'},
-};

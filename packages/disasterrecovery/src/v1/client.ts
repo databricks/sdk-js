@@ -33,9 +33,10 @@ import type {
   UpdateFailoverGroupRequest,
 } from './model';
 import {
+  marshalCreateFailoverGroupSchema,
+  marshalCreateStableUrlSchema,
   marshalFailoverFailoverGroupRequestSchema,
-  marshalFailoverGroupSchema,
-  marshalStableUrlSchema,
+  marshalUpdateFailoverGroupSchema,
   unmarshalFailoverGroupSchema,
   unmarshalListFailoverGroupsResponseSchema,
   unmarshalListStableUrlsResponseSchema,
@@ -91,7 +92,10 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
+    const body = marshalRequest(
+      req.failoverGroup,
+      marshalCreateFailoverGroupSchema
+    );
     let resp: FailoverGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -136,7 +140,7 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.stableUrl, marshalStableUrlSchema);
+    const body = marshalRequest(req.stableUrl, marshalCreateStableUrlSchema);
     let resp: StableUrl | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -436,7 +440,10 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
+    const body = marshalRequest(
+      req.failoverGroup,
+      marshalUpdateFailoverGroupSchema
+    );
     let resp: FailoverGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

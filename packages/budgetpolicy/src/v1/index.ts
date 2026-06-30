@@ -10,7 +10,9 @@ export {SortSpec_Field} from './model';
 
 export type {
   BudgetPolicy,
+  CreateBudgetPolicy,
   CreateBudgetPolicyRequest,
+  CreateCustomPolicyTag,
   CustomPolicyTag,
   DeleteBudgetPolicyRequest,
   Filter,

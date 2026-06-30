@@ -52,9 +52,30 @@ export type PublishSpec_PublishMode =
   | (typeof PublishSpec_PublishMode)[keyof typeof PublishSpec_PublishMode]
   | (string & {});
 
+/** An OnlineStore is a logical database instance that stores and serves features online. */
+export interface CreateOnlineStore {
+  /** The name of the online store. This is the unique identifier for the online store. */
+  name?: string | undefined;
+  /** The capacity of the online store. Valid values are "CU_1", "CU_2", "CU_4", "CU_8". */
+  capacity: string;
+  /** The number of read replicas for the online store. Defaults to 0. */
+  readReplicaCount?: number | undefined;
+  /** The usage policy applied to the online store to track billing. */
+  usagePolicyId?: string | undefined;
+}
+
 export interface CreateOnlineStoreRequest {
   /** Online store to create. */
-  onlineStore?: OnlineStore | undefined;
+  onlineStore?: CreateOnlineStore | undefined;
+}
+
+export interface CreatePublishSpec {
+  /** The name of the target online store. */
+  onlineStore: string;
+  /** The full three-part (catalog, schema, table) name of the online table. */
+  onlineTableName: string;
+  /** The publish mode of the pipeline that syncs the online table with the source table. */
+  publishMode: PublishSpec_PublishMode;
 }
 
 export interface DeleteOnlineStoreRequest {
@@ -117,7 +138,7 @@ export interface PublishTableRequest {
   /** The full three-part (catalog, schema, table) name of the source table. */
   sourceTableName?: string | undefined;
   /** The specification for publishing the online table from the source table. */
-  publishSpec?: PublishSpec | undefined;
+  publishSpec?: CreatePublishSpec | undefined;
 }
 
 export interface PublishTableResponse {
@@ -127,11 +148,23 @@ export interface PublishTableResponse {
   pipelineId?: string | undefined;
 }
 
+/** An OnlineStore is a logical database instance that stores and serves features online. */
+export interface UpdateOnlineStore {
+  /** The name of the online store. This is the unique identifier for the online store. */
+  name?: string | undefined;
+  /** The capacity of the online store. Valid values are "CU_1", "CU_2", "CU_4", "CU_8". */
+  capacity?: string | undefined;
+  /** The number of read replicas for the online store. Defaults to 0. */
+  readReplicaCount?: number | undefined;
+  /** The usage policy applied to the online store to track billing. */
+  usagePolicyId?: string | undefined;
+}
+
 export interface UpdateOnlineStoreRequest {
   /** Online store to update. */
-  onlineStore?: OnlineStore | undefined;
+  onlineStore?: UpdateOnlineStore | undefined;
   /** The list of fields to update. */
-  updateMask?: FieldMask<OnlineStore> | undefined;
+  updateMask?: FieldMask<UpdateOnlineStore> | undefined;
 }
 
 export const unmarshalListOnlineStoresResponseSchema: z.ZodType<ListOnlineStoresResponse> =
@@ -181,34 +214,25 @@ export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse
       pipelineId: d.pipeline_id,
     }));
 
-export const marshalOnlineStoreSchema: z.ZodType = z
+export const marshalCreateOnlineStoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    creator: z.string().optional(),
-    creationTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    state: z.string().optional(),
-    capacity: z.string().optional(),
+    capacity: z.string(),
     readReplicaCount: z.number().optional(),
     usagePolicyId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    creator: d.creator,
-    creation_time: d.creationTime,
-    state: d.state,
     capacity: d.capacity,
     read_replica_count: d.readReplicaCount,
     usage_policy_id: d.usagePolicyId,
   }));
 
-export const marshalPublishSpecSchema: z.ZodType = z
+export const marshalCreatePublishSpecSchema: z.ZodType = z
   .object({
-    onlineStore: z.string().optional(),
-    onlineTableName: z.string().optional(),
-    publishMode: z.string().optional(),
+    onlineStore: z.string(),
+    onlineTableName: z.string(),
+    publishMode: z.string(),
   })
   .transform(d => ({
     online_store: d.onlineStore,
@@ -219,25 +243,39 @@ export const marshalPublishSpecSchema: z.ZodType = z
 export const marshalPublishTableRequestSchema: z.ZodType = z
   .object({
     sourceTableName: z.string().optional(),
-    publishSpec: z.lazy(() => marshalPublishSpecSchema).optional(),
+    publishSpec: z.lazy(() => marshalCreatePublishSpecSchema).optional(),
   })
   .transform(d => ({
     source_table_name: d.sourceTableName,
     publish_spec: d.publishSpec,
   }));
 
-const onlineStoreFieldMaskSchema: FieldMaskSchema = {
+export const marshalUpdateOnlineStoreSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    capacity: z.string().optional(),
+    readReplicaCount: z.number().optional(),
+    usagePolicyId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    capacity: d.capacity,
+    read_replica_count: d.readReplicaCount,
+    usage_policy_id: d.usagePolicyId,
+  }));
+
+const updateOnlineStoreFieldMaskSchema: FieldMaskSchema = {
   capacity: {wire: 'capacity'},
-  creationTime: {wire: 'creation_time'},
-  creator: {wire: 'creator'},
   name: {wire: 'name'},
   readReplicaCount: {wire: 'read_replica_count'},
-  state: {wire: 'state'},
   usagePolicyId: {wire: 'usage_policy_id'},
 };
 
-export function onlineStoreFieldMask(
+export function updateOnlineStoreFieldMask(
   ...paths: string[]
-): FieldMask<OnlineStore> {
-  return FieldMask.build<OnlineStore>(paths, onlineStoreFieldMaskSchema);
+): FieldMask<UpdateOnlineStore> {
+  return FieldMask.build<UpdateOnlineStore>(
+    paths,
+    updateOnlineStoreFieldMaskSchema
+  );
 }

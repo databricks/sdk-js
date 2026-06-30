@@ -10,7 +10,14 @@ export {ModelVersionStatus} from './model';
 
 export type {
   ConnectionDependency,
+  CreateConnectionDependency,
+  CreateCredentialDependency,
+  CreateDependency,
+  CreateDependencyList,
+  CreateFunctionDependency,
+  CreateRegisteredModelAliasInfo,
   CreateRegisteredModelRequest,
+  CreateTableDependency,
   CredentialDependency,
   DeleteModelVersionRequest,
   DeleteModelVersionResponse,

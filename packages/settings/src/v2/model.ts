@@ -158,6 +158,31 @@ export interface ClusterAutoRestartMessage {
  * why exactly the feature is disabled for this customer.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAutoRestartMessage_CreateEnablementDetails {
+  /** The feature is unavailable if the customer doesn't have enterprise tier */
+  unavailableForNonEnterpriseTier?: boolean | undefined;
+  /** The feature is unavailable if the corresponding entitlement disabled (see getShieldEntitlementEnable) */
+  unavailableForDisabledEntitlement?: boolean | undefined;
+  /** The feature is force enabled if compliance mode is active */
+  forcedForComplianceMode?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAutoRestartMessage_CreateMaintenanceWindow {
+  weekDayBasedSchedule?:
+    | ClusterAutoRestartMessage_MaintenanceWindow_CreateWeekDayBasedSchedule
+    | undefined;
+}
+
+/**
+ * Contains an information about the enablement status judging (e.g. whether the enterprise tier
+ * is enabled)
+ * This is only additional information that MUST NOT be used to decide whether the setting is
+ * enabled or not. This is intended to use only for purposes like showing an error message to
+ * the customer with the additional details. For example, using these details we can check
+ * why exactly the feature is disabled for this customer.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_EnablementDetails {
   /** The feature is unavailable if the customer doesn't have enterprise tier */
   unavailableForNonEnterpriseTier?: boolean | undefined;
@@ -172,6 +197,23 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow {
   weekDayBasedSchedule?:
     | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule
     | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAutoRestartMessage_MaintenanceWindow_CreateWeekDayBasedSchedule {
+  frequency?:
+    | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency
+    | undefined;
+  dayOfWeek?: ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek | undefined;
+  windowStartTime?:
+    | ClusterAutoRestartMessage_MaintenanceWindow_CreateWindowStartTime
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAutoRestartMessage_MaintenanceWindow_CreateWindowStartTime {
+  hours?: number | undefined;
+  minutes?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -198,6 +240,188 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {
 export interface CollaborationPlatformConnectivityMessage {
   connectivity?:
     | CollaborationPlatformConnectivityMessage_Connectivity
+    | undefined;
+}
+
+export interface CreateAibiDashboardEmbeddingAccessPolicy {
+  accessPolicyType: AibiDashboardEmbeddingAccessPolicy_AccessPolicyType;
+}
+
+export interface CreateAibiDashboardEmbeddingApprovedDomains {
+  approvedDomains?: string[] | undefined;
+}
+
+export interface CreateAllowedAppsUserApiScopesMessage {
+  allowedScopes?: string[] | undefined;
+}
+
+export interface CreateBooleanMessage {
+  value?: boolean | undefined;
+}
+
+export interface CreateClusterAutoRestartMessage {
+  enabled?: boolean | undefined;
+  canToggle?: boolean | undefined;
+  maintenanceWindow?:
+    | ClusterAutoRestartMessage_CreateMaintenanceWindow
+    | undefined;
+  enablementDetails?:
+    | ClusterAutoRestartMessage_CreateEnablementDetails
+    | undefined;
+  restartEvenIfNoUpdatesAvailable?: boolean | undefined;
+}
+
+/**
+ * Controls which external collaboration platforms (Slack, Microsoft Teams) can connect
+ * to a workspace. Defaults to ALLOW_ALL.
+ */
+export interface CreateCollaborationPlatformConnectivityMessage {
+  connectivity: CollaborationPlatformConnectivityMessage_Connectivity;
+}
+
+export interface CreateIntegerMessage {
+  value?: number | undefined;
+}
+
+export interface CreateOperationalEmailCustomRecipientMessage {
+  email?: string | undefined;
+}
+
+export interface CreatePersonalComputeMessage {
+  value?: PersonalComputeMessage_PersonalComputeMessageEnum | undefined;
+}
+
+export interface CreateRestrictWorkspaceAdminsMessage {
+  status: RestrictWorkspaceAdminsMessage_Status;
+  /**
+   * When true, workspace admins cannot create governance tags.
+   * ALLOW_ALL status does not override this; they are independent.
+   */
+  disableGovTagCreation?: boolean | undefined;
+}
+
+export interface CreateSetting {
+  /** Name of the setting. */
+  name?: string | undefined;
+  /**
+   * New fields should be added before the oneof below - unless it's a new Setting value message,
+   * in that case it needs to be defined in the oneof below.
+   * The user-set value that goes into storage
+   */
+  value?:
+    | {
+        $case: 'booleanVal';
+        /** Setting value for boolean type setting. This is the setting value set by consumers, check effective_boolean_val for final setting value. */
+        booleanVal: CreateBooleanMessage;
+      }
+    | {
+        $case: 'stringVal';
+        /** Setting value for string type setting. This is the setting value set by consumers, check effective_string_val for final setting value. */
+        stringVal: CreateStringMessage;
+      }
+    | {
+        $case: 'integerVal';
+        /** Setting value for integer type setting. This is the setting value set by consumers, check effective_integer_val for final setting value. */
+        integerVal: CreateIntegerMessage;
+      }
+    | {
+        $case: 'automaticClusterUpdateWorkspace';
+        /** Setting value for automatic_cluster_update_workspace setting. This is the setting value set by consumers, check effective_automatic_cluster_update_workspace for final setting value. */
+        automaticClusterUpdateWorkspace: CreateClusterAutoRestartMessage;
+      }
+    | {
+        $case: 'aibiDashboardEmbeddingApprovedDomains';
+        /** Setting value for aibi_dashboard_embedding_approved_domains setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_approved_domains for final setting value. */
+        aibiDashboardEmbeddingApprovedDomains: CreateAibiDashboardEmbeddingApprovedDomains;
+      }
+    | {
+        $case: 'aibiDashboardEmbeddingAccessPolicy';
+        /** Setting value for aibi_dashboard_embedding_access_policy setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_access_policy for final setting value. */
+        aibiDashboardEmbeddingAccessPolicy: CreateAibiDashboardEmbeddingAccessPolicy;
+      }
+    | {
+        $case: 'restrictWorkspaceAdmins';
+        /** Setting value for restrict_workspace_admins setting. This is the setting value set by consumers, check effective_restrict_workspace_admins for final setting value. */
+        restrictWorkspaceAdmins: CreateRestrictWorkspaceAdminsMessage;
+      }
+    | {
+        $case: 'personalCompute';
+        /** Setting value for personal_compute setting. This is the setting value set by consumers, check effective_personal_compute for final setting value. */
+        personalCompute: CreatePersonalComputeMessage;
+      }
+    | {
+        $case: 'allowedAppsUserApiScopes';
+        /** Setting value for allowed_apps_user_api_scopes setting. This is the setting value set by consumers, check effective_allowed_apps_user_api_scopes for final setting value. */
+        allowedAppsUserApiScopes: CreateAllowedAppsUserApiScopesMessage;
+      }
+    | {
+        $case: 'operationalEmailCustomRecipient';
+        /** Setting value for operational_email_custom_recipient setting. This is the setting value set by consumers, check effective_operational_email_custom_recipient for final setting value. */
+        operationalEmailCustomRecipient: CreateOperationalEmailCustomRecipientMessage;
+      }
+    | {
+        $case: 'collaborationPlatformConnectivity';
+        /** Setting value for collaboration_platform_connectivity setting. This is the setting value set by consumers, check effective_collaboration_platform_connectivity for final setting value. */
+        collaborationPlatformConnectivity: CreateCollaborationPlatformConnectivityMessage;
+      }
+    | undefined;
+  /**
+   * New fields should be added before the oneof below - unless it's a new Setting value message,
+   * in that case it needs to be defined in the oneof below.
+   * The final effective value from server as per the policy evaluation.
+   */
+  effectiveValue?:
+    | {
+        $case: 'effectiveAutomaticClusterUpdateWorkspace';
+        /** Effective setting value for automatic_cluster_update_workspace setting. This is the final effective value of setting. To set a value use automatic_cluster_update_workspace. */
+        effectiveAutomaticClusterUpdateWorkspace: CreateClusterAutoRestartMessage;
+      }
+    | {
+        $case: 'effectiveAibiDashboardEmbeddingApprovedDomains';
+        /** Effective setting value for aibi_dashboard_embedding_approved_domains setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_approved_domains. */
+        effectiveAibiDashboardEmbeddingApprovedDomains: CreateAibiDashboardEmbeddingApprovedDomains;
+      }
+    | {
+        $case: 'effectiveAibiDashboardEmbeddingAccessPolicy';
+        /** Effective setting value for aibi_dashboard_embedding_access_policy setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_access_policy. */
+        effectiveAibiDashboardEmbeddingAccessPolicy: CreateAibiDashboardEmbeddingAccessPolicy;
+      }
+    | {
+        $case: 'effectiveRestrictWorkspaceAdmins';
+        /** Effective setting value for restrict_workspace_admins setting. This is the final effective value of setting. To set a value use restrict_workspace_admins. */
+        effectiveRestrictWorkspaceAdmins: CreateRestrictWorkspaceAdminsMessage;
+      }
+    | {
+        $case: 'effectivePersonalCompute';
+        /** Effective setting value for personal_compute setting. This is the final effective value of setting. To set a value use personal_compute. */
+        effectivePersonalCompute: CreatePersonalComputeMessage;
+      }
+    | undefined;
+}
+
+export interface CreateStringMessage {
+  /** Represents a generic string value. */
+  value?: string | undefined;
+}
+
+/**
+ * User Preference represents a user-specific setting scoped to an individual user within an account.
+ * Unlike workspace or account settings that apply to all users, user preferences allow personal
+ * customization (e.g., UI theme, editor preferences) without affecting other users.
+ */
+export interface CreateUserPreference {
+  /** Name of the setting. */
+  name?: string | undefined;
+  /** User ID of the user. */
+  userId?: string | undefined;
+  /**
+   * New fields should be added before the oneof below - unless it's a new Setting value message,
+   * in that case it needs to be defined in the oneof below.
+   * The user-set value that goes into storage.
+   */
+  value?:
+    | {$case: 'booleanVal'; booleanVal: CreateBooleanMessage}
+    | {$case: 'stringVal'; stringVal: CreateStringMessage}
     | undefined;
 }
 
@@ -319,7 +543,7 @@ export interface PatchPublicAccountSettingRequest {
   /** <Databricks> account ID of the account being managed. */
   accountId?: string | undefined;
   name?: string | undefined;
-  setting?: Setting | undefined;
+  setting?: CreateSetting | undefined;
 }
 
 export interface PatchPublicAccountUserPreferenceRequest {
@@ -328,13 +552,13 @@ export interface PatchPublicAccountUserPreferenceRequest {
   /** User ID of the user whose setting is being updated. */
   userId?: string | undefined;
   name?: string | undefined;
-  setting?: UserPreference | undefined;
+  setting?: CreateUserPreference | undefined;
 }
 
 export interface PatchPublicWorkspaceSettingRequest {
   /** Name of the setting */
   name?: string | undefined;
-  setting?: Setting | undefined;
+  setting?: CreateSetting | undefined;
 }
 
 export interface PersonalComputeMessage {
@@ -987,60 +1211,8 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
           : undefined,
   }));
 
-export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
-  .object({
-    accessPolicyType: z.string().optional(),
-  })
-  .transform(d => ({
-    access_policy_type: d.accessPolicyType,
-  }));
-
-export const marshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType = z
-  .object({
-    approvedDomains: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    approved_domains: d.approvedDomains,
-  }));
-
-export const marshalAllowedAppsUserApiScopesMessageSchema: z.ZodType = z
-  .object({
-    allowedScopes: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    allowed_scopes: d.allowedScopes,
-  }));
-
-export const marshalBooleanMessageSchema: z.ZodType = z
-  .object({
-    value: z.boolean().optional(),
-  })
-  .transform(d => ({
-    value: d.value,
-  }));
-
-export const marshalClusterAutoRestartMessageSchema: z.ZodType = z
-  .object({
-    enabled: z.boolean().optional(),
-    canToggle: z.boolean().optional(),
-    maintenanceWindow: z
-      .lazy(() => marshalClusterAutoRestartMessage_MaintenanceWindowSchema)
-      .optional(),
-    enablementDetails: z
-      .lazy(() => marshalClusterAutoRestartMessage_EnablementDetailsSchema)
-      .optional(),
-    restartEvenIfNoUpdatesAvailable: z.boolean().optional(),
-  })
-  .transform(d => ({
-    enabled: d.enabled,
-    can_toggle: d.canToggle,
-    maintenance_window: d.maintenanceWindow,
-    enablement_details: d.enablementDetails,
-    restart_even_if_no_updates_available: d.restartEvenIfNoUpdatesAvailable,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType =
+export const marshalClusterAutoRestartMessage_CreateEnablementDetailsSchema: z.ZodType =
   z
     .object({
       unavailableForNonEnterpriseTier: z.boolean().optional(),
@@ -1054,13 +1226,13 @@ export const marshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType =
+export const marshalClusterAutoRestartMessage_CreateMaintenanceWindowSchema: z.ZodType =
   z
     .object({
       weekDayBasedSchedule: z
         .lazy(
           () =>
-            marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
+            marshalClusterAutoRestartMessage_MaintenanceWindow_CreateWeekDayBasedScheduleSchema
         )
         .optional(),
     })
@@ -1069,7 +1241,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType =
+export const marshalClusterAutoRestartMessage_MaintenanceWindow_CreateWeekDayBasedScheduleSchema: z.ZodType =
   z
     .object({
       frequency: z.string().optional(),
@@ -1077,7 +1249,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSche
       windowStartTime: z
         .lazy(
           () =>
-            marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema
+            marshalClusterAutoRestartMessage_MaintenanceWindow_CreateWindowStartTimeSchema
         )
         .optional(),
     })
@@ -1088,7 +1260,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSche
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType =
+export const marshalClusterAutoRestartMessage_MaintenanceWindow_CreateWindowStartTimeSchema: z.ZodType =
   z
     .object({
       hours: z.number().optional(),
@@ -1099,16 +1271,74 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeS
       minutes: d.minutes,
     }));
 
-export const marshalCollaborationPlatformConnectivityMessageSchema: z.ZodType =
+export const marshalCreateAibiDashboardEmbeddingAccessPolicySchema: z.ZodType =
   z
     .object({
-      connectivity: z.string().optional(),
+      accessPolicyType: z.string(),
+    })
+    .transform(d => ({
+      access_policy_type: d.accessPolicyType,
+    }));
+
+export const marshalCreateAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType =
+  z
+    .object({
+      approvedDomains: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      approved_domains: d.approvedDomains,
+    }));
+
+export const marshalCreateAllowedAppsUserApiScopesMessageSchema: z.ZodType = z
+  .object({
+    allowedScopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    allowed_scopes: d.allowedScopes,
+  }));
+
+export const marshalCreateBooleanMessageSchema: z.ZodType = z
+  .object({
+    value: z.boolean().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+  }));
+
+export const marshalCreateClusterAutoRestartMessageSchema: z.ZodType = z
+  .object({
+    enabled: z.boolean().optional(),
+    canToggle: z.boolean().optional(),
+    maintenanceWindow: z
+      .lazy(
+        () => marshalClusterAutoRestartMessage_CreateMaintenanceWindowSchema
+      )
+      .optional(),
+    enablementDetails: z
+      .lazy(
+        () => marshalClusterAutoRestartMessage_CreateEnablementDetailsSchema
+      )
+      .optional(),
+    restartEvenIfNoUpdatesAvailable: z.boolean().optional(),
+  })
+  .transform(d => ({
+    enabled: d.enabled,
+    can_toggle: d.canToggle,
+    maintenance_window: d.maintenanceWindow,
+    enablement_details: d.enablementDetails,
+    restart_even_if_no_updates_available: d.restartEvenIfNoUpdatesAvailable,
+  }));
+
+export const marshalCreateCollaborationPlatformConnectivityMessageSchema: z.ZodType =
+  z
+    .object({
+      connectivity: z.string(),
     })
     .transform(d => ({
       connectivity: d.connectivity,
     }));
 
-export const marshalIntegerMessageSchema: z.ZodType = z
+export const marshalCreateIntegerMessageSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
   })
@@ -1116,15 +1346,16 @@ export const marshalIntegerMessageSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalOperationalEmailCustomRecipientMessageSchema: z.ZodType = z
-  .object({
-    email: z.string().optional(),
-  })
-  .transform(d => ({
-    email: d.email,
-  }));
+export const marshalCreateOperationalEmailCustomRecipientMessageSchema: z.ZodType =
+  z
+    .object({
+      email: z.string().optional(),
+    })
+    .transform(d => ({
+      email: d.email,
+    }));
 
-export const marshalPersonalComputeMessageSchema: z.ZodType = z
+export const marshalCreatePersonalComputeMessageSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
   })
@@ -1132,9 +1363,9 @@ export const marshalPersonalComputeMessageSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
+export const marshalCreateRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
   .object({
-    status: z.string().optional(),
+    status: z.string(),
     disableGovTagCreation: z.boolean().optional(),
   })
   .transform(d => ({
@@ -1142,67 +1373,69 @@ export const marshalRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
     disable_gov_tag_creation: d.disableGovTagCreation,
   }));
 
-export const marshalSettingSchema: z.ZodType = z
+export const marshalCreateSettingSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     value: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('booleanVal'),
-          booleanVal: z.lazy(() => marshalBooleanMessageSchema),
+          booleanVal: z.lazy(() => marshalCreateBooleanMessageSchema),
         }),
         z.object({
           $case: z.literal('stringVal'),
-          stringVal: z.lazy(() => marshalStringMessageSchema),
+          stringVal: z.lazy(() => marshalCreateStringMessageSchema),
         }),
         z.object({
           $case: z.literal('integerVal'),
-          integerVal: z.lazy(() => marshalIntegerMessageSchema),
+          integerVal: z.lazy(() => marshalCreateIntegerMessageSchema),
         }),
         z.object({
           $case: z.literal('automaticClusterUpdateWorkspace'),
           automaticClusterUpdateWorkspace: z.lazy(
-            () => marshalClusterAutoRestartMessageSchema
+            () => marshalCreateClusterAutoRestartMessageSchema
           ),
         }),
         z.object({
           $case: z.literal('aibiDashboardEmbeddingApprovedDomains'),
           aibiDashboardEmbeddingApprovedDomains: z.lazy(
-            () => marshalAibiDashboardEmbeddingApprovedDomainsSchema
+            () => marshalCreateAibiDashboardEmbeddingApprovedDomainsSchema
           ),
         }),
         z.object({
           $case: z.literal('aibiDashboardEmbeddingAccessPolicy'),
           aibiDashboardEmbeddingAccessPolicy: z.lazy(
-            () => marshalAibiDashboardEmbeddingAccessPolicySchema
+            () => marshalCreateAibiDashboardEmbeddingAccessPolicySchema
           ),
         }),
         z.object({
           $case: z.literal('restrictWorkspaceAdmins'),
           restrictWorkspaceAdmins: z.lazy(
-            () => marshalRestrictWorkspaceAdminsMessageSchema
+            () => marshalCreateRestrictWorkspaceAdminsMessageSchema
           ),
         }),
         z.object({
           $case: z.literal('personalCompute'),
-          personalCompute: z.lazy(() => marshalPersonalComputeMessageSchema),
+          personalCompute: z.lazy(
+            () => marshalCreatePersonalComputeMessageSchema
+          ),
         }),
         z.object({
           $case: z.literal('allowedAppsUserApiScopes'),
           allowedAppsUserApiScopes: z.lazy(
-            () => marshalAllowedAppsUserApiScopesMessageSchema
+            () => marshalCreateAllowedAppsUserApiScopesMessageSchema
           ),
         }),
         z.object({
           $case: z.literal('operationalEmailCustomRecipient'),
           operationalEmailCustomRecipient: z.lazy(
-            () => marshalOperationalEmailCustomRecipientMessageSchema
+            () => marshalCreateOperationalEmailCustomRecipientMessageSchema
           ),
         }),
         z.object({
           $case: z.literal('collaborationPlatformConnectivity'),
           collaborationPlatformConnectivity: z.lazy(
-            () => marshalCollaborationPlatformConnectivityMessageSchema
+            () => marshalCreateCollaborationPlatformConnectivityMessageSchema
           ),
         }),
       ])
@@ -1210,63 +1443,33 @@ export const marshalSettingSchema: z.ZodType = z
     effectiveValue: z
       .discriminatedUnion('$case', [
         z.object({
-          $case: z.literal('effectiveBooleanVal'),
-          effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema),
-        }),
-        z.object({
-          $case: z.literal('effectiveStringVal'),
-          effectiveStringVal: z.lazy(() => marshalStringMessageSchema),
-        }),
-        z.object({
-          $case: z.literal('effectiveIntegerVal'),
-          effectiveIntegerVal: z.lazy(() => marshalIntegerMessageSchema),
-        }),
-        z.object({
           $case: z.literal('effectiveAutomaticClusterUpdateWorkspace'),
           effectiveAutomaticClusterUpdateWorkspace: z.lazy(
-            () => marshalClusterAutoRestartMessageSchema
+            () => marshalCreateClusterAutoRestartMessageSchema
           ),
         }),
         z.object({
           $case: z.literal('effectiveAibiDashboardEmbeddingApprovedDomains'),
           effectiveAibiDashboardEmbeddingApprovedDomains: z.lazy(
-            () => marshalAibiDashboardEmbeddingApprovedDomainsSchema
+            () => marshalCreateAibiDashboardEmbeddingApprovedDomainsSchema
           ),
         }),
         z.object({
           $case: z.literal('effectiveAibiDashboardEmbeddingAccessPolicy'),
           effectiveAibiDashboardEmbeddingAccessPolicy: z.lazy(
-            () => marshalAibiDashboardEmbeddingAccessPolicySchema
+            () => marshalCreateAibiDashboardEmbeddingAccessPolicySchema
           ),
         }),
         z.object({
           $case: z.literal('effectiveRestrictWorkspaceAdmins'),
           effectiveRestrictWorkspaceAdmins: z.lazy(
-            () => marshalRestrictWorkspaceAdminsMessageSchema
+            () => marshalCreateRestrictWorkspaceAdminsMessageSchema
           ),
         }),
         z.object({
           $case: z.literal('effectivePersonalCompute'),
           effectivePersonalCompute: z.lazy(
-            () => marshalPersonalComputeMessageSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('effectiveAllowedAppsUserApiScopes'),
-          effectiveAllowedAppsUserApiScopes: z.lazy(
-            () => marshalAllowedAppsUserApiScopesMessageSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('effectiveOperationalEmailCustomRecipient'),
-          effectiveOperationalEmailCustomRecipient: z.lazy(
-            () => marshalOperationalEmailCustomRecipientMessageSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('effectiveCollaborationPlatformConnectivity'),
-          effectiveCollaborationPlatformConnectivity: z.lazy(
-            () => marshalCollaborationPlatformConnectivityMessageSchema
+            () => marshalCreatePersonalComputeMessageSchema
           ),
         }),
       ])
@@ -1306,15 +1509,6 @@ export const marshalSettingSchema: z.ZodType = z
       collaboration_platform_connectivity:
         d.value.collaborationPlatformConnectivity,
     }),
-    ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
-      effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
-    }),
-    ...(d.effectiveValue?.$case === 'effectiveStringVal' && {
-      effective_string_val: d.effectiveValue.effectiveStringVal,
-    }),
-    ...(d.effectiveValue?.$case === 'effectiveIntegerVal' && {
-      effective_integer_val: d.effectiveValue.effectiveIntegerVal,
-    }),
     ...(d.effectiveValue?.$case ===
       'effectiveAutomaticClusterUpdateWorkspace' && {
       effective_automatic_cluster_update_workspace:
@@ -1337,23 +1531,9 @@ export const marshalSettingSchema: z.ZodType = z
     ...(d.effectiveValue?.$case === 'effectivePersonalCompute' && {
       effective_personal_compute: d.effectiveValue.effectivePersonalCompute,
     }),
-    ...(d.effectiveValue?.$case === 'effectiveAllowedAppsUserApiScopes' && {
-      effective_allowed_apps_user_api_scopes:
-        d.effectiveValue.effectiveAllowedAppsUserApiScopes,
-    }),
-    ...(d.effectiveValue?.$case ===
-      'effectiveOperationalEmailCustomRecipient' && {
-      effective_operational_email_custom_recipient:
-        d.effectiveValue.effectiveOperationalEmailCustomRecipient,
-    }),
-    ...(d.effectiveValue?.$case ===
-      'effectiveCollaborationPlatformConnectivity' && {
-      effective_collaboration_platform_connectivity:
-        d.effectiveValue.effectiveCollaborationPlatformConnectivity,
-    }),
   }));
 
-export const marshalStringMessageSchema: z.ZodType = z
+export const marshalCreateStringMessageSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
   })
@@ -1361,7 +1541,7 @@ export const marshalStringMessageSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalUserPreferenceSchema: z.ZodType = z
+export const marshalCreateUserPreferenceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     userId: z.string().optional(),
@@ -1369,23 +1549,11 @@ export const marshalUserPreferenceSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('booleanVal'),
-          booleanVal: z.lazy(() => marshalBooleanMessageSchema),
+          booleanVal: z.lazy(() => marshalCreateBooleanMessageSchema),
         }),
         z.object({
           $case: z.literal('stringVal'),
-          stringVal: z.lazy(() => marshalStringMessageSchema),
-        }),
-      ])
-      .optional(),
-    effectiveValue: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('effectiveBooleanVal'),
-          effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema),
-        }),
-        z.object({
-          $case: z.literal('effectiveStringVal'),
-          effectiveStringVal: z.lazy(() => marshalStringMessageSchema),
+          stringVal: z.lazy(() => marshalCreateStringMessageSchema),
         }),
       ])
       .optional(),
@@ -1395,10 +1563,4 @@ export const marshalUserPreferenceSchema: z.ZodType = z
     user_id: d.userId,
     ...(d.value?.$case === 'booleanVal' && {boolean_val: d.value.booleanVal}),
     ...(d.value?.$case === 'stringVal' && {string_val: d.value.stringVal}),
-    ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
-      effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
-    }),
-    ...(d.effectiveValue?.$case === 'effectiveStringVal' && {
-      effective_string_val: d.effectiveValue.effectiveStringVal,
-    }),
   }));

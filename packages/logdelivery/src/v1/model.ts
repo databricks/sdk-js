@@ -80,6 +80,49 @@ export type LogDeliveryType =
  * *
  * Log Delivery Configuration
  */
+export interface CreateCreateLogDeliveryConfigurationParams {
+  /** The unique UUID of log delivery configuration */
+  configId?: string | undefined;
+  /** The optional human-readable name of the log delivery configuration. Defaults to empty. */
+  configName?: string | undefined;
+  /**
+   * Log delivery type. Supported values are:
+   * * `BILLABLE_USAGE` — Configure [billable usage log delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). For the CSV schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html).
+   * * `AUDIT_LOGS` — Configure [audit log delivery](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html). For the JSON schema, see [Configure audit logging](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html)
+   */
+  logType: LogDeliveryType;
+  /**
+   * The file type of log delivery.
+   * * If `log_type` is `BILLABLE_USAGE`, this value must be `CSV`. Only the CSV (comma-separated values) format is supported. For the schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html)
+   * * If `log_type` is `AUDIT_LOGS`, this value must be `JSON`. Only the JSON (JavaScript Object Notation) format is supported. For the schema, see the [Configuring audit logs](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html).
+   */
+  outputFormat: LogDeliveryOutputFormat;
+  /** <Databricks> account ID. */
+  accountId?: string | undefined;
+  /** The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
+  credentialsId: string;
+  /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
+  storageConfigurationId: string;
+  /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
+  workspaceIdsFilter?: bigint[] | undefined;
+  /** The optional delivery path prefix within Amazon S3 storage. Defaults to empty, which means that logs are delivered to the root of the bucket. This must be a valid S3 object key. This must not start or end with a slash character. */
+  deliveryPathPrefix?: string | undefined;
+  /** This field applies only if log_type is BILLABLE_USAGE. This is the optional start month and year for delivery, specified in YYYY-MM format. Defaults to current year and month. BILLABLE_USAGE logs are not available for usage before March 2019 (2019-03). */
+  deliveryStartTime?: string | undefined;
+  /** Status of log delivery configuration. Set to `ENABLED` (enabled) or `DISABLED` (disabled). Defaults to `ENABLED`. You can [enable or disable the configuration](#operation/patch-log-delivery-config-status) later. Deletion of a configuration is not supported, so disable a log delivery configuration that is no longer needed. */
+  status?: LogDeliveryConfigStatus | undefined;
+  /** Time in epoch milliseconds when the log delivery configuration was created. */
+  creationTime?: bigint | undefined;
+  /** Time in epoch milliseconds when the log delivery configuration was updated. */
+  updateTime?: bigint | undefined;
+  /** The LogDeliveryStatus of this log delivery configuration */
+  logDeliveryStatus?: CreateLogDeliveryStatus | undefined;
+}
+
+/**
+ * *
+ * Log Delivery Configuration
+ */
 export interface CreateLogDeliveryConfigurationParams {
   /** The unique UUID of log delivery configuration */
   configId?: string | undefined;
@@ -124,12 +167,32 @@ export interface CreateLogDeliveryConfigurationParams {
  * Properties of the new log delivery configuration.
  */
 export interface CreateLogDeliveryConfigurationRequest {
-  logDeliveryConfiguration?: CreateLogDeliveryConfigurationParams | undefined;
+  logDeliveryConfiguration?:
+    | CreateCreateLogDeliveryConfigurationParams
+    | undefined;
 }
 
 export interface CreateLogDeliveryConfigurationResponse {
   /** The created log delivery configuration */
   logDeliveryConfiguration?: LogDeliveryConfiguration | undefined;
+}
+
+export interface CreateLogDeliveryStatus {
+  /**
+   * Enum that describes the status. Possible values are:
+   * * `CREATED`: There were no log delivery attempts since the config was created.
+   * * `SUCCEEDED`: The latest attempt of log delivery has succeeded completely.
+   * * `USER_FAILURE`: The latest attempt of log delivery failed because of misconfiguration of customer provided permissions on role or storage.
+   * * `SYSTEM_FAILURE`: The latest attempt of log delivery failed because of an <Databricks> internal error. Contact support if it doesn't go away soon.
+   * * `NOT_FOUND`: The log delivery status as the configuration has been disabled since the release of this feature or there are no workspaces in the account.
+   */
+  status: LogDeliveryStatusEnum;
+  /** The UTC time for the latest log delivery attempt. */
+  lastAttemptTime?: string | undefined;
+  /** The UTC time for the latest successful log delivery. */
+  lastSuccessfulAttemptTime?: string | undefined;
+  /** Informative message about the latest log delivery attempt. If the log delivery fails with USER_FAILURE, error details will be provided for fixing misconfigurations in cloud permissions. */
+  message: string;
 }
 
 /**
@@ -349,56 +412,59 @@ export const unmarshalLogDeliveryStatusSchema: z.ZodType<LogDeliveryStatus> = z
 export const unmarshalUpdateLogDeliveryConfigurationResponseSchema: z.ZodType<UpdateLogDeliveryConfigurationResponse> =
   z.object({});
 
-export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
-  .object({
-    configId: z.string().optional(),
-    configName: z.string().optional(),
-    logType: z.string().optional(),
-    outputFormat: z.string().optional(),
-    accountId: z.string().optional(),
-    credentialsId: z.string().optional(),
-    storageConfigurationId: z.string().optional(),
-    workspaceIdsFilter: z.array(z.bigint()).optional(),
-    deliveryPathPrefix: z.string().optional(),
-    deliveryStartTime: z.string().optional(),
-    status: z.string().optional(),
-    creationTime: z.bigint().optional(),
-    updateTime: z.bigint().optional(),
-    logDeliveryStatus: z.lazy(() => marshalLogDeliveryStatusSchema).optional(),
-  })
-  .transform(d => ({
-    config_id: d.configId,
-    config_name: d.configName,
-    log_type: d.logType,
-    output_format: d.outputFormat,
-    account_id: d.accountId,
-    credentials_id: d.credentialsId,
-    storage_configuration_id: d.storageConfigurationId,
-    workspace_ids_filter: d.workspaceIdsFilter,
-    delivery_path_prefix: d.deliveryPathPrefix,
-    delivery_start_time: d.deliveryStartTime,
-    status: d.status,
-    creation_time: d.creationTime,
-    update_time: d.updateTime,
-    log_delivery_status: d.logDeliveryStatus,
-  }));
+export const marshalCreateCreateLogDeliveryConfigurationParamsSchema: z.ZodType =
+  z
+    .object({
+      configId: z.string().optional(),
+      configName: z.string().optional(),
+      logType: z.string(),
+      outputFormat: z.string(),
+      accountId: z.string().optional(),
+      credentialsId: z.string(),
+      storageConfigurationId: z.string(),
+      workspaceIdsFilter: z.array(z.bigint()).optional(),
+      deliveryPathPrefix: z.string().optional(),
+      deliveryStartTime: z.string().optional(),
+      status: z.string().optional(),
+      creationTime: z.bigint().optional(),
+      updateTime: z.bigint().optional(),
+      logDeliveryStatus: z
+        .lazy(() => marshalCreateLogDeliveryStatusSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      config_id: d.configId,
+      config_name: d.configName,
+      log_type: d.logType,
+      output_format: d.outputFormat,
+      account_id: d.accountId,
+      credentials_id: d.credentialsId,
+      storage_configuration_id: d.storageConfigurationId,
+      workspace_ids_filter: d.workspaceIdsFilter,
+      delivery_path_prefix: d.deliveryPathPrefix,
+      delivery_start_time: d.deliveryStartTime,
+      status: d.status,
+      creation_time: d.creationTime,
+      update_time: d.updateTime,
+      log_delivery_status: d.logDeliveryStatus,
+    }));
 
 export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
     logDeliveryConfiguration: z
-      .lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema)
+      .lazy(() => marshalCreateCreateLogDeliveryConfigurationParamsSchema)
       .optional(),
   })
   .transform(d => ({
     log_delivery_configuration: d.logDeliveryConfiguration,
   }));
 
-export const marshalLogDeliveryStatusSchema: z.ZodType = z
+export const marshalCreateLogDeliveryStatusSchema: z.ZodType = z
   .object({
-    status: z.string().optional(),
+    status: z.string(),
     lastAttemptTime: z.string().optional(),
     lastSuccessfulAttemptTime: z.string().optional(),
-    message: z.string().optional(),
+    message: z.string(),
   })
   .transform(d => ({
     status: d.status,

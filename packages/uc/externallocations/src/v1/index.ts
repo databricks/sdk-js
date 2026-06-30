@@ -11,7 +11,13 @@ export {IsolationMode, SseEncryptionAlgorithm} from './model';
 export type {
   AwsSqsQueue,
   AzureQueueStorage,
+  CreateAwsSqsQueue,
+  CreateAzureQueueStorage,
+  CreateEncryptionDetails,
   CreateExternalLocationRequest,
+  CreateFileEventQueue,
+  CreateGcpPubsub,
+  CreateSseEncryptionDetails,
   DeleteExternalLocationRequest,
   DeleteExternalLocationResponse,
   EncryptionDetails,

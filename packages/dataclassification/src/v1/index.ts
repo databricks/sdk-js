@@ -11,11 +11,17 @@ export {AutoTaggingConfig_AutoTaggingMode} from './model';
 export type {
   AutoTaggingConfig,
   CatalogConfig,
+  CatalogConfig_CreateSchemaNames,
   CatalogConfig_SchemaNames,
+  CatalogConfig_UpdateSchemaNames,
+  CreateAutoTaggingConfig,
+  CreateCatalogConfig,
   CreateCatalogConfigRequest,
   DeleteCatalogConfigRequest,
   GetCatalogConfigRequest,
+  UpdateAutoTaggingConfig,
+  UpdateCatalogConfig,
   UpdateCatalogConfigRequest,
 } from './model';
 
-export {catalogConfigFieldMask} from './model';
+export {updateCatalogConfigFieldMask} from './model';

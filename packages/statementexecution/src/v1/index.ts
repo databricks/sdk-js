@@ -20,6 +20,8 @@ export type {
   CancelStatementResponse,
   ChunkInfo,
   ColumnInfo,
+  CreateQueryTag,
+  CreateStatementParameter,
   ExecuteStatementRequest,
   ExternalLink,
   GetResultDataRequest,

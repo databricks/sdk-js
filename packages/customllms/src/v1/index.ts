@@ -11,13 +11,18 @@ export {State} from './model';
 export type {
   CancelCustomLlmOptimizationRunRequest,
   CreateCustomLlmRequest,
+  CreateDataset,
+  CreateTable,
   CustomLlm,
   Dataset,
   DeleteCustomLlmRequest,
   GetCustomLlmRequest,
   StartCustomLlmOptimizationRunRequest,
   Table,
+  UpdateCustomLlm,
   UpdateCustomLlmRequest,
+  UpdateDataset,
+  UpdateTable,
 } from './model';
 
-export {customLlmFieldMask} from './model';
+export {updateCustomLlmFieldMask} from './model';

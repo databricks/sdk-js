@@ -85,17 +85,23 @@ import type {
   UpdateRoleRequest,
 } from './model';
 import {
-  marshalBranchSchema,
-  marshalCatalogSchema,
-  marshalDataApiSchema,
-  marshalDatabaseSchema,
-  marshalEndpointSchema,
+  marshalCreateBranchSchema,
+  marshalCreateCatalogSchema,
+  marshalCreateDataApiSchema,
+  marshalCreateDatabaseSchema,
+  marshalCreateEndpointSchema,
+  marshalCreateProjectSchema,
+  marshalCreateRoleSchema,
+  marshalCreateSyncedTableSchema,
   marshalGenerateDatabaseCredentialRequestSchema,
-  marshalProjectSchema,
-  marshalRoleSchema,
-  marshalSyncedTableSchema,
   marshalUndeleteBranchRequestSchema,
   marshalUndeleteProjectRequestSchema,
+  marshalUpdateBranchSchema,
+  marshalUpdateDataApiSchema,
+  marshalUpdateDatabaseSchema,
+  marshalUpdateEndpointSchema,
+  marshalUpdateProjectSchema,
+  marshalUpdateRoleSchema,
   unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
@@ -170,7 +176,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.branch, marshalBranchSchema);
+    const body = marshalRequest(req.branch, marshalCreateBranchSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -223,7 +229,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.catalog, marshalCatalogSchema);
+    const body = marshalRequest(req.catalog, marshalCreateCatalogSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -270,7 +276,7 @@ export class PostgresClient {
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/data-api`;
-    const body = marshalRequest(req.dataApi, marshalDataApiSchema);
+    const body = marshalRequest(req.dataApi, marshalCreateDataApiSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -324,7 +330,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.database, marshalDatabaseSchema);
+    const body = marshalRequest(req.database, marshalCreateDatabaseSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -384,7 +390,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body = marshalRequest(req.endpoint, marshalCreateEndpointSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -437,7 +443,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.project, marshalProjectSchema);
+    const body = marshalRequest(req.project, marshalCreateProjectSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -493,7 +499,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.role, marshalRoleSchema);
+    const body = marshalRequest(req.role, marshalCreateRoleSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -546,7 +552,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.syncedTable, marshalSyncedTableSchema);
+    const body = marshalRequest(
+      req.syncedTable,
+      marshalCreateSyncedTableSchema
+    );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1591,7 +1600,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.branch, marshalBranchSchema);
+    const body = marshalRequest(req.branch, marshalUpdateBranchSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1644,7 +1653,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.dataApi, marshalDataApiSchema);
+    const body = marshalRequest(req.dataApi, marshalUpdateDataApiSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1697,7 +1706,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.database, marshalDatabaseSchema);
+    const body = marshalRequest(req.database, marshalUpdateDatabaseSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1750,7 +1759,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body = marshalRequest(req.endpoint, marshalUpdateEndpointSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1803,7 +1812,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.project, marshalProjectSchema);
+    const body = marshalRequest(req.project, marshalUpdateProjectSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1856,7 +1865,7 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.role, marshalRoleSchema);
+    const body = marshalRequest(req.role, marshalUpdateRoleSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

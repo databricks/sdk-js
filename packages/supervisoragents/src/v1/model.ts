@@ -11,6 +11,28 @@ export interface App {
   name?: string | undefined;
 }
 
+/** <Databricks> app. Supported app: custom mcp, custom agent. */
+export interface CreateApp {
+  /** App name */
+  name: string;
+}
+
+/**
+ * An example associated with a Supervisor Agent.
+ * Contains a question and guidelines for how the agent should respond.
+ */
+export interface CreateExample {
+  /**
+   * Full resource name:
+   * supervisor-agents/{supervisor_agent_id}/examples/{example_id}
+   */
+  name?: string | undefined;
+  /** The example question. */
+  question: string;
+  /** Guidelines for answering the question. */
+  guidelines: string[];
+}
+
 /** Create an example. */
 export interface CreateExampleRequest {
   /**
@@ -19,12 +41,65 @@ export interface CreateExampleRequest {
    */
   parent?: string | undefined;
   /** The example to create under the parent Supervisor Agent. */
-  example?: Example | undefined;
+  example?: CreateExample | undefined;
+}
+
+export interface CreateGenieSpace {
+  /**
+   * Deprecated: use space_id instead. Still REQUIRED for backward compatibility
+   * until a future API version removes it.
+   */
+  id: string;
+}
+
+export interface CreateKnowledgeAssistant {
+  /** Deprecated: use knowledge_assistant_id instead. */
+  servingEndpointName?: string | undefined;
+  /** The ID of the knowledge assistant. */
+  knowledgeAssistantId: string;
+}
+
+export interface CreateSupervisorAgent {
+  /**
+   * The resource name of the SupervisorAgent.
+   * Format: supervisor-agents/{supervisor_agent_id}
+   */
+  name?: string | undefined;
+  /** The display name of the Supervisor Agent, unique at workspace level. */
+  displayName: string;
+  /** Description of what this agent can do (user-facing). */
+  description?: string | undefined;
+  /** Optional natural-language instructions for the supervisor agent. */
+  instructions?: string | undefined;
 }
 
 export interface CreateSupervisorAgentRequest {
   /** The Supervisor Agent to create. */
-  supervisorAgent?: SupervisorAgent | undefined;
+  supervisorAgent?: CreateSupervisorAgent | undefined;
+}
+
+export interface CreateTool {
+  /**
+   * Full resource name:
+   * supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
+   */
+  name?: string | undefined;
+  /** Tool type. Must be one of: "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "uc_mcp", "app", "volume", "dashboard", "serving_endpoint", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search", "skill". The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively. */
+  toolType: string;
+  /** Specification for the tool type. */
+  spec?:
+    | {$case: 'genieSpace'; genieSpace: CreateGenieSpace}
+    | {
+        $case: 'knowledgeAssistant';
+        knowledgeAssistant: CreateKnowledgeAssistant;
+      }
+    | {$case: 'ucFunction'; ucFunction: CreateUcFunction}
+    | {$case: 'app'; app: CreateApp}
+    | {$case: 'volume'; volume: CreateVolume}
+    | {$case: 'ucConnection'; ucConnection: CreateUcConnection}
+    | undefined;
+  /** Description of what this tool does (user-facing). */
+  description?: string | undefined;
 }
 
 export interface CreateToolRequest {
@@ -33,12 +108,27 @@ export interface CreateToolRequest {
    * Format: supervisor-agents/{supervisor_agent_id}
    */
   parent?: string | undefined;
-  tool?: Tool | undefined;
+  tool?: CreateTool | undefined;
   /**
    * The ID to use for the tool, which will become the final component of
    * the tool's resource name.
    */
   toolId?: string | undefined;
+}
+
+/** Databricks UC connection. Supported connection: external mcp server. */
+export interface CreateUcConnection {
+  name: string;
+}
+
+export interface CreateUcFunction {
+  /** Full uc function name */
+  name: string;
+}
+
+export interface CreateVolume {
+  /** Full uc volume name */
+  name: string;
 }
 
 /** Delete an example. */
@@ -251,6 +341,28 @@ export interface UcFunction {
   name?: string | undefined;
 }
 
+/** <Databricks> app. Supported app: custom mcp, custom agent. */
+export interface UpdateApp {
+  /** App name */
+  name?: string | undefined;
+}
+
+/**
+ * An example associated with a Supervisor Agent.
+ * Contains a question and guidelines for how the agent should respond.
+ */
+export interface UpdateExample {
+  /**
+   * Full resource name:
+   * supervisor-agents/{supervisor_agent_id}/examples/{example_id}
+   */
+  name?: string | undefined;
+  /** The example question. */
+  question?: string | undefined;
+  /** Guidelines for answering the question. */
+  guidelines?: string[] | undefined;
+}
+
 /** Update an example. */
 export interface UpdateExampleRequest {
   /**
@@ -258,7 +370,7 @@ export interface UpdateExampleRequest {
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
    */
   name?: string | undefined;
-  example?: Example | undefined;
+  example?: UpdateExample | undefined;
   /**
    * Comma-delimited list of fields to update on the example.
    * Allowed values: `question`, `guidelines`.
@@ -266,21 +378,89 @@ export interface UpdateExampleRequest {
    * - `question`
    * - `question,guidelines`
    */
-  updateMask?: FieldMask<Example> | undefined;
+  updateMask?: FieldMask<UpdateExample> | undefined;
+}
+
+export interface UpdateGenieSpace {
+  /**
+   * Deprecated: use space_id instead. Still REQUIRED for backward compatibility
+   * until a future API version removes it.
+   */
+  id?: string | undefined;
+}
+
+export interface UpdateKnowledgeAssistant {
+  /** Deprecated: use knowledge_assistant_id instead. */
+  servingEndpointName?: string | undefined;
+  /** The ID of the knowledge assistant. */
+  knowledgeAssistantId?: string | undefined;
+}
+
+export interface UpdateSupervisorAgent {
+  /**
+   * The resource name of the SupervisorAgent.
+   * Format: supervisor-agents/{supervisor_agent_id}
+   */
+  name?: string | undefined;
+  /** The display name of the Supervisor Agent, unique at workspace level. */
+  displayName?: string | undefined;
+  /** Description of what this agent can do (user-facing). */
+  description?: string | undefined;
+  /** Optional natural-language instructions for the supervisor agent. */
+  instructions?: string | undefined;
 }
 
 export interface UpdateSupervisorAgentRequest {
   /** The SupervisorAgent to update. */
-  supervisorAgent?: SupervisorAgent | undefined;
+  supervisorAgent?: UpdateSupervisorAgent | undefined;
   /** Field mask for fields to be updated. */
-  updateMask?: FieldMask<SupervisorAgent> | undefined;
+  updateMask?: FieldMask<UpdateSupervisorAgent> | undefined;
+}
+
+export interface UpdateTool {
+  /**
+   * Full resource name:
+   * supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
+   */
+  name?: string | undefined;
+  /** Tool type. Must be one of: "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "uc_mcp", "app", "volume", "dashboard", "serving_endpoint", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search", "skill". The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively. */
+  toolType?: string | undefined;
+  /** Specification for the tool type. */
+  spec?:
+    | {$case: 'genieSpace'; genieSpace: UpdateGenieSpace}
+    | {
+        $case: 'knowledgeAssistant';
+        knowledgeAssistant: UpdateKnowledgeAssistant;
+      }
+    | {$case: 'ucFunction'; ucFunction: UpdateUcFunction}
+    | {$case: 'app'; app: UpdateApp}
+    | {$case: 'volume'; volume: UpdateVolume}
+    | {$case: 'ucConnection'; ucConnection: UpdateUcConnection}
+    | undefined;
+  /** Description of what this tool does (user-facing). */
+  description?: string | undefined;
 }
 
 export interface UpdateToolRequest {
   /** The Tool to update. */
-  tool?: Tool | undefined;
+  tool?: UpdateTool | undefined;
   /** Field mask for fields to be updated. */
-  updateMask?: FieldMask<Tool> | undefined;
+  updateMask?: FieldMask<UpdateTool> | undefined;
+}
+
+/** Databricks UC connection. Supported connection: external mcp server. */
+export interface UpdateUcConnection {
+  name?: string | undefined;
+}
+
+export interface UpdateUcFunction {
+  /** Full uc function name */
+  name?: string | undefined;
+}
+
+export interface UpdateVolume {
+  /** Full uc volume name */
+  name?: string | undefined;
 }
 
 export interface Volume {
@@ -460,114 +640,96 @@ export const unmarshalVolumeSchema: z.ZodType<Volume> = z
     name: d.name,
   }));
 
-export const marshalAppSchema: z.ZodType = z
+export const marshalCreateAppSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
   }));
 
-export const marshalExampleSchema: z.ZodType = z
+export const marshalCreateExampleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    question: z.string().optional(),
-    guidelines: z.array(z.string()).optional(),
-    exampleId: z.string().optional(),
+    question: z.string(),
+    guidelines: z.array(z.string()),
   })
   .transform(d => ({
     name: d.name,
     question: d.question,
     guidelines: d.guidelines,
-    example_id: d.exampleId,
   }));
 
-export const marshalGenieSpaceSchema: z.ZodType = z
+export const marshalCreateGenieSpaceSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
   }));
 
-export const marshalKnowledgeAssistantSchema: z.ZodType = z
+export const marshalCreateKnowledgeAssistantSchema: z.ZodType = z
   .object({
     servingEndpointName: z.string().optional(),
-    knowledgeAssistantId: z.string().optional(),
+    knowledgeAssistantId: z.string(),
   })
   .transform(d => ({
     serving_endpoint_name: d.servingEndpointName,
     knowledge_assistant_id: d.knowledgeAssistantId,
   }));
 
-export const marshalSupervisorAgentSchema: z.ZodType = z
+export const marshalCreateSupervisorAgentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    displayName: z.string().optional(),
+    displayName: z.string(),
     description: z.string().optional(),
     instructions: z.string().optional(),
-    id: z.string().optional(),
-    supervisorAgentId: z.string().optional(),
-    creator: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    endpointName: z.string().optional(),
-    experimentId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     display_name: d.displayName,
     description: d.description,
     instructions: d.instructions,
-    id: d.id,
-    supervisor_agent_id: d.supervisorAgentId,
-    creator: d.creator,
-    create_time: d.createTime,
-    endpoint_name: d.endpointName,
-    experiment_id: d.experimentId,
   }));
 
-export const marshalToolSchema: z.ZodType = z
+export const marshalCreateToolSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    id: z.string().optional(),
-    toolType: z.string().optional(),
+    toolType: z.string(),
     spec: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('genieSpace'),
-          genieSpace: z.lazy(() => marshalGenieSpaceSchema),
+          genieSpace: z.lazy(() => marshalCreateGenieSpaceSchema),
         }),
         z.object({
           $case: z.literal('knowledgeAssistant'),
-          knowledgeAssistant: z.lazy(() => marshalKnowledgeAssistantSchema),
+          knowledgeAssistant: z.lazy(
+            () => marshalCreateKnowledgeAssistantSchema
+          ),
         }),
         z.object({
           $case: z.literal('ucFunction'),
-          ucFunction: z.lazy(() => marshalUcFunctionSchema),
+          ucFunction: z.lazy(() => marshalCreateUcFunctionSchema),
         }),
         z.object({
           $case: z.literal('app'),
-          app: z.lazy(() => marshalAppSchema),
+          app: z.lazy(() => marshalCreateAppSchema),
         }),
         z.object({
           $case: z.literal('volume'),
-          volume: z.lazy(() => marshalVolumeSchema),
+          volume: z.lazy(() => marshalCreateVolumeSchema),
         }),
         z.object({
           $case: z.literal('ucConnection'),
-          ucConnection: z.lazy(() => marshalUcConnectionSchema),
+          ucConnection: z.lazy(() => marshalCreateUcConnectionSchema),
         }),
       ])
       .optional(),
     description: z.string().optional(),
-    toolId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    id: d.id,
     tool_type: d.toolType,
     ...(d.spec?.$case === 'genieSpace' && {genie_space: d.spec.genieSpace}),
     ...(d.spec?.$case === 'knowledgeAssistant' && {
@@ -580,10 +742,33 @@ export const marshalToolSchema: z.ZodType = z
       uc_connection: d.spec.ucConnection,
     }),
     description: d.description,
-    tool_id: d.toolId,
   }));
 
-export const marshalUcConnectionSchema: z.ZodType = z
+export const marshalCreateUcConnectionSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalCreateUcFunctionSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalCreateVolumeSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUpdateAppSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -591,7 +776,103 @@ export const marshalUcConnectionSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalUcFunctionSchema: z.ZodType = z
+export const marshalUpdateExampleSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    question: z.string().optional(),
+    guidelines: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    question: d.question,
+    guidelines: d.guidelines,
+  }));
+
+export const marshalUpdateGenieSpaceSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalUpdateKnowledgeAssistantSchema: z.ZodType = z
+  .object({
+    servingEndpointName: z.string().optional(),
+    knowledgeAssistantId: z.string().optional(),
+  })
+  .transform(d => ({
+    serving_endpoint_name: d.servingEndpointName,
+    knowledge_assistant_id: d.knowledgeAssistantId,
+  }));
+
+export const marshalUpdateSupervisorAgentSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    displayName: z.string().optional(),
+    description: z.string().optional(),
+    instructions: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display_name: d.displayName,
+    description: d.description,
+    instructions: d.instructions,
+  }));
+
+export const marshalUpdateToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    toolType: z.string().optional(),
+    spec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('genieSpace'),
+          genieSpace: z.lazy(() => marshalUpdateGenieSpaceSchema),
+        }),
+        z.object({
+          $case: z.literal('knowledgeAssistant'),
+          knowledgeAssistant: z.lazy(
+            () => marshalUpdateKnowledgeAssistantSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('ucFunction'),
+          ucFunction: z.lazy(() => marshalUpdateUcFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('app'),
+          app: z.lazy(() => marshalUpdateAppSchema),
+        }),
+        z.object({
+          $case: z.literal('volume'),
+          volume: z.lazy(() => marshalUpdateVolumeSchema),
+        }),
+        z.object({
+          $case: z.literal('ucConnection'),
+          ucConnection: z.lazy(() => marshalUpdateUcConnectionSchema),
+        }),
+      ])
+      .optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    tool_type: d.toolType,
+    ...(d.spec?.$case === 'genieSpace' && {genie_space: d.spec.genieSpace}),
+    ...(d.spec?.$case === 'knowledgeAssistant' && {
+      knowledge_assistant: d.spec.knowledgeAssistant,
+    }),
+    ...(d.spec?.$case === 'ucFunction' && {uc_function: d.spec.ucFunction}),
+    ...(d.spec?.$case === 'app' && {app: d.spec.app}),
+    ...(d.spec?.$case === 'volume' && {volume: d.spec.volume}),
+    ...(d.spec?.$case === 'ucConnection' && {
+      uc_connection: d.spec.ucConnection,
+    }),
+    description: d.description,
+  }));
+
+export const marshalUpdateUcConnectionSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -599,7 +880,7 @@ export const marshalUcFunctionSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalVolumeSchema: z.ZodType = z
+export const marshalUpdateUcFunctionSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -607,84 +888,91 @@ export const marshalVolumeSchema: z.ZodType = z
     name: d.name,
   }));
 
-const appFieldMaskSchema: FieldMaskSchema = {
+export const marshalUpdateVolumeSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+const updateAppFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-const exampleFieldMaskSchema: FieldMaskSchema = {
-  exampleId: {wire: 'example_id'},
+const updateExampleFieldMaskSchema: FieldMaskSchema = {
   guidelines: {wire: 'guidelines'},
   name: {wire: 'name'},
   question: {wire: 'question'},
 };
 
-export function exampleFieldMask(...paths: string[]): FieldMask<Example> {
-  return FieldMask.build<Example>(paths, exampleFieldMaskSchema);
+export function updateExampleFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateExample> {
+  return FieldMask.build<UpdateExample>(paths, updateExampleFieldMaskSchema);
 }
 
-const genieSpaceFieldMaskSchema: FieldMaskSchema = {
+const updateGenieSpaceFieldMaskSchema: FieldMaskSchema = {
   id: {wire: 'id'},
 };
 
-const knowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
+const updateKnowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
   knowledgeAssistantId: {wire: 'knowledge_assistant_id'},
   servingEndpointName: {wire: 'serving_endpoint_name'},
 };
 
-const supervisorAgentFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  creator: {wire: 'creator'},
+const updateSupervisorAgentFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
   displayName: {wire: 'display_name'},
-  endpointName: {wire: 'endpoint_name'},
-  experimentId: {wire: 'experiment_id'},
-  id: {wire: 'id'},
   instructions: {wire: 'instructions'},
   name: {wire: 'name'},
-  supervisorAgentId: {wire: 'supervisor_agent_id'},
 };
 
-export function supervisorAgentFieldMask(
+export function updateSupervisorAgentFieldMask(
   ...paths: string[]
-): FieldMask<SupervisorAgent> {
-  return FieldMask.build<SupervisorAgent>(
+): FieldMask<UpdateSupervisorAgent> {
+  return FieldMask.build<UpdateSupervisorAgent>(
     paths,
-    supervisorAgentFieldMaskSchema
+    updateSupervisorAgentFieldMaskSchema
   );
 }
 
-const toolFieldMaskSchema: FieldMaskSchema = {
-  app: {wire: 'app', children: () => appFieldMaskSchema},
+const updateToolFieldMaskSchema: FieldMaskSchema = {
+  app: {wire: 'app', children: () => updateAppFieldMaskSchema},
   description: {wire: 'description'},
-  genieSpace: {wire: 'genie_space', children: () => genieSpaceFieldMaskSchema},
-  id: {wire: 'id'},
+  genieSpace: {
+    wire: 'genie_space',
+    children: () => updateGenieSpaceFieldMaskSchema,
+  },
   knowledgeAssistant: {
     wire: 'knowledge_assistant',
-    children: () => knowledgeAssistantFieldMaskSchema,
+    children: () => updateKnowledgeAssistantFieldMaskSchema,
   },
   name: {wire: 'name'},
-  toolId: {wire: 'tool_id'},
   toolType: {wire: 'tool_type'},
   ucConnection: {
     wire: 'uc_connection',
-    children: () => ucConnectionFieldMaskSchema,
+    children: () => updateUcConnectionFieldMaskSchema,
   },
-  ucFunction: {wire: 'uc_function', children: () => ucFunctionFieldMaskSchema},
-  volume: {wire: 'volume', children: () => volumeFieldMaskSchema},
+  ucFunction: {
+    wire: 'uc_function',
+    children: () => updateUcFunctionFieldMaskSchema,
+  },
+  volume: {wire: 'volume', children: () => updateVolumeFieldMaskSchema},
 };
 
-export function toolFieldMask(...paths: string[]): FieldMask<Tool> {
-  return FieldMask.build<Tool>(paths, toolFieldMaskSchema);
+export function updateToolFieldMask(...paths: string[]): FieldMask<UpdateTool> {
+  return FieldMask.build<UpdateTool>(paths, updateToolFieldMaskSchema);
 }
 
-const ucConnectionFieldMaskSchema: FieldMaskSchema = {
+const updateUcConnectionFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-const ucFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateUcFunctionFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-const volumeFieldMaskSchema: FieldMaskSchema = {
+const updateVolumeFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };

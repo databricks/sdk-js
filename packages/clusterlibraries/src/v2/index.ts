@@ -11,6 +11,10 @@ export {LibraryInstallStatus} from './model';
 export type {
   ClusterLibraryStatuses,
   ClusterStatusRequest,
+  CreateLibrary,
+  CreateMavenLibrary,
+  CreatePythonPyPiLibrary,
+  CreateRCranLibrary,
   InstallLibrariesRequest,
   InstallLibrariesResponse,
   Library,

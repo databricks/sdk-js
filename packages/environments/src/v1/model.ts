@@ -552,10 +552,28 @@ export interface ApiError {
   details?: Record<string, unknown>[] | undefined;
 }
 
+/**
+ * A WorkspaceBaseEnvironment defines a workspace-level environment configuration
+ * consisting of an environment version and a list of dependencies.
+ */
+export interface CreateWorkspaceBaseEnvironment {
+  /**
+   * The resource name of the workspace base environment.
+   * Format: workspace-base-environments/{workspace-base-environment}
+   */
+  name?: string | undefined;
+  /** Human-readable display name for the workspace base environment. */
+  displayName: string;
+  /** The WSFS or UC Volumes path to the environment YAML file. */
+  filepath?: string | undefined;
+  /** The type of base environment (CPU or GPU). */
+  baseEnvironmentType?: BaseEnvironmentType | undefined;
+}
+
 /** Request message for CreateWorkspaceBaseEnvironment. */
 export interface CreateWorkspaceBaseEnvironmentRequest {
   /** Required. The workspace base environment to create. */
-  workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
+  workspaceBaseEnvironment?: CreateWorkspaceBaseEnvironment | undefined;
   /**
    * The ID to use for the workspace base environment, which will become the final component of
    * the resource name.
@@ -718,10 +736,35 @@ export interface RefreshWorkspaceBaseEnvironmentRequest {
   name?: string | undefined;
 }
 
+/**
+ * A singleton resource representing the default workspace base environment configuration.
+ * This resource contains the workspace base environments that are used as defaults
+ * for serverless notebooks and jobs in the workspace, for both CPU and GPU compute types.
+ */
+export interface UpdateDefaultWorkspaceBaseEnvironment {
+  /**
+   * The resource name of this singleton resource.
+   * Format: default-workspace-base-environment
+   */
+  name?: string | undefined;
+  /**
+   * The default workspace base environment for CPU compute.
+   * Format: workspace-base-environments/{workspace_base_environment}
+   */
+  cpuWorkspaceBaseEnvironment?: string | undefined;
+  /**
+   * The default workspace base environment for GPU compute.
+   * Format: workspace-base-environments/{workspace_base_environment}
+   */
+  gpuWorkspaceBaseEnvironment?: string | undefined;
+}
+
 /** Request message for UpdateDefaultWorkspaceBaseEnvironment. */
 export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
   /** Required. The default workspace base environment configuration to update. */
-  defaultWorkspaceBaseEnvironment?: DefaultWorkspaceBaseEnvironment | undefined;
+  defaultWorkspaceBaseEnvironment?:
+    | UpdateDefaultWorkspaceBaseEnvironment
+    | undefined;
   /**
    * Field mask specifying which fields to update. Use comma as the separator for multiple fields (no space).
    * The special value '*' indicates that all fields should be updated (full replacement).
@@ -730,7 +773,7 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
    * To unset one or both defaults, include the field path(s) in the mask and omit them from the request body.
    * To unset both, you must list both paths explicitly — the wildcard '*' cannot be used to unset fields.
    */
-  updateMask?: FieldMask<DefaultWorkspaceBaseEnvironment> | undefined;
+  updateMask?: FieldMask<UpdateDefaultWorkspaceBaseEnvironment> | undefined;
 }
 
 /** Request message for UpdateWorkspaceBaseEnvironment. */
@@ -740,7 +783,7 @@ export interface UpdateWorkspaceBaseEnvironmentRequest {
    * Required. The workspace base environment with updated fields.
    * The name field is used to identify the environment to update.
    */
-  workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
+  workspaceBaseEnvironment?: CreateWorkspaceBaseEnvironment | undefined;
 }
 
 /**
@@ -898,7 +941,29 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
 export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
   z.object({});
 
-export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
+export const marshalCreateWorkspaceBaseEnvironmentSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    displayName: z.string(),
+    filepath: z.string().optional(),
+    baseEnvironmentType: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display_name: d.displayName,
+    filepath: d.filepath,
+    base_environment_type: d.baseEnvironmentType,
+  }));
+
+export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUpdateDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     cpuWorkspaceBaseEnvironment: z.string().optional(),
@@ -910,71 +975,17 @@ export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
     gpu_workspace_base_environment: d.gpuWorkspaceBaseEnvironment,
   }));
 
-export const marshalEnvironmentSpecSchema: z.ZodType = z
-  .object({
-    dependencies: z.array(z.string()).optional(),
-    environmentVersion: z.string().optional(),
-  })
-  .transform(d => ({
-    dependencies: d.dependencies,
-    environment_version: d.environmentVersion,
-  }));
-
-export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    displayName: z.string().optional(),
-    filepath: z.string().optional(),
-    creatorUserId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    lastUpdatedUserId: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    status: z.string().optional(),
-    message: z.string().optional(),
-    isDefault: z.boolean().optional(),
-    baseEnvironmentType: z.string().optional(),
-    spec: z.lazy(() => marshalEnvironmentSpecSchema).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    display_name: d.displayName,
-    filepath: d.filepath,
-    creator_user_id: d.creatorUserId,
-    create_time: d.createTime,
-    last_updated_user_id: d.lastUpdatedUserId,
-    update_time: d.updateTime,
-    status: d.status,
-    message: d.message,
-    is_default: d.isDefault,
-    base_environment_type: d.baseEnvironmentType,
-    spec: d.spec,
-  }));
-
-const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
+const updateDefaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
   cpuWorkspaceBaseEnvironment: {wire: 'cpu_workspace_base_environment'},
   gpuWorkspaceBaseEnvironment: {wire: 'gpu_workspace_base_environment'},
   name: {wire: 'name'},
 };
 
-export function defaultWorkspaceBaseEnvironmentFieldMask(
+export function updateDefaultWorkspaceBaseEnvironmentFieldMask(
   ...paths: string[]
-): FieldMask<DefaultWorkspaceBaseEnvironment> {
-  return FieldMask.build<DefaultWorkspaceBaseEnvironment>(
+): FieldMask<UpdateDefaultWorkspaceBaseEnvironment> {
+  return FieldMask.build<UpdateDefaultWorkspaceBaseEnvironment>(
     paths,
-    defaultWorkspaceBaseEnvironmentFieldMaskSchema
+    updateDefaultWorkspaceBaseEnvironmentFieldMaskSchema
   );
 }

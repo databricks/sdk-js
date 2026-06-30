@@ -19,10 +19,18 @@ export {
 } from './model';
 
 export type {
+  CreateFederationPolicy,
   CreateFederationPolicyRequest,
+  CreateIpAccessList,
+  CreateOidcFederationPolicy,
+  CreatePermissionsChange,
+  CreatePropertiesKvPairs,
   CreateProviderRequest,
+  CreateRecipientProfile,
   CreateRecipientRequest,
+  CreateRecipientTokenInfo,
   CreateShareRequest,
+  CreateSharedDataObject,
   DeleteFederationPolicyRequest,
   DeleteProviderRequest,
   DeleteProviderResponse,
@@ -63,7 +71,9 @@ export type {
   NotebookFile,
   OidcFederationPolicy,
   PartitionSpecification,
+  PartitionSpecification_CreatePartition,
   PartitionSpecification_Partition,
+  PartitionSpecification_Partition_CreatePartitionValue,
   PartitionSpecification_Partition_PartitionValue,
   PermissionsChange,
   PrivilegeAssignment,
@@ -91,6 +101,7 @@ export type {
   UpdateSharePermissionsRequest,
   UpdateSharePermissionsResponse,
   UpdateShareRequest,
+  UpdateShareRequest_CreateSharedDataObjectUpdate,
   UpdateShareRequest_SharedDataObjectUpdate,
   Volume,
 } from './model';

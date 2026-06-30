@@ -127,6 +127,12 @@ export interface CatalogInfo {
   options?: Record<string, string> | undefined;
 }
 
+export interface CreateAzureEncryptionSettings {
+  azureTenantId: string;
+  azureCmkAccessConnectorId?: string | undefined;
+  azureCmkManagedIdentityId?: string | undefined;
+}
+
 export interface CreateCatalogRequest {
   /** Name of catalog. */
   name?: string | undefined;
@@ -164,22 +170,50 @@ export interface CreateCatalogRequest {
   /** Whether the current securable is accessible from all workspaces or a specific set of workspaces. */
   isolationMode?: CatalogIsolationMode | undefined;
   effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
+    | CreateEffectivePredictiveOptimizationFlag
     | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  provisioningInfo?: ProvisioningInfo | undefined;
+  provisioningInfo?: CreateProvisioningInfo | undefined;
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
   /** Custom maximum retention period in hours for the catalog */
   customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
-  managedEncryptionSettings?: EncryptionSettings | undefined;
+  managedEncryptionSettings?: CreateEncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
+}
+
+export interface CreateEffectivePredictiveOptimizationFlag {
+  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  value: string;
+  /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromType?: string | undefined;
+  /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromName?: string | undefined;
+}
+
+/**
+ * Encryption Settings are used to carry metadata for securable encryption at rest.
+ * Currently used for catalogs, we can use the information supplied here to interact with a CMK.
+ */
+export interface CreateEncryptionSettings {
+  /** the CMK uuid in AWS and GCP, null otherwise. */
+  customerManagedKeyId?: string | undefined;
+  /** the AKV URL in Azure, null otherwise. */
+  azureKeyVaultKeyId?: string | undefined;
+  /** optional Azure settings - only required if an Azure CMK is used. */
+  azureEncryptionSettings?: CreateAzureEncryptionSettings | undefined;
+}
+
+/** Status of an asynchronously provisioned resource. */
+export interface CreateProvisioningInfo {
+  /** The provisioning state of the resource. */
+  state?: ProvisioningInfo_State | undefined;
 }
 
 export interface DeleteCatalogRequest {
@@ -300,18 +334,18 @@ export interface UpdateCatalogRequest {
   /** Whether the current securable is accessible from all workspaces or a specific set of workspaces. */
   isolationMode?: CatalogIsolationMode | undefined;
   effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
+    | CreateEffectivePredictiveOptimizationFlag
     | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  provisioningInfo?: ProvisioningInfo | undefined;
+  provisioningInfo?: CreateProvisioningInfo | undefined;
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
   /** Custom maximum retention period in hours for the catalog */
   customMaxRetentionHours?: bigint | undefined;
   /** Control CMK encryption for managed catalog data */
-  managedEncryptionSettings?: EncryptionSettings | undefined;
+  managedEncryptionSettings?: CreateEncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -451,9 +485,9 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
     state: d.state,
   }));
 
-export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
+export const marshalCreateAzureEncryptionSettingsSchema: z.ZodType = z
   .object({
-    azureTenantId: z.string().optional(),
+    azureTenantId: z.string(),
     azureCmkAccessConnectorId: z.string().optional(),
     azureCmkManagedIdentityId: z.string().optional(),
   })
@@ -482,15 +516,17 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     storageLocation: z.string().optional(),
     isolationMode: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .lazy(() => marshalCreateEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     browseOnly: z.boolean().optional(),
-    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+    provisioningInfo: z
+      .lazy(() => marshalCreateProvisioningInfoSchema)
+      .optional(),
     fullName: z.string().optional(),
     securableType: z.string().optional(),
     customMaxRetentionHours: z.bigint().optional(),
     managedEncryptionSettings: z
-      .lazy(() => marshalEncryptionSettingsSchema)
+      .lazy(() => marshalCreateEncryptionSettingsSchema)
       .optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
@@ -524,24 +560,25 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     options: d.options,
   }));
 
-export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
-  .object({
-    value: z.string().optional(),
-    inheritedFromType: z.string().optional(),
-    inheritedFromName: z.string().optional(),
-  })
-  .transform(d => ({
-    value: d.value,
-    inherited_from_type: d.inheritedFromType,
-    inherited_from_name: d.inheritedFromName,
-  }));
+export const marshalCreateEffectivePredictiveOptimizationFlagSchema: z.ZodType =
+  z
+    .object({
+      value: z.string(),
+      inheritedFromType: z.string().optional(),
+      inheritedFromName: z.string().optional(),
+    })
+    .transform(d => ({
+      value: d.value,
+      inherited_from_type: d.inheritedFromType,
+      inherited_from_name: d.inheritedFromName,
+    }));
 
-export const marshalEncryptionSettingsSchema: z.ZodType = z
+export const marshalCreateEncryptionSettingsSchema: z.ZodType = z
   .object({
     customerManagedKeyId: z.string().optional(),
     azureKeyVaultKeyId: z.string().optional(),
     azureEncryptionSettings: z
-      .lazy(() => marshalAzureEncryptionSettingsSchema)
+      .lazy(() => marshalCreateAzureEncryptionSettingsSchema)
       .optional(),
   })
   .transform(d => ({
@@ -550,7 +587,7 @@ export const marshalEncryptionSettingsSchema: z.ZodType = z
     azure_encryption_settings: d.azureEncryptionSettings,
   }));
 
-export const marshalProvisioningInfoSchema: z.ZodType = z
+export const marshalCreateProvisioningInfoSchema: z.ZodType = z
   .object({
     state: z.string().optional(),
   })
@@ -579,15 +616,17 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     storageLocation: z.string().optional(),
     isolationMode: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .lazy(() => marshalCreateEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     browseOnly: z.boolean().optional(),
-    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+    provisioningInfo: z
+      .lazy(() => marshalCreateProvisioningInfoSchema)
+      .optional(),
     fullName: z.string().optional(),
     securableType: z.string().optional(),
     customMaxRetentionHours: z.bigint().optional(),
     managedEncryptionSettings: z
-      .lazy(() => marshalEncryptionSettingsSchema)
+      .lazy(() => marshalCreateEncryptionSettingsSchema)
       .optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),

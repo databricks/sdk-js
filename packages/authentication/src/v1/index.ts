@@ -8,6 +8,8 @@ export {AuthenticationClient} from './client';
 
 export type {
   CreateAccountFederationPolicyRequest,
+  CreateFederationPolicy,
+  CreateOidcFederationPolicy,
   CreateServicePrincipalFederationPolicyRequest,
   CreateServicePrincipalSecretRequest,
   CreateServicePrincipalSecretResponse,
@@ -26,7 +28,9 @@ export type {
   OidcFederationPolicy,
   ServicePrincipalSecret,
   UpdateAccountFederationPolicyRequest,
+  UpdateFederationPolicy,
+  UpdateOidcFederationPolicy,
   UpdateServicePrincipalFederationPolicyRequest,
 } from './model';
 
-export {federationPolicyFieldMask} from './model';
+export {updateFederationPolicyFieldMask} from './model';

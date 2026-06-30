@@ -84,6 +84,25 @@ export interface RevokeTokenRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RevokeTokenResponse {}
 
+export interface UpdatePublicTokenInfo {
+  /** The ID of this token. */
+  tokenId?: string | undefined;
+  /** Server time (in epoch milliseconds) when the token was created. */
+  creationTime?: bigint | undefined;
+  /** Server time (in epoch milliseconds) when the token will expire, or -1 if not applicable. */
+  expiryTime?: bigint | undefined;
+  /** Comment the token was created with, if applicable. */
+  comment?: string | undefined;
+  /** Scope of the token was created with, if applicable. */
+  scopes?: string[] | undefined;
+  /** Output only. The autoscope state of this token. */
+  autoscopeState?: AutoscopeState | undefined;
+  /** Output only. Inferred API path scopes collected for this token when autoscope is enabled. */
+  inferredScopes?: string[] | undefined;
+  /** Output only. Scopes inferred from offline backfill processing. */
+  backfillScopes?: string[] | undefined;
+}
+
 /**
  * For the list of supported token scopes, see
  * https://docs.databricks.com/api/workspace/api/scopes.
@@ -91,9 +110,9 @@ export interface RevokeTokenResponse {}
 export interface UpdateTokenRequest {
   /** The SHA-256 hash of the token to be updated. */
   tokenId?: string | undefined;
-  token?: PublicTokenInfo | undefined;
+  token?: UpdatePublicTokenInfo | undefined;
   /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
-  updateMask?: FieldMask<PublicTokenInfo> | undefined;
+  updateMask?: FieldMask<UpdatePublicTokenInfo> | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -169,7 +188,15 @@ export const marshalCreateTokenRequestSchema: z.ZodType = z
     autoscope_enabled: d.autoscopeEnabled,
   }));
 
-export const marshalPublicTokenInfoSchema: z.ZodType = z
+export const marshalRevokeTokenRequestSchema: z.ZodType = z
+  .object({
+    tokenId: z.string().optional(),
+  })
+  .transform(d => ({
+    token_id: d.tokenId,
+  }));
+
+export const marshalUpdatePublicTokenInfoSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
     creationTime: z.bigint().optional(),
@@ -191,18 +218,10 @@ export const marshalPublicTokenInfoSchema: z.ZodType = z
     backfill_scopes: d.backfillScopes,
   }));
 
-export const marshalRevokeTokenRequestSchema: z.ZodType = z
-  .object({
-    tokenId: z.string().optional(),
-  })
-  .transform(d => ({
-    token_id: d.tokenId,
-  }));
-
 export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
-    token: z.lazy(() => marshalPublicTokenInfoSchema).optional(),
+    token: z.lazy(() => marshalUpdatePublicTokenInfoSchema).optional(),
     updateMask: z
       .any()
       .transform((m: FieldMask) => m.toString())
@@ -214,7 +233,7 @@ export const marshalUpdateTokenRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-const publicTokenInfoFieldMaskSchema: FieldMaskSchema = {
+const updatePublicTokenInfoFieldMaskSchema: FieldMaskSchema = {
   autoscopeState: {wire: 'autoscope_state'},
   backfillScopes: {wire: 'backfill_scopes'},
   comment: {wire: 'comment'},
@@ -225,11 +244,11 @@ const publicTokenInfoFieldMaskSchema: FieldMaskSchema = {
   tokenId: {wire: 'token_id'},
 };
 
-export function publicTokenInfoFieldMask(
+export function updatePublicTokenInfoFieldMask(
   ...paths: string[]
-): FieldMask<PublicTokenInfo> {
-  return FieldMask.build<PublicTokenInfo>(
+): FieldMask<UpdatePublicTokenInfo> {
+  return FieldMask.build<UpdatePublicTokenInfo>(
     paths,
-    publicTokenInfoFieldMaskSchema
+    updatePublicTokenInfoFieldMaskSchema
   );
 }

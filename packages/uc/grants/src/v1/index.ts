@@ -7,6 +7,7 @@
 export {GrantsClient} from './client';
 
 export type {
+  CreatePermissionsChange,
   EffectivePrivilege,
   EffectivePrivilegeAssignment,
   GetEffectivePermissionsRequest,

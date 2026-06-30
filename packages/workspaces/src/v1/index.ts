@@ -21,6 +21,10 @@ export {
 export type {
   AzureWorkspaceInfo,
   CloudResourceContainer,
+  CreateCloudResourceContainer,
+  CreateGcpCloudResourceContainer,
+  CreateGcpManagedNetworkConfig,
+  CreateGkeConfig,
   CreateWorkspaceRequest,
   DeleteWorkspaceRequest,
   GcpCloudResourceContainer,
@@ -30,9 +34,16 @@ export type {
   GkeConfig,
   ListWorkspacesRequest,
   ListWorkspacesResponse,
+  UpdateCloudResourceContainer,
+  UpdateGcpCloudResourceContainer,
+  UpdateGcpCommonNetworkConfig,
+  UpdateGcpManagedNetworkConfig,
+  UpdateGkeConfig,
+  UpdateWorkspace,
+  UpdateWorkspaceNetwork,
   UpdateWorkspaceRequest,
   Workspace,
   WorkspaceNetwork,
 } from './model';
 
-export {workspaceFieldMask} from './model';
+export {updateWorkspaceFieldMask} from './model';

@@ -10,7 +10,13 @@ export {DestinationType} from './model';
 
 export type {
   Config,
+  CreateConfig,
+  CreateEmailConfig,
+  CreateGenericWebhookConfig,
+  CreateMicrosoftTeamsConfig,
   CreateNotificationDestinationRequest,
+  CreatePagerdutyConfig,
+  CreateSlackConfig,
   DeleteNotificationDestinationRequest,
   EmailConfig,
   Empty,

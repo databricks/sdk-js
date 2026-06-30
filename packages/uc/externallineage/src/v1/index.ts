@@ -10,7 +10,14 @@ export {SystemType, Direction_LineageDirection} from './model';
 
 export type {
   ColumnRelationship,
+  CreateColumnRelationship,
+  CreateCreateRequestExternalLineage,
+  CreateExternalLineageRelationshipExternalMetadata,
+  CreateExternalLineageRelationshipModelVersion,
+  CreateExternalLineageRelationshipObject,
+  CreateExternalLineageRelationshipPath,
   CreateExternalLineageRelationshipRequest,
+  CreateExternalLineageRelationshipTable,
   CreateRequestExternalLineage,
   DeleteExternalLineageRelationshipRequest,
   DeleteRequestExternalLineage,
@@ -28,8 +35,15 @@ export type {
   LineageTableInfo,
   ListExternalLineageRelationshipsRequest,
   ListExternalLineageRelationshipsResponse,
+  UpdateColumnRelationship,
+  UpdateExternalLineageRelationshipExternalMetadata,
+  UpdateExternalLineageRelationshipModelVersion,
+  UpdateExternalLineageRelationshipObject,
+  UpdateExternalLineageRelationshipPath,
   UpdateExternalLineageRelationshipRequest,
+  UpdateExternalLineageRelationshipTable,
   UpdateRequestExternalLineage,
+  UpdateUpdateRequestExternalLineage,
 } from './model';
 
-export {updateRequestExternalLineageFieldMask} from './model';
+export {updateUpdateRequestExternalLineageFieldMask} from './model';
