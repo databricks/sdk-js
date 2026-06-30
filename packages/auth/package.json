@@ -3,33 +3,30 @@
   "version": "0.1.0-dev.4",
   "description": "Databricks authentication library for JavaScript/TypeScript",
   "type": "module",
-  "main": "./dist/index.js",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": {"types": "./dist/index.d.ts", "default": "./dist/index.js"},
+      "require": {"types": "./dist/index.d.cts", "default": "./dist/index.cjs"}
     },
     "./credentials": {
-      "types": "./dist/credentials/index.d.ts",
-      "import": "./dist/credentials/index.js",
-      "default": "./dist/credentials/index.js"
+      "import": {"types": "./dist/credentials/index.d.ts", "default": "./dist/credentials/index.js"},
+      "require": {"types": "./dist/credentials/index.d.cts", "default": "./dist/credentials/index.cjs"}
     },
     "./credentials/browser": {
-      "types": "./dist/credentials/index.browser.d.ts",
-      "import": "./dist/credentials/index.browser.js",
-      "default": "./dist/credentials/index.browser.js"
+      "import": {"types": "./dist/credentials/index.browser.d.ts", "default": "./dist/credentials/index.browser.js"},
+      "require": {"types": "./dist/credentials/index.browser.d.cts", "default": "./dist/credentials/index.browser.cjs"}
     },
     "./oidc": {
-      "types": "./dist/oidc/index.d.ts",
-      "import": "./dist/oidc/index.js",
-      "default": "./dist/oidc/index.js"
+      "import": {"types": "./dist/oidc/index.d.ts", "default": "./dist/oidc/index.js"},
+      "require": {"types": "./dist/oidc/index.d.cts", "default": "./dist/oidc/index.cjs"}
     },
     "./oidc/browser": {
-      "types": "./dist/oidc/index.browser.d.ts",
-      "import": "./dist/oidc/index.browser.js",
-      "default": "./dist/oidc/index.browser.js"
+      "import": {"types": "./dist/oidc/index.browser.d.ts", "default": "./dist/oidc/index.browser.js"},
+      "require": {"types": "./dist/oidc/index.browser.d.cts", "default": "./dist/oidc/index.browser.cjs"}
     }
   },
   "files": [
@@ -38,7 +35,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsdown",
     "lint": "eslint src tests --ext .ts",
     "lint:fix": "eslint src tests --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",

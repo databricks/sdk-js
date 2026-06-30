@@ -3,11 +3,17 @@
   "version": "0.1.0-dev.3",
   "description": "",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     "./v1": {
-      "types": "./dist/v1/index.d.ts",
-      "import": "./dist/v1/index.js",
-      "default": "./dist/v1/index.js"
+      "import": {
+        "types": "./dist/v1/index.d.ts",
+        "default": "./dist/v1/index.js"
+      },
+      "require": {
+        "types": "./dist/v1/index.d.cts",
+        "default": "./dist/v1/index.cjs"
+      }
     }
   },
   "files": [
@@ -16,7 +22,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsdown",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",

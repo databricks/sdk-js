@@ -90,15 +90,30 @@ Use **subpath exports only**. Each submodule is imported via its own path.
 Do not re-export children from parent `index.ts` files — this avoids a flat
 namespace that grows unwieldy and risks name collisions.
 
+Packages build with **tsdown** to dual ESM + CJS, so each export entry has both
+an `import` (ESM: `.js`/`.d.ts`) and a `require` (CJS: `.cjs`/`.d.cts`)
+condition, each with its own `types`. List `types` first within each condition.
+
 ```json
 {
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./apierror": { "types": "./dist/apierror/index.d.ts", "import": "./dist/apierror/index.js" },
-    "./apierror/codes": { "types": "./dist/apierror/codes/index.d.ts", "import": "./dist/apierror/codes/index.js" }
+    ".": {
+      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+    },
+    "./apierror": {
+      "import": { "types": "./dist/apierror/index.d.ts", "default": "./dist/apierror/index.js" },
+      "require": { "types": "./dist/apierror/index.d.cts", "default": "./dist/apierror/index.cjs" }
+    }
   }
 }
 ```
+
+The build script is `"build": "tsdown"`, driven by a per-package
+`tsdown.config.ts` whose `entry` map lists one entry per export subpath. Also
+set `"sideEffects": false` so consumers can tree-shake. For generated service
+packages all of this is produced by the generator (`packageconfig.go`); for the
+hand-written `auth`/`core`/`options` packages it is maintained by hand.
 
 ## Verification Checklist
 

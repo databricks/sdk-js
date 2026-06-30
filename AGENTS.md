@@ -16,10 +16,11 @@ your training data, the rule wins.
 | Runtime            | Node.js >= 22, Browser             |
 | Package manager    | npm workspaces                     |
 | Build target       | ES2024, ESNext modules             |
+| Bundler            | tsdown (Rolldown-based)            |
 | Linter             | ESLint (strict-type-checked)       |
 | Formatter          | Prettier                           |
 | Test framework     | Vitest                             |
-| Module system      | ESM only                           |
+| Module system      | Dual ESM + CJS (import/require)    |
 
 ## Directory Layout
 

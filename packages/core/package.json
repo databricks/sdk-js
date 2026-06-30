@@ -3,70 +3,60 @@
   "version": "0.1.0-dev.5",
   "description": "Databricks core library for JavaScript/TypeScript",
   "type": "module",
-  "main": "./dist/index.js",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": {"types": "./dist/index.d.ts", "default": "./dist/index.js"},
+      "require": {"types": "./dist/index.d.cts", "default": "./dist/index.cjs"}
     },
     "./profiles": {
-      "types": "./dist/profiles/index.d.ts",
-      "import": "./dist/profiles/index.js",
-      "default": "./dist/profiles/index.js"
+      "import": {"types": "./dist/profiles/index.d.ts", "default": "./dist/profiles/index.js"},
+      "require": {"types": "./dist/profiles/index.d.cts", "default": "./dist/profiles/index.cjs"}
     },
     "./profiles/browser": {
-      "types": "./dist/profiles/index.browser.d.ts",
-      "import": "./dist/profiles/index.browser.js",
-      "default": "./dist/profiles/index.browser.js"
+      "import": {"types": "./dist/profiles/index.browser.d.ts", "default": "./dist/profiles/index.browser.js"},
+      "require": {"types": "./dist/profiles/index.browser.d.cts", "default": "./dist/profiles/index.browser.cjs"}
     },
     "./wkt": {
-      "types": "./dist/wkt/index.d.ts",
-      "import": "./dist/wkt/index.js",
-      "default": "./dist/wkt/index.js"
+      "import": {"types": "./dist/wkt/index.d.ts", "default": "./dist/wkt/index.js"},
+      "require": {"types": "./dist/wkt/index.d.cts", "default": "./dist/wkt/index.cjs"}
     },
     "./clientinfo": {
       "browser": {
-        "types": "./dist/clientinfo/index.browser.d.ts",
-        "import": "./dist/clientinfo/index.browser.js",
-        "default": "./dist/clientinfo/index.browser.js"
+        "import": {"types": "./dist/clientinfo/index.browser.d.ts", "default": "./dist/clientinfo/index.browser.js"},
+        "require": {"types": "./dist/clientinfo/index.browser.d.cts", "default": "./dist/clientinfo/index.browser.cjs"}
       },
       "default": {
-        "types": "./dist/clientinfo/index.d.ts",
-        "import": "./dist/clientinfo/index.js",
-        "default": "./dist/clientinfo/index.js"
+        "import": {"types": "./dist/clientinfo/index.d.ts", "default": "./dist/clientinfo/index.js"},
+        "require": {"types": "./dist/clientinfo/index.d.cts", "default": "./dist/clientinfo/index.cjs"}
       }
     },
     "./clientinfo/browser": {
-      "types": "./dist/clientinfo/index.browser.d.ts",
-      "import": "./dist/clientinfo/index.browser.js",
-      "default": "./dist/clientinfo/index.browser.js"
+      "import": {"types": "./dist/clientinfo/index.browser.d.ts", "default": "./dist/clientinfo/index.browser.js"},
+      "require": {"types": "./dist/clientinfo/index.browser.d.cts", "default": "./dist/clientinfo/index.browser.cjs"}
     },
     "./http": {
-      "types": "./dist/http/index.d.ts",
-      "import": "./dist/http/index.js",
-      "default": "./dist/http/index.js"
+      "import": {"types": "./dist/http/index.d.ts", "default": "./dist/http/index.js"},
+      "require": {"types": "./dist/http/index.d.cts", "default": "./dist/http/index.cjs"}
     },
     "./logger": {
-      "types": "./dist/logger/index.d.ts",
-      "import": "./dist/logger/index.js",
-      "default": "./dist/logger/index.js"
+      "import": {"types": "./dist/logger/index.d.ts", "default": "./dist/logger/index.js"},
+      "require": {"types": "./dist/logger/index.d.cts", "default": "./dist/logger/index.cjs"}
     },
     "./ops": {
-      "types": "./dist/ops/index.d.ts",
-      "import": "./dist/ops/index.js",
-      "default": "./dist/ops/index.js"
+      "import": {"types": "./dist/ops/index.d.ts", "default": "./dist/ops/index.js"},
+      "require": {"types": "./dist/ops/index.d.cts", "default": "./dist/ops/index.cjs"}
     },
     "./apierror": {
-      "types": "./dist/apierror/index.d.ts",
-      "import": "./dist/apierror/index.js",
-      "default": "./dist/apierror/index.js"
+      "import": {"types": "./dist/apierror/index.d.ts", "default": "./dist/apierror/index.js"},
+      "require": {"types": "./dist/apierror/index.d.cts", "default": "./dist/apierror/index.cjs"}
     },
     "./apierror/codes": {
-      "types": "./dist/apierror/codes/index.d.ts",
-      "import": "./dist/apierror/codes/index.js",
-      "default": "./dist/apierror/codes/index.js"
+      "import": {"types": "./dist/apierror/codes/index.d.ts", "default": "./dist/apierror/codes/index.js"},
+      "require": {"types": "./dist/apierror/codes/index.d.cts", "default": "./dist/apierror/codes/index.cjs"}
     }
   },
   "files": [
@@ -75,7 +65,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsdown",
     "lint": "eslint src tests --ext .ts",
     "lint:fix": "eslint src tests --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",

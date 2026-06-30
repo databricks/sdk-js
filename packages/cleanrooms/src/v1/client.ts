@@ -940,3 +940,37 @@ export class CreateCleanRoomWaiter {
     }
   }
 }
+
+
+import {newU2mCredentials} from '@databricks/sdk-auth/credentials';
+import {resolve} from '@databricks/sdk-core/profiles';
+import {CatalogsClient} from '@databricks/sdk-uc-catalogs/v1';
+
+const {host} = await resolve({profile: 'dogfood'});
+const u2m = newU2mCredentials({profile: 'dogfood'});
+const tok = await u2m.token();
+
+console.log('=== RAW fetch (ground truth) ===');
+const url = `${host}/api/2.1/unity-catalog/catalogs`;
+const r = await fetch(url, {headers: {Authorization: `Bearer ${tok.value}`}});
+const body = await r.text();
+console.log('status:', r.status, r.statusText);
+console.log('content-type:', r.headers.get('content-type'));
+console.log('body (first 400):', body.slice(0, 400));
+
+console.log('\n=== SDK error structure ===');
+const client = new CatalogsClient({host: host ?? '', credentials: u2m});
+try {
+  const resp = await client.listCatalogs({});
+  console.log('listCatalogs OK:', JSON.stringify(resp).slice(0, 200));
+} catch (e: any) {
+  console.log('  constructor :', e?.constructor?.name);
+  console.log('  name        :', e?.name);
+  console.log('  message     :', e?.message);
+  console.log('  String(e)   :', String(e));
+  console.log('  own props   :', Object.getOwnPropertyNames(e ?? {}));
+  console.log('  JSON        :', JSON.stringify(e, Object.getOwnPropertyNames(e ?? {})).slice(0, 400));
+  console.log('  cause       :', e?.cause);
+  console.log('  stack[0..5] :\n' + String(e?.stack).split('\n').slice(0, 6).join('\n'));
+}
+

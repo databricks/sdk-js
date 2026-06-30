@@ -249,3 +249,41 @@ export async function listProfiles(path: string): Promise<string[]> {
 
   return names;
 }
+
+
+/** Options that configure a Databricks API client. */
+export interface ClientOptions {
+
+  /** The profile to use for the client. */
+  profile?: ProfileOptions;
+  
+
+  sdkOptions?: SDKOptions;
+
+}
+
+
+export interface DatabricksOptions {
+  withDefaultProfile?: boolean;
+  withFile?: boolean;
+  withEnv?: boolean;
+  host?: string;
+
+  /** The account ID to use for the client. */
+  accountId?: string;
+
+  /** The workspace ID to use for the client. */
+  workspaceId?: string;
+}
+
+export interface SDKOptions {
+
+  /** The HTTP client to use for the client. */
+  httpClient?: HttpClient;
+
+  /** The credentials to use for the client. */
+  credentials?: Credentials;
+
+  /** The logger to use for the client. */
+  logger?: Logger;
+}

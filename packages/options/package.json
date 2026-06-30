@@ -3,21 +3,19 @@
   "version": "0.1.0-dev.4",
   "description": "Options for configuring Databricks API clients and individual calls.",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     "./client": {
-      "types": "./dist/client/index.d.ts",
-      "import": "./dist/client/index.js",
-      "default": "./dist/client/index.js"
+      "import": {"types": "./dist/client/index.d.ts", "default": "./dist/client/index.js"},
+      "require": {"types": "./dist/client/index.d.cts", "default": "./dist/client/index.cjs"}
     },
     "./call": {
-      "types": "./dist/call/index.d.ts",
-      "import": "./dist/call/index.js",
-      "default": "./dist/call/index.js"
+      "import": {"types": "./dist/call/index.d.ts", "default": "./dist/call/index.js"},
+      "require": {"types": "./dist/call/index.d.cts", "default": "./dist/call/index.cjs"}
     },
     "./lro": {
-      "types": "./dist/lro/index.d.ts",
-      "import": "./dist/lro/index.js",
-      "default": "./dist/lro/index.js"
+      "import": {"types": "./dist/lro/index.d.ts", "default": "./dist/lro/index.js"},
+      "require": {"types": "./dist/lro/index.d.cts", "default": "./dist/lro/index.cjs"}
     }
   },
   "files": [
@@ -26,7 +24,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsdown",
     "lint": "eslint src tests --ext .ts",
     "lint:fix": "eslint src tests --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
