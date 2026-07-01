@@ -50,6 +50,16 @@ export interface CatalogConfig {
          */
         includedSchemas: CatalogConfig_SchemaNames;
       }
+    | {
+        $case: 'excludedSchemas';
+        /**
+         * Schemas to exclude from the scan, each named relative to the parent catalog.
+         * If specified, all schemas except the specified ones will be scanned.
+         * Mutually exclusive with `included_schemas`: only one may be set per request.
+         * If neither `included_schemas` nor `excluded_schemas` is set, all schemas are scanned.
+         */
+        excludedSchemas: CatalogConfig_SchemaNames;
+      }
     | undefined;
   /**
    * List of auto-tagging configurations for this catalog.
@@ -123,6 +133,9 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
     included_schemas: z
       .lazy(() => unmarshalCatalogConfig_SchemaNamesSchema)
       .optional(),
+    excluded_schemas: z
+      .lazy(() => unmarshalCatalogConfig_SchemaNamesSchema)
+      .optional(),
     auto_tag_configs: z
       .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
       .optional(),
@@ -135,7 +148,12 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
             $case: 'includedSchemas' as const,
             includedSchemas: d.included_schemas,
           }
-        : undefined,
+        : d.excluded_schemas !== undefined
+          ? {
+              $case: 'excludedSchemas' as const,
+              excludedSchemas: d.excluded_schemas,
+            }
+          : undefined,
     autoTagConfigs: d.auto_tag_configs,
   }));
 
@@ -168,6 +186,10 @@ export const marshalCatalogConfigSchema: z.ZodType = z
           $case: z.literal('includedSchemas'),
           includedSchemas: z.lazy(() => marshalCatalogConfig_SchemaNamesSchema),
         }),
+        z.object({
+          $case: z.literal('excludedSchemas'),
+          excludedSchemas: z.lazy(() => marshalCatalogConfig_SchemaNamesSchema),
+        }),
       ])
       .optional(),
     autoTagConfigs: z
@@ -178,6 +200,9 @@ export const marshalCatalogConfigSchema: z.ZodType = z
     name: d.name,
     ...(d.selectedSchemas?.$case === 'includedSchemas' && {
       included_schemas: d.selectedSchemas.includedSchemas,
+    }),
+    ...(d.selectedSchemas?.$case === 'excludedSchemas' && {
+      excluded_schemas: d.selectedSchemas.excludedSchemas,
     }),
     auto_tag_configs: d.autoTagConfigs,
   }));
@@ -193,6 +218,10 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
 
 const catalogConfigFieldMaskSchema: FieldMaskSchema = {
   autoTagConfigs: {wire: 'auto_tag_configs'},
+  excludedSchemas: {
+    wire: 'excluded_schemas',
+    children: () => catalogConfig_SchemaNamesFieldMaskSchema,
+  },
   includedSchemas: {
     wire: 'included_schemas',
     children: () => catalogConfig_SchemaNamesFieldMaskSchema,

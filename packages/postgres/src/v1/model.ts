@@ -1444,6 +1444,13 @@ export interface EndpointHosts {
    * if the enclosing endpoint is a group with greater than 1 computes configured, and has readable secondaries enabled.
    */
   readOnlyHost?: string | undefined;
+  /** The read-write hostname of the compute endpoint, with pooling. This attribute is only defined for read-write endpoints. */
+  readWritePooledHost?: string | undefined;
+  /**
+   * The read-only hostname of the compute endpoint, with pooling. This attribute is always defined for read-only endpoints,
+   * and may be defined for read-write endpoints if configured with read replicas and allow read-only connections.
+   */
+  readOnlyPooledHost?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1512,6 +1519,8 @@ export interface EndpointStatus {
   endpointType?: EndpointType | undefined;
   /** Contains host information for connecting to the endpoint. */
   hosts?: EndpointHosts | undefined;
+  /** A timestamp indicating when the compute endpoint was last active. */
+  lastActiveTime?: Temporal.Instant | undefined;
   /** The minimum number of Compute Units. */
   autoscalingLimitMinCu?: number | undefined;
   /**
@@ -1545,6 +1554,34 @@ export interface GenerateDatabaseCredentialRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: string | undefined;
+  /**
+   * <Databricks> workspace group name. When provided, credentials are generated
+   * with permissions scoped to this group.
+   */
+  groupName?: string | undefined;
+  /**
+   * Expiration information for the credential.
+   * Users can specify either expire_time or ttl.
+   * If unspecified, maximum allowed duration (1 hour) is used.
+   */
+  expiration?:
+    | {
+        $case: 'ttl';
+        /**
+         * The requested time-to-live for the generated credential token.
+         * Must be at least 300 seconds (5 minutes) and at most 3600 seconds (1 hour).
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'expireTime';
+        /**
+         * Timestamp in UTC of when this credential should expire.
+         * Must be at least 300 seconds (5 minutes) and at most 1 hour from the current time.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | undefined;
 }
 
 export interface GetBranchRequest {
@@ -2769,10 +2806,14 @@ export const unmarshalEndpointHostsSchema: z.ZodType<EndpointHosts> = z
   .object({
     host: z.string().optional(),
     read_only_host: z.string().optional(),
+    read_write_pooled_host: z.string().optional(),
+    read_only_pooled_host: z.string().optional(),
   })
   .transform(d => ({
     host: d.host,
     readOnlyHost: d.read_only_host,
+    readWritePooledHost: d.read_write_pooled_host,
+    readOnlyPooledHost: d.read_only_pooled_host,
   }));
 
 export const unmarshalEndpointOperationMetadataSchema: z.ZodType<EndpointOperationMetadata> =
@@ -2822,6 +2863,10 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
     endpoint_type: z.string().optional(),
     hosts: z.lazy(() => unmarshalEndpointHostsSchema).optional(),
+    last_active_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     current_state: z.string().optional(),
@@ -2838,6 +2883,7 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .transform(d => ({
     endpointType: d.endpoint_type,
     hosts: d.hosts,
+    lastActiveTime: d.last_active_time,
     autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
     autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
     currentState: d.current_state,
@@ -3745,10 +3791,14 @@ export const marshalEndpointHostsSchema: z.ZodType = z
   .object({
     host: z.string().optional(),
     readOnlyHost: z.string().optional(),
+    readWritePooledHost: z.string().optional(),
+    readOnlyPooledHost: z.string().optional(),
   })
   .transform(d => ({
     host: d.host,
     read_only_host: d.readOnlyHost,
+    read_write_pooled_host: d.readWritePooledHost,
+    read_only_pooled_host: d.readOnlyPooledHost,
   }));
 
 export const marshalEndpointSettingsSchema: z.ZodType = z
@@ -3800,6 +3850,10 @@ export const marshalEndpointStatusSchema: z.ZodType = z
   .object({
     endpointType: z.string().optional(),
     hosts: z.lazy(() => marshalEndpointHostsSchema).optional(),
+    lastActiveTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     currentState: z.string().optional(),
@@ -3816,6 +3870,7 @@ export const marshalEndpointStatusSchema: z.ZodType = z
   .transform(d => ({
     endpoint_type: d.endpointType,
     hosts: d.hosts,
+    last_active_time: d.lastActiveTime,
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
     current_state: d.currentState,
@@ -3831,10 +3886,32 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
+    groupName: z.string().optional(),
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     claims: d.claims,
     endpoint: d.endpoint,
+    group_name: d.groupName,
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
   }));
 
 export const marshalInitialBranchSpecSchema: z.ZodType = z
@@ -4441,6 +4518,8 @@ const endpointGroupStatusFieldMaskSchema: FieldMaskSchema = {
 const endpointHostsFieldMaskSchema: FieldMaskSchema = {
   host: {wire: 'host'},
   readOnlyHost: {wire: 'read_only_host'},
+  readOnlyPooledHost: {wire: 'read_only_pooled_host'},
+  readWritePooledHost: {wire: 'read_write_pooled_host'},
 };
 
 const endpointSettingsFieldMaskSchema: FieldMaskSchema = {
@@ -4467,6 +4546,7 @@ const endpointStatusFieldMaskSchema: FieldMaskSchema = {
   endpointType: {wire: 'endpoint_type'},
   group: {wire: 'group', children: () => endpointGroupStatusFieldMaskSchema},
   hosts: {wire: 'hosts', children: () => endpointHostsFieldMaskSchema},
+  lastActiveTime: {wire: 'last_active_time'},
   pendingState: {wire: 'pending_state'},
   settings: {wire: 'settings', children: () => endpointSettingsFieldMaskSchema},
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},

@@ -121,6 +121,8 @@ export interface UpdatePermissionsRequest {
   securableType?: string | undefined;
   /** Full name of securable. */
   securableFullName?: string | undefined;
+  /** Optional, default false. Specifies whether all the permissions should be returned in the response. */
+  omitPermissionsInResponse?: boolean | undefined;
   /** Array of permissions change objects. */
   changes?: PermissionsChange[] | undefined;
 }
@@ -220,10 +222,12 @@ export const marshalUpdatePermissionsRequestSchema: z.ZodType = z
   .object({
     securableType: z.string().optional(),
     securableFullName: z.string().optional(),
+    omitPermissionsInResponse: z.boolean().optional(),
     changes: z.array(z.lazy(() => marshalPermissionsChangeSchema)).optional(),
   })
   .transform(d => ({
     securable_type: d.securableType,
     securable_full_name: d.securableFullName,
+    omit_permissions_in_response: d.omitPermissionsInResponse,
     changes: d.changes,
   }));
