@@ -330,6 +330,29 @@ export const Source = {
 } as const;
 export type Source = (typeof Source)[keyof typeof Source] | (string & {});
 
+/**
+ * The strategy used to evaluate a SQL condition trigger against a query result set.
+ *
+ * * `SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED`: Sentinel zero-value. Not a valid input — the
+ * validator rejects this when sent explicitly. Internally treated as `QUERY_RETURNS_ROWS`
+ * when reading legacy data that predates this field.
+ * * `QUERY_RETURNS_ROWS`: Fires whenever the result set has at least one row. Zero rows means
+ * the condition is not met. This is the original SQL condition behavior.
+ * * `RESULT_VALUE_CHANGES`: Fires whenever the query's single result value differs from the
+ * previous evaluation. The first evaluation always fires. Queries must return exactly one
+ * cell (one row, one column).
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SqlConditionTriggerMode = {
+  SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED:
+    'SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED',
+  QUERY_RETURNS_ROWS: 'QUERY_RETURNS_ROWS',
+  RESULT_VALUE_CHANGES: 'RESULT_VALUE_CHANGES',
+} as const;
+export type SqlConditionTriggerMode =
+  | (typeof SqlConditionTriggerMode)[keyof typeof SqlConditionTriggerMode]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StorageMode = {
   DIRECT_QUERY: 'DIRECT_QUERY',
@@ -966,6 +989,12 @@ export interface AiRuntimeTaskOutput {
    * MLflow APIs or the workspace MLflow UI.
    */
   mlflowRunId?: string | undefined;
+  /**
+   * Human-readable status message for this run, suitable for display to the
+   * user (for example, that the run is still waiting for GPU compute). Set by
+   * the server only when there is something to surface; empty otherwise.
+   */
+  statusMessage?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1774,6 +1803,11 @@ export interface CronSchedule {
   timezoneId?: string | undefined;
   /** Indicate whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
+  /**
+   * SQL condition that must be satisfied before a scheduled run is triggered. The condition is evaluated
+   * after the cron expression fires and must return a truthy result for the run to proceed.
+   */
+  sqlCondition?: SqlConditionConfiguration | undefined;
 }
 
 export interface DashboardPageSnapshot {
@@ -4347,6 +4381,8 @@ export interface RunTaskSettings {
 
 /** Additional details about what triggered the run */
 export interface RunTriggerInfo {
+  /** SQL condition evaluation details for this run */
+  sqlCondition?: SqlConditionRunInfoDetails | undefined;
   /** The run id of the Run Job task run */
   runId?: bigint | undefined;
 }
@@ -4449,6 +4485,53 @@ export interface SparseCheckout {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SqlAlertState {}
+
+export interface SqlConditionConfiguration {
+  /** The ID of the SQL query to evaluate as the trigger condition. */
+  sqlQueryId?: string | undefined;
+  /** The canonical identifier of the SQL warehouse to run the condition query against. */
+  warehouseId?: string | undefined;
+  /**
+   * Determines how the SQL query result is interpreted to decide whether the condition fires.
+   * Must be set to a recognized value when provided.
+   * When unset on an existing serialized configuration, the server preserves the original
+   * semantics by interpreting it as `QUERY_RETURNS_ROWS`. New configurations should set this
+   * explicitly — explicit `SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED` is rejected at validation.
+   */
+  triggerMode?: SqlConditionTriggerMode | undefined;
+}
+
+/** SQL condition evaluation details captured at the time the run was triggered */
+export interface SqlConditionRunInfoDetails {
+  /**
+   * The SQL statement ID of the condition evaluation, set when the condition is
+   * evaluated by running a single SQL statement (the RESULT_VALUE_CHANGES trigger
+   * mode). The UI uses it to link to the query execution details.
+   */
+  conditionEvaluationSqlStatementId?: string | undefined;
+  /** Whether the last condition evaluation was satisfied (query returned truthy result). */
+  conditionEvaluationSatisfied?: boolean | undefined;
+  /**
+   * The ID of the SQL session, used by the UI to track session context.
+   * Set for the QUERY_RETURNS_ROWS trigger mode.
+   */
+  conditionEvaluationSqlSessionId?: string | undefined;
+}
+
+export interface SqlConditionState {
+  /**
+   * The SEA statement ID of the SQL statement executed for the latest condition evaluation.
+   * Populated for RESULT_VALUE_CHANGES, which executes the query through the SQL execution API.
+   */
+  latestConditionEvaluationSqlStatementId?: string | undefined;
+  /** Whether the last condition evaluation was satisfied (query returned truthy result). */
+  latestConditionEvaluationSatisfied?: boolean | undefined;
+  /**
+   * The ID of the SQL session, used by UI to track session context.
+   * Populated for QUERY_RETURNS_ROWS, which executes the query through Redash.
+   */
+  latestConditionEvaluationSqlSessionId?: string | undefined;
+}
 
 export interface SqlTask {
   /** Parameters to be used for each run of this job. The SQL alert task does not support custom parameters. */
@@ -4974,6 +5057,11 @@ export interface TriggerSettings {
     | {$case: 'tableUpdate'; tableUpdate: TableTriggerConfiguration}
     | {$case: 'model'; model: ModelTriggerConfiguration}
     | undefined;
+  /**
+   * SQL condition that must be satisfied for the trigger to fire. Can be used in combination with other trigger types and
+   * runs *after* other trigger types conditions are evaluated.
+   */
+  sqlCondition?: SqlConditionConfiguration | undefined;
 }
 
 export interface TriggerState {
@@ -4982,6 +5070,8 @@ export interface TriggerState {
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
     | undefined;
+  /** State for SQL condition evaluation, can coexist with other trigger states. */
+  sqlCondition?: SqlConditionState | undefined;
 }
 
 export interface UpdateJobRequest {
@@ -5100,10 +5190,12 @@ export const unmarshalAiRuntimeTaskOutputSchema: z.ZodType<AiRuntimeTaskOutput> 
     .object({
       mlflow_experiment_id: z.string().optional(),
       mlflow_run_id: z.string().optional(),
+      status_message: z.string().optional(),
     })
     .transform(d => ({
       mlflowExperimentId: d.mlflow_experiment_id,
       mlflowRunId: d.mlflow_run_id,
+      statusMessage: d.status_message,
     }));
 
 export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
@@ -5604,11 +5696,15 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     quartz_cron_expression: z.string().optional(),
     timezone_id: z.string().optional(),
     pause_status: z.string().optional(),
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     quartzCronExpression: d.quartz_cron_expression,
     timezoneId: d.timezone_id,
     pauseStatus: d.pause_status,
+    sqlCondition: d.sql_condition,
   }));
 
 export const unmarshalDashboardPageSnapshotSchema: z.ZodType<DashboardPageSnapshot> =
@@ -7587,12 +7683,16 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
 
 export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
   .object({
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionRunInfoDetailsSchema)
+      .optional(),
     run_id: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
       .optional(),
   })
   .transform(d => ({
+    sqlCondition: d.sql_condition,
     runId: d.run_id,
   }));
 
@@ -7656,6 +7756,47 @@ export const unmarshalSparseCheckoutSchema: z.ZodType<SparseCheckout> = z
   })
   .transform(d => ({
     patterns: d.patterns,
+  }));
+
+export const unmarshalSqlConditionConfigurationSchema: z.ZodType<SqlConditionConfiguration> =
+  z
+    .object({
+      sql_query_id: z.string().optional(),
+      warehouse_id: z.string().optional(),
+      trigger_mode: z.string().optional(),
+    })
+    .transform(d => ({
+      sqlQueryId: d.sql_query_id,
+      warehouseId: d.warehouse_id,
+      triggerMode: d.trigger_mode,
+    }));
+
+export const unmarshalSqlConditionRunInfoDetailsSchema: z.ZodType<SqlConditionRunInfoDetails> =
+  z
+    .object({
+      condition_evaluation_sql_statement_id: z.string().optional(),
+      condition_evaluation_satisfied: z.boolean().optional(),
+      condition_evaluation_sql_session_id: z.string().optional(),
+    })
+    .transform(d => ({
+      conditionEvaluationSqlStatementId:
+        d.condition_evaluation_sql_statement_id,
+      conditionEvaluationSatisfied: d.condition_evaluation_satisfied,
+      conditionEvaluationSqlSessionId: d.condition_evaluation_sql_session_id,
+    }));
+
+export const unmarshalSqlConditionStateSchema: z.ZodType<SqlConditionState> = z
+  .object({
+    latest_condition_evaluation_sql_statement_id: z.string().optional(),
+    latest_condition_evaluation_satisfied: z.boolean().optional(),
+    latest_condition_evaluation_sql_session_id: z.string().optional(),
+  })
+  .transform(d => ({
+    latestConditionEvaluationSqlStatementId:
+      d.latest_condition_evaluation_sql_statement_id,
+    latestConditionEvaluationSatisfied: d.latest_condition_evaluation_satisfied,
+    latestConditionEvaluationSqlSessionId:
+      d.latest_condition_evaluation_sql_session_id,
   }));
 
 export const unmarshalSqlTaskSchema: z.ZodType<SqlTask> = z
@@ -8179,6 +8320,9 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
       .lazy(() => unmarshalTableTriggerConfigurationSchema)
       .optional(),
     model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     pauseStatus: d.pause_status,
@@ -8192,6 +8336,7 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
             : d.model !== undefined
               ? {$case: 'model' as const, model: d.model}
               : undefined,
+    sqlCondition: d.sql_condition,
   }));
 
 export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
@@ -8200,6 +8345,7 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
     file_arrival: z
       .lazy(() => unmarshalFileArrivalTriggerStateSchema)
       .optional(),
+    sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
   })
   .transform(d => ({
     triggerType:
@@ -8208,6 +8354,7 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
         : d.file_arrival !== undefined
           ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
           : undefined,
+    sqlCondition: d.sql_condition,
   }));
 
 export const unmarshalUpdateJobResponseSchema: z.ZodType<UpdateJobResponse> =
@@ -8719,11 +8866,15 @@ export const marshalCronScheduleSchema: z.ZodType = z
     quartzCronExpression: z.string().optional(),
     timezoneId: z.string().optional(),
     pauseStatus: z.string().optional(),
+    sqlCondition: z
+      .lazy(() => marshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
     timezone_id: d.timezoneId,
     pause_status: d.pauseStatus,
+    sql_condition: d.sqlCondition,
   }));
 
 export const marshalDashboardTaskSchema: z.ZodType = z
@@ -9881,6 +10032,18 @@ export const marshalSparseCheckoutSchema: z.ZodType = z
     patterns: d.patterns,
   }));
 
+export const marshalSqlConditionConfigurationSchema: z.ZodType = z
+  .object({
+    sqlQueryId: z.string().optional(),
+    warehouseId: z.string().optional(),
+    triggerMode: z.string().optional(),
+  })
+  .transform(d => ({
+    sql_query_id: d.sqlQueryId,
+    warehouse_id: d.warehouseId,
+    trigger_mode: d.triggerMode,
+  }));
+
 export const marshalSqlTaskSchema: z.ZodType = z
   .object({
     parameters: z.record(z.string(), z.string()).optional(),
@@ -10331,6 +10494,9 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    sqlCondition: z
+      .lazy(() => marshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     pause_status: d.pauseStatus,
@@ -10344,6 +10510,7 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
       table_update: d.configuration.tableUpdate,
     }),
     ...(d.configuration?.$case === 'model' && {model: d.configuration.model}),
+    sql_condition: d.sqlCondition,
   }));
 
 export const marshalUpdateJobRequestSchema: z.ZodType = z
