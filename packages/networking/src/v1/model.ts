@@ -244,9 +244,24 @@ export type IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode =
   | (typeof IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode)[keyof typeof IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode]
   | (string & {});
 
+/**
+ * The restriction mode for private access. In ALLOW_ALL_REGISTERED_ENDPOINTS mode,
+ * requests arriving through any endpoint registered to the account are allowed, and
+ * deny rules and allow rules cannot be set. In RESTRICTED_ACCESS mode, access is
+ * restricted based on deny rules and allow rules; requests that do not match any
+ * allow rule are denied.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IngressNetworkPolicy_PrivateAccess_RestrictionMode = {
+  /**
+   * Allows requests arriving through any endpoint registered to the account.
+   * Deny rules and allow rules cannot be set in this mode.
+   */
   ALLOW_ALL_REGISTERED_ENDPOINTS: 'ALLOW_ALL_REGISTERED_ENDPOINTS',
+  /**
+   * Restricts access based on deny rules and allow rules. Requests that do not
+   * match any allow rule are denied.
+   */
   RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -968,11 +983,7 @@ export interface GetWorkspaceNetworkOptionRequest {
   workspaceId?: bigint | undefined;
 }
 
-/**
- * This proto is under development.
- * The network policies applying for ingress traffic.
- * Any changes here should also be synced to estore/namespaces/lakehousenetworkmanager/latest.proto.
- */
+/** The network policies applying for ingress traffic. */
 export interface IngressNetworkPolicy {
   /**
    * The network policy restrictions for public access to the workspace.
@@ -980,8 +991,8 @@ export interface IngressNetworkPolicy {
    */
   publicAccess?: IngressNetworkPolicy_PublicAccess | undefined;
   /**
-   * The network policy restrictions for private access to the workspace.
-   * Configures how registered private endpoints are allowed or denied access.
+   * The network policy restrictions for private access.
+   * Configures how requests arriving over private connectivity are governed.
    */
   privateAccess?: IngressNetworkPolicy_PrivateAccess | undefined;
   crossWorkspaceAccess?: IngressNetworkPolicy_CrossWorkspaceAccess | undefined;
@@ -990,6 +1001,7 @@ export interface IngressNetworkPolicy {
 /** Matches account-level Databricks API endpoints for an ingress network policy rule. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_AccountApiDestination {
+  /** The API scopes to match. Use "all-apis" to match any account-level API. */
   scopes?: string[] | undefined;
   /** Qualifies the breadth of API access for the listed scopes. See ApiScopeQualifier. */
   scopeQualifier?: IngressNetworkPolicy_ApiScopeQualifier | undefined;
@@ -1001,6 +1013,7 @@ export interface IngressNetworkPolicy_AccountDatabricksOneDestination {
   allDestinations?: boolean | undefined;
 }
 
+/** The account console UI destination. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_AccountUiDestination {
   /** Must be set to true. */
@@ -1062,8 +1075,10 @@ export interface IngressNetworkPolicy_CrossWorkspaceRequestOrigin {
     | undefined;
 }
 
+/** A set of registered endpoints, identified by their endpoint IDs. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_Endpoints {
+  /** The IDs of the registered endpoints. Must contain at least one endpoint ID. */
   endpointIds?: string[] | undefined;
 }
 
@@ -1079,31 +1094,97 @@ export interface IngressNetworkPolicy_LakebaseRuntimeDestination {
   allDestinations?: boolean | undefined;
 }
 
+/**
+ * Configures how requests arriving over private connectivity, such as
+ * registered endpoints, are allowed or denied access.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_PrivateAccess {
+  /** The restriction mode for private access. */
   restrictionMode?:
     | IngressNetworkPolicy_PrivateAccess_RestrictionMode
     | undefined;
+  /**
+   * Deny rules are evaluated first. A request matching any deny rule is denied,
+   * regardless of allow rules. Only applies when restriction_mode is RESTRICTED_ACCESS.
+   */
   denyRules?: IngressNetworkPolicy_PrivateIngressRule[] | undefined;
+  /**
+   * Allow rules are evaluated after deny rules. A request matching any allow rule is
+   * allowed; a request matching no rule is denied by default. Only applies when
+   * restriction_mode is RESTRICTED_ACCESS.
+   */
   allowRules?: IngressNetworkPolicy_PrivateIngressRule[] | undefined;
 }
 
+/**
+ * An ingress rule is enforced when a request satisfies all
+ * specified attributes — including request origin, destination, and authentication.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_PrivateIngressRule {
+  /**
+   * The origin the request must match — the private connectivity the request arrives
+   * through, for example a specific set of registered endpoints or any endpoint
+   * registered to the account. See PrivateRequestOrigin.
+   */
   origin?: IngressNetworkPolicy_PrivateRequestOrigin | undefined;
+  /**
+   * The destination the request must match — the resource being accessed, for example
+   * the workspace UI, workspace APIs, or account-level APIs. See RequestDestination.
+   */
   destination?: IngressNetworkPolicy_RequestDestination | undefined;
+  /**
+   * The authenticated identity the request must match. When unset, the rule matches
+   * all users and service principals.
+   * On the account-level network policy, scoping to specific identities is not
+   * currently supported, so this field must be unset (the rule matches all users
+   * and service principals).
+   */
   authentication?: IngressNetworkPolicy_Authentication | undefined;
   /** The label for this ingress rule. */
   label?: string | undefined;
 }
 
+/**
+ * The origin of a private access request, identified by the endpoint
+ * through which the request arrives.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_PrivateRequestOrigin {
   source?:
-    | {$case: 'endpoints'; endpoints: IngressNetworkPolicy_Endpoints}
-    | {$case: 'allRegisteredEndpoints'; allRegisteredEndpoints: boolean}
-    | {$case: 'azureWorkspacePrivateLink'; azureWorkspacePrivateLink: boolean}
-    | {$case: 'allPrivateAccess'; allPrivateAccess: boolean}
+    | {
+        $case: 'endpoints';
+        /** Matches requests arriving through any of the specified registered endpoints. */
+        endpoints: IngressNetworkPolicy_Endpoints;
+      }
+    | {
+        $case: 'allRegisteredEndpoints';
+        /**
+         * Matches requests arriving through any endpoint registered to the account.
+         * Must be set to true when specified.
+         */
+        allRegisteredEndpoints: boolean;
+      }
+    | {
+        $case: 'azureWorkspacePrivateLink';
+        /**
+         * Matches requests arriving through the workspace's Azure Private Link (ui-api)
+         * endpoints. Can only be used in deny rules of workspace-level network policies.
+         * Must be set to true when specified.
+         */
+        azureWorkspacePrivateLink: boolean;
+      }
+    | {
+        $case: 'allPrivateAccess';
+        /**
+         * Matches requests arriving over any private connectivity, including registered
+         * endpoints and the workspace's Azure Private Link (ui-api) endpoints.
+         * Can only be used in deny rules of workspace-level network policies.
+         * Must be set to true when specified.
+         */
+        allPrivateAccess: boolean;
+      }
     | undefined;
 }
 
@@ -1161,12 +1242,17 @@ export interface IngressNetworkPolicy_RequestDestination {
   workspaceApi?: IngressNetworkPolicy_WorkspaceApiDestination | undefined;
   appsRuntime?: IngressNetworkPolicy_AppsRuntimeDestination | undefined;
   lakebaseRuntime?: IngressNetworkPolicy_LakebaseRuntimeDestination | undefined;
-  accountUi?: IngressNetworkPolicy_AccountUiDestination | undefined;
-  accountApi?: IngressNetworkPolicy_AccountApiDestination | undefined;
   /**
-   * Account DatabricksOne destination is not supported.
-   * DO NOT change the stage of this destination past PRIVATE_PREVIEW.
+   * Matches requests to the account console UI.
+   * Can only be used in the account-level network policy.
    */
+  accountUi?: IngressNetworkPolicy_AccountUiDestination | undefined;
+  /**
+   * Matches requests to account-level APIs.
+   * Can only be used in the account-level network policy.
+   */
+  accountApi?: IngressNetworkPolicy_AccountApiDestination | undefined;
+  /** Account DatabricksOne destination is not supported. */
   accountDatabricksOne?:
     | IngressNetworkPolicy_AccountDatabricksOneDestination
     | undefined;

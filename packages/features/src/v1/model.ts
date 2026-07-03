@@ -110,8 +110,8 @@ export interface AggregationFunction {
     | {$case: 'varSamp'; varSamp: VarSampFunction}
     | {$case: 'firstN'; firstN: FirstNFunction}
     | {$case: 'lastN'; lastN: LastNFunction}
-    | {$case: 'firstDistinctN'; firstDistinctN: FirstDistinctNFunction}
-    | {$case: 'lastDistinctN'; lastDistinctN: LastDistinctNFunction}
+    | {$case: 'firstDistinct'; firstDistinct: FirstDistinctFunction}
+    | {$case: 'lastDistinct'; lastDistinct: LastDistinctFunction}
     | undefined;
   /** The time window over which the aggregation is computed. */
   timeWindow?: TimeWindow | undefined;
@@ -429,7 +429,7 @@ export interface FieldDefinition {
 }
 
 /** Returns the first N distinct values, ordered by the feature's timeseries column. */
-export interface FirstDistinctNFunction {
+export interface FirstDistinctFunction {
   /** The input column from which the first N distinct values are returned. */
   input?: string | undefined;
   /** The number of distinct values to return. */
@@ -664,7 +664,7 @@ export interface KafkaSubscriptionMode {
 }
 
 /** Returns the last N distinct values, ordered by the feature's timeseries column. */
-export interface LastDistinctNFunction {
+export interface LastDistinctFunction {
   /** The input column from which the last N distinct values are returned. */
   input?: string | undefined;
   /** The number of distinct values to return. */
@@ -781,6 +781,27 @@ export interface ListStreamsResponse {
   streams?: Stream[] | undefined;
   /** Pagination token to request the next page of results for this query. */
   nextPageToken?: string | undefined;
+}
+
+/**
+ * A long (multi-day) rolling window served via the hybrid batch + streaming path. The batch
+ * pipeline maintains daily partial aggregates for the bulk of the window while the streaming
+ * pipeline maintains the most recent day(s), and serving merges them on read. Distinct from
+ * RollingWindow so the control plane can explicitly identify long rolling window features rather
+ * than inferring hybrid behavior from window_duration.
+ */
+export interface LongRollingWindow {
+  /**
+   * The duration of the rolling window. Must be positive and span more than two days, so that both
+   * the batch (N-1 day) and stale-path (N-2 day) partial aggregates are well defined. The duration
+   * need not be a whole number of days (e.g. 3 days 15 minutes is allowed).
+   */
+  windowDuration?: Temporal.Duration | undefined;
+  /**
+   * The delay applied to the end of the rolling window (must be non-negative).
+   * For example, delay=1d shifts the window end 1 day before the evaluation time.
+   */
+  delay?: Temporal.Duration | undefined;
 }
 
 /** A materialized feature represents a feature that is continuously computed and stored. */
@@ -939,6 +960,25 @@ export interface OnlineStoreConfig {
   onlineStoreName?: string | undefined;
 }
 
+/**
+ * A Protocol Buffer schema paired with the name of the message within it that describes the
+ * Kafka payload. A .proto file may declare multiple messages; message_name disambiguates.
+ */
+export interface ProtoSchemaSpec {
+  /**
+   * The raw .proto file text (proto2 and proto3 syntax supported, see
+   * https://protobuf.dev/programming-guides/proto3/ and https://protobuf.dev/programming-guides/proto2/).
+   */
+  schemaText?: string | undefined;
+  /**
+   * The fully-qualified name of the message within schema_text that describes the Kafka payload
+   * (e.g. "Event" or "com.example.Event" if schema_text declares a package). Identifies which
+   * message is used to decode each Kafka record — a .proto file may declare multiple messages
+   * but only one represents the payload. Must not be empty.
+   */
+  messageName?: string | undefined;
+}
+
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
 export interface RequestSource {
   /** The schema describing the request-time fields. Currently only flat schemas are supported. */
@@ -972,6 +1012,16 @@ export interface SchemaConfig {
         $case: 'jsonSchema';
         /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
         jsonSchema: string;
+      }
+    | {
+        $case: 'avroSchema';
+        /** Avro schema in JSON format (https://avro.apache.org/docs/current/specification/). */
+        avroSchema: string;
+      }
+    | {
+        $case: 'protoSchema';
+        /** Protocol Buffer schema with its payload message name. */
+        protoSchema: ProtoSchemaSpec;
       }
     | undefined;
 }
@@ -1105,6 +1155,11 @@ export interface StreamSourceConfig {
 export interface StreamingMode {
   /** The type of streaming mode used by the materialization pipeline. */
   mode?: StreamingMode_StreamingModeType | undefined;
+  /**
+   * The desired data freshness for feature materialization, expressed as a
+   * duration string (e.g. "1 minute").
+   */
+  freshnessTarget?: string | undefined;
 }
 
 /** Deprecated: Use KafkaSubscriptionMode instead. */
@@ -1153,6 +1208,11 @@ export interface TimeWindow {
     | {$case: 'tumbling'; tumbling: TumblingWindow}
     | {$case: 'sliding'; sliding: SlidingWindow}
     | {$case: 'rolling'; rolling: RollingWindow}
+    | {
+        $case: 'longRolling';
+        /** A long (multi-day) rolling window served via the hybrid batch + streaming path. */
+        longRolling: LongRollingWindow;
+      }
     | undefined;
 }
 
@@ -1239,11 +1299,11 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
       var_samp: z.lazy(() => unmarshalVarSampFunctionSchema).optional(),
       first_n: z.lazy(() => unmarshalFirstNFunctionSchema).optional(),
       last_n: z.lazy(() => unmarshalLastNFunctionSchema).optional(),
-      first_distinct_n: z
-        .lazy(() => unmarshalFirstDistinctNFunctionSchema)
+      first_distinct: z
+        .lazy(() => unmarshalFirstDistinctFunctionSchema)
         .optional(),
-      last_distinct_n: z
-        .lazy(() => unmarshalLastDistinctNFunctionSchema)
+      last_distinct: z
+        .lazy(() => unmarshalLastDistinctFunctionSchema)
         .optional(),
       time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
     })
@@ -1300,15 +1360,15 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
                                           $case: 'lastN' as const,
                                           lastN: d.last_n,
                                         }
-                                      : d.first_distinct_n !== undefined
+                                      : d.first_distinct !== undefined
                                         ? {
-                                            $case: 'firstDistinctN' as const,
-                                            firstDistinctN: d.first_distinct_n,
+                                            $case: 'firstDistinct' as const,
+                                            firstDistinct: d.first_distinct,
                                           }
-                                        : d.last_distinct_n !== undefined
+                                        : d.last_distinct !== undefined
                                           ? {
-                                              $case: 'lastDistinctN' as const,
-                                              lastDistinctN: d.last_distinct_n,
+                                              $case: 'lastDistinct' as const,
+                                              lastDistinct: d.last_distinct,
                                             }
                                           : undefined,
       timeWindow: d.time_window,
@@ -1567,7 +1627,7 @@ export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
     dataType: d.data_type,
   }));
 
-export const unmarshalFirstDistinctNFunctionSchema: z.ZodType<FirstDistinctNFunction> =
+export const unmarshalFirstDistinctFunctionSchema: z.ZodType<FirstDistinctFunction> =
   z
     .object({
       input: z.string().optional(),
@@ -1782,7 +1842,7 @@ export const unmarshalKafkaSubscriptionModeSchema: z.ZodType<KafkaSubscriptionMo
               : undefined,
     }));
 
-export const unmarshalLastDistinctNFunctionSchema: z.ZodType<LastDistinctNFunction> =
+export const unmarshalLastDistinctFunctionSchema: z.ZodType<LastDistinctFunction> =
   z
     .object({
       input: z.string().optional(),
@@ -1877,6 +1937,22 @@ export const unmarshalListStreamsResponseSchema: z.ZodType<ListStreamsResponse> 
       streams: d.streams,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalLongRollingWindowSchema: z.ZodType<LongRollingWindow> = z
+  .object({
+    window_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    delay: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    windowDuration: d.window_duration,
+    delay: d.delay,
+  }));
 
 export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> =
   z
@@ -2006,6 +2082,16 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     onlineStoreName: d.online_store_name,
   }));
 
+export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
+  .object({
+    schema_text: z.string().optional(),
+    message_name: z.string().optional(),
+  })
+  .transform(d => ({
+    schemaText: d.schema_text,
+    messageName: d.message_name,
+  }));
+
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
@@ -2036,12 +2122,18 @@ export const unmarshalRollingWindowSchema: z.ZodType<RollingWindow> = z
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
   .object({
     json_schema: z.string().optional(),
+    avro_schema: z.string().optional(),
+    proto_schema: z.lazy(() => unmarshalProtoSchemaSpecSchema).optional(),
   })
   .transform(d => ({
     schema:
       d.json_schema !== undefined
         ? {$case: 'jsonSchema' as const, jsonSchema: d.json_schema}
-        : undefined,
+        : d.avro_schema !== undefined
+          ? {$case: 'avroSchema' as const, avroSchema: d.avro_schema}
+          : d.proto_schema !== undefined
+            ? {$case: 'protoSchema' as const, protoSchema: d.proto_schema}
+            : undefined,
   }));
 
 export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
@@ -2189,9 +2281,11 @@ export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
 export const unmarshalStreamingModeSchema: z.ZodType<StreamingMode> = z
   .object({
     mode: z.string().optional(),
+    freshness_target: z.string().optional(),
   })
   .transform(d => ({
     mode: d.mode,
+    freshnessTarget: d.freshness_target,
   }));
 
 export const unmarshalSubscriptionModeSchema: z.ZodType<SubscriptionMode> = z
@@ -2232,6 +2326,7 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     tumbling: z.lazy(() => unmarshalTumblingWindowSchema).optional(),
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
     rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
+    long_rolling: z.lazy(() => unmarshalLongRollingWindowSchema).optional(),
   })
   .transform(d => ({
     windowType:
@@ -2243,7 +2338,9 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
             ? {$case: 'sliding' as const, sliding: d.sliding}
             : d.rolling !== undefined
               ? {$case: 'rolling' as const, rolling: d.rolling}
-              : undefined,
+              : d.long_rolling !== undefined
+                ? {$case: 'longRolling' as const, longRolling: d.long_rolling}
+                : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -2348,12 +2445,12 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
           lastN: z.lazy(() => marshalLastNFunctionSchema),
         }),
         z.object({
-          $case: z.literal('firstDistinctN'),
-          firstDistinctN: z.lazy(() => marshalFirstDistinctNFunctionSchema),
+          $case: z.literal('firstDistinct'),
+          firstDistinct: z.lazy(() => marshalFirstDistinctFunctionSchema),
         }),
         z.object({
-          $case: z.literal('lastDistinctN'),
-          lastDistinctN: z.lazy(() => marshalLastDistinctNFunctionSchema),
+          $case: z.literal('lastDistinct'),
+          lastDistinct: z.lazy(() => marshalLastDistinctFunctionSchema),
         }),
       ])
       .optional(),
@@ -2385,11 +2482,11 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
     ...(d.operation?.$case === 'varSamp' && {var_samp: d.operation.varSamp}),
     ...(d.operation?.$case === 'firstN' && {first_n: d.operation.firstN}),
     ...(d.operation?.$case === 'lastN' && {last_n: d.operation.lastN}),
-    ...(d.operation?.$case === 'firstDistinctN' && {
-      first_distinct_n: d.operation.firstDistinctN,
+    ...(d.operation?.$case === 'firstDistinct' && {
+      first_distinct: d.operation.firstDistinct,
     }),
-    ...(d.operation?.$case === 'lastDistinctN' && {
-      last_distinct_n: d.operation.lastDistinctN,
+    ...(d.operation?.$case === 'lastDistinct' && {
+      last_distinct: d.operation.lastDistinct,
     }),
     time_window: d.timeWindow,
   }));
@@ -2673,7 +2770,7 @@ export const marshalFieldDefinitionSchema: z.ZodType = z
     data_type: d.dataType,
   }));
 
-export const marshalFirstDistinctNFunctionSchema: z.ZodType = z
+export const marshalFirstDistinctFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     n: z.bigint().optional(),
@@ -2876,7 +2973,7 @@ export const marshalKafkaSubscriptionModeSchema: z.ZodType = z
     }),
   }));
 
-export const marshalLastDistinctNFunctionSchema: z.ZodType = z
+export const marshalLastDistinctFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     n: z.bigint().optional(),
@@ -2912,6 +3009,22 @@ export const marshalLineageContextSchema: z.ZodType = z
   .transform(d => ({
     notebook_id: d.notebookId,
     job_context: d.jobContext,
+  }));
+
+export const marshalLongRollingWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    delay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+    delay: d.delay,
   }));
 
 export const marshalMaterializedFeatureSchema: z.ZodType = z
@@ -3044,6 +3157,16 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     online_store_name: d.onlineStoreName,
   }));
 
+export const marshalProtoSchemaSpecSchema: z.ZodType = z
+  .object({
+    schemaText: z.string().optional(),
+    messageName: z.string().optional(),
+  })
+  .transform(d => ({
+    schema_text: d.schemaText,
+    message_name: d.messageName,
+  }));
+
 export const marshalRequestSourceSchema: z.ZodType = z
   .object({
     schema: z
@@ -3080,11 +3203,20 @@ export const marshalSchemaConfigSchema: z.ZodType = z
     schema: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('jsonSchema'), jsonSchema: z.string()}),
+        z.object({$case: z.literal('avroSchema'), avroSchema: z.string()}),
+        z.object({
+          $case: z.literal('protoSchema'),
+          protoSchema: z.lazy(() => marshalProtoSchemaSpecSchema),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.schema?.$case === 'jsonSchema' && {json_schema: d.schema.jsonSchema}),
+    ...(d.schema?.$case === 'avroSchema' && {avro_schema: d.schema.avroSchema}),
+    ...(d.schema?.$case === 'protoSchema' && {
+      proto_schema: d.schema.protoSchema,
+    }),
   }));
 
 export const marshalSecretScopeReferenceSchema: z.ZodType = z
@@ -3236,9 +3368,11 @@ export const marshalStreamSourceConfigSchema: z.ZodType = z
 export const marshalStreamingModeSchema: z.ZodType = z
   .object({
     mode: z.string().optional(),
+    freshnessTarget: z.string().optional(),
   })
   .transform(d => ({
     mode: d.mode,
+    freshness_target: d.freshnessTarget,
   }));
 
 export const marshalSubscriptionModeSchema: z.ZodType = z
@@ -3296,6 +3430,10 @@ export const marshalTimeWindowSchema: z.ZodType = z
           $case: z.literal('rolling'),
           rolling: z.lazy(() => marshalRollingWindowSchema),
         }),
+        z.object({
+          $case: z.literal('longRolling'),
+          longRolling: z.lazy(() => marshalLongRollingWindowSchema),
+        }),
       ])
       .optional(),
   })
@@ -3308,6 +3446,9 @@ export const marshalTimeWindowSchema: z.ZodType = z
     }),
     ...(d.windowType?.$case === 'sliding' && {sliding: d.windowType.sliding}),
     ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
+    ...(d.windowType?.$case === 'longRolling' && {
+      long_rolling: d.windowType.longRolling,
+    }),
   }));
 
 export const marshalTimeseriesColumnSchema: z.ZodType = z
@@ -3360,15 +3501,15 @@ const aggregationFunctionFieldMaskSchema: FieldMaskSchema = {
     children: () => countFunctionFieldMaskSchema,
   },
   first: {wire: 'first', children: () => firstFunctionFieldMaskSchema},
-  firstDistinctN: {
-    wire: 'first_distinct_n',
-    children: () => firstDistinctNFunctionFieldMaskSchema,
+  firstDistinct: {
+    wire: 'first_distinct',
+    children: () => firstDistinctFunctionFieldMaskSchema,
   },
   firstN: {wire: 'first_n', children: () => firstNFunctionFieldMaskSchema},
   last: {wire: 'last', children: () => lastFunctionFieldMaskSchema},
-  lastDistinctN: {
-    wire: 'last_distinct_n',
-    children: () => lastDistinctNFunctionFieldMaskSchema,
+  lastDistinct: {
+    wire: 'last_distinct',
+    children: () => lastDistinctFunctionFieldMaskSchema,
   },
   lastN: {wire: 'last_n', children: () => lastNFunctionFieldMaskSchema},
   max: {wire: 'max', children: () => maxFunctionFieldMaskSchema},
@@ -3505,7 +3646,7 @@ export function featureFieldMask(...paths: string[]): FieldMask<Feature> {
   return FieldMask.build<Feature>(paths, featureFieldMaskSchema);
 }
 
-const firstDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
+const firstDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
 };
@@ -3614,7 +3755,7 @@ const kafkaSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
   subscribePattern: {wire: 'subscribe_pattern'},
 };
 
-const lastDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
+const lastDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
 };
@@ -3631,6 +3772,11 @@ const lastNFunctionFieldMaskSchema: FieldMaskSchema = {
 const lineageContextFieldMaskSchema: FieldMaskSchema = {
   jobContext: {wire: 'job_context', children: () => jobContextFieldMaskSchema},
   notebookId: {wire: 'notebook_id'},
+};
+
+const longRollingWindowFieldMaskSchema: FieldMaskSchema = {
+  delay: {wire: 'delay'},
+  windowDuration: {wire: 'window_duration'},
 };
 
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
@@ -3711,6 +3857,11 @@ const onlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   tableNamePrefix: {wire: 'table_name_prefix'},
 };
 
+const protoSchemaSpecFieldMaskSchema: FieldMaskSchema = {
+  messageName: {wire: 'message_name'},
+  schemaText: {wire: 'schema_text'},
+};
+
 const requestSourceFieldMaskSchema: FieldMaskSchema = {
   flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
 };
@@ -3721,7 +3872,12 @@ const rollingWindowFieldMaskSchema: FieldMaskSchema = {
 };
 
 const schemaConfigFieldMaskSchema: FieldMaskSchema = {
+  avroSchema: {wire: 'avro_schema'},
   jsonSchema: {wire: 'json_schema'},
+  protoSchema: {
+    wire: 'proto_schema',
+    children: () => protoSchemaSpecFieldMaskSchema,
+  },
 };
 
 const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
@@ -3800,6 +3956,7 @@ const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {
 };
 
 const streamingModeFieldMaskSchema: FieldMaskSchema = {
+  freshnessTarget: {wire: 'freshness_target'},
   mode: {wire: 'mode'},
 };
 
@@ -3819,6 +3976,10 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
   continuous: {
     wire: 'continuous',
     children: () => continuousWindowFieldMaskSchema,
+  },
+  longRolling: {
+    wire: 'long_rolling',
+    children: () => longRollingWindowFieldMaskSchema,
   },
   rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
   sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},

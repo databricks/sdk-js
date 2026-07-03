@@ -3797,7 +3797,13 @@ export interface RunNowRequest {
   idempotencyToken?: string | undefined;
   /** The queue settings of the run. */
   queue?: QueueSettings | undefined;
-  /** A list of task keys to run inside of the job. If this field is not provided, all tasks in the job will be run. */
+  /**
+   * A list of task keys to run inside of the job. If this field is not provided, all tasks in the job will be run.
+   *
+   * Prefix a task key with `+` to also run its upstream tasks, or suffix it with `+` to also run its downstream tasks.
+   * For example, `+my_task` runs `my_task` and everything upstream of it, `my_task+` runs `my_task` and everything
+   * downstream of it, and `+my_task+` runs both. A task key with no `+` runs only that task.
+   */
   only?: string[] | undefined;
   /**
    * The performance mode on a serverless job. The performance target determines the level of compute performance or cost-efficiency for the run. This field overrides the performance target defined on the job level.
