@@ -94,6 +94,75 @@ export interface GetPermissionsResponse {
   privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
 
+export interface ListEffectivePrivilegeAssignmentsRequest {
+  /** Type of securable. */
+  securableType?: string | undefined;
+  /** Full name of securable. */
+  fullName?: string | undefined;
+  /** If provided, only the effective permissions for the specified principal (user or group) are returned. */
+  principal?: string | undefined;
+  /**
+   * Specifies the maximum number of privilege assignments to return (page length).
+   * Every EffectivePrivilegeAssignment present in a single page response is guaranteed to contain all the effective
+   * privileges granted on (or inherited by) the requested Securable for the respective principal.
+   *
+   * If not set, a server-configured default is used.
+   * If set to
+   * - lesser than 0: invalid parameter error
+   * - 0: page length is set to a server configured value
+   * - lesser than 150 but greater than 0: invalid parameter error (this is to ensure that server is able to return at
+   * least one complete EffectivePrivilegeAssignment in a single page response)
+   * - greater than (or equal to) 150: page length is the minimum of this value and a server configured value
+   */
+  pageSize?: number | undefined;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string | undefined;
+}
+
+export interface ListEffectivePrivilegeAssignmentsResponse {
+  /** The effective privilege assignments for the securable (and optional principal). */
+  effectivePrivilegeAssignments?: EffectivePrivilegeAssignment[] | undefined;
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * __page_token__ should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+}
+
+export interface ListPrivilegeAssignmentsRequest {
+  /** Type of securable. */
+  securableType?: string | undefined;
+  /** Full name of securable. */
+  fullName?: string | undefined;
+  /** If provided, only the permissions for the specified principal (user or group) are returned. */
+  principal?: string | undefined;
+  /**
+   * Specifies the maximum number of privilege assignments to return (page length).
+   * Every PrivilegeAssignment present in a single page response is guaranteed to contain all the privileges granted on
+   * the requested Securable for the respective principal.
+   *
+   * If not set, page length is the server configured value.
+   * If set to
+   * - lesser than 0: invalid parameter error
+   * - 0: page length is set to a server configured value
+   * - lesser than 150 but greater than 0: invalid parameter error (this is to ensure that server is able to return at
+   * least one complete PrivilegeAssignment in a single page response)
+   * - greater than (or equal to) 150: page length is the minimum of this value and a server configured value
+   */
+  pageSize?: number | undefined;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string | undefined;
+}
+
+export interface ListPrivilegeAssignmentsResponse {
+  privilegeAssignments?: PrivilegeAssignment[] | undefined;
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * __page_token__ should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+}
+
 export interface PermissionsChange {
   /**
    * The principal whose privileges we are changing.
@@ -182,6 +251,32 @@ export const unmarshalGetPermissionsResponseSchema: z.ZodType<GetPermissionsResp
     .transform(d => ({
       nextPageToken: d.next_page_token,
       privilegeAssignments: d.privilege_assignments,
+    }));
+
+export const unmarshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType<ListEffectivePrivilegeAssignmentsResponse> =
+  z
+    .object({
+      effective_privilege_assignments: z
+        .array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      effectivePrivilegeAssignments: d.effective_privilege_assignments,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListPrivilegeAssignmentsResponseSchema: z.ZodType<ListPrivilegeAssignmentsResponse> =
+  z
+    .object({
+      privilege_assignments: z
+        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      privilegeAssignments: d.privilege_assignments,
+      nextPageToken: d.next_page_token,
     }));
 
 export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> =

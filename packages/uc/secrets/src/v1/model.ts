@@ -30,11 +30,6 @@ export interface GetSecretRequest {
    * (for example, **catalog_name.schema_name.secret_name**).
    */
   fullName?: string | undefined;
-  /**
-   * Whether to include secrets in the response for which you only have the **BROWSE** privilege,
-   * which limits access to metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /** Request message for ListSecrets. */
@@ -50,11 +45,6 @@ export interface ListSecretsRequest {
    */
   schemaName?: string | undefined;
   /**
-   * Whether to include secrets in the response for which you only have the **BROWSE** privilege,
-   * which limits access to metadata.
-   */
-  includeBrowse?: boolean | undefined;
-  /**
    * Opaque pagination token to go to the next page based on previous query. The maximum page length
    * is determined by a server configured value.
    */
@@ -62,9 +52,9 @@ export interface ListSecretsRequest {
   /**
    * Maximum number of secrets to return.
    *
-   * - If not specified, at most 10000 secrets are returned.
-   * - If set to a value greater than 0, the page length is the minimum of this value and 10000.
-   * - If set to 0, the page length is set to 10000.
+   * - If not specified, at most 1000 secrets are returned.
+   * - If set to a value greater than 0, the page length is the minimum of this value and 1000.
+   * - If set to 0, the page length is set to 1000.
    * - If set to a value less than 0, an invalid parameter error is returned.
    */
   pageSize?: number | undefined;
@@ -130,17 +120,11 @@ export interface Secret {
    */
   effectiveValue?: string | undefined;
   /**
-   * Indicates whether the principal is limited to retrieving metadata for the associated object
-   * through the **BROWSE** privilege when **include_browse** is enabled in the request.
-   */
-  browseOnly?: boolean | undefined;
-  /**
    * User-provided expiration time of the secret. This field indicates when the secret should no
    * longer be used and may be displayed as a warning in the UI. It is purely informational and
    * does not trigger any automatic actions or affect the secret's lifecycle.
    */
   expireTime?: Temporal.Instant | undefined;
-  externalSecretId?: string | undefined;
 }
 
 /** Request message for UpdateSecret. */
@@ -156,8 +140,12 @@ export interface UpdateSecretRequest {
    */
   secret?: Secret | undefined;
   /**
-   * The field mask specifying which fields of the secret to update. Supported fields: **value**,
-   * **comment**, **owner**, **expire_time**.
+   * The field mask specifying which fields of the secret to update.
+   * - If **update_mask** is **"*"**, all fields specified in **secret** are updated.
+   * - If **update_mask** specifies one or more fields, only those fields are updated.
+   * Each specified field must be set in **secret**.
+   * Supported fields: **value**, **comment**, **owner**, **expire_time**. To change the secret
+   * name, delete and recreate the secret.
    */
   updateMask?: FieldMask<Secret> | undefined;
 }
@@ -195,12 +183,10 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     schema_name: z.string().optional(),
     value: z.string().optional(),
     effective_value: z.string().optional(),
-    browse_only: z.boolean().optional(),
     expire_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    external_secret_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -217,9 +203,7 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     schemaName: d.schema_name,
     value: d.value,
     effectiveValue: d.effective_value,
-    browseOnly: d.browse_only,
     expireTime: d.expire_time,
-    externalSecretId: d.external_secret_id,
   }));
 
 export const marshalSecretSchema: z.ZodType = z
@@ -244,12 +228,10 @@ export const marshalSecretSchema: z.ZodType = z
     schemaName: z.string().optional(),
     value: z.string().optional(),
     effectiveValue: z.string().optional(),
-    browseOnly: z.boolean().optional(),
     expireTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    externalSecretId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -266,13 +248,10 @@ export const marshalSecretSchema: z.ZodType = z
     schema_name: d.schemaName,
     value: d.value,
     effective_value: d.effectiveValue,
-    browse_only: d.browseOnly,
     expire_time: d.expireTime,
-    external_secret_id: d.externalSecretId,
   }));
 
 const secretFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   catalogName: {wire: 'catalog_name'},
   comment: {wire: 'comment'},
   createTime: {wire: 'create_time'},
@@ -280,7 +259,6 @@ const secretFieldMaskSchema: FieldMaskSchema = {
   effectiveOwner: {wire: 'effective_owner'},
   effectiveValue: {wire: 'effective_value'},
   expireTime: {wire: 'expire_time'},
-  externalSecretId: {wire: 'external_secret_id'},
   fullName: {wire: 'full_name'},
   metastoreId: {wire: 'metastore_id'},
   name: {wire: 'name'},
