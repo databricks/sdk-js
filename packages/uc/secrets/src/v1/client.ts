@@ -144,12 +144,6 @@ export class SecretsClient {
   ): Promise<Secret> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.includeBrowse !== undefined) {
-      params.append('include_browse', String(req.includeBrowse));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -157,7 +151,7 @@ export class SecretsClient {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
@@ -194,9 +188,6 @@ export class SecretsClient {
     }
     if (req.schemaName !== undefined) {
       params.append('schema_name', req.schemaName);
-    }
-    if (req.includeBrowse !== undefined) {
-      params.append('include_browse', String(req.includeBrowse));
     }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);

@@ -1555,11 +1555,6 @@ export interface GenerateDatabaseCredentialRequest {
    */
   endpoint?: string | undefined;
   /**
-   * <Databricks> workspace group name. When provided, credentials are generated
-   * with permissions scoped to this group.
-   */
-  groupName?: string | undefined;
-  /**
    * Expiration information for the credential.
    * Users can specify either expire_time or ttl.
    * If unspecified, maximum allowed duration (1 hour) is used.
@@ -3886,7 +3881,6 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
-    groupName: z.string().optional(),
     expiration: z
       .discriminatedUnion('$case', [
         z.object({
@@ -3907,7 +3901,6 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .transform(d => ({
     claims: d.claims,
     endpoint: d.endpoint,
-    group_name: d.groupName,
     ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
     ...(d.expiration?.$case === 'expireTime' && {
       expire_time: d.expiration.expireTime,
