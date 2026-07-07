@@ -23,6 +23,11 @@ export interface CreateRepoRequest {
    * sparse checkout after the repo is created.
    */
   sparseCheckout?: SparseCheckout | undefined;
+  /**
+   * Git credential ID to use when cloning the repository. The Git credential must be
+   * configured for the current user.
+   */
+  gitCredentialId?: bigint | undefined;
 }
 
 export interface CreateRepoResponse {
@@ -175,6 +180,11 @@ export interface UpdateRepoRequest {
    * Local commits that have been made but not yet pushed to the remote are preserved.
    */
   dangerouslyForceDiscardAll?: boolean | undefined;
+  /**
+   * Git credential ID to use for this update operation. The Git credential must be
+   * configured for the current user.
+   */
+  gitCredentialId?: bigint | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -280,12 +290,14 @@ export const marshalCreateRepoRequestSchema: z.ZodType = z
     provider: z.string().optional(),
     path: z.string().optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
+    gitCredentialId: z.bigint().optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
     path: d.path,
     sparse_checkout: d.sparseCheckout,
+    git_credential_id: d.gitCredentialId,
   }));
 
 export const marshalSparseCheckoutSchema: z.ZodType = z
@@ -311,6 +323,7 @@ export const marshalUpdateRepoRequestSchema: z.ZodType = z
     tag: z.string().optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutUpdateSchema).optional(),
     dangerouslyForceDiscardAll: z.boolean().optional(),
+    gitCredentialId: z.bigint().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -318,4 +331,5 @@ export const marshalUpdateRepoRequestSchema: z.ZodType = z
     tag: d.tag,
     sparse_checkout: d.sparseCheckout,
     dangerously_force_discard_all: d.dangerouslyForceDiscardAll,
+    git_credential_id: d.gitCredentialId,
   }));
