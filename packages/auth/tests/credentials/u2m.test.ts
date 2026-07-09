@@ -1,5 +1,8 @@
 import type {Stats} from 'node:fs';
 
+import {ProfileError} from '@databricks/sdk-core/profiles';
+import type {Profile, ResolveOptions} from '@databricks/sdk-core/profiles';
+import type * as profiles from '@databricks/sdk-core/profiles';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import type {U2mCredentialsErrorCode} from '../../src/credentials';
@@ -14,6 +17,9 @@ type ExecFileFn = (cmd: string, args: string[], cb: ExecFileCallback) => void;
 
 const execFileMock = vi.hoisted(() => vi.fn<ExecFileFn>());
 const statMock = vi.hoisted(() => vi.fn<(path: string) => Promise<Stats>>());
+const resolveMock = vi.hoisted(() =>
+  vi.fn<(options?: ResolveOptions) => Promise<Profile>>()
+);
 
 // Mock node:child_process to intercept CLI invocations. The hoisted mock is
 // invoked via util.promisify, so it must accept a node-style callback.
@@ -27,8 +33,20 @@ vi.mock('node:fs/promises', () => ({
   stat: (p: string): Promise<Stats> => statMock(p),
 }));
 
+// Mock the profile resolver so the profile pre-check is deterministic and does
+// not read the developer's ~/.databrickscfg.
+vi.mock('@databricks/sdk-core/profiles', async importOriginal => {
+  const actual = await importOriginal<typeof profiles>();
+  return {
+    ...actual,
+    resolve: (options?: ResolveOptions): Promise<Profile> =>
+      resolveMock(options),
+  };
+});
+
 const MODERN_CLI_SIZE = 5 * 1024 * 1024;
 const LEGACY_CLI_SIZE = 100 * 1024;
+const MODERN_CLI_VERSION = 'Databricks CLI v0.221.0\n';
 const DEFAULT_PROFILE = 'DEFAULT';
 const DEFAULT_RESOLVED_CLI_PATH = '/usr/local/bin/databricks';
 
@@ -45,8 +63,18 @@ function statReturnsModernFile(): void {
 
 type CliStub = {kind: 'ok'; stdout: string} | {kind: 'err'; stderr: string};
 
-function stubCliRun(stub: CliStub): void {
-  execFileMock.mockImplementationOnce((_cmd, _args, cb) => {
+// Routes mocked CLI invocations by sub-command: `databricks version` reports
+// versionStub, while `databricks auth token` reports tokenStub. A missing stub
+// fails the invocation, surfacing unexpected calls.
+function stubCli(opts: {versionStub?: CliStub; tokenStub?: CliStub}): void {
+  execFileMock.mockImplementation((_cmd, args, cb) => {
+    const stub = args[0] === 'version' ? opts.versionStub : opts.tokenStub;
+    if (stub === undefined) {
+      const err = new Error('command failed') as Error & {stderr: string};
+      err.stderr = '';
+      cb(err, {stdout: '', stderr: ''});
+      return;
+    }
     if (stub.kind === 'err') {
       const err = new Error('command failed') as Error & {stderr: string};
       err.stderr = stub.stderr;
@@ -55,6 +83,17 @@ function stubCliRun(stub: CliStub): void {
     }
     cb(null, {stdout: stub.stdout, stderr: ''});
   });
+}
+
+function modernVersionStub(): CliStub {
+  return {kind: 'ok', stdout: MODERN_CLI_VERSION};
+}
+
+// Configures the version probe to report a modern CLI and routes the token
+// invocation to the given stub.
+function stubModernCliWithToken(tokenStub: CliStub): void {
+  statReturnsModernFile();
+  stubCli({versionStub: modernVersionStub(), tokenStub});
 }
 
 function okResponse(partial: {
@@ -75,11 +114,14 @@ function okResponse(partial: {
 describe('newU2mCredentials', () => {
   beforeEach(() => {
     vi.stubEnv('PATH', '/usr/local/bin:/usr/bin');
+    // By default the profile exists, so the pre-check passes.
+    resolveMock.mockResolvedValue({name: DEFAULT_PROFILE});
   });
 
   afterEach(() => {
     execFileMock.mockReset();
     statMock.mockReset();
+    resolveMock.mockReset();
     vi.unstubAllEnvs();
   });
 
@@ -137,8 +179,7 @@ describe('newU2mCredentials', () => {
   ];
 
   it.each(successCases)('$name', async ({profile, cliPath, cliStub, want}) => {
-    statReturnsModernFile();
-    stubCliRun(cliStub);
+    stubModernCliWithToken(cliStub);
 
     const creds = newU2mCredentials({
       profile,
@@ -148,10 +189,25 @@ describe('newU2mCredentials', () => {
     const headers = await creds.authHeaders();
 
     expect(headers).toEqual([{key: 'Authorization', value: want.authHeader}]);
-    expect(execFileMock).toHaveBeenCalledOnce();
-    const [calledCliPath, args] = execFileMock.mock.calls[0];
-    expect(calledCliPath).toBe(want.cliPath);
-    expect(args).toEqual(['auth', 'token', '--profile', profile]);
+    expect(resolveMock).toHaveBeenCalledWith({profile});
+
+    // The version probe and the token request both target the resolved path.
+    const versionCall = execFileMock.mock.calls.find(
+      ([, args]) => args[0] === 'version'
+    );
+    if (versionCall === undefined) {
+      expect.fail('expected a `databricks version` probe');
+    }
+    expect(versionCall[0]).toBe(want.cliPath);
+
+    const tokenCall = execFileMock.mock.calls.find(
+      ([, args]) => args[0] === 'auth'
+    );
+    if (tokenCall === undefined) {
+      expect.fail('expected a `databricks auth token` invocation');
+    }
+    expect(tokenCall[0]).toBe(want.cliPath);
+    expect(tokenCall[1]).toEqual(['auth', 'token', '--profile', profile]);
   });
 
   const errorCases: {
@@ -179,9 +235,23 @@ describe('newU2mCredentials', () => {
       wantMessage: /databricks CLI not found/,
     },
     {
-      name: 'only legacy (undersized) binary available',
+      name: 'undersized binary whose version cannot be read is legacy',
       setup: (): void => {
         statReturnsFile(LEGACY_CLI_SIZE);
+        // The version probe fails, so detection falls back to file size.
+        stubCli({});
+      },
+      profile: DEFAULT_PROFILE,
+      wantCode: 'LEGACY_CLI_DETECTED',
+      wantMessage: /legacy databricks CLI detected/,
+    },
+    {
+      name: 'binary reporting a pre-0.100.0 version is legacy',
+      setup: (): void => {
+        statReturnsModernFile();
+        stubCli({
+          versionStub: {kind: 'ok', stdout: 'Databricks CLI v0.99.0\n'},
+        });
       },
       profile: DEFAULT_PROFILE,
       wantCode: 'LEGACY_CLI_DETECTED',
@@ -190,18 +260,28 @@ describe('newU2mCredentials', () => {
     {
       name: 'CLI invocation surfaces stderr',
       setup: (): void => {
-        statReturnsModernFile();
-        stubCliRun({kind: 'err', stderr: 'not logged in'});
+        stubModernCliWithToken({kind: 'err', stderr: 'not logged in'});
       },
       profile: DEFAULT_PROFILE,
       wantCode: 'TOKEN_FETCH_FAILED',
       wantMessage: /not logged in/,
     },
     {
+      name: 'CLI stderr already prefixed with Error: is not doubled',
+      setup: (): void => {
+        stubModernCliWithToken({
+          kind: 'err',
+          stderr: 'Error: cannot configure default credentials',
+        });
+      },
+      profile: DEFAULT_PROFILE,
+      wantCode: 'TOKEN_FETCH_FAILED',
+      wantMessage: /cannot get access token: cannot configure default/,
+    },
+    {
       name: 'CLI output is not valid JSON',
       setup: (): void => {
-        statReturnsModernFile();
-        stubCliRun({kind: 'ok', stdout: 'not json'});
+        stubModernCliWithToken({kind: 'ok', stdout: 'not json'});
       },
       profile: DEFAULT_PROFILE,
       wantCode: 'INVALID_RESPONSE',
@@ -210,8 +290,7 @@ describe('newU2mCredentials', () => {
     {
       name: 'CLI response is missing access_token',
       setup: (): void => {
-        statReturnsModernFile();
-        stubCliRun({
+        stubModernCliWithToken({
           kind: 'ok',
           stdout: JSON.stringify({
             token_type: 'Bearer',
@@ -226,12 +305,25 @@ describe('newU2mCredentials', () => {
     {
       name: 'expiry cannot be parsed as a date',
       setup: (): void => {
-        statReturnsModernFile();
-        stubCliRun(okResponse({expiry: 'totally-not-a-date'}));
+        stubModernCliWithToken(okResponse({expiry: 'totally-not-a-date'}));
       },
       profile: DEFAULT_PROFILE,
       wantCode: 'INVALID_RESPONSE',
       wantMessage: /cannot parse token expiry/,
+    },
+    {
+      name: 'profile not found in the config file',
+      setup: (): void => {
+        resolveMock.mockRejectedValue(
+          new ProfileError(
+            'PROFILE_NOT_FOUND',
+            'profile not found: "ghost" in /home/u/.databrickscfg'
+          )
+        );
+      },
+      profile: 'ghost',
+      wantCode: 'PROFILE_NOT_FOUND',
+      wantMessage: /profile "ghost" was not found/,
     },
   ];
 
