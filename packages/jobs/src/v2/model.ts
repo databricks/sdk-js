@@ -1283,6 +1283,18 @@ export interface BaseRun {
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * ID of the deployment that produced the job when this run was created. Used to look up
+   * deployment metadata from the Deployment Metadata service. Only set for job runs of jobs
+   * with a `BUNDLE` deployment.
+   */
+  deploymentId?: string | undefined;
+  /**
+   * ID of the deployment version that produced the job when this run was created. Identifies
+   * a specific snapshot of the deployment in the Deployment Metadata service. Only set for
+   * job runs of jobs with a `BUNDLE` deployment.
+   */
+  versionId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
   startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
@@ -2509,6 +2521,18 @@ export interface GetRunResponse {
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * ID of the deployment that produced the job when this run was created. Used to look up
+   * deployment metadata from the Deployment Metadata service. Only set for job runs of jobs
+   * with a `BUNDLE` deployment.
+   */
+  deploymentId?: string | undefined;
+  /**
+   * ID of the deployment version that produced the job when this run was created. Identifies
+   * a specific snapshot of the deployment in the Deployment Metadata service. Only set for
+   * job runs of jobs with a `BUNDLE` deployment.
+   */
+  versionId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
   startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
@@ -3670,6 +3694,18 @@ export interface Run {
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * ID of the deployment that produced the job when this run was created. Used to look up
+   * deployment metadata from the Deployment Metadata service. Only set for job runs of jobs
+   * with a `BUNDLE` deployment.
+   */
+  deploymentId?: string | undefined;
+  /**
+   * ID of the deployment version that produced the job when this run was created. Identifies
+   * a specific snapshot of the deployment in the Deployment Metadata service. Only set for
+   * job runs of jobs with a `BUNDLE` deployment.
+   */
+  versionId?: string | undefined;
   /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
   startTime?: bigint | undefined;
   /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
@@ -5379,6 +5415,8 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    deployment_id: z.string().optional(),
+    version_id: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -5436,6 +5474,8 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    deploymentId: d.deployment_id,
+    versionId: d.version_id,
     startTime: d.start_time,
     setupDuration: d.setup_duration,
     executionDuration: d.execution_duration,
@@ -6256,6 +6296,8 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    deployment_id: z.string().optional(),
+    version_id: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -6314,6 +6356,8 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    deploymentId: d.deployment_id,
+    versionId: d.version_id,
     startTime: d.start_time,
     setupDuration: d.setup_duration,
     executionDuration: d.execution_duration,
@@ -7259,6 +7303,8 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    deployment_id: z.string().optional(),
+    version_id: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -7316,6 +7362,8 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    deploymentId: d.deployment_id,
+    versionId: d.version_id,
     startTime: d.start_time,
     setupDuration: d.setup_duration,
     executionDuration: d.execution_duration,

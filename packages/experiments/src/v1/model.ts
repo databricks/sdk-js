@@ -71,6 +71,13 @@ export interface CreateExperimentRequest {
    * guaranteed to support up to 20 tags per request.
    */
   tags?: ExperimentTag[] | undefined;
+  /**
+   * The location where the experiment's traces are stored. When set, the
+   * underlying storage is provisioned and the experiment's traces are routed
+   * to it. When unset, traces are stored in the default MLflow backend. This
+   * field cannot be updated after the experiment is created.
+   */
+  traceLocation?: ExperimentTraceLocation | undefined;
 }
 
 export interface CreateExperimentResponse {
@@ -240,6 +247,12 @@ export interface Experiment {
   creationTime?: bigint | undefined;
   /** Tags: Additional metadata key-value pairs. */
   tags?: ExperimentTag[] | undefined;
+  /**
+   * The location where the experiment's traces are stored. Unset when traces
+   * are stored in the default MLflow backend. This field cannot be updated
+   * after the experiment is created.
+   */
+  traceLocation?: ExperimentTraceLocation | undefined;
 }
 
 /** A tag for an experiment. */
@@ -248,6 +261,20 @@ export interface ExperimentTag {
   key?: string | undefined;
   /** The tag value. */
   value?: string | undefined;
+}
+
+/** The storage location for an experiment's traces. */
+export interface ExperimentTraceLocation {
+  location?:
+    | {
+        $case: 'ucTraceLocation';
+        /**
+         * A Unity Catalog schema where the experiment's traces are stored as
+         * Delta tables.
+         */
+        ucTraceLocation: UcTraceLocation;
+      }
+    | undefined;
 }
 
 /** Metadata of a single artifact file or directory. */
@@ -939,6 +966,24 @@ export interface SetTagRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SetTagResponse {}
 
+/**
+ * A Unity Catalog trace storage location. Traces are stored as Delta tables
+ * in the specified catalog and schema.
+ */
+export interface UcTraceLocation {
+  /** The name of the Unity Catalog catalog. */
+  catalog?: string | undefined;
+  /** The name of the Unity Catalog schema within `catalog`. */
+  schema?: string | undefined;
+  /**
+   * The prefix for the trace tables, which are named
+   * `{catalog}.{schema}.{table_prefix}_otel_*`. May only contain letters,
+   * digits, and underscores, and may be at most 238 characters. When unset, a
+   * server-generated prefix derived from the experiment ID is used.
+   */
+  tablePrefix?: string | undefined;
+}
+
 export interface UpdateExperimentRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
@@ -1063,6 +1108,9 @@ export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
       .transform(v => BigInt(v))
       .optional(),
     tags: z.array(z.lazy(() => unmarshalExperimentTagSchema)).optional(),
+    trace_location: z
+      .lazy(() => unmarshalExperimentTraceLocationSchema)
+      .optional(),
   })
   .transform(d => ({
     experimentId: d.experiment_id,
@@ -1072,6 +1120,7 @@ export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
     lastUpdateTime: d.last_update_time,
     creationTime: d.creation_time,
     tags: d.tags,
+    traceLocation: d.trace_location,
   }));
 
 export const unmarshalExperimentTagSchema: z.ZodType<ExperimentTag> = z
@@ -1083,6 +1132,23 @@ export const unmarshalExperimentTagSchema: z.ZodType<ExperimentTag> = z
     key: d.key,
     value: d.value,
   }));
+
+export const unmarshalExperimentTraceLocationSchema: z.ZodType<ExperimentTraceLocation> =
+  z
+    .object({
+      uc_trace_location: z
+        .lazy(() => unmarshalUcTraceLocationSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      location:
+        d.uc_trace_location !== undefined
+          ? {
+              $case: 'ucTraceLocation' as const,
+              ucTraceLocation: d.uc_trace_location,
+            }
+          : undefined,
+    }));
 
 export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   .object({
@@ -1474,6 +1540,18 @@ export const unmarshalSetLoggedModelTagsResponseSchema: z.ZodType<SetLoggedModel
 export const unmarshalSetTagResponseSchema: z.ZodType<SetTagResponse> =
   z.object({});
 
+export const unmarshalUcTraceLocationSchema: z.ZodType<UcTraceLocation> = z
+  .object({
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    table_prefix: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog: d.catalog,
+    schema: d.schema,
+    tablePrefix: d.table_prefix,
+  }));
+
 export const unmarshalUpdateExperimentResponseSchema: z.ZodType<UpdateExperimentResponse> =
   z.object({});
 
@@ -1490,11 +1568,15 @@ export const marshalCreateExperimentRequestSchema: z.ZodType = z
     name: z.string().optional(),
     artifactLocation: z.string().optional(),
     tags: z.array(z.lazy(() => marshalExperimentTagSchema)).optional(),
+    traceLocation: z
+      .lazy(() => marshalExperimentTraceLocationSchema)
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
     artifact_location: d.artifactLocation,
     tags: d.tags,
+    trace_location: d.traceLocation,
   }));
 
 export const marshalCreateLoggedModelRequestSchema: z.ZodType = z
@@ -1605,6 +1687,23 @@ export const marshalExperimentTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalExperimentTraceLocationSchema: z.ZodType = z
+  .object({
+    location: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ucTraceLocation'),
+          ucTraceLocation: z.lazy(() => marshalUcTraceLocationSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.location?.$case === 'ucTraceLocation' && {
+      uc_trace_location: d.location.ucTraceLocation,
+    }),
   }));
 
 export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
@@ -1945,6 +2044,18 @@ export const marshalSetTagRequestSchema: z.ZodType = z
     run_uuid: d.runUuid,
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalUcTraceLocationSchema: z.ZodType = z
+  .object({
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    tablePrefix: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog: d.catalog,
+    schema: d.schema,
+    table_prefix: d.tablePrefix,
   }));
 
 export const marshalUpdateExperimentRequestSchema: z.ZodType = z
