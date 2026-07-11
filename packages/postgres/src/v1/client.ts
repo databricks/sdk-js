@@ -25,8 +25,12 @@ import type {
   BranchOperationMetadata,
   Catalog,
   CatalogOperationMetadata,
+  CdfConfig,
+  CdfConfigOperationMetadata,
+  CdfStatus,
   CreateBranchRequest,
   CreateCatalogRequest,
+  CreateCdfConfigRequest,
   CreateDataApiRequest,
   CreateDatabaseRequest,
   CreateEndpointRequest,
@@ -40,6 +44,7 @@ import type {
   DatabaseOperationMetadata,
   DeleteBranchRequest,
   DeleteCatalogRequest,
+  DeleteCdfConfigRequest,
   DeleteDataApiRequest,
   DeleteDatabaseRequest,
   DeleteEndpointRequest,
@@ -51,6 +56,8 @@ import type {
   GenerateDatabaseCredentialRequest,
   GetBranchRequest,
   GetCatalogRequest,
+  GetCdfConfigRequest,
+  GetCdfStatusRequest,
   GetDataApiRequest,
   GetDatabaseRequest,
   GetEndpointRequest,
@@ -60,6 +67,10 @@ import type {
   GetSyncedTableRequest,
   ListBranchesRequest,
   ListBranchesResponse,
+  ListCdfConfigsRequest,
+  ListCdfConfigsResponse,
+  ListCdfStatusesRequest,
+  ListCdfStatusesResponse,
   ListDatabasesRequest,
   ListDatabasesResponse,
   ListEndpointsRequest,
@@ -87,6 +98,7 @@ import type {
 import {
   marshalBranchSchema,
   marshalCatalogSchema,
+  marshalCdfConfigSchema,
   marshalDataApiSchema,
   marshalDatabaseSchema,
   marshalEndpointSchema,
@@ -100,6 +112,9 @@ import {
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
   unmarshalCatalogSchema,
+  unmarshalCdfConfigOperationMetadataSchema,
+  unmarshalCdfConfigSchema,
+  unmarshalCdfStatusSchema,
   unmarshalDataApiOperationMetadataSchema,
   unmarshalDataApiSchema,
   unmarshalDatabaseCredentialSchema,
@@ -108,6 +123,8 @@ import {
   unmarshalEndpointOperationMetadataSchema,
   unmarshalEndpointSchema,
   unmarshalListBranchesResponseSchema,
+  unmarshalListCdfConfigsResponseSchema,
+  unmarshalListCdfStatusesResponseSchema,
   unmarshalListDatabasesResponseSchema,
   unmarshalListEndpointsResponseSchema,
   unmarshalListProjectsResponseSchema,
@@ -259,6 +276,69 @@ export class PostgresClient {
   ): Promise<CreateCatalogOperation> {
     const op = await this.createCatalogBase(req, options);
     return new CreateCatalogOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
+  /**
+   * Create a Lakebase CDF configuration (CdfConfig). Replicates the tables of a
+   * Postgres schema into a Unity Catalog schema. Returns ALREADY_EXISTS if a
+   * config with the requested id exists, or if another config already replicates
+   * the target Postgres schema.
+   */
+  private async createCdfConfigBase(
+    req: CreateCdfConfigRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/cdf-configs`;
+    const params = new URLSearchParams();
+    if (req.cdfConfigId !== undefined) {
+      params.append('cdf_config_id', req.cdfConfigId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.cdfConfig, marshalCdfConfigSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Create a Lakebase CDF configuration (CdfConfig). Replicates the tables of a
+   * Postgres schema into a Unity Catalog schema. Returns ALREADY_EXISTS if a
+   * config with the requested id exists, or if another config already replicates
+   * the target Postgres schema.
+   */
+  async createCdfConfig(
+    req: CreateCdfConfigRequest,
+    options?: CallOptions
+  ): Promise<CreateCdfConfigOperation> {
+    const op = await this.createCdfConfigBase(req, options);
+    return new CreateCdfConfigOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
@@ -672,6 +752,60 @@ export class PostgresClient {
     );
   }
 
+  /**
+   * Delete a Lakebase CDF configuration (CdfConfig). Stops replication and
+   * removes the config. When force is true, also drops the replicated Delta
+   * tables in Unity Catalog.
+   */
+  private async deleteCdfConfigBase(
+    req: DeleteCdfConfigRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.force !== undefined) {
+      params.append('force', String(req.force));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Delete a Lakebase CDF configuration (CdfConfig). Stops replication and
+   * removes the config. When force is true, also drops the replicated Delta
+   * tables in Unity Catalog.
+   */
+  async deleteCdfConfig(
+    req: DeleteCdfConfigRequest,
+    options?: CallOptions
+  ): Promise<DeleteCdfConfigOperation> {
+    const op = await this.deleteCdfConfigBase(req, options);
+    return new DeleteCdfConfigOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Disable Data API for a database. */
   private async deleteDataApiBase(
     req: DeleteDataApiRequest,
@@ -1015,6 +1149,67 @@ export class PostgresClient {
     return resp;
   }
 
+  /** Get a single Lakebase CDF configuration (CdfConfig). */
+  async getCdfConfig(
+    req: GetCdfConfigRequest,
+    options?: CallOptions
+  ): Promise<CdfConfig> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: CdfConfig | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCdfConfigSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Get the replication status of a single replicated table within a Lakebase
+   * CDF configuration.
+   */
+  async getCdfStatus(
+    req: GetCdfStatusRequest,
+    options?: CallOptions
+  ): Promise<CdfStatus> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: CdfStatus | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCdfStatusSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /** Get Data API configuration for a database. */
   async getDataApi(
     req: GetDataApiRequest,
@@ -1264,6 +1459,119 @@ export class PostgresClient {
     for (;;) {
       const resp = await this.listBranches(pageReq, options);
       for (const item of resp.branches ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List the Lakebase CDF configurations (CdfConfigs) under a database. */
+  async listCdfConfigs(
+    req: ListCdfConfigsRequest,
+    options?: CallOptions
+  ): Promise<ListCdfConfigsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/cdf-configs`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListCdfConfigsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListCdfConfigsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listCdfConfigsIter(
+    req: ListCdfConfigsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<CdfConfig> {
+    const pageReq: ListCdfConfigsRequest = {...req};
+    for (;;) {
+      const resp = await this.listCdfConfigs(pageReq, options);
+      for (const item of resp.cdfConfigs ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * List the replication statuses of all tables replicated under a Lakebase CDF
+   * configuration.
+   */
+  async listCdfStatuses(
+    req: ListCdfStatusesRequest,
+    options?: CallOptions
+  ): Promise<ListCdfStatusesResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/cdf-statuses`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListCdfStatusesResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListCdfStatusesResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listCdfStatusesIter(
+    req: ListCdfStatusesRequest,
+    options?: CallOptions
+  ): AsyncGenerator<CdfStatus> {
+    const pageReq: ListCdfStatusesRequest = {...req};
+    for (;;) {
+      const resp = await this.listCdfStatuses(pageReq, options);
+      for (const item of resp.cdfStatuses ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
@@ -2065,6 +2373,90 @@ export class CreateCatalogOperation {
   }
 }
 
+export class CreateCdfConfigOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<CdfConfigOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalCdfConfigOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<CdfConfig> {
+    let result: CdfConfig | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalCdfConfigSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
 export class CreateDataApiOperation {
   constructor(
     private operation: Operation,
@@ -2665,6 +3057,78 @@ export class DeleteCatalogOperation {
     return Promise.resolve(
       z
         .lazy(() => unmarshalCatalogOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<void> {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+    };
+
+    await executeWait(call, options);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class DeleteCdfConfigOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<CdfConfigOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalCdfConfigOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
   }

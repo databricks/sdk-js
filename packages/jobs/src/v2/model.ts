@@ -635,6 +635,8 @@ export const PeriodicTriggerConfiguration_TimeUnit = {
   HOURS: 'HOURS',
   DAYS: 'DAYS',
   WEEKS: 'WEEKS',
+  /** Run the job every N minutes. */
+  MINUTES: 'MINUTES',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type PeriodicTriggerConfiguration_TimeUnit =

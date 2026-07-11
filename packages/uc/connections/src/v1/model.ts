@@ -141,6 +141,11 @@ export interface ConnectionInfo {
 }
 
 export interface CreateConnectionRequest {
+  /**
+   * Parent schema for schema-level connections, in format "schemas/{catalog}.{schema}".
+   * Absent for metastore-level (L1) connections.
+   */
+  parent?: string | undefined;
   /** Name of the connection. */
   name?: string | undefined;
   /** The type of connection. */
@@ -208,6 +213,8 @@ export interface ListConnectionsRequest {
   maxResults?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
+  /** Optional. Parent schema filter for listing schema-level connections, in format "schemas/{catalog}.{schema}". */
+  parent?: string | undefined;
 }
 
 export interface ListConnectionsResponse {
@@ -358,6 +365,7 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
 
 export const marshalCreateConnectionRequestSchema: z.ZodType = z
   .object({
+    parent: z.string().optional(),
     name: z.string().optional(),
     connectionType: z.string().optional(),
     owner: z.string().optional(),
@@ -381,6 +389,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
+    parent: d.parent,
     name: d.name,
     connection_type: d.connectionType,
     owner: d.owner,
