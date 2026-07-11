@@ -5,6 +5,35 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/**
+ * The replication state of a single replicated table (CdfStatus), as reported by
+ * the wal2delta extension on the primary compute.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CdfState = {
+  /** Default value. Returned when the replication state is unknown or not set. */
+  CDF_STATE_UNSPECIFIED: 'CDF_STATE_UNSPECIFIED',
+  /**
+   * Taking the initial snapshot: the table's existing rows are being written
+   * to the Delta table.
+   */
+  CDF_STATE_SNAPSHOTTING: 'CDF_STATE_SNAPSHOTTING',
+  /** Continuously streaming WAL changes to the Delta table. */
+  CDF_STATE_STREAMING: 'CDF_STATE_STREAMING',
+  /**
+   * Reserved: replication for this table was superseded by a newer one.
+   * Not currently returned by the API.
+   */
+  CDF_STATE_TERMINATED: 'CDF_STATE_TERMINATED',
+  /**
+   * The table is not being replicated: it was skipped (for example, it lacks
+   * REPLICA IDENTITY FULL, is empty, or is partitioned) or replication errored.
+   * See status_detail for the specific reason.
+   */
+  CDF_STATE_SKIPPED: 'CDF_STATE_SKIPPED',
+} as const;
+export type CdfState = (typeof CdfState)[keyof typeof CdfState] | (string & {});
+
 /** The compute endpoint type. Either `read_write` or `read_only`. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointType = {
@@ -976,6 +1005,79 @@ export interface Catalog_CatalogStatus {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CatalogOperationMetadata {}
 
+/**
+ * A Lakebase CDF configuration (CdfConfig): one per Postgres schema per
+ * database, replicating that schema's tables into a Unity Catalog schema.
+ * Immutable once created.
+ */
+export interface CdfConfig {
+  /**
+   * Output only. The full resource name of the CdfConfig.
+   * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
+   */
+  name?: string | undefined;
+  /**
+   * The Unity Catalog catalog that replicated tables are written into.
+   * Set at creation; the CdfConfig is immutable.
+   */
+  catalog?: string | undefined;
+  /**
+   * The Unity Catalog schema that replicated tables are written into.
+   * Set at creation; the CdfConfig is immutable.
+   */
+  schema?: string | undefined;
+  /** When the CdfConfig was created. */
+  createTime?: Temporal.Instant | undefined;
+  /**
+   * The user-specified id; equals the final segment of `name`. Defaults to the
+   * Postgres schema name for configs without an explicit id.
+   */
+  cdfConfigId?: string | undefined;
+  /**
+   * The Postgres schema this CdfConfig replicates from. Unique within the
+   * parent database. Set at creation; the CdfConfig is immutable.
+   */
+  postgresSchema?: string | undefined;
+}
+
+/**
+ * Metadata for CdfConfig long-running operations. Intentionally empty today;
+ * fields (e.g. progress) may be added as the operation contract grows.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CdfConfigOperationMetadata {}
+
+/**
+ * The read-only replication status of a single Postgres table replicated
+ * under a CdfConfig. One status exists per replicated table.
+ * It is created automatically and cannot be modified.
+ */
+export interface CdfStatus {
+  /**
+   * Output only. The full resource name of the CdfStatus.
+   * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}/cdf-statuses/{cdf_status}
+   * The {cdf_status} segment is the Postgres table name.
+   */
+  name?: string | undefined;
+  /** The Postgres table being replicated. */
+  postgresTable?: string | undefined;
+  /** The Unity Catalog table receiving replicated data. */
+  ucTable?: string | undefined;
+  /** The current replication state of this table. */
+  state?: CdfState | undefined;
+  /** The high-watermark Log Sequence Number (LSN) committed to Delta Lake. */
+  committedLsn?: string | undefined;
+  /** The last time wal2delta wrote changes for this table. */
+  lastSyncTime?: Temporal.Instant | undefined;
+  /** When replication for this table was first established. */
+  createTime?: Temporal.Instant | undefined;
+  /**
+   * Human-readable detail for the current state (e.g. the skip/error reason).
+   * Empty for healthy states.
+   */
+  statusDetail?: string | undefined;
+}
+
 export interface CreateBranchRequest {
   /**
    * The Project where this Branch will be created.
@@ -1001,6 +1103,26 @@ export interface CreateCatalogRequest {
    */
   catalogId?: string | undefined;
   catalog?: Catalog | undefined;
+}
+
+/** Request to create a Lakebase CDF configuration (CdfConfig). */
+export interface CreateCdfConfigRequest {
+  /**
+   * The parent database under which to create the CdfConfig.
+   * Format: projects/{project}/branches/{branch}/databases/{database}
+   */
+  parent?: string | undefined;
+  /**
+   * The CdfConfig to create. The catalog, schema, and postgres_schema fields are
+   * required; all other fields are output only and ignored on input.
+   */
+  cdfConfig?: CdfConfig | undefined;
+  /**
+   * The user-specified id for the CdfConfig, forming the final segment of its
+   * resource name. Must match the pattern `[a-z][a-z0-9_]{0,62}`. Defaults to
+   * the Postgres schema name when omitted.
+   */
+  cdfConfigId?: string | undefined;
 }
 
 /** Enable Data API for a database. */
@@ -1297,6 +1419,21 @@ export interface DeleteCatalogRequest {
    * Format: "catalogs/{catalog_id}".
    */
   name?: string | undefined;
+}
+
+/** Request to delete a Lakebase CDF configuration (CdfConfig). */
+export interface DeleteCdfConfigRequest {
+  /**
+   * The resource name of the CdfConfig to delete.
+   * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
+   */
+  name?: string | undefined;
+  /**
+   * When true, also drops the replicated Delta tables in Unity Catalog. When
+   * false (the default), the replicated tables are preserved at their last
+   * synced state.
+   */
+  force?: boolean | undefined;
 }
 
 /** Disable Data API for a database. */
@@ -1596,6 +1733,24 @@ export interface GetCatalogRequest {
   name?: string | undefined;
 }
 
+/** Request to retrieve a single CdfConfig. */
+export interface GetCdfConfigRequest {
+  /**
+   * The resource name of the CdfConfig to retrieve.
+   * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
+   */
+  name?: string | undefined;
+}
+
+/** Request to retrieve the status of a single replicated table (CdfStatus). */
+export interface GetCdfStatusRequest {
+  /**
+   * The resource name of the CdfStatus to retrieve.
+   * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}/cdf-statuses/{cdf_status}
+   */
+  name?: string | undefined;
+}
+
 /** Get Data API configuration for a database. */
 export interface GetDataApiRequest {
   /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
@@ -1707,6 +1862,63 @@ export interface ListBranchesResponse {
   /** List of branches in the project. */
   branches?: Branch[] | undefined;
   /** Token to request the next page of branches. */
+  nextPageToken?: string | undefined;
+}
+
+/** Request to list the Lakebase CDF configurations (CdfConfigs) under a database. */
+export interface ListCdfConfigsRequest {
+  /**
+   * The parent database to list CdfConfigs for.
+   * Format: projects/{project}/branches/{branch}/databases/{database}
+   */
+  parent?: string | undefined;
+  /** Maximum number of CdfConfigs to return. */
+  pageSize?: number | undefined;
+  /**
+   * Pagination token returned by a previous ListCdfConfigs call. Empty on the
+   * first page.
+   */
+  pageToken?: string | undefined;
+}
+
+/**
+ * Response to a ListCdfConfigs request, containing a page of CdfConfigs and a
+ * token for fetching the next page.
+ */
+export interface ListCdfConfigsResponse {
+  /** The CdfConfigs under the parent database. */
+  cdfConfigs?: CdfConfig[] | undefined;
+  /** Token to retrieve the next page of results; empty when there are no more. */
+  nextPageToken?: string | undefined;
+}
+
+/**
+ * Request to list the statuses of all tables replicated under a Lakebase CDF
+ * configuration (CdfConfig).
+ */
+export interface ListCdfStatusesRequest {
+  /**
+   * The parent CdfConfig to list CdfStatuses for.
+   * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
+   */
+  parent?: string | undefined;
+  /** Maximum number of CdfStatuses to return. */
+  pageSize?: number | undefined;
+  /**
+   * Pagination token returned by a previous ListCdfStatuses call. Empty on the
+   * first page.
+   */
+  pageToken?: string | undefined;
+}
+
+/**
+ * Response to a ListCdfStatuses request, containing a page of replicated table
+ * statuses and a token for fetching the next page.
+ */
+export interface ListCdfStatusesResponse {
+  /** The replicated tables under the parent CdfConfig. */
+  cdfStatuses?: CdfStatus[] | undefined;
+  /** Token to retrieve the next page of results; empty when there are no more. */
   nextPageToken?: string | undefined;
 }
 
@@ -2569,6 +2781,58 @@ export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStat
 export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperationMetadata> =
   z.object({});
 
+export const unmarshalCdfConfigSchema: z.ZodType<CdfConfig> = z
+  .object({
+    name: z.string().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    cdf_config_id: z.string().optional(),
+    postgres_schema: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog: d.catalog,
+    schema: d.schema,
+    createTime: d.create_time,
+    cdfConfigId: d.cdf_config_id,
+    postgresSchema: d.postgres_schema,
+  }));
+
+export const unmarshalCdfConfigOperationMetadataSchema: z.ZodType<CdfConfigOperationMetadata> =
+  z.object({});
+
+export const unmarshalCdfStatusSchema: z.ZodType<CdfStatus> = z
+  .object({
+    name: z.string().optional(),
+    postgres_table: z.string().optional(),
+    uc_table: z.string().optional(),
+    state: z.string().optional(),
+    committed_lsn: z.string().optional(),
+    last_sync_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    status_detail: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    postgresTable: d.postgres_table,
+    ucTable: d.uc_table,
+    state: d.state,
+    committedLsn: d.committed_lsn,
+    lastSyncTime: d.last_sync_time,
+    createTime: d.create_time,
+    statusDetail: d.status_detail,
+  }));
+
 export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
   .object({
     name: z.string().optional(),
@@ -2933,6 +3197,28 @@ export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse
     })
     .transform(d => ({
       branches: d.branches,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListCdfConfigsResponseSchema: z.ZodType<ListCdfConfigsResponse> =
+  z
+    .object({
+      cdf_configs: z.array(z.lazy(() => unmarshalCdfConfigSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      cdfConfigs: d.cdf_configs,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListCdfStatusesResponseSchema: z.ZodType<ListCdfStatusesResponse> =
+  z
+    .object({
+      cdf_statuses: z.array(z.lazy(() => unmarshalCdfStatusSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      cdfStatuses: d.cdf_statuses,
       nextPageToken: d.next_page_token,
     }));
 
@@ -3581,6 +3867,27 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
     postgres_database: d.postgresDatabase,
     project: d.project,
     branch: d.branch,
+  }));
+
+export const marshalCdfConfigSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    cdfConfigId: z.string().optional(),
+    postgresSchema: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog: d.catalog,
+    schema: d.schema,
+    create_time: d.createTime,
+    cdf_config_id: d.cdfConfigId,
+    postgres_schema: d.postgresSchema,
   }));
 
 export const marshalDataApiSchema: z.ZodType = z
