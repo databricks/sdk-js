@@ -5,10 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-/**
- * The replication state of a single replicated table (CdfStatus), as reported by
- * the wal2delta extension on the primary compute.
- */
+/** The replication state of a single replicated table (CdfStatus). */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CdfState = {
   /** Default value. Returned when the replication state is unknown or not set. */
@@ -26,9 +23,9 @@ export const CdfState = {
    */
   CDF_STATE_TERMINATED: 'CDF_STATE_TERMINATED',
   /**
-   * The table is not being replicated: it was skipped (for example, it lacks
-   * REPLICA IDENTITY FULL, is empty, or is partitioned) or replication errored.
-   * See status_detail for the specific reason.
+   * The table is not being replicated: it was skipped because it is not
+   * eligible for replication, or replication errored. See status_detail for
+   * the specific reason.
    */
   CDF_STATE_SKIPPED: 'CDF_STATE_SKIPPED',
 } as const;
@@ -1067,7 +1064,7 @@ export interface CdfStatus {
   state?: CdfState | undefined;
   /** The high-watermark Log Sequence Number (LSN) committed to Delta Lake. */
   committedLsn?: string | undefined;
-  /** The last time wal2delta wrote changes for this table. */
+  /** The last time changes for this table were written to Delta Lake. */
   lastSyncTime?: Temporal.Instant | undefined;
   /** When replication for this table was first established. */
   createTime?: Temporal.Instant | undefined;
