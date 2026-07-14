@@ -359,6 +359,12 @@ export interface CleanRoom {
   outputCatalog?: CleanRoomOutputCatalog | undefined;
   /** Whether clean room access is restricted due to [CSP](https://docs.databricks.com/en/security/privacy/security-profile.html) */
   accessRestricted?: CleanRoom_AccessRestricted | undefined;
+  /**
+   * Whether allow task to write to shared output schema.
+   * When enabled, clean room task runs triggered by the current collaborator
+   * can write to the run-scoped shared output schema which is accessible by all collaborators.
+   */
+  enableSharedOutput?: boolean | undefined;
 }
 
 /** Clean room status. */
@@ -492,6 +498,13 @@ export interface CleanRoomAsset_Notebook {
   reviews?: CleanRoomNotebookReview[] | undefined;
   /** Top-level status derived from all reviews */
   reviewState?: CleanRoomNotebookReview_NotebookReviewState | undefined;
+  /** Optional description of the notebook shown to all collaborators. */
+  description?: string | undefined;
+  /**
+   * The serverless environment version used to execute the notebook (e.g. "4").
+   * Defaults to "2" if not specified.
+   */
+  environmentVersion?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -649,6 +662,13 @@ export interface CleanRoomNotebookTaskRun {
   notebookEtag?: string | undefined;
   /** The timestamp of when the notebook was last updated. */
   notebookUpdatedAt?: bigint | undefined;
+  /**
+   * Name of the shared output schema associated with the clean rooms notebook task run.
+   * This schema is accessible by all collaborators when enable_shared_output is true.
+   */
+  sharedOutputSchemaName?: string | undefined;
+  /** Expiration time of the shared output schema of the task run (if any), in epoch milliseconds. */
+  sharedOutputSchemaExpirationTime?: bigint | undefined;
 }
 
 export interface CleanRoomOutputCatalog {
@@ -683,6 +703,19 @@ export interface CleanRoomRemoteDetail {
   /** Egress network policy to apply to the central clean room workspace. */
   egressNetworkPolicy?: EgressNetworkPolicy | undefined;
   complianceSecurityProfile?: ComplianceSecurityProfile | undefined;
+  /**
+   * Whether to enable shared output for the central clean room.
+   * When enabled, clean room task runs can write to the run-scoped shared output schema
+   * which is accessible by all collaborators.
+   */
+  enableSharedOutput?: boolean | undefined;
+  /**
+   * Alias of the provider collaborator. If set, packaged clean rooms mode is enabled.
+   * The consumer's experience is restricted: they can view notebook names and READMEs,
+   * add their own data assets, and trigger runs, but cannot view notebook code,
+   * provider data assets, or notebook run output.
+   */
+  packageProviderCollaboratorAlias?: string | undefined;
 }
 
 /** Stores the run state of the clean rooms notebook task. */
@@ -1122,6 +1155,7 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
       .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
       .optional(),
     access_restricted: z.string().optional(),
+    enable_shared_output: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1134,6 +1168,7 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
     localCollaboratorAlias: d.local_collaborator_alias,
     outputCatalog: d.output_catalog,
     accessRestricted: d.access_restricted,
+    enableSharedOutput: d.enable_shared_output,
   }));
 
 export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
@@ -1238,6 +1273,8 @@ export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_No
         .array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema))
         .optional(),
       review_state: z.string().optional(),
+      description: z.string().optional(),
+      environment_version: z.string().optional(),
     })
     .transform(d => ({
       notebookContent: d.notebook_content,
@@ -1245,6 +1282,8 @@ export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_No
       runnerCollaboratorAliases: d.runner_collaborator_aliases,
       reviews: d.reviews,
       reviewState: d.review_state,
+      description: d.description,
+      environmentVersion: d.environment_version,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1408,6 +1447,11 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
         .optional(),
+      shared_output_schema_name: z.string().optional(),
+      shared_output_schema_expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       notebookName: d.notebook_name,
@@ -1419,6 +1463,8 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
       outputSchemaExpirationTime: d.output_schema_expiration_time,
       notebookEtag: d.notebook_etag,
       notebookUpdatedAt: d.notebook_updated_at,
+      sharedOutputSchemaName: d.shared_output_schema_name,
+      sharedOutputSchemaExpirationTime: d.shared_output_schema_expiration_time,
     }));
 
 export const unmarshalCleanRoomOutputCatalogSchema: z.ZodType<CleanRoomOutputCatalog> =
@@ -1448,6 +1494,8 @@ export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDeta
       compliance_security_profile: z
         .lazy(() => unmarshalComplianceSecurityProfileSchema)
         .optional(),
+      enable_shared_output: z.boolean().optional(),
+      package_provider_collaborator_alias: z.string().optional(),
     })
     .transform(d => ({
       centralCleanRoomId: d.central_clean_room_id,
@@ -1457,6 +1505,8 @@ export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDeta
       creator: d.creator,
       egressNetworkPolicy: d.egress_network_policy,
       complianceSecurityProfile: d.compliance_security_profile,
+      enableSharedOutput: d.enable_shared_output,
+      packageProviderCollaboratorAlias: d.package_provider_collaborator_alias,
     }));
 
 export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
@@ -1805,6 +1855,7 @@ export const marshalCleanRoomSchema: z.ZodType = z
     localCollaboratorAlias: z.string().optional(),
     outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
     accessRestricted: z.string().optional(),
+    enableSharedOutput: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1817,6 +1868,7 @@ export const marshalCleanRoomSchema: z.ZodType = z
     local_collaborator_alias: d.localCollaboratorAlias,
     output_catalog: d.outputCatalog,
     access_restricted: d.accessRestricted,
+    enable_shared_output: d.enableSharedOutput,
   }));
 
 export const marshalCleanRoomAssetSchema: z.ZodType = z
@@ -1931,6 +1983,8 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
       .array(z.lazy(() => marshalCleanRoomNotebookReviewSchema))
       .optional(),
     reviewState: z.string().optional(),
+    description: z.string().optional(),
+    environmentVersion: z.string().optional(),
   })
   .transform(d => ({
     notebook_content: d.notebookContent,
@@ -1938,6 +1992,8 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
     runner_collaborator_aliases: d.runnerCollaboratorAliases,
     reviews: d.reviews,
     review_state: d.reviewState,
+    description: d.description,
+    environment_version: d.environmentVersion,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2088,6 +2144,8 @@ export const marshalCleanRoomRemoteDetailSchema: z.ZodType = z
     complianceSecurityProfile: z
       .lazy(() => marshalComplianceSecurityProfileSchema)
       .optional(),
+    enableSharedOutput: z.boolean().optional(),
+    packageProviderCollaboratorAlias: z.string().optional(),
   })
   .transform(d => ({
     central_clean_room_id: d.centralCleanRoomId,
@@ -2097,6 +2155,8 @@ export const marshalCleanRoomRemoteDetailSchema: z.ZodType = z
     creator: d.creator,
     egress_network_policy: d.egressNetworkPolicy,
     compliance_security_profile: d.complianceSecurityProfile,
+    enable_shared_output: d.enableSharedOutput,
+    package_provider_collaborator_alias: d.packageProviderCollaboratorAlias,
   }));
 
 export const marshalColumnInfoSchema: z.ZodType = z

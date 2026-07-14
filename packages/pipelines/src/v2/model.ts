@@ -931,6 +931,45 @@ export interface GoogleAdsConfig {
 }
 
 /**
+ * User-defined custom report for the Google Ads connector. Mirrors the
+ * resource + fields + segments + metrics model that Google Ads GAQL exposes.
+ * The customer account this report runs against is supplied by the source
+ * schema (namespace), not by this message. The whole message is gated by
+ * the parent GoogleAdsOptions.custom_report_options stage; per-field stage
+ * annotations are intentionally omitted.
+ * Only supported on table-type objects: a custom report requires a
+ * destination table, so it cannot be specified at the schema/source level.
+ */
+export interface GoogleAdsCustomReportOptions {
+  /**
+   * (Required) Google Ads resource to query (e.g. "ad_group_ad",
+   * "keyword_view", "search_term_view"). Must be a resource that has
+   * metrics. Values are validated against Google Ads' field-service
+   * catalog at pipeline plan time.
+   */
+  resource?: string | undefined;
+  /**
+   * (Optional) Resource fields to select, in fully-qualified GAQL form
+   * (e.g. "ad_group_ad.ad.id", "ad_group_ad.status"). Multiple values are
+   * joined into the GAQL SELECT clause.
+   */
+  resourceFields?: string[] | undefined;
+  /**
+   * (Optional) Segment fields to select (e.g. "segments.date",
+   * "segments.device"). Must include at least one of segments.date,
+   * segments.week, or segments.month — that segment is used as the
+   * incremental cursor for the table.
+   */
+  segments?: string[] | undefined;
+  /**
+   * (Optional) Metric fields to select (e.g. "metrics.clicks",
+   * "metrics.cost_micros"). Multiple values are joined into the GAQL
+   * SELECT clause.
+   */
+  metrics?: string[] | undefined;
+}
+
+/**
  * Google Ads specific options for ingestion (object-level).
  * When set, these values override the corresponding fields in GoogleAdsConfig
  * (source_configurations).
@@ -953,6 +992,13 @@ export interface GoogleAdsOptions {
    * If not specified, defaults to 2 years of historical data.
    */
   syncStartDate?: string | undefined;
+  /**
+   * (Optional) Custom report definition. When set, the table is treated as a
+   * user-defined Google Ads custom report: the connector synthesizes a GAQL
+   * query from the resource, fields, segments, and metrics specified here.
+   * When unset, the table must match one of the connector's prebuilt sources.
+   */
+  customReportOptions?: GoogleAdsCustomReportOptions | undefined;
 }
 
 export interface GoogleDriveOptions {
@@ -1495,6 +1541,35 @@ export interface MetaMarketingOptions {
    * (Optional, DEPRECATED — use custom_report_options.action_attribution_windows) Action attribution
    * windows for insights reporting (e.g. "28d_click", "1d_view")
    */
+  actionAttributionWindows?: string[] | undefined;
+  /**
+   * (Optional) Per-table custom report definition. When set, defines the shape of the insights
+   * call for this table (level/fields/breakdowns/action_breakdowns/etc.). Supersedes the deprecated
+   * flat report-shape fields above.
+   */
+  customReportOptions?:
+    | MetaMarketingOptions_MetaMarketingCustomReportOptions
+    | undefined;
+}
+
+/**
+ * Defines the shape of a single Meta Ads custom report (one /insights call shape).
+ * start_date, custom_insights_lookback_window live on MetaMarketingOptions, not here.
+ * Metrics are not customer-selectable; the connector returns a fixed standard metric set.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface MetaMarketingOptions_MetaMarketingCustomReportOptions {
+  /** (Optional) Granularity of data to pull (account, ad, adset, campaign) */
+  level?: string | undefined;
+  /** (Optional) Breakdowns to configure for data aggregation */
+  breakdowns?: string[] | undefined;
+  /** (Optional) Action breakdowns to configure for data aggregation */
+  actionBreakdowns?: string[] | undefined;
+  /** (Optional) Timing used to report action statistics (impression, conversion, mixed, or lifetime) */
+  actionReportTime?: string | undefined;
+  /** (Optional) Value in string by which to aggregate statistics (all_days, monthly or number of days) */
+  timeIncrement?: string | undefined;
+  /** (Optional) Action attribution windows for insights reporting (e.g. "28d_click", "1d_view") */
   actionAttributionWindows?: string[] | undefined;
 }
 
@@ -2484,6 +2559,51 @@ export interface TikTokAdsOptions {
   dataLevel?: TikTokAdsOptions_TikTokDataLevel | undefined;
   /** Deprecated. Use custom_report_options.query_lifetime instead. */
   queryLifetime?: boolean | undefined;
+  /**
+   * (Optional) Custom report definition. When set, the table is treated as a
+   * user-defined TikTok Ads custom report: the connector synthesizes a report
+   * request from the dimensions, metrics, report type, and data level specified
+   * here. Supersedes the deprecated top-level dimensions/metrics/report_type/
+   * data_level/query_lifetime fields above.
+   */
+  customReportOptions?:
+    | TikTokAdsOptions_TikTokAdsCustomReportOptions
+    | undefined;
+}
+
+/**
+ * User-defined custom report for the TikTok Ads connector. Groups the
+ * dimensions + metrics + report type + data level that define a TikTok Ads
+ * custom report request.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface TikTokAdsOptions_TikTokAdsCustomReportOptions {
+  /**
+   * (Optional) Dimensions to include in the report (e.g. "campaign_id",
+   * "adgroup_id", "ad_id", "stat_time_day", "stat_time_hour").
+   */
+  dimensions?: string[] | undefined;
+  /**
+   * (Optional) Metrics to include in the report (e.g. "spend", "impressions",
+   * "clicks", "conversion", "cpc").
+   */
+  metrics?: string[] | undefined;
+  /**
+   * (Optional) Report type for the TikTok Ads API.
+   * If not specified, defaults to BASIC.
+   */
+  reportType?: TikTokAdsOptions_TikTokReportType | undefined;
+  /**
+   * (Optional) Data level for the report.
+   * If not specified, defaults to AUCTION_CAMPAIGN.
+   */
+  dataLevel?: TikTokAdsOptions_TikTokDataLevel | undefined;
+  /**
+   * (Optional) Whether to request lifetime metrics (all-time aggregated data).
+   * When true, the report returns all-time data.
+   * If not specified, defaults to false.
+   */
+  queryLifetime?: boolean | undefined;
 }
 
 /** Specifies how to transform binary data into structured data. */
@@ -2894,16 +3014,35 @@ export const unmarshalGoogleAdsConfigSchema: z.ZodType<GoogleAdsConfig> = z
     managerAccountId: d.manager_account_id,
   }));
 
+export const unmarshalGoogleAdsCustomReportOptionsSchema: z.ZodType<GoogleAdsCustomReportOptions> =
+  z
+    .object({
+      resource: z.string().optional(),
+      resource_fields: z.array(z.string()).optional(),
+      segments: z.array(z.string()).optional(),
+      metrics: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      resource: d.resource,
+      resourceFields: d.resource_fields,
+      segments: d.segments,
+      metrics: d.metrics,
+    }));
+
 export const unmarshalGoogleAdsOptionsSchema: z.ZodType<GoogleAdsOptions> = z
   .object({
     manager_account_id: z.string().optional(),
     lookback_window_days: z.number().optional(),
     sync_start_date: z.string().optional(),
+    custom_report_options: z
+      .lazy(() => unmarshalGoogleAdsCustomReportOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     managerAccountId: d.manager_account_id,
     lookbackWindowDays: d.lookback_window_days,
     syncStartDate: d.sync_start_date,
+    customReportOptions: d.custom_report_options,
   }));
 
 export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> =
@@ -3304,6 +3443,12 @@ export const unmarshalMetaMarketingOptionsSchema: z.ZodType<MetaMarketingOptions
       custom_insights_lookback_window: z.number().optional(),
       time_increment: z.string().optional(),
       action_attribution_windows: z.array(z.string()).optional(),
+      custom_report_options: z
+        .lazy(
+          () =>
+            unmarshalMetaMarketingOptions_MetaMarketingCustomReportOptionsSchema
+        )
+        .optional(),
     })
     .transform(d => ({
       level: d.level,
@@ -3312,6 +3457,27 @@ export const unmarshalMetaMarketingOptionsSchema: z.ZodType<MetaMarketingOptions
       actionReportTime: d.action_report_time,
       startDate: d.start_date,
       customInsightsLookbackWindow: d.custom_insights_lookback_window,
+      timeIncrement: d.time_increment,
+      actionAttributionWindows: d.action_attribution_windows,
+      customReportOptions: d.custom_report_options,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalMetaMarketingOptions_MetaMarketingCustomReportOptionsSchema: z.ZodType<MetaMarketingOptions_MetaMarketingCustomReportOptions> =
+  z
+    .object({
+      level: z.string().optional(),
+      breakdowns: z.array(z.string()).optional(),
+      action_breakdowns: z.array(z.string()).optional(),
+      action_report_time: z.string().optional(),
+      time_increment: z.string().optional(),
+      action_attribution_windows: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      level: d.level,
+      breakdowns: d.breakdowns,
+      actionBreakdowns: d.action_breakdowns,
+      actionReportTime: d.action_report_time,
       timeIncrement: d.time_increment,
       actionAttributionWindows: d.action_attribution_windows,
     }));
@@ -3983,6 +4149,9 @@ export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
     report_type: z.string().optional(),
     data_level: z.string().optional(),
     query_lifetime: z.boolean().optional(),
+    custom_report_options: z
+      .lazy(() => unmarshalTikTokAdsOptions_TikTokAdsCustomReportOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     lookbackWindowDays: d.lookback_window_days,
@@ -3992,7 +4161,26 @@ export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
     reportType: d.report_type,
     dataLevel: d.data_level,
     queryLifetime: d.query_lifetime,
+    customReportOptions: d.custom_report_options,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalTikTokAdsOptions_TikTokAdsCustomReportOptionsSchema: z.ZodType<TikTokAdsOptions_TikTokAdsCustomReportOptions> =
+  z
+    .object({
+      dimensions: z.array(z.string()).optional(),
+      metrics: z.array(z.string()).optional(),
+      report_type: z.string().optional(),
+      data_level: z.string().optional(),
+      query_lifetime: z.boolean().optional(),
+    })
+    .transform(d => ({
+      dimensions: d.dimensions,
+      metrics: d.metrics,
+      reportType: d.report_type,
+      dataLevel: d.data_level,
+      queryLifetime: d.query_lifetime,
+    }));
 
 export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
   .object({
@@ -4544,16 +4732,34 @@ export const marshalGoogleAdsConfigSchema: z.ZodType = z
     manager_account_id: d.managerAccountId,
   }));
 
+export const marshalGoogleAdsCustomReportOptionsSchema: z.ZodType = z
+  .object({
+    resource: z.string().optional(),
+    resourceFields: z.array(z.string()).optional(),
+    segments: z.array(z.string()).optional(),
+    metrics: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    resource: d.resource,
+    resource_fields: d.resourceFields,
+    segments: d.segments,
+    metrics: d.metrics,
+  }));
+
 export const marshalGoogleAdsOptionsSchema: z.ZodType = z
   .object({
     managerAccountId: z.string().optional(),
     lookbackWindowDays: z.number().optional(),
     syncStartDate: z.string().optional(),
+    customReportOptions: z
+      .lazy(() => marshalGoogleAdsCustomReportOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     manager_account_id: d.managerAccountId,
     lookback_window_days: d.lookbackWindowDays,
     sync_start_date: d.syncStartDate,
+    custom_report_options: d.customReportOptions,
   }));
 
 export const marshalGoogleDriveOptionsSchema: z.ZodType = z
@@ -4900,6 +5106,11 @@ export const marshalMetaMarketingOptionsSchema: z.ZodType = z
     customInsightsLookbackWindow: z.number().optional(),
     timeIncrement: z.string().optional(),
     actionAttributionWindows: z.array(z.string()).optional(),
+    customReportOptions: z
+      .lazy(
+        () => marshalMetaMarketingOptions_MetaMarketingCustomReportOptionsSchema
+      )
+      .optional(),
   })
   .transform(d => ({
     level: d.level,
@@ -4910,7 +5121,28 @@ export const marshalMetaMarketingOptionsSchema: z.ZodType = z
     custom_insights_lookback_window: d.customInsightsLookbackWindow,
     time_increment: d.timeIncrement,
     action_attribution_windows: d.actionAttributionWindows,
+    custom_report_options: d.customReportOptions,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalMetaMarketingOptions_MetaMarketingCustomReportOptionsSchema: z.ZodType =
+  z
+    .object({
+      level: z.string().optional(),
+      breakdowns: z.array(z.string()).optional(),
+      actionBreakdowns: z.array(z.string()).optional(),
+      actionReportTime: z.string().optional(),
+      timeIncrement: z.string().optional(),
+      actionAttributionWindows: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      level: d.level,
+      breakdowns: d.breakdowns,
+      action_breakdowns: d.actionBreakdowns,
+      action_report_time: d.actionReportTime,
+      time_increment: d.timeIncrement,
+      action_attribution_windows: d.actionAttributionWindows,
+    }));
 
 export const marshalNotebookLibrarySchema: z.ZodType = z
   .object({
@@ -5438,6 +5670,9 @@ export const marshalTikTokAdsOptionsSchema: z.ZodType = z
     reportType: z.string().optional(),
     dataLevel: z.string().optional(),
     queryLifetime: z.boolean().optional(),
+    customReportOptions: z
+      .lazy(() => marshalTikTokAdsOptions_TikTokAdsCustomReportOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     lookback_window_days: d.lookbackWindowDays,
@@ -5447,7 +5682,26 @@ export const marshalTikTokAdsOptionsSchema: z.ZodType = z
     report_type: d.reportType,
     data_level: d.dataLevel,
     query_lifetime: d.queryLifetime,
+    custom_report_options: d.customReportOptions,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalTikTokAdsOptions_TikTokAdsCustomReportOptionsSchema: z.ZodType =
+  z
+    .object({
+      dimensions: z.array(z.string()).optional(),
+      metrics: z.array(z.string()).optional(),
+      reportType: z.string().optional(),
+      dataLevel: z.string().optional(),
+      queryLifetime: z.boolean().optional(),
+    })
+    .transform(d => ({
+      dimensions: d.dimensions,
+      metrics: d.metrics,
+      report_type: d.reportType,
+      data_level: d.dataLevel,
+      query_lifetime: d.queryLifetime,
+    }));
 
 export const marshalTransformerSchema: z.ZodType = z
   .object({
