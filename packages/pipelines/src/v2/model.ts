@@ -1254,6 +1254,11 @@ export interface IngestionPipelineDefinition_TableSpecificConfig {
    * added as separate fields as we cannot have repeated field in oneof.
    */
   clusteringColumns?: string[] | undefined;
+  /**
+   * (Optional) Name of the struct column added to each ingested record to hold per row source
+   * metadata.
+   */
+  sourceMetadataColumn?: string | undefined;
 }
 
 /** Configurations that are only applicable for query-based ingestion connectors. */
@@ -3272,6 +3277,7 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
       table_properties: z.record(z.string(), z.string()).optional(),
       enable_auto_clustering: z.boolean().optional(),
       clustering_columns: z.array(z.string()).optional(),
+      source_metadata_column: z.string().optional(),
     })
     .transform(d => ({
       scdType: d.scd_type,
@@ -3287,6 +3293,7 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
       tableProperties: d.table_properties,
       enableAutoClustering: d.enable_auto_clustering,
       clusteringColumns: d.clustering_columns,
+      sourceMetadataColumn: d.source_metadata_column,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4985,6 +4992,7 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       tableProperties: z.record(z.string(), z.string()).optional(),
       enableAutoClustering: z.boolean().optional(),
       clusteringColumns: z.array(z.string()).optional(),
+      sourceMetadataColumn: z.string().optional(),
     })
     .transform(d => ({
       scd_type: d.scdType,
@@ -5000,6 +5008,7 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       table_properties: d.tableProperties,
       enable_auto_clustering: d.enableAutoClustering,
       clustering_columns: d.clusteringColumns,
+      source_metadata_column: d.sourceMetadataColumn,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
