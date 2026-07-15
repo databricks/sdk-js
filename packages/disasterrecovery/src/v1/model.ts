@@ -287,6 +287,15 @@ export interface StableUrl {
    */
   failoverGroupName?: string | undefined;
   /**
+   * The workspace this stable URL currently routes to. Set to
+   * `initial_workspace_id` at creation, advanced to the failover group's primary
+   * while attached (including across a failover), and preserved when the stable
+   * URL is detached from its failover group. Read this to see where an unattached
+   * stable URL points: after a failover followed by a detach it reflects the
+   * post-failover primary, not `initial_workspace_id`.
+   */
+  effectiveWorkspaceId?: string | undefined;
+  /**
    * The stable workspace ID for this stable URL. Generated on creation and
    * immutable thereafter; identifies the URL across failovers and is the same
    * value embedded in the `url` (as the `w=` query parameter for SPOG URLs,
@@ -447,6 +456,7 @@ export const unmarshalStableUrlSchema: z.ZodType<StableUrl> = z
     url: z.string().optional(),
     initial_workspace_id: z.string().optional(),
     failover_group_name: z.string().optional(),
+    effective_workspace_id: z.string().optional(),
     stable_workspace_id: z.string().optional(),
   })
   .transform(d => ({
@@ -454,6 +464,7 @@ export const unmarshalStableUrlSchema: z.ZodType<StableUrl> = z
     url: d.url,
     initialWorkspaceId: d.initial_workspace_id,
     failoverGroupName: d.failover_group_name,
+    effectiveWorkspaceId: d.effective_workspace_id,
     stableWorkspaceId: d.stable_workspace_id,
   }));
 
@@ -575,6 +586,7 @@ export const marshalStableUrlSchema: z.ZodType = z
     url: z.string().optional(),
     initialWorkspaceId: z.string().optional(),
     failoverGroupName: z.string().optional(),
+    effectiveWorkspaceId: z.string().optional(),
     stableWorkspaceId: z.string().optional(),
   })
   .transform(d => ({
@@ -582,6 +594,7 @@ export const marshalStableUrlSchema: z.ZodType = z
     url: d.url,
     initial_workspace_id: d.initialWorkspaceId,
     failover_group_name: d.failoverGroupName,
+    effective_workspace_id: d.effectiveWorkspaceId,
     stable_workspace_id: d.stableWorkspaceId,
   }));
 
