@@ -24,6 +24,7 @@ import type {
   CleanRoomAsset,
   CleanRoomAutoApprovalRule,
   CleanRoomNotebookTaskRun,
+  CleanRoomTaskRun,
   CreateCleanRoomAssetRequest,
   CreateCleanRoomAssetReviewRequest,
   CreateCleanRoomAssetReviewResponse,
@@ -47,6 +48,8 @@ import type {
   ListCleanRoomAutoApprovalRulesResponse,
   ListCleanRoomNotebookTaskRunsRequest,
   ListCleanRoomNotebookTaskRunsResponse,
+  ListCleanRoomTaskRunsRequest,
+  ListCleanRoomTaskRunsResponse,
   ListCleanRoomsRequest,
   ListCleanRoomsResponse,
   UpdateCleanRoomAssetRequest,
@@ -72,6 +75,7 @@ import {
   unmarshalListCleanRoomAssetsResponseSchema,
   unmarshalListCleanRoomAutoApprovalRulesResponseSchema,
   unmarshalListCleanRoomNotebookTaskRunsResponseSchema,
+  unmarshalListCleanRoomTaskRunsResponseSchema,
   unmarshalListCleanRoomsResponseSchema,
 } from './model';
 
@@ -730,6 +734,70 @@ export class CleanRoomsClient {
     const pageReq: ListCleanRoomNotebookTaskRunsRequest = {...req};
     for (;;) {
       const resp = await this.listCleanRoomNotebookTaskRuns(pageReq, options);
+      for (const item of resp.runs ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List all the historical task runs in a clean room. */
+  async listCleanRoomTaskRunsHandler(
+    req: ListCleanRoomTaskRunsRequest,
+    options?: CallOptions
+  ): Promise<ListCleanRoomTaskRunsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/task-runs`;
+    const params = new URLSearchParams();
+    if (req.name !== undefined) {
+      params.append('name', req.name);
+    }
+    if (req.taskType !== undefined) {
+      params.append('task_type', req.taskType);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListCleanRoomTaskRunsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListCleanRoomTaskRunsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listCleanRoomTaskRunsHandlerIter(
+    req: ListCleanRoomTaskRunsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<CleanRoomTaskRun> {
+    const pageReq: ListCleanRoomTaskRunsRequest = {...req};
+    for (;;) {
+      const resp = await this.listCleanRoomTaskRunsHandler(pageReq, options);
       for (const item of resp.runs ?? []) {
         yield item;
       }

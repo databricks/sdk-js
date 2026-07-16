@@ -605,6 +605,22 @@ export interface InstancePoolAzureAttributes {
    * which ever is less, as long as there is capacity and quota available.
    */
   spotBidMaxPrice?: number | undefined;
+  /**
+   * The Azure capacity reservation group resource ID to use for launching VMs in this pool.
+   * When specified, VMs will be launched using the provided capacity reservation.
+   *
+   * NOTE: Omitting this field will clear any existing configured capacity reservation group on the pool.
+   *
+   * Capacity reservations can only be specified when the workspace uses injected vnet (i.e. customer defined vnet not
+   * managed by databricks). Ensure the databricks-login-prod Enterprise Application is granted the following four permissions:
+   * 1. Microsoft.Compute/capacityReservationGroups/read
+   * 2. Microsoft.Compute/capacityReservationGroups/deploy/action
+   * 3. Microsoft.Compute/capacityReservationGroups/capacityReservations/read
+   * 4. Microsoft.Compute/capacityReservationGroups/capacityReservations/deploy/action
+   *
+   * Format: `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/capacityReservationGroups/{capacityReservationGroupName}`
+   */
+  capacityReservationGroup?: string | undefined;
 }
 
 /** Attributes set during instance pool creation which are related to GCP. */
@@ -883,10 +899,12 @@ export const unmarshalInstancePoolAzureAttributesSchema: z.ZodType<InstancePoolA
     .object({
       availability: z.string().optional(),
       spot_bid_max_price: z.number().optional(),
+      capacity_reservation_group: z.string().optional(),
     })
     .transform(d => ({
       availability: d.availability,
       spotBidMaxPrice: d.spot_bid_max_price,
+      capacityReservationGroup: d.capacity_reservation_group,
     }));
 
 export const unmarshalInstancePoolGcpAttributesSchema: z.ZodType<InstancePoolGcpAttributes> =
@@ -1151,10 +1169,12 @@ export const marshalInstancePoolAzureAttributesSchema: z.ZodType = z
   .object({
     availability: z.string().optional(),
     spotBidMaxPrice: z.number().optional(),
+    capacityReservationGroup: z.string().optional(),
   })
   .transform(d => ({
     availability: d.availability,
     spot_bid_max_price: d.spotBidMaxPrice,
+    capacity_reservation_group: d.capacityReservationGroup,
   }));
 
 export const marshalInstancePoolGcpAttributesSchema: z.ZodType = z

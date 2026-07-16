@@ -685,6 +685,20 @@ export interface LastNFunction {
   n?: bigint | undefined;
 }
 
+/**
+ * A window that spans the entire lifetime of a data source, accumulating from the source's start
+ * rather than over a bounded duration. All fields are optional; an empty message denotes the
+ * continuous, fully-accurate variant.
+ */
+export interface LifetimeWindow {
+  /**
+   * The slide duration for the discrete (offline) variant: the value updates only at these
+   * boundaries. Must be positive when set. When absent, the window is continuous (the value is as
+   * fresh as the pipeline delivers).
+   */
+  slideDuration?: Temporal.Duration | undefined;
+}
+
 /** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
 export interface LineageContext {
   /** The notebook ID where this API was invoked. */
@@ -1212,6 +1226,11 @@ export interface TimeWindow {
         $case: 'longRolling';
         /** A long (multi-day) rolling window served via the hybrid batch + streaming path. */
         longRolling: LongRollingWindow;
+      }
+    | {
+        $case: 'lifetime';
+        /** A window that spans the entire lifetime of the data source. */
+        lifetime: LifetimeWindow;
       }
     | undefined;
 }
@@ -1877,6 +1896,17 @@ export const unmarshalLastNFunctionSchema: z.ZodType<LastNFunction> = z
     n: d.n,
   }));
 
+export const unmarshalLifetimeWindowSchema: z.ZodType<LifetimeWindow> = z
+  .object({
+    slide_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    slideDuration: d.slide_duration,
+  }));
+
 export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
   .object({
     notebook_id: z
@@ -2327,6 +2357,7 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
     rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
     long_rolling: z.lazy(() => unmarshalLongRollingWindowSchema).optional(),
+    lifetime: z.lazy(() => unmarshalLifetimeWindowSchema).optional(),
   })
   .transform(d => ({
     windowType:
@@ -2340,7 +2371,9 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
               ? {$case: 'rolling' as const, rolling: d.rolling}
               : d.long_rolling !== undefined
                 ? {$case: 'longRolling' as const, longRolling: d.long_rolling}
-                : undefined,
+                : d.lifetime !== undefined
+                  ? {$case: 'lifetime' as const, lifetime: d.lifetime}
+                  : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -3001,6 +3034,17 @@ export const marshalLastNFunctionSchema: z.ZodType = z
     n: d.n,
   }));
 
+export const marshalLifetimeWindowSchema: z.ZodType = z
+  .object({
+    slideDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    slide_duration: d.slideDuration,
+  }));
+
 export const marshalLineageContextSchema: z.ZodType = z
   .object({
     notebookId: z.bigint().optional(),
@@ -3434,6 +3478,10 @@ export const marshalTimeWindowSchema: z.ZodType = z
           $case: z.literal('longRolling'),
           longRolling: z.lazy(() => marshalLongRollingWindowSchema),
         }),
+        z.object({
+          $case: z.literal('lifetime'),
+          lifetime: z.lazy(() => marshalLifetimeWindowSchema),
+        }),
       ])
       .optional(),
   })
@@ -3448,6 +3496,9 @@ export const marshalTimeWindowSchema: z.ZodType = z
     ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
     ...(d.windowType?.$case === 'longRolling' && {
       long_rolling: d.windowType.longRolling,
+    }),
+    ...(d.windowType?.$case === 'lifetime' && {
+      lifetime: d.windowType.lifetime,
     }),
   }));
 
@@ -3769,6 +3820,10 @@ const lastNFunctionFieldMaskSchema: FieldMaskSchema = {
   n: {wire: 'n'},
 };
 
+const lifetimeWindowFieldMaskSchema: FieldMaskSchema = {
+  slideDuration: {wire: 'slide_duration'},
+};
+
 const lineageContextFieldMaskSchema: FieldMaskSchema = {
   jobContext: {wire: 'job_context', children: () => jobContextFieldMaskSchema},
   notebookId: {wire: 'notebook_id'},
@@ -3977,6 +4032,7 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
     wire: 'continuous',
     children: () => continuousWindowFieldMaskSchema,
   },
+  lifetime: {wire: 'lifetime', children: () => lifetimeWindowFieldMaskSchema},
   longRolling: {
     wire: 'long_rolling',
     children: () => longRollingWindowFieldMaskSchema,
