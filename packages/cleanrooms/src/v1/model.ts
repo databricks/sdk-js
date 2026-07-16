@@ -49,6 +49,16 @@ export type CleanRoomTaskRunResultState =
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomTaskType = {
+  CLEAN_ROOM_TASK_TYPE_UNSPECIFIED: 'CLEAN_ROOM_TASK_TYPE_UNSPECIFIED',
+  NOTEBOOK: 'NOTEBOOK',
+  JAR: 'JAR',
+} as const;
+export type CleanRoomTaskType =
+  | (typeof CleanRoomTaskType)[keyof typeof CleanRoomTaskType]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ColumnTypeName = {
   BOOLEAN: 'BOOLEAN',
   BYTE: 'BYTE',
@@ -158,6 +168,7 @@ export const CleanRoomAsset_AssetType = {
   VOLUME: 'VOLUME',
   VIEW: 'VIEW',
   FOREIGN_TABLE: 'FOREIGN_TABLE',
+  JAR_ANALYSIS: 'JAR_ANALYSIS',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type CleanRoomAsset_AssetType =
@@ -184,6 +195,30 @@ export const CleanRoomAutoApprovalRule_AuthorScope = {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type CleanRoomAutoApprovalRule_AuthorScope =
   | (typeof CleanRoomAutoApprovalRule_AuthorScope)[keyof typeof CleanRoomAutoApprovalRule_AuthorScope]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomJarAnalysisReview_JarAnalysisReviewState = {
+  JAR_ANALYSIS_REVIEW_STATE_UNSPECIFIED:
+    'JAR_ANALYSIS_REVIEW_STATE_UNSPECIFIED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  PENDING: 'PENDING',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CleanRoomJarAnalysisReview_JarAnalysisReviewState =
+  | (typeof CleanRoomJarAnalysisReview_JarAnalysisReviewState)[keyof typeof CleanRoomJarAnalysisReview_JarAnalysisReviewState]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason = {
+  JAR_ANALYSIS_REVIEW_SUB_REASON_UNSPECIFIED:
+    'JAR_ANALYSIS_REVIEW_SUB_REASON_UNSPECIFIED',
+  AUTO_APPROVED: 'AUTO_APPROVED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason =
+  | (typeof CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason)[keyof typeof CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason]
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -465,6 +500,14 @@ export interface CleanRoomAsset {
          */
         foreignTable: CleanRoomAsset_ForeignTable;
       }
+    | {
+        $case: 'jarAnalysis';
+        /**
+         * Jar analysis details available to all collaborators of the clean room.
+         * Present if and only if **asset_type** is **JAR_ANALYSIS**
+         */
+        jarAnalysis: CleanRoomAsset_JarAnalysis;
+      }
     | undefined;
 }
 
@@ -481,6 +524,35 @@ export interface CleanRoomAsset_ForeignTableLocalDetails {
    * in the format of *catalog*.*schema*.*foreign_table_name*
    */
   localName?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomAsset_JarAnalysis {
+  /** Server generated etag that represents the jar analysis version. */
+  etag?: string | undefined;
+  /** Optional description of the jar analysis shown to all collaborators. */
+  description?: string | undefined;
+  /** Collaborators that can run the jar. */
+  runnerCollaboratorAliases?: string[] | undefined;
+  /** All existing approvals or rejections. */
+  reviews?: CleanRoomJarAnalysisReview[] | undefined;
+  /** Top-level status derived from all reviews. */
+  reviewState?: CleanRoomJarAnalysisReview_JarAnalysisReviewState | undefined;
+  /**
+   * The full name of the class containing the main method to be executed. This class must be contained in a JAR provided as a library
+   * The code must use `SparkContext.getOrCreate` to obtain a Spark context; otherwise, runs of the job fail
+   */
+  mainClassName?: string | undefined;
+  /**
+   * The full paths in central to the jar files that are added to the library during execution (e.g. /Volumes/creator/schema/volume/folder/my_jar_file.jar)
+   * Only returned for the owner collaborator.
+   */
+  centralJarFilePaths?: string[] | undefined;
+  /**
+   * The serverless environment version used to execute the JAR analysis (e.g. "4").
+   * Defaults to "4-scala-preview" if not specified.
+   */
+  environmentVersion?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -624,6 +696,22 @@ export interface CleanRoomCollaborator {
   displayName?: string | undefined;
 }
 
+/** This only applies to a JAR Analysis as a first-class asset in the Clean Room, and not to Volumes */
+export interface CleanRoomJarAnalysisReview {
+  /** collaborator alias of the reviewer */
+  reviewerCollaboratorAlias?: string | undefined;
+  /** timestamp of when the review was submitted */
+  createdAtMillis?: bigint | undefined;
+  /** review outcome */
+  reviewState?: CleanRoomJarAnalysisReview_JarAnalysisReviewState | undefined;
+  /** review comment */
+  comment?: string | undefined;
+  /** specified when the review was not explicitly made by a user */
+  reviewSubReason?:
+    | CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason
+    | undefined;
+}
+
 export interface CleanRoomNotebookReview {
   /** Collaborator alias of the reviewer */
   reviewerCollaboratorAlias?: string | undefined;
@@ -718,6 +806,51 @@ export interface CleanRoomRemoteDetail {
   packageProviderCollaboratorAlias?: string | undefined;
 }
 
+/** Stores information about a single task run. */
+export interface CleanRoomTaskRun {
+  /** Name of the executable. */
+  name?: string | undefined;
+  /** The type of Clean Room task. */
+  taskType?: CleanRoomTaskType | undefined;
+  /** When the task run started, in epoch milliseconds. */
+  startTime?: bigint | undefined;
+  /** Duration of the task run, in milliseconds. */
+  runDuration?: bigint | undefined;
+  /** State of the task run. */
+  taskRunState?: CleanRoomTaskRunState | undefined;
+  /**
+   * Job run info of the task in the runner's local workspace.
+   * This field is only included in the LIST API if the task was run within the same workspace the API is being called.
+   * If the task run was in a different workspace under the same metastore, only the workspace_id is included.
+   */
+  collaboratorJobRunInfo?: CollaboratorJobRunInfo | undefined;
+  /** Information about run output */
+  outputInfo?: CleanRoomTaskRun_OutputInfo | undefined;
+  /** Information about the analysis run (etag, updated at) */
+  analysisDetails?: CleanRoomTaskRun_CleanRoomTaskAnalysisDetails | undefined;
+  /**
+   * Information about shared output accessible by all collaborators.
+   * This field is only populated when enable_shared_output is true.
+   */
+  sharedOutputInfo?: CleanRoomTaskRun_OutputInfo | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomTaskRun_CleanRoomTaskAnalysisDetails {
+  /** Etag of the asset executed in this task run, used to identify the asset version. */
+  etag?: string | undefined;
+  /** The timestamp of when the asset was last updated. */
+  updatedAt?: bigint | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CleanRoomTaskRun_OutputInfo {
+  /** Name of the output schema associated with the clean room task run. */
+  outputSchemaName?: string | undefined;
+  /** Expiration time of the output schema of the task run (if any), in epoch milliseconds. */
+  outputSchemaExpirationTime?: bigint | undefined;
+}
+
 /** Stores the run state of the clean rooms notebook task. */
 export interface CleanRoomTaskRunState {
   /** A value indicating the run's current lifecycle state. This field is always available in the response. Note: Additional states might be introduced in future releases. */
@@ -802,17 +935,25 @@ export interface CreateCleanRoomAssetReviewRequest {
   assetType?: CleanRoomAsset_AssetType | undefined;
   review?:
     | {$case: 'notebookReview'; notebookReview: NotebookVersionReview}
+    | {$case: 'jarAnalysisReview'; jarAnalysisReview: JarAnalysisVersionReview}
     | undefined;
 }
 
 export interface CreateCleanRoomAssetReviewResponse {
   /** All existing notebook approvals or rejections */
   notebookReviews?: CleanRoomNotebookReview[] | undefined;
+  /** All existing jar analysis approvals or rejections */
+  jarAnalysisReviews?: CleanRoomJarAnalysisReview[] | undefined;
   reviewState?:
     | {
         $case: 'notebookReviewState';
         /** Top-level status derived from all reviews */
         notebookReviewState: CleanRoomNotebookReview_NotebookReviewState;
+      }
+    | {
+        $case: 'jarAnalysisReviewState';
+        /** top-level status derived from all reviews */
+        jarAnalysisReviewState: CleanRoomJarAnalysisReview_JarAnalysisReviewState;
       }
     | undefined;
 }
@@ -959,6 +1100,15 @@ export interface GetCleanRoomRequest {
   name?: string | undefined;
 }
 
+export interface JarAnalysisVersionReview {
+  /** Etag identifying the jar analysis version, with its value being a hash of an internally-generated UUID */
+  etag?: string | undefined;
+  /** Review outcome */
+  reviewState?: CleanRoomJarAnalysisReview_JarAnalysisReviewState | undefined;
+  /** Review comment */
+  comment?: string | undefined;
+}
+
 export interface ListCleanRoomAssetRevisionsRequest {
   /** Name of the clean room. */
   cleanRoomName?: string | undefined;
@@ -1025,6 +1175,29 @@ export interface ListCleanRoomNotebookTaskRunsRequest {
 export interface ListCleanRoomNotebookTaskRunsResponse {
   /** Name of the clean room. */
   runs?: CleanRoomNotebookTaskRun[] | undefined;
+  /**
+   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
+   * page_token should be set to this value for the next request (for the next page of results).
+   */
+  nextPageToken?: string | undefined;
+}
+
+export interface ListCleanRoomTaskRunsRequest {
+  /** Name of the clean room. */
+  cleanRoomName?: string | undefined;
+  /** Executable name. */
+  name?: string | undefined;
+  /** Filter by the type of Clean Room task. */
+  taskType?: CleanRoomTaskType | undefined;
+  /** The maximum number of task runs to return. Maximum value of 100. */
+  pageSize?: number | undefined;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string | undefined;
+}
+
+export interface ListCleanRoomTaskRunsResponse {
+  /** Task runs in the clean room. */
+  runs?: CleanRoomTaskRun[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
    * page_token should be set to this value for the next request (for the next page of results).
@@ -1200,6 +1373,9 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
     foreign_table: z
       .lazy(() => unmarshalCleanRoomAsset_ForeignTableSchema)
       .optional(),
+    jar_analysis: z
+      .lazy(() => unmarshalCleanRoomAsset_JarAnalysisSchema)
+      .optional(),
   })
   .transform(d => ({
     cleanRoomName: d.clean_room_name,
@@ -1239,7 +1415,9 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
             ? {$case: 'view' as const, view: d.view}
             : d.foreign_table !== undefined
               ? {$case: 'foreignTable' as const, foreignTable: d.foreign_table}
-              : undefined,
+              : d.jar_analysis !== undefined
+                ? {$case: 'jarAnalysis' as const, jarAnalysis: d.jar_analysis}
+                : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1260,6 +1438,32 @@ export const unmarshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType<C
     })
     .transform(d => ({
       localName: d.local_name,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalCleanRoomAsset_JarAnalysisSchema: z.ZodType<CleanRoomAsset_JarAnalysis> =
+  z
+    .object({
+      etag: z.string().optional(),
+      description: z.string().optional(),
+      runner_collaborator_aliases: z.array(z.string()).optional(),
+      reviews: z
+        .array(z.lazy(() => unmarshalCleanRoomJarAnalysisReviewSchema))
+        .optional(),
+      review_state: z.string().optional(),
+      main_class_name: z.string().optional(),
+      central_jar_file_paths: z.array(z.string()).optional(),
+      environment_version: z.string().optional(),
+    })
+    .transform(d => ({
+      etag: d.etag,
+      description: d.description,
+      runnerCollaboratorAliases: d.runner_collaborator_aliases,
+      reviews: d.reviews,
+      reviewState: d.review_state,
+      mainClassName: d.main_class_name,
+      centralJarFilePaths: d.central_jar_file_paths,
+      environmentVersion: d.environment_version,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1399,6 +1603,26 @@ export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborat
       displayName: d.display_name,
     }));
 
+export const unmarshalCleanRoomJarAnalysisReviewSchema: z.ZodType<CleanRoomJarAnalysisReview> =
+  z
+    .object({
+      reviewer_collaborator_alias: z.string().optional(),
+      created_at_millis: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      review_state: z.string().optional(),
+      comment: z.string().optional(),
+      review_sub_reason: z.string().optional(),
+    })
+    .transform(d => ({
+      reviewerCollaboratorAlias: d.reviewer_collaborator_alias,
+      createdAtMillis: d.created_at_millis,
+      reviewState: d.review_state,
+      comment: d.comment,
+      reviewSubReason: d.review_sub_reason,
+    }));
+
 export const unmarshalCleanRoomNotebookReviewSchema: z.ZodType<CleanRoomNotebookReview> =
   z
     .object({
@@ -1509,6 +1733,76 @@ export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDeta
       packageProviderCollaboratorAlias: d.package_provider_collaborator_alias,
     }));
 
+export const unmarshalCleanRoomTaskRunSchema: z.ZodType<CleanRoomTaskRun> = z
+  .object({
+    name: z.string().optional(),
+    task_type: z.string().optional(),
+    start_time: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    run_duration: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    task_run_state: z
+      .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
+      .optional(),
+    collaborator_job_run_info: z
+      .lazy(() => unmarshalCollaboratorJobRunInfoSchema)
+      .optional(),
+    output_info: z
+      .lazy(() => unmarshalCleanRoomTaskRun_OutputInfoSchema)
+      .optional(),
+    analysis_details: z
+      .lazy(() => unmarshalCleanRoomTaskRun_CleanRoomTaskAnalysisDetailsSchema)
+      .optional(),
+    shared_output_info: z
+      .lazy(() => unmarshalCleanRoomTaskRun_OutputInfoSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    taskType: d.task_type,
+    startTime: d.start_time,
+    runDuration: d.run_duration,
+    taskRunState: d.task_run_state,
+    collaboratorJobRunInfo: d.collaborator_job_run_info,
+    outputInfo: d.output_info,
+    analysisDetails: d.analysis_details,
+    sharedOutputInfo: d.shared_output_info,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalCleanRoomTaskRun_CleanRoomTaskAnalysisDetailsSchema: z.ZodType<CleanRoomTaskRun_CleanRoomTaskAnalysisDetails> =
+  z
+    .object({
+      etag: z.string().optional(),
+      updated_at: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      etag: d.etag,
+      updatedAt: d.updated_at,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalCleanRoomTaskRun_OutputInfoSchema: z.ZodType<CleanRoomTaskRun_OutputInfo> =
+  z
+    .object({
+      output_schema_name: z.string().optional(),
+      output_schema_expiration_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      outputSchemaName: d.output_schema_name,
+      outputSchemaExpirationTime: d.output_schema_expiration_time,
+    }));
+
 export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
   z
     .object({
@@ -1610,17 +1904,27 @@ export const unmarshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType<Create
       notebook_reviews: z
         .array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema))
         .optional(),
+      jar_analysis_reviews: z
+        .array(z.lazy(() => unmarshalCleanRoomJarAnalysisReviewSchema))
+        .optional(),
       notebook_review_state: z.string().optional(),
+      jar_analysis_review_state: z.string().optional(),
     })
     .transform(d => ({
       notebookReviews: d.notebook_reviews,
+      jarAnalysisReviews: d.jar_analysis_reviews,
       reviewState:
         d.notebook_review_state !== undefined
           ? {
               $case: 'notebookReviewState' as const,
               notebookReviewState: d.notebook_review_state,
             }
-          : undefined,
+          : d.jar_analysis_review_state !== undefined
+            ? {
+                $case: 'jarAnalysisReviewState' as const,
+                jarAnalysisReviewState: d.jar_analysis_review_state,
+              }
+            : undefined,
     }));
 
 export const unmarshalCreateCleanRoomOutputCatalogResponseSchema: z.ZodType<CreateCleanRoomOutputCatalogResponse> =
@@ -1783,6 +2087,17 @@ export const unmarshalListCleanRoomNotebookTaskRunsResponseSchema: z.ZodType<Lis
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalListCleanRoomTaskRunsResponseSchema: z.ZodType<ListCleanRoomTaskRunsResponse> =
+  z
+    .object({
+      runs: z.array(z.lazy(() => unmarshalCleanRoomTaskRunSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      runs: d.runs,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListCleanRoomsResponseSchema: z.ZodType<ListCleanRoomsResponse> =
   z
     .object({
@@ -1925,6 +2240,10 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
           $case: z.literal('foreignTable'),
           foreignTable: z.lazy(() => marshalCleanRoomAsset_ForeignTableSchema),
         }),
+        z.object({
+          $case: z.literal('jarAnalysis'),
+          jarAnalysis: z.lazy(() => marshalCleanRoomAsset_JarAnalysisSchema),
+        }),
       ])
       .optional(),
   })
@@ -1953,6 +2272,9 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
     ...(d.details?.$case === 'foreignTable' && {
       foreign_table: d.details.foreignTable,
     }),
+    ...(d.details?.$case === 'jarAnalysis' && {
+      jar_analysis: d.details.jarAnalysis,
+    }),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1971,6 +2293,31 @@ export const marshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType = z
   })
   .transform(d => ({
     local_name: d.localName,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_JarAnalysisSchema: z.ZodType = z
+  .object({
+    etag: z.string().optional(),
+    description: z.string().optional(),
+    runnerCollaboratorAliases: z.array(z.string()).optional(),
+    reviews: z
+      .array(z.lazy(() => marshalCleanRoomJarAnalysisReviewSchema))
+      .optional(),
+    reviewState: z.string().optional(),
+    mainClassName: z.string().optional(),
+    centralJarFilePaths: z.array(z.string()).optional(),
+    environmentVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    etag: d.etag,
+    description: d.description,
+    runner_collaborator_aliases: d.runnerCollaboratorAliases,
+    reviews: d.reviews,
+    review_state: d.reviewState,
+    main_class_name: d.mainClassName,
+    central_jar_file_paths: d.centralJarFilePaths,
+    environment_version: d.environmentVersion,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2103,6 +2450,22 @@ export const marshalCleanRoomCollaboratorSchema: z.ZodType = z
     display_name: d.displayName,
   }));
 
+export const marshalCleanRoomJarAnalysisReviewSchema: z.ZodType = z
+  .object({
+    reviewerCollaboratorAlias: z.string().optional(),
+    createdAtMillis: z.bigint().optional(),
+    reviewState: z.string().optional(),
+    comment: z.string().optional(),
+    reviewSubReason: z.string().optional(),
+  })
+  .transform(d => ({
+    reviewer_collaborator_alias: d.reviewerCollaboratorAlias,
+    created_at_millis: d.createdAtMillis,
+    review_state: d.reviewState,
+    comment: d.comment,
+    review_sub_reason: d.reviewSubReason,
+  }));
+
 export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
   .object({
     reviewerCollaboratorAlias: z.string().optional(),
@@ -2224,6 +2587,12 @@ export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
           $case: z.literal('notebookReview'),
           notebookReview: z.lazy(() => marshalNotebookVersionReviewSchema),
         }),
+        z.object({
+          $case: z.literal('jarAnalysisReview'),
+          jarAnalysisReview: z.lazy(
+            () => marshalJarAnalysisVersionReviewSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -2233,6 +2602,9 @@ export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
     asset_type: d.assetType,
     ...(d.review?.$case === 'notebookReview' && {
       notebook_review: d.review.notebookReview,
+    }),
+    ...(d.review?.$case === 'jarAnalysisReview' && {
+      jar_analysis_review: d.review.jarAnalysisReview,
     }),
   }));
 
@@ -2340,6 +2712,18 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationS
       azure_dns_zone: d.azureDnsZone,
       azure_container: d.azureContainer,
     }));
+
+export const marshalJarAnalysisVersionReviewSchema: z.ZodType = z
+  .object({
+    etag: z.string().optional(),
+    reviewState: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    etag: d.etag,
+    review_state: d.reviewState,
+    comment: d.comment,
+  }));
 
 export const marshalNotebookVersionReviewSchema: z.ZodType = z
   .object({

@@ -62,6 +62,7 @@ export type {
   LastDistinctFunction,
   LastFunction,
   LastNFunction,
+  LifetimeWindow,
   LineageContext,
   ListFeaturesRequest,
   ListFeaturesResponse,
