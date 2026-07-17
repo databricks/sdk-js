@@ -1152,6 +1152,17 @@ export interface StreamSource {
   fullName?: string | undefined;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
+  /**
+   * The pipeline runs these SQL statements immediately after conversion into
+   * the schema specified on the Stream object.
+   */
+  transformationSql?: string | undefined;
+  /**
+   * Schema of the resulting dataframe after transformations, in Spark StructType
+   * JSON format (from df.schema.json()).
+   * Any subsequent functions operate against this dataframe.
+   */
+  dataframeSchema?: string | undefined;
 }
 
 /** Source-specific configuration. Determines the streaming platform source. */
@@ -2285,10 +2296,14 @@ export const unmarshalStreamSourceSchema: z.ZodType<StreamSource> = z
   .object({
     full_name: z.string().optional(),
     filter_condition: z.string().optional(),
+    transformation_sql: z.string().optional(),
+    dataframe_schema: z.string().optional(),
   })
   .transform(d => ({
     fullName: d.full_name,
     filterCondition: d.filter_condition,
+    transformationSql: d.transformation_sql,
+    dataframeSchema: d.dataframe_schema,
   }));
 
 export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
@@ -3386,10 +3401,14 @@ export const marshalStreamSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
     filterCondition: z.string().optional(),
+    transformationSql: z.string().optional(),
+    dataframeSchema: z.string().optional(),
   })
   .transform(d => ({
     full_name: d.fullName,
     filter_condition: d.filterCondition,
+    transformation_sql: d.transformationSql,
+    dataframe_schema: d.dataframeSchema,
   }));
 
 export const marshalStreamSourceConfigSchema: z.ZodType = z
@@ -3999,8 +4018,10 @@ const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
 };
 
 const streamSourceFieldMaskSchema: FieldMaskSchema = {
+  dataframeSchema: {wire: 'dataframe_schema'},
   filterCondition: {wire: 'filter_condition'},
   fullName: {wire: 'full_name'},
+  transformationSql: {wire: 'transformation_sql'},
 };
 
 const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {
