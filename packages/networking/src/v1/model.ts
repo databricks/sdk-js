@@ -850,7 +850,7 @@ export interface Endpoint {
   state?: EndpointState | undefined;
   /**
    * The cloud info of this endpoint.
-   * (-- For now it only supports Azure PL, but in future we can support other clouds and more use cases (e.g. public endpoint) --)
+   * (-- Azure is GA; AWS and GCP added for PLAT-165656 (Private Preview). --)
    */
   endpointInfo?:
     | {
