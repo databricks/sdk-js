@@ -979,9 +979,16 @@ export interface UcTraceLocation {
    * The prefix for the trace tables, which are named
    * `{catalog}.{schema}.{table_prefix}_otel_*`. May only contain letters,
    * digits, and underscores, and may be at most 238 characters. When unset, a
-   * server-generated prefix derived from the experiment ID is used.
+   * server-generated prefix derived from the experiment ID is used and this
+   * field stays empty on read; the resolved value is always available in
+   * `effective_table_prefix`.
    */
   tablePrefix?: string | undefined;
+  /**
+   * The trace-table prefix actually in effect: `table_prefix` if it was set on
+   * creation, otherwise the server-generated default.
+   */
+  effectiveTablePrefix?: string | undefined;
 }
 
 export interface UpdateExperimentRequest {
@@ -1545,11 +1552,13 @@ export const unmarshalUcTraceLocationSchema: z.ZodType<UcTraceLocation> = z
     catalog: z.string().optional(),
     schema: z.string().optional(),
     table_prefix: z.string().optional(),
+    effective_table_prefix: z.string().optional(),
   })
   .transform(d => ({
     catalog: d.catalog,
     schema: d.schema,
     tablePrefix: d.table_prefix,
+    effectiveTablePrefix: d.effective_table_prefix,
   }));
 
 export const unmarshalUpdateExperimentResponseSchema: z.ZodType<UpdateExperimentResponse> =
@@ -2051,11 +2060,13 @@ export const marshalUcTraceLocationSchema: z.ZodType = z
     catalog: z.string().optional(),
     schema: z.string().optional(),
     tablePrefix: z.string().optional(),
+    effectiveTablePrefix: z.string().optional(),
   })
   .transform(d => ({
     catalog: d.catalog,
     schema: d.schema,
     table_prefix: d.tablePrefix,
+    effective_table_prefix: d.effectiveTablePrefix,
   }));
 
 export const marshalUpdateExperimentRequestSchema: z.ZodType = z
