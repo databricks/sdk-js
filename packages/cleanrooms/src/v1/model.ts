@@ -132,6 +132,11 @@ export const ComplianceStandard = {
   GERMANY_C5: 'GERMANY_C5',
   /** Trusted Information Security Assessment Exchange, a compliance standard for automotive industry for Germany */
   GERMANY_TISAX: 'GERMANY_TISAX',
+  /**
+   * KSA ECC/CCC/DCC standards.
+   * Saudi Arabia cybersecurity compliance frameworks mandated by the National Cybersecurity Authority (NCA).
+   */
+  KSA_ECC_CCC_DCC: 'KSA_ECC_CCC_DCC',
 } as const;
 export type ComplianceStandard =
   | (typeof ComplianceStandard)[keyof typeof ComplianceStandard]

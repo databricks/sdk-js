@@ -797,27 +797,6 @@ export interface ListStreamsResponse {
   nextPageToken?: string | undefined;
 }
 
-/**
- * A long (multi-day) rolling window served via the hybrid batch + streaming path. The batch
- * pipeline maintains daily partial aggregates for the bulk of the window while the streaming
- * pipeline maintains the most recent day(s), and serving merges them on read. Distinct from
- * RollingWindow so the control plane can explicitly identify long rolling window features rather
- * than inferring hybrid behavior from window_duration.
- */
-export interface LongRollingWindow {
-  /**
-   * The duration of the rolling window. Must be positive and span more than two days, so that both
-   * the batch (N-1 day) and stale-path (N-2 day) partial aggregates are well defined. The duration
-   * need not be a whole number of days (e.g. 3 days 15 minutes is allowed).
-   */
-  windowDuration?: Temporal.Duration | undefined;
-  /**
-   * The delay applied to the end of the rolling window (must be non-negative).
-   * For example, delay=1d shifts the window end 1 day before the evaluation time.
-   */
-  delay?: Temporal.Duration | undefined;
-}
-
 /** A materialized feature represents a feature that is continuously computed and stored. */
 export interface MaterializedFeature {
   /** Server-assigned unique identifier for the materialized feature. */
@@ -1233,11 +1212,6 @@ export interface TimeWindow {
     | {$case: 'tumbling'; tumbling: TumblingWindow}
     | {$case: 'sliding'; sliding: SlidingWindow}
     | {$case: 'rolling'; rolling: RollingWindow}
-    | {
-        $case: 'longRolling';
-        /** A long (multi-day) rolling window served via the hybrid batch + streaming path. */
-        longRolling: LongRollingWindow;
-      }
     | {
         $case: 'lifetime';
         /** A window that spans the entire lifetime of the data source. */
@@ -1979,22 +1953,6 @@ export const unmarshalListStreamsResponseSchema: z.ZodType<ListStreamsResponse> 
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalLongRollingWindowSchema: z.ZodType<LongRollingWindow> = z
-  .object({
-    window_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    delay: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-  })
-  .transform(d => ({
-    windowDuration: d.window_duration,
-    delay: d.delay,
-  }));
-
 export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> =
   z
     .object({
@@ -2371,7 +2329,6 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     tumbling: z.lazy(() => unmarshalTumblingWindowSchema).optional(),
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
     rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
-    long_rolling: z.lazy(() => unmarshalLongRollingWindowSchema).optional(),
     lifetime: z.lazy(() => unmarshalLifetimeWindowSchema).optional(),
   })
   .transform(d => ({
@@ -2384,11 +2341,9 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
             ? {$case: 'sliding' as const, sliding: d.sliding}
             : d.rolling !== undefined
               ? {$case: 'rolling' as const, rolling: d.rolling}
-              : d.long_rolling !== undefined
-                ? {$case: 'longRolling' as const, longRolling: d.long_rolling}
-                : d.lifetime !== undefined
-                  ? {$case: 'lifetime' as const, lifetime: d.lifetime}
-                  : undefined,
+              : d.lifetime !== undefined
+                ? {$case: 'lifetime' as const, lifetime: d.lifetime}
+                : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -3070,22 +3025,6 @@ export const marshalLineageContextSchema: z.ZodType = z
     job_context: d.jobContext,
   }));
 
-export const marshalLongRollingWindowSchema: z.ZodType = z
-  .object({
-    windowDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    delay: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-  })
-  .transform(d => ({
-    window_duration: d.windowDuration,
-    delay: d.delay,
-  }));
-
 export const marshalMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
@@ -3494,10 +3433,6 @@ export const marshalTimeWindowSchema: z.ZodType = z
           rolling: z.lazy(() => marshalRollingWindowSchema),
         }),
         z.object({
-          $case: z.literal('longRolling'),
-          longRolling: z.lazy(() => marshalLongRollingWindowSchema),
-        }),
-        z.object({
           $case: z.literal('lifetime'),
           lifetime: z.lazy(() => marshalLifetimeWindowSchema),
         }),
@@ -3513,9 +3448,6 @@ export const marshalTimeWindowSchema: z.ZodType = z
     }),
     ...(d.windowType?.$case === 'sliding' && {sliding: d.windowType.sliding}),
     ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
-    ...(d.windowType?.$case === 'longRolling' && {
-      long_rolling: d.windowType.longRolling,
-    }),
     ...(d.windowType?.$case === 'lifetime' && {
       lifetime: d.windowType.lifetime,
     }),
@@ -3848,11 +3780,6 @@ const lineageContextFieldMaskSchema: FieldMaskSchema = {
   notebookId: {wire: 'notebook_id'},
 };
 
-const longRollingWindowFieldMaskSchema: FieldMaskSchema = {
-  delay: {wire: 'delay'},
-  windowDuration: {wire: 'window_duration'},
-};
-
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   cronSchedule: {wire: 'cron_schedule'},
   cronScheduleTrigger: {
@@ -4054,10 +3981,6 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
     children: () => continuousWindowFieldMaskSchema,
   },
   lifetime: {wire: 'lifetime', children: () => lifetimeWindowFieldMaskSchema},
-  longRolling: {
-    wire: 'long_rolling',
-    children: () => longRollingWindowFieldMaskSchema,
-  },
   rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
   sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},
   tumbling: {wire: 'tumbling', children: () => tumblingWindowFieldMaskSchema},

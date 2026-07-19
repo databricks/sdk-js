@@ -3556,9 +3556,9 @@ export interface ResolvedValues {
 }
 
 /**
- * Resolved env_vars for an AiRuntimeTask after dynamic-value substitution.
- * Mirrors the task's `resolved_parameters_field` (env_vars) so Jobs can
- * expand `{{tasks.<key>.values.<name>}}` references before submission.
+ * Resolved values for an AiRuntimeTask after dynamic-value substitution, so
+ * Jobs can expand `{{tasks.<key>.values.<name>}}` references before
+ * submission.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface ResolvedValues_AiRuntimeTaskResolvedValues {}
@@ -4806,6 +4806,14 @@ export interface SubmitRunRequest {
    * If not specified, a default usage policy may be applied when creating or modifying the job.
    */
   usagePolicyId?: string | undefined;
+  /**
+   * The performance mode on a serverless one-time run. This field determines the level of compute performance or cost-efficiency for the run.
+   * The performance target does not apply to tasks that run on Serverless GPU compute.
+   *
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   */
+  performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
 }
 
 /** Run was created and started successfully. */
@@ -10240,6 +10248,7 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
     environments: z.array(z.lazy(() => marshalJobEnvironmentSchema)).optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
+    performanceTarget: z.string().optional(),
   })
   .transform(d => ({
     access_control_list: d.accessControlList,
@@ -10257,6 +10266,7 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
     environments: d.environments,
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
+    performance_target: d.performanceTarget,
   }));
 
 export const marshalSubscriptionSchema: z.ZodType = z
