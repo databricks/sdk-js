@@ -213,7 +213,7 @@ export type SecurableType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SseEncryptionAlgorithm = {
-  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
+  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: '',
   AWS_SSE_S3: 'AWS_SSE_S3',
   AWS_SSE_KMS: 'AWS_SSE_KMS',
 } as const;
@@ -246,7 +246,7 @@ export type TableType =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OptionSpec_OauthStage = {
-  OAUTH_STAGE_UNSPECIFIED: 'OAUTH_STAGE_UNSPECIFIED',
+  OAUTH_STAGE_UNSPECIFIED: '',
   BEFORE_AUTHORIZATION_CODE: 'BEFORE_AUTHORIZATION_CODE',
   BEFORE_ACCESS_TOKEN: 'BEFORE_ACCESS_TOKEN',
 } as const;
@@ -263,7 +263,7 @@ export type OptionSpec_OauthStage =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OptionSpec_OptionType = {
-  OPTION_TYPE_UNSPECIFIED: 'OPTION_TYPE_UNSPECIFIED',
+  OPTION_TYPE_UNSPECIFIED: '',
   OPTION_BOOLEAN: 'OPTION_BOOLEAN',
   OPTION_NUMBER: 'OPTION_NUMBER',
   OPTION_BIGINT: 'OPTION_BIGINT',

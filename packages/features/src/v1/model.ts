@@ -11,7 +11,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ScalarDataType = {
-  SCALAR_DATA_TYPE_UNSPECIFIED: 'SCALAR_DATA_TYPE_UNSPECIFIED',
+  SCALAR_DATA_TYPE_UNSPECIFIED: '',
   INTEGER: 'INTEGER',
   FLOAT: 'FLOAT',
   BOOLEAN: 'BOOLEAN',
@@ -31,7 +31,7 @@ export type ScalarDataType =
 /** Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead. Kept for backwards compatibility. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Function_FunctionType = {
-  FUNCTION_TYPE_UNSPECIFIED: 'FUNCTION_TYPE_UNSPECIFIED',
+  FUNCTION_TYPE_UNSPECIFIED: '',
   AVG: 'AVG',
   COUNT: 'COUNT',
   SUM: 'SUM',
@@ -54,7 +54,7 @@ export type Function_FunctionType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const MaterializedFeature_PipelineScheduleState = {
   /** Default value, not used. */
-  PIPELINE_SCHEDULE_STATE_UNSPECIFIED: 'PIPELINE_SCHEDULE_STATE_UNSPECIFIED',
+  PIPELINE_SCHEDULE_STATE_UNSPECIFIED: '',
   /** Pipeline was configured to run once then stop. */
   SNAPSHOT: 'SNAPSHOT',
   /** Pipeline is actively running and computing features. */
@@ -70,7 +70,7 @@ export type MaterializedFeature_PipelineScheduleState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StreamingMode_StreamingModeType = {
   /** Default value, not used. */
-  STREAMING_MODE_TYPE_UNSPECIFIED: 'STREAMING_MODE_TYPE_UNSPECIFIED',
+  STREAMING_MODE_TYPE_UNSPECIFIED: '',
   /**
    * Real-time mode. Ultra-low-latency trigger intended for operational workloads
    * that need responses in milliseconds or sub-second latency.

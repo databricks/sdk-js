@@ -8,7 +8,7 @@ import {z} from 'zod';
 /** States of Custom LLM optimization lifecycle. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const State = {
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   CREATED: 'CREATED',
   RUNNING: 'RUNNING',
   COMPLETED: 'COMPLETED',

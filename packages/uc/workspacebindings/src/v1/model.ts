@@ -5,7 +5,7 @@ import {z} from 'zod';
 /** Using `BINDING_TYPE_` prefix here to avoid conflict with `TableOperation` enum in `credentials_common.proto`. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const BindingType = {
-  BINDING_TYPE_UNSPECIFIED: 'BINDING_TYPE_UNSPECIFIED',
+  BINDING_TYPE_UNSPECIFIED: '',
   BINDING_TYPE_READ_WRITE: 'BINDING_TYPE_READ_WRITE',
   BINDING_TYPE_READ_ONLY: 'BINDING_TYPE_READ_ONLY',
 } as const;

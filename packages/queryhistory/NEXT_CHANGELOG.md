@@ -11,3 +11,5 @@
 ### Internal Changes
 
 ### API Changes
+
+- **Breaking (beta correction):** Unspecified enum constants now equal `""` because they represent absence and must not expose a sendable sentinel wire value.

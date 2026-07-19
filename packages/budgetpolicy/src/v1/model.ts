@@ -5,7 +5,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SortSpec_Field = {
   /** If unspecified, the server will decide the default field to sort on. */
-  FIELD_UNSPECIFIED: 'FIELD_UNSPECIFIED',
+  FIELD_UNSPECIFIED: '',
   /** Sort by policy name. */
   POLICY_NAME: 'POLICY_NAME',
 } as const;

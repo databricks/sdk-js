@@ -6,7 +6,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DestinationType = {
-  DESTINATION_TYPE_UNSPECIFIED: 'DESTINATION_TYPE_UNSPECIFIED',
+  DESTINATION_TYPE_UNSPECIFIED: '',
   EMAIL: 'EMAIL',
   SLACK: 'SLACK',
   GENERIC_WEBHOOK: 'GENERIC_WEBHOOK',
@@ -19,7 +19,7 @@ export type DestinationType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PrincipalType = {
-  PRINCIPAL_TYPE_UNSPECIFIED: 'PRINCIPAL_TYPE_UNSPECIFIED',
+  PRINCIPAL_TYPE_UNSPECIFIED: '',
   USER_PRINCIPAL: 'USER_PRINCIPAL',
   GROUP_PRINCIPAL: 'GROUP_PRINCIPAL',
   SERVICE_PRINCIPAL: 'SERVICE_PRINCIPAL',
@@ -56,7 +56,7 @@ export type SecurableType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SpecialDestination = {
-  SPECIAL_DESTINATION_UNSPECIFIED: 'SPECIAL_DESTINATION_UNSPECIFIED',
+  SPECIAL_DESTINATION_UNSPECIFIED: '',
   SPECIAL_DESTINATION_CATALOG_OWNER: 'SPECIAL_DESTINATION_CATALOG_OWNER',
   SPECIAL_DESTINATION_EXTERNAL_LOCATION_OWNER:
     'SPECIAL_DESTINATION_EXTERNAL_LOCATION_OWNER',

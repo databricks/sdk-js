@@ -12,7 +12,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressResourceType = {
-  EGRESS_RESOURCE_TYPE_UNSPECIFIED: 'EGRESS_RESOURCE_TYPE_UNSPECIFIED',
+  EGRESS_RESOURCE_TYPE_UNSPECIFIED: '',
   AZURE_BLOB_STORAGE: 'AZURE_BLOB_STORAGE',
 } as const;
 export type EgressResourceType =
@@ -105,8 +105,7 @@ export type AccountIpAccessListType_IpAccessListType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType =
   {
-    INTERNET_DESTINATION_TYPE_UNSPECIFIED:
-      'INTERNET_DESTINATION_TYPE_UNSPECIFIED',
+    INTERNET_DESTINATION_TYPE_UNSPECIFIED: '',
     /** This is defined as `FQDN` in settings-policy/api/proto/messages.proto. Translation is done in accounts-lake-net-manager/src/util/NetworkPolicySettingUtil.scala. */
     DNS_NAME: 'DNS_NAME',
   } as const;
@@ -120,8 +119,7 @@ export type EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_Internet
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter =
   {
-    DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED:
-      'DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED',
+    DRY_RUN_MODE_PRODUCT_FILTER_UNSPECIFIED: '',
     /** SQL Warehouse product */
     DBSQL: 'DBSQL',
     /** Machine Learning serving product */
@@ -136,7 +134,7 @@ export type EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunMode
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode =
   {
-    ENFORCEMENT_MODE_UNSPECIFIED: 'ENFORCEMENT_MODE_UNSPECIFIED',
+    ENFORCEMENT_MODE_UNSPECIFIED: '',
     /** Blocks traffic that violates network policy. This is the default mode. */
     ENFORCED: 'ENFORCED',
     /** Logs violations without blocking traffic. Useful for testing policies before enforcement. */
@@ -156,7 +154,7 @@ export type EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_Enforcemen
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode = {
-  RESTRICTION_MODE_UNSPECIFIED: 'RESTRICTION_MODE_UNSPECIFIED',
+  RESTRICTION_MODE_UNSPECIFIED: '',
   FULL_ACCESS: 'FULL_ACCESS',
   RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
 } as const;
@@ -168,8 +166,7 @@ export type EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType =
   {
-    STORAGE_DESTINATION_TYPE_UNSPECIFIED:
-      'STORAGE_DESTINATION_TYPE_UNSPECIFIED',
+    STORAGE_DESTINATION_TYPE_UNSPECIFIED: '',
     /**
      * AWS_S3 can be used both for direct AWS S3 access and for cross-cloud access from Azure and GCP
      * When used in an Azure/GCP context, this indicates cross-cloud access from Azure/GCP to the specified S3 bucket
@@ -213,7 +210,7 @@ export type IngressNetworkPolicy_ApiScopeQualifier =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IngressNetworkPolicy_Authentication_IdentityType = {
-  IDENTITY_TYPE_UNSPECIFIED: 'IDENTITY_TYPE_UNSPECIFIED',
+  IDENTITY_TYPE_UNSPECIFIED: '',
   IDENTITY_TYPE_ALL_USERS: 'IDENTITY_TYPE_ALL_USERS',
   IDENTITY_TYPE_ALL_SERVICE_PRINCIPALS: 'IDENTITY_TYPE_ALL_SERVICE_PRINCIPALS',
   IDENTITY_TYPE_SELECTED_IDENTITIES: 'IDENTITY_TYPE_SELECTED_IDENTITIES',
@@ -225,7 +222,7 @@ export type IngressNetworkPolicy_Authentication_IdentityType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IngressNetworkPolicy_AuthenticationIdentity_PrincipalType = {
-  PRINCIPAL_TYPE_UNSPECIFIED: 'PRINCIPAL_TYPE_UNSPECIFIED',
+  PRINCIPAL_TYPE_UNSPECIFIED: '',
   PRINCIPAL_TYPE_USER: 'PRINCIPAL_TYPE_USER',
   PRINCIPAL_TYPE_SERVICE_PRINCIPAL: 'PRINCIPAL_TYPE_SERVICE_PRINCIPAL',
 } as const;
@@ -281,8 +278,7 @@ export type IngressNetworkPolicy_PublicAccess_RestrictionMode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const NccPrivateEndpointRule_PrivateLinkConnectionState = {
-  PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED:
-    'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
+  PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED: '',
   /** The endpoint has been approved and is ready to use in your serverless compute resources. */
   ESTABLISHED: 'ESTABLISHED',
   /** Connection was rejected by the private link resource owner. */
@@ -309,8 +305,7 @@ export type NccPrivateEndpointRule_PrivateLinkConnectionState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const NetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState =
   {
-    PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED:
-      'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
+    PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED: '',
     /** The endpoint has been approved and is ready to use in your serverless compute resources. */
     ESTABLISHED: 'ESTABLISHED',
     /** Connection was rejected by the private link resource owner. */
@@ -338,8 +333,7 @@ export type NetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectio
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const NetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState =
   {
-    PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED:
-      'PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED',
+    PRIVATE_LINK_CONNECTION_STATE_UNSPECIFIED: '',
     /** The endpoint has been created and pending approval. */
     INIT: 'INIT',
     /** The endpoint has been approved and is ready to use in your serverless compute resources. */
