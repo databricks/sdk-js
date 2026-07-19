@@ -2425,8 +2425,8 @@ export interface SyncedTable_SyncedTableSpec_TypeOverride {
   /** PostgreSQL-specific target type to use for the column. */
   pgType?: SyncedTable_SyncedTableSpec_PgSpecificType | undefined;
   /**
-   * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
-   * or PG_SPECIFIC_TYPE_HALFVEC (specifies the vector dimension, e.g., 1024).
+   * Size parameter for the target type, for types that take one (e.g. vector
+   * dimension, varchar length). Required when the chosen pg_type needs a size.
    */
   size?: number | undefined;
 }

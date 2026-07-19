@@ -408,6 +408,18 @@ export interface AccountNetworkPolicy {
   ingressDryRun?: IngressNetworkPolicy | undefined;
 }
 
+export interface AwsVpcEndpointInfo {
+  /**
+   * The ID of the underlying VPC endpoint in AWS. Provided by the customer when
+   * registering an existing AWS VPC endpoint.
+   */
+  awsVpcEndpointId?: string | undefined;
+  /** The ID of the Databricks VPC endpoint service that this endpoint connects to. */
+  awsEndpointServiceId?: string | undefined;
+  /** The AWS account ID in which this VPC endpoint lives. */
+  awsAccountId?: string | undefined;
+}
+
 export interface AzurePrivateEndpointInfo {
   /** The name of the Private Endpoint in the Azure subscription. */
   privateEndpointName?: string | undefined;
@@ -858,6 +870,16 @@ export interface Endpoint {
         /** Info for an Azure private endpoint. */
         azurePrivateEndpointInfo: AzurePrivateEndpointInfo;
       }
+    | {
+        $case: 'awsVpcEndpointInfo';
+        /** Info for an AWS VPC endpoint. */
+        awsVpcEndpointInfo: AwsVpcEndpointInfo;
+      }
+    | {
+        $case: 'gcpPscEndpointInfo';
+        /** Info for a GCP Private Service Connect endpoint. */
+        gcpPscEndpointInfo: GcpPscEndpointInfo;
+      }
     | undefined;
   /** The timestamp when the endpoint was created. The timestamp is in RFC 3339 format in UTC timezone. */
   createTime?: Temporal.Instant | undefined;
@@ -901,6 +923,32 @@ export interface GcpNetworkInfo {
   podIpRangeName?: string | undefined;
   /** Name of the secondary range within the subnet that will be used by GKE as Service IP range. */
   serviceIpRangeName?: string | undefined;
+}
+
+export interface GcpPscEndpointInfo {
+  /**
+   * The ID of the underlying Private Service Connect connection in the GCP consumer project,
+   * assigned by GCP when the PSC connection is created.
+   */
+  pscConnectionId?: string | undefined;
+  /**
+   * The GCP consumer project ID in which this PSC endpoint is created. Provided by the customer
+   * when registering an existing PSC endpoint.
+   */
+  projectId?: string | undefined;
+  /**
+   * The name of this PSC connection in the GCP consumer project. Provided by the customer when
+   * registering an existing PSC endpoint.
+   */
+  pscEndpoint?: string | undefined;
+  /**
+   * The GCP region of the PSC connection endpoint. Provided by the customer when registering an
+   * existing PSC endpoint. GCP supports only same-region PSC, so this must match the workspace
+   * region.
+   */
+  endpointRegion?: string | undefined;
+  /** The ID of the <Databricks> service attachment this PSC endpoint connects to. */
+  serviceAttachmentId?: string | undefined;
 }
 
 export interface GcpVpcEndpointInfo {
@@ -2016,6 +2064,19 @@ export const unmarshalAccountNetworkPolicySchema: z.ZodType<AccountNetworkPolicy
       ingressDryRun: d.ingress_dry_run,
     }));
 
+export const unmarshalAwsVpcEndpointInfoSchema: z.ZodType<AwsVpcEndpointInfo> =
+  z
+    .object({
+      aws_vpc_endpoint_id: z.string().optional(),
+      aws_endpoint_service_id: z.string().optional(),
+      aws_account_id: z.string().optional(),
+    })
+    .transform(d => ({
+      awsVpcEndpointId: d.aws_vpc_endpoint_id,
+      awsEndpointServiceId: d.aws_endpoint_service_id,
+      awsAccountId: d.aws_account_id,
+    }));
+
 export const unmarshalAzurePrivateEndpointInfoSchema: z.ZodType<AzurePrivateEndpointInfo> =
   z
     .object({
@@ -2232,6 +2293,12 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     azure_private_endpoint_info: z
       .lazy(() => unmarshalAzurePrivateEndpointInfoSchema)
       .optional(),
+    aws_vpc_endpoint_info: z
+      .lazy(() => unmarshalAwsVpcEndpointInfoSchema)
+      .optional(),
+    gcp_psc_endpoint_info: z
+      .lazy(() => unmarshalGcpPscEndpointInfoSchema)
+      .optional(),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -2251,7 +2318,17 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
             $case: 'azurePrivateEndpointInfo' as const,
             azurePrivateEndpointInfo: d.azure_private_endpoint_info,
           }
-        : undefined,
+        : d.aws_vpc_endpoint_info !== undefined
+          ? {
+              $case: 'awsVpcEndpointInfo' as const,
+              awsVpcEndpointInfo: d.aws_vpc_endpoint_info,
+            }
+          : d.gcp_psc_endpoint_info !== undefined
+            ? {
+                $case: 'gcpPscEndpointInfo' as const,
+                gcpPscEndpointInfo: d.gcp_psc_endpoint_info,
+              }
+            : undefined,
     createTime: d.create_time,
   }));
 
@@ -2288,6 +2365,23 @@ export const unmarshalGcpNetworkInfoSchema: z.ZodType<GcpNetworkInfo> = z
     podIpRangeName: d.pod_ip_range_name,
     serviceIpRangeName: d.service_ip_range_name,
   }));
+
+export const unmarshalGcpPscEndpointInfoSchema: z.ZodType<GcpPscEndpointInfo> =
+  z
+    .object({
+      psc_connection_id: z.string().optional(),
+      project_id: z.string().optional(),
+      psc_endpoint: z.string().optional(),
+      endpoint_region: z.string().optional(),
+      service_attachment_id: z.string().optional(),
+    })
+    .transform(d => ({
+      pscConnectionId: d.psc_connection_id,
+      projectId: d.project_id,
+      pscEndpoint: d.psc_endpoint,
+      endpointRegion: d.endpoint_region,
+      serviceAttachmentId: d.service_attachment_id,
+    }));
 
 export const unmarshalGcpVpcEndpointInfoSchema: z.ZodType<GcpVpcEndpointInfo> =
   z
@@ -3279,6 +3373,18 @@ export const marshalAccountNetworkPolicySchema: z.ZodType = z
     ingress_dry_run: d.ingressDryRun,
   }));
 
+export const marshalAwsVpcEndpointInfoSchema: z.ZodType = z
+  .object({
+    awsVpcEndpointId: z.string().optional(),
+    awsEndpointServiceId: z.string().optional(),
+    awsAccountId: z.string().optional(),
+  })
+  .transform(d => ({
+    aws_vpc_endpoint_id: d.awsVpcEndpointId,
+    aws_endpoint_service_id: d.awsEndpointServiceId,
+    aws_account_id: d.awsAccountId,
+  }));
+
 export const marshalAzurePrivateEndpointInfoSchema: z.ZodType = z
   .object({
     privateEndpointName: z.string().optional(),
@@ -3632,6 +3738,14 @@ export const marshalEndpointSchema: z.ZodType = z
             () => marshalAzurePrivateEndpointInfoSchema
           ),
         }),
+        z.object({
+          $case: z.literal('awsVpcEndpointInfo'),
+          awsVpcEndpointInfo: z.lazy(() => marshalAwsVpcEndpointInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('gcpPscEndpointInfo'),
+          gcpPscEndpointInfo: z.lazy(() => marshalGcpPscEndpointInfoSchema),
+        }),
       ])
       .optional(),
     createTime: z
@@ -3649,6 +3763,12 @@ export const marshalEndpointSchema: z.ZodType = z
     state: d.state,
     ...(d.endpointInfo?.$case === 'azurePrivateEndpointInfo' && {
       azure_private_endpoint_info: d.endpointInfo.azurePrivateEndpointInfo,
+    }),
+    ...(d.endpointInfo?.$case === 'awsVpcEndpointInfo' && {
+      aws_vpc_endpoint_info: d.endpointInfo.awsVpcEndpointInfo,
+    }),
+    ...(d.endpointInfo?.$case === 'gcpPscEndpointInfo' && {
+      gcp_psc_endpoint_info: d.endpointInfo.gcpPscEndpointInfo,
     }),
     create_time: d.createTime,
   }));
@@ -3688,6 +3808,22 @@ export const marshalGcpNetworkInfoSchema: z.ZodType = z
     subnet_region: d.subnetRegion,
     pod_ip_range_name: d.podIpRangeName,
     service_ip_range_name: d.serviceIpRangeName,
+  }));
+
+export const marshalGcpPscEndpointInfoSchema: z.ZodType = z
+  .object({
+    pscConnectionId: z.string().optional(),
+    projectId: z.string().optional(),
+    pscEndpoint: z.string().optional(),
+    endpointRegion: z.string().optional(),
+    serviceAttachmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    psc_connection_id: d.pscConnectionId,
+    project_id: d.projectId,
+    psc_endpoint: d.pscEndpoint,
+    endpoint_region: d.endpointRegion,
+    service_attachment_id: d.serviceAttachmentId,
   }));
 
 export const marshalGcpVpcEndpointInfoSchema: z.ZodType = z

@@ -72,7 +72,6 @@ export type {
   ListMaterializedFeaturesResponse,
   ListStreamsRequest,
   ListStreamsResponse,
-  LongRollingWindow,
   MaterializedFeature,
   MaxFunction,
   MinFunction,

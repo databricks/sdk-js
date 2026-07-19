@@ -83,6 +83,11 @@ export interface GetRepoResponse {
   headCommitId?: string | undefined;
   /** Sparse checkout settings for the Git folder (repo). */
   sparseCheckout?: SparseCheckout | undefined;
+  /**
+   * Whether the Git CLI is enabled for this Git folder (repo). When true, Git commands
+   * can be run directly against this Git folder using the Git CLI.
+   */
+  gitCliEnabled?: boolean | undefined;
 }
 
 export interface ListReposRequest {
@@ -229,6 +234,7 @@ export const unmarshalGetRepoResponseSchema: z.ZodType<GetRepoResponse> = z
     branch: z.string().optional(),
     head_commit_id: z.string().optional(),
     sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+    git_cli_enabled: z.boolean().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -238,6 +244,7 @@ export const unmarshalGetRepoResponseSchema: z.ZodType<GetRepoResponse> = z
     branch: d.branch,
     headCommitId: d.head_commit_id,
     sparseCheckout: d.sparse_checkout,
+    gitCliEnabled: d.git_cli_enabled,
   }));
 
 export const unmarshalListReposResponseSchema: z.ZodType<ListReposResponse> = z
