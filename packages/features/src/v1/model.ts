@@ -999,6 +999,27 @@ export interface RollingWindow {
   delay?: Temporal.Duration | undefined;
 }
 
+/**
+ * A sawtooth window served via the hybrid batch + streaming path. The batch pipeline maintains
+ * daily partial aggregates for the bulk of the window while the streaming pipeline maintains the
+ * most recent day(s), and serving merges them on read. Same field shape as RollingWindow, but a
+ * distinct type so the control plane can explicitly identify hybrid (sawtooth) features rather
+ * than inferring hybrid behavior from window_duration.
+ */
+export interface SawtoothWindow {
+  /**
+   * The duration of the window. Must be positive and span more than two days, so that both the
+   * batch (N-1 day) and stale-path (N-2 day) partial aggregates are well defined. The duration
+   * need not be a whole number of days (e.g. 3 days 15 minutes is allowed).
+   */
+  windowDuration?: Temporal.Duration | undefined;
+  /**
+   * The delay applied to the end of the window (must be non-negative).
+   * For example, delay=1d shifts the window end 1 day before the evaluation time.
+   */
+  delay?: Temporal.Duration | undefined;
+}
+
 export interface SchemaConfig {
   schema?:
     | {
@@ -1216,6 +1237,11 @@ export interface TimeWindow {
         $case: 'lifetime';
         /** A window that spans the entire lifetime of the data source. */
         lifetime: LifetimeWindow;
+      }
+    | {
+        $case: 'sawtooth';
+        /** A sawtooth window served via the hybrid batch + streaming path. */
+        sawtooth: SawtoothWindow;
       }
     | undefined;
 }
@@ -2118,6 +2144,22 @@ export const unmarshalRollingWindowSchema: z.ZodType<RollingWindow> = z
     delay: d.delay,
   }));
 
+export const unmarshalSawtoothWindowSchema: z.ZodType<SawtoothWindow> = z
+  .object({
+    window_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    delay: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    windowDuration: d.window_duration,
+    delay: d.delay,
+  }));
+
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
   .object({
     json_schema: z.string().optional(),
@@ -2330,6 +2372,7 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
     rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
     lifetime: z.lazy(() => unmarshalLifetimeWindowSchema).optional(),
+    sawtooth: z.lazy(() => unmarshalSawtoothWindowSchema).optional(),
   })
   .transform(d => ({
     windowType:
@@ -2343,7 +2386,9 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
               ? {$case: 'rolling' as const, rolling: d.rolling}
               : d.lifetime !== undefined
                 ? {$case: 'lifetime' as const, lifetime: d.lifetime}
-                : undefined,
+                : d.sawtooth !== undefined
+                  ? {$case: 'sawtooth' as const, sawtooth: d.sawtooth}
+                  : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -3196,6 +3241,22 @@ export const marshalRollingWindowSchema: z.ZodType = z
     delay: d.delay,
   }));
 
+export const marshalSawtoothWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    delay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+    delay: d.delay,
+  }));
+
 export const marshalSchemaConfigSchema: z.ZodType = z
   .object({
     schema: z
@@ -3436,6 +3497,10 @@ export const marshalTimeWindowSchema: z.ZodType = z
           $case: z.literal('lifetime'),
           lifetime: z.lazy(() => marshalLifetimeWindowSchema),
         }),
+        z.object({
+          $case: z.literal('sawtooth'),
+          sawtooth: z.lazy(() => marshalSawtoothWindowSchema),
+        }),
       ])
       .optional(),
   })
@@ -3450,6 +3515,9 @@ export const marshalTimeWindowSchema: z.ZodType = z
     ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
     ...(d.windowType?.$case === 'lifetime' && {
       lifetime: d.windowType.lifetime,
+    }),
+    ...(d.windowType?.$case === 'sawtooth' && {
+      sawtooth: d.windowType.sawtooth,
     }),
   }));
 
@@ -3872,6 +3940,11 @@ const rollingWindowFieldMaskSchema: FieldMaskSchema = {
   windowDuration: {wire: 'window_duration'},
 };
 
+const sawtoothWindowFieldMaskSchema: FieldMaskSchema = {
+  delay: {wire: 'delay'},
+  windowDuration: {wire: 'window_duration'},
+};
+
 const schemaConfigFieldMaskSchema: FieldMaskSchema = {
   avroSchema: {wire: 'avro_schema'},
   jsonSchema: {wire: 'json_schema'},
@@ -3982,6 +4055,7 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
   },
   lifetime: {wire: 'lifetime', children: () => lifetimeWindowFieldMaskSchema},
   rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
+  sawtooth: {wire: 'sawtooth', children: () => sawtoothWindowFieldMaskSchema},
   sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},
   tumbling: {wire: 'tumbling', children: () => tumblingWindowFieldMaskSchema},
 };
