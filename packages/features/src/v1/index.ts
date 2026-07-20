@@ -81,6 +81,7 @@ export type {
   ProtoSchemaSpec,
   RequestSource,
   RollingWindow,
+  SawtoothWindow,
   SchemaConfig,
   SecretScopeReference,
   SlidingWindow,
