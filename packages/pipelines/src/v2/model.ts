@@ -559,6 +559,7 @@ export interface ConnectorOptions {
         zendeskSupportOptions: ZendeskSupportOptions;
       }
     | {$case: 'kafkaOptions'; kafkaOptions: KafkaOptions}
+    | {$case: 'redditAdsOptions'; redditAdsOptions: RedditAdsOptions}
     | undefined;
 }
 
@@ -2358,6 +2359,49 @@ export interface PostgresSlotConfig {
   publicationName?: string | undefined;
 }
 
+/** Reddit Ads specific options for ingestion */
+export interface RedditAdsOptions {
+  /**
+   * (Optional) Start date for the initial sync of report tables in YYYY-MM-DD format.
+   * This determines the earliest date from which to sync historical data.
+   * If not specified, defaults to 2 years ago.
+   */
+  syncStartDate?: string | undefined;
+  /**
+   * (Optional) Number of days to look back for report tables during incremental sync
+   * to capture late-arriving conversions and attribution data.
+   * If not specified, defaults to 30 days.
+   */
+  lookbackWindowDays?: number | undefined;
+  /**
+   * (Optional) Custom report definition. When set, the table is treated as a
+   * user-defined Reddit Ads custom report. When unset, the table must match
+   * one of the connector's prebuilt sources.
+   */
+  customReportOptions?:
+    | RedditAdsOptions_RedditAdsCustomReportOptions
+    | undefined;
+}
+
+/**
+ * User-defined custom report for the Reddit Ads connector.
+ * Applies only to the custom_report table — prebuilt tables ignore this.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface RedditAdsOptions_RedditAdsCustomReportOptions {
+  /**
+   * (Optional) Fields to include in the report (maps to the Reddit Ads API `fields` parameter).
+   * Examples: IMPRESSIONS, CLICKS, SPEND, CPC, CTR.
+   */
+  fields?: string[] | undefined;
+  /**
+   * (Optional) Breakdown dimensions to group report data by.
+   * Examples: CAMPAIGN_ID, DATE, COUNTRY, REGION, AD_ID.
+   * Must include at least one time dimension (DATE or HOUR).
+   */
+  breakdowns?: string[] | undefined;
+}
+
 /** Specifies a replace_where predicate override for a replace where flow. */
 export interface ReplaceWhereOverride {
   /** Name of the flow to apply this override to. */
@@ -2764,6 +2808,9 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
       .lazy(() => unmarshalZendeskSupportOptionsSchema)
       .optional(),
     kafka_options: z.lazy(() => unmarshalKafkaOptionsSchema).optional(),
+    reddit_ads_options: z
+      .lazy(() => unmarshalRedditAdsOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     connectorOptions:
@@ -2822,7 +2869,12 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                                 $case: 'kafkaOptions' as const,
                                 kafkaOptions: d.kafka_options,
                               }
-                            : undefined,
+                            : d.reddit_ads_options !== undefined
+                              ? {
+                                  $case: 'redditAdsOptions' as const,
+                                  redditAdsOptions: d.reddit_ads_options,
+                                }
+                              : undefined,
   }));
 
 export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResponse> =
@@ -4031,6 +4083,32 @@ export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
       publicationName: d.publication_name,
     }));
 
+export const unmarshalRedditAdsOptionsSchema: z.ZodType<RedditAdsOptions> = z
+  .object({
+    sync_start_date: z.string().optional(),
+    lookback_window_days: z.number().optional(),
+    custom_report_options: z
+      .lazy(() => unmarshalRedditAdsOptions_RedditAdsCustomReportOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    syncStartDate: d.sync_start_date,
+    lookbackWindowDays: d.lookback_window_days,
+    customReportOptions: d.custom_report_options,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalRedditAdsOptions_RedditAdsCustomReportOptionsSchema: z.ZodType<RedditAdsOptions_RedditAdsCustomReportOptions> =
+  z
+    .object({
+      fields: z.array(z.string()).optional(),
+      breakdowns: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      fields: d.fields,
+      breakdowns: d.breakdowns,
+    }));
+
 export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
   .object({
     start_hour: z.number().optional(),
@@ -4440,6 +4518,10 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
           $case: z.literal('kafkaOptions'),
           kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema),
         }),
+        z.object({
+          $case: z.literal('redditAdsOptions'),
+          redditAdsOptions: z.lazy(() => marshalRedditAdsOptionsSchema),
+        }),
       ])
       .optional(),
   })
@@ -4476,6 +4558,9 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     }),
     ...(d.connectorOptions?.$case === 'kafkaOptions' && {
       kafka_options: d.connectorOptions.kafkaOptions,
+    }),
+    ...(d.connectorOptions?.$case === 'redditAdsOptions' && {
+      reddit_ads_options: d.connectorOptions.redditAdsOptions,
     }),
   }));
 
@@ -5529,6 +5614,32 @@ export const marshalPostgresSlotConfigSchema: z.ZodType = z
     slot_name: d.slotName,
     publication_name: d.publicationName,
   }));
+
+export const marshalRedditAdsOptionsSchema: z.ZodType = z
+  .object({
+    syncStartDate: z.string().optional(),
+    lookbackWindowDays: z.number().optional(),
+    customReportOptions: z
+      .lazy(() => marshalRedditAdsOptions_RedditAdsCustomReportOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    sync_start_date: d.syncStartDate,
+    lookback_window_days: d.lookbackWindowDays,
+    custom_report_options: d.customReportOptions,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalRedditAdsOptions_RedditAdsCustomReportOptionsSchema: z.ZodType =
+  z
+    .object({
+      fields: z.array(z.string()).optional(),
+      breakdowns: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      fields: d.fields,
+      breakdowns: d.breakdowns,
+    }));
 
 export const marshalReplaceWhereOverrideSchema: z.ZodType = z
   .object({
