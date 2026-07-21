@@ -167,6 +167,10 @@ export class ReposClient {
   /**
    * Returns repos that the calling user has Manage permissions on.
    * Use `next_page_token` to iterate through additional pages.
+   *
+   * Deprecated: This operation does not return a complete list of the repos in the workspace, because
+   * repos with the Git CLI enabled are not included in its results. Instead, use the Repos and
+   * Workspace APIs to find repos and their associated metadata in the workspace.
    */
   async listRepos(
     req: ListReposRequest,

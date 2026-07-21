@@ -990,7 +990,10 @@ export interface RequestSource {
  * of the legacy non-positive `ContinuousWindow.offset`.
  */
 export interface RollingWindow {
-  /** The duration of the rolling window (must be positive). */
+  /**
+   * The duration of the rolling window. Must be positive when set; absent means lifetime
+   * (aggregate over the entity's entire history).
+   */
   windowDuration?: Temporal.Duration | undefined;
   /**
    * The delay applied to the end of the rolling window (must be non-negative).
@@ -1008,9 +1011,10 @@ export interface RollingWindow {
  */
 export interface SawtoothWindow {
   /**
-   * The duration of the window. Must be positive and span more than two days, so that both the
-   * batch (N-1 day) and stale-path (N-2 day) partial aggregates are well defined. The duration
-   * need not be a whole number of days (e.g. 3 days 15 minutes is allowed).
+   * The duration of the window. Must be positive and span more than two days when set, so that both
+   * the batch (N-1 day) and stale-path (N-2 day) partial aggregates are well defined. The duration
+   * need not be a whole number of days (e.g. 3 days 15 minutes is allowed). Absent means lifetime
+   * (aggregate over the entity's entire history).
    */
   windowDuration?: Temporal.Duration | undefined;
   /**
@@ -1052,7 +1056,10 @@ export interface SecretScopeReference {
 }
 
 export interface SlidingWindow {
-  /** The duration of the sliding window. */
+  /**
+   * The duration of the sliding window. Must be positive when set; absent means lifetime
+   * (aggregate over the entity's entire history).
+   */
   windowDuration?: Temporal.Duration | undefined;
   /** The slide duration (interval by which windows advance, must be positive and less than duration). */
   slideDuration?: Temporal.Duration | undefined;
