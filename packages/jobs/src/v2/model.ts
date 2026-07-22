@@ -2664,6 +2664,12 @@ export interface JobCluster {
   jobClusterKey?: string | undefined;
   /** If new_cluster, a description of a cluster that is created for each task. */
   newCluster?: ClusterSpec_NewCluster | undefined;
+  /**
+   * The ID of the serverless compute object to bind this cluster to. At most one
+   * JobCluster per job may set this field; the rate limit defined on the referenced
+   * serverless compute applies across all tasks bound to this cluster.
+   */
+  serverlessComputeId?: string | undefined;
 }
 
 export interface JobDeployment {
@@ -6444,10 +6450,12 @@ export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
   .object({
     job_cluster_key: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
+    serverless_compute_id: z.string().optional(),
   })
   .transform(d => ({
     jobClusterKey: d.job_cluster_key,
     newCluster: d.new_cluster,
+    serverlessComputeId: d.serverless_compute_id,
   }));
 
 export const unmarshalJobDeploymentSchema: z.ZodType<JobDeployment> = z
@@ -9255,10 +9263,12 @@ export const marshalJobClusterSchema: z.ZodType = z
   .object({
     jobClusterKey: z.string().optional(),
     newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema).optional(),
+    serverlessComputeId: z.string().optional(),
   })
   .transform(d => ({
     job_cluster_key: d.jobClusterKey,
     new_cluster: d.newCluster,
+    serverless_compute_id: d.serverlessComputeId,
   }));
 
 export const marshalJobDeploymentSchema: z.ZodType = z
