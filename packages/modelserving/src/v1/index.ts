@@ -91,6 +91,7 @@ export type {
   TelemetryConfig,
   TelemetryInferenceTableConfig,
   TrafficConfig,
+  UnityCatalogTableNames,
   UpdateInferenceEndpointNotificationsRequest,
   UpdateInferenceEndpointNotificationsResponse,
   UsageTrackingConfig,

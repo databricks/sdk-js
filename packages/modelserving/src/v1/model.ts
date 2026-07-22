@@ -1081,6 +1081,24 @@ export interface ServedModelState {
 }
 
 export interface TelemetryConfig {
+  telemetryProfile?:
+    | {
+        $case: 'telemetryProfileId';
+        /**
+         * The ID of an existing telemetry profile to apply to this endpoint. Provide this to reuse a
+         * telemetry profile that has already been created, instead of specifying table_names.
+         */
+        telemetryProfileId: string;
+      }
+    | {
+        $case: 'tableNames';
+        /**
+         * The Unity Catalog tables to which endpoint telemetry (logs, traces, and metrics) is exported.
+         * Provide this to create a new telemetry profile for the endpoint from the given tables.
+         */
+        tableNames: UnityCatalogTableNames;
+      }
+    | undefined;
   /** Configuration for inference table payload logging, including sampling. */
   inferenceTableConfig?: TelemetryInferenceTableConfig | undefined;
 }
@@ -1096,6 +1114,29 @@ export interface TelemetryInferenceTableConfig {
 export interface TrafficConfig {
   /** The list of routes that define traffic to each served entity. */
   routes?: Route[] | undefined;
+}
+
+export interface UnityCatalogTableNames {
+  /**
+   * The full three-level Unity Catalog name (catalog.schema.table) of the table that receives
+   * exported logs.
+   */
+  logsTable?: string | undefined;
+  /**
+   * The full three-level Unity Catalog name (catalog.schema.table) of the table that receives
+   * exported metrics.
+   */
+  metricsTable?: string | undefined;
+  /**
+   * The full three-level Unity Catalog name (catalog.schema.table) of the table that receives
+   * exported traces (spans).
+   */
+  tracesTable?: string | undefined;
+  /**
+   * The full three-level Unity Catalog name (catalog.schema.table) of the table that receives
+   * exported annotations.
+   */
+  annotationsTable?: string | undefined;
 }
 
 export interface UpdateInferenceEndpointNotificationsRequest {
@@ -1890,11 +1931,22 @@ export const unmarshalServedModelStateSchema: z.ZodType<ServedModelState> = z
 
 export const unmarshalTelemetryConfigSchema: z.ZodType<TelemetryConfig> = z
   .object({
+    telemetry_profile_id: z.string().optional(),
+    table_names: z.lazy(() => unmarshalUnityCatalogTableNamesSchema).optional(),
     inference_table_config: z
       .lazy(() => unmarshalTelemetryInferenceTableConfigSchema)
       .optional(),
   })
   .transform(d => ({
+    telemetryProfile:
+      d.telemetry_profile_id !== undefined
+        ? {
+            $case: 'telemetryProfileId' as const,
+            telemetryProfileId: d.telemetry_profile_id,
+          }
+        : d.table_names !== undefined
+          ? {$case: 'tableNames' as const, tableNames: d.table_names}
+          : undefined,
     inferenceTableConfig: d.inference_table_config,
   }));
 
@@ -1916,6 +1968,21 @@ export const unmarshalTrafficConfigSchema: z.ZodType<TrafficConfig> = z
   .transform(d => ({
     routes: d.routes,
   }));
+
+export const unmarshalUnityCatalogTableNamesSchema: z.ZodType<UnityCatalogTableNames> =
+  z
+    .object({
+      logs_table: z.string().optional(),
+      metrics_table: z.string().optional(),
+      traces_table: z.string().optional(),
+      annotations_table: z.string().optional(),
+    })
+    .transform(d => ({
+      logsTable: d.logs_table,
+      metricsTable: d.metrics_table,
+      tracesTable: d.traces_table,
+      annotationsTable: d.annotations_table,
+    }));
 
 export const unmarshalUpdateInferenceEndpointNotificationsResponseSchema: z.ZodType<UpdateInferenceEndpointNotificationsResponse> =
   z
@@ -2597,11 +2664,29 @@ export const marshalServedModelStateSchema: z.ZodType = z
 
 export const marshalTelemetryConfigSchema: z.ZodType = z
   .object({
+    telemetryProfile: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('telemetryProfileId'),
+          telemetryProfileId: z.string(),
+        }),
+        z.object({
+          $case: z.literal('tableNames'),
+          tableNames: z.lazy(() => marshalUnityCatalogTableNamesSchema),
+        }),
+      ])
+      .optional(),
     inferenceTableConfig: z
       .lazy(() => marshalTelemetryInferenceTableConfigSchema)
       .optional(),
   })
   .transform(d => ({
+    ...(d.telemetryProfile?.$case === 'telemetryProfileId' && {
+      telemetry_profile_id: d.telemetryProfile.telemetryProfileId,
+    }),
+    ...(d.telemetryProfile?.$case === 'tableNames' && {
+      table_names: d.telemetryProfile.tableNames,
+    }),
     inference_table_config: d.inferenceTableConfig,
   }));
 
@@ -2621,6 +2706,20 @@ export const marshalTrafficConfigSchema: z.ZodType = z
   })
   .transform(d => ({
     routes: d.routes,
+  }));
+
+export const marshalUnityCatalogTableNamesSchema: z.ZodType = z
+  .object({
+    logsTable: z.string().optional(),
+    metricsTable: z.string().optional(),
+    tracesTable: z.string().optional(),
+    annotationsTable: z.string().optional(),
+  })
+  .transform(d => ({
+    logs_table: d.logsTable,
+    metrics_table: d.metricsTable,
+    traces_table: d.tracesTable,
+    annotations_table: d.annotationsTable,
   }));
 
 export const marshalUpdateInferenceEndpointNotificationsRequestSchema: z.ZodType =
