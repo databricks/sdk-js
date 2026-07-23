@@ -167,6 +167,24 @@ export type DbtPlatformRunStatus =
   | (string & {});
 
 /**
+ * Controls dependency configuration for the cluster.
+ *
+ * * `DEPENDENCY_MODE_AUTO`: <Databricks> will choose the most appropriate dependency mode based on your compute configuration.
+ * * `DEPENDENCY_MODE_ENVIRONMENTS`: Enables a unified dependency management experience across classic and serverless, resulting in increased stability and performance. Supported only on DBR 19+ in Standard access mode.
+ * * `DEPENDENCY_MODE_CLUSTER_LIBRARIES`: Legacy mode: dependencies come from cluster libraries and init scripts.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DependencyMode = {
+  DEPENDENCY_MODE_UNSPECIFIED: 'DEPENDENCY_MODE_UNSPECIFIED',
+  DEPENDENCY_MODE_ENVIRONMENTS: 'DEPENDENCY_MODE_ENVIRONMENTS',
+  DEPENDENCY_MODE_CLUSTER_LIBRARIES: 'DEPENDENCY_MODE_CLUSTER_LIBRARIES',
+  DEPENDENCY_MODE_AUTO: 'DEPENDENCY_MODE_AUTO',
+} as const;
+export type DependencyMode =
+  | (typeof DependencyMode)[keyof typeof DependencyMode]
+  | (string & {});
+
+/**
  * All EBS volume types that <Databricks> supports.
  * See https://aws.amazon.com/ebs/details/ for details.
  */
@@ -949,6 +967,12 @@ export interface AiRuntimeTask {
    */
   deployments?: DeploymentSpec[] | undefined;
   /**
+   * Workspace or UC volume path of the code-source archive, unpacked on
+   * each node and exposed through `$CODE_SOURCE`. Set by first-party
+   * tooling; not for direct callers.
+   */
+  codeSourcePath?: string | undefined;
+  /**
    * Optional display name for the MLflow run created under `experiment`. If
    * omitted, MLflow generates a default name.
    */
@@ -1601,6 +1625,8 @@ export interface ClusterSpec_NewCluster {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
   size?:
     | {
         $case: 'numWorkers';
@@ -5235,12 +5261,14 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     deployments: z
       .array(z.lazy(() => unmarshalDeploymentSpecSchema))
       .optional(),
+    code_source_path: z.string().optional(),
     mlflow_run: z.string().optional(),
     mlflow_experiment_directory: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
     deployments: d.deployments,
+    codeSourcePath: d.code_source_path,
     mlflowRun: d.mlflow_run,
     mlflowExperimentDirectory: d.mlflow_experiment_directory,
   }));
@@ -5645,6 +5673,7 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       is_single_node: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
+      dependency_mode: z.string().optional(),
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
@@ -5681,6 +5710,7 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       isSingleNode: d.is_single_node,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+      dependencyMode: d.dependency_mode,
       size:
         d.num_workers !== undefined
           ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
@@ -8563,12 +8593,14 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
   .object({
     experiment: z.string().optional(),
     deployments: z.array(z.lazy(() => marshalDeploymentSpecSchema)).optional(),
+    codeSourcePath: z.string().optional(),
     mlflowRun: z.string().optional(),
     mlflowExperimentDirectory: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
     deployments: d.deployments,
+    code_source_path: d.codeSourcePath,
     mlflow_run: d.mlflowRun,
     mlflow_experiment_directory: d.mlflowExperimentDirectory,
   }));
@@ -8758,6 +8790,7 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     isSingleNode: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
     size: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
@@ -8801,6 +8834,7 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     is_single_node: d.isSingleNode,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
     ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
     ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
   }));

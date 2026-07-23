@@ -20,6 +20,7 @@ export {
   ConfidentialComputeType,
   DataSecurityMode,
   DbtPlatformRunStatus,
+  DependencyMode,
   EbsVolumeType,
   Format,
   GcpAvailability,
