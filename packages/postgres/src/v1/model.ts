@@ -758,6 +758,19 @@ export type Role_MembershipRole =
   | (typeof Role_MembershipRole)[keyof typeof Role_MembershipRole]
   | (string & {});
 
+/** How the column's value is populated and kept up to date. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance = {
+  /** A plain column with no computed value. */
+  MAINTENANCE_UNSPECIFIED: 'MAINTENANCE_UNSPECIFIED',
+  /** The value is computed by PostgreSQL and stored. */
+  STORED_GENERATED: 'STORED_GENERATED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance =
+  | (typeof SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance)[keyof typeof SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance]
+  | (string & {});
+
 /** PostgreSQL-specific target types that can override the default Delta-to-PG mapping. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTable_SyncedTableSpec_PgSpecificType = {
@@ -2415,6 +2428,23 @@ export interface SyncedTable_SyncedTableSpec {
    * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
    */
   typeOverrides?: SyncedTable_SyncedTableSpec_TypeOverride[] | undefined;
+  /** Extra PostgreSQL-only columns to add to the synced table. */
+  extraColumns?: SyncedTable_SyncedTableSpec_ExtraColumn[] | undefined;
+}
+
+/** An extra PostgreSQL column to add to the synced table. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SyncedTable_SyncedTableSpec_ExtraColumn {
+  /** Name of the column. */
+  columnName?: string | undefined;
+  /** PostgreSQL type of the column, for example "tsvector" or "vector(1024)". */
+  columnType?: string | undefined;
+  maintenance?: SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance | undefined;
+  /**
+   * SQL expression used to compute the column's value, for example
+   * "to_tsvector('english', content)".
+   */
+  compute?: string | undefined;
 }
 
 /** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
@@ -3577,6 +3607,11 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
           z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
         )
         .optional(),
+      extra_columns: z
+        .array(
+          z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_ExtraColumnSchema)
+        )
+        .optional(),
     })
     .transform(d => ({
       postgresDatabase: d.postgres_database,
@@ -3590,6 +3625,23 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       newPipelineSpec: d.new_pipeline_spec,
       acceleratedSync: d.accelerated_sync,
       typeOverrides: d.type_overrides,
+      extraColumns: d.extra_columns,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType<SyncedTable_SyncedTableSpec_ExtraColumn> =
+  z
+    .object({
+      column_name: z.string().optional(),
+      column_type: z.string().optional(),
+      maintenance: z.string().optional(),
+      compute: z.string().optional(),
+    })
+    .transform(d => ({
+      columnName: d.column_name,
+      columnType: d.column_type,
+      maintenance: d.maintenance,
+      compute: d.compute,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4550,6 +4602,9 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
         z.lazy(() => marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
       )
       .optional(),
+    extraColumns: z
+      .array(z.lazy(() => marshalSyncedTable_SyncedTableSpec_ExtraColumnSchema))
+      .optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
@@ -4563,6 +4618,22 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     new_pipeline_spec: d.newPipelineSpec,
     accelerated_sync: d.acceleratedSync,
     type_overrides: d.typeOverrides,
+    extra_columns: d.extraColumns,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType = z
+  .object({
+    columnName: z.string().optional(),
+    columnType: z.string().optional(),
+    maintenance: z.string().optional(),
+    compute: z.string().optional(),
+  })
+  .transform(d => ({
+    column_name: d.columnName,
+    column_type: d.columnType,
+    maintenance: d.maintenance,
+    compute: d.compute,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
