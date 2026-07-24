@@ -8,7 +8,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const LoggedModelStatus = {
-  LOGGED_MODEL_STATUS_UNSPECIFIED: 'LOGGED_MODEL_STATUS_UNSPECIFIED',
+  LOGGED_MODEL_STATUS_UNSPECIFIED: '',
   /**
    * The LoggedModel has been created, but the LoggedModel files are not
    * completely uploaded.

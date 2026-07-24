@@ -4,8 +4,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const UsageDashboardMajorVersion = {
-  USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED:
-    'USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED',
+  USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED: '',
   USAGE_DASHBOARD_MAJOR_VERSION_1: 'USAGE_DASHBOARD_MAJOR_VERSION_1',
   USAGE_DASHBOARD_MAJOR_VERSION_2: 'USAGE_DASHBOARD_MAJOR_VERSION_2',
 } as const;
@@ -15,7 +14,7 @@ export type UsageDashboardMajorVersion =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const UsageDashboardType = {
-  USAGE_DASHBOARD_TYPE_UNSPECIFIED: 'USAGE_DASHBOARD_TYPE_UNSPECIFIED',
+  USAGE_DASHBOARD_TYPE_UNSPECIFIED: '',
   USAGE_DASHBOARD_TYPE_WORKSPACE: 'USAGE_DASHBOARD_TYPE_WORKSPACE',
   USAGE_DASHBOARD_TYPE_GLOBAL: 'USAGE_DASHBOARD_TYPE_GLOBAL',
 } as const;

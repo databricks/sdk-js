@@ -8,7 +8,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OnlineStore_State = {
   /** Default value, not used */
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   /** The online store is being brought online. */
   STARTING: 'STARTING',
   /** The online store is active and ready to use. */
@@ -29,7 +29,7 @@ export type OnlineStore_State =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PublishSpec_PublishMode = {
-  PUBLISH_MODE_UNSPECIFIED: 'PUBLISH_MODE_UNSPECIFIED',
+  PUBLISH_MODE_UNSPECIFIED: '',
   /**
    * Pipeline runs continuously after syncing the initial data.
    * Requires the source table to have Change Data Feed (CDF) enabled.

@@ -20,7 +20,7 @@ const jsonObjectSchema: z.ZodType<JsonObject> = z.record(
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CommandStatus = {
-  COMMAND_STATUS_UNSPECIFIED: 'COMMAND_STATUS_UNSPECIFIED',
+  COMMAND_STATUS_UNSPECIFIED: '',
   COMMAND_CANCELLED: 'Cancelled',
   COMMAND_CANCELLING: 'Cancelling',
   COMMAND_ERROR: 'Error',
@@ -34,7 +34,7 @@ export type CommandStatus =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ContextStatus = {
-  CONTEXT_STATUS_UNSPECIFIED: 'CONTEXT_STATUS_UNSPECIFIED',
+  CONTEXT_STATUS_UNSPECIFIED: '',
   CONTEXT_RUNNING: 'Running',
   CONTEXT_PENDING: 'Pending',
   CONTEXT_ERROR: 'Error',
@@ -45,7 +45,7 @@ export type ContextStatus =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Language = {
-  LANGUAGE_UNSPECIFIED: 'LANGUAGE_UNSPECIFIED',
+  LANGUAGE_UNSPECIFIED: '',
   PYTHON: 'python',
   SCALA: 'scala',
   SQL: 'sql',
@@ -55,7 +55,7 @@ export type Language = (typeof Language)[keyof typeof Language] | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ResultType = {
-  RESULT_TYPE_UNSPECIFIED: 'RESULT_TYPE_UNSPECIFIED',
+  RESULT_TYPE_UNSPECIFIED: '',
   ERROR_RESULT: 'error',
   IMAGE_RESULT: 'image',
   IMAGES_RESULT: 'images',

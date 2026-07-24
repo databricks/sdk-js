@@ -9,7 +9,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ColumnTypeName = {
-  COLUMN_TYPE_NAME_UNSPECIFIED: 'COLUMN_TYPE_NAME_UNSPECIFIED',
+  COLUMN_TYPE_NAME_UNSPECIFIED: '',
   BOOLEAN: 'BOOLEAN',
   BYTE: 'BYTE',
   SHORT: 'SHORT',
@@ -55,7 +55,7 @@ export type DeltaSharingAuthenticationType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const FunctionParameterMode = {
-  FUNCTION_PARAMETER_MODE_UNSPECIFIED: 'FUNCTION_PARAMETER_MODE_UNSPECIFIED',
+  FUNCTION_PARAMETER_MODE_UNSPECIFIED: '',
   IN: 'IN',
   OUT: 'OUT',
   INOUT: 'INOUT',
@@ -66,7 +66,7 @@ export type FunctionParameterMode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const FunctionParameterType = {
-  FUNCTION_PARAMETER_TYPE_UNSPECIFIED: 'FUNCTION_PARAMETER_TYPE_UNSPECIFIED',
+  FUNCTION_PARAMETER_TYPE_UNSPECIFIED: '',
   PARAM: 'PARAM',
   COLUMN: 'COLUMN',
 } as const;
@@ -77,7 +77,7 @@ export type FunctionParameterType =
 /** The SecurableKind of a delta-shared object. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SharedSecurableKind = {
-  SHARED_SECURABLE_KIND_UNSPECIFIED: 'SHARED_SECURABLE_KIND_UNSPECIFIED',
+  SHARED_SECURABLE_KIND_UNSPECIFIED: '',
   FUNCTION_STANDARD: 'FUNCTION_STANDARD',
   FUNCTION_REGISTERED_MODEL: 'FUNCTION_REGISTERED_MODEL',
   FUNCTION_FEATURE_SPEC: 'FUNCTION_FEATURE_SPEC',
