@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Behavior = {
-  BEHAVIOR_UNSPECIFIED: 'BEHAVIOR_UNSPECIFIED',
+  BEHAVIOR_UNSPECIFIED: '',
   NONE: 'NONE',
   BLOCK: 'BLOCK',
   MASK: 'MASK',
@@ -37,7 +37,7 @@ export type ServingEndpointDetailedPermissionLevel =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ExternalFunctionRequest_HttpMethod = {
-  HTTP_METHOD_UNSPECIFIED: 'HTTP_METHOD_UNSPECIFIED',
+  HTTP_METHOD_UNSPECIFIED: '',
   GET: 'GET',
   POST: 'POST',
   PUT: 'PUT',
@@ -51,7 +51,7 @@ export type ExternalFunctionRequest_HttpMethod =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const InferenceEndpointState_ConfigUpdateState = {
-  CONFIG_UPDATE_STATE_UNSPECIFIED: 'CONFIG_UPDATE_STATE_UNSPECIFIED',
+  CONFIG_UPDATE_STATE_UNSPECIFIED: '',
   NOT_UPDATING: 'NOT_UPDATING',
   IN_PROGRESS: 'IN_PROGRESS',
   UPDATE_FAILED: 'UPDATE_FAILED',
@@ -64,7 +64,7 @@ export type InferenceEndpointState_ConfigUpdateState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const InferenceEndpointState_ReadyState = {
-  READY_STATE_UNSPECIFIED: 'READY_STATE_UNSPECIFIED',
+  READY_STATE_UNSPECIFIED: '',
   READY: 'READY',
   NOT_READY: 'NOT_READY',
 } as const;

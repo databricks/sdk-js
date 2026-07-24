@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IsolationMode = {
-  ISOLATION_MODE_UNSPECIFIED: 'ISOLATION_MODE_UNSPECIFIED',
+  ISOLATION_MODE_UNSPECIFIED: '',
   ISOLATION_MODE_OPEN: 'ISOLATION_MODE_OPEN',
   ISOLATION_MODE_ISOLATED: 'ISOLATION_MODE_ISOLATED',
 } as const;
@@ -14,7 +14,7 @@ export type IsolationMode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SseEncryptionAlgorithm = {
-  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
+  SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED: '',
   AWS_SSE_S3: 'AWS_SSE_S3',
   AWS_SSE_KMS: 'AWS_SSE_KMS',
 } as const;

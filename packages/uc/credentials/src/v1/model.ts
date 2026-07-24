@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IsolationMode = {
-  ISOLATION_MODE_UNSPECIFIED: 'ISOLATION_MODE_UNSPECIFIED',
+  ISOLATION_MODE_UNSPECIFIED: '',
   ISOLATION_MODE_OPEN: 'ISOLATION_MODE_OPEN',
   ISOLATION_MODE_ISOLATED: 'ISOLATION_MODE_ISOLATED',
 } as const;

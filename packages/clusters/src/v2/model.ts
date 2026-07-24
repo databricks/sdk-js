@@ -68,7 +68,7 @@ export type CloudProviderNodeStatus =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComputeKind = {
-  COMPUTE_KIND_UNSPECIFIED: 'COMPUTE_KIND_UNSPECIFIED',
+  COMPUTE_KIND_UNSPECIFIED: '',
   CLASSIC_PREVIEW: 'CLASSIC_PREVIEW',
 } as const;
 export type ComputeKind =
@@ -83,8 +83,7 @@ export type ComputeKind =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConfidentialComputeType = {
-  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED:
-    'CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED',
+  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED: '',
   CONFIDENTIAL_COMPUTE_TYPE_NONE: 'CONFIDENTIAL_COMPUTE_TYPE_NONE',
   SEV_SNP: 'SEV_SNP',
 } as const;
@@ -172,7 +171,7 @@ export type DataSecurityMode =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DependencyMode = {
-  DEPENDENCY_MODE_UNSPECIFIED: 'DEPENDENCY_MODE_UNSPECIFIED',
+  DEPENDENCY_MODE_UNSPECIFIED: '',
   DEPENDENCY_MODE_ENVIRONMENTS: 'DEPENDENCY_MODE_ENVIRONMENTS',
   DEPENDENCY_MODE_CLUSTER_LIBRARIES: 'DEPENDENCY_MODE_CLUSTER_LIBRARIES',
   DEPENDENCY_MODE_AUTO: 'DEPENDENCY_MODE_AUTO',
@@ -992,7 +991,7 @@ export type ClusterState_ClusterState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EnforcePolicyComplianceForClusterRequest_EnforceMode = {
   /** Default value. This value is unused. */
-  ENFORCE_MODE_UNSPECIFIED: 'ENFORCE_MODE_UNSPECIFIED',
+  ENFORCE_MODE_UNSPECIFIED: '',
   /**
    * If the cluster is in the TERMINATED state, edit the cluster immediately.
    * If the cluster is in the RUNNING state, edit and restart the cluster.
@@ -1015,7 +1014,7 @@ export type EnforcePolicyComplianceForClusterRequest_EnforceMode =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EnforcePolicyComplianceForClusterResponse_EnforceResult = {
   /** Default value. This value is unused. */
-  ENFORCE_RESULT_UNSPECIFIED: 'ENFORCE_RESULT_UNSPECIFIED',
+  ENFORCE_RESULT_UNSPECIFIED: '',
   /** No changes were made to the cluster. */
   NO_CHANGES: 'NO_CHANGES',
   /** Changes were applied to the cluster. */
@@ -1062,7 +1061,7 @@ export type InitScriptExecutionDetails_InitScriptExecutionStatus =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PendingEnforcement_EnforcementStatus = {
   /** Default value. This value is unused. */
-  ENFORCEMENT_STATUS_UNSPECIFIED: 'ENFORCEMENT_STATUS_UNSPECIFIED',
+  ENFORCEMENT_STATUS_UNSPECIFIED: '',
   /**
    * The pending enforcement will be attempted on the next cluster terminate or
    * restart.

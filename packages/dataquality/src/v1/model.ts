@@ -7,7 +7,7 @@ import {z} from 'zod';
 /** The granularity for aggregating data into time windows based on their timestamp. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AggregationGranularity = {
-  AGGREGATION_GRANULARITY_UNSPECIFIED: 'AGGREGATION_GRANULARITY_UNSPECIFIED',
+  AGGREGATION_GRANULARITY_UNSPECIFIED: '',
   /** 5 minutes. */
   AGGREGATION_GRANULARITY_5_MINUTES: 'AGGREGATION_GRANULARITY_5_MINUTES',
   /** 30 minutes. */
@@ -36,8 +36,7 @@ export type AggregationGranularity =
 /** The data quality monitoring workflow cron schedule pause status. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CronSchedulePauseStatus = {
-  CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED:
-    'CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED',
+  CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED: '',
   /** The cron schedule is not paused. */
   CRON_SCHEDULE_PAUSE_STATUS_UNPAUSED: 'CRON_SCHEDULE_PAUSE_STATUS_UNPAUSED',
   /** The cron schedule is paused. */
@@ -50,8 +49,7 @@ export type CronSchedulePauseStatus =
 /** The custom metric type. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DataProfilingCustomMetricType = {
-  DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED:
-    'DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED',
+  DATA_PROFILING_CUSTOM_METRIC_TYPE_UNSPECIFIED: '',
   /** Only depend on the existing columns in the table. */
   DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE:
     'DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE',
@@ -69,7 +67,7 @@ export type DataProfilingCustomMetricType =
 /** The status of the data profiling monitor. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DataProfilingStatus = {
-  DATA_PROFILING_STATUS_UNSPECIFIED: 'DATA_PROFILING_STATUS_UNSPECIFIED',
+  DATA_PROFILING_STATUS_UNSPECIFIED: '',
   DATA_PROFILING_STATUS_ACTIVE: 'DATA_PROFILING_STATUS_ACTIVE',
   DATA_PROFILING_STATUS_PENDING: 'DATA_PROFILING_STATUS_PENDING',
   DATA_PROFILING_STATUS_DELETE_PENDING: 'DATA_PROFILING_STATUS_DELETE_PENDING',
@@ -83,7 +81,7 @@ export type DataProfilingStatus =
 /** Inference problem type the model aims to solve. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const InferenceProblemType = {
-  INFERENCE_PROBLEM_TYPE_UNSPECIFIED: 'INFERENCE_PROBLEM_TYPE_UNSPECIFIED',
+  INFERENCE_PROBLEM_TYPE_UNSPECIFIED: '',
   /** Classification inference problem. */
   INFERENCE_PROBLEM_TYPE_CLASSIFICATION:
     'INFERENCE_PROBLEM_TYPE_CLASSIFICATION',

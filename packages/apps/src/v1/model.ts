@@ -523,7 +523,7 @@ export type ErrorCode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SpaceUpdateState = {
-  SPACE_UPDATE_STATE_UNSPECIFIED: 'SPACE_UPDATE_STATE_UNSPECIFIED',
+  SPACE_UPDATE_STATE_UNSPECIFIED: '',
   NOT_UPDATED: 'NOT_UPDATED',
   IN_PROGRESS: 'IN_PROGRESS',
   SUCCEEDED: 'SUCCEEDED',
@@ -535,7 +535,7 @@ export type SpaceUpdateState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AppDeployment_Mode = {
-  MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  MODE_UNSPECIFIED: '',
   SNAPSHOT: 'SNAPSHOT',
   AUTO_SYNC: 'AUTO_SYNC',
 } as const;
@@ -546,7 +546,7 @@ export type AppDeployment_Mode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AppDeployment_State = {
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   SUCCEEDED: 'SUCCEEDED',
   FAILED: 'FAILED',
   IN_PROGRESS: 'IN_PROGRESS',
@@ -766,7 +766,7 @@ export type AppResourceUcSecurable_UcSecurableType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AppUpdate_UpdateStatus_UpdateState = {
-  UPDATE_STATE_UNSPECIFIED: 'UPDATE_STATE_UNSPECIFIED',
+  UPDATE_STATE_UNSPECIFIED: '',
   NOT_UPDATED: 'NOT_UPDATED',
   IN_PROGRESS: 'IN_PROGRESS',
   SUCCEEDED: 'SUCCEEDED',
@@ -779,7 +779,7 @@ export type AppUpdate_UpdateStatus_UpdateState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ApplicationStatus_ApplicationState = {
-  APPLICATION_STATE_UNSPECIFIED: 'APPLICATION_STATE_UNSPECIFIED',
+  APPLICATION_STATE_UNSPECIFIED: '',
   DEPLOYING: 'DEPLOYING',
   RUNNING: 'RUNNING',
   CRASHED: 'CRASHED',
@@ -792,7 +792,7 @@ export type ApplicationStatus_ApplicationState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComputeStatus_ComputeState = {
-  COMPUTE_STATE_UNSPECIFIED: 'COMPUTE_STATE_UNSPECIFIED',
+  COMPUTE_STATE_UNSPECIFIED: '',
   ERROR: 'ERROR',
   DELETING: 'DELETING',
   STARTING: 'STARTING',
@@ -808,7 +808,7 @@ export type ComputeStatus_ComputeState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SpaceStatus_SpaceState = {
-  SPACE_STATE_UNSPECIFIED: 'SPACE_STATE_UNSPECIFIED',
+  SPACE_STATE_UNSPECIFIED: '',
   SPACE_CREATING: 'SPACE_CREATING',
   SPACE_ACTIVE: 'SPACE_ACTIVE',
   SPACE_ERROR: 'SPACE_ERROR',
