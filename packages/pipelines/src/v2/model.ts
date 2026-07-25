@@ -1102,6 +1102,27 @@ export interface IngestionPipelineDefinition {
   dataStagingOptions?: DataStagingOptions | undefined;
 }
 
+/**
+ * Fanout configuration for multi-table routing from streaming sources.
+ * Routes each input record to a destination table based on a routing
+ * key derived from the record. The key value becomes the table name
+ * suffix: {destination_catalog}.{destination_schema}.{key_value}.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface IngestionPipelineDefinition_FanoutOptions {
+  /**
+   * Column path or SQL expression whose value determines the destination table.
+   * Supports dotted paths (e.g. "value.event_name") and expressions
+   * (e.g. "value:event_name::string").
+   */
+  fanoutBy?: string | undefined;
+  /**
+   * Optional transforms applied to each route's DataFrame before writing
+   * to the destination table.
+   */
+  transforms?: Transformer[] | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_IngestionConfig {
   sourceTables?:
@@ -1155,6 +1176,13 @@ export interface IngestionPipelineDefinition_SchemaSpec {
     | undefined;
   /** (Optional) Source Specific Connector Options */
   connectorOptions?: ConnectorOptions | undefined;
+  /**
+   * Fanout options for multi-table routing from streaming sources.
+   * When set, records are routed to destination tables based on a
+   * per-record routing key. The key value becomes the table name:
+   * {destination_catalog}.{destination_schema}.{key_value}.
+   */
+  fanoutOptions?: IngestionPipelineDefinition_FanoutOptions | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3198,6 +3226,18 @@ export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipe
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalIngestionPipelineDefinition_FanoutOptionsSchema: z.ZodType<IngestionPipelineDefinition_FanoutOptions> =
+  z
+    .object({
+      fanout_by: z.string().optional(),
+      transforms: z.array(z.lazy(() => unmarshalTransformerSchema)).optional(),
+    })
+    .transform(d => ({
+      fanoutBy: d.fanout_by,
+      transforms: d.transforms,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType<IngestionPipelineDefinition_IngestionConfig> =
   z
     .object({
@@ -3260,6 +3300,9 @@ export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<In
       connector_options: z
         .lazy(() => unmarshalConnectorOptionsSchema)
         .optional(),
+      fanout_options: z
+        .lazy(() => unmarshalIngestionPipelineDefinition_FanoutOptionsSchema)
+        .optional(),
     })
     .transform(d => ({
       sourceCatalog: d.source_catalog,
@@ -3268,6 +3311,7 @@ export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<In
       destinationSchema: d.destination_schema,
       tableConfiguration: d.table_configuration,
       connectorOptions: d.connector_options,
+      fanoutOptions: d.fanout_options,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4948,6 +4992,18 @@ export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalIngestionPipelineDefinition_FanoutOptionsSchema: z.ZodType =
+  z
+    .object({
+      fanoutBy: z.string().optional(),
+      transforms: z.array(z.lazy(() => marshalTransformerSchema)).optional(),
+    })
+    .transform(d => ({
+      fanout_by: d.fanoutBy,
+      transforms: d.transforms,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType =
   z
     .object({
@@ -5014,6 +5070,9 @@ export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
       .optional(),
     connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
+    fanoutOptions: z
+      .lazy(() => marshalIngestionPipelineDefinition_FanoutOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     source_catalog: d.sourceCatalog,
@@ -5022,6 +5081,7 @@ export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
     destination_schema: d.destinationSchema,
     table_configuration: d.tableConfiguration,
     connector_options: d.connectorOptions,
+    fanout_options: d.fanoutOptions,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

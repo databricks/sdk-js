@@ -115,7 +115,7 @@ export interface FileInfo {
   path?: string | undefined;
   /** True if the path is a directory. */
   isDir?: boolean | undefined;
-  /** The length of the file in bytes. This field is omitted for directories. */
+  /** The length of the file in bytes. Set to 0 for directories. */
   fileSize?: bigint | undefined;
   /** Last modification time of given file in milliseconds since epoch. */
   modificationTime?: bigint | undefined;
@@ -166,7 +166,7 @@ export interface GetStatusResponse {
   path?: string | undefined;
   /** True if the path is a directory. */
   isDir?: boolean | undefined;
-  /** The length of the file in bytes. This field is omitted for directories. */
+  /** The length of the file in bytes. Set to 0 for directories. */
   fileSize?: bigint | undefined;
   /** Last modification time of given file in milliseconds since epoch. */
   modificationTime?: bigint | undefined;

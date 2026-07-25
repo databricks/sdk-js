@@ -871,6 +871,19 @@ export interface PatchInferenceEndpointTagsResponse {
   tags?: EndpointTag[] | undefined;
 }
 
+/** Updates the telemetry configuration of a serving endpoint. */
+export interface PatchInferenceEndpointTelemetryConfigRequest {
+  /** The name of the serving endpoint whose telemetry configuration is being updated. This field is required. */
+  name?: string | undefined;
+  /**
+   * The telemetry configuration to be applied to the serving endpoint.
+   * Can specify either a telemetry_profile_id to use an existing profile,
+   * or table_names to create a new profile with the specified Unity Catalog tables.
+   * If not provided, the telemetry configuration will be removed from the endpoint.
+   */
+  telemetryConfig?: TelemetryConfig | undefined;
+}
+
 export interface PayloadTable {
   name?: string | undefined;
   status?: string | undefined;
@@ -2473,6 +2486,17 @@ export const marshalPatchInferenceEndpointTagsRequestSchema: z.ZodType = z
     add_tags: d.addTags,
     delete_tags: d.deleteTags,
   }));
+
+export const marshalPatchInferenceEndpointTelemetryConfigRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+      telemetryConfig: z.lazy(() => marshalTelemetryConfigSchema).optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      telemetry_config: d.telemetryConfig,
+    }));
 
 export const marshalPayloadTableSchema: z.ZodType = z
   .object({

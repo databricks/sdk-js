@@ -41,6 +41,7 @@ import type {
   ListInferenceEndpointsResponse,
   PatchInferenceEndpointTagsRequest,
   PatchInferenceEndpointTagsResponse,
+  PatchInferenceEndpointTelemetryConfigRequest,
   PutInferenceEndpointAiGatewayRequest,
   PutInferenceEndpointAiGatewayResponse,
   PutInferenceEndpointConfigRequest,
@@ -56,6 +57,7 @@ import {
   marshalCreatePtEndpointRequestSchema,
   marshalExternalFunctionRequestSchema,
   marshalPatchInferenceEndpointTagsRequestSchema,
+  marshalPatchInferenceEndpointTelemetryConfigRequestSchema,
   marshalPutInferenceEndpointAiGatewayRequestSchema,
   marshalPutInferenceEndpointConfigRequestSchema,
   marshalPutInferenceEndpointRateLimitsRequestSchema,
@@ -439,6 +441,39 @@ export class ModelServingClient {
         respBody,
         unmarshalPatchInferenceEndpointTagsResponseSchema
       );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Updates the telemetry configuration of a serving endpoint. */
+  async patchInferenceEndpointTelemetryConfig(
+    req: PatchInferenceEndpointTelemetryConfigRequest,
+    options?: CallOptions
+  ): Promise<InferenceEndpointDetailed> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/telemetry-config`;
+    const body = marshalRequest(
+      req,
+      marshalPatchInferenceEndpointTelemetryConfigRequestSchema
+    );
+    let resp: InferenceEndpointDetailed | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
