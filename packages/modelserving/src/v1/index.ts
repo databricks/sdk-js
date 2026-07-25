@@ -72,6 +72,7 @@ export type {
   PaLmConfig,
   PatchInferenceEndpointTagsRequest,
   PatchInferenceEndpointTagsResponse,
+  PatchInferenceEndpointTelemetryConfigRequest,
   PayloadTable,
   PendingConfig,
   PiiSettings,
