@@ -48,6 +48,7 @@ export {
   Role_AuthMethod,
   Role_IdentityType,
   Role_MembershipRole,
+  SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance,
   SyncedTable_SyncedTableSpec_PgSpecificType,
   SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy,
 } from './model';
@@ -147,6 +148,7 @@ export type {
   RoleOperationMetadata,
   SyncedTable,
   SyncedTable_SyncedTableSpec,
+  SyncedTable_SyncedTableSpec_ExtraColumn,
   SyncedTable_SyncedTableSpec_TypeOverride,
   SyncedTable_SyncedTableStatus,
   SyncedTableOperationMetadata,

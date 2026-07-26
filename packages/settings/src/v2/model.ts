@@ -11,7 +11,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PreviewPhase = {
   /** Default value. Indicates the preview phase is unknown or the setting is not a feature preview. */
-  PREVIEW_PHASE_UNSPECIFIED: 'PREVIEW_PHASE_UNSPECIFIED',
+  PREVIEW_PHASE_UNSPECIFIED: '',
   /** The feature is in private preview, available only to specifically enrolled customers. */
   PRIVATE_PREVIEW: 'PRIVATE_PREVIEW',
   /**
@@ -32,7 +32,7 @@ export type PreviewPhase =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AibiDashboardEmbeddingAccessPolicy_AccessPolicyType = {
-  ACCESS_POLICY_TYPE_UNSPECIFIED: 'ACCESS_POLICY_TYPE_UNSPECIFIED',
+  ACCESS_POLICY_TYPE_UNSPECIFIED: '',
   ALLOW_ALL_DOMAINS: 'ALLOW_ALL_DOMAINS',
   ALLOW_APPROVED_DOMAINS: 'ALLOW_APPROVED_DOMAINS',
   DENY_ALL_DOMAINS: 'DENY_ALL_DOMAINS',
@@ -44,7 +44,7 @@ export type AibiDashboardEmbeddingAccessPolicy_AccessPolicyType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek = {
-  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  DAY_OF_WEEK_UNSPECIFIED: '',
   MONDAY: 'MONDAY',
   TUESDAY: 'TUESDAY',
   WEDNESDAY: 'WEDNESDAY',
@@ -60,7 +60,7 @@ export type ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency = {
-  WEEK_DAY_FREQUENCY_UNSPECIFIED: 'WEEK_DAY_FREQUENCY_UNSPECIFIED',
+  WEEK_DAY_FREQUENCY_UNSPECIFIED: '',
   FIRST_OF_MONTH: 'FIRST_OF_MONTH',
   SECOND_OF_MONTH: 'SECOND_OF_MONTH',
   THIRD_OF_MONTH: 'THIRD_OF_MONTH',
@@ -76,7 +76,7 @@ export type ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CollaborationPlatformConnectivityMessage_Connectivity = {
-  CONNECTIVITY_UNSPECIFIED: 'CONNECTIVITY_UNSPECIFIED',
+  CONNECTIVITY_UNSPECIFIED: '',
   ALLOW_ALL: 'ALLOW_ALL',
   ALLOW_TEAMS: 'ALLOW_TEAMS',
   ALLOW_SLACK: 'ALLOW_SLACK',
@@ -93,8 +93,7 @@ export type CollaborationPlatformConnectivityMessage_Connectivity =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PersonalComputeMessage_PersonalComputeMessageEnum = {
-  PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED:
-    'PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED',
+  PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED: '',
   ON: 'ON',
   DELEGATE: 'DELEGATE',
 } as const;
@@ -106,7 +105,7 @@ export type PersonalComputeMessage_PersonalComputeMessageEnum =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const RestrictWorkspaceAdminsMessage_Status = {
   /** Default value for proto enum */
-  STATUS_UNSPECIFIED: 'STATUS_UNSPECIFIED',
+  STATUS_UNSPECIFIED: '',
   /**
    * Default value for existing workspaces
    * Allows WS admins to create OBO tokens for all SPs in the workspace without explicit permissions.

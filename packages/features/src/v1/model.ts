@@ -11,7 +11,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ScalarDataType = {
-  SCALAR_DATA_TYPE_UNSPECIFIED: 'SCALAR_DATA_TYPE_UNSPECIFIED',
+  SCALAR_DATA_TYPE_UNSPECIFIED: '',
   INTEGER: 'INTEGER',
   FLOAT: 'FLOAT',
   BOOLEAN: 'BOOLEAN',
@@ -31,7 +31,7 @@ export type ScalarDataType =
 /** Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead. Kept for backwards compatibility. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Function_FunctionType = {
-  FUNCTION_TYPE_UNSPECIFIED: 'FUNCTION_TYPE_UNSPECIFIED',
+  FUNCTION_TYPE_UNSPECIFIED: '',
   AVG: 'AVG',
   COUNT: 'COUNT',
   SUM: 'SUM',
@@ -54,7 +54,7 @@ export type Function_FunctionType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const MaterializedFeature_PipelineScheduleState = {
   /** Default value, not used. */
-  PIPELINE_SCHEDULE_STATE_UNSPECIFIED: 'PIPELINE_SCHEDULE_STATE_UNSPECIFIED',
+  PIPELINE_SCHEDULE_STATE_UNSPECIFIED: '',
   /** Pipeline was configured to run once then stop. */
   SNAPSHOT: 'SNAPSHOT',
   /** Pipeline is actively running and computing features. */
@@ -67,10 +67,27 @@ export type MaterializedFeature_PipelineScheduleState =
   | (typeof MaterializedFeature_PipelineScheduleState)[keyof typeof MaterializedFeature_PipelineScheduleState]
   | (string & {});
 
+/** Supported serialization formats for a schema registry schema. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SchemaLocator_Format = {
+  /** Default value. Format is not set; the request will be rejected. */
+  FORMAT_UNSPECIFIED: '',
+  /** Avro-encoded schema. */
+  FORMAT_AVRO: 'FORMAT_AVRO',
+  /** Protobuf-encoded schema. */
+  FORMAT_PROTOBUF: 'FORMAT_PROTOBUF',
+  /** JSON-encoded schema. */
+  FORMAT_JSON: 'FORMAT_JSON',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type SchemaLocator_Format =
+  | (typeof SchemaLocator_Format)[keyof typeof SchemaLocator_Format]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StreamingMode_StreamingModeType = {
   /** Default value, not used. */
-  STREAMING_MODE_TYPE_UNSPECIFIED: 'STREAMING_MODE_TYPE_UNSPECIFIED',
+  STREAMING_MODE_TYPE_UNSPECIFIED: '',
   /**
    * Real-time mode. Ultra-low-latency trigger intended for operational workloads
    * that need responses in milliseconds or sub-second latency.
@@ -338,7 +355,7 @@ export interface DirectMtlsConfig {
 
 /**
  * Schema definitions provided directly on the Stream, as opposed to referencing a schema registry.
- * In a future milestone, we will support schema registries through a UC Connection.
+ * To resolve schemas from a registry instead, use SchemaRegistryConfig.
  */
 export interface DirectSchemas {
   /**
@@ -683,20 +700,6 @@ export interface LastNFunction {
   input?: string | undefined;
   /** The number of values to return. */
   n?: bigint | undefined;
-}
-
-/**
- * A window that spans the entire lifetime of a data source, accumulating from the source's start
- * rather than over a bounded duration. All fields are optional; an empty message denotes the
- * continuous, fully-accurate variant.
- */
-export interface LifetimeWindow {
-  /**
-   * The slide duration for the discrete (offline) variant: the value updates only at these
-   * boundaries. Must be positive when set. When absent, the window is continuous (the value is as
-   * fresh as the pipeline delivers).
-   */
-  slideDuration?: Temporal.Duration | undefined;
 }
 
 /** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
@@ -1045,6 +1048,58 @@ export interface SchemaConfig {
 }
 
 /**
+ * Schema locator for one side (payload or key) of a message.
+ * Identifies which schema to use in the schema registry and the serialization format.
+ */
+export interface SchemaLocator {
+  /** Registry-specific schema locator. */
+  registrySchema?:
+    | {
+        $case: 'confluentSchema';
+        /** Confluent Schema Registry schema locator. */
+        confluentSchema: SchemaLocator_ConfluentSchema;
+      }
+    | undefined;
+  /** Serialization format for this schema. */
+  format?: SchemaLocator_Format | undefined;
+}
+
+/**
+ * Confluent Schema Registry schema locator.
+ * The value to provide for `subject` depends on the naming strategy configured in your registry:
+ * - TopicNameStrategy (default): "{topic}-key" or "{topic}-value"
+ * e.g. for topic "transactions" use "transactions-value" for the payload and "transactions-key" for the key.
+ * - RecordNameStrategy: the fully-qualified record name
+ * e.g. "com.example.Payment" for Avro, the bare message name (without package) for Protobuf,
+ * or the `title` field value for JSON.
+ * - TopicRecordNameStrategy: "{topic}-{fully-qualified-record-name}"
+ * e.g. "transactions-com.example.Payment".
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SchemaLocator_ConfluentSchema {
+  /** The Confluent schema registry subject name. */
+  subject?: string | undefined;
+}
+
+/** Configuration for resolving a Stream's schema from an external schema registry (e.g. Confluent). */
+export interface SchemaRegistryConfig {
+  /** A Schema Registry UC Connection object. */
+  ucConnection?: string | undefined;
+  /** Reference to the schema registry API secret in a <Databricks> secret scope. */
+  apiSecretRef?: SecretScopeReference | undefined;
+  /**
+   * Schema locator for the message payload. For Kafka this is the value.
+   * At least one of payload_schema_locator or key_schema_locator must be set.
+   */
+  payloadSchemaLocator?: SchemaLocator | undefined;
+  /**
+   * Schema locator for the message key. Only used for Kafka streams.
+   * At least one of payload_schema_locator or key_schema_locator must be set.
+   */
+  keySchemaLocator?: SchemaLocator | undefined;
+}
+
+/**
  * Reference to an entry in a <Databricks> secret scope. The referenced value is fetched
  * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
  */
@@ -1096,8 +1151,8 @@ export interface Stream {
   /** Specifies how to connect and authenticate to the stream platform. */
   connectionConfig?: StreamConnectionConfig | undefined;
   /**
-   * Schema definitions for the stream. Currently only direct schemas are supported.
-   * In a future milestone, we will support schema registries through a UC Connection.
+   * Schema definitions for the stream, provided either directly on the Stream or
+   * resolved from an external schema registry through a UC Connection.
    */
   schemaConfig?: StreamSchemaConfig | undefined;
   /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
@@ -1140,8 +1195,8 @@ export interface StreamConnectionConfig {
 }
 
 /**
- * Schema definitions for the stream. Currently only direct schemas are supported.
- * In a future milestone, we will support schema registries through a UC Connection.
+ * Schema definitions for the stream.
+ * Feature store supports both direct schemas and schema registries.
  */
 export interface StreamSchemaConfig {
   schemaConfig?:
@@ -1149,6 +1204,11 @@ export interface StreamSchemaConfig {
         $case: 'directSchemas';
         /** Schema definitions provided directly on the Stream. */
         directSchemas: DirectSchemas;
+      }
+    | {
+        $case: 'schemaRegistryConfig';
+        /** Resolve schemas from an external schema registry. */
+        schemaRegistryConfig: SchemaRegistryConfig;
       }
     | undefined;
 }
@@ -1240,11 +1300,6 @@ export interface TimeWindow {
     | {$case: 'tumbling'; tumbling: TumblingWindow}
     | {$case: 'sliding'; sliding: SlidingWindow}
     | {$case: 'rolling'; rolling: RollingWindow}
-    | {
-        $case: 'lifetime';
-        /** A window that spans the entire lifetime of the data source. */
-        lifetime: LifetimeWindow;
-      }
     | {
         $case: 'sawtooth';
         /** A sawtooth window served via the hybrid batch + streaming path. */
@@ -1914,17 +1969,6 @@ export const unmarshalLastNFunctionSchema: z.ZodType<LastNFunction> = z
     n: d.n,
   }));
 
-export const unmarshalLifetimeWindowSchema: z.ZodType<LifetimeWindow> = z
-  .object({
-    slide_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-  })
-  .transform(d => ({
-    slideDuration: d.slide_duration,
-  }));
-
 export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
   .object({
     notebook_id: z
@@ -2184,6 +2228,53 @@ export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
             : undefined,
   }));
 
+export const unmarshalSchemaLocatorSchema: z.ZodType<SchemaLocator> = z
+  .object({
+    confluent_schema: z
+      .lazy(() => unmarshalSchemaLocator_ConfluentSchemaSchema)
+      .optional(),
+    format: z.string().optional(),
+  })
+  .transform(d => ({
+    registrySchema:
+      d.confluent_schema !== undefined
+        ? {
+            $case: 'confluentSchema' as const,
+            confluentSchema: d.confluent_schema,
+          }
+        : undefined,
+    format: d.format,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSchemaLocator_ConfluentSchemaSchema: z.ZodType<SchemaLocator_ConfluentSchema> =
+  z
+    .object({
+      subject: z.string().optional(),
+    })
+    .transform(d => ({
+      subject: d.subject,
+    }));
+
+export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig> =
+  z
+    .object({
+      uc_connection: z.string().optional(),
+      api_secret_ref: z
+        .lazy(() => unmarshalSecretScopeReferenceSchema)
+        .optional(),
+      payload_schema_locator: z
+        .lazy(() => unmarshalSchemaLocatorSchema)
+        .optional(),
+      key_schema_locator: z.lazy(() => unmarshalSchemaLocatorSchema).optional(),
+    })
+    .transform(d => ({
+      ucConnection: d.uc_connection,
+      apiSecretRef: d.api_secret_ref,
+      payloadSchemaLocator: d.payload_schema_locator,
+      keySchemaLocator: d.key_schema_locator,
+    }));
+
 export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
   z
     .object({
@@ -2291,12 +2382,20 @@ export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
   z
     .object({
       direct_schemas: z.lazy(() => unmarshalDirectSchemasSchema).optional(),
+      schema_registry_config: z
+        .lazy(() => unmarshalSchemaRegistryConfigSchema)
+        .optional(),
     })
     .transform(d => ({
       schemaConfig:
         d.direct_schemas !== undefined
           ? {$case: 'directSchemas' as const, directSchemas: d.direct_schemas}
-          : undefined,
+          : d.schema_registry_config !== undefined
+            ? {
+                $case: 'schemaRegistryConfig' as const,
+                schemaRegistryConfig: d.schema_registry_config,
+              }
+            : undefined,
     }));
 
 export const unmarshalStreamSourceSchema: z.ZodType<StreamSource> = z
@@ -2378,7 +2477,6 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     tumbling: z.lazy(() => unmarshalTumblingWindowSchema).optional(),
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
     rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
-    lifetime: z.lazy(() => unmarshalLifetimeWindowSchema).optional(),
     sawtooth: z.lazy(() => unmarshalSawtoothWindowSchema).optional(),
   })
   .transform(d => ({
@@ -2391,11 +2489,9 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
             ? {$case: 'sliding' as const, sliding: d.sliding}
             : d.rolling !== undefined
               ? {$case: 'rolling' as const, rolling: d.rolling}
-              : d.lifetime !== undefined
-                ? {$case: 'lifetime' as const, lifetime: d.lifetime}
-                : d.sawtooth !== undefined
-                  ? {$case: 'sawtooth' as const, sawtooth: d.sawtooth}
-                  : undefined,
+              : d.sawtooth !== undefined
+                ? {$case: 'sawtooth' as const, sawtooth: d.sawtooth}
+                : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -3056,17 +3152,6 @@ export const marshalLastNFunctionSchema: z.ZodType = z
     n: d.n,
   }));
 
-export const marshalLifetimeWindowSchema: z.ZodType = z
-  .object({
-    slideDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-  })
-  .transform(d => ({
-    slide_duration: d.slideDuration,
-  }));
-
 export const marshalLineageContextSchema: z.ZodType = z
   .object({
     notebookId: z.bigint().optional(),
@@ -3285,6 +3370,50 @@ export const marshalSchemaConfigSchema: z.ZodType = z
     }),
   }));
 
+export const marshalSchemaLocatorSchema: z.ZodType = z
+  .object({
+    registrySchema: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('confluentSchema'),
+          confluentSchema: z.lazy(
+            () => marshalSchemaLocator_ConfluentSchemaSchema
+          ),
+        }),
+      ])
+      .optional(),
+    format: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.registrySchema?.$case === 'confluentSchema' && {
+      confluent_schema: d.registrySchema.confluentSchema,
+    }),
+    format: d.format,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSchemaLocator_ConfluentSchemaSchema: z.ZodType = z
+  .object({
+    subject: z.string().optional(),
+  })
+  .transform(d => ({
+    subject: d.subject,
+  }));
+
+export const marshalSchemaRegistryConfigSchema: z.ZodType = z
+  .object({
+    ucConnection: z.string().optional(),
+    apiSecretRef: z.lazy(() => marshalSecretScopeReferenceSchema).optional(),
+    payloadSchemaLocator: z.lazy(() => marshalSchemaLocatorSchema).optional(),
+    keySchemaLocator: z.lazy(() => marshalSchemaLocatorSchema).optional(),
+  })
+  .transform(d => ({
+    uc_connection: d.ucConnection,
+    api_secret_ref: d.apiSecretRef,
+    payload_schema_locator: d.payloadSchemaLocator,
+    key_schema_locator: d.keySchemaLocator,
+  }));
+
 export const marshalSecretScopeReferenceSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
@@ -3395,12 +3524,19 @@ export const marshalStreamSchemaConfigSchema: z.ZodType = z
           $case: z.literal('directSchemas'),
           directSchemas: z.lazy(() => marshalDirectSchemasSchema),
         }),
+        z.object({
+          $case: z.literal('schemaRegistryConfig'),
+          schemaRegistryConfig: z.lazy(() => marshalSchemaRegistryConfigSchema),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.schemaConfig?.$case === 'directSchemas' && {
       direct_schemas: d.schemaConfig.directSchemas,
+    }),
+    ...(d.schemaConfig?.$case === 'schemaRegistryConfig' && {
+      schema_registry_config: d.schemaConfig.schemaRegistryConfig,
     }),
   }));
 
@@ -3501,10 +3637,6 @@ export const marshalTimeWindowSchema: z.ZodType = z
           rolling: z.lazy(() => marshalRollingWindowSchema),
         }),
         z.object({
-          $case: z.literal('lifetime'),
-          lifetime: z.lazy(() => marshalLifetimeWindowSchema),
-        }),
-        z.object({
           $case: z.literal('sawtooth'),
           sawtooth: z.lazy(() => marshalSawtoothWindowSchema),
         }),
@@ -3520,9 +3652,6 @@ export const marshalTimeWindowSchema: z.ZodType = z
     }),
     ...(d.windowType?.$case === 'sliding' && {sliding: d.windowType.sliding}),
     ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
-    ...(d.windowType?.$case === 'lifetime' && {
-      lifetime: d.windowType.lifetime,
-    }),
     ...(d.windowType?.$case === 'sawtooth' && {
       sawtooth: d.windowType.sawtooth,
     }),
@@ -3846,10 +3975,6 @@ const lastNFunctionFieldMaskSchema: FieldMaskSchema = {
   n: {wire: 'n'},
 };
 
-const lifetimeWindowFieldMaskSchema: FieldMaskSchema = {
-  slideDuration: {wire: 'slide_duration'},
-};
-
 const lineageContextFieldMaskSchema: FieldMaskSchema = {
   jobContext: {wire: 'job_context', children: () => jobContextFieldMaskSchema},
   notebookId: {wire: 'notebook_id'},
@@ -3961,6 +4086,35 @@ const schemaConfigFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
+const schemaLocatorFieldMaskSchema: FieldMaskSchema = {
+  confluentSchema: {
+    wire: 'confluent_schema',
+    children: () => schemaLocator_ConfluentSchemaFieldMaskSchema,
+  },
+  format: {wire: 'format'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const schemaLocator_ConfluentSchemaFieldMaskSchema: FieldMaskSchema = {
+  subject: {wire: 'subject'},
+};
+
+const schemaRegistryConfigFieldMaskSchema: FieldMaskSchema = {
+  apiSecretRef: {
+    wire: 'api_secret_ref',
+    children: () => secretScopeReferenceFieldMaskSchema,
+  },
+  keySchemaLocator: {
+    wire: 'key_schema_locator',
+    children: () => schemaLocatorFieldMaskSchema,
+  },
+  payloadSchemaLocator: {
+    wire: 'payload_schema_locator',
+    children: () => schemaLocatorFieldMaskSchema,
+  },
+  ucConnection: {wire: 'uc_connection'},
+};
+
 const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
   key: {wire: 'key'},
   scope: {wire: 'scope'},
@@ -4022,6 +4176,10 @@ const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
     wire: 'direct_schemas',
     children: () => directSchemasFieldMaskSchema,
   },
+  schemaRegistryConfig: {
+    wire: 'schema_registry_config',
+    children: () => schemaRegistryConfigFieldMaskSchema,
+  },
 };
 
 const streamSourceFieldMaskSchema: FieldMaskSchema = {
@@ -4060,7 +4218,6 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
     wire: 'continuous',
     children: () => continuousWindowFieldMaskSchema,
   },
-  lifetime: {wire: 'lifetime', children: () => lifetimeWindowFieldMaskSchema},
   rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
   sawtooth: {wire: 'sawtooth', children: () => sawtoothWindowFieldMaskSchema},
   sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},

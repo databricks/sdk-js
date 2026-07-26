@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ChannelName = {
-  CHANNEL_NAME_UNSPECIFIED: 'CHANNEL_NAME_UNSPECIFIED',
+  CHANNEL_NAME_UNSPECIFIED: '',
   CHANNEL_NAME_PREVIEW: 'CHANNEL_NAME_PREVIEW',
   CHANNEL_NAME_CURRENT: 'CHANNEL_NAME_CURRENT',
   CHANNEL_NAME_PREVIOUS: 'CHANNEL_NAME_PREVIOUS',

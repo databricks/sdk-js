@@ -7,7 +7,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SystemType = {
-  SYSTEM_TYPE_UNSPECIFIED: 'SYSTEM_TYPE_UNSPECIFIED',
+  SYSTEM_TYPE_UNSPECIFIED: '',
   OTHER: 'OTHER',
   TABLEAU: 'TABLEAU',
   POWER_BI: 'POWER_BI',

@@ -10,6 +10,7 @@ export {
   ScalarDataType,
   Function_FunctionType,
   MaterializedFeature_PipelineScheduleState,
+  SchemaLocator_Format,
   StreamingMode_StreamingModeType,
 } from './model';
 
@@ -62,7 +63,6 @@ export type {
   LastDistinctFunction,
   LastFunction,
   LastNFunction,
-  LifetimeWindow,
   LineageContext,
   ListFeaturesRequest,
   ListFeaturesResponse,
@@ -83,6 +83,9 @@ export type {
   RollingWindow,
   SawtoothWindow,
   SchemaConfig,
+  SchemaLocator,
+  SchemaLocator_ConfluentSchema,
+  SchemaRegistryConfig,
   SecretScopeReference,
   SlidingWindow,
   StddevPopFunction,

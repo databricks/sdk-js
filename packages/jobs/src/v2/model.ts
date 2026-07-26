@@ -65,7 +65,7 @@ export type AzureAvailability =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComputeKind = {
-  COMPUTE_KIND_UNSPECIFIED: 'COMPUTE_KIND_UNSPECIFIED',
+  COMPUTE_KIND_UNSPECIFIED: '',
   CLASSIC_PREVIEW: 'CLASSIC_PREVIEW',
 } as const;
 export type ComputeKind =
@@ -80,8 +80,7 @@ export type ComputeKind =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConfidentialComputeType = {
-  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED:
-    'CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED',
+  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED: '',
   CONFIDENTIAL_COMPUTE_TYPE_NONE: 'CONFIDENTIAL_COMPUTE_TYPE_NONE',
   SEV_SNP: 'SEV_SNP',
 } as const;
@@ -154,7 +153,7 @@ export type DataSecurityMode =
 /** Response enumeration from calling the dbt platform API, for inclusion in output */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DbtPlatformRunStatus = {
-  DBT_PLATFORM_RUN_STATUS_UNSPECIFIED: 'DBT_PLATFORM_RUN_STATUS_UNSPECIFIED',
+  DBT_PLATFORM_RUN_STATUS_UNSPECIFIED: '',
   QUEUED: 'QUEUED',
   STARTING: 'STARTING',
   RUNNING: 'RUNNING',
@@ -164,6 +163,24 @@ export const DbtPlatformRunStatus = {
 } as const;
 export type DbtPlatformRunStatus =
   | (typeof DbtPlatformRunStatus)[keyof typeof DbtPlatformRunStatus]
+  | (string & {});
+
+/**
+ * Controls dependency configuration for the cluster.
+ *
+ * * `DEPENDENCY_MODE_AUTO`: <Databricks> will choose the most appropriate dependency mode based on your compute configuration.
+ * * `DEPENDENCY_MODE_ENVIRONMENTS`: Enables a unified dependency management experience across classic and serverless, resulting in increased stability and performance. Supported only on DBR 19+ in Standard access mode.
+ * * `DEPENDENCY_MODE_CLUSTER_LIBRARIES`: Legacy mode: dependencies come from cluster libraries and init scripts.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DependencyMode = {
+  DEPENDENCY_MODE_UNSPECIFIED: '',
+  DEPENDENCY_MODE_ENVIRONMENTS: 'DEPENDENCY_MODE_ENVIRONMENTS',
+  DEPENDENCY_MODE_CLUSTER_LIBRARIES: 'DEPENDENCY_MODE_CLUSTER_LIBRARIES',
+  DEPENDENCY_MODE_AUTO: 'DEPENDENCY_MODE_AUTO',
+} as const;
+export type DependencyMode =
+  | (typeof DependencyMode)[keyof typeof DependencyMode]
   | (string & {});
 
 /**
@@ -344,8 +361,7 @@ export type Source = (typeof Source)[keyof typeof Source] | (string & {});
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SqlConditionTriggerMode = {
-  SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED:
-    'SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED',
+  SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED: '',
   QUERY_RETURNS_ROWS: 'QUERY_RETURNS_ROWS',
   RESULT_VALUE_CHANGES: 'RESULT_VALUE_CHANGES',
 } as const;
@@ -471,7 +487,7 @@ export type AccessControlRequest_JobPermission =
 /** Same alert evaluation state as in redash-v2/api/proto/alertsv2/alerts.proto */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AlertEvaluationState_AlertEvaluationState = {
-  ALERT_EVALUATION_STATE_UNSPECIFIED: 'ALERT_EVALUATION_STATE_UNSPECIFIED',
+  ALERT_EVALUATION_STATE_UNSPECIFIED: '',
   UNKNOWN: 'UNKNOWN',
   TRIGGERED: 'TRIGGERED',
   OK: 'OK',
@@ -488,7 +504,7 @@ export type AlertEvaluationState_AlertEvaluationState =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState = {
-  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
+  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: '',
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
   TERMINATING: 'TERMINATING',
@@ -510,7 +526,7 @@ export type CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskRunResultState_CleanRoomTaskRunResultState = {
-  RUN_RESULT_STATE_UNSPECIFIED: 'RUN_RESULT_STATE_UNSPECIFIED',
+  RUN_RESULT_STATE_UNSPECIFIED: '',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
   TIMEDOUT: 'TIMEDOUT',
@@ -603,7 +619,7 @@ export type JobSource_DirtyState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ModelTriggerConfiguration_ModelTriggerCondition = {
-  CONDITION_UNSPECIFIED: 'CONDITION_UNSPECIFIED',
+  CONDITION_UNSPECIFIED: '',
   MODEL_CREATED: 'MODEL_CREATED',
   MODEL_VERSION_READY: 'MODEL_VERSION_READY',
   MODEL_ALIAS_SET: 'MODEL_ALIAS_SET',
@@ -620,7 +636,7 @@ export type ModelTriggerConfiguration_ModelTriggerCondition =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PerformanceTarget_PerformanceTarget = {
-  PERFORMANCE_TARGET_UNSPECIFIED: 'PERFORMANCE_TARGET_UNSPECIFIED',
+  PERFORMANCE_TARGET_UNSPECIFIED: '',
   PERFORMANCE_OPTIMIZED: 'PERFORMANCE_OPTIMIZED',
   STANDARD: 'STANDARD',
 } as const;
@@ -631,7 +647,7 @@ export type PerformanceTarget_PerformanceTarget =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PeriodicTriggerConfiguration_TimeUnit = {
-  TIME_UNIT_UNSPECIFIED: 'TIME_UNIT_UNSPECIFIED',
+  TIME_UNIT_UNSPECIFIED: '',
   HOURS: 'HOURS',
   DAYS: 'DAYS',
   WEEKS: 'WEEKS',
@@ -948,6 +964,12 @@ export interface AiRuntimeTask {
    * eventual intent but not yet supported.
    */
   deployments?: DeploymentSpec[] | undefined;
+  /**
+   * Workspace or UC volume path of the code-source archive, unpacked on
+   * each node and exposed through `$CODE_SOURCE`. Set by first-party
+   * tooling; not for direct callers.
+   */
+  codeSourcePath?: string | undefined;
   /**
    * Optional display name for the MLflow run created under `experiment`. If
    * omitted, MLflow generates a default name.
@@ -1601,6 +1623,8 @@ export interface ClusterSpec_NewCluster {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
   size?:
     | {
         $case: 'numWorkers';
@@ -5235,12 +5259,14 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     deployments: z
       .array(z.lazy(() => unmarshalDeploymentSpecSchema))
       .optional(),
+    code_source_path: z.string().optional(),
     mlflow_run: z.string().optional(),
     mlflow_experiment_directory: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
     deployments: d.deployments,
+    codeSourcePath: d.code_source_path,
     mlflowRun: d.mlflow_run,
     mlflowExperimentDirectory: d.mlflow_experiment_directory,
   }));
@@ -5645,6 +5671,7 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       is_single_node: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
+      dependency_mode: z.string().optional(),
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
@@ -5681,6 +5708,7 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       isSingleNode: d.is_single_node,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+      dependencyMode: d.dependency_mode,
       size:
         d.num_workers !== undefined
           ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
@@ -8563,12 +8591,14 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
   .object({
     experiment: z.string().optional(),
     deployments: z.array(z.lazy(() => marshalDeploymentSpecSchema)).optional(),
+    codeSourcePath: z.string().optional(),
     mlflowRun: z.string().optional(),
     mlflowExperimentDirectory: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
     deployments: d.deployments,
+    code_source_path: d.codeSourcePath,
     mlflow_run: d.mlflowRun,
     mlflow_experiment_directory: d.mlflowExperimentDirectory,
   }));
@@ -8758,6 +8788,7 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     isSingleNode: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
     size: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
@@ -8801,6 +8832,7 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     is_single_node: d.isSingleNode,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
     ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
     ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
   }));

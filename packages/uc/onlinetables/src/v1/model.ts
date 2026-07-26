@@ -7,7 +7,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OnlineTableState = {
   /** The default state. It should not be reported by any online tables. */
-  ONLINE_TABLE_STATE_UNSPECIFIED: 'ONLINE_TABLE_STATE_UNSPECIFIED',
+  ONLINE_TABLE_STATE_UNSPECIFIED: '',
   /**
    * The online table has just been created and resources are being provisioned. This is also the
    * catch-all state if there is not a more suitable state to report for the online table.
@@ -59,7 +59,7 @@ export type OnlineTableState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningInfo_State = {
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   PROVISIONING: 'PROVISIONING',
   ACTIVE: 'ACTIVE',
   FAILED: 'FAILED',

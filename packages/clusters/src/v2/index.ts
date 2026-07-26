@@ -23,6 +23,7 @@ export {
   ConfidentialComputeType,
   DataPlaneClusterEventType,
   DataSecurityMode,
+  DependencyMode,
   EbsVolumeType,
   GcpAvailability,
   GetEventsOrder,
