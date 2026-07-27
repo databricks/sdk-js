@@ -36,7 +36,7 @@ export type PermissionLevel =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const RequestAuthzIdentity = {
-  REQUEST_AUTHZ_IDENTITY_UNSPECIFIED: 'REQUEST_AUTHZ_IDENTITY_UNSPECIFIED',
+  REQUEST_AUTHZ_IDENTITY_UNSPECIFIED: '',
   REQUEST_AUTHZ_IDENTITY_USER_CONTEXT: 'REQUEST_AUTHZ_IDENTITY_USER_CONTEXT',
   REQUEST_AUTHZ_IDENTITY_SERVICE_IDENTITY:
     'REQUEST_AUTHZ_IDENTITY_SERVICE_IDENTITY',

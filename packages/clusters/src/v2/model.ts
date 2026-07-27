@@ -68,7 +68,7 @@ export type CloudProviderNodeStatus =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComputeKind = {
-  COMPUTE_KIND_UNSPECIFIED: 'COMPUTE_KIND_UNSPECIFIED',
+  COMPUTE_KIND_UNSPECIFIED: '',
   CLASSIC_PREVIEW: 'CLASSIC_PREVIEW',
 } as const;
 export type ComputeKind =
@@ -83,8 +83,7 @@ export type ComputeKind =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConfidentialComputeType = {
-  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED:
-    'CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED',
+  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED: '',
   CONFIDENTIAL_COMPUTE_TYPE_NONE: 'CONFIDENTIAL_COMPUTE_TYPE_NONE',
   SEV_SNP: 'SEV_SNP',
 } as const;
@@ -161,6 +160,24 @@ export const DataSecurityMode = {
 } as const;
 export type DataSecurityMode =
   | (typeof DataSecurityMode)[keyof typeof DataSecurityMode]
+  | (string & {});
+
+/**
+ * Controls dependency configuration for the cluster.
+ *
+ * * `DEPENDENCY_MODE_AUTO`: <Databricks> will choose the most appropriate dependency mode based on your compute configuration.
+ * * `DEPENDENCY_MODE_ENVIRONMENTS`: Enables a unified dependency management experience across classic and serverless, resulting in increased stability and performance. Supported only on DBR 19+ in Standard access mode.
+ * * `DEPENDENCY_MODE_CLUSTER_LIBRARIES`: Legacy mode: dependencies come from cluster libraries and init scripts.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DependencyMode = {
+  DEPENDENCY_MODE_UNSPECIFIED: '',
+  DEPENDENCY_MODE_ENVIRONMENTS: 'DEPENDENCY_MODE_ENVIRONMENTS',
+  DEPENDENCY_MODE_CLUSTER_LIBRARIES: 'DEPENDENCY_MODE_CLUSTER_LIBRARIES',
+  DEPENDENCY_MODE_AUTO: 'DEPENDENCY_MODE_AUTO',
+} as const;
+export type DependencyMode =
+  | (typeof DependencyMode)[keyof typeof DependencyMode]
   | (string & {});
 
 /**
@@ -974,7 +991,7 @@ export type ClusterState_ClusterState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EnforcePolicyComplianceForClusterRequest_EnforceMode = {
   /** Default value. This value is unused. */
-  ENFORCE_MODE_UNSPECIFIED: 'ENFORCE_MODE_UNSPECIFIED',
+  ENFORCE_MODE_UNSPECIFIED: '',
   /**
    * If the cluster is in the TERMINATED state, edit the cluster immediately.
    * If the cluster is in the RUNNING state, edit and restart the cluster.
@@ -997,7 +1014,7 @@ export type EnforcePolicyComplianceForClusterRequest_EnforceMode =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EnforcePolicyComplianceForClusterResponse_EnforceResult = {
   /** Default value. This value is unused. */
-  ENFORCE_RESULT_UNSPECIFIED: 'ENFORCE_RESULT_UNSPECIFIED',
+  ENFORCE_RESULT_UNSPECIFIED: '',
   /** No changes were made to the cluster. */
   NO_CHANGES: 'NO_CHANGES',
   /** Changes were applied to the cluster. */
@@ -1044,7 +1061,7 @@ export type InitScriptExecutionDetails_InitScriptExecutionStatus =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PendingEnforcement_EnforcementStatus = {
   /** Default value. This value is unused. */
-  ENFORCEMENT_STATUS_UNSPECIFIED: 'ENFORCEMENT_STATUS_UNSPECIFIED',
+  ENFORCEMENT_STATUS_UNSPECIFIED: '',
   /**
    * The pending enforcement will be attempted on the next cluster terminate or
    * restart.
@@ -1420,6 +1437,8 @@ export interface ClusterAttributes {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
 }
 
 export interface ClusterCompliance {
@@ -1679,6 +1698,8 @@ export interface ClusterInfo {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
   /**
    * Time (in epoch milliseconds) when the cluster creation request was received (when the cluster
    * entered a `PENDING` state).
@@ -1874,6 +1895,8 @@ export interface ClusterInfo_ComputeSpec {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
   size?:
     | {
         $case: 'numWorkers';
@@ -2147,6 +2170,8 @@ export interface CreateClusterRequest {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
 }
 
 export interface CreateClusterResponse {
@@ -2375,6 +2400,8 @@ export interface EditClusterRequest {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -2579,6 +2606,8 @@ export interface EnforcePolicyComplianceForClusterResponse_ClusterSettings {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
   size?:
     | {
         $case: 'numWorkers';
@@ -3594,6 +3623,8 @@ export interface UpdateClusterRequest_UpdateClusterResource {
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   totalInitialRemoteDiskSize?: number | undefined;
+  /** Controls dependency configuration for the cluster. */
+  dependencyMode?: DependencyMode | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3744,6 +3775,7 @@ export const unmarshalClusterAttributesSchema: z.ZodType<ClusterAttributes> = z
     is_single_node: z.boolean().optional(),
     remote_disk_throughput: z.number().optional(),
     total_initial_remote_disk_size: z.number().optional(),
+    dependency_mode: z.string().optional(),
   })
   .transform(d => ({
     clusterName: d.cluster_name,
@@ -3777,6 +3809,7 @@ export const unmarshalClusterAttributesSchema: z.ZodType<ClusterAttributes> = z
     isSingleNode: d.is_single_node,
     remoteDiskThroughput: d.remote_disk_throughput,
     totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+    dependencyMode: d.dependency_mode,
   }));
 
 export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
@@ -3879,6 +3912,7 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     is_single_node: z.boolean().optional(),
     remote_disk_throughput: z.number().optional(),
     total_initial_remote_disk_size: z.number().optional(),
+    dependency_mode: z.string().optional(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -3944,6 +3978,7 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     isSingleNode: d.is_single_node,
     remoteDiskThroughput: d.remote_disk_throughput,
     totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+    dependencyMode: d.dependency_mode,
     startTime: d.start_time,
     terminatedTime: d.terminated_time,
     lastStateLossTime: d.last_state_loss_time,
@@ -3998,6 +4033,7 @@ export const unmarshalClusterInfo_ComputeSpecSchema: z.ZodType<ClusterInfo_Compu
       is_single_node: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
+      dependency_mode: z.string().optional(),
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
@@ -4034,6 +4070,7 @@ export const unmarshalClusterInfo_ComputeSpecSchema: z.ZodType<ClusterInfo_Compu
       isSingleNode: d.is_single_node,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+      dependencyMode: d.dependency_mode,
       size:
         d.num_workers !== undefined
           ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
@@ -4198,6 +4235,7 @@ export const unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsS
       is_single_node: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
+      dependency_mode: z.string().optional(),
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
@@ -4233,6 +4271,7 @@ export const unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsS
       isSingleNode: d.is_single_node,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+      dependencyMode: d.dependency_mode,
       size:
         d.num_workers !== undefined
           ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
@@ -5002,6 +5041,7 @@ export const marshalCreateClusterRequestSchema: z.ZodType = z
     isSingleNode: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
   })
   .transform(d => ({
     apply_policy_default_values: d.applyPolicyDefaultValues,
@@ -5039,6 +5079,7 @@ export const marshalCreateClusterRequestSchema: z.ZodType = z
     is_single_node: d.isSingleNode,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
   }));
 
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
@@ -5134,6 +5175,7 @@ export const marshalEditClusterRequestSchema: z.ZodType = z
     isSingleNode: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5171,6 +5213,7 @@ export const marshalEditClusterRequestSchema: z.ZodType = z
     is_single_node: d.isSingleNode,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
   }));
 
 export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
@@ -5461,6 +5504,7 @@ export const marshalUpdateClusterRequest_UpdateClusterResourceSchema: z.ZodType 
       isSingleNode: z.boolean().optional(),
       remoteDiskThroughput: z.number().optional(),
       totalInitialRemoteDiskSize: z.number().optional(),
+      dependencyMode: z.string().optional(),
     })
     .transform(d => ({
       ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
@@ -5496,6 +5540,7 @@ export const marshalUpdateClusterRequest_UpdateClusterResourceSchema: z.ZodType 
       is_single_node: d.isSingleNode,
       remote_disk_throughput: d.remoteDiskThroughput,
       total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+      dependency_mode: d.dependencyMode,
     }));
 
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
@@ -5635,6 +5680,7 @@ const updateClusterRequest_UpdateClusterResourceFieldMaskSchema: FieldMaskSchema
     clusterName: {wire: 'cluster_name'},
     customTags: {wire: 'custom_tags'},
     dataSecurityMode: {wire: 'data_security_mode'},
+    dependencyMode: {wire: 'dependency_mode'},
     dockerImage: {
       wire: 'docker_image',
       children: () => dockerImageFieldMaskSchema,

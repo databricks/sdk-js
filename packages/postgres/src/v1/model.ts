@@ -9,7 +9,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CdfState = {
   /** Default value. Returned when the replication state is unknown or not set. */
-  CDF_STATE_UNSPECIFIED: 'CDF_STATE_UNSPECIFIED',
+  CDF_STATE_UNSPECIFIED: '',
   /**
    * Taking the initial snapshot: the table's existing rows are being written
    * to the Delta table.
@@ -35,7 +35,7 @@ export type CdfState = (typeof CdfState)[keyof typeof CdfState] | (string & {});
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointType = {
   /** Default value, not used */
-  ENDPOINT_TYPE_UNSPECIFIED: 'ENDPOINT_TYPE_UNSPECIFIED',
+  ENDPOINT_TYPE_UNSPECIFIED: '',
   ENDPOINT_TYPE_READ_WRITE: 'ENDPOINT_TYPE_READ_WRITE',
   ENDPOINT_TYPE_READ_ONLY: 'ENDPOINT_TYPE_READ_ONLY',
 } as const;
@@ -558,7 +558,7 @@ export type ErrorCode =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OpenApiMode = {
   /** Unspecified; the server applies its default mode. */
-  OPEN_API_MODE_UNSPECIFIED: 'OPEN_API_MODE_UNSPECIFIED',
+  OPEN_API_MODE_UNSPECIFIED: '',
   /** Generate OpenAPI output ignoring the privileges of the requesting role. */
   OPEN_API_MODE_IGNORE_PRIVILEGES: 'OPEN_API_MODE_IGNORE_PRIVILEGES',
   /** Disable the OpenAPI documentation endpoint entirely. */
@@ -572,7 +572,7 @@ export type OpenApiMode =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningPhase = {
   /** The default phase. It should not be reported by any synced tables. */
-  PROVISIONING_PHASE_UNSPECIFIED: 'PROVISIONING_PHASE_UNSPECIFIED',
+  PROVISIONING_PHASE_UNSPECIFIED: '',
   /** Ingestion phase of the synced table. This is when the synced table is ingesting data from the delta table. */
   PROVISIONING_PHASE_MAIN: 'PROVISIONING_PHASE_MAIN',
   /** Index scan phase of the synced table. This is when the synced table is creating indexes on the ingested data. */
@@ -588,7 +588,7 @@ export type ProvisioningPhase =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTableState = {
   /** The default state. It should not be reported by any synced tables. */
-  SYNCED_TABLE_STATE_UNSPECIFIED: 'SYNCED_TABLE_STATE_UNSPECIFIED',
+  SYNCED_TABLE_STATE_UNSPECIFIED: '',
   /**
    * The synced table has just been created and resources are being provisioned. This is also the
    * catch-all state if there is not a more suitable state to report for the synced table.
@@ -647,7 +647,7 @@ export type SyncedTableState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const BranchStatus_State = {
   /** Default value, not used. */
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   /** The branch is being created but is not yet available for querying. */
   INIT: 'INIT',
   /** The branch is being imported and is not yet available for querying. */
@@ -670,7 +670,7 @@ export type BranchStatus_State =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointStatus_State = {
   /** Default value, not used */
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   INIT: 'INIT',
   ACTIVE: 'ACTIVE',
   IDLE: 'IDLE',
@@ -683,7 +683,7 @@ export type EndpointStatus_State =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningInfo_State = {
-  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  STATE_UNSPECIFIED: '',
   PROVISIONING: 'PROVISIONING',
   ACTIVE: 'ACTIVE',
   FAILED: 'FAILED',
@@ -698,7 +698,7 @@ export type ProvisioningInfo_State =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const RequestedClaims_PermissionSet = {
-  PERMISSION_SET_UNSPECIFIED: 'PERMISSION_SET_UNSPECIFIED',
+  PERMISSION_SET_UNSPECIFIED: '',
   READ_ONLY: 'READ_ONLY',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -709,7 +709,7 @@ export type RequestedClaims_PermissionSet =
 /** How the role is authenticated when connecting to Postgres. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Role_AuthMethod = {
-  AUTH_METHOD_UNSPECIFIED: 'AUTH_METHOD_UNSPECIFIED',
+  AUTH_METHOD_UNSPECIFIED: '',
   /** NO_LOGIN means this role cannot be used for interactive access */
   NO_LOGIN: 'NO_LOGIN',
   /** PG_PASSWORD_SCRAM_SHA_256 is a password-based authentication */
@@ -732,7 +732,7 @@ export type Role_AuthMethod =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Role_IdentityType = {
   /** Default value, not used */
-  IDENTITY_TYPE_UNSPECIFIED: 'IDENTITY_TYPE_UNSPECIFIED',
+  IDENTITY_TYPE_UNSPECIFIED: '',
   /** A user in a <Databricks> workspace. */
   USER: 'USER',
   /** A service principal in a <Databricks> workspace. */
@@ -749,7 +749,7 @@ export type Role_IdentityType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Role_MembershipRole = {
   /** Indicates that the DatabaseInstanceRole is not a member of any standard, managed roles. */
-  MEMBERSHIP_ROLE_UNSPECIFIED: 'MEMBERSHIP_ROLE_UNSPECIFIED',
+  MEMBERSHIP_ROLE_UNSPECIFIED: '',
   /** Indicates membership in DATABRICKS_SUPERUSER, the highest set of privileges exposed to customers. */
   DATABRICKS_SUPERUSER: 'DATABRICKS_SUPERUSER',
 } as const;
@@ -758,11 +758,24 @@ export type Role_MembershipRole =
   | (typeof Role_MembershipRole)[keyof typeof Role_MembershipRole]
   | (string & {});
 
+/** How the column's value is populated and kept up to date. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance = {
+  /** A plain column with no computed value. */
+  MAINTENANCE_UNSPECIFIED: '',
+  /** The value is computed by PostgreSQL and stored. */
+  STORED_GENERATED: 'STORED_GENERATED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance =
+  | (typeof SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance)[keyof typeof SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance]
+  | (string & {});
+
 /** PostgreSQL-specific target types that can override the default Delta-to-PG mapping. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTable_SyncedTableSpec_PgSpecificType = {
   /** Default value. Indicates that no type override was selected. */
-  PG_SPECIFIC_TYPE_UNSPECIFIED: 'PG_SPECIFIC_TYPE_UNSPECIFIED',
+  PG_SPECIFIC_TYPE_UNSPECIFIED: '',
   /** Maps the column to the pgvector vector type. */
   PG_SPECIFIC_TYPE_VECTOR: 'PG_SPECIFIC_TYPE_VECTOR',
 } as const;
@@ -774,8 +787,7 @@ export type SyncedTable_SyncedTableSpec_PgSpecificType =
 /** Scheduling policy of the synced table's underlying pipeline. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy = {
-  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED:
-    'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
+  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED: '',
   /**
    * Pipeline runs continuously after generating the initial data.
    * Requires the source table to have Change Data Feed (CDF) enabled.
@@ -2415,6 +2427,23 @@ export interface SyncedTable_SyncedTableSpec {
    * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
    */
   typeOverrides?: SyncedTable_SyncedTableSpec_TypeOverride[] | undefined;
+  /** Extra PostgreSQL-only columns to add to the synced table. */
+  extraColumns?: SyncedTable_SyncedTableSpec_ExtraColumn[] | undefined;
+}
+
+/** An extra PostgreSQL column to add to the synced table. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SyncedTable_SyncedTableSpec_ExtraColumn {
+  /** Name of the column. */
+  columnName?: string | undefined;
+  /** PostgreSQL type of the column, for example "tsvector" or "vector(1024)". */
+  columnType?: string | undefined;
+  maintenance?: SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance | undefined;
+  /**
+   * SQL expression used to compute the column's value, for example
+   * "to_tsvector('english', content)".
+   */
+  compute?: string | undefined;
 }
 
 /** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
@@ -3577,6 +3606,11 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
           z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
         )
         .optional(),
+      extra_columns: z
+        .array(
+          z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_ExtraColumnSchema)
+        )
+        .optional(),
     })
     .transform(d => ({
       postgresDatabase: d.postgres_database,
@@ -3590,6 +3624,23 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       newPipelineSpec: d.new_pipeline_spec,
       acceleratedSync: d.accelerated_sync,
       typeOverrides: d.type_overrides,
+      extraColumns: d.extra_columns,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType<SyncedTable_SyncedTableSpec_ExtraColumn> =
+  z
+    .object({
+      column_name: z.string().optional(),
+      column_type: z.string().optional(),
+      maintenance: z.string().optional(),
+      compute: z.string().optional(),
+    })
+    .transform(d => ({
+      columnName: d.column_name,
+      columnType: d.column_type,
+      maintenance: d.maintenance,
+      compute: d.compute,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4550,6 +4601,9 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
         z.lazy(() => marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
       )
       .optional(),
+    extraColumns: z
+      .array(z.lazy(() => marshalSyncedTable_SyncedTableSpec_ExtraColumnSchema))
+      .optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
@@ -4563,6 +4617,22 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     new_pipeline_spec: d.newPipelineSpec,
     accelerated_sync: d.acceleratedSync,
     type_overrides: d.typeOverrides,
+    extra_columns: d.extraColumns,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType = z
+  .object({
+    columnName: z.string().optional(),
+    columnType: z.string().optional(),
+    maintenance: z.string().optional(),
+    compute: z.string().optional(),
+  })
+  .transform(d => ({
+    column_name: d.columnName,
+    column_type: d.columnType,
+    maintenance: d.maintenance,
+    compute: d.compute,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

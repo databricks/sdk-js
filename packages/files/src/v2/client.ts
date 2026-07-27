@@ -670,7 +670,7 @@ export class FilesClient {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('head', url, headers, callSignal);
+      const httpReq = buildHttpRequest('HEAD', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
@@ -711,7 +711,7 @@ export class FilesClient {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('head', url, headers, callSignal);
+      const httpReq = buildHttpRequest('HEAD', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,

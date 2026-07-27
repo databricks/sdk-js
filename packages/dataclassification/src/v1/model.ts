@@ -7,7 +7,7 @@ import {z} from 'zod';
 /** Auto-tagging mode. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AutoTaggingConfig_AutoTaggingMode = {
-  AUTO_TAGGING_MODE_UNSPECIFIED: 'AUTO_TAGGING_MODE_UNSPECIFIED',
+  AUTO_TAGGING_MODE_UNSPECIFIED: '',
   AUTO_TAGGING_DISABLED: 'AUTO_TAGGING_DISABLED',
   AUTO_TAGGING_ENABLED: 'AUTO_TAGGING_ENABLED',
 } as const;

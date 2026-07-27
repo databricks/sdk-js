@@ -68,6 +68,7 @@ export type {
   GoogleDriveOptions,
   IngestionGatewayPipelineDefinition,
   IngestionPipelineDefinition,
+  IngestionPipelineDefinition_FanoutOptions,
   IngestionPipelineDefinition_IngestionConfig,
   IngestionPipelineDefinition_ReportSpec,
   IngestionPipelineDefinition_SchemaSpec,
