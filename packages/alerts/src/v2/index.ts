@@ -22,6 +22,7 @@ export type {
   AlertOperandColumn,
   AlertOperandValue,
   AlertRunAs,
+  AlertStatementParameter,
   AlertSubscription,
   CreateAlertRequest,
   CronSchedule,

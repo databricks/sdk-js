@@ -117,6 +117,11 @@ export interface Alert {
    * permissions and defaults.
    */
   effectiveRunAs?: AlertRunAs | undefined;
+  /**
+   * Query parameters bound when executing the alert query, referenced in the
+   * query text with `:name` syntax. Static values only.
+   */
+  parameters?: AlertStatementParameter[] | undefined;
 }
 
 export interface AlertEvaluation {
@@ -185,6 +190,26 @@ export interface AlertRunAs {
         servicePrincipalName: string;
       }
     | undefined;
+}
+
+/**
+ * Redash-owned copy of the internal StatementParameter for the external AlertV2 API.
+ * The internal `ordinal` and `args` fields are intentionally omitted: the public API
+ * supports only flat, named scalar parameters; complex types (ARRAY, MAP, STRUCT) are
+ * not supported. This mirrors SEA's public StatementParameter schema, see:
+ * cmdexec/sql-exec-api/proto/sql_exec_api_service.proto:763-779
+ */
+export interface AlertStatementParameter {
+  /** The name of the parameter, referenced in the query as `:name`. */
+  name?: string | undefined;
+  /** The bound value for the parameter, given as a string. If omitted, the value is interpreted as NULL. */
+  value?: string | undefined;
+  /**
+   * The SQL data type of the parameter, e.g. STRING, INT, or DATE. Defaults to STRING. This is a
+   * string rather than an enum because scalar subtypes such as DECIMAL(10, 4) cannot be enumerated.
+   * Complex types such as ARRAY, MAP, and STRUCT are not supported.
+   */
+  type?: string | undefined;
 }
 
 export interface AlertSubscription {
@@ -270,6 +295,9 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     custom_description: z.string().optional(),
     run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
     effective_run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
+    parameters: z
+      .array(z.lazy(() => unmarshalAlertStatementParameterSchema))
+      .optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -288,6 +316,7 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     customDescription: d.custom_description,
     runAs: d.run_as,
     effectiveRunAs: d.effective_run_as,
+    parameters: d.parameters,
   }));
 
 export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
@@ -388,6 +417,19 @@ export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
           : undefined,
   }));
 
+export const unmarshalAlertStatementParameterSchema: z.ZodType<AlertStatementParameter> =
+  z
+    .object({
+      name: z.string().optional(),
+      value: z.string().optional(),
+      type: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      value: d.value,
+      type: d.type,
+    }));
+
 export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
   .object({
     user_email: z.string().optional(),
@@ -451,6 +493,9 @@ export const marshalAlertSchema: z.ZodType = z
     customDescription: z.string().optional(),
     runAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
     effectiveRunAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
+    parameters: z
+      .array(z.lazy(() => marshalAlertStatementParameterSchema))
+      .optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -469,6 +514,7 @@ export const marshalAlertSchema: z.ZodType = z
     custom_description: d.customDescription,
     run_as: d.runAs,
     effective_run_as: d.effectiveRunAs,
+    parameters: d.parameters,
   }));
 
 export const marshalAlertEvaluationSchema: z.ZodType = z
@@ -579,6 +625,18 @@ export const marshalAlertRunAsSchema: z.ZodType = z
     }),
   }));
 
+export const marshalAlertStatementParameterSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    type: d.type,
+  }));
+
 export const marshalAlertSubscriptionSchema: z.ZodType = z
   .object({
     subscriptionType: z
@@ -628,6 +686,7 @@ const alertFieldMaskSchema: FieldMaskSchema = {
   id: {wire: 'id'},
   lifecycleState: {wire: 'lifecycle_state'},
   ownerUserName: {wire: 'owner_user_name'},
+  parameters: {wire: 'parameters'},
   parentPath: {wire: 'parent_path'},
   queryText: {wire: 'query_text'},
   runAs: {wire: 'run_as', children: () => alertRunAsFieldMaskSchema},
