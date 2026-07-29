@@ -1179,7 +1179,8 @@ export interface StreamConnectionConfig {
         $case: 'ucConnectionName';
         /**
          * Name of an existing UC Connection for stream platform access.
-         * Must be the correct type for the streaming platform (e.g. a Kafka Connection for a Kafka Stream).
+         * Must be the correct type for the streaming platform (e.g. a Kafka Connection for a Kafka
+         * Stream, or a Kinesis Connection for a Kinesis Stream).
          */
         ucConnectionName: string;
       }
