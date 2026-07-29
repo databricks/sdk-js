@@ -122,11 +122,46 @@ export interface ColumnInfo {
   typeText?: string | undefined;
 }
 
+export interface CreateDirectAccessVectorIndexSpec {
+  /** The columns that contain the embedding vectors. The format should be array[double]. */
+  embeddingVectorColumns?: CreateEmbeddingVectorColumn[] | undefined;
+  /**
+   * The schema of the index in JSON format.
+   * Supported types are `integer`, `long`, `float`, `double`, `boolean`, `string`, `date`, `timestamp`.
+   * Supported types for vector column: `array<float>`, `array<double>`,`.
+   */
+  schemaJson?: string | undefined;
+  /** The columns that contain the embedding source. The format should be array[double]. */
+  embeddingSourceColumns?: CreateEmbeddingSourceColumn[] | undefined;
+}
+
+export interface CreateEmbeddingSourceColumn {
+  /** Name of the column */
+  name?: string | undefined;
+  /** TODO: clean up ai gateway related code. It's deprecated on ModelServing side. */
+  embeddingConfig?:
+    | {
+        $case: 'embeddingModelEndpointName';
+        /** Name of the embedding model endpoint, used by default for both ingestion and querying. */
+        embeddingModelEndpointName: string;
+      }
+    | undefined;
+  /** Name of the embedding model endpoint which, if specified, is used for querying (not ingestion). */
+  modelEndpointNameForQuery?: string | undefined;
+}
+
+export interface CreateEmbeddingVectorColumn {
+  /** Name of the column */
+  name?: string | undefined;
+  /** Dimension of the embedding vector */
+  embeddingDimension?: number | undefined;
+}
+
 export interface CreateEndpointRequest {
   /** Name of the AI Search endpoint */
-  name?: string | undefined;
+  name: string;
   /** Type of endpoint */
-  endpointType?: EndpointType | undefined;
+  endpointType: EndpointType;
   /** The budget policy id to be applied */
   budgetPolicyId?: string | undefined;
   /** The usage policy id to be applied once we've migrated to usage policies */
@@ -139,19 +174,37 @@ export interface CreateEndpointRequest {
   targetQps?: bigint | undefined;
 }
 
+/** Metric specification */
+export interface CreateMetric {
+  /** Metric name */
+  name?: string | undefined;
+  /** Metric labels */
+  labels?: CreateMetricLabel[] | undefined;
+  /** Percentile for the metric */
+  percentile?: number | undefined;
+}
+
+/** Label for a metric */
+export interface CreateMetricLabel {
+  /** Label name */
+  name?: string | undefined;
+  /** Label value */
+  value?: string | undefined;
+}
+
 export interface CreateVectorIndexRequest {
   /** Name of the index */
-  name?: string | undefined;
+  name: string;
   /** Name of the endpoint to be used for serving the index */
-  endpointName?: string | undefined;
+  endpointName: string;
   /** Primary key of the index */
-  primaryKey?: string | undefined;
-  indexType?: VectorIndexType | undefined;
+  primaryKey: string;
+  indexType: VectorIndexType;
   indexSpec?:
     | {
         $case: 'directAccessIndexSpec';
         /** Specification for Direct Vector Access Index. Required if `index_type` is `DIRECT_ACCESS`. */
-        directAccessIndexSpec: DirectAccessVectorIndexSpec;
+        directAccessIndexSpec: CreateDirectAccessVectorIndexSpec;
       }
     | {
         $case: 'deltaSyncIndexSpec';
@@ -510,7 +563,7 @@ export interface QueryVectorIndexRequest {
   /** Number of results to return. Defaults to 10. */
   numResults?: number | undefined;
   /** List of column names to include in the response. */
-  columns?: string[] | undefined;
+  columns: string[];
   /**
    * JSON string representing query filters.
    *
@@ -619,7 +672,7 @@ export interface RetrieveUserVisibleMetricsRequest {
   /** Granularity in seconds */
   granularityInSeconds?: number | undefined;
   /** List of metrics to retrieve */
-  metrics?: Metric[] | undefined;
+  metrics?: CreateMetric[] | undefined;
   /** Token for pagination */
   pageToken?: string | undefined;
 }
@@ -662,11 +715,18 @@ export interface SyncVectorIndexRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SyncVectorIndexResponse {}
 
+export interface UpdateCustomTag {
+  /** Key field for an AI Search endpoint tag. */
+  key?: string | undefined;
+  /** [Optional] Value field for an AI Search endpoint tag. */
+  value?: string | undefined;
+}
+
 export interface UpdateEndpointCustomTagsRequest {
   /** Name of the AI Search endpoint */
   name?: string | undefined;
   /** The new custom tags for the AI Search endpoint */
-  customTags?: CustomTag[] | undefined;
+  customTags?: UpdateCustomTag[] | undefined;
 }
 
 export interface UpdateEndpointCustomTagsResponse {
@@ -680,7 +740,7 @@ export interface UpsertDataVectorIndexRequest {
   /** Name of the vector index where data is to be upserted. Must be a Direct Vector Access Index. */
   name?: string | undefined;
   /** JSON string representing the data to be upserted. */
-  inputsJson?: string | undefined;
+  inputsJson: string;
 }
 
 export interface UpsertDataVectorIndexResponse {
@@ -1260,10 +1320,58 @@ export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
     indexUrl: d.index_url,
   }));
 
-export const marshalCreateEndpointRequestSchema: z.ZodType = z
+export const marshalCreateDirectAccessVectorIndexSpecSchema: z.ZodType = z
+  .object({
+    embeddingVectorColumns: z
+      .array(z.lazy(() => marshalCreateEmbeddingVectorColumnSchema))
+      .optional(),
+    schemaJson: z.string().optional(),
+    embeddingSourceColumns: z
+      .array(z.lazy(() => marshalCreateEmbeddingSourceColumnSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    embedding_vector_columns: d.embeddingVectorColumns,
+    schema_json: d.schemaJson,
+    embedding_source_columns: d.embeddingSourceColumns,
+  }));
+
+export const marshalCreateEmbeddingSourceColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    endpointType: z.string().optional(),
+    embeddingConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('embeddingModelEndpointName'),
+          embeddingModelEndpointName: z.string(),
+        }),
+      ])
+      .optional(),
+    modelEndpointNameForQuery: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ...(d.embeddingConfig?.$case === 'embeddingModelEndpointName' && {
+      embedding_model_endpoint_name:
+        d.embeddingConfig.embeddingModelEndpointName,
+    }),
+    model_endpoint_name_for_query: d.modelEndpointNameForQuery,
+  }));
+
+export const marshalCreateEmbeddingVectorColumnSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    embeddingDimension: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    embedding_dimension: d.embeddingDimension,
+  }));
+
+export const marshalCreateEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    endpointType: z.string(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     targetQps: z.bigint().optional(),
@@ -1276,18 +1384,40 @@ export const marshalCreateEndpointRequestSchema: z.ZodType = z
     target_qps: d.targetQps,
   }));
 
-export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
+export const marshalCreateMetricSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    endpointName: z.string().optional(),
-    primaryKey: z.string().optional(),
-    indexType: z.string().optional(),
+    labels: z.array(z.lazy(() => marshalCreateMetricLabelSchema)).optional(),
+    percentile: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    labels: d.labels,
+    percentile: d.percentile,
+  }));
+
+export const marshalCreateMetricLabelSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+  }));
+
+export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    endpointName: z.string(),
+    primaryKey: z.string(),
+    indexType: z.string(),
     indexSpec: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('directAccessIndexSpec'),
           directAccessIndexSpec: z.lazy(
-            () => marshalDirectAccessVectorIndexSpecSchema
+            () => marshalCreateDirectAccessVectorIndexSpecSchema
           ),
         }),
         z.object({
@@ -1314,16 +1444,6 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     index_subtype: d.indexSubtype,
   }));
 
-export const marshalCustomTagSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
   .object({
     sourceTable: z.string().optional(),
@@ -1348,22 +1468,6 @@ export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
     embedding_writeback_table: d.embeddingWritebackTable,
     columns_to_sync: d.columnsToSync,
     columns_to_index: d.columnsToIndex,
-  }));
-
-export const marshalDirectAccessVectorIndexSpecSchema: z.ZodType = z
-  .object({
-    embeddingVectorColumns: z
-      .array(z.lazy(() => marshalEmbeddingVectorColumnSchema))
-      .optional(),
-    schemaJson: z.string().optional(),
-    embeddingSourceColumns: z
-      .array(z.lazy(() => marshalEmbeddingSourceColumnSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    embedding_vector_columns: d.embeddingVectorColumns,
-    schema_json: d.schemaJson,
-    embedding_source_columns: d.embeddingSourceColumns,
   }));
 
 export const marshalEmbeddingSourceColumnSchema: z.ZodType = z
@@ -1396,28 +1500,6 @@ export const marshalEmbeddingVectorColumnSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     embedding_dimension: d.embeddingDimension,
-  }));
-
-export const marshalMetricSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    labels: z.array(z.lazy(() => marshalMetricLabelSchema)).optional(),
-    percentile: z.number().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    labels: d.labels,
-    percentile: d.percentile,
-  }));
-
-export const marshalMetricLabelSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    value: d.value,
   }));
 
 export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
@@ -1456,7 +1538,7 @@ export const marshalQueryVectorIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     numResults: z.number().optional(),
-    columns: z.array(z.string()).optional(),
+    columns: z.array(z.string()),
     filtersJson: z.string().optional(),
     queryVector: z.array(z.number()).optional(),
     queryText: z.string().optional(),
@@ -1517,7 +1599,7 @@ export const marshalRetrieveUserVisibleMetricsRequestSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     granularityInSeconds: z.number().optional(),
-    metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
+    metrics: z.array(z.lazy(() => marshalCreateMetricSchema)).optional(),
     pageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -1549,10 +1631,20 @@ export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalUpdateCustomTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
 export const marshalUpdateEndpointCustomTagsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
+    customTags: z.array(z.lazy(() => marshalUpdateCustomTagSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1562,7 +1654,7 @@ export const marshalUpdateEndpointCustomTagsRequestSchema: z.ZodType = z
 export const marshalUpsertDataVectorIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    inputsJson: z.string().optional(),
+    inputsJson: z.string(),
   })
   .transform(d => ({
     name: d.name,

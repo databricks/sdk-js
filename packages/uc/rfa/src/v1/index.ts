@@ -24,7 +24,10 @@ export type {
   Principal,
   Securable,
   SecurablePermissions,
+  UpdateAccessRequestDestinations,
   UpdateAccessRequestDestinationsRequest,
+  UpdateNotificationDestination,
+  UpdateSecurable,
 } from './model';
 
-export {accessRequestDestinationsFieldMask} from './model';
+export {updateAccessRequestDestinationsFieldMask} from './model';

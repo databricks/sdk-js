@@ -29,7 +29,7 @@ export interface AccountsCreateMetastoreAssignmentRequest {
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
   metastoreId?: string | undefined;
-  metastoreAssignment?: MetastoreAssignment | undefined;
+  metastoreAssignment?: CreateMetastoreAssignment | undefined;
 }
 
 /** The metastore assignment was successfully created. */
@@ -134,7 +134,7 @@ export interface AccountsUpdateMetastoreAssignmentRequest {
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
   metastoreId?: string | undefined;
-  metastoreAssignment?: MetastoreAssignment | undefined;
+  metastoreAssignment?: UpdateMetastoreAssignment | undefined;
 }
 
 /** The metastore assignment was successfully updated. */
@@ -197,17 +197,29 @@ export interface CreateAccountsMetastore {
   externalAccessEnabled?: boolean | undefined;
 }
 
+export interface CreateMetastoreAssignment {
+  /** The unique ID of the <Databricks> workspace. */
+  workspaceId: bigint;
+  /** The unique ID of the metastore. */
+  metastoreId: string;
+  /**
+   * The name of the default catalog in the metastore. This field is deprecated.
+   * Please use "Default Namespace API" to configure the default catalog for a <Databricks> workspace.
+   */
+  defaultCatalogName?: string | undefined;
+}
+
 export interface CreateMetastoreAssignmentRequest {
   /** A workspace ID. */
   workspaceId?: bigint | undefined;
   /** The unique ID of the metastore. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /**
    * The name of the default catalog in the metastore.
    * This field is deprecated. Please use "Default Namespace API" to
    * configure the default catalog for a <Databricks> workspace.
    */
-  defaultCatalogName?: string | undefined;
+  defaultCatalogName: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -446,6 +458,18 @@ export interface UpdateAccountsMetastore {
   globalMetastoreId?: string | undefined;
   /** Whether to allow non-DBR clients to directly access entities under the metastore. */
   externalAccessEnabled?: boolean | undefined;
+}
+
+export interface UpdateMetastoreAssignment {
+  /** The unique ID of the <Databricks> workspace. */
+  workspaceId?: bigint | undefined;
+  /** The unique ID of the metastore. */
+  metastoreId?: string | undefined;
+  /**
+   * The name of the default catalog in the metastore. This field is deprecated.
+   * Please use "Default Namespace API" to configure the default catalog for a <Databricks> workspace.
+   */
+  defaultCatalogName?: string | undefined;
 }
 
 export interface UpdateMetastoreAssignmentRequest {
@@ -738,7 +762,7 @@ export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =
       workspaceId: z.bigint().optional(),
       metastoreId: z.string().optional(),
       metastoreAssignment: z
-        .lazy(() => marshalMetastoreAssignmentSchema)
+        .lazy(() => marshalCreateMetastoreAssignmentSchema)
         .optional(),
     })
     .transform(d => ({
@@ -767,7 +791,7 @@ export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
       workspaceId: z.bigint().optional(),
       metastoreId: z.string().optional(),
       metastoreAssignment: z
-        .lazy(() => marshalMetastoreAssignmentSchema)
+        .lazy(() => marshalUpdateMetastoreAssignmentSchema)
         .optional(),
     })
     .transform(d => ({
@@ -836,11 +860,23 @@ export const marshalCreateAccountsMetastoreSchema: z.ZodType = z
     external_access_enabled: d.externalAccessEnabled,
   }));
 
+export const marshalCreateMetastoreAssignmentSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint(),
+    metastoreId: z.string(),
+    defaultCatalogName: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    metastore_id: d.metastoreId,
+    default_catalog_name: d.defaultCatalogName,
+  }));
+
 export const marshalCreateMetastoreAssignmentRequestSchema: z.ZodType = z
   .object({
     workspaceId: z.bigint().optional(),
-    metastoreId: z.string().optional(),
-    defaultCatalogName: z.string().optional(),
+    metastoreId: z.string(),
+    defaultCatalogName: z.string(),
   })
   .transform(d => ({
     workspace_id: d.workspaceId,
@@ -893,18 +929,6 @@ export const marshalCreateMetastoreRequestSchema: z.ZodType = z
     external_access_enabled: d.externalAccessEnabled,
   }));
 
-export const marshalMetastoreAssignmentSchema: z.ZodType = z
-  .object({
-    workspaceId: z.bigint().optional(),
-    metastoreId: z.string().optional(),
-    defaultCatalogName: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_id: d.workspaceId,
-    metastore_id: d.metastoreId,
-    default_catalog_name: d.defaultCatalogName,
-  }));
-
 export const marshalUpdateAccountsMetastoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -948,6 +972,18 @@ export const marshalUpdateAccountsMetastoreSchema: z.ZodType = z
     cloud: d.cloud,
     global_metastore_id: d.globalMetastoreId,
     external_access_enabled: d.externalAccessEnabled,
+  }));
+
+export const marshalUpdateMetastoreAssignmentSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+    metastoreId: z.string().optional(),
+    defaultCatalogName: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    metastore_id: d.metastoreId,
+    default_catalog_name: d.defaultCatalogName,
   }));
 
 export const marshalUpdateMetastoreAssignmentRequestSchema: z.ZodType = z

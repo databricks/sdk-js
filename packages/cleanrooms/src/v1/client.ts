@@ -55,12 +55,13 @@ import type {
 } from './model';
 import {
   CleanRoom_Status_Enum,
-  marshalCleanRoomAssetSchema,
-  marshalCleanRoomAutoApprovalRuleSchema,
-  marshalCleanRoomOutputCatalogSchema,
-  marshalCleanRoomSchema,
   marshalCreateCleanRoomAssetReviewRequestSchema,
+  marshalCreateCleanRoomAssetSchema,
   marshalCreateCleanRoomAutoApprovalRuleRequestSchema,
+  marshalCreateCleanRoomOutputCatalogSchema,
+  marshalCreateCleanRoomSchema,
+  marshalUpdateCleanRoomAssetSchema,
+  marshalUpdateCleanRoomAutoApprovalRuleSchema,
   marshalUpdateCleanRoomRequestSchema,
   unmarshalCleanRoomAssetSchema,
   unmarshalCleanRoomAutoApprovalRuleSchema,
@@ -124,7 +125,7 @@ export class CleanRoomsClient {
   ): Promise<CleanRoom> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/clean-rooms`;
-    const body = marshalRequest(req.cleanRoom, marshalCleanRoomSchema);
+    const body = marshalRequest(req.cleanRoom, marshalCreateCleanRoomSchema);
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -180,8 +181,8 @@ export class CleanRoomsClient {
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.asset?.cleanRoomName ?? ''}/assets`;
-    const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
+    const url = `${host}/api/2.0/clean-rooms/${req.asset.cleanRoomName ?? ''}/assets`;
+    const body = marshalRequest(req.asset, marshalCreateCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -246,7 +247,7 @@ export class CleanRoomsClient {
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules`;
+    const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule.cleanRoomName ?? ''}/auto-approval-rules`;
     const body = marshalRequest(
       req,
       marshalCreateCleanRoomAutoApprovalRuleRequestSchema
@@ -282,7 +283,7 @@ export class CleanRoomsClient {
     const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/output-catalogs`;
     const body = marshalRequest(
       req.outputCatalog,
-      marshalCleanRoomOutputCatalogSchema
+      marshalCreateCleanRoomOutputCatalogSchema
     );
     let resp: CreateCleanRoomOutputCatalogResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -844,7 +845,7 @@ export class CleanRoomsClient {
   ): Promise<CleanRoomAsset> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.asset?.assetType ?? ''}/${req.asset?.name ?? ''}`;
-    const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
+    const body = marshalRequest(req.asset, marshalUpdateCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -876,7 +877,7 @@ export class CleanRoomsClient {
     const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules/${req.autoApprovalRule?.ruleId ?? ''}`;
     const body = marshalRequest(
       req.autoApprovalRule,
-      marshalCleanRoomAutoApprovalRuleSchema
+      marshalUpdateCleanRoomAutoApprovalRuleSchema
     );
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

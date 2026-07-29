@@ -172,12 +172,12 @@ export interface ExecuteStatementRequest {
    * The SQL statement to execute. The statement can optionally be parameterized, see `parameters`.
    * The maximum query text size is 16 MiB.
    */
-  statement?: string | undefined;
+  statement: string;
   /**
    * Warehouse upon which to execute a statement. See also
    * [What are SQL warehouses?](https://docs.databricks.com/sql/admin/warehouse-type.html)
    */
-  warehouseId?: string | undefined;
+  warehouseId: string;
   /**
    * Sets default catalog for statement execution, similar to
    * [`USE CATALOG`](https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-use-catalog.html)
@@ -736,8 +736,8 @@ export const marshalCancelStatementRequestSchema: z.ZodType = z
 
 export const marshalExecuteStatementRequestSchema: z.ZodType = z
   .object({
-    statement: z.string().optional(),
-    warehouseId: z.string().optional(),
+    statement: z.string(),
+    warehouseId: z.string(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
     rowLimit: z.bigint().optional(),

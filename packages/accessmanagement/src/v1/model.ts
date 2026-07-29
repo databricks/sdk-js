@@ -131,6 +131,27 @@ export interface ConsistencyToken {
   value?: string | undefined;
 }
 
+export interface CreateAccessControlRequest {
+  principalName?:
+    | {
+        $case: 'userName';
+        /** name of the user */
+        userName: string;
+      }
+    | {
+        $case: 'groupName';
+        /** name of the group */
+        groupName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** application ID of a service principal */
+        servicePrincipalName: string;
+      }
+    | undefined;
+  permissionLevel?: PermissionLevel | undefined;
+}
+
 /** Removes all permission assignments for a workspace given a principal. */
 export interface DeleteWorkspacePermissionAssignmentRequest {
   /** The account ID. */
@@ -350,7 +371,28 @@ export interface SetObjectPermissionsRequest {
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
-  accessControlList?: AccessControlRequest[] | undefined;
+  accessControlList?: CreateAccessControlRequest[] | undefined;
+}
+
+export interface UpdateAccessControlRequest {
+  principalName?:
+    | {
+        $case: 'userName';
+        /** name of the user */
+        userName: string;
+      }
+    | {
+        $case: 'groupName';
+        /** name of the group */
+        groupName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** application ID of a service principal */
+        servicePrincipalName: string;
+      }
+    | undefined;
+  permissionLevel?: PermissionLevel | undefined;
 }
 
 export interface UpdateObjectPermissionsRequest {
@@ -358,7 +400,7 @@ export interface UpdateObjectPermissionsRequest {
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
-  accessControlList?: AccessControlRequest[] | undefined;
+  accessControlList?: UpdateAccessControlRequest[] | undefined;
 }
 
 export interface UpdateRuleSetRequest {
@@ -610,7 +652,27 @@ export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<Works
       error: d.error,
     }));
 
-export const marshalAccessControlRequestSchema: z.ZodType = z
+export const marshalActorSchema: z.ZodType = z
+  .object({
+    kind: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('actorId'), actorId: z.bigint()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.kind?.$case === 'actorId' && {actor_id: d.kind.actorId}),
+  }));
+
+export const marshalConsistencyTokenSchema: z.ZodType = z
+  .object({
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+  }));
+
+export const marshalCreateAccessControlRequestSchema: z.ZodType = z
   .object({
     principalName: z
       .discriminatedUnion('$case', [
@@ -635,26 +697,6 @@ export const marshalAccessControlRequestSchema: z.ZodType = z
       service_principal_name: d.principalName.servicePrincipalName,
     }),
     permission_level: d.permissionLevel,
-  }));
-
-export const marshalActorSchema: z.ZodType = z
-  .object({
-    kind: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('actorId'), actorId: z.bigint()}),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.kind?.$case === 'actorId' && {actor_id: d.kind.actorId}),
-  }));
-
-export const marshalConsistencyTokenSchema: z.ZodType = z
-  .object({
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    value: d.value,
   }));
 
 export const marshalGrantRuleSchema: z.ZodType = z
@@ -696,7 +738,7 @@ export const marshalSetObjectPermissionsRequestSchema: z.ZodType = z
     requestObjectType: z.string().optional(),
     requestObjectId: z.string().optional(),
     accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
+      .array(z.lazy(() => marshalCreateAccessControlRequestSchema))
       .optional(),
   })
   .transform(d => ({
@@ -705,12 +747,39 @@ export const marshalSetObjectPermissionsRequestSchema: z.ZodType = z
     access_control_list: d.accessControlList,
   }));
 
+export const marshalUpdateAccessControlRequestSchema: z.ZodType = z
+  .object({
+    principalName: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({$case: z.literal('groupName'), groupName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
+    permissionLevel: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.principalName?.$case === 'userName' && {
+      user_name: d.principalName.userName,
+    }),
+    ...(d.principalName?.$case === 'groupName' && {
+      group_name: d.principalName.groupName,
+    }),
+    ...(d.principalName?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.principalName.servicePrincipalName,
+    }),
+    permission_level: d.permissionLevel,
+  }));
+
 export const marshalUpdateObjectPermissionsRequestSchema: z.ZodType = z
   .object({
     requestObjectType: z.string().optional(),
     requestObjectId: z.string().optional(),
     accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
+      .array(z.lazy(() => marshalUpdateAccessControlRequestSchema))
       .optional(),
   })
   .transform(d => ({

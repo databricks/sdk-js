@@ -53,7 +53,7 @@ export interface ColumnRelationship {
 }
 
 export interface CreateExternalLineageRelationshipRequest {
-  externalLineageRelationship?: CreateRequestExternalLineage | undefined;
+  externalLineageRelationship: CreateRequestExternalLineage;
 }
 
 export interface CreateRequestExternalLineage {

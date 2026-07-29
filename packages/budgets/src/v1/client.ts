@@ -78,7 +78,7 @@ export class BudgetsClient {
     options?: CallOptions
   ): Promise<CreateBudgetConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.budget?.accountId ?? accountId ?? ''}/budgets`;
+    const url = `${host}/api/2.1/accounts/${req.budget.accountId ?? accountId ?? ''}/budgets`;
     const body = marshalRequest(
       req,
       marshalCreateBudgetConfigurationRequestSchema

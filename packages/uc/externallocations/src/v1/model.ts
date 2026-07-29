@@ -54,15 +54,54 @@ export interface AzureQueueStorage {
   managedResourceId?: string | undefined;
 }
 
+export interface CreateAwsSqsQueue {
+  /**
+   * The AQS queue url in the format https://sqs.{region}.amazonaws.com/{account id}/{queue name}.
+   * Only required for provided_sqs.
+   */
+  queueUrl?: string | undefined;
+}
+
+export interface CreateAzureQueueStorage {
+  /**
+   * The AQS queue url in the format https://{storage account}.queue.core.windows.net/{queue name}
+   * Only required for provided_aqs.
+   */
+  queueUrl?: string | undefined;
+  /**
+   * Optional subscription id for the queue, event grid subscription, and external location storage
+   * account.
+   * Required for locations with a service principal storage credential
+   */
+  subscriptionId?: string | undefined;
+  /**
+   * Optional resource group for the queue, event grid subscription, and external location storage
+   * account.
+   * Only required for locations with a service principal storage credential
+   */
+  resourceGroup?: string | undefined;
+}
+
+/** Encryption options that apply to clients connecting to cloud storage. */
+export interface CreateEncryptionDetails {
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: CreateSseEncryptionDetails;
+      }
+    | undefined;
+}
+
 export interface CreateExternalLocationRequest {
   /** Skips validation of the storage credential associated with the external location. */
   skipValidation?: boolean | undefined;
   /** Name of the external location. */
-  name?: string | undefined;
+  name: string;
   /** Path URL of the external location. */
-  url?: string | undefined;
+  url: string;
   /** Name of the storage credential used with this location. */
-  credentialName?: string | undefined;
+  credentialName: string;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
@@ -73,10 +112,10 @@ export interface CreateExternalLocationRequest {
    */
   enableFileEvents?: boolean | undefined;
   /** File event queue settings. If `enable_file_events` is not `false`, must be defined and have exactly one of the documented properties. */
-  fileEventQueue?: FileEventQueue | undefined;
+  fileEventQueue?: CreateFileEventQueue | undefined;
   /** The owner of the external location. */
   owner?: string | undefined;
-  encryptionDetails?: EncryptionDetails | undefined;
+  encryptionDetails?: CreateEncryptionDetails | undefined;
   /** Unique identifier of metastore hosting the external location. */
   metastoreId?: string | undefined;
   /** Unique ID of the location's storage credential. */
@@ -102,7 +141,39 @@ export interface CreateExternalLocationRequest {
    * set `enable_file_events`. Use this field instead of `file_event_queue` for reading
    * the actual queue state.
    */
-  effectiveFileEventQueue?: FileEventQueue | undefined;
+  effectiveFileEventQueue?: CreateFileEventQueue | undefined;
+}
+
+export interface CreateFileEventQueue {
+  provided?:
+    | {$case: 'providedAqs'; providedAqs: CreateAzureQueueStorage}
+    | {$case: 'providedSqs'; providedSqs: CreateAwsSqsQueue}
+    | {$case: 'providedPubsub'; providedPubsub: CreateGcpPubsub}
+    | undefined;
+  managed?:
+    | {$case: 'managedAqs'; managedAqs: CreateAzureQueueStorage}
+    | {$case: 'managedSqs'; managedSqs: CreateAwsSqsQueue}
+    | {$case: 'managedPubsub'; managedPubsub: CreateGcpPubsub}
+    | undefined;
+}
+
+export interface CreateGcpPubsub {
+  /**
+   * The Pub/Sub subscription name in the format projects/{project}/subscriptions/{subscription name}.
+   * Only required for provided_pubsub.
+   */
+  subscriptionName?: string | undefined;
+}
+
+/** Server-Side Encryption properties for clients communicating with AWS s3. */
+export interface CreateSseEncryptionDetails {
+  /** Sets the value of the 'x-amz-server-side-encryption' header in S3 request. */
+  algorithm?: SseEncryptionAlgorithm | undefined;
+  /**
+   * Optional. The ARN of the SSE-KMS key used with the S3 location, when algorithm = "SSE-KMS".
+   * Sets the value of the 'x-amz-server-side-encryption-aws-kms-key-id' header.
+   */
+  awsKmsKeyArn?: string | undefined;
 }
 
 export interface DeleteExternalLocationRequest {
@@ -246,6 +317,45 @@ export interface SseEncryptionDetails {
   awsKmsKeyArn?: string | undefined;
 }
 
+export interface UpdateAwsSqsQueue {
+  /**
+   * The AQS queue url in the format https://sqs.{region}.amazonaws.com/{account id}/{queue name}.
+   * Only required for provided_sqs.
+   */
+  queueUrl?: string | undefined;
+}
+
+export interface UpdateAzureQueueStorage {
+  /**
+   * The AQS queue url in the format https://{storage account}.queue.core.windows.net/{queue name}
+   * Only required for provided_aqs.
+   */
+  queueUrl?: string | undefined;
+  /**
+   * Optional subscription id for the queue, event grid subscription, and external location storage
+   * account.
+   * Required for locations with a service principal storage credential
+   */
+  subscriptionId?: string | undefined;
+  /**
+   * Optional resource group for the queue, event grid subscription, and external location storage
+   * account.
+   * Only required for locations with a service principal storage credential
+   */
+  resourceGroup?: string | undefined;
+}
+
+/** Encryption options that apply to clients connecting to cloud storage. */
+export interface UpdateEncryptionDetails {
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: UpdateSseEncryptionDetails;
+      }
+    | undefined;
+}
+
 export interface UpdateExternalLocationRequest {
   /** Name of the external location. */
   nameArg?: string | undefined;
@@ -271,10 +381,10 @@ export interface UpdateExternalLocationRequest {
    */
   enableFileEvents?: boolean | undefined;
   /** File event queue settings. If `enable_file_events` is not `false`, must be defined and have exactly one of the documented properties. */
-  fileEventQueue?: FileEventQueue | undefined;
+  fileEventQueue?: UpdateFileEventQueue | undefined;
   /** The owner of the external location. */
   owner?: string | undefined;
-  encryptionDetails?: EncryptionDetails | undefined;
+  encryptionDetails?: UpdateEncryptionDetails | undefined;
   /** Unique identifier of metastore hosting the external location. */
   metastoreId?: string | undefined;
   /** Unique ID of the location's storage credential. */
@@ -300,7 +410,39 @@ export interface UpdateExternalLocationRequest {
    * set `enable_file_events`. Use this field instead of `file_event_queue` for reading
    * the actual queue state.
    */
-  effectiveFileEventQueue?: FileEventQueue | undefined;
+  effectiveFileEventQueue?: UpdateFileEventQueue | undefined;
+}
+
+export interface UpdateFileEventQueue {
+  provided?:
+    | {$case: 'providedAqs'; providedAqs: UpdateAzureQueueStorage}
+    | {$case: 'providedSqs'; providedSqs: UpdateAwsSqsQueue}
+    | {$case: 'providedPubsub'; providedPubsub: UpdateGcpPubsub}
+    | undefined;
+  managed?:
+    | {$case: 'managedAqs'; managedAqs: UpdateAzureQueueStorage}
+    | {$case: 'managedSqs'; managedSqs: UpdateAwsSqsQueue}
+    | {$case: 'managedPubsub'; managedPubsub: UpdateGcpPubsub}
+    | undefined;
+}
+
+export interface UpdateGcpPubsub {
+  /**
+   * The Pub/Sub subscription name in the format projects/{project}/subscriptions/{subscription name}.
+   * Only required for provided_pubsub.
+   */
+  subscriptionName?: string | undefined;
+}
+
+/** Server-Side Encryption properties for clients communicating with AWS s3. */
+export interface UpdateSseEncryptionDetails {
+  /** Sets the value of the 'x-amz-server-side-encryption' header in S3 request. */
+  algorithm?: SseEncryptionAlgorithm | undefined;
+  /**
+   * Optional. The ARN of the SSE-KMS key used with the S3 location, when algorithm = "SSE-KMS".
+   * Sets the value of the 'x-amz-server-side-encryption-aws-kms-key-id' header.
+   */
+  awsKmsKeyArn?: string | undefined;
 }
 
 export const unmarshalAwsSqsQueueSchema: z.ZodType<AwsSqsQueue> = z
@@ -468,42 +610,59 @@ export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails
       awsKmsKeyArn: d.aws_kms_key_arn,
     }));
 
-export const marshalAwsSqsQueueSchema: z.ZodType = z
+export const marshalCreateAwsSqsQueueSchema: z.ZodType = z
   .object({
     queueUrl: z.string().optional(),
-    managedResourceId: z.string().optional(),
   })
   .transform(d => ({
     queue_url: d.queueUrl,
-    managed_resource_id: d.managedResourceId,
   }));
 
-export const marshalAzureQueueStorageSchema: z.ZodType = z
+export const marshalCreateAzureQueueStorageSchema: z.ZodType = z
   .object({
     queueUrl: z.string().optional(),
     subscriptionId: z.string().optional(),
     resourceGroup: z.string().optional(),
-    managedResourceId: z.string().optional(),
   })
   .transform(d => ({
     queue_url: d.queueUrl,
     subscription_id: d.subscriptionId,
     resource_group: d.resourceGroup,
-    managed_resource_id: d.managedResourceId,
+  }));
+
+export const marshalCreateEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(
+            () => marshalCreateSseEncryptionDetailsSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
   }));
 
 export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
-    name: z.string().optional(),
-    url: z.string().optional(),
-    credentialName: z.string().optional(),
+    name: z.string(),
+    url: z.string(),
+    credentialName: z.string(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     enableFileEvents: z.boolean().optional(),
-    fileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
+    fileEventQueue: z.lazy(() => marshalCreateFileEventQueueSchema).optional(),
     owner: z.string().optional(),
-    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    encryptionDetails: z
+      .lazy(() => marshalCreateEncryptionDetailsSchema)
+      .optional(),
     metastoreId: z.string().optional(),
     credentialId: z.string().optional(),
     createdAt: z.bigint().optional(),
@@ -515,7 +674,7 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
     effectiveFileEventQueue: z
-      .lazy(() => marshalFileEventQueueSchema)
+      .lazy(() => marshalCreateFileEventQueueSchema)
       .optional(),
   })
   .transform(d => ({
@@ -542,38 +701,21 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
     effective_file_event_queue: d.effectiveFileEventQueue,
   }));
 
-export const marshalEncryptionDetailsSchema: z.ZodType = z
-  .object({
-    encryptionDetailsType: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('sseEncryptionDetails'),
-          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
-      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
-    }),
-  }));
-
-export const marshalFileEventQueueSchema: z.ZodType = z
+export const marshalCreateFileEventQueueSchema: z.ZodType = z
   .object({
     provided: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('providedAqs'),
-          providedAqs: z.lazy(() => marshalAzureQueueStorageSchema),
+          providedAqs: z.lazy(() => marshalCreateAzureQueueStorageSchema),
         }),
         z.object({
           $case: z.literal('providedSqs'),
-          providedSqs: z.lazy(() => marshalAwsSqsQueueSchema),
+          providedSqs: z.lazy(() => marshalCreateAwsSqsQueueSchema),
         }),
         z.object({
           $case: z.literal('providedPubsub'),
-          providedPubsub: z.lazy(() => marshalGcpPubsubSchema),
+          providedPubsub: z.lazy(() => marshalCreateGcpPubsubSchema),
         }),
       ])
       .optional(),
@@ -581,15 +723,15 @@ export const marshalFileEventQueueSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('managedAqs'),
-          managedAqs: z.lazy(() => marshalAzureQueueStorageSchema),
+          managedAqs: z.lazy(() => marshalCreateAzureQueueStorageSchema),
         }),
         z.object({
           $case: z.literal('managedSqs'),
-          managedSqs: z.lazy(() => marshalAwsSqsQueueSchema),
+          managedSqs: z.lazy(() => marshalCreateAwsSqsQueueSchema),
         }),
         z.object({
           $case: z.literal('managedPubsub'),
-          managedPubsub: z.lazy(() => marshalGcpPubsubSchema),
+          managedPubsub: z.lazy(() => marshalCreateGcpPubsubSchema),
         }),
       ])
       .optional(),
@@ -615,17 +757,15 @@ export const marshalFileEventQueueSchema: z.ZodType = z
     }),
   }));
 
-export const marshalGcpPubsubSchema: z.ZodType = z
+export const marshalCreateGcpPubsubSchema: z.ZodType = z
   .object({
     subscriptionName: z.string().optional(),
-    managedResourceId: z.string().optional(),
   })
   .transform(d => ({
     subscription_name: d.subscriptionName,
-    managed_resource_id: d.managedResourceId,
   }));
 
-export const marshalSseEncryptionDetailsSchema: z.ZodType = z
+export const marshalCreateSseEncryptionDetailsSchema: z.ZodType = z
   .object({
     algorithm: z.string().optional(),
     awsKmsKeyArn: z.string().optional(),
@@ -633,6 +773,45 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
   .transform(d => ({
     algorithm: d.algorithm,
     aws_kms_key_arn: d.awsKmsKeyArn,
+  }));
+
+export const marshalUpdateAwsSqsQueueSchema: z.ZodType = z
+  .object({
+    queueUrl: z.string().optional(),
+  })
+  .transform(d => ({
+    queue_url: d.queueUrl,
+  }));
+
+export const marshalUpdateAzureQueueStorageSchema: z.ZodType = z
+  .object({
+    queueUrl: z.string().optional(),
+    subscriptionId: z.string().optional(),
+    resourceGroup: z.string().optional(),
+  })
+  .transform(d => ({
+    queue_url: d.queueUrl,
+    subscription_id: d.subscriptionId,
+    resource_group: d.resourceGroup,
+  }));
+
+export const marshalUpdateEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(
+            () => marshalUpdateSseEncryptionDetailsSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
   }));
 
 export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
@@ -647,9 +826,11 @@ export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     enableFileEvents: z.boolean().optional(),
-    fileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
+    fileEventQueue: z.lazy(() => marshalUpdateFileEventQueueSchema).optional(),
     owner: z.string().optional(),
-    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    encryptionDetails: z
+      .lazy(() => marshalUpdateEncryptionDetailsSchema)
+      .optional(),
     metastoreId: z.string().optional(),
     credentialId: z.string().optional(),
     createdAt: z.bigint().optional(),
@@ -661,7 +842,7 @@ export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
     effectiveFileEventQueue: z
-      .lazy(() => marshalFileEventQueueSchema)
+      .lazy(() => marshalUpdateFileEventQueueSchema)
       .optional(),
   })
   .transform(d => ({
@@ -689,4 +870,78 @@ export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
     fallback: d.fallback,
     effective_enable_file_events: d.effectiveEnableFileEvents,
     effective_file_event_queue: d.effectiveFileEventQueue,
+  }));
+
+export const marshalUpdateFileEventQueueSchema: z.ZodType = z
+  .object({
+    provided: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('providedAqs'),
+          providedAqs: z.lazy(() => marshalUpdateAzureQueueStorageSchema),
+        }),
+        z.object({
+          $case: z.literal('providedSqs'),
+          providedSqs: z.lazy(() => marshalUpdateAwsSqsQueueSchema),
+        }),
+        z.object({
+          $case: z.literal('providedPubsub'),
+          providedPubsub: z.lazy(() => marshalUpdateGcpPubsubSchema),
+        }),
+      ])
+      .optional(),
+    managed: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('managedAqs'),
+          managedAqs: z.lazy(() => marshalUpdateAzureQueueStorageSchema),
+        }),
+        z.object({
+          $case: z.literal('managedSqs'),
+          managedSqs: z.lazy(() => marshalUpdateAwsSqsQueueSchema),
+        }),
+        z.object({
+          $case: z.literal('managedPubsub'),
+          managedPubsub: z.lazy(() => marshalUpdateGcpPubsubSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.provided?.$case === 'providedAqs' && {
+      provided_aqs: d.provided.providedAqs,
+    }),
+    ...(d.provided?.$case === 'providedSqs' && {
+      provided_sqs: d.provided.providedSqs,
+    }),
+    ...(d.provided?.$case === 'providedPubsub' && {
+      provided_pubsub: d.provided.providedPubsub,
+    }),
+    ...(d.managed?.$case === 'managedAqs' && {
+      managed_aqs: d.managed.managedAqs,
+    }),
+    ...(d.managed?.$case === 'managedSqs' && {
+      managed_sqs: d.managed.managedSqs,
+    }),
+    ...(d.managed?.$case === 'managedPubsub' && {
+      managed_pubsub: d.managed.managedPubsub,
+    }),
+  }));
+
+export const marshalUpdateGcpPubsubSchema: z.ZodType = z
+  .object({
+    subscriptionName: z.string().optional(),
+  })
+  .transform(d => ({
+    subscription_name: d.subscriptionName,
+  }));
+
+export const marshalUpdateSseEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    algorithm: z.string().optional(),
+    awsKmsKeyArn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    aws_kms_key_arn: d.awsKmsKeyArn,
   }));

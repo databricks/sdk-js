@@ -19,6 +19,7 @@ export {
 
 export type {
   ApiError,
+  CreateWorkspaceBaseEnvironment,
   CreateWorkspaceBaseEnvironmentRequest,
   DefaultWorkspaceBaseEnvironment,
   DeleteWorkspaceBaseEnvironmentRequest,
@@ -30,11 +31,13 @@ export type {
   ListWorkspaceBaseEnvironmentsResponse,
   Operation,
   RefreshWorkspaceBaseEnvironmentRequest,
+  UpdateDefaultWorkspaceBaseEnvironment,
   UpdateDefaultWorkspaceBaseEnvironmentRequest,
+  UpdateWorkspaceBaseEnvironment,
   UpdateWorkspaceBaseEnvironmentRequest,
   WorkspaceBaseEnvironment,
   WorkspaceBaseEnvironmentCache,
   WorkspaceBaseEnvironmentOperationMetadata,
 } from './model';
 
-export {defaultWorkspaceBaseEnvironmentFieldMask} from './model';
+export {updateDefaultWorkspaceBaseEnvironmentFieldMask} from './model';

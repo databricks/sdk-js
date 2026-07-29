@@ -11,6 +11,7 @@ export {ArtifactType, ArtifactMatcher_MatchType} from './model';
 export type {
   ArtifactAllowlistInfo,
   ArtifactMatcher,
+  CreateArtifactMatcher,
   GetArtifactAllowlistRequest,
   SetArtifactAllowlistRequest,
 } from './model';

@@ -16,11 +16,20 @@ export type CatalogType =
   | (typeof CatalogType)[keyof typeof CatalogType]
   | (string & {});
 
+export interface CreateEffectivePredictiveOptimizationFlag {
+  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  value: string;
+  /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromType?: string | undefined;
+  /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromName?: string | undefined;
+}
+
 export interface CreateSchemaRequest {
   /** Name of schema, relative to parent catalog. */
-  name?: string | undefined;
+  name: string;
   /** Name of parent catalog. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Username of current owner of schema. */
   owner?: string | undefined;
   /** User-provided free-form text description. */
@@ -46,7 +55,7 @@ export interface CreateSchemaRequest {
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
   effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
+    | CreateEffectivePredictiveOptimizationFlag
     | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
@@ -55,7 +64,7 @@ export interface CreateSchemaRequest {
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
@@ -157,6 +166,15 @@ export interface SchemaInfo {
   options?: Record<string, string> | undefined;
 }
 
+export interface UpdateEffectivePredictiveOptimizationFlag {
+  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  value?: string | undefined;
+  /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromType?: string | undefined;
+  /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromName?: string | undefined;
+}
+
 export interface UpdateSchemaRequest {
   /** Full name of the schema. */
   fullNameArg?: string | undefined;
@@ -191,7 +209,7 @@ export interface UpdateSchemaRequest {
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
   effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
+    | UpdateEffectivePredictiveOptimizationFlag
     | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
@@ -290,10 +308,23 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     options: d.options,
   }));
 
+export const marshalCreateEffectivePredictiveOptimizationFlagSchema: z.ZodType =
+  z
+    .object({
+      value: z.string(),
+      inheritedFromType: z.string().optional(),
+      inheritedFromName: z.string().optional(),
+    })
+    .transform(d => ({
+      value: d.value,
+      inherited_from_type: d.inheritedFromType,
+      inherited_from_name: d.inheritedFromName,
+    }));
+
 export const marshalCreateSchemaRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    catalogName: z.string().optional(),
+    name: z.string(),
+    catalogName: z.string(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
@@ -307,12 +338,12 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     catalogType: z.string().optional(),
     storageLocation: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .lazy(() => marshalCreateEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     customMaxRetentionHours: z.bigint().optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -339,17 +370,18 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     options: d.options,
   }));
 
-export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
-  .object({
-    value: z.string().optional(),
-    inheritedFromType: z.string().optional(),
-    inheritedFromName: z.string().optional(),
-  })
-  .transform(d => ({
-    value: d.value,
-    inherited_from_type: d.inheritedFromType,
-    inherited_from_name: d.inheritedFromName,
-  }));
+export const marshalUpdateEffectivePredictiveOptimizationFlagSchema: z.ZodType =
+  z
+    .object({
+      value: z.string().optional(),
+      inheritedFromType: z.string().optional(),
+      inheritedFromName: z.string().optional(),
+    })
+    .transform(d => ({
+      value: d.value,
+      inherited_from_type: d.inheritedFromType,
+      inherited_from_name: d.inheritedFromName,
+    }));
 
 export const marshalUpdateSchemaRequestSchema: z.ZodType = z
   .object({
@@ -370,7 +402,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
     catalogType: z.string().optional(),
     storageLocation: z.string().optional(),
     effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .lazy(() => marshalUpdateEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),

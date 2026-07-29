@@ -56,7 +56,7 @@ export interface AdminTokenInfo {
 /** Configuration details for creating on-behalf tokens. */
 export interface CreateOnBehalfOfTokenRequest {
   /** Application ID of the service principal. */
-  applicationId?: string | undefined;
+  applicationId: string;
   /** The number of seconds before the token expires. */
   lifetimeSeconds?: bigint | undefined;
   /** Comment that describes the purpose of the token. */
@@ -120,14 +120,43 @@ export interface RevokeTokenRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RevokeTokenResponse {}
 
+export interface UpdateAdminTokenInfo {
+  /** ID of the token. */
+  tokenId?: string | undefined;
+  /** Timestamp when the token was created. */
+  creationTime?: bigint | undefined;
+  /** Timestamp when the token expires. */
+  expiryTime?: bigint | undefined;
+  /** Comment that describes the purpose of the token, specified by the token creator. */
+  comment?: string | undefined;
+  /** User ID of the user that created the token. */
+  createdById?: bigint | undefined;
+  /** Username of the user that created the token. */
+  createdByUsername?: string | undefined;
+  /** User ID of the user that owns the token. */
+  ownerId?: bigint | undefined;
+  /** If applicable, the ID of the workspace that the token was created in. */
+  workspaceId?: bigint | undefined;
+  /** Approximate timestamp for the day the token was last used. Accurate up to 1 day. */
+  lastUsedDay?: bigint | undefined;
+  /** Scope of the token was created with, if applicable. */
+  scopes?: string[] | undefined;
+  /** Output only. The autoscope state of this token. */
+  autoscopeState?: AutoscopeState | undefined;
+  /** Output only. Inferred API path scopes collected for this token when autoscope is enabled. */
+  inferredScopes?: string[] | undefined;
+  /** Output only. Scopes inferred from offline backfill processing. */
+  backfillScopes?: string[] | undefined;
+}
+
 /**
  * For the list of supported token scopes, see
  * https://docs.databricks.com/api/workspace/api/scopes.
  */
 export interface UpdateTokenRequest {
-  token?: AdminTokenInfo | undefined;
+  token?: UpdateAdminTokenInfo | undefined;
   /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
-  updateMask?: FieldMask<AdminTokenInfo> | undefined;
+  updateMask?: FieldMask<UpdateAdminTokenInfo> | undefined;
 }
 
 export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
@@ -213,7 +242,23 @@ export const unmarshalListTokensResponseSchema: z.ZodType<ListTokensResponse> =
 export const unmarshalRevokeTokenResponseSchema: z.ZodType<RevokeTokenResponse> =
   z.object({});
 
-export const marshalAdminTokenInfoSchema: z.ZodType = z
+export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
+  .object({
+    applicationId: z.string(),
+    lifetimeSeconds: z.bigint().optional(),
+    comment: z.string().optional(),
+    scopes: z.array(z.string()).optional(),
+    autoscopeEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    application_id: d.applicationId,
+    lifetime_seconds: d.lifetimeSeconds,
+    comment: d.comment,
+    scopes: d.scopes,
+    autoscope_enabled: d.autoscopeEnabled,
+  }));
+
+export const marshalUpdateAdminTokenInfoSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
     creationTime: z.bigint().optional(),
@@ -245,25 +290,9 @@ export const marshalAdminTokenInfoSchema: z.ZodType = z
     backfill_scopes: d.backfillScopes,
   }));
 
-export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
-  .object({
-    applicationId: z.string().optional(),
-    lifetimeSeconds: z.bigint().optional(),
-    comment: z.string().optional(),
-    scopes: z.array(z.string()).optional(),
-    autoscopeEnabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    application_id: d.applicationId,
-    lifetime_seconds: d.lifetimeSeconds,
-    comment: d.comment,
-    scopes: d.scopes,
-    autoscope_enabled: d.autoscopeEnabled,
-  }));
-
 export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
-    token: z.lazy(() => marshalAdminTokenInfoSchema).optional(),
+    token: z.lazy(() => marshalUpdateAdminTokenInfoSchema).optional(),
     updateMask: z
       .any()
       .transform((m: FieldMask) => m.toString())
@@ -274,7 +303,7 @@ export const marshalUpdateTokenRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-const adminTokenInfoFieldMaskSchema: FieldMaskSchema = {
+const updateAdminTokenInfoFieldMaskSchema: FieldMaskSchema = {
   autoscopeState: {wire: 'autoscope_state'},
   backfillScopes: {wire: 'backfill_scopes'},
   comment: {wire: 'comment'},
@@ -290,8 +319,11 @@ const adminTokenInfoFieldMaskSchema: FieldMaskSchema = {
   workspaceId: {wire: 'workspace_id'},
 };
 
-export function adminTokenInfoFieldMask(
+export function updateAdminTokenInfoFieldMask(
   ...paths: string[]
-): FieldMask<AdminTokenInfo> {
-  return FieldMask.build<AdminTokenInfo>(paths, adminTokenInfoFieldMaskSchema);
+): FieldMask<UpdateAdminTokenInfo> {
+  return FieldMask.build<UpdateAdminTokenInfo>(
+    paths,
+    updateAdminTokenInfoFieldMaskSchema
+  );
 }

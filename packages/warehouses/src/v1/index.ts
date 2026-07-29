@@ -26,9 +26,16 @@ export {
 
 export type {
   Channel,
+  CreateChannel,
+  CreateDefaultWarehouseOverride,
   CreateDefaultWarehouseOverrideRequest,
+  CreateEndpointConfPair,
+  CreateEndpointTagPair,
+  CreateEndpointTags,
+  CreateRepeatedEndpointConfPairs,
   CreateWarehouseRequest,
   CreateWarehouseResponse,
+  CreateWarehouseTypePair,
   DefaultWarehouseOverride,
   DeleteDefaultWarehouseOverrideRequest,
   DeleteWarehouseResponse,
@@ -54,6 +61,7 @@ export type {
   StartResponse,
   StopResponse,
   TerminationReason,
+  UpdateDefaultWarehouseOverride,
   UpdateDefaultWarehouseOverrideRequest,
   WarehouseTypePair,
   DeleteWarehouseRequest,
@@ -62,4 +70,4 @@ export type {
   StopRequest,
 } from './model';
 
-export {defaultWarehouseOverrideFieldMask} from './model';
+export {updateDefaultWarehouseOverrideFieldMask} from './model';

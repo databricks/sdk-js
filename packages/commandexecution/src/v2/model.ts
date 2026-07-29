@@ -86,8 +86,8 @@ export interface CreateResponse {
 }
 
 export interface DestroyContextRequest {
-  clusterId?: string | undefined;
-  contextId?: string | undefined;
+  clusterId: string;
+  contextId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -244,8 +244,8 @@ export const marshalCreateContextRequestSchema: z.ZodType = z
 
 export const marshalDestroyContextRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
-    contextId: z.string().optional(),
+    clusterId: z.string(),
+    contextId: z.string(),
   })
   .transform(d => ({
     clusterId: d.clusterId,

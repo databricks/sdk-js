@@ -5,8 +5,18 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+export interface CreateTagPolicy {
+  tagKey: string;
+  description?: string | undefined;
+  values?: CreateValue[] | undefined;
+}
+
 export interface CreateTagPolicyRequest {
-  tagPolicy?: TagPolicy | undefined;
+  tagPolicy: CreateTagPolicy;
+}
+
+export interface CreateValue {
+  name: string;
 }
 
 export interface DeleteTagPolicyRequest {
@@ -44,9 +54,19 @@ export interface TagPolicy {
   updateTime?: Temporal.Instant | undefined;
 }
 
+export interface UpdateTagPolicy {
+  tagKey?: string | undefined;
+  description?: string | undefined;
+  values?: UpdateValue[] | undefined;
+}
+
 export interface UpdateTagPolicyRequest {
-  tagPolicy?: TagPolicy | undefined;
-  updateMask?: FieldMask<TagPolicy> | undefined;
+  tagPolicy?: UpdateTagPolicy | undefined;
+  updateMask?: FieldMask<UpdateTagPolicy> | undefined;
+}
+
+export interface UpdateValue {
+  name?: string | undefined;
 }
 
 export interface Value {
@@ -96,31 +116,39 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     name: d.name,
   }));
 
-export const marshalTagPolicySchema: z.ZodType = z
+export const marshalCreateTagPolicySchema: z.ZodType = z
   .object({
-    tagKey: z.string().optional(),
-    id: z.string().optional(),
+    tagKey: z.string(),
     description: z.string().optional(),
-    values: z.array(z.lazy(() => marshalValueSchema)).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    values: z.array(z.lazy(() => marshalCreateValueSchema)).optional(),
   })
   .transform(d => ({
     tag_key: d.tagKey,
-    id: d.id,
     description: d.description,
     values: d.values,
-    create_time: d.createTime,
-    update_time: d.updateTime,
   }));
 
-export const marshalValueSchema: z.ZodType = z
+export const marshalCreateValueSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUpdateTagPolicySchema: z.ZodType = z
+  .object({
+    tagKey: z.string().optional(),
+    description: z.string().optional(),
+    values: z.array(z.lazy(() => marshalUpdateValueSchema)).optional(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
+    description: d.description,
+    values: d.values,
+  }));
+
+export const marshalUpdateValueSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -128,15 +156,17 @@ export const marshalValueSchema: z.ZodType = z
     name: d.name,
   }));
 
-const tagPolicyFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
+const updateTagPolicyFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
-  id: {wire: 'id'},
   tagKey: {wire: 'tag_key'},
-  updateTime: {wire: 'update_time'},
   values: {wire: 'values'},
 };
 
-export function tagPolicyFieldMask(...paths: string[]): FieldMask<TagPolicy> {
-  return FieldMask.build<TagPolicy>(paths, tagPolicyFieldMaskSchema);
+export function updateTagPolicyFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateTagPolicy> {
+  return FieldMask.build<UpdateTagPolicy>(
+    paths,
+    updateTagPolicyFieldMaskSchema
+  );
 }

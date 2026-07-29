@@ -37,9 +37,10 @@ import type {
   WorkspaceBaseEnvironmentOperationMetadata,
 } from './model';
 import {
-  marshalDefaultWorkspaceBaseEnvironmentSchema,
+  marshalCreateWorkspaceBaseEnvironmentSchema,
   marshalRefreshWorkspaceBaseEnvironmentRequestSchema,
-  marshalWorkspaceBaseEnvironmentSchema,
+  marshalUpdateDefaultWorkspaceBaseEnvironmentSchema,
+  marshalUpdateWorkspaceBaseEnvironmentSchema,
   unmarshalDefaultWorkspaceBaseEnvironmentSchema,
   unmarshalListWorkspaceBaseEnvironmentsResponseSchema,
   unmarshalOperationSchema,
@@ -106,7 +107,7 @@ export class EnvironmentsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.workspaceBaseEnvironment,
-      marshalWorkspaceBaseEnvironmentSchema
+      marshalCreateWorkspaceBaseEnvironmentSchema
     );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -420,7 +421,7 @@ export class EnvironmentsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.defaultWorkspaceBaseEnvironment,
-      marshalDefaultWorkspaceBaseEnvironmentSchema
+      marshalUpdateDefaultWorkspaceBaseEnvironmentSchema
     );
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -467,7 +468,7 @@ export class EnvironmentsClient {
     const url = `${host}/api/environments/v1/${req.name ?? ''}`;
     const body = marshalRequest(
       req.workspaceBaseEnvironment,
-      marshalWorkspaceBaseEnvironmentSchema
+      marshalUpdateWorkspaceBaseEnvironmentSchema
     );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

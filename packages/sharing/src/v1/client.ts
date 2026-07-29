@@ -65,10 +65,10 @@ import type {
   UpdateShareRequest,
 } from './model';
 import {
+  marshalCreateFederationPolicySchema,
   marshalCreateProviderRequestSchema,
   marshalCreateRecipientRequestSchema,
   marshalCreateShareRequestSchema,
-  marshalFederationPolicySchema,
   marshalRotateRecipientTokenRequestSchema,
   marshalUpdateProviderRequestSchema,
   marshalUpdateRecipientRequestSchema,
@@ -154,7 +154,10 @@ export class SharingClient {
   ): Promise<FederationPolicy> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body = marshalRequest(
+      req.policy,
+      marshalCreateFederationPolicySchema
+    );
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

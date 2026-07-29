@@ -33,5 +33,13 @@ export type {
   ListFunctionsRequest,
   ListFunctionsResponse,
   TableDependency,
+  UpdateConnectionDependency,
+  UpdateCredentialDependency,
+  UpdateDependency,
+  UpdateDependencyList,
+  UpdateFunctionDependency,
+  UpdateFunctionParameterInfo,
+  UpdateFunctionParameterInfos,
   UpdateFunctionRequest,
+  UpdateTableDependency,
 } from './model';

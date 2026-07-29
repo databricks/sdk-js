@@ -18,7 +18,12 @@ export {
 
 export type {
   ColumnInfo,
+  CreateDirectAccessVectorIndexSpec,
+  CreateEmbeddingSourceColumn,
+  CreateEmbeddingVectorColumn,
   CreateEndpointRequest,
+  CreateMetric,
+  CreateMetricLabel,
   CreateVectorIndexRequest,
   CustomTag,
   DeleteDataVectorIndexRequest,
@@ -66,6 +71,7 @@ export type {
   Struct,
   SyncVectorIndexRequest,
   SyncVectorIndexResponse,
+  UpdateCustomTag,
   UpdateEndpointCustomTagsRequest,
   UpdateEndpointCustomTagsResponse,
   UpsertDataVectorIndexRequest,

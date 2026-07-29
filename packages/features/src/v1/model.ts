@@ -182,7 +182,7 @@ export interface BackfillSource {
 
 export interface BatchCreateMaterializedFeaturesRequest {
   /** The requests to create materialized features. */
-  requests?: CreateMaterializedFeatureRequest[] | undefined;
+  requests: CreateMaterializedFeatureRequest[];
 }
 
 export interface BatchCreateMaterializedFeaturesResponse {
@@ -223,24 +223,909 @@ export interface CountFunction {
   input?: string | undefined;
 }
 
+/** An aggregation function applied over a time window. */
+export interface CreateAggregationFunction {
+  /** The type of the aggregation function. */
+  operation?:
+    | {$case: 'avg'; avg: CreateAvgFunction}
+    | {$case: 'countFunction'; countFunction: CreateCountFunction}
+    | {$case: 'sum'; sum: CreateSumFunction}
+    | {$case: 'min'; min: CreateMinFunction}
+    | {$case: 'max'; max: CreateMaxFunction}
+    | {$case: 'first'; first: CreateFirstFunction}
+    | {$case: 'last'; last: CreateLastFunction}
+    | {
+        $case: 'approxCountDistinct';
+        approxCountDistinct: CreateApproxCountDistinctFunction;
+      }
+    | {
+        $case: 'approxPercentile';
+        approxPercentile: CreateApproxPercentileFunction;
+      }
+    | {$case: 'stddevPop'; stddevPop: CreateStddevPopFunction}
+    | {$case: 'stddevSamp'; stddevSamp: CreateStddevSampFunction}
+    | {$case: 'varPop'; varPop: CreateVarPopFunction}
+    | {$case: 'varSamp'; varSamp: CreateVarSampFunction}
+    | {$case: 'firstN'; firstN: CreateFirstNFunction}
+    | {$case: 'lastN'; lastN: CreateLastNFunction}
+    | {$case: 'firstDistinctN'; firstDistinctN: CreateFirstDistinctNFunction}
+    | {$case: 'lastDistinctN'; lastDistinctN: CreateLastDistinctNFunction}
+    | undefined;
+  /** The time window over which the aggregation is computed. */
+  timeWindow?: CreateTimeWindow | undefined;
+}
+
+/** Computes the approximate count of distinct values. */
+export interface CreateApproxCountDistinctFunction {
+  /** The input column from which the approximate count of distinct values is computed. */
+  input: string;
+  /** The maximum relative standard deviation allowed (default defined by Spark). */
+  relativeSd?: number | undefined;
+}
+
+/** Computes the approximate percentile of values. */
+export interface CreateApproxPercentileFunction {
+  /** The input column from which the approximate percentile is computed. */
+  input: string;
+  /** The percentile value to compute (between 0 and 1). */
+  percentile: number;
+  /** The accuracy parameter (higher is more accurate but slower). */
+  accuracy?: bigint | undefined;
+}
+
+export interface CreateAuthConfig {
+  authConfig?:
+    | {
+        $case: 'ucServiceCredentialName';
+        /** Name of the Unity Catalog service credential. This value will be set under the option databricks.serviceCredential */
+        ucServiceCredentialName: string;
+      }
+    | {
+        $case: 'mtlsConfig';
+        /** Mutual-TLS authentication. See MtlsConfig. */
+        mtlsConfig: CreateMtlsConfig;
+      }
+    | undefined;
+}
+
+/** Computes the average of values. */
+export interface CreateAvgFunction {
+  /**
+   * The input column from which the average is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input: string;
+}
+
+export interface CreateBackfillSource {
+  backfillSource?:
+    | {
+        $case: 'deltaTableSource';
+        /**
+         * Deprecated: Use delta_table_name instead. Kept for backwards compatibility.
+         * The Delta table source containing the historical data to backfill.
+         * Only the delta table name is used for backfill, other fields are ignored.
+         */
+        deltaTableSource: CreateDeltaTableSource;
+      }
+    | {
+        $case: 'deltaTableName';
+        /** The full three-part name (catalog, schema, name) of the Delta table containing the historical data to backfill. */
+        deltaTableName: string;
+      }
+    | undefined;
+}
+
+export interface CreateColumnIdentifier {
+  /**
+   * String representation of the column name using dot-prefixed path notation. For nested fields, the leaf value is what will be present in materialized tables
+   * and expected to match at query time. For example, the leaf node of value.trip_details.location_details.pickup_zip is pickup_zip.
+   */
+  variantExprPath: string;
+}
+
+/** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime ContinuousWindow */
+export interface CreateColumnSelection {
+  /** Column name from source to select as the feature value. */
+  column: string;
+}
+
+/** Deprecated: use RollingWindow with `delay` instead. */
+export interface CreateContinuousWindow {
+  /** The duration of the continuous window (must be positive). */
+  windowDuration: Temporal.Duration;
+  /** The offset of the continuous window (must be non-positive). */
+  offset?: Temporal.Duration | undefined;
+}
+
+/** Computes the count of values. */
+export interface CreateCountFunction {
+  /**
+   * The input column from which the count is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input: string;
+}
+
+/** A cron-based schedule trigger for the materialization pipeline. */
+export interface CreateCronSchedule {
+  /** The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). */
+  cronExpression?: string | undefined;
+}
+
+/** Specifies the data source backing a feature. Exactly one source type must be set. */
+export interface CreateDataSource {
+  dataSource?:
+    | {
+        $case: 'deltaTableSource';
+        /** A Delta table data source. */
+        deltaTableSource: CreateDeltaTableSource;
+      }
+    | {
+        $case: 'kafkaSource';
+        /** A Kafka stream data source. */
+        kafkaSource: CreateKafkaSource;
+      }
+    | {
+        $case: 'requestSource';
+        /** A request-time data source. */
+        requestSource: CreateRequestSource;
+      }
+    | {
+        $case: 'streamSource';
+        /** A Stream data source. */
+        streamSource: CreateStreamSource;
+      }
+    | undefined;
+}
+
+export interface CreateDeltaTableSource {
+  /** The full three-part (catalog, schema, table) name of the Delta table. */
+  fullName: string;
+  /**
+   * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
+   * The entity columns of the Delta table.
+   */
+  entityColumns?: string[] | undefined;
+  /**
+   * Deprecated: Use Feature.timeseries_column instead. Kept for backwards compatibility.
+   * The timeseries column of the Delta table.
+   */
+  timeseriesColumn?: string | undefined;
+  /** Single WHERE clause to filter delta table before applying transformations. Will be row-wise evaluated, so should only include conditionals and projections. */
+  filterCondition?: string | undefined;
+  /**
+   * A single SQL SELECT expression applied after filter_condition.
+   * Should contains all the columns needed (eg. "SELECT *, col_a + col_b AS col_c FROM x.y.z WHERE col_a > 0" would have `transformation_sql` "*, col_a + col_b AS col_c")
+   * If transformation_sql is not provided, all columns of the delta table are present in the DataSource dataframe.
+   */
+  transformationSql?: string | undefined;
+  /**
+   * Schema of the resulting dataframe after transformations, in Spark StructType JSON format (from df.schema.json()).
+   * Required if transformation_sql is specified.
+   * Example: {"type":"struct","fields":[{"name":"col_a","type":"integer","nullable":true,"metadata":{}},{"name":"col_c","type":"integer","nullable":true,"metadata":{}}]}
+   */
+  dataframeSchema?: string | undefined;
+}
+
+/**
+ * Direct connection configs for mTLS, as Kafka Connections do not support mTLS yet .
+ * Temporarily used until UC Kafka Connections gain mTLS support.
+ */
+export interface CreateDirectMtlsConfig {
+  /** A comma-separated list of host:port pairs for the Kafka bootstrap servers. */
+  bootstrapServers: string;
+  /** Mutual-TLS authentication configuration. */
+  mtlsConfig: CreateMtlsConfig;
+}
+
+/**
+ * Schema definitions provided directly on the Stream, as opposed to referencing a schema registry.
+ * In a future milestone, we will support schema registries through a UC Connection.
+ */
+export interface CreateDirectSchemas {
+  /**
+   * Schema for the message payload. For Kafka, this is the value schema.
+   * Unless the platform supports another schema (e.g. keys for Kafka), this must be specified.
+   */
+  payloadSchema?: CreateSchemaConfig | undefined;
+  /**
+   * Schema for the message key. This is only used for Kafka streams.
+   * For Kafka, at least one of payload_schema or key_schema must be specified.
+   */
+  keySchema?: CreateSchemaConfig | undefined;
+}
+
+export interface CreateEntityColumn {
+  /**
+   * The name of the entity column. For Kafka sources, use dot-prefixed path notation to reference
+   * fields within the key or value schema (e.g., "value.user_id", "key.partition_key"). For nested
+   * fields, the leaf node name (e.g., "user_id" from "value.trip_details.user_id") is what will
+   * be present in materialized tables and expected to match at query time.
+   * Colon-prefixed notation (e.g., "value:user_id") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  name: string;
+}
+
+export interface CreateFeature {
+  /**
+   * The full three-part name (catalog, schema, name) of the feature. This is the
+   * feature's resource identifier; the catalog_name, schema_name, and name fields
+   * below are OUTPUT_ONLY decomposed views of this value.
+   */
+  fullName: string;
+  /** The data source of the feature. */
+  source: CreateDataSource;
+  /**
+   * Deprecated: Use AggregationFunction.inputs instead. Kept for backwards compatibility.
+   * The input columns from which the feature is computed.
+   */
+  inputs?: string[] | undefined;
+  /** The function by which the feature is computed. */
+  function: CreateFunction;
+  /**
+   * Deprecated: Use Function.aggregation_function.time_window instead. Kept for backwards compatibility.
+   * The time window in which the feature is computed.
+   */
+  timeWindow?: CreateTimeWindow | undefined;
+  /** The description of the feature. */
+  description?: string | undefined;
+  /**
+   * Deprecated: Use DeltaTableSource.filter_condition or KafkaSource.filter_condition instead. Kept for backwards compatibility.
+   * The filter condition applied to the source data before aggregation.
+   */
+  filterCondition?: string | undefined;
+  /**
+   * Lineage context information for this feature.
+   * WARNING: This field is primarily intended for internal use by <Databricks> systems and
+   * is automatically populated when features are created through <Databricks> notebooks or jobs.
+   * Users should not manually set this field as incorrect values may lead to inaccurate lineage tracking or unexpected behavior.
+   * This field will be set by feature-engineering client and should be left unset by SDK and terraform users.
+   */
+  lineageContext?: CreateLineageContext | undefined;
+  /** The entity columns for the feature, used as aggregation keys and for query-time lookup. */
+  entities?: CreateEntityColumn[] | undefined;
+  /** Column recording time, used for point-in-time joins, backfills, and aggregations. */
+  timeseriesColumn?: CreateTimeseriesColumn | undefined;
+}
+
 export interface CreateFeatureRequest {
   /** Feature to create. */
-  feature?: Feature | undefined;
+  feature: CreateFeature;
+}
+
+/**
+ * A single field definition within a FlatSchema, specifying the field name and its scalar data type.
+ * Does not support nested or complex types (arrays, maps, structs).
+ */
+export interface CreateFieldDefinition {
+  /** The name of the field. */
+  name: string;
+  /** The scalar data type of the field. */
+  dataType: ScalarDataType;
+}
+
+/** Returns the first N distinct values, ordered by the feature's timeseries column. */
+export interface CreateFirstDistinctNFunction {
+  /** The input column from which the first N distinct values are returned. */
+  input: string;
+  /** The number of distinct values to return. */
+  n: bigint;
+}
+
+/** Returns the first value. */
+export interface CreateFirstFunction {
+  /** The input column from which the first value is returned. */
+  input: string;
+}
+
+/** Returns the first N values, ordered by the feature's timeseries column. */
+export interface CreateFirstNFunction {
+  /** The input column from which the first N values are returned. */
+  input: string;
+  /** The number of values to return. */
+  n: bigint;
+}
+
+/**
+ * A flat (non-nested) schema for request-time fields, defined as an ordered list of field definitions.
+ * This schema only supports scalar types.
+ */
+export interface CreateFlatSchema {
+  /** The list of fields in this schema. */
+  fields: CreateFieldDefinition[];
+}
+
+export interface CreateFunction {
+  /**
+   * Deprecated: Use the function oneof with AggregationFunction instead. Kept for backwards compatibility.
+   * The type of the function.
+   */
+  functionType?: Function_FunctionType | undefined;
+  /**
+   * Deprecated: Use the function oneof with AggregationFunction instead. Kept for backwards compatibility.
+   * Extra parameters for parameterized functions.
+   */
+  extraParameters?: Function_CreateExtraParameter[] | undefined;
+  function?:
+    | {
+        $case: 'aggregationFunction';
+        /** An aggregation function applied over a time window. */
+        aggregationFunction: CreateAggregationFunction;
+      }
+    | {
+        $case: 'columnSelection';
+        /** Selects the latest value of a single column in a data source */
+        columnSelection: CreateColumnSelection;
+      }
+    | undefined;
+}
+
+/**
+ * Configuration for the <Databricks>-managed ingestion pipeline.
+ * Groups the ingestion destination (required) and optional backfill source.
+ */
+export interface CreateIngestionConfig {
+  /**
+   * Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training.
+   * This table contains both 1) forward-filled data from the Stream and 2) backfilled data from the BackfillSource (if provided).
+   * This table is created and managed by <Databricks> and is deleted when the Stream is deleted.
+   */
+  ingestionDestination: CreateIngestionDestination;
+  /**
+   * A user-provided source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Stream.
+   * The backfill data stored in this location will be copied into the ingestion table for offline querying and training.
+   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream.
+   */
+  backfillSource?: CreateBackfillSource | undefined;
+  /**
+   * Column paths used to identify duplicate rows during ingestion; only one row per
+   * distinct combination of these values is kept. Use dot notation for nested fields
+   * (e.g. `value.user_id`). Empty list means every column is compared.
+   */
+  deduplicationColumns?: string[] | undefined;
+}
+
+/** Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training. */
+export interface CreateIngestionDestination {
+  ingestionDestination?:
+    | {
+        $case: 'deltaTableName';
+        /** The full three-part name (catalog, schema, name) of the Delta table to be created for ingestion. */
+        deltaTableName: string;
+      }
+    | undefined;
+}
+
+export interface CreateJobContext {
+  /** The job ID where this API invoked. */
+  jobId?: bigint | undefined;
+  /** The job run ID where this API was invoked. */
+  jobRunId?: bigint | undefined;
+}
+
+export interface CreateKafkaConfig {
+  /**
+   * Name that uniquely identifies this Kafka config within the metastore. This will be the identifier used from the Feature object to reference these configs for a feature.
+   * Can be distinct from topic name.
+   */
+  name: string;
+  /** A comma-separated list of host/port pairs pointing to Kafka cluster. */
+  bootstrapServers: string;
+  /** Options to configure which Kafka topics to pull data from. */
+  subscriptionMode: CreateSubscriptionMode;
+  /** Authentication configuration for connection to topics. */
+  authConfig: CreateAuthConfig;
+  /** Schema configuration for extracting message keys from topics. At least one of key_schema and value_schema must be provided. */
+  keySchema?: CreateSchemaConfig | undefined;
+  /** Schema configuration for extracting message values from topics. At least one of key_schema and value_schema must be provided. */
+  valueSchema?: CreateSchemaConfig | undefined;
+  /** Catch-all for miscellaneous options. Keys should be source options or Kafka consumer options (kafka.*) */
+  extraOptions?: Record<string, string> | undefined;
+  /**
+   * A user-provided and managed source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Kafka config.
+   * In the future, a separate table will be maintained by <Databricks> for forward filling data.
+   * The schema for this source must match exactly that of the key and value schemas specified for this Kafka config.
+   */
+  backfillSource?: CreateBackfillSource | undefined;
+  /**
+   * Configuration for ingesting Kafka data into a <Databricks>-managed
+   * Delta table.
+   */
+  ingestionConfig?: CreateIngestionConfig | undefined;
 }
 
 export interface CreateKafkaConfigRequest {
-  kafkaConfig?: KafkaConfig | undefined;
+  kafkaConfig: CreateKafkaConfig;
+}
+
+export interface CreateKafkaSource {
+  /** Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name. */
+  name: string;
+  /**
+   * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
+   * The entity column identifiers of the Kafka source.
+   */
+  entityColumnIdentifiers?: CreateColumnIdentifier[] | undefined;
+  /**
+   * Deprecated: Use Feature.timeseries_column instead. Kept for backwards compatibility.
+   * The timeseries column identifier of the Kafka source.
+   */
+  timeseriesColumnIdentifier?: CreateColumnIdentifier | undefined;
+  /** The filter condition applied to the source data before aggregation. */
+  filterCondition?: string | undefined;
+}
+
+/** Kafka-specific configuration for a Stream. */
+export interface CreateKafkaStreamConfig {
+  /** Options to configure which Kafka topics to pull data from. */
+  subscriptionMode: CreateKafkaSubscriptionMode;
+  /**
+   * Optional Kafka source or consumer options, validated against a server-side
+   * allowlist at request time. Allowed keys:
+   * - `maxOffsetsPerTrigger`
+   * - `startingOffsets`
+   * - `includeHeaders`
+   * - `kafka.request.timeout.ms`
+   * - `kafka.session.timeout.ms`
+   * - `kafka.max.partition.fetch.bytes`
+   * The following keys are ingestion-only and are stripped before being forwarded to the materialization pipeline:
+   * - `maxOffsetsPerTrigger`
+   * - `startingOffsets`
+   * Auth and connection details belong on the parent Stream's `connection_config`, not here.
+   */
+  extraOptions?: Record<string, string> | undefined;
+}
+
+/** Subscription mode for Kafka topic selection, matching standard Spark Structured Streaming options. */
+export interface CreateKafkaSubscriptionMode {
+  /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
+  subscriptionMode?:
+    | {
+        $case: 'assign';
+        /**
+         * A JSON string that contains the specific topic-partitions to consume from.
+         * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
+         */
+        assign: string;
+      }
+    | {
+        $case: 'subscribe';
+        /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
+        subscribe: string;
+      }
+    | {
+        $case: 'subscribePattern';
+        /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
+        subscribePattern: string;
+      }
+    | undefined;
+}
+
+/** Returns the last N distinct values, ordered by the feature's timeseries column. */
+export interface CreateLastDistinctNFunction {
+  /** The input column from which the last N distinct values are returned. */
+  input: string;
+  /** The number of distinct values to return. */
+  n: bigint;
+}
+
+/** Returns the last value. */
+export interface CreateLastFunction {
+  /** The input column from which the last value is returned. */
+  input: string;
+}
+
+/** Returns the last N values, ordered by the feature's timeseries column. */
+export interface CreateLastNFunction {
+  /** The input column from which the last N values are returned. */
+  input: string;
+  /** The number of values to return. */
+  n: bigint;
+}
+
+/** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
+export interface CreateLineageContext {
+  /** The notebook ID where this API was invoked. */
+  notebookId?: bigint | undefined;
+  /** Job context information including job ID and run ID. */
+  jobContext?: CreateJobContext | undefined;
+}
+
+/** A materialized feature represents a feature that is continuously computed and stored. */
+export interface CreateMaterializedFeature {
+  /** Server-assigned unique identifier for the materialized feature. */
+  materializedFeatureId?: string | undefined;
+  /** The full name of the feature in Unity Catalog. */
+  featureName: string;
+  destination?:
+    | {
+        $case: 'offlineStoreConfig';
+        /** Destination for writing feature values to an offline Delta table. */
+        offlineStoreConfig: CreateOfflineStoreConfig;
+      }
+    | {
+        $case: 'onlineStoreConfig';
+        /** Destination for writing feature values to an online Lakebase table. */
+        onlineStoreConfig: CreateOnlineStoreConfig;
+      }
+    | undefined;
+  /**
+   * The schedule state of the materialization pipeline.
+   * Hidden from GraphQL: being deprecated, so not exposed to Catalog Explorer.
+   */
+  pipelineScheduleState?: MaterializedFeature_PipelineScheduleState | undefined;
+  /**
+   * The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone.
+   * Hidden from GraphQL: superseded by the `trigger` oneof (cron_schedule_trigger), so not exposed to Catalog Explorer.
+   */
+  cronSchedule?: string | undefined;
+  /** The trigger configuration for the materialization pipeline. */
+  trigger?:
+    | {
+        $case: 'cronScheduleTrigger';
+        /** A cron-based schedule trigger for the materialization pipeline. */
+        cronScheduleTrigger: CreateCronSchedule;
+      }
+    | {
+        $case: 'tableTrigger';
+        /** A trigger that fires when the upstream source table changes. */
+        tableTrigger: CreateTableTrigger;
+      }
+    | {
+        $case: 'streamingMode';
+        /**
+         * The Structured Streaming trigger mode used for materialization. Real-time mode (RTM) targets
+         * sub-second latency for operational workloads; micro-batch mode (MBM) favors cost efficiency
+         * for ETL and analytics workloads.
+         */
+        streamingMode: CreateStreamingMode;
+      }
+    | undefined;
 }
 
 export interface CreateMaterializedFeatureRequest {
   /** The materialized feature to create. */
-  materializedFeature?: MaterializedFeature | undefined;
+  materializedFeature: CreateMaterializedFeature;
+}
+
+/** Computes the maximum value. */
+export interface CreateMaxFunction {
+  /** The input column from which the maximum is computed. */
+  input: string;
+}
+
+/** Computes the minimum value. */
+export interface CreateMinFunction {
+  /** The input column from which the minimum is computed. */
+  input: string;
+}
+
+/**
+ * Mutual-TLS (mTLS) authentication configuration. The keystore (client certificate +
+ * private key) and truststore (CAs trusted to verify the broker) live as JKS files on
+ * Unity Catalog volumes, with their passwords stored in <Databricks> secret scopes. This
+ * matches the SSL setup pattern documented at
+ * https://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.
+ *
+ * At materialization time, the generated PySpark code passes the JKS file paths and
+ * resolved passwords through to the Kafka SSL options (kafka.ssl.keystore.location,
+ * kafka.ssl.keystore.password, kafka.ssl.key.password, kafka.ssl.truststore.location,
+ * kafka.ssl.truststore.password). Passwords are resolved on the Spark cluster via
+ * dbutils.secrets.get; this message stores only references, never password values.
+ */
+export interface CreateMtlsConfig {
+  /**
+   * Unity Catalog volume path to the JKS keystore file containing the client certificate
+   * and private key. e.g. "/Volumes/<catalog>/<schema>/<volume>/client.jks". The
+   * materialization compute must have read permission on this volume.
+   */
+  keystoreLocation: string;
+  /** Secret-scope reference for the JKS keystore password. */
+  keystorePasswordRef: CreateSecretScopeReference;
+  /**
+   * Secret-scope reference for the private key password. Often the same value as the
+   * keystore password (keytool's default), but provided as a separate field because
+   * Apache Kafka requires it as a distinct option (kafka.ssl.key.password).
+   */
+  keyPasswordRef: CreateSecretScopeReference;
+  /**
+   * Unity Catalog volume path to the JKS truststore file containing the CA certificate(s)
+   * trusted to verify the Kafka broker's server certificate.
+   * e.g. "/Volumes/<catalog>/<schema>/<volume>/truststore.jks".
+   */
+  truststoreLocation: string;
+  /** Secret-scope reference for the JKS truststore password. */
+  truststorePasswordRef: CreateSecretScopeReference;
+  /**
+   * Set to true only when the broker certificate's SAN intentionally does not match
+   * the connection endpoint — for example when reaching the cluster through a
+   * PrivateLink endpoint whose DNS name is not in the broker certificate. Skipping
+   * the hostname check removes a defense against man-in-the-middle attacks; do not
+   * enable casually. mTLS client authentication is unaffected by this option.
+   *
+   * See the Apache Kafka SSL security guide for background on this check:
+   * https://kafka.apache.org/42/security/encryption-and-authentication-using-ssl/#host-name-verification
+   */
+  disableHostnameVerification?: boolean | undefined;
+}
+
+/** Configuration for offline store destination. */
+export interface CreateOfflineStoreConfig {
+  /** The Unity Catalog catalog name. */
+  catalogName: string;
+  /** The Unity Catalog schema name. */
+  schemaName: string;
+  /**
+   * Prefix for Unity Catalog table name.
+   * The materialized feature will be stored in a table with this prefix and a generated postfix.
+   */
+  tableNamePrefix: string;
+}
+
+/** Configuration for online store destination. */
+export interface CreateOnlineStoreConfig {
+  /**
+   * The Unity Catalog catalog name. This name is also used as the Lakebase logical database name.
+   * Quoting is handled by the backend where needed, do not pre-quote it.
+   */
+  catalogName: string;
+  /**
+   * The Unity Catalog schema name. This name is also used as the Lakebase schema name under the database.
+   * Quoting is handled by the backend where needed, do not pre-quote it.
+   */
+  schemaName: string;
+  /**
+   * Prefix for Unity Catalog table name.
+   * The materialized feature will be stored in a Lakebase table with this prefix and a generated postfix.
+   */
+  tableNamePrefix: string;
+  /** The name of the target online store. */
+  onlineStoreName: string;
+}
+
+/** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
+export interface CreateRequestSource {
+  /** The schema describing the request-time fields. Currently only flat schemas are supported. */
+  schema?:
+    | {
+        $case: 'flatSchema';
+        /** A flat schema with scalar-typed fields only. */
+        flatSchema: CreateFlatSchema;
+      }
+    | undefined;
+}
+
+/**
+ * A rolling time window with an optional delay. This is the SQL-spec-aligned
+ * replacement for ContinuousWindow: `delay` is the non-negative counterpart
+ * of the legacy non-positive `ContinuousWindow.offset`.
+ */
+export interface CreateRollingWindow {
+  /** The duration of the rolling window (must be positive). */
+  windowDuration: Temporal.Duration;
+  /**
+   * The delay applied to the end of the rolling window (must be non-negative).
+   * For example, delay=1d shifts the window end 1 day before the evaluation time.
+   */
+  delay?: Temporal.Duration | undefined;
+}
+
+export interface CreateSchemaConfig {
+  schema?:
+    | {
+        $case: 'jsonSchema';
+        /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
+        jsonSchema: string;
+      }
+    | undefined;
+}
+
+/**
+ * Reference to an entry in a <Databricks> secret scope. The referenced value is fetched
+ * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
+ */
+export interface CreateSecretScopeReference {
+  /** The <Databricks> secret scope name. */
+  scope: string;
+  /** The key within the scope. */
+  key: string;
+}
+
+export interface CreateSlidingWindow {
+  /** The duration of the sliding window. */
+  windowDuration: Temporal.Duration;
+  /** The slide duration (interval by which windows advance, must be positive and less than duration). */
+  slideDuration: Temporal.Duration;
+}
+
+/** Computes the population standard deviation. */
+export interface CreateStddevPopFunction {
+  /**
+   * The input column from which the population standard deviation is computed. For Kafka sources,
+   * use dot-prefixed path notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input: string;
+}
+
+/** Computes the sample standard deviation. */
+export interface CreateStddevSampFunction {
+  /** The input column from which the sample standard deviation is computed. */
+  input: string;
+}
+
+/**
+ * A Stream is a governed UC entity representing an external streaming data source.
+ * The source_config oneof determines the streaming platform source (e.g. Kafka, Kinesis, etc.).
+ */
+export interface CreateStream {
+  /** Full three-part (catalog.schema.stream) name of the stream. */
+  name: string;
+  /** User-provided description. */
+  description?: string | undefined;
+  /** Source-specific configuration. Determines the streaming platform source. */
+  sourceConfig: CreateStreamSourceConfig;
+  /** Specifies how to connect and authenticate to the stream platform. */
+  connectionConfig: CreateStreamConnectionConfig;
+  /**
+   * Schema definitions for the stream. Currently only direct schemas are supported.
+   * In a future milestone, we will support schema registries through a UC Connection.
+   */
+  schemaConfig: CreateStreamSchemaConfig;
+  /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
+  ingestionConfig: CreateIngestionConfig;
+}
+
+/** Specifies how to connect and authenticate to the stream platform. */
+export interface CreateStreamConnectionConfig {
+  connectionConfig?:
+    | {
+        $case: 'ucConnectionName';
+        /**
+         * Name of an existing UC Connection for stream platform access.
+         * Must be the correct type for the streaming platform (e.g. a Kafka Connection for a Kafka Stream).
+         */
+        ucConnectionName: string;
+      }
+    | {
+        $case: 'directMtlsConfig';
+        /**
+         * Direct mTLS configuration for stream platform access. This is only used in the short term until UC Kafka Connections support mTLS .
+         * Once UC Kafka Connections support mTLS, this will be deprecated.
+         */
+        directMtlsConfig: CreateDirectMtlsConfig;
+      }
+    | undefined;
 }
 
 /** Create a Stream, a governed UC entity representing an external streaming data source. */
 export interface CreateStreamRequest {
   /** The Stream to create. */
-  stream?: Stream | undefined;
+  stream: CreateStream;
+}
+
+/**
+ * Schema definitions for the stream. Currently only direct schemas are supported.
+ * In a future milestone, we will support schema registries through a UC Connection.
+ */
+export interface CreateStreamSchemaConfig {
+  schemaConfig?:
+    | {
+        $case: 'directSchemas';
+        /** Schema definitions provided directly on the Stream. */
+        directSchemas: CreateDirectSchemas;
+      }
+    | undefined;
+}
+
+/** A Stream entity used as a data source for a feature. */
+export interface CreateStreamSource {
+  /** Three-part full name of the Stream (catalog.schema.stream). */
+  fullName: string;
+  /** The filter condition applied to the source data before aggregation. */
+  filterCondition?: string | undefined;
+}
+
+/** Source-specific configuration. Determines the streaming platform source. */
+export interface CreateStreamSourceConfig {
+  sourceConfig?:
+    | {
+        $case: 'kafkaStreamConfig';
+        /** Configuration for Apache Kafka streams. */
+        kafkaStreamConfig: CreateKafkaStreamConfig;
+      }
+    | undefined;
+}
+
+/** The streaming mode configuration for a streaming materialization pipeline. */
+export interface CreateStreamingMode {
+  /** The type of streaming mode used by the materialization pipeline. */
+  mode?: StreamingMode_StreamingModeType | undefined;
+}
+
+/** Deprecated: Use KafkaSubscriptionMode instead. */
+export interface CreateSubscriptionMode {
+  /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
+  subscriptionMode?:
+    | {
+        $case: 'assign';
+        /**
+         * A JSON string that contains the specific topic-partitions to consume from.
+         * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
+         */
+        assign: string;
+      }
+    | {
+        $case: 'subscribe';
+        /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
+        subscribe: string;
+      }
+    | {
+        $case: 'subscribePattern';
+        /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
+        subscribePattern: string;
+      }
+    | undefined;
+}
+
+/** Computes the sum of values. */
+export interface CreateSumFunction {
+  /**
+   * The input column from which the sum is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input: string;
+}
+
+/** A trigger that fires when the upstream source table changes. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateTableTrigger {}
+
+export interface CreateTimeWindow {
+  windowType?:
+    | {$case: 'continuous'; continuous: CreateContinuousWindow}
+    | {$case: 'tumbling'; tumbling: CreateTumblingWindow}
+    | {$case: 'sliding'; sliding: CreateSlidingWindow}
+    | {$case: 'rolling'; rolling: CreateRollingWindow}
+    | undefined;
+}
+
+export interface CreateTimeseriesColumn {
+  /**
+   * The name of the timeseries column. For Kafka sources, use dot-prefixed path notation to
+   * reference fields within the key or value schema (e.g., "value.event_timestamp"). For nested
+   * fields, the leaf node name (e.g., "event_timestamp" from "value.event_details.event_timestamp")
+   * is what will be present in materialized tables and expected to match at query time.
+   * Colon-prefixed notation (e.g., "value:event_timestamp") is supported for
+   * backwards compatibility but is deprecated; migrate to dot notation.
+   */
+  name: string;
+}
+
+export interface CreateTumblingWindow {
+  /** The duration of each tumbling window (non-overlapping, fixed-duration windows). */
+  windowDuration: Temporal.Duration;
+}
+
+/** Computes the population variance. */
+export interface CreateVarPopFunction {
+  /** The input column from which the population variance is computed. */
+  input: string;
+}
+
+/** Computes the sample variance. */
+export interface CreateVarSampFunction {
+  /** The input column from which the sample variance is computed. */
+  input: string;
 }
 
 /** A cron-based schedule trigger for the materialization pipeline. */
@@ -489,7 +1374,31 @@ export interface Function {
  * or AggregationFunction.ExtraParameter instead. Kept for backwards compatibility.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Function_CreateExtraParameter {
+  /** The name of the parameter. */
+  key: string;
+  /** The value of the parameter. */
+  value: string;
+}
+
+/**
+ * Deprecated: Use typed fields on function-specific messages (e.g. ApproxPercentileFunction.percentile)
+ * or AggregationFunction.ExtraParameter instead. Kept for backwards compatibility.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Function_ExtraParameter {
+  /** The name of the parameter. */
+  key?: string | undefined;
+  /** The value of the parameter. */
+  value?: string | undefined;
+}
+
+/**
+ * Deprecated: Use typed fields on function-specific messages (e.g. ApproxPercentileFunction.percentile)
+ * or AggregationFunction.ExtraParameter instead. Kept for backwards compatibility.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Function_UpdateExtraParameter {
   /** The name of the parameter. */
   key?: string | undefined;
   /** The value of the parameter. */
@@ -1173,36 +2082,921 @@ export interface TumblingWindow {
   windowDuration?: Temporal.Duration | undefined;
 }
 
+/** An aggregation function applied over a time window. */
+export interface UpdateAggregationFunction {
+  /** The type of the aggregation function. */
+  operation?:
+    | {$case: 'avg'; avg: UpdateAvgFunction}
+    | {$case: 'countFunction'; countFunction: UpdateCountFunction}
+    | {$case: 'sum'; sum: UpdateSumFunction}
+    | {$case: 'min'; min: UpdateMinFunction}
+    | {$case: 'max'; max: UpdateMaxFunction}
+    | {$case: 'first'; first: UpdateFirstFunction}
+    | {$case: 'last'; last: UpdateLastFunction}
+    | {
+        $case: 'approxCountDistinct';
+        approxCountDistinct: UpdateApproxCountDistinctFunction;
+      }
+    | {
+        $case: 'approxPercentile';
+        approxPercentile: UpdateApproxPercentileFunction;
+      }
+    | {$case: 'stddevPop'; stddevPop: UpdateStddevPopFunction}
+    | {$case: 'stddevSamp'; stddevSamp: UpdateStddevSampFunction}
+    | {$case: 'varPop'; varPop: UpdateVarPopFunction}
+    | {$case: 'varSamp'; varSamp: UpdateVarSampFunction}
+    | {$case: 'firstN'; firstN: UpdateFirstNFunction}
+    | {$case: 'lastN'; lastN: UpdateLastNFunction}
+    | {$case: 'firstDistinctN'; firstDistinctN: UpdateFirstDistinctNFunction}
+    | {$case: 'lastDistinctN'; lastDistinctN: UpdateLastDistinctNFunction}
+    | undefined;
+  /** The time window over which the aggregation is computed. */
+  timeWindow?: UpdateTimeWindow | undefined;
+}
+
+/** Computes the approximate count of distinct values. */
+export interface UpdateApproxCountDistinctFunction {
+  /** The input column from which the approximate count of distinct values is computed. */
+  input?: string | undefined;
+  /** The maximum relative standard deviation allowed (default defined by Spark). */
+  relativeSd?: number | undefined;
+}
+
+/** Computes the approximate percentile of values. */
+export interface UpdateApproxPercentileFunction {
+  /** The input column from which the approximate percentile is computed. */
+  input?: string | undefined;
+  /** The percentile value to compute (between 0 and 1). */
+  percentile?: number | undefined;
+  /** The accuracy parameter (higher is more accurate but slower). */
+  accuracy?: bigint | undefined;
+}
+
+export interface UpdateAuthConfig {
+  authConfig?:
+    | {
+        $case: 'ucServiceCredentialName';
+        /** Name of the Unity Catalog service credential. This value will be set under the option databricks.serviceCredential */
+        ucServiceCredentialName: string;
+      }
+    | {
+        $case: 'mtlsConfig';
+        /** Mutual-TLS authentication. See MtlsConfig. */
+        mtlsConfig: UpdateMtlsConfig;
+      }
+    | undefined;
+}
+
+/** Computes the average of values. */
+export interface UpdateAvgFunction {
+  /**
+   * The input column from which the average is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input?: string | undefined;
+}
+
+export interface UpdateBackfillSource {
+  backfillSource?:
+    | {
+        $case: 'deltaTableSource';
+        /**
+         * Deprecated: Use delta_table_name instead. Kept for backwards compatibility.
+         * The Delta table source containing the historical data to backfill.
+         * Only the delta table name is used for backfill, other fields are ignored.
+         */
+        deltaTableSource: UpdateDeltaTableSource;
+      }
+    | {
+        $case: 'deltaTableName';
+        /** The full three-part name (catalog, schema, name) of the Delta table containing the historical data to backfill. */
+        deltaTableName: string;
+      }
+    | undefined;
+}
+
+export interface UpdateColumnIdentifier {
+  /**
+   * String representation of the column name using dot-prefixed path notation. For nested fields, the leaf value is what will be present in materialized tables
+   * and expected to match at query time. For example, the leaf node of value.trip_details.location_details.pickup_zip is pickup_zip.
+   */
+  variantExprPath?: string | undefined;
+}
+
+/** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime ContinuousWindow */
+export interface UpdateColumnSelection {
+  /** Column name from source to select as the feature value. */
+  column?: string | undefined;
+}
+
+/** Deprecated: use RollingWindow with `delay` instead. */
+export interface UpdateContinuousWindow {
+  /** The duration of the continuous window (must be positive). */
+  windowDuration?: Temporal.Duration | undefined;
+  /** The offset of the continuous window (must be non-positive). */
+  offset?: Temporal.Duration | undefined;
+}
+
+/** Computes the count of values. */
+export interface UpdateCountFunction {
+  /**
+   * The input column from which the count is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input?: string | undefined;
+}
+
+/** A cron-based schedule trigger for the materialization pipeline. */
+export interface UpdateCronSchedule {
+  /** The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). */
+  cronExpression?: string | undefined;
+}
+
+/** Specifies the data source backing a feature. Exactly one source type must be set. */
+export interface UpdateDataSource {
+  dataSource?:
+    | {
+        $case: 'deltaTableSource';
+        /** A Delta table data source. */
+        deltaTableSource: UpdateDeltaTableSource;
+      }
+    | {
+        $case: 'kafkaSource';
+        /** A Kafka stream data source. */
+        kafkaSource: UpdateKafkaSource;
+      }
+    | {
+        $case: 'requestSource';
+        /** A request-time data source. */
+        requestSource: UpdateRequestSource;
+      }
+    | {
+        $case: 'streamSource';
+        /** A Stream data source. */
+        streamSource: UpdateStreamSource;
+      }
+    | undefined;
+}
+
+export interface UpdateDeltaTableSource {
+  /** The full three-part (catalog, schema, table) name of the Delta table. */
+  fullName?: string | undefined;
+  /**
+   * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
+   * The entity columns of the Delta table.
+   */
+  entityColumns?: string[] | undefined;
+  /**
+   * Deprecated: Use Feature.timeseries_column instead. Kept for backwards compatibility.
+   * The timeseries column of the Delta table.
+   */
+  timeseriesColumn?: string | undefined;
+  /** Single WHERE clause to filter delta table before applying transformations. Will be row-wise evaluated, so should only include conditionals and projections. */
+  filterCondition?: string | undefined;
+  /**
+   * A single SQL SELECT expression applied after filter_condition.
+   * Should contains all the columns needed (eg. "SELECT *, col_a + col_b AS col_c FROM x.y.z WHERE col_a > 0" would have `transformation_sql` "*, col_a + col_b AS col_c")
+   * If transformation_sql is not provided, all columns of the delta table are present in the DataSource dataframe.
+   */
+  transformationSql?: string | undefined;
+  /**
+   * Schema of the resulting dataframe after transformations, in Spark StructType JSON format (from df.schema.json()).
+   * Required if transformation_sql is specified.
+   * Example: {"type":"struct","fields":[{"name":"col_a","type":"integer","nullable":true,"metadata":{}},{"name":"col_c","type":"integer","nullable":true,"metadata":{}}]}
+   */
+  dataframeSchema?: string | undefined;
+}
+
+/**
+ * Direct connection configs for mTLS, as Kafka Connections do not support mTLS yet .
+ * Temporarily used until UC Kafka Connections gain mTLS support.
+ */
+export interface UpdateDirectMtlsConfig {
+  /** A comma-separated list of host:port pairs for the Kafka bootstrap servers. */
+  bootstrapServers?: string | undefined;
+  /** Mutual-TLS authentication configuration. */
+  mtlsConfig?: UpdateMtlsConfig | undefined;
+}
+
+/**
+ * Schema definitions provided directly on the Stream, as opposed to referencing a schema registry.
+ * In a future milestone, we will support schema registries through a UC Connection.
+ */
+export interface UpdateDirectSchemas {
+  /**
+   * Schema for the message payload. For Kafka, this is the value schema.
+   * Unless the platform supports another schema (e.g. keys for Kafka), this must be specified.
+   */
+  payloadSchema?: UpdateSchemaConfig | undefined;
+  /**
+   * Schema for the message key. This is only used for Kafka streams.
+   * For Kafka, at least one of payload_schema or key_schema must be specified.
+   */
+  keySchema?: UpdateSchemaConfig | undefined;
+}
+
+export interface UpdateEntityColumn {
+  /**
+   * The name of the entity column. For Kafka sources, use dot-prefixed path notation to reference
+   * fields within the key or value schema (e.g., "value.user_id", "key.partition_key"). For nested
+   * fields, the leaf node name (e.g., "user_id" from "value.trip_details.user_id") is what will
+   * be present in materialized tables and expected to match at query time.
+   * Colon-prefixed notation (e.g., "value:user_id") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  name?: string | undefined;
+}
+
+export interface UpdateFeature {
+  /**
+   * The full three-part name (catalog, schema, name) of the feature. This is the
+   * feature's resource identifier; the catalog_name, schema_name, and name fields
+   * below are OUTPUT_ONLY decomposed views of this value.
+   */
+  fullName?: string | undefined;
+  /** The data source of the feature. */
+  source?: UpdateDataSource | undefined;
+  /**
+   * Deprecated: Use AggregationFunction.inputs instead. Kept for backwards compatibility.
+   * The input columns from which the feature is computed.
+   */
+  inputs?: string[] | undefined;
+  /** The function by which the feature is computed. */
+  function?: UpdateFunction | undefined;
+  /**
+   * Deprecated: Use Function.aggregation_function.time_window instead. Kept for backwards compatibility.
+   * The time window in which the feature is computed.
+   */
+  timeWindow?: UpdateTimeWindow | undefined;
+  /** The description of the feature. */
+  description?: string | undefined;
+  /**
+   * Deprecated: Use DeltaTableSource.filter_condition or KafkaSource.filter_condition instead. Kept for backwards compatibility.
+   * The filter condition applied to the source data before aggregation.
+   */
+  filterCondition?: string | undefined;
+  /**
+   * Lineage context information for this feature.
+   * WARNING: This field is primarily intended for internal use by <Databricks> systems and
+   * is automatically populated when features are created through <Databricks> notebooks or jobs.
+   * Users should not manually set this field as incorrect values may lead to inaccurate lineage tracking or unexpected behavior.
+   * This field will be set by feature-engineering client and should be left unset by SDK and terraform users.
+   */
+  lineageContext?: UpdateLineageContext | undefined;
+  /** The entity columns for the feature, used as aggregation keys and for query-time lookup. */
+  entities?: UpdateEntityColumn[] | undefined;
+  /** Column recording time, used for point-in-time joins, backfills, and aggregations. */
+  timeseriesColumn?: UpdateTimeseriesColumn | undefined;
+}
+
 export interface UpdateFeatureRequest {
   /** Feature to update. */
-  feature?: Feature | undefined;
+  feature?: UpdateFeature | undefined;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Feature> | undefined;
+  updateMask?: FieldMask<UpdateFeature> | undefined;
+}
+
+/**
+ * A single field definition within a FlatSchema, specifying the field name and its scalar data type.
+ * Does not support nested or complex types (arrays, maps, structs).
+ */
+export interface UpdateFieldDefinition {
+  /** The name of the field. */
+  name?: string | undefined;
+  /** The scalar data type of the field. */
+  dataType?: ScalarDataType | undefined;
+}
+
+/** Returns the first N distinct values, ordered by the feature's timeseries column. */
+export interface UpdateFirstDistinctNFunction {
+  /** The input column from which the first N distinct values are returned. */
+  input?: string | undefined;
+  /** The number of distinct values to return. */
+  n?: bigint | undefined;
+}
+
+/** Returns the first value. */
+export interface UpdateFirstFunction {
+  /** The input column from which the first value is returned. */
+  input?: string | undefined;
+}
+
+/** Returns the first N values, ordered by the feature's timeseries column. */
+export interface UpdateFirstNFunction {
+  /** The input column from which the first N values are returned. */
+  input?: string | undefined;
+  /** The number of values to return. */
+  n?: bigint | undefined;
+}
+
+/**
+ * A flat (non-nested) schema for request-time fields, defined as an ordered list of field definitions.
+ * This schema only supports scalar types.
+ */
+export interface UpdateFlatSchema {
+  /** The list of fields in this schema. */
+  fields?: UpdateFieldDefinition[] | undefined;
+}
+
+export interface UpdateFunction {
+  /**
+   * Deprecated: Use the function oneof with AggregationFunction instead. Kept for backwards compatibility.
+   * The type of the function.
+   */
+  functionType?: Function_FunctionType | undefined;
+  /**
+   * Deprecated: Use the function oneof with AggregationFunction instead. Kept for backwards compatibility.
+   * Extra parameters for parameterized functions.
+   */
+  extraParameters?: Function_UpdateExtraParameter[] | undefined;
+  function?:
+    | {
+        $case: 'aggregationFunction';
+        /** An aggregation function applied over a time window. */
+        aggregationFunction: UpdateAggregationFunction;
+      }
+    | {
+        $case: 'columnSelection';
+        /** Selects the latest value of a single column in a data source */
+        columnSelection: UpdateColumnSelection;
+      }
+    | undefined;
+}
+
+/**
+ * Configuration for the <Databricks>-managed ingestion pipeline.
+ * Groups the ingestion destination (required) and optional backfill source.
+ */
+export interface UpdateIngestionConfig {
+  /**
+   * Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training.
+   * This table contains both 1) forward-filled data from the Stream and 2) backfilled data from the BackfillSource (if provided).
+   * This table is created and managed by <Databricks> and is deleted when the Stream is deleted.
+   */
+  ingestionDestination?: UpdateIngestionDestination | undefined;
+  /**
+   * A user-provided source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Stream.
+   * The backfill data stored in this location will be copied into the ingestion table for offline querying and training.
+   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream.
+   */
+  backfillSource?: UpdateBackfillSource | undefined;
+  /**
+   * Column paths used to identify duplicate rows during ingestion; only one row per
+   * distinct combination of these values is kept. Use dot notation for nested fields
+   * (e.g. `value.user_id`). Empty list means every column is compared.
+   */
+  deduplicationColumns?: string[] | undefined;
+}
+
+/** Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training. */
+export interface UpdateIngestionDestination {
+  ingestionDestination?:
+    | {
+        $case: 'deltaTableName';
+        /** The full three-part name (catalog, schema, name) of the Delta table to be created for ingestion. */
+        deltaTableName: string;
+      }
+    | undefined;
+}
+
+export interface UpdateJobContext {
+  /** The job ID where this API invoked. */
+  jobId?: bigint | undefined;
+  /** The job run ID where this API was invoked. */
+  jobRunId?: bigint | undefined;
+}
+
+export interface UpdateKafkaConfig {
+  /**
+   * Name that uniquely identifies this Kafka config within the metastore. This will be the identifier used from the Feature object to reference these configs for a feature.
+   * Can be distinct from topic name.
+   */
+  name?: string | undefined;
+  /** A comma-separated list of host/port pairs pointing to Kafka cluster. */
+  bootstrapServers?: string | undefined;
+  /** Options to configure which Kafka topics to pull data from. */
+  subscriptionMode?: UpdateSubscriptionMode | undefined;
+  /** Authentication configuration for connection to topics. */
+  authConfig?: UpdateAuthConfig | undefined;
+  /** Schema configuration for extracting message keys from topics. At least one of key_schema and value_schema must be provided. */
+  keySchema?: UpdateSchemaConfig | undefined;
+  /** Schema configuration for extracting message values from topics. At least one of key_schema and value_schema must be provided. */
+  valueSchema?: UpdateSchemaConfig | undefined;
+  /** Catch-all for miscellaneous options. Keys should be source options or Kafka consumer options (kafka.*) */
+  extraOptions?: Record<string, string> | undefined;
+  /**
+   * A user-provided and managed source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Kafka config.
+   * In the future, a separate table will be maintained by <Databricks> for forward filling data.
+   * The schema for this source must match exactly that of the key and value schemas specified for this Kafka config.
+   */
+  backfillSource?: UpdateBackfillSource | undefined;
+  /**
+   * Configuration for ingesting Kafka data into a <Databricks>-managed
+   * Delta table.
+   */
+  ingestionConfig?: UpdateIngestionConfig | undefined;
 }
 
 export interface UpdateKafkaConfigRequest {
   /** The Kafka config to update. */
-  kafkaConfig?: KafkaConfig | undefined;
+  kafkaConfig?: UpdateKafkaConfig | undefined;
   /** The list of fields to update. */
-  updateMask?: FieldMask<KafkaConfig> | undefined;
+  updateMask?: FieldMask<UpdateKafkaConfig> | undefined;
+}
+
+export interface UpdateKafkaSource {
+  /** Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name. */
+  name?: string | undefined;
+  /**
+   * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
+   * The entity column identifiers of the Kafka source.
+   */
+  entityColumnIdentifiers?: UpdateColumnIdentifier[] | undefined;
+  /**
+   * Deprecated: Use Feature.timeseries_column instead. Kept for backwards compatibility.
+   * The timeseries column identifier of the Kafka source.
+   */
+  timeseriesColumnIdentifier?: UpdateColumnIdentifier | undefined;
+  /** The filter condition applied to the source data before aggregation. */
+  filterCondition?: string | undefined;
+}
+
+/** Kafka-specific configuration for a Stream. */
+export interface UpdateKafkaStreamConfig {
+  /** Options to configure which Kafka topics to pull data from. */
+  subscriptionMode?: UpdateKafkaSubscriptionMode | undefined;
+  /**
+   * Optional Kafka source or consumer options, validated against a server-side
+   * allowlist at request time. Allowed keys:
+   * - `maxOffsetsPerTrigger`
+   * - `startingOffsets`
+   * - `includeHeaders`
+   * - `kafka.request.timeout.ms`
+   * - `kafka.session.timeout.ms`
+   * - `kafka.max.partition.fetch.bytes`
+   * The following keys are ingestion-only and are stripped before being forwarded to the materialization pipeline:
+   * - `maxOffsetsPerTrigger`
+   * - `startingOffsets`
+   * Auth and connection details belong on the parent Stream's `connection_config`, not here.
+   */
+  extraOptions?: Record<string, string> | undefined;
+}
+
+/** Subscription mode for Kafka topic selection, matching standard Spark Structured Streaming options. */
+export interface UpdateKafkaSubscriptionMode {
+  /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
+  subscriptionMode?:
+    | {
+        $case: 'assign';
+        /**
+         * A JSON string that contains the specific topic-partitions to consume from.
+         * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
+         */
+        assign: string;
+      }
+    | {
+        $case: 'subscribe';
+        /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
+        subscribe: string;
+      }
+    | {
+        $case: 'subscribePattern';
+        /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
+        subscribePattern: string;
+      }
+    | undefined;
+}
+
+/** Returns the last N distinct values, ordered by the feature's timeseries column. */
+export interface UpdateLastDistinctNFunction {
+  /** The input column from which the last N distinct values are returned. */
+  input?: string | undefined;
+  /** The number of distinct values to return. */
+  n?: bigint | undefined;
+}
+
+/** Returns the last value. */
+export interface UpdateLastFunction {
+  /** The input column from which the last value is returned. */
+  input?: string | undefined;
+}
+
+/** Returns the last N values, ordered by the feature's timeseries column. */
+export interface UpdateLastNFunction {
+  /** The input column from which the last N values are returned. */
+  input?: string | undefined;
+  /** The number of values to return. */
+  n?: bigint | undefined;
+}
+
+/** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
+export interface UpdateLineageContext {
+  /** The notebook ID where this API was invoked. */
+  notebookId?: bigint | undefined;
+  /** Job context information including job ID and run ID. */
+  jobContext?: UpdateJobContext | undefined;
+}
+
+/** A materialized feature represents a feature that is continuously computed and stored. */
+export interface UpdateMaterializedFeature {
+  /** Server-assigned unique identifier for the materialized feature. */
+  materializedFeatureId?: string | undefined;
+  /** The full name of the feature in Unity Catalog. */
+  featureName?: string | undefined;
+  destination?:
+    | {
+        $case: 'offlineStoreConfig';
+        /** Destination for writing feature values to an offline Delta table. */
+        offlineStoreConfig: UpdateOfflineStoreConfig;
+      }
+    | {
+        $case: 'onlineStoreConfig';
+        /** Destination for writing feature values to an online Lakebase table. */
+        onlineStoreConfig: UpdateOnlineStoreConfig;
+      }
+    | undefined;
+  /**
+   * The schedule state of the materialization pipeline.
+   * Hidden from GraphQL: being deprecated, so not exposed to Catalog Explorer.
+   */
+  pipelineScheduleState?: MaterializedFeature_PipelineScheduleState | undefined;
+  /**
+   * The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone.
+   * Hidden from GraphQL: superseded by the `trigger` oneof (cron_schedule_trigger), so not exposed to Catalog Explorer.
+   */
+  cronSchedule?: string | undefined;
+  /** The trigger configuration for the materialization pipeline. */
+  trigger?:
+    | {
+        $case: 'cronScheduleTrigger';
+        /** A cron-based schedule trigger for the materialization pipeline. */
+        cronScheduleTrigger: UpdateCronSchedule;
+      }
+    | {
+        $case: 'tableTrigger';
+        /** A trigger that fires when the upstream source table changes. */
+        tableTrigger: UpdateTableTrigger;
+      }
+    | {
+        $case: 'streamingMode';
+        /**
+         * The Structured Streaming trigger mode used for materialization. Real-time mode (RTM) targets
+         * sub-second latency for operational workloads; micro-batch mode (MBM) favors cost efficiency
+         * for ETL and analytics workloads.
+         */
+        streamingMode: UpdateStreamingMode;
+      }
+    | undefined;
 }
 
 export interface UpdateMaterializedFeatureRequest {
   /** The materialized feature to update. */
-  materializedFeature?: MaterializedFeature | undefined;
+  materializedFeature?: UpdateMaterializedFeature | undefined;
   /**
    * Provide the materialization feature fields which should be updated.
    * Currently, only the pipeline_state field can be updated.
    */
-  updateMask?: FieldMask<MaterializedFeature> | undefined;
+  updateMask?: FieldMask<UpdateMaterializedFeature> | undefined;
+}
+
+/** Computes the maximum value. */
+export interface UpdateMaxFunction {
+  /** The input column from which the maximum is computed. */
+  input?: string | undefined;
+}
+
+/** Computes the minimum value. */
+export interface UpdateMinFunction {
+  /** The input column from which the minimum is computed. */
+  input?: string | undefined;
+}
+
+/**
+ * Mutual-TLS (mTLS) authentication configuration. The keystore (client certificate +
+ * private key) and truststore (CAs trusted to verify the broker) live as JKS files on
+ * Unity Catalog volumes, with their passwords stored in <Databricks> secret scopes. This
+ * matches the SSL setup pattern documented at
+ * https://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.
+ *
+ * At materialization time, the generated PySpark code passes the JKS file paths and
+ * resolved passwords through to the Kafka SSL options (kafka.ssl.keystore.location,
+ * kafka.ssl.keystore.password, kafka.ssl.key.password, kafka.ssl.truststore.location,
+ * kafka.ssl.truststore.password). Passwords are resolved on the Spark cluster via
+ * dbutils.secrets.get; this message stores only references, never password values.
+ */
+export interface UpdateMtlsConfig {
+  /**
+   * Unity Catalog volume path to the JKS keystore file containing the client certificate
+   * and private key. e.g. "/Volumes/<catalog>/<schema>/<volume>/client.jks". The
+   * materialization compute must have read permission on this volume.
+   */
+  keystoreLocation?: string | undefined;
+  /** Secret-scope reference for the JKS keystore password. */
+  keystorePasswordRef?: UpdateSecretScopeReference | undefined;
+  /**
+   * Secret-scope reference for the private key password. Often the same value as the
+   * keystore password (keytool's default), but provided as a separate field because
+   * Apache Kafka requires it as a distinct option (kafka.ssl.key.password).
+   */
+  keyPasswordRef?: UpdateSecretScopeReference | undefined;
+  /**
+   * Unity Catalog volume path to the JKS truststore file containing the CA certificate(s)
+   * trusted to verify the Kafka broker's server certificate.
+   * e.g. "/Volumes/<catalog>/<schema>/<volume>/truststore.jks".
+   */
+  truststoreLocation?: string | undefined;
+  /** Secret-scope reference for the JKS truststore password. */
+  truststorePasswordRef?: UpdateSecretScopeReference | undefined;
+  /**
+   * Set to true only when the broker certificate's SAN intentionally does not match
+   * the connection endpoint — for example when reaching the cluster through a
+   * PrivateLink endpoint whose DNS name is not in the broker certificate. Skipping
+   * the hostname check removes a defense against man-in-the-middle attacks; do not
+   * enable casually. mTLS client authentication is unaffected by this option.
+   *
+   * See the Apache Kafka SSL security guide for background on this check:
+   * https://kafka.apache.org/42/security/encryption-and-authentication-using-ssl/#host-name-verification
+   */
+  disableHostnameVerification?: boolean | undefined;
+}
+
+/** Configuration for offline store destination. */
+export interface UpdateOfflineStoreConfig {
+  /** The Unity Catalog catalog name. */
+  catalogName?: string | undefined;
+  /** The Unity Catalog schema name. */
+  schemaName?: string | undefined;
+  /**
+   * Prefix for Unity Catalog table name.
+   * The materialized feature will be stored in a table with this prefix and a generated postfix.
+   */
+  tableNamePrefix?: string | undefined;
+}
+
+/** Configuration for online store destination. */
+export interface UpdateOnlineStoreConfig {
+  /**
+   * The Unity Catalog catalog name. This name is also used as the Lakebase logical database name.
+   * Quoting is handled by the backend where needed, do not pre-quote it.
+   */
+  catalogName?: string | undefined;
+  /**
+   * The Unity Catalog schema name. This name is also used as the Lakebase schema name under the database.
+   * Quoting is handled by the backend where needed, do not pre-quote it.
+   */
+  schemaName?: string | undefined;
+  /**
+   * Prefix for Unity Catalog table name.
+   * The materialized feature will be stored in a Lakebase table with this prefix and a generated postfix.
+   */
+  tableNamePrefix?: string | undefined;
+  /** The name of the target online store. */
+  onlineStoreName?: string | undefined;
+}
+
+/** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
+export interface UpdateRequestSource {
+  /** The schema describing the request-time fields. Currently only flat schemas are supported. */
+  schema?:
+    | {
+        $case: 'flatSchema';
+        /** A flat schema with scalar-typed fields only. */
+        flatSchema: UpdateFlatSchema;
+      }
+    | undefined;
+}
+
+/**
+ * A rolling time window with an optional delay. This is the SQL-spec-aligned
+ * replacement for ContinuousWindow: `delay` is the non-negative counterpart
+ * of the legacy non-positive `ContinuousWindow.offset`.
+ */
+export interface UpdateRollingWindow {
+  /** The duration of the rolling window (must be positive). */
+  windowDuration?: Temporal.Duration | undefined;
+  /**
+   * The delay applied to the end of the rolling window (must be non-negative).
+   * For example, delay=1d shifts the window end 1 day before the evaluation time.
+   */
+  delay?: Temporal.Duration | undefined;
+}
+
+export interface UpdateSchemaConfig {
+  schema?:
+    | {
+        $case: 'jsonSchema';
+        /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
+        jsonSchema: string;
+      }
+    | undefined;
+}
+
+/**
+ * Reference to an entry in a <Databricks> secret scope. The referenced value is fetched
+ * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
+ */
+export interface UpdateSecretScopeReference {
+  /** The <Databricks> secret scope name. */
+  scope?: string | undefined;
+  /** The key within the scope. */
+  key?: string | undefined;
+}
+
+export interface UpdateSlidingWindow {
+  /** The duration of the sliding window. */
+  windowDuration?: Temporal.Duration | undefined;
+  /** The slide duration (interval by which windows advance, must be positive and less than duration). */
+  slideDuration?: Temporal.Duration | undefined;
+}
+
+/** Computes the population standard deviation. */
+export interface UpdateStddevPopFunction {
+  /**
+   * The input column from which the population standard deviation is computed. For Kafka sources,
+   * use dot-prefixed path notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input?: string | undefined;
+}
+
+/** Computes the sample standard deviation. */
+export interface UpdateStddevSampFunction {
+  /** The input column from which the sample standard deviation is computed. */
+  input?: string | undefined;
+}
+
+/**
+ * A Stream is a governed UC entity representing an external streaming data source.
+ * The source_config oneof determines the streaming platform source (e.g. Kafka, Kinesis, etc.).
+ */
+export interface UpdateStream {
+  /** Full three-part (catalog.schema.stream) name of the stream. */
+  name?: string | undefined;
+  /** User-provided description. */
+  description?: string | undefined;
+  /** Source-specific configuration. Determines the streaming platform source. */
+  sourceConfig?: UpdateStreamSourceConfig | undefined;
+  /** Specifies how to connect and authenticate to the stream platform. */
+  connectionConfig?: UpdateStreamConnectionConfig | undefined;
+  /**
+   * Schema definitions for the stream. Currently only direct schemas are supported.
+   * In a future milestone, we will support schema registries through a UC Connection.
+   */
+  schemaConfig?: UpdateStreamSchemaConfig | undefined;
+  /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
+  ingestionConfig?: UpdateIngestionConfig | undefined;
+}
+
+/** Specifies how to connect and authenticate to the stream platform. */
+export interface UpdateStreamConnectionConfig {
+  connectionConfig?:
+    | {
+        $case: 'ucConnectionName';
+        /**
+         * Name of an existing UC Connection for stream platform access.
+         * Must be the correct type for the streaming platform (e.g. a Kafka Connection for a Kafka Stream).
+         */
+        ucConnectionName: string;
+      }
+    | {
+        $case: 'directMtlsConfig';
+        /**
+         * Direct mTLS configuration for stream platform access. This is only used in the short term until UC Kafka Connections support mTLS .
+         * Once UC Kafka Connections support mTLS, this will be deprecated.
+         */
+        directMtlsConfig: UpdateDirectMtlsConfig;
+      }
+    | undefined;
 }
 
 /** Update a Stream. Only fields listed in `update_mask` are mutated. */
 export interface UpdateStreamRequest {
   /** The Stream to update. */
-  stream?: Stream | undefined;
+  stream?: UpdateStream | undefined;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Stream> | undefined;
+  updateMask?: FieldMask<UpdateStream> | undefined;
+}
+
+/**
+ * Schema definitions for the stream. Currently only direct schemas are supported.
+ * In a future milestone, we will support schema registries through a UC Connection.
+ */
+export interface UpdateStreamSchemaConfig {
+  schemaConfig?:
+    | {
+        $case: 'directSchemas';
+        /** Schema definitions provided directly on the Stream. */
+        directSchemas: UpdateDirectSchemas;
+      }
+    | undefined;
+}
+
+/** A Stream entity used as a data source for a feature. */
+export interface UpdateStreamSource {
+  /** Three-part full name of the Stream (catalog.schema.stream). */
+  fullName?: string | undefined;
+  /** The filter condition applied to the source data before aggregation. */
+  filterCondition?: string | undefined;
+}
+
+/** Source-specific configuration. Determines the streaming platform source. */
+export interface UpdateStreamSourceConfig {
+  sourceConfig?:
+    | {
+        $case: 'kafkaStreamConfig';
+        /** Configuration for Apache Kafka streams. */
+        kafkaStreamConfig: UpdateKafkaStreamConfig;
+      }
+    | undefined;
+}
+
+/** The streaming mode configuration for a streaming materialization pipeline. */
+export interface UpdateStreamingMode {
+  /** The type of streaming mode used by the materialization pipeline. */
+  mode?: StreamingMode_StreamingModeType | undefined;
+}
+
+/** Deprecated: Use KafkaSubscriptionMode instead. */
+export interface UpdateSubscriptionMode {
+  /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
+  subscriptionMode?:
+    | {
+        $case: 'assign';
+        /**
+         * A JSON string that contains the specific topic-partitions to consume from.
+         * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
+         */
+        assign: string;
+      }
+    | {
+        $case: 'subscribe';
+        /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
+        subscribe: string;
+      }
+    | {
+        $case: 'subscribePattern';
+        /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
+        subscribePattern: string;
+      }
+    | undefined;
+}
+
+/** Computes the sum of values. */
+export interface UpdateSumFunction {
+  /**
+   * The input column from which the sum is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
+  input?: string | undefined;
+}
+
+/** A trigger that fires when the upstream source table changes. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateTableTrigger {}
+
+export interface UpdateTimeWindow {
+  windowType?:
+    | {$case: 'continuous'; continuous: UpdateContinuousWindow}
+    | {$case: 'tumbling'; tumbling: UpdateTumblingWindow}
+    | {$case: 'sliding'; sliding: UpdateSlidingWindow}
+    | {$case: 'rolling'; rolling: UpdateRollingWindow}
+    | undefined;
+}
+
+export interface UpdateTimeseriesColumn {
+  /**
+   * The name of the timeseries column. For Kafka sources, use dot-prefixed path notation to
+   * reference fields within the key or value schema (e.g., "value.event_timestamp"). For nested
+   * fields, the leaf node name (e.g., "event_timestamp" from "value.event_details.event_timestamp")
+   * is what will be present in materialized tables and expected to match at query time.
+   * Colon-prefixed notation (e.g., "value:event_timestamp") is supported for
+   * backwards compatibility but is deprecated; migrate to dot notation.
+   */
+  name?: string | undefined;
+}
+
+export interface UpdateTumblingWindow {
+  /** The duration of each tumbling window (non-overlapping, fixed-duration windows). */
+  windowDuration?: Temporal.Duration | undefined;
+}
+
+/** Computes the population variance. */
+export interface UpdateVarPopFunction {
+  /** The input column from which the population variance is computed. */
+  input?: string | undefined;
+}
+
+/** Computes the sample variance. */
+export interface UpdateVarSampFunction {
+  /** The input column from which the sample variance is computed. */
+  input?: string | undefined;
 }
 
 /** Computes the population variance. */
@@ -2281,83 +4075,97 @@ export const unmarshalVarSampFunctionSchema: z.ZodType<VarSampFunction> = z
     input: d.input,
   }));
 
-export const marshalAggregationFunctionSchema: z.ZodType = z
+export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
+  .object({
+    requests: z.array(
+      z.lazy(() => marshalCreateMaterializedFeatureRequestSchema)
+    ),
+  })
+  .transform(d => ({
+    requests: d.requests,
+  }));
+
+export const marshalCreateAggregationFunctionSchema: z.ZodType = z
   .object({
     operation: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('avg'),
-          avg: z.lazy(() => marshalAvgFunctionSchema),
+          avg: z.lazy(() => marshalCreateAvgFunctionSchema),
         }),
         z.object({
           $case: z.literal('countFunction'),
-          countFunction: z.lazy(() => marshalCountFunctionSchema),
+          countFunction: z.lazy(() => marshalCreateCountFunctionSchema),
         }),
         z.object({
           $case: z.literal('sum'),
-          sum: z.lazy(() => marshalSumFunctionSchema),
+          sum: z.lazy(() => marshalCreateSumFunctionSchema),
         }),
         z.object({
           $case: z.literal('min'),
-          min: z.lazy(() => marshalMinFunctionSchema),
+          min: z.lazy(() => marshalCreateMinFunctionSchema),
         }),
         z.object({
           $case: z.literal('max'),
-          max: z.lazy(() => marshalMaxFunctionSchema),
+          max: z.lazy(() => marshalCreateMaxFunctionSchema),
         }),
         z.object({
           $case: z.literal('first'),
-          first: z.lazy(() => marshalFirstFunctionSchema),
+          first: z.lazy(() => marshalCreateFirstFunctionSchema),
         }),
         z.object({
           $case: z.literal('last'),
-          last: z.lazy(() => marshalLastFunctionSchema),
+          last: z.lazy(() => marshalCreateLastFunctionSchema),
         }),
         z.object({
           $case: z.literal('approxCountDistinct'),
           approxCountDistinct: z.lazy(
-            () => marshalApproxCountDistinctFunctionSchema
+            () => marshalCreateApproxCountDistinctFunctionSchema
           ),
         }),
         z.object({
           $case: z.literal('approxPercentile'),
-          approxPercentile: z.lazy(() => marshalApproxPercentileFunctionSchema),
+          approxPercentile: z.lazy(
+            () => marshalCreateApproxPercentileFunctionSchema
+          ),
         }),
         z.object({
           $case: z.literal('stddevPop'),
-          stddevPop: z.lazy(() => marshalStddevPopFunctionSchema),
+          stddevPop: z.lazy(() => marshalCreateStddevPopFunctionSchema),
         }),
         z.object({
           $case: z.literal('stddevSamp'),
-          stddevSamp: z.lazy(() => marshalStddevSampFunctionSchema),
+          stddevSamp: z.lazy(() => marshalCreateStddevSampFunctionSchema),
         }),
         z.object({
           $case: z.literal('varPop'),
-          varPop: z.lazy(() => marshalVarPopFunctionSchema),
+          varPop: z.lazy(() => marshalCreateVarPopFunctionSchema),
         }),
         z.object({
           $case: z.literal('varSamp'),
-          varSamp: z.lazy(() => marshalVarSampFunctionSchema),
+          varSamp: z.lazy(() => marshalCreateVarSampFunctionSchema),
         }),
         z.object({
           $case: z.literal('firstN'),
-          firstN: z.lazy(() => marshalFirstNFunctionSchema),
+          firstN: z.lazy(() => marshalCreateFirstNFunctionSchema),
         }),
         z.object({
           $case: z.literal('lastN'),
-          lastN: z.lazy(() => marshalLastNFunctionSchema),
+          lastN: z.lazy(() => marshalCreateLastNFunctionSchema),
         }),
         z.object({
           $case: z.literal('firstDistinctN'),
-          firstDistinctN: z.lazy(() => marshalFirstDistinctNFunctionSchema),
+          firstDistinctN: z.lazy(
+            () => marshalCreateFirstDistinctNFunctionSchema
+          ),
         }),
         z.object({
           $case: z.literal('lastDistinctN'),
-          lastDistinctN: z.lazy(() => marshalLastDistinctNFunctionSchema),
+          lastDistinctN: z.lazy(() => marshalCreateLastDistinctNFunctionSchema),
         }),
       ])
       .optional(),
-    timeWindow: z.lazy(() => marshalTimeWindowSchema).optional(),
+    timeWindow: z.lazy(() => marshalCreateTimeWindowSchema).optional(),
   })
   .transform(d => ({
     ...(d.operation?.$case === 'avg' && {avg: d.operation.avg}),
@@ -2394,9 +4202,9 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
     time_window: d.timeWindow,
   }));
 
-export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
+export const marshalCreateApproxCountDistinctFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
     relativeSd: z.number().optional(),
   })
   .transform(d => ({
@@ -2404,10 +4212,10 @@ export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
     relative_sd: d.relativeSd,
   }));
 
-export const marshalApproxPercentileFunctionSchema: z.ZodType = z
+export const marshalCreateApproxPercentileFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
-    percentile: z.number().optional(),
+    input: z.string(),
+    percentile: z.number(),
     accuracy: z.bigint().optional(),
   })
   .transform(d => ({
@@ -2416,7 +4224,7 @@ export const marshalApproxPercentileFunctionSchema: z.ZodType = z
     accuracy: d.accuracy,
   }));
 
-export const marshalAuthConfigSchema: z.ZodType = z
+export const marshalCreateAuthConfigSchema: z.ZodType = z
   .object({
     authConfig: z
       .discriminatedUnion('$case', [
@@ -2426,7 +4234,7 @@ export const marshalAuthConfigSchema: z.ZodType = z
         }),
         z.object({
           $case: z.literal('mtlsConfig'),
-          mtlsConfig: z.lazy(() => marshalMtlsConfigSchema),
+          mtlsConfig: z.lazy(() => marshalCreateMtlsConfigSchema),
         }),
       ])
       .optional(),
@@ -2440,21 +4248,21 @@ export const marshalAuthConfigSchema: z.ZodType = z
     }),
   }));
 
-export const marshalAvgFunctionSchema: z.ZodType = z
+export const marshalCreateAvgFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
   }));
 
-export const marshalBackfillSourceSchema: z.ZodType = z
+export const marshalCreateBackfillSourceSchema: z.ZodType = z
   .object({
     backfillSource: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('deltaTableSource'),
-          deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema),
+          deltaTableSource: z.lazy(() => marshalCreateDeltaTableSourceSchema),
         }),
         z.object({
           $case: z.literal('deltaTableName'),
@@ -2472,38 +4280,27 @@ export const marshalBackfillSourceSchema: z.ZodType = z
     }),
   }));
 
-export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
+export const marshalCreateColumnIdentifierSchema: z.ZodType = z
   .object({
-    requests: z
-      .array(z.lazy(() => marshalCreateMaterializedFeatureRequestSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    requests: d.requests,
-  }));
-
-export const marshalColumnIdentifierSchema: z.ZodType = z
-  .object({
-    variantExprPath: z.string().optional(),
+    variantExprPath: z.string(),
   })
   .transform(d => ({
     variant_expr_path: d.variantExprPath,
   }));
 
-export const marshalColumnSelectionSchema: z.ZodType = z
+export const marshalCreateColumnSelectionSchema: z.ZodType = z
   .object({
-    column: z.string().optional(),
+    column: z.string(),
   })
   .transform(d => ({
     column: d.column,
   }));
 
-export const marshalContinuousWindowSchema: z.ZodType = z
+export const marshalCreateContinuousWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
     offset: z
       .any()
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
@@ -2514,25 +4311,15 @@ export const marshalContinuousWindowSchema: z.ZodType = z
     offset: d.offset,
   }));
 
-export const marshalCountFunctionSchema: z.ZodType = z
+export const marshalCreateCountFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
   }));
 
-export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
-  .object({
-    materializedFeature: z
-      .lazy(() => marshalMaterializedFeatureSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    materialized_feature: d.materializedFeature,
-  }));
-
-export const marshalCronScheduleSchema: z.ZodType = z
+export const marshalCreateCronScheduleSchema: z.ZodType = z
   .object({
     cronExpression: z.string().optional(),
   })
@@ -2540,25 +4327,25 @@ export const marshalCronScheduleSchema: z.ZodType = z
     cron_expression: d.cronExpression,
   }));
 
-export const marshalDataSourceSchema: z.ZodType = z
+export const marshalCreateDataSourceSchema: z.ZodType = z
   .object({
     dataSource: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('deltaTableSource'),
-          deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema),
+          deltaTableSource: z.lazy(() => marshalCreateDeltaTableSourceSchema),
         }),
         z.object({
           $case: z.literal('kafkaSource'),
-          kafkaSource: z.lazy(() => marshalKafkaSourceSchema),
+          kafkaSource: z.lazy(() => marshalCreateKafkaSourceSchema),
         }),
         z.object({
           $case: z.literal('requestSource'),
-          requestSource: z.lazy(() => marshalRequestSourceSchema),
+          requestSource: z.lazy(() => marshalCreateRequestSourceSchema),
         }),
         z.object({
           $case: z.literal('streamSource'),
-          streamSource: z.lazy(() => marshalStreamSourceSchema),
+          streamSource: z.lazy(() => marshalCreateStreamSourceSchema),
         }),
       ])
       .optional(),
@@ -2578,7 +4365,1026 @@ export const marshalDataSourceSchema: z.ZodType = z
     }),
   }));
 
-export const marshalDeltaTableSourceSchema: z.ZodType = z
+export const marshalCreateDeltaTableSourceSchema: z.ZodType = z
+  .object({
+    fullName: z.string(),
+    entityColumns: z.array(z.string()).optional(),
+    timeseriesColumn: z.string().optional(),
+    filterCondition: z.string().optional(),
+    transformationSql: z.string().optional(),
+    dataframeSchema: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    entity_columns: d.entityColumns,
+    timeseries_column: d.timeseriesColumn,
+    filter_condition: d.filterCondition,
+    transformation_sql: d.transformationSql,
+    dataframe_schema: d.dataframeSchema,
+  }));
+
+export const marshalCreateDirectMtlsConfigSchema: z.ZodType = z
+  .object({
+    bootstrapServers: z.string(),
+    mtlsConfig: z.lazy(() => marshalCreateMtlsConfigSchema),
+  })
+  .transform(d => ({
+    bootstrap_servers: d.bootstrapServers,
+    mtls_config: d.mtlsConfig,
+  }));
+
+export const marshalCreateDirectSchemasSchema: z.ZodType = z
+  .object({
+    payloadSchema: z.lazy(() => marshalCreateSchemaConfigSchema).optional(),
+    keySchema: z.lazy(() => marshalCreateSchemaConfigSchema).optional(),
+  })
+  .transform(d => ({
+    payload_schema: d.payloadSchema,
+    key_schema: d.keySchema,
+  }));
+
+export const marshalCreateEntityColumnSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalCreateFeatureSchema: z.ZodType = z
+  .object({
+    fullName: z.string(),
+    source: z.lazy(() => marshalCreateDataSourceSchema),
+    inputs: z.array(z.string()).optional(),
+    function: z.lazy(() => marshalCreateFunctionSchema),
+    timeWindow: z.lazy(() => marshalCreateTimeWindowSchema).optional(),
+    description: z.string().optional(),
+    filterCondition: z.string().optional(),
+    lineageContext: z.lazy(() => marshalCreateLineageContextSchema).optional(),
+    entities: z.array(z.lazy(() => marshalCreateEntityColumnSchema)).optional(),
+    timeseriesColumn: z
+      .lazy(() => marshalCreateTimeseriesColumnSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    source: d.source,
+    inputs: d.inputs,
+    function: d.function,
+    time_window: d.timeWindow,
+    description: d.description,
+    filter_condition: d.filterCondition,
+    lineage_context: d.lineageContext,
+    entities: d.entities,
+    timeseries_column: d.timeseriesColumn,
+  }));
+
+export const marshalCreateFieldDefinitionSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    dataType: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+    data_type: d.dataType,
+  }));
+
+export const marshalCreateFirstDistinctNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+    n: z.bigint(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
+  }));
+
+export const marshalCreateFirstFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateFirstNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+    n: z.bigint(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
+  }));
+
+export const marshalCreateFlatSchemaSchema: z.ZodType = z
+  .object({
+    fields: z.array(z.lazy(() => marshalCreateFieldDefinitionSchema)),
+  })
+  .transform(d => ({
+    fields: d.fields,
+  }));
+
+export const marshalCreateFunctionSchema: z.ZodType = z
+  .object({
+    functionType: z.string().optional(),
+    extraParameters: z
+      .array(z.lazy(() => marshalFunction_CreateExtraParameterSchema))
+      .optional(),
+    function: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('aggregationFunction'),
+          aggregationFunction: z.lazy(
+            () => marshalCreateAggregationFunctionSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('columnSelection'),
+          columnSelection: z.lazy(() => marshalCreateColumnSelectionSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    function_type: d.functionType,
+    extra_parameters: d.extraParameters,
+    ...(d.function?.$case === 'aggregationFunction' && {
+      aggregation_function: d.function.aggregationFunction,
+    }),
+    ...(d.function?.$case === 'columnSelection' && {
+      column_selection: d.function.columnSelection,
+    }),
+  }));
+
+export const marshalCreateIngestionConfigSchema: z.ZodType = z
+  .object({
+    ingestionDestination: z.lazy(() => marshalCreateIngestionDestinationSchema),
+    backfillSource: z.lazy(() => marshalCreateBackfillSourceSchema).optional(),
+    deduplicationColumns: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ingestion_destination: d.ingestionDestination,
+    backfill_source: d.backfillSource,
+    deduplication_columns: d.deduplicationColumns,
+  }));
+
+export const marshalCreateIngestionDestinationSchema: z.ZodType = z
+  .object({
+    ingestionDestination: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableName'),
+          deltaTableName: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.ingestionDestination?.$case === 'deltaTableName' && {
+      delta_table_name: d.ingestionDestination.deltaTableName,
+    }),
+  }));
+
+export const marshalCreateJobContextSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+    jobRunId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    job_run_id: d.jobRunId,
+  }));
+
+export const marshalCreateKafkaConfigSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    bootstrapServers: z.string(),
+    subscriptionMode: z.lazy(() => marshalCreateSubscriptionModeSchema),
+    authConfig: z.lazy(() => marshalCreateAuthConfigSchema),
+    keySchema: z.lazy(() => marshalCreateSchemaConfigSchema).optional(),
+    valueSchema: z.lazy(() => marshalCreateSchemaConfigSchema).optional(),
+    extraOptions: z.record(z.string(), z.string()).optional(),
+    backfillSource: z.lazy(() => marshalCreateBackfillSourceSchema).optional(),
+    ingestionConfig: z
+      .lazy(() => marshalCreateIngestionConfigSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    bootstrap_servers: d.bootstrapServers,
+    subscription_mode: d.subscriptionMode,
+    auth_config: d.authConfig,
+    key_schema: d.keySchema,
+    value_schema: d.valueSchema,
+    extra_options: d.extraOptions,
+    backfill_source: d.backfillSource,
+    ingestion_config: d.ingestionConfig,
+  }));
+
+export const marshalCreateKafkaSourceSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    entityColumnIdentifiers: z
+      .array(z.lazy(() => marshalCreateColumnIdentifierSchema))
+      .optional(),
+    timeseriesColumnIdentifier: z
+      .lazy(() => marshalCreateColumnIdentifierSchema)
+      .optional(),
+    filterCondition: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    entity_column_identifiers: d.entityColumnIdentifiers,
+    timeseries_column_identifier: d.timeseriesColumnIdentifier,
+    filter_condition: d.filterCondition,
+  }));
+
+export const marshalCreateKafkaStreamConfigSchema: z.ZodType = z
+  .object({
+    subscriptionMode: z.lazy(() => marshalCreateKafkaSubscriptionModeSchema),
+    extraOptions: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    subscription_mode: d.subscriptionMode,
+    extra_options: d.extraOptions,
+  }));
+
+export const marshalCreateKafkaSubscriptionModeSchema: z.ZodType = z
+  .object({
+    subscriptionMode: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('assign'), assign: z.string()}),
+        z.object({$case: z.literal('subscribe'), subscribe: z.string()}),
+        z.object({
+          $case: z.literal('subscribePattern'),
+          subscribePattern: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.subscriptionMode?.$case === 'assign' && {
+      assign: d.subscriptionMode.assign,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribe' && {
+      subscribe: d.subscriptionMode.subscribe,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribePattern' && {
+      subscribe_pattern: d.subscriptionMode.subscribePattern,
+    }),
+  }));
+
+export const marshalCreateLastDistinctNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+    n: z.bigint(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
+  }));
+
+export const marshalCreateLastFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateLastNFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+    n: z.bigint(),
+  })
+  .transform(d => ({
+    input: d.input,
+    n: d.n,
+  }));
+
+export const marshalCreateLineageContextSchema: z.ZodType = z
+  .object({
+    notebookId: z.bigint().optional(),
+    jobContext: z.lazy(() => marshalCreateJobContextSchema).optional(),
+  })
+  .transform(d => ({
+    notebook_id: d.notebookId,
+    job_context: d.jobContext,
+  }));
+
+export const marshalCreateMaterializedFeatureSchema: z.ZodType = z
+  .object({
+    materializedFeatureId: z.string().optional(),
+    featureName: z.string(),
+    destination: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('offlineStoreConfig'),
+          offlineStoreConfig: z.lazy(
+            () => marshalCreateOfflineStoreConfigSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('onlineStoreConfig'),
+          onlineStoreConfig: z.lazy(() => marshalCreateOnlineStoreConfigSchema),
+        }),
+      ])
+      .optional(),
+    pipelineScheduleState: z.string().optional(),
+    cronSchedule: z.string().optional(),
+    trigger: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('cronScheduleTrigger'),
+          cronScheduleTrigger: z.lazy(() => marshalCreateCronScheduleSchema),
+        }),
+        z.object({
+          $case: z.literal('tableTrigger'),
+          tableTrigger: z.lazy(() => marshalCreateTableTriggerSchema),
+        }),
+        z.object({
+          $case: z.literal('streamingMode'),
+          streamingMode: z.lazy(() => marshalCreateStreamingModeSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    materialized_feature_id: d.materializedFeatureId,
+    feature_name: d.featureName,
+    ...(d.destination?.$case === 'offlineStoreConfig' && {
+      offline_store_config: d.destination.offlineStoreConfig,
+    }),
+    ...(d.destination?.$case === 'onlineStoreConfig' && {
+      online_store_config: d.destination.onlineStoreConfig,
+    }),
+    pipeline_schedule_state: d.pipelineScheduleState,
+    cron_schedule: d.cronSchedule,
+    ...(d.trigger?.$case === 'cronScheduleTrigger' && {
+      cron_schedule_trigger: d.trigger.cronScheduleTrigger,
+    }),
+    ...(d.trigger?.$case === 'tableTrigger' && {
+      table_trigger: d.trigger.tableTrigger,
+    }),
+    ...(d.trigger?.$case === 'streamingMode' && {
+      streaming_mode: d.trigger.streamingMode,
+    }),
+  }));
+
+export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
+  .object({
+    materializedFeature: z.lazy(() => marshalCreateMaterializedFeatureSchema),
+  })
+  .transform(d => ({
+    materialized_feature: d.materializedFeature,
+  }));
+
+export const marshalCreateMaxFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateMinFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateMtlsConfigSchema: z.ZodType = z
+  .object({
+    keystoreLocation: z.string(),
+    keystorePasswordRef: z.lazy(() => marshalCreateSecretScopeReferenceSchema),
+    keyPasswordRef: z.lazy(() => marshalCreateSecretScopeReferenceSchema),
+    truststoreLocation: z.string(),
+    truststorePasswordRef: z.lazy(
+      () => marshalCreateSecretScopeReferenceSchema
+    ),
+    disableHostnameVerification: z.boolean().optional(),
+  })
+  .transform(d => ({
+    keystore_location: d.keystoreLocation,
+    keystore_password_ref: d.keystorePasswordRef,
+    key_password_ref: d.keyPasswordRef,
+    truststore_location: d.truststoreLocation,
+    truststore_password_ref: d.truststorePasswordRef,
+    disable_hostname_verification: d.disableHostnameVerification,
+  }));
+
+export const marshalCreateOfflineStoreConfigSchema: z.ZodType = z
+  .object({
+    catalogName: z.string(),
+    schemaName: z.string(),
+    tableNamePrefix: z.string(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    table_name_prefix: d.tableNamePrefix,
+  }));
+
+export const marshalCreateOnlineStoreConfigSchema: z.ZodType = z
+  .object({
+    catalogName: z.string(),
+    schemaName: z.string(),
+    tableNamePrefix: z.string(),
+    onlineStoreName: z.string(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    table_name_prefix: d.tableNamePrefix,
+    online_store_name: d.onlineStoreName,
+  }));
+
+export const marshalCreateRequestSourceSchema: z.ZodType = z
+  .object({
+    schema: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('flatSchema'),
+          flatSchema: z.lazy(() => marshalCreateFlatSchemaSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.schema?.$case === 'flatSchema' && {flat_schema: d.schema.flatSchema}),
+  }));
+
+export const marshalCreateRollingWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
+    delay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+    delay: d.delay,
+  }));
+
+export const marshalCreateSchemaConfigSchema: z.ZodType = z
+  .object({
+    schema: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('jsonSchema'), jsonSchema: z.string()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.schema?.$case === 'jsonSchema' && {json_schema: d.schema.jsonSchema}),
+  }));
+
+export const marshalCreateSecretScopeReferenceSchema: z.ZodType = z
+  .object({
+    scope: z.string(),
+    key: z.string(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+    key: d.key,
+  }));
+
+export const marshalCreateSlidingWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
+    slideDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+    slide_duration: d.slideDuration,
+  }));
+
+export const marshalCreateStddevPopFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateStddevSampFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateStreamSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    description: z.string().optional(),
+    sourceConfig: z.lazy(() => marshalCreateStreamSourceConfigSchema),
+    connectionConfig: z.lazy(() => marshalCreateStreamConnectionConfigSchema),
+    schemaConfig: z.lazy(() => marshalCreateStreamSchemaConfigSchema),
+    ingestionConfig: z.lazy(() => marshalCreateIngestionConfigSchema),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    source_config: d.sourceConfig,
+    connection_config: d.connectionConfig,
+    schema_config: d.schemaConfig,
+    ingestion_config: d.ingestionConfig,
+  }));
+
+export const marshalCreateStreamConnectionConfigSchema: z.ZodType = z
+  .object({
+    connectionConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ucConnectionName'),
+          ucConnectionName: z.string(),
+        }),
+        z.object({
+          $case: z.literal('directMtlsConfig'),
+          directMtlsConfig: z.lazy(() => marshalCreateDirectMtlsConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.connectionConfig?.$case === 'ucConnectionName' && {
+      uc_connection_name: d.connectionConfig.ucConnectionName,
+    }),
+    ...(d.connectionConfig?.$case === 'directMtlsConfig' && {
+      direct_mtls_config: d.connectionConfig.directMtlsConfig,
+    }),
+  }));
+
+export const marshalCreateStreamSchemaConfigSchema: z.ZodType = z
+  .object({
+    schemaConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('directSchemas'),
+          directSchemas: z.lazy(() => marshalCreateDirectSchemasSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.schemaConfig?.$case === 'directSchemas' && {
+      direct_schemas: d.schemaConfig.directSchemas,
+    }),
+  }));
+
+export const marshalCreateStreamSourceSchema: z.ZodType = z
+  .object({
+    fullName: z.string(),
+    filterCondition: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    filter_condition: d.filterCondition,
+  }));
+
+export const marshalCreateStreamSourceConfigSchema: z.ZodType = z
+  .object({
+    sourceConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('kafkaStreamConfig'),
+          kafkaStreamConfig: z.lazy(() => marshalCreateKafkaStreamConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.sourceConfig?.$case === 'kafkaStreamConfig' && {
+      kafka_stream_config: d.sourceConfig.kafkaStreamConfig,
+    }),
+  }));
+
+export const marshalCreateStreamingModeSchema: z.ZodType = z
+  .object({
+    mode: z.string().optional(),
+  })
+  .transform(d => ({
+    mode: d.mode,
+  }));
+
+export const marshalCreateSubscriptionModeSchema: z.ZodType = z
+  .object({
+    subscriptionMode: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('assign'), assign: z.string()}),
+        z.object({$case: z.literal('subscribe'), subscribe: z.string()}),
+        z.object({
+          $case: z.literal('subscribePattern'),
+          subscribePattern: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.subscriptionMode?.$case === 'assign' && {
+      assign: d.subscriptionMode.assign,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribe' && {
+      subscribe: d.subscriptionMode.subscribe,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribePattern' && {
+      subscribe_pattern: d.subscriptionMode.subscribePattern,
+    }),
+  }));
+
+export const marshalCreateSumFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateTableTriggerSchema: z.ZodType = z.object({});
+
+export const marshalCreateTimeWindowSchema: z.ZodType = z
+  .object({
+    windowType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('continuous'),
+          continuous: z.lazy(() => marshalCreateContinuousWindowSchema),
+        }),
+        z.object({
+          $case: z.literal('tumbling'),
+          tumbling: z.lazy(() => marshalCreateTumblingWindowSchema),
+        }),
+        z.object({
+          $case: z.literal('sliding'),
+          sliding: z.lazy(() => marshalCreateSlidingWindowSchema),
+        }),
+        z.object({
+          $case: z.literal('rolling'),
+          rolling: z.lazy(() => marshalCreateRollingWindowSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.windowType?.$case === 'continuous' && {
+      continuous: d.windowType.continuous,
+    }),
+    ...(d.windowType?.$case === 'tumbling' && {
+      tumbling: d.windowType.tumbling,
+    }),
+    ...(d.windowType?.$case === 'sliding' && {sliding: d.windowType.sliding}),
+    ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
+  }));
+
+export const marshalCreateTimeseriesColumnSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalCreateTumblingWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+  }));
+
+export const marshalCreateVarPopFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalCreateVarSampFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalFunction_CreateExtraParameterSchema: z.ZodType = z
+  .object({
+    key: z.string(),
+    value: z.string(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalFunction_UpdateExtraParameterSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalUpdateAggregationFunctionSchema: z.ZodType = z
+  .object({
+    operation: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('avg'),
+          avg: z.lazy(() => marshalUpdateAvgFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('countFunction'),
+          countFunction: z.lazy(() => marshalUpdateCountFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('sum'),
+          sum: z.lazy(() => marshalUpdateSumFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('min'),
+          min: z.lazy(() => marshalUpdateMinFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('max'),
+          max: z.lazy(() => marshalUpdateMaxFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('first'),
+          first: z.lazy(() => marshalUpdateFirstFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('last'),
+          last: z.lazy(() => marshalUpdateLastFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('approxCountDistinct'),
+          approxCountDistinct: z.lazy(
+            () => marshalUpdateApproxCountDistinctFunctionSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('approxPercentile'),
+          approxPercentile: z.lazy(
+            () => marshalUpdateApproxPercentileFunctionSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('stddevPop'),
+          stddevPop: z.lazy(() => marshalUpdateStddevPopFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('stddevSamp'),
+          stddevSamp: z.lazy(() => marshalUpdateStddevSampFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('varPop'),
+          varPop: z.lazy(() => marshalUpdateVarPopFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('varSamp'),
+          varSamp: z.lazy(() => marshalUpdateVarSampFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('firstN'),
+          firstN: z.lazy(() => marshalUpdateFirstNFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('lastN'),
+          lastN: z.lazy(() => marshalUpdateLastNFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('firstDistinctN'),
+          firstDistinctN: z.lazy(
+            () => marshalUpdateFirstDistinctNFunctionSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('lastDistinctN'),
+          lastDistinctN: z.lazy(() => marshalUpdateLastDistinctNFunctionSchema),
+        }),
+      ])
+      .optional(),
+    timeWindow: z.lazy(() => marshalUpdateTimeWindowSchema).optional(),
+  })
+  .transform(d => ({
+    ...(d.operation?.$case === 'avg' && {avg: d.operation.avg}),
+    ...(d.operation?.$case === 'countFunction' && {
+      count_function: d.operation.countFunction,
+    }),
+    ...(d.operation?.$case === 'sum' && {sum: d.operation.sum}),
+    ...(d.operation?.$case === 'min' && {min: d.operation.min}),
+    ...(d.operation?.$case === 'max' && {max: d.operation.max}),
+    ...(d.operation?.$case === 'first' && {first: d.operation.first}),
+    ...(d.operation?.$case === 'last' && {last: d.operation.last}),
+    ...(d.operation?.$case === 'approxCountDistinct' && {
+      approx_count_distinct: d.operation.approxCountDistinct,
+    }),
+    ...(d.operation?.$case === 'approxPercentile' && {
+      approx_percentile: d.operation.approxPercentile,
+    }),
+    ...(d.operation?.$case === 'stddevPop' && {
+      stddev_pop: d.operation.stddevPop,
+    }),
+    ...(d.operation?.$case === 'stddevSamp' && {
+      stddev_samp: d.operation.stddevSamp,
+    }),
+    ...(d.operation?.$case === 'varPop' && {var_pop: d.operation.varPop}),
+    ...(d.operation?.$case === 'varSamp' && {var_samp: d.operation.varSamp}),
+    ...(d.operation?.$case === 'firstN' && {first_n: d.operation.firstN}),
+    ...(d.operation?.$case === 'lastN' && {last_n: d.operation.lastN}),
+    ...(d.operation?.$case === 'firstDistinctN' && {
+      first_distinct_n: d.operation.firstDistinctN,
+    }),
+    ...(d.operation?.$case === 'lastDistinctN' && {
+      last_distinct_n: d.operation.lastDistinctN,
+    }),
+    time_window: d.timeWindow,
+  }));
+
+export const marshalUpdateApproxCountDistinctFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+    relativeSd: z.number().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    relative_sd: d.relativeSd,
+  }));
+
+export const marshalUpdateApproxPercentileFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+    percentile: z.number().optional(),
+    accuracy: z.bigint().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+    percentile: d.percentile,
+    accuracy: d.accuracy,
+  }));
+
+export const marshalUpdateAuthConfigSchema: z.ZodType = z
+  .object({
+    authConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ucServiceCredentialName'),
+          ucServiceCredentialName: z.string(),
+        }),
+        z.object({
+          $case: z.literal('mtlsConfig'),
+          mtlsConfig: z.lazy(() => marshalUpdateMtlsConfigSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.authConfig?.$case === 'ucServiceCredentialName' && {
+      uc_service_credential_name: d.authConfig.ucServiceCredentialName,
+    }),
+    ...(d.authConfig?.$case === 'mtlsConfig' && {
+      mtls_config: d.authConfig.mtlsConfig,
+    }),
+  }));
+
+export const marshalUpdateAvgFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalUpdateBackfillSourceSchema: z.ZodType = z
+  .object({
+    backfillSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableSource'),
+          deltaTableSource: z.lazy(() => marshalUpdateDeltaTableSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('deltaTableName'),
+          deltaTableName: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.backfillSource?.$case === 'deltaTableSource' && {
+      delta_table_source: d.backfillSource.deltaTableSource,
+    }),
+    ...(d.backfillSource?.$case === 'deltaTableName' && {
+      delta_table_name: d.backfillSource.deltaTableName,
+    }),
+  }));
+
+export const marshalUpdateColumnIdentifierSchema: z.ZodType = z
+  .object({
+    variantExprPath: z.string().optional(),
+  })
+  .transform(d => ({
+    variant_expr_path: d.variantExprPath,
+  }));
+
+export const marshalUpdateColumnSelectionSchema: z.ZodType = z
+  .object({
+    column: z.string().optional(),
+  })
+  .transform(d => ({
+    column: d.column,
+  }));
+
+export const marshalUpdateContinuousWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    offset: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+    offset: d.offset,
+  }));
+
+export const marshalUpdateCountFunctionSchema: z.ZodType = z
+  .object({
+    input: z.string().optional(),
+  })
+  .transform(d => ({
+    input: d.input,
+  }));
+
+export const marshalUpdateCronScheduleSchema: z.ZodType = z
+  .object({
+    cronExpression: z.string().optional(),
+  })
+  .transform(d => ({
+    cron_expression: d.cronExpression,
+  }));
+
+export const marshalUpdateDataSourceSchema: z.ZodType = z
+  .object({
+    dataSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableSource'),
+          deltaTableSource: z.lazy(() => marshalUpdateDeltaTableSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('kafkaSource'),
+          kafkaSource: z.lazy(() => marshalUpdateKafkaSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('requestSource'),
+          requestSource: z.lazy(() => marshalUpdateRequestSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('streamSource'),
+          streamSource: z.lazy(() => marshalUpdateStreamSourceSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.dataSource?.$case === 'deltaTableSource' && {
+      delta_table_source: d.dataSource.deltaTableSource,
+    }),
+    ...(d.dataSource?.$case === 'kafkaSource' && {
+      kafka_source: d.dataSource.kafkaSource,
+    }),
+    ...(d.dataSource?.$case === 'requestSource' && {
+      request_source: d.dataSource.requestSource,
+    }),
+    ...(d.dataSource?.$case === 'streamSource' && {
+      stream_source: d.dataSource.streamSource,
+    }),
+  }));
+
+export const marshalUpdateDeltaTableSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
     entityColumns: z.array(z.string()).optional(),
@@ -2596,27 +5402,27 @@ export const marshalDeltaTableSourceSchema: z.ZodType = z
     dataframe_schema: d.dataframeSchema,
   }));
 
-export const marshalDirectMtlsConfigSchema: z.ZodType = z
+export const marshalUpdateDirectMtlsConfigSchema: z.ZodType = z
   .object({
     bootstrapServers: z.string().optional(),
-    mtlsConfig: z.lazy(() => marshalMtlsConfigSchema).optional(),
+    mtlsConfig: z.lazy(() => marshalUpdateMtlsConfigSchema).optional(),
   })
   .transform(d => ({
     bootstrap_servers: d.bootstrapServers,
     mtls_config: d.mtlsConfig,
   }));
 
-export const marshalDirectSchemasSchema: z.ZodType = z
+export const marshalUpdateDirectSchemasSchema: z.ZodType = z
   .object({
-    payloadSchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
-    keySchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
+    payloadSchema: z.lazy(() => marshalUpdateSchemaConfigSchema).optional(),
+    keySchema: z.lazy(() => marshalUpdateSchemaConfigSchema).optional(),
   })
   .transform(d => ({
     payload_schema: d.payloadSchema,
     key_schema: d.keySchema,
   }));
 
-export const marshalEntityColumnSchema: z.ZodType = z
+export const marshalUpdateEntityColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -2624,26 +5430,20 @@ export const marshalEntityColumnSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalFeatureSchema: z.ZodType = z
+export const marshalUpdateFeatureSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
-    source: z.lazy(() => marshalDataSourceSchema).optional(),
+    source: z.lazy(() => marshalUpdateDataSourceSchema).optional(),
     inputs: z.array(z.string()).optional(),
-    function: z.lazy(() => marshalFunctionSchema).optional(),
-    timeWindow: z.lazy(() => marshalTimeWindowSchema).optional(),
+    function: z.lazy(() => marshalUpdateFunctionSchema).optional(),
+    timeWindow: z.lazy(() => marshalUpdateTimeWindowSchema).optional(),
     description: z.string().optional(),
     filterCondition: z.string().optional(),
-    lineageContext: z.lazy(() => marshalLineageContextSchema).optional(),
-    entities: z.array(z.lazy(() => marshalEntityColumnSchema)).optional(),
-    timeseriesColumn: z.lazy(() => marshalTimeseriesColumnSchema).optional(),
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    name: z.string().optional(),
-    createdAt: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    lineageContext: z.lazy(() => marshalUpdateLineageContextSchema).optional(),
+    entities: z.array(z.lazy(() => marshalUpdateEntityColumnSchema)).optional(),
+    timeseriesColumn: z
+      .lazy(() => marshalUpdateTimeseriesColumnSchema)
       .optional(),
-    createdBy: z.string().optional(),
   })
   .transform(d => ({
     full_name: d.fullName,
@@ -2656,14 +5456,9 @@ export const marshalFeatureSchema: z.ZodType = z
     lineage_context: d.lineageContext,
     entities: d.entities,
     timeseries_column: d.timeseriesColumn,
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-    name: d.name,
-    created_at: d.createdAt,
-    created_by: d.createdBy,
   }));
 
-export const marshalFieldDefinitionSchema: z.ZodType = z
+export const marshalUpdateFieldDefinitionSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     dataType: z.string().optional(),
@@ -2673,7 +5468,7 @@ export const marshalFieldDefinitionSchema: z.ZodType = z
     data_type: d.dataType,
   }));
 
-export const marshalFirstDistinctNFunctionSchema: z.ZodType = z
+export const marshalUpdateFirstDistinctNFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     n: z.bigint().optional(),
@@ -2683,7 +5478,7 @@ export const marshalFirstDistinctNFunctionSchema: z.ZodType = z
     n: d.n,
   }));
 
-export const marshalFirstFunctionSchema: z.ZodType = z
+export const marshalUpdateFirstFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -2691,7 +5486,7 @@ export const marshalFirstFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalFirstNFunctionSchema: z.ZodType = z
+export const marshalUpdateFirstNFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     n: z.bigint().optional(),
@@ -2701,29 +5496,33 @@ export const marshalFirstNFunctionSchema: z.ZodType = z
     n: d.n,
   }));
 
-export const marshalFlatSchemaSchema: z.ZodType = z
+export const marshalUpdateFlatSchemaSchema: z.ZodType = z
   .object({
-    fields: z.array(z.lazy(() => marshalFieldDefinitionSchema)).optional(),
+    fields: z
+      .array(z.lazy(() => marshalUpdateFieldDefinitionSchema))
+      .optional(),
   })
   .transform(d => ({
     fields: d.fields,
   }));
 
-export const marshalFunctionSchema: z.ZodType = z
+export const marshalUpdateFunctionSchema: z.ZodType = z
   .object({
     functionType: z.string().optional(),
     extraParameters: z
-      .array(z.lazy(() => marshalFunction_ExtraParameterSchema))
+      .array(z.lazy(() => marshalFunction_UpdateExtraParameterSchema))
       .optional(),
     function: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('aggregationFunction'),
-          aggregationFunction: z.lazy(() => marshalAggregationFunctionSchema),
+          aggregationFunction: z.lazy(
+            () => marshalUpdateAggregationFunctionSchema
+          ),
         }),
         z.object({
           $case: z.literal('columnSelection'),
-          columnSelection: z.lazy(() => marshalColumnSelectionSchema),
+          columnSelection: z.lazy(() => marshalUpdateColumnSelectionSchema),
         }),
       ])
       .optional(),
@@ -2739,38 +5538,21 @@ export const marshalFunctionSchema: z.ZodType = z
     }),
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalFunction_ExtraParameterSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalIngestionConfigSchema: z.ZodType = z
+export const marshalUpdateIngestionConfigSchema: z.ZodType = z
   .object({
     ingestionDestination: z
-      .lazy(() => marshalIngestionDestinationSchema)
+      .lazy(() => marshalUpdateIngestionDestinationSchema)
       .optional(),
-    backfillSource: z.lazy(() => marshalBackfillSourceSchema).optional(),
+    backfillSource: z.lazy(() => marshalUpdateBackfillSourceSchema).optional(),
     deduplicationColumns: z.array(z.string()).optional(),
-    ingestionPipelineId: z.string().optional(),
-    ingestionJobId: z.bigint().optional(),
-    backfillJobId: z.bigint().optional(),
   })
   .transform(d => ({
     ingestion_destination: d.ingestionDestination,
     backfill_source: d.backfillSource,
     deduplication_columns: d.deduplicationColumns,
-    ingestion_pipeline_id: d.ingestionPipelineId,
-    ingestion_job_id: d.ingestionJobId,
-    backfill_job_id: d.backfillJobId,
   }));
 
-export const marshalIngestionDestinationSchema: z.ZodType = z
+export const marshalUpdateIngestionDestinationSchema: z.ZodType = z
   .object({
     ingestionDestination: z
       .discriminatedUnion('$case', [
@@ -2787,7 +5569,7 @@ export const marshalIngestionDestinationSchema: z.ZodType = z
     }),
   }));
 
-export const marshalJobContextSchema: z.ZodType = z
+export const marshalUpdateJobContextSchema: z.ZodType = z
   .object({
     jobId: z.bigint().optional(),
     jobRunId: z.bigint().optional(),
@@ -2797,17 +5579,21 @@ export const marshalJobContextSchema: z.ZodType = z
     job_run_id: d.jobRunId,
   }));
 
-export const marshalKafkaConfigSchema: z.ZodType = z
+export const marshalUpdateKafkaConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     bootstrapServers: z.string().optional(),
-    subscriptionMode: z.lazy(() => marshalSubscriptionModeSchema).optional(),
-    authConfig: z.lazy(() => marshalAuthConfigSchema).optional(),
-    keySchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
-    valueSchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
+    subscriptionMode: z
+      .lazy(() => marshalUpdateSubscriptionModeSchema)
+      .optional(),
+    authConfig: z.lazy(() => marshalUpdateAuthConfigSchema).optional(),
+    keySchema: z.lazy(() => marshalUpdateSchemaConfigSchema).optional(),
+    valueSchema: z.lazy(() => marshalUpdateSchemaConfigSchema).optional(),
     extraOptions: z.record(z.string(), z.string()).optional(),
-    backfillSource: z.lazy(() => marshalBackfillSourceSchema).optional(),
-    ingestionConfig: z.lazy(() => marshalIngestionConfigSchema).optional(),
+    backfillSource: z.lazy(() => marshalUpdateBackfillSourceSchema).optional(),
+    ingestionConfig: z
+      .lazy(() => marshalUpdateIngestionConfigSchema)
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2821,14 +5607,14 @@ export const marshalKafkaConfigSchema: z.ZodType = z
     ingestion_config: d.ingestionConfig,
   }));
 
-export const marshalKafkaSourceSchema: z.ZodType = z
+export const marshalUpdateKafkaSourceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     entityColumnIdentifiers: z
-      .array(z.lazy(() => marshalColumnIdentifierSchema))
+      .array(z.lazy(() => marshalUpdateColumnIdentifierSchema))
       .optional(),
     timeseriesColumnIdentifier: z
-      .lazy(() => marshalColumnIdentifierSchema)
+      .lazy(() => marshalUpdateColumnIdentifierSchema)
       .optional(),
     filterCondition: z.string().optional(),
   })
@@ -2839,10 +5625,10 @@ export const marshalKafkaSourceSchema: z.ZodType = z
     filter_condition: d.filterCondition,
   }));
 
-export const marshalKafkaStreamConfigSchema: z.ZodType = z
+export const marshalUpdateKafkaStreamConfigSchema: z.ZodType = z
   .object({
     subscriptionMode: z
-      .lazy(() => marshalKafkaSubscriptionModeSchema)
+      .lazy(() => marshalUpdateKafkaSubscriptionModeSchema)
       .optional(),
     extraOptions: z.record(z.string(), z.string()).optional(),
   })
@@ -2851,7 +5637,7 @@ export const marshalKafkaStreamConfigSchema: z.ZodType = z
     extra_options: d.extraOptions,
   }));
 
-export const marshalKafkaSubscriptionModeSchema: z.ZodType = z
+export const marshalUpdateKafkaSubscriptionModeSchema: z.ZodType = z
   .object({
     subscriptionMode: z
       .discriminatedUnion('$case', [
@@ -2876,7 +5662,7 @@ export const marshalKafkaSubscriptionModeSchema: z.ZodType = z
     }),
   }));
 
-export const marshalLastDistinctNFunctionSchema: z.ZodType = z
+export const marshalUpdateLastDistinctNFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     n: z.bigint().optional(),
@@ -2886,7 +5672,7 @@ export const marshalLastDistinctNFunctionSchema: z.ZodType = z
     n: d.n,
   }));
 
-export const marshalLastFunctionSchema: z.ZodType = z
+export const marshalUpdateLastFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -2894,7 +5680,7 @@ export const marshalLastFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalLastNFunctionSchema: z.ZodType = z
+export const marshalUpdateLastNFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     n: z.bigint().optional(),
@@ -2904,17 +5690,17 @@ export const marshalLastNFunctionSchema: z.ZodType = z
     n: d.n,
   }));
 
-export const marshalLineageContextSchema: z.ZodType = z
+export const marshalUpdateLineageContextSchema: z.ZodType = z
   .object({
     notebookId: z.bigint().optional(),
-    jobContext: z.lazy(() => marshalJobContextSchema).optional(),
+    jobContext: z.lazy(() => marshalUpdateJobContextSchema).optional(),
   })
   .transform(d => ({
     notebook_id: d.notebookId,
     job_context: d.jobContext,
   }));
 
-export const marshalMaterializedFeatureSchema: z.ZodType = z
+export const marshalUpdateMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
     featureName: z.string().optional(),
@@ -2922,35 +5708,31 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('offlineStoreConfig'),
-          offlineStoreConfig: z.lazy(() => marshalOfflineStoreConfigSchema),
+          offlineStoreConfig: z.lazy(
+            () => marshalUpdateOfflineStoreConfigSchema
+          ),
         }),
         z.object({
           $case: z.literal('onlineStoreConfig'),
-          onlineStoreConfig: z.lazy(() => marshalOnlineStoreConfigSchema),
+          onlineStoreConfig: z.lazy(() => marshalUpdateOnlineStoreConfigSchema),
         }),
       ])
       .optional(),
-    tableName: z.string().optional(),
     pipelineScheduleState: z.string().optional(),
-    lastMaterializationTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     cronSchedule: z.string().optional(),
-    isOnline: z.boolean().optional(),
     trigger: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('cronScheduleTrigger'),
-          cronScheduleTrigger: z.lazy(() => marshalCronScheduleSchema),
+          cronScheduleTrigger: z.lazy(() => marshalUpdateCronScheduleSchema),
         }),
         z.object({
           $case: z.literal('tableTrigger'),
-          tableTrigger: z.lazy(() => marshalTableTriggerSchema),
+          tableTrigger: z.lazy(() => marshalUpdateTableTriggerSchema),
         }),
         z.object({
           $case: z.literal('streamingMode'),
-          streamingMode: z.lazy(() => marshalStreamingModeSchema),
+          streamingMode: z.lazy(() => marshalUpdateStreamingModeSchema),
         }),
       ])
       .optional(),
@@ -2964,11 +5746,8 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     ...(d.destination?.$case === 'onlineStoreConfig' && {
       online_store_config: d.destination.onlineStoreConfig,
     }),
-    table_name: d.tableName,
     pipeline_schedule_state: d.pipelineScheduleState,
-    last_materialization_time: d.lastMaterializationTime,
     cron_schedule: d.cronSchedule,
-    is_online: d.isOnline,
     ...(d.trigger?.$case === 'cronScheduleTrigger' && {
       cron_schedule_trigger: d.trigger.cronScheduleTrigger,
     }),
@@ -2980,7 +5759,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     }),
   }));
 
-export const marshalMaxFunctionSchema: z.ZodType = z
+export const marshalUpdateMaxFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -2988,7 +5767,7 @@ export const marshalMaxFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalMinFunctionSchema: z.ZodType = z
+export const marshalUpdateMinFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -2996,16 +5775,18 @@ export const marshalMinFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalMtlsConfigSchema: z.ZodType = z
+export const marshalUpdateMtlsConfigSchema: z.ZodType = z
   .object({
     keystoreLocation: z.string().optional(),
     keystorePasswordRef: z
-      .lazy(() => marshalSecretScopeReferenceSchema)
+      .lazy(() => marshalUpdateSecretScopeReferenceSchema)
       .optional(),
-    keyPasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema).optional(),
+    keyPasswordRef: z
+      .lazy(() => marshalUpdateSecretScopeReferenceSchema)
+      .optional(),
     truststoreLocation: z.string().optional(),
     truststorePasswordRef: z
-      .lazy(() => marshalSecretScopeReferenceSchema)
+      .lazy(() => marshalUpdateSecretScopeReferenceSchema)
       .optional(),
     disableHostnameVerification: z.boolean().optional(),
   })
@@ -3018,7 +5799,7 @@ export const marshalMtlsConfigSchema: z.ZodType = z
     disable_hostname_verification: d.disableHostnameVerification,
   }));
 
-export const marshalOfflineStoreConfigSchema: z.ZodType = z
+export const marshalUpdateOfflineStoreConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
@@ -3030,7 +5811,7 @@ export const marshalOfflineStoreConfigSchema: z.ZodType = z
     table_name_prefix: d.tableNamePrefix,
   }));
 
-export const marshalOnlineStoreConfigSchema: z.ZodType = z
+export const marshalUpdateOnlineStoreConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
@@ -3044,13 +5825,13 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     online_store_name: d.onlineStoreName,
   }));
 
-export const marshalRequestSourceSchema: z.ZodType = z
+export const marshalUpdateRequestSourceSchema: z.ZodType = z
   .object({
     schema: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('flatSchema'),
-          flatSchema: z.lazy(() => marshalFlatSchemaSchema),
+          flatSchema: z.lazy(() => marshalUpdateFlatSchemaSchema),
         }),
       ])
       .optional(),
@@ -3059,7 +5840,7 @@ export const marshalRequestSourceSchema: z.ZodType = z
     ...(d.schema?.$case === 'flatSchema' && {flat_schema: d.schema.flatSchema}),
   }));
 
-export const marshalRollingWindowSchema: z.ZodType = z
+export const marshalUpdateRollingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
@@ -3075,7 +5856,7 @@ export const marshalRollingWindowSchema: z.ZodType = z
     delay: d.delay,
   }));
 
-export const marshalSchemaConfigSchema: z.ZodType = z
+export const marshalUpdateSchemaConfigSchema: z.ZodType = z
   .object({
     schema: z
       .discriminatedUnion('$case', [
@@ -3087,7 +5868,7 @@ export const marshalSchemaConfigSchema: z.ZodType = z
     ...(d.schema?.$case === 'jsonSchema' && {json_schema: d.schema.jsonSchema}),
   }));
 
-export const marshalSecretScopeReferenceSchema: z.ZodType = z
+export const marshalUpdateSecretScopeReferenceSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
     key: z.string().optional(),
@@ -3097,7 +5878,7 @@ export const marshalSecretScopeReferenceSchema: z.ZodType = z
     key: d.key,
   }));
 
-export const marshalSlidingWindowSchema: z.ZodType = z
+export const marshalUpdateSlidingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
@@ -3113,7 +5894,7 @@ export const marshalSlidingWindowSchema: z.ZodType = z
     slide_duration: d.slideDuration,
   }));
 
-export const marshalStddevPopFunctionSchema: z.ZodType = z
+export const marshalUpdateStddevPopFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -3121,7 +5902,7 @@ export const marshalStddevPopFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalStddevSampFunctionSchema: z.ZodType = z
+export const marshalUpdateStddevSampFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -3129,27 +5910,22 @@ export const marshalStddevSampFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalStreamSchema: z.ZodType = z
+export const marshalUpdateStreamSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    sourceConfig: z.lazy(() => marshalStreamSourceConfigSchema).optional(),
+    sourceConfig: z
+      .lazy(() => marshalUpdateStreamSourceConfigSchema)
+      .optional(),
     connectionConfig: z
-      .lazy(() => marshalStreamConnectionConfigSchema)
+      .lazy(() => marshalUpdateStreamConnectionConfigSchema)
       .optional(),
-    schemaConfig: z.lazy(() => marshalStreamSchemaConfigSchema).optional(),
-    ingestionConfig: z.lazy(() => marshalIngestionConfigSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    schemaConfig: z
+      .lazy(() => marshalUpdateStreamSchemaConfigSchema)
       .optional(),
-    createdBy: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    ingestionConfig: z
+      .lazy(() => marshalUpdateIngestionConfigSchema)
       .optional(),
-    updatedBy: z.string().optional(),
-    browseOnly: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3158,14 +5934,9 @@ export const marshalStreamSchema: z.ZodType = z
     connection_config: d.connectionConfig,
     schema_config: d.schemaConfig,
     ingestion_config: d.ingestionConfig,
-    create_time: d.createTime,
-    created_by: d.createdBy,
-    update_time: d.updateTime,
-    updated_by: d.updatedBy,
-    browse_only: d.browseOnly,
   }));
 
-export const marshalStreamConnectionConfigSchema: z.ZodType = z
+export const marshalUpdateStreamConnectionConfigSchema: z.ZodType = z
   .object({
     connectionConfig: z
       .discriminatedUnion('$case', [
@@ -3175,7 +5946,7 @@ export const marshalStreamConnectionConfigSchema: z.ZodType = z
         }),
         z.object({
           $case: z.literal('directMtlsConfig'),
-          directMtlsConfig: z.lazy(() => marshalDirectMtlsConfigSchema),
+          directMtlsConfig: z.lazy(() => marshalUpdateDirectMtlsConfigSchema),
         }),
       ])
       .optional(),
@@ -3189,13 +5960,13 @@ export const marshalStreamConnectionConfigSchema: z.ZodType = z
     }),
   }));
 
-export const marshalStreamSchemaConfigSchema: z.ZodType = z
+export const marshalUpdateStreamSchemaConfigSchema: z.ZodType = z
   .object({
     schemaConfig: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('directSchemas'),
-          directSchemas: z.lazy(() => marshalDirectSchemasSchema),
+          directSchemas: z.lazy(() => marshalUpdateDirectSchemasSchema),
         }),
       ])
       .optional(),
@@ -3206,7 +5977,7 @@ export const marshalStreamSchemaConfigSchema: z.ZodType = z
     }),
   }));
 
-export const marshalStreamSourceSchema: z.ZodType = z
+export const marshalUpdateStreamSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
     filterCondition: z.string().optional(),
@@ -3216,13 +5987,13 @@ export const marshalStreamSourceSchema: z.ZodType = z
     filter_condition: d.filterCondition,
   }));
 
-export const marshalStreamSourceConfigSchema: z.ZodType = z
+export const marshalUpdateStreamSourceConfigSchema: z.ZodType = z
   .object({
     sourceConfig: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('kafkaStreamConfig'),
-          kafkaStreamConfig: z.lazy(() => marshalKafkaStreamConfigSchema),
+          kafkaStreamConfig: z.lazy(() => marshalUpdateKafkaStreamConfigSchema),
         }),
       ])
       .optional(),
@@ -3233,7 +6004,7 @@ export const marshalStreamSourceConfigSchema: z.ZodType = z
     }),
   }));
 
-export const marshalStreamingModeSchema: z.ZodType = z
+export const marshalUpdateStreamingModeSchema: z.ZodType = z
   .object({
     mode: z.string().optional(),
   })
@@ -3241,7 +6012,7 @@ export const marshalStreamingModeSchema: z.ZodType = z
     mode: d.mode,
   }));
 
-export const marshalSubscriptionModeSchema: z.ZodType = z
+export const marshalUpdateSubscriptionModeSchema: z.ZodType = z
   .object({
     subscriptionMode: z
       .discriminatedUnion('$case', [
@@ -3266,7 +6037,7 @@ export const marshalSubscriptionModeSchema: z.ZodType = z
     }),
   }));
 
-export const marshalSumFunctionSchema: z.ZodType = z
+export const marshalUpdateSumFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -3274,27 +6045,27 @@ export const marshalSumFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalTableTriggerSchema: z.ZodType = z.object({});
+export const marshalUpdateTableTriggerSchema: z.ZodType = z.object({});
 
-export const marshalTimeWindowSchema: z.ZodType = z
+export const marshalUpdateTimeWindowSchema: z.ZodType = z
   .object({
     windowType: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('continuous'),
-          continuous: z.lazy(() => marshalContinuousWindowSchema),
+          continuous: z.lazy(() => marshalUpdateContinuousWindowSchema),
         }),
         z.object({
           $case: z.literal('tumbling'),
-          tumbling: z.lazy(() => marshalTumblingWindowSchema),
+          tumbling: z.lazy(() => marshalUpdateTumblingWindowSchema),
         }),
         z.object({
           $case: z.literal('sliding'),
-          sliding: z.lazy(() => marshalSlidingWindowSchema),
+          sliding: z.lazy(() => marshalUpdateSlidingWindowSchema),
         }),
         z.object({
           $case: z.literal('rolling'),
-          rolling: z.lazy(() => marshalRollingWindowSchema),
+          rolling: z.lazy(() => marshalUpdateRollingWindowSchema),
         }),
       ])
       .optional(),
@@ -3310,7 +6081,7 @@ export const marshalTimeWindowSchema: z.ZodType = z
     ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
   }));
 
-export const marshalTimeseriesColumnSchema: z.ZodType = z
+export const marshalUpdateTimeseriesColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -3318,7 +6089,7 @@ export const marshalTimeseriesColumnSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalTumblingWindowSchema: z.ZodType = z
+export const marshalUpdateTumblingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
@@ -3329,7 +6100,7 @@ export const marshalTumblingWindowSchema: z.ZodType = z
     window_duration: d.windowDuration,
   }));
 
-export const marshalVarPopFunctionSchema: z.ZodType = z
+export const marshalUpdateVarPopFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -3337,7 +6108,7 @@ export const marshalVarPopFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalVarSampFunctionSchema: z.ZodType = z
+export const marshalUpdateVarSampFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -3345,117 +6116,132 @@ export const marshalVarSampFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-const aggregationFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateAggregationFunctionFieldMaskSchema: FieldMaskSchema = {
   approxCountDistinct: {
     wire: 'approx_count_distinct',
-    children: () => approxCountDistinctFunctionFieldMaskSchema,
+    children: () => updateApproxCountDistinctFunctionFieldMaskSchema,
   },
   approxPercentile: {
     wire: 'approx_percentile',
-    children: () => approxPercentileFunctionFieldMaskSchema,
+    children: () => updateApproxPercentileFunctionFieldMaskSchema,
   },
-  avg: {wire: 'avg', children: () => avgFunctionFieldMaskSchema},
+  avg: {wire: 'avg', children: () => updateAvgFunctionFieldMaskSchema},
   countFunction: {
     wire: 'count_function',
-    children: () => countFunctionFieldMaskSchema,
+    children: () => updateCountFunctionFieldMaskSchema,
   },
-  first: {wire: 'first', children: () => firstFunctionFieldMaskSchema},
+  first: {wire: 'first', children: () => updateFirstFunctionFieldMaskSchema},
   firstDistinctN: {
     wire: 'first_distinct_n',
-    children: () => firstDistinctNFunctionFieldMaskSchema,
+    children: () => updateFirstDistinctNFunctionFieldMaskSchema,
   },
-  firstN: {wire: 'first_n', children: () => firstNFunctionFieldMaskSchema},
-  last: {wire: 'last', children: () => lastFunctionFieldMaskSchema},
+  firstN: {
+    wire: 'first_n',
+    children: () => updateFirstNFunctionFieldMaskSchema,
+  },
+  last: {wire: 'last', children: () => updateLastFunctionFieldMaskSchema},
   lastDistinctN: {
     wire: 'last_distinct_n',
-    children: () => lastDistinctNFunctionFieldMaskSchema,
+    children: () => updateLastDistinctNFunctionFieldMaskSchema,
   },
-  lastN: {wire: 'last_n', children: () => lastNFunctionFieldMaskSchema},
-  max: {wire: 'max', children: () => maxFunctionFieldMaskSchema},
-  min: {wire: 'min', children: () => minFunctionFieldMaskSchema},
+  lastN: {wire: 'last_n', children: () => updateLastNFunctionFieldMaskSchema},
+  max: {wire: 'max', children: () => updateMaxFunctionFieldMaskSchema},
+  min: {wire: 'min', children: () => updateMinFunctionFieldMaskSchema},
   stddevPop: {
     wire: 'stddev_pop',
-    children: () => stddevPopFunctionFieldMaskSchema,
+    children: () => updateStddevPopFunctionFieldMaskSchema,
   },
   stddevSamp: {
     wire: 'stddev_samp',
-    children: () => stddevSampFunctionFieldMaskSchema,
+    children: () => updateStddevSampFunctionFieldMaskSchema,
   },
-  sum: {wire: 'sum', children: () => sumFunctionFieldMaskSchema},
-  timeWindow: {wire: 'time_window', children: () => timeWindowFieldMaskSchema},
-  varPop: {wire: 'var_pop', children: () => varPopFunctionFieldMaskSchema},
-  varSamp: {wire: 'var_samp', children: () => varSampFunctionFieldMaskSchema},
+  sum: {wire: 'sum', children: () => updateSumFunctionFieldMaskSchema},
+  timeWindow: {
+    wire: 'time_window',
+    children: () => updateTimeWindowFieldMaskSchema,
+  },
+  varPop: {
+    wire: 'var_pop',
+    children: () => updateVarPopFunctionFieldMaskSchema,
+  },
+  varSamp: {
+    wire: 'var_samp',
+    children: () => updateVarSampFunctionFieldMaskSchema,
+  },
 };
 
-const approxCountDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateApproxCountDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   relativeSd: {wire: 'relative_sd'},
 };
 
-const approxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateApproxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
   accuracy: {wire: 'accuracy'},
   input: {wire: 'input'},
   percentile: {wire: 'percentile'},
 };
 
-const authConfigFieldMaskSchema: FieldMaskSchema = {
-  mtlsConfig: {wire: 'mtls_config', children: () => mtlsConfigFieldMaskSchema},
+const updateAuthConfigFieldMaskSchema: FieldMaskSchema = {
+  mtlsConfig: {
+    wire: 'mtls_config',
+    children: () => updateMtlsConfigFieldMaskSchema,
+  },
   ucServiceCredentialName: {wire: 'uc_service_credential_name'},
 };
 
-const avgFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateAvgFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const backfillSourceFieldMaskSchema: FieldMaskSchema = {
+const updateBackfillSourceFieldMaskSchema: FieldMaskSchema = {
   deltaTableName: {wire: 'delta_table_name'},
   deltaTableSource: {
     wire: 'delta_table_source',
-    children: () => deltaTableSourceFieldMaskSchema,
+    children: () => updateDeltaTableSourceFieldMaskSchema,
   },
 };
 
-const columnIdentifierFieldMaskSchema: FieldMaskSchema = {
+const updateColumnIdentifierFieldMaskSchema: FieldMaskSchema = {
   variantExprPath: {wire: 'variant_expr_path'},
 };
 
-const columnSelectionFieldMaskSchema: FieldMaskSchema = {
+const updateColumnSelectionFieldMaskSchema: FieldMaskSchema = {
   column: {wire: 'column'},
 };
 
-const continuousWindowFieldMaskSchema: FieldMaskSchema = {
+const updateContinuousWindowFieldMaskSchema: FieldMaskSchema = {
   offset: {wire: 'offset'},
   windowDuration: {wire: 'window_duration'},
 };
 
-const countFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateCountFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const cronScheduleFieldMaskSchema: FieldMaskSchema = {
+const updateCronScheduleFieldMaskSchema: FieldMaskSchema = {
   cronExpression: {wire: 'cron_expression'},
 };
 
-const dataSourceFieldMaskSchema: FieldMaskSchema = {
+const updateDataSourceFieldMaskSchema: FieldMaskSchema = {
   deltaTableSource: {
     wire: 'delta_table_source',
-    children: () => deltaTableSourceFieldMaskSchema,
+    children: () => updateDeltaTableSourceFieldMaskSchema,
   },
   kafkaSource: {
     wire: 'kafka_source',
-    children: () => kafkaSourceFieldMaskSchema,
+    children: () => updateKafkaSourceFieldMaskSchema,
   },
   requestSource: {
     wire: 'request_source',
-    children: () => requestSourceFieldMaskSchema,
+    children: () => updateRequestSourceFieldMaskSchema,
   },
   streamSource: {
     wire: 'stream_source',
-    children: () => streamSourceFieldMaskSchema,
+    children: () => updateStreamSourceFieldMaskSchema,
   },
 };
 
-const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
+const updateDeltaTableSourceFieldMaskSchema: FieldMaskSchema = {
   dataframeSchema: {wire: 'dataframe_schema'},
   entityColumns: {wire: 'entity_columns'},
   filterCondition: {wire: 'filter_condition'},
@@ -3464,379 +6250,400 @@ const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
   transformationSql: {wire: 'transformation_sql'},
 };
 
-const directMtlsConfigFieldMaskSchema: FieldMaskSchema = {
+const updateDirectMtlsConfigFieldMaskSchema: FieldMaskSchema = {
   bootstrapServers: {wire: 'bootstrap_servers'},
-  mtlsConfig: {wire: 'mtls_config', children: () => mtlsConfigFieldMaskSchema},
-};
-
-const directSchemasFieldMaskSchema: FieldMaskSchema = {
-  keySchema: {wire: 'key_schema', children: () => schemaConfigFieldMaskSchema},
-  payloadSchema: {
-    wire: 'payload_schema',
-    children: () => schemaConfigFieldMaskSchema,
+  mtlsConfig: {
+    wire: 'mtls_config',
+    children: () => updateMtlsConfigFieldMaskSchema,
   },
 };
 
-const featureFieldMaskSchema: FieldMaskSchema = {
-  catalogName: {wire: 'catalog_name'},
-  createdAt: {wire: 'created_at'},
-  createdBy: {wire: 'created_by'},
+const updateDirectSchemasFieldMaskSchema: FieldMaskSchema = {
+  keySchema: {
+    wire: 'key_schema',
+    children: () => updateSchemaConfigFieldMaskSchema,
+  },
+  payloadSchema: {
+    wire: 'payload_schema',
+    children: () => updateSchemaConfigFieldMaskSchema,
+  },
+};
+
+const updateFeatureFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
   entities: {wire: 'entities'},
   filterCondition: {wire: 'filter_condition'},
   fullName: {wire: 'full_name'},
-  function: {wire: 'function', children: () => functionFieldMaskSchema},
+  function: {wire: 'function', children: () => updateFunctionFieldMaskSchema},
   inputs: {wire: 'inputs'},
   lineageContext: {
     wire: 'lineage_context',
-    children: () => lineageContextFieldMaskSchema,
+    children: () => updateLineageContextFieldMaskSchema,
   },
-  name: {wire: 'name'},
-  schemaName: {wire: 'schema_name'},
-  source: {wire: 'source', children: () => dataSourceFieldMaskSchema},
-  timeWindow: {wire: 'time_window', children: () => timeWindowFieldMaskSchema},
+  source: {wire: 'source', children: () => updateDataSourceFieldMaskSchema},
+  timeWindow: {
+    wire: 'time_window',
+    children: () => updateTimeWindowFieldMaskSchema,
+  },
   timeseriesColumn: {
     wire: 'timeseries_column',
-    children: () => timeseriesColumnFieldMaskSchema,
+    children: () => updateTimeseriesColumnFieldMaskSchema,
   },
 };
 
-export function featureFieldMask(...paths: string[]): FieldMask<Feature> {
-  return FieldMask.build<Feature>(paths, featureFieldMaskSchema);
+export function updateFeatureFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateFeature> {
+  return FieldMask.build<UpdateFeature>(paths, updateFeatureFieldMaskSchema);
 }
 
-const firstDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateFirstDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
 };
 
-const firstFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateFirstFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const firstNFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateFirstNFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
 };
 
-const flatSchemaFieldMaskSchema: FieldMaskSchema = {
+const updateFlatSchemaFieldMaskSchema: FieldMaskSchema = {
   fields: {wire: 'fields'},
 };
 
-const functionFieldMaskSchema: FieldMaskSchema = {
+const updateFunctionFieldMaskSchema: FieldMaskSchema = {
   aggregationFunction: {
     wire: 'aggregation_function',
-    children: () => aggregationFunctionFieldMaskSchema,
+    children: () => updateAggregationFunctionFieldMaskSchema,
   },
   columnSelection: {
     wire: 'column_selection',
-    children: () => columnSelectionFieldMaskSchema,
+    children: () => updateColumnSelectionFieldMaskSchema,
   },
   extraParameters: {wire: 'extra_parameters'},
   functionType: {wire: 'function_type'},
 };
 
-const ingestionConfigFieldMaskSchema: FieldMaskSchema = {
-  backfillJobId: {wire: 'backfill_job_id'},
+const updateIngestionConfigFieldMaskSchema: FieldMaskSchema = {
   backfillSource: {
     wire: 'backfill_source',
-    children: () => backfillSourceFieldMaskSchema,
+    children: () => updateBackfillSourceFieldMaskSchema,
   },
   deduplicationColumns: {wire: 'deduplication_columns'},
   ingestionDestination: {
     wire: 'ingestion_destination',
-    children: () => ingestionDestinationFieldMaskSchema,
+    children: () => updateIngestionDestinationFieldMaskSchema,
   },
-  ingestionJobId: {wire: 'ingestion_job_id'},
-  ingestionPipelineId: {wire: 'ingestion_pipeline_id'},
 };
 
-const ingestionDestinationFieldMaskSchema: FieldMaskSchema = {
+const updateIngestionDestinationFieldMaskSchema: FieldMaskSchema = {
   deltaTableName: {wire: 'delta_table_name'},
 };
 
-const jobContextFieldMaskSchema: FieldMaskSchema = {
+const updateJobContextFieldMaskSchema: FieldMaskSchema = {
   jobId: {wire: 'job_id'},
   jobRunId: {wire: 'job_run_id'},
 };
 
-const kafkaConfigFieldMaskSchema: FieldMaskSchema = {
-  authConfig: {wire: 'auth_config', children: () => authConfigFieldMaskSchema},
+const updateKafkaConfigFieldMaskSchema: FieldMaskSchema = {
+  authConfig: {
+    wire: 'auth_config',
+    children: () => updateAuthConfigFieldMaskSchema,
+  },
   backfillSource: {
     wire: 'backfill_source',
-    children: () => backfillSourceFieldMaskSchema,
+    children: () => updateBackfillSourceFieldMaskSchema,
   },
   bootstrapServers: {wire: 'bootstrap_servers'},
   extraOptions: {wire: 'extra_options'},
   ingestionConfig: {
     wire: 'ingestion_config',
-    children: () => ingestionConfigFieldMaskSchema,
+    children: () => updateIngestionConfigFieldMaskSchema,
   },
-  keySchema: {wire: 'key_schema', children: () => schemaConfigFieldMaskSchema},
+  keySchema: {
+    wire: 'key_schema',
+    children: () => updateSchemaConfigFieldMaskSchema,
+  },
   name: {wire: 'name'},
   subscriptionMode: {
     wire: 'subscription_mode',
-    children: () => subscriptionModeFieldMaskSchema,
+    children: () => updateSubscriptionModeFieldMaskSchema,
   },
   valueSchema: {
     wire: 'value_schema',
-    children: () => schemaConfigFieldMaskSchema,
+    children: () => updateSchemaConfigFieldMaskSchema,
   },
 };
 
-export function kafkaConfigFieldMask(
+export function updateKafkaConfigFieldMask(
   ...paths: string[]
-): FieldMask<KafkaConfig> {
-  return FieldMask.build<KafkaConfig>(paths, kafkaConfigFieldMaskSchema);
+): FieldMask<UpdateKafkaConfig> {
+  return FieldMask.build<UpdateKafkaConfig>(
+    paths,
+    updateKafkaConfigFieldMaskSchema
+  );
 }
 
-const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
+const updateKafkaSourceFieldMaskSchema: FieldMaskSchema = {
   entityColumnIdentifiers: {wire: 'entity_column_identifiers'},
   filterCondition: {wire: 'filter_condition'},
   name: {wire: 'name'},
   timeseriesColumnIdentifier: {
     wire: 'timeseries_column_identifier',
-    children: () => columnIdentifierFieldMaskSchema,
+    children: () => updateColumnIdentifierFieldMaskSchema,
   },
 };
 
-const kafkaStreamConfigFieldMaskSchema: FieldMaskSchema = {
+const updateKafkaStreamConfigFieldMaskSchema: FieldMaskSchema = {
   extraOptions: {wire: 'extra_options'},
   subscriptionMode: {
     wire: 'subscription_mode',
-    children: () => kafkaSubscriptionModeFieldMaskSchema,
+    children: () => updateKafkaSubscriptionModeFieldMaskSchema,
   },
 };
 
-const kafkaSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
+const updateKafkaSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
   assign: {wire: 'assign'},
   subscribe: {wire: 'subscribe'},
   subscribePattern: {wire: 'subscribe_pattern'},
 };
 
-const lastDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateLastDistinctNFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
 };
 
-const lastFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateLastFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const lastNFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateLastNFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
 };
 
-const lineageContextFieldMaskSchema: FieldMaskSchema = {
-  jobContext: {wire: 'job_context', children: () => jobContextFieldMaskSchema},
+const updateLineageContextFieldMaskSchema: FieldMaskSchema = {
+  jobContext: {
+    wire: 'job_context',
+    children: () => updateJobContextFieldMaskSchema,
+  },
   notebookId: {wire: 'notebook_id'},
 };
 
-const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
+const updateMaterializedFeatureFieldMaskSchema: FieldMaskSchema = {
   cronSchedule: {wire: 'cron_schedule'},
   cronScheduleTrigger: {
     wire: 'cron_schedule_trigger',
-    children: () => cronScheduleFieldMaskSchema,
+    children: () => updateCronScheduleFieldMaskSchema,
   },
   featureName: {wire: 'feature_name'},
-  isOnline: {wire: 'is_online'},
-  lastMaterializationTime: {wire: 'last_materialization_time'},
   materializedFeatureId: {wire: 'materialized_feature_id'},
   offlineStoreConfig: {
     wire: 'offline_store_config',
-    children: () => offlineStoreConfigFieldMaskSchema,
+    children: () => updateOfflineStoreConfigFieldMaskSchema,
   },
   onlineStoreConfig: {
     wire: 'online_store_config',
-    children: () => onlineStoreConfigFieldMaskSchema,
+    children: () => updateOnlineStoreConfigFieldMaskSchema,
   },
   pipelineScheduleState: {wire: 'pipeline_schedule_state'},
   streamingMode: {
     wire: 'streaming_mode',
-    children: () => streamingModeFieldMaskSchema,
+    children: () => updateStreamingModeFieldMaskSchema,
   },
-  tableName: {wire: 'table_name'},
   tableTrigger: {
     wire: 'table_trigger',
-    children: () => tableTriggerFieldMaskSchema,
+    children: () => updateTableTriggerFieldMaskSchema,
   },
 };
 
-export function materializedFeatureFieldMask(
+export function updateMaterializedFeatureFieldMask(
   ...paths: string[]
-): FieldMask<MaterializedFeature> {
-  return FieldMask.build<MaterializedFeature>(
+): FieldMask<UpdateMaterializedFeature> {
+  return FieldMask.build<UpdateMaterializedFeature>(
     paths,
-    materializedFeatureFieldMaskSchema
+    updateMaterializedFeatureFieldMaskSchema
   );
 }
 
-const maxFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateMaxFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const minFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateMinFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const mtlsConfigFieldMaskSchema: FieldMaskSchema = {
+const updateMtlsConfigFieldMaskSchema: FieldMaskSchema = {
   disableHostnameVerification: {wire: 'disable_hostname_verification'},
   keyPasswordRef: {
     wire: 'key_password_ref',
-    children: () => secretScopeReferenceFieldMaskSchema,
+    children: () => updateSecretScopeReferenceFieldMaskSchema,
   },
   keystoreLocation: {wire: 'keystore_location'},
   keystorePasswordRef: {
     wire: 'keystore_password_ref',
-    children: () => secretScopeReferenceFieldMaskSchema,
+    children: () => updateSecretScopeReferenceFieldMaskSchema,
   },
   truststoreLocation: {wire: 'truststore_location'},
   truststorePasswordRef: {
     wire: 'truststore_password_ref',
-    children: () => secretScopeReferenceFieldMaskSchema,
+    children: () => updateSecretScopeReferenceFieldMaskSchema,
   },
 };
 
-const offlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
+const updateOfflineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   schemaName: {wire: 'schema_name'},
   tableNamePrefix: {wire: 'table_name_prefix'},
 };
 
-const onlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
+const updateOnlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   onlineStoreName: {wire: 'online_store_name'},
   schemaName: {wire: 'schema_name'},
   tableNamePrefix: {wire: 'table_name_prefix'},
 };
 
-const requestSourceFieldMaskSchema: FieldMaskSchema = {
-  flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
+const updateRequestSourceFieldMaskSchema: FieldMaskSchema = {
+  flatSchema: {
+    wire: 'flat_schema',
+    children: () => updateFlatSchemaFieldMaskSchema,
+  },
 };
 
-const rollingWindowFieldMaskSchema: FieldMaskSchema = {
+const updateRollingWindowFieldMaskSchema: FieldMaskSchema = {
   delay: {wire: 'delay'},
   windowDuration: {wire: 'window_duration'},
 };
 
-const schemaConfigFieldMaskSchema: FieldMaskSchema = {
+const updateSchemaConfigFieldMaskSchema: FieldMaskSchema = {
   jsonSchema: {wire: 'json_schema'},
 };
 
-const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
+const updateSecretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
   key: {wire: 'key'},
   scope: {wire: 'scope'},
 };
 
-const slidingWindowFieldMaskSchema: FieldMaskSchema = {
+const updateSlidingWindowFieldMaskSchema: FieldMaskSchema = {
   slideDuration: {wire: 'slide_duration'},
   windowDuration: {wire: 'window_duration'},
 };
 
-const stddevPopFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateStddevPopFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const stddevSampFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateStddevSampFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const streamFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
+const updateStreamFieldMaskSchema: FieldMaskSchema = {
   connectionConfig: {
     wire: 'connection_config',
-    children: () => streamConnectionConfigFieldMaskSchema,
+    children: () => updateStreamConnectionConfigFieldMaskSchema,
   },
-  createTime: {wire: 'create_time'},
-  createdBy: {wire: 'created_by'},
   description: {wire: 'description'},
   ingestionConfig: {
     wire: 'ingestion_config',
-    children: () => ingestionConfigFieldMaskSchema,
+    children: () => updateIngestionConfigFieldMaskSchema,
   },
   name: {wire: 'name'},
   schemaConfig: {
     wire: 'schema_config',
-    children: () => streamSchemaConfigFieldMaskSchema,
+    children: () => updateStreamSchemaConfigFieldMaskSchema,
   },
   sourceConfig: {
     wire: 'source_config',
-    children: () => streamSourceConfigFieldMaskSchema,
+    children: () => updateStreamSourceConfigFieldMaskSchema,
   },
-  updateTime: {wire: 'update_time'},
-  updatedBy: {wire: 'updated_by'},
 };
 
-export function streamFieldMask(...paths: string[]): FieldMask<Stream> {
-  return FieldMask.build<Stream>(paths, streamFieldMaskSchema);
+export function updateStreamFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateStream> {
+  return FieldMask.build<UpdateStream>(paths, updateStreamFieldMaskSchema);
 }
 
-const streamConnectionConfigFieldMaskSchema: FieldMaskSchema = {
+const updateStreamConnectionConfigFieldMaskSchema: FieldMaskSchema = {
   directMtlsConfig: {
     wire: 'direct_mtls_config',
-    children: () => directMtlsConfigFieldMaskSchema,
+    children: () => updateDirectMtlsConfigFieldMaskSchema,
   },
   ucConnectionName: {wire: 'uc_connection_name'},
 };
 
-const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
+const updateStreamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
   directSchemas: {
     wire: 'direct_schemas',
-    children: () => directSchemasFieldMaskSchema,
+    children: () => updateDirectSchemasFieldMaskSchema,
   },
 };
 
-const streamSourceFieldMaskSchema: FieldMaskSchema = {
+const updateStreamSourceFieldMaskSchema: FieldMaskSchema = {
   filterCondition: {wire: 'filter_condition'},
   fullName: {wire: 'full_name'},
 };
 
-const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {
+const updateStreamSourceConfigFieldMaskSchema: FieldMaskSchema = {
   kafkaStreamConfig: {
     wire: 'kafka_stream_config',
-    children: () => kafkaStreamConfigFieldMaskSchema,
+    children: () => updateKafkaStreamConfigFieldMaskSchema,
   },
 };
 
-const streamingModeFieldMaskSchema: FieldMaskSchema = {
+const updateStreamingModeFieldMaskSchema: FieldMaskSchema = {
   mode: {wire: 'mode'},
 };
 
-const subscriptionModeFieldMaskSchema: FieldMaskSchema = {
+const updateSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
   assign: {wire: 'assign'},
   subscribe: {wire: 'subscribe'},
   subscribePattern: {wire: 'subscribe_pattern'},
 };
 
-const sumFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateSumFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const tableTriggerFieldMaskSchema: FieldMaskSchema = {};
+const updateTableTriggerFieldMaskSchema: FieldMaskSchema = {};
 
-const timeWindowFieldMaskSchema: FieldMaskSchema = {
+const updateTimeWindowFieldMaskSchema: FieldMaskSchema = {
   continuous: {
     wire: 'continuous',
-    children: () => continuousWindowFieldMaskSchema,
+    children: () => updateContinuousWindowFieldMaskSchema,
   },
-  rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
-  sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},
-  tumbling: {wire: 'tumbling', children: () => tumblingWindowFieldMaskSchema},
+  rolling: {
+    wire: 'rolling',
+    children: () => updateRollingWindowFieldMaskSchema,
+  },
+  sliding: {
+    wire: 'sliding',
+    children: () => updateSlidingWindowFieldMaskSchema,
+  },
+  tumbling: {
+    wire: 'tumbling',
+    children: () => updateTumblingWindowFieldMaskSchema,
+  },
 };
 
-const timeseriesColumnFieldMaskSchema: FieldMaskSchema = {
+const updateTimeseriesColumnFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-const tumblingWindowFieldMaskSchema: FieldMaskSchema = {
+const updateTumblingWindowFieldMaskSchema: FieldMaskSchema = {
   windowDuration: {wire: 'window_duration'},
 };
 
-const varPopFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateVarPopFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const varSampFunctionFieldMaskSchema: FieldMaskSchema = {
+const updateVarSampFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };

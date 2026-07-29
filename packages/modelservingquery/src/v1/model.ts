@@ -60,6 +60,13 @@ export interface ChatMessage {
   content?: string | undefined;
 }
 
+export interface CreateChatMessage {
+  /** The role of the message. One of [system, user, assistant]. */
+  role?: ChatMessageRole | undefined;
+  /** The content of the message. */
+  content?: string | undefined;
+}
+
 export interface DataframeSplitInput {
   /** Index array for the dataframe */
   index?: number[] | undefined;
@@ -104,7 +111,7 @@ export interface QueryEndpointRequest {
    * The messages field used ONLY for __chat external & foundation model__ serving endpoints.
    * This is an array of ChatMessage objects and should only be used with other chat query fields.
    */
-  messages?: ChatMessage[] | undefined;
+  messages?: CreateChatMessage[] | undefined;
   /**
    * The temperature field used ONLY for __completions__ and __chat external & foundation model__ serving
    * endpoints. This is a float between 0.0 and 2.0 with a default of 1.0 and should only be used with other
@@ -286,7 +293,7 @@ export const unmarshalV1ResponseChoiceElementSchema: z.ZodType<V1ResponseChoiceE
       logprobs: d.logprobs,
     }));
 
-export const marshalChatMessageSchema: z.ZodType = z
+export const marshalCreateChatMessageSchema: z.ZodType = z
   .object({
     role: z.string().optional(),
     content: z.string().optional(),
@@ -313,7 +320,7 @@ export const marshalQueryEndpointRequestSchema: z.ZodType = z
     name: z.string().optional(),
     prompt: jsonValueSchema.optional(),
     input: jsonValueSchema.optional(),
-    messages: z.array(z.lazy(() => marshalChatMessageSchema)).optional(),
+    messages: z.array(z.lazy(() => marshalCreateChatMessageSchema)).optional(),
     temperature: z.number().optional(),
     stop: z.array(z.string()).optional(),
     maxTokens: z.number().optional(),

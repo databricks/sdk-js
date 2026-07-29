@@ -22,6 +22,21 @@ export interface ConnectionDependency {
   connectionName?: string | undefined;
 }
 
+export interface CreateRegisteredModelAliasInfo {
+  /** Name of the alias, e.g. 'champion' or 'latest_stable' */
+  aliasName?: string | undefined;
+  /** Integer version number of the model version to which this alias points. */
+  versionNum?: bigint | undefined;
+  /** The unique identifier of the alias */
+  id?: string | undefined;
+  /** The name of the parent registered model of the model version, relative to parent schema */
+  modelName?: string | undefined;
+  /** The name of the catalog containing the model version */
+  catalogName?: string | undefined;
+  /** The name of the schema containing the model version, relative to parent catalog */
+  schemaName?: string | undefined;
+}
+
 export interface CreateRegisteredModelRequest {
   /** The name of the registered model */
   name?: string | undefined;
@@ -48,7 +63,7 @@ export interface CreateRegisteredModelRequest {
   /** The identifier of the user who updated the registered model last time */
   updatedBy?: string | undefined;
   /** List of aliases associated with the registered model */
-  aliases?: RegisteredModelAliasInfo[] | undefined;
+  aliases?: CreateRegisteredModelAliasInfo[] | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
 }
@@ -309,13 +324,50 @@ export interface SetRegisteredModelAliasRequest {
   /** The name of the alias */
   aliasArg?: string | undefined;
   /** The version number of the model version to which the alias points */
-  versionNum?: bigint | undefined;
+  versionNum: bigint;
 }
 
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
   /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
   tableFullName?: string | undefined;
+}
+
+/** A connection that is dependent on a SQL object. */
+export interface UpdateConnectionDependency {
+  /** Full name of the dependent connection, in the form of __connection_name__. */
+  connectionName?: string | undefined;
+}
+
+/** A credential that is dependent on a SQL object. */
+export interface UpdateCredentialDependency {
+  /** Full name of the dependent credential, in the form of __credential_name__. */
+  credentialName?: string | undefined;
+}
+
+/**
+ * A dependency of a SQL object. One of the following fields must be defined:
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
+ */
+export interface UpdateDependency {
+  value?:
+    | {$case: 'table'; table: UpdateTableDependency}
+    | {$case: 'function'; function: UpdateFunctionDependency}
+    | {$case: 'connection'; connection: UpdateConnectionDependency}
+    | {$case: 'credential'; credential: UpdateCredentialDependency}
+    | undefined;
+}
+
+/** A list of dependencies. */
+export interface UpdateDependencyList {
+  /** Array of dependencies. */
+  dependencies?: UpdateDependency[] | undefined;
+}
+
+/** A function that is dependent on a SQL object. */
+export interface UpdateFunctionDependency {
+  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  functionFullName?: string | undefined;
 }
 
 export interface UpdateModelVersionRequest {
@@ -344,7 +396,7 @@ export interface UpdateModelVersionRequest {
    */
   runWorkspaceId?: bigint | undefined;
   /** Model version dependencies, for feature-store packaged models */
-  modelVersionDependencies?: DependencyList | undefined;
+  modelVersionDependencies?: UpdateDependencyList | undefined;
   /**
    * Current status of the model version. Newly created model versions start in
    * PENDING_REGISTRATION status, then move to READY status once the model version files are uploaded and
@@ -367,7 +419,22 @@ export interface UpdateModelVersionRequest {
   /** The unique identifier of the model version */
   id?: string | undefined;
   /** List of aliases associated with the model version */
-  aliases?: RegisteredModelAliasInfo[] | undefined;
+  aliases?: UpdateRegisteredModelAliasInfo[] | undefined;
+}
+
+export interface UpdateRegisteredModelAliasInfo {
+  /** Name of the alias, e.g. 'champion' or 'latest_stable' */
+  aliasName?: string | undefined;
+  /** Integer version number of the model version to which this alias points. */
+  versionNum?: bigint | undefined;
+  /** The unique identifier of the alias */
+  id?: string | undefined;
+  /** The name of the parent registered model of the model version, relative to parent schema */
+  modelName?: string | undefined;
+  /** The name of the catalog containing the model version */
+  catalogName?: string | undefined;
+  /** The name of the schema containing the model version, relative to parent catalog */
+  schemaName?: string | undefined;
 }
 
 export interface UpdateRegisteredModelRequest {
@@ -400,9 +467,15 @@ export interface UpdateRegisteredModelRequest {
   /** The identifier of the user who updated the registered model last time */
   updatedBy?: string | undefined;
   /** List of aliases associated with the registered model */
-  aliases?: RegisteredModelAliasInfo[] | undefined;
+  aliases?: UpdateRegisteredModelAliasInfo[] | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+}
+
+/** A table that is dependent on a SQL object. */
+export interface UpdateTableDependency {
+  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  tableFullName?: string | undefined;
 }
 
 export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
@@ -626,12 +699,22 @@ export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
     tableFullName: d.table_full_name,
   }));
 
-export const marshalConnectionDependencySchema: z.ZodType = z
+export const marshalCreateRegisteredModelAliasInfoSchema: z.ZodType = z
   .object({
-    connectionName: z.string().optional(),
+    aliasName: z.string().optional(),
+    versionNum: z.bigint().optional(),
+    id: z.string().optional(),
+    modelName: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
   })
   .transform(d => ({
-    connection_name: d.connectionName,
+    alias_name: d.aliasName,
+    version_num: d.versionNum,
+    id: d.id,
+    model_name: d.modelName,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
   }));
 
 export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
@@ -649,7 +732,7 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     aliases: z
-      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
+      .array(z.lazy(() => marshalCreateRegisteredModelAliasInfoSchema))
       .optional(),
     browseOnly: z.boolean().optional(),
   })
@@ -670,7 +753,27 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
-export const marshalCredentialDependencySchema: z.ZodType = z
+export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    aliasArg: z.string().optional(),
+    versionNum: z.bigint(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    alias_arg: d.aliasArg,
+    version_num: d.versionNum,
+  }));
+
+export const marshalUpdateConnectionDependencySchema: z.ZodType = z
+  .object({
+    connectionName: z.string().optional(),
+  })
+  .transform(d => ({
+    connection_name: d.connectionName,
+  }));
+
+export const marshalUpdateCredentialDependencySchema: z.ZodType = z
   .object({
     credentialName: z.string().optional(),
   })
@@ -678,25 +781,25 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
-export const marshalDependencySchema: z.ZodType = z
+export const marshalUpdateDependencySchema: z.ZodType = z
   .object({
     value: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('table'),
-          table: z.lazy(() => marshalTableDependencySchema),
+          table: z.lazy(() => marshalUpdateTableDependencySchema),
         }),
         z.object({
           $case: z.literal('function'),
-          function: z.lazy(() => marshalFunctionDependencySchema),
+          function: z.lazy(() => marshalUpdateFunctionDependencySchema),
         }),
         z.object({
           $case: z.literal('connection'),
-          connection: z.lazy(() => marshalConnectionDependencySchema),
+          connection: z.lazy(() => marshalUpdateConnectionDependencySchema),
         }),
         z.object({
           $case: z.literal('credential'),
-          credential: z.lazy(() => marshalCredentialDependencySchema),
+          credential: z.lazy(() => marshalUpdateCredentialDependencySchema),
         }),
       ])
       .optional(),
@@ -708,58 +811,22 @@ export const marshalDependencySchema: z.ZodType = z
     ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
   }));
 
-export const marshalDependencyListSchema: z.ZodType = z
+export const marshalUpdateDependencyListSchema: z.ZodType = z
   .object({
-    dependencies: z.array(z.lazy(() => marshalDependencySchema)).optional(),
+    dependencies: z
+      .array(z.lazy(() => marshalUpdateDependencySchema))
+      .optional(),
   })
   .transform(d => ({
     dependencies: d.dependencies,
   }));
 
-export const marshalFunctionDependencySchema: z.ZodType = z
+export const marshalUpdateFunctionDependencySchema: z.ZodType = z
   .object({
     functionFullName: z.string().optional(),
   })
   .transform(d => ({
     function_full_name: d.functionFullName,
-  }));
-
-export const marshalRegisteredModelAliasInfoSchema: z.ZodType = z
-  .object({
-    aliasName: z.string().optional(),
-    versionNum: z.bigint().optional(),
-    id: z.string().optional(),
-    modelName: z.string().optional(),
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-  })
-  .transform(d => ({
-    alias_name: d.aliasName,
-    version_num: d.versionNum,
-    id: d.id,
-    model_name: d.modelName,
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-  }));
-
-export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    aliasArg: z.string().optional(),
-    versionNum: z.bigint().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    alias_arg: d.aliasArg,
-    version_num: d.versionNum,
-  }));
-
-export const marshalTableDependencySchema: z.ZodType = z
-  .object({
-    tableFullName: z.string().optional(),
-  })
-  .transform(d => ({
-    table_full_name: d.tableFullName,
   }));
 
 export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
@@ -774,7 +841,7 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     runId: z.string().optional(),
     runWorkspaceId: z.bigint().optional(),
     modelVersionDependencies: z
-      .lazy(() => marshalDependencyListSchema)
+      .lazy(() => marshalUpdateDependencyListSchema)
       .optional(),
     status: z.string().optional(),
     version: z.bigint().optional(),
@@ -786,7 +853,7 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     id: z.string().optional(),
     aliases: z
-      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
+      .array(z.lazy(() => marshalUpdateRegisteredModelAliasInfoSchema))
       .optional(),
   })
   .transform(d => ({
@@ -812,6 +879,24 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     aliases: d.aliases,
   }));
 
+export const marshalUpdateRegisteredModelAliasInfoSchema: z.ZodType = z
+  .object({
+    aliasName: z.string().optional(),
+    versionNum: z.bigint().optional(),
+    id: z.string().optional(),
+    modelName: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+  })
+  .transform(d => ({
+    alias_name: d.aliasName,
+    version_num: d.versionNum,
+    id: d.id,
+    model_name: d.modelName,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+  }));
+
 export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
@@ -829,7 +914,7 @@ export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     aliases: z
-      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
+      .array(z.lazy(() => marshalUpdateRegisteredModelAliasInfoSchema))
       .optional(),
     browseOnly: z.boolean().optional(),
   })
@@ -850,4 +935,12 @@ export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
     updated_by: d.updatedBy,
     aliases: d.aliases,
     browse_only: d.browseOnly,
+  }));
+
+export const marshalUpdateTableDependencySchema: z.ZodType = z
+  .object({
+    tableFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    table_full_name: d.tableFullName,
   }));

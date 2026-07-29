@@ -10,6 +10,7 @@ export type {
   CreateCustomOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationResponse,
+  CreateTokenAccessPolicy,
   CustomOAuthAppIntegration,
   CustomOAuthAppIntegrationSecret,
   DeleteCustomOAuthAppIntegrationRequest,
@@ -31,4 +32,5 @@ export type {
   UpdateCustomOAuthAppIntegrationResponse,
   UpdatePublishedOAuthAppIntegrationRequest,
   UpdatePublishedOAuthAppIntegrationResponse,
+  UpdateTokenAccessPolicy,
 } from './model';

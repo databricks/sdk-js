@@ -7,14 +7,18 @@
 export {TagPoliciesClient} from './client';
 
 export type {
+  CreateTagPolicy,
   CreateTagPolicyRequest,
+  CreateValue,
   DeleteTagPolicyRequest,
   GetTagPolicyRequest,
   ListTagPoliciesRequest,
   ListTagPoliciesResponse,
   TagPolicy,
+  UpdateTagPolicy,
   UpdateTagPolicyRequest,
+  UpdateValue,
   Value,
 } from './model';
 
-export {tagPolicyFieldMask} from './model';
+export {updateTagPolicyFieldMask} from './model';

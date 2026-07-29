@@ -10,7 +10,7 @@ export interface CreateCredentialsRequest {
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
    * (deprecated by AWS, not accepting new customers).
    */
-  gitProvider?: string | undefined;
+  gitProvider: string;
   /**
    * The username provided with your Git provider account and associated with the
    * credential. For most Git providers it is only used to set the Git committer & author names for commits,
@@ -270,7 +270,7 @@ export const unmarshalUpdateCredentialsResponseSchema: z.ZodType<UpdateCredentia
 
 export const marshalCreateCredentialsRequestSchema: z.ZodType = z
   .object({
-    gitProvider: z.string().optional(),
+    gitProvider: z.string(),
     gitUsername: z.string().optional(),
     personalAccessToken: z.string().optional(),
     principalId: z.bigint().optional(),

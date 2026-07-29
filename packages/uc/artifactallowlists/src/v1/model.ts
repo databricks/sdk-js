@@ -44,6 +44,13 @@ export interface ArtifactMatcher {
   matchType?: ArtifactMatcher_MatchType | undefined;
 }
 
+export interface CreateArtifactMatcher {
+  /** The artifact path or maven coordinate */
+  artifact: string;
+  /** The pattern matching type of the artifact */
+  matchType: ArtifactMatcher_MatchType;
+}
+
 export interface GetArtifactAllowlistRequest {
   /** The artifact type of the allowlist. */
   artifactType?: ArtifactType | undefined;
@@ -53,7 +60,7 @@ export interface SetArtifactAllowlistRequest {
   /** The artifact type of the allowlist. */
   artifactType?: ArtifactType | undefined;
   /** A list of allowed artifact match patterns. */
-  artifactMatchers?: ArtifactMatcher[] | undefined;
+  artifactMatchers: CreateArtifactMatcher[];
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Username of the user who set the artifact allowlist. */
@@ -92,10 +99,10 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
     matchType: d.match_type,
   }));
 
-export const marshalArtifactMatcherSchema: z.ZodType = z
+export const marshalCreateArtifactMatcherSchema: z.ZodType = z
   .object({
-    artifact: z.string().optional(),
-    matchType: z.string().optional(),
+    artifact: z.string(),
+    matchType: z.string(),
   })
   .transform(d => ({
     artifact: d.artifact,
@@ -105,9 +112,7 @@ export const marshalArtifactMatcherSchema: z.ZodType = z
 export const marshalSetArtifactAllowlistRequestSchema: z.ZodType = z
   .object({
     artifactType: z.string().optional(),
-    artifactMatchers: z
-      .array(z.lazy(() => marshalArtifactMatcherSchema))
-      .optional(),
+    artifactMatchers: z.array(z.lazy(() => marshalCreateArtifactMatcherSchema)),
     metastoreId: z.string().optional(),
     createdBy: z.string().optional(),
     createdAt: z.bigint().optional(),

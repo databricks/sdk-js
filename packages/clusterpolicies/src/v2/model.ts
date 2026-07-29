@@ -22,6 +22,84 @@ export type PolicySortColumn =
   | (typeof PolicySortColumn)[keyof typeof PolicySortColumn]
   | (string & {});
 
+export interface CreateLibrary {
+  lib?:
+    | {
+        $case: 'jar';
+        /**
+         * URI of the JAR library to install. Supported URIs include Workspace paths, Unity Catalog Volumes paths, and S3 URIs.
+         * For example: `{ "jar": "/Workspace/path/to/library.jar" }`, `{ "jar" : "/Volumes/path/to/library.jar" }` or
+         * `{ "jar": "s3://my-bucket/library.jar" }`.
+         * If S3 is used, please make sure the cluster has read access on the library. You may need to
+         * launch the cluster with an IAM role to access the S3 URI.
+         */
+        jar: string;
+      }
+    | {
+        $case: 'egg';
+        /** Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above. */
+        egg: string;
+      }
+    | {
+        $case: 'pypi';
+        /**
+         * Specification of a PyPi library to be installed. For example:
+         * `{ "package": "simplejson" }`
+         */
+        pypi: CreatePythonPyPiLibrary;
+      }
+    | {
+        $case: 'maven';
+        /**
+         * Specification of a maven library to be installed. For example:
+         * `{ "coordinates": "org.jsoup:jsoup:1.7.2" }`
+         */
+        maven: CreateMavenLibrary;
+      }
+    | {
+        $case: 'cran';
+        /** Specification of a CRAN library to be installed as part of the library */
+        cran: CreateRCranLibrary;
+      }
+    | {
+        $case: 'whl';
+        /**
+         * URI of the wheel library to install. Supported URIs include Workspace paths, Unity Catalog Volumes paths, and S3 URIs.
+         * For example: `{ "whl": "/Workspace/path/to/library.whl" }`, `{ "whl" : "/Volumes/path/to/library.whl" }` or
+         * `{ "whl": "s3://my-bucket/library.whl" }`.
+         * If S3 is used, please make sure the cluster has read access on the library. You may need to
+         * launch the cluster with an IAM role to access the S3 URI.
+         */
+        whl: string;
+      }
+    | {
+        $case: 'requirements';
+        /**
+         * URI of the requirements.txt file to install. Only Workspace paths and Unity Catalog Volumes paths are supported.
+         * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`
+         */
+        requirements: string;
+      }
+    | undefined;
+}
+
+export interface CreateMavenLibrary {
+  /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
+  coordinates: string;
+  /**
+   * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
+   * and Spark Packages are searched.
+   */
+  repo?: string | undefined;
+  /**
+   * List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
+   *
+   * Maven dependency exclusions:
+   * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
+   */
+  exclusions?: string[] | undefined;
+}
+
 export interface CreatePolicyRequest {
   /**
    * Cluster Policy name requested by the user. This has to be unique. Length must be between 1 and 100
@@ -51,7 +129,7 @@ export interface CreatePolicyRequest {
   /** Max number of clusters per user that can be active using this policy. If not present, there is no max limit. */
   maxClustersPerUser?: bigint | undefined;
   /** A list of libraries to be installed on the next cluster restart that uses this policy. The maximum number of libraries is 500. */
-  libraries?: Library[] | undefined;
+  libraries?: CreateLibrary[] | undefined;
 }
 
 export interface CreatePolicyResponse {
@@ -59,9 +137,29 @@ export interface CreatePolicyResponse {
   policyId?: string | undefined;
 }
 
+export interface CreatePythonPyPiLibrary {
+  /**
+   * The name of the pypi package to install. An optional exact version specification is also
+   * supported. Examples: "simplejson" and "simplejson==3.8.0".
+   */
+  package: string;
+  /**
+   * The repository where the package can be found. If not specified, the default pip index is
+   * used.
+   */
+  repo?: string | undefined;
+}
+
+export interface CreateRCranLibrary {
+  /** The name of the CRAN package to install. */
+  package: string;
+  /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
+  repo?: string | undefined;
+}
+
 export interface DeletePolicyRequest {
   /** The ID of the policy to delete. */
-  policyId?: string | undefined;
+  policyId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -69,7 +167,7 @@ export interface DeletePolicyResponse {}
 
 export interface EditPolicyRequest {
   /** The ID of the policy to update. */
-  policyId?: string | undefined;
+  policyId: string;
   /**
    * Cluster Policy name requested by the user. This has to be unique. Length must be between 1 and 100
    * characters.
@@ -98,7 +196,7 @@ export interface EditPolicyRequest {
   /** Max number of clusters per user that can be active using this policy. If not present, there is no max limit. */
   maxClustersPerUser?: bigint | undefined;
   /** A list of libraries to be installed on the next cluster restart that uses this policy. The maximum number of libraries is 500. */
-  libraries?: Library[] | undefined;
+  libraries?: CreateLibrary[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -396,57 +494,7 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
     repo: d.repo,
   }));
 
-export const marshalCreatePolicyRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    description: z.string().optional(),
-    policyFamilyId: z.string().optional(),
-    policyFamilyDefinitionOverrides: z.string().optional(),
-    maxClustersPerUser: z.bigint().optional(),
-    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    definition: d.definition,
-    description: d.description,
-    policy_family_id: d.policyFamilyId,
-    policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
-    max_clusters_per_user: d.maxClustersPerUser,
-    libraries: d.libraries,
-  }));
-
-export const marshalDeletePolicyRequestSchema: z.ZodType = z
-  .object({
-    policyId: z.string().optional(),
-  })
-  .transform(d => ({
-    policy_id: d.policyId,
-  }));
-
-export const marshalEditPolicyRequestSchema: z.ZodType = z
-  .object({
-    policyId: z.string().optional(),
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    description: z.string().optional(),
-    policyFamilyId: z.string().optional(),
-    policyFamilyDefinitionOverrides: z.string().optional(),
-    maxClustersPerUser: z.bigint().optional(),
-    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
-  })
-  .transform(d => ({
-    policy_id: d.policyId,
-    name: d.name,
-    definition: d.definition,
-    description: d.description,
-    policy_family_id: d.policyFamilyId,
-    policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
-    max_clusters_per_user: d.maxClustersPerUser,
-    libraries: d.libraries,
-  }));
-
-export const marshalLibrarySchema: z.ZodType = z
+export const marshalCreateLibrarySchema: z.ZodType = z
   .object({
     lib: z
       .discriminatedUnion('$case', [
@@ -454,15 +502,15 @@ export const marshalLibrarySchema: z.ZodType = z
         z.object({$case: z.literal('egg'), egg: z.string()}),
         z.object({
           $case: z.literal('pypi'),
-          pypi: z.lazy(() => marshalPythonPyPiLibrarySchema),
+          pypi: z.lazy(() => marshalCreatePythonPyPiLibrarySchema),
         }),
         z.object({
           $case: z.literal('maven'),
-          maven: z.lazy(() => marshalMavenLibrarySchema),
+          maven: z.lazy(() => marshalCreateMavenLibrarySchema),
         }),
         z.object({
           $case: z.literal('cran'),
-          cran: z.lazy(() => marshalRCranLibrarySchema),
+          cran: z.lazy(() => marshalCreateRCranLibrarySchema),
         }),
         z.object({$case: z.literal('whl'), whl: z.string()}),
         z.object({$case: z.literal('requirements'), requirements: z.string()}),
@@ -479,9 +527,9 @@ export const marshalLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
   }));
 
-export const marshalMavenLibrarySchema: z.ZodType = z
+export const marshalCreateMavenLibrarySchema: z.ZodType = z
   .object({
-    coordinates: z.string().optional(),
+    coordinates: z.string(),
     repo: z.string().optional(),
     exclusions: z.array(z.string()).optional(),
   })
@@ -491,9 +539,29 @@ export const marshalMavenLibrarySchema: z.ZodType = z
     exclusions: d.exclusions,
   }));
 
-export const marshalPythonPyPiLibrarySchema: z.ZodType = z
+export const marshalCreatePolicyRequestSchema: z.ZodType = z
   .object({
-    package: z.string().optional(),
+    name: z.string().optional(),
+    definition: z.string().optional(),
+    description: z.string().optional(),
+    policyFamilyId: z.string().optional(),
+    policyFamilyDefinitionOverrides: z.string().optional(),
+    maxClustersPerUser: z.bigint().optional(),
+    libraries: z.array(z.lazy(() => marshalCreateLibrarySchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    definition: d.definition,
+    description: d.description,
+    policy_family_id: d.policyFamilyId,
+    policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
+    max_clusters_per_user: d.maxClustersPerUser,
+    libraries: d.libraries,
+  }));
+
+export const marshalCreatePythonPyPiLibrarySchema: z.ZodType = z
+  .object({
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -501,12 +569,42 @@ export const marshalPythonPyPiLibrarySchema: z.ZodType = z
     repo: d.repo,
   }));
 
-export const marshalRCranLibrarySchema: z.ZodType = z
+export const marshalCreateRCranLibrarySchema: z.ZodType = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
     package: d.package,
     repo: d.repo,
+  }));
+
+export const marshalDeletePolicyRequestSchema: z.ZodType = z
+  .object({
+    policyId: z.string(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+  }));
+
+export const marshalEditPolicyRequestSchema: z.ZodType = z
+  .object({
+    policyId: z.string(),
+    name: z.string().optional(),
+    definition: z.string().optional(),
+    description: z.string().optional(),
+    policyFamilyId: z.string().optional(),
+    policyFamilyDefinitionOverrides: z.string().optional(),
+    maxClustersPerUser: z.bigint().optional(),
+    libraries: z.array(z.lazy(() => marshalCreateLibrarySchema)).optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+    name: d.name,
+    definition: d.definition,
+    description: d.description,
+    policy_family_id: d.policyFamilyId,
+    policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
+    max_clusters_per_user: d.maxClustersPerUser,
+    libraries: d.libraries,
   }));

@@ -9,12 +9,22 @@ export {ExperimentsClient} from './client';
 export {LoggedModelStatus, RunStatus, ViewType} from './model';
 
 export type {
+  CreateDataset,
+  CreateDatasetInput,
   CreateExperimentRequest,
   CreateExperimentResponse,
+  CreateExperimentTag,
+  CreateInputTag,
+  CreateLoggedModelParameter,
   CreateLoggedModelRequest,
   CreateLoggedModelResponse,
+  CreateLoggedModelTag,
+  CreateMetric,
+  CreateModelInput,
+  CreateParam,
   CreateRunRequest,
   CreateRunResponse,
+  CreateRunTag,
   Dataset,
   DatasetInput,
   DeleteExperimentRequest,
@@ -99,6 +109,7 @@ export type {
   SetTagResponse,
   UpdateExperimentRequest,
   UpdateExperimentResponse,
+  UpdateLoggedModelTag,
   UpdateRunRequest,
   UpdateRunResponse,
 } from './model';

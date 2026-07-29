@@ -765,6 +765,33 @@ export interface Channel {
   dbsqlVersion?: string | undefined;
 }
 
+/** Configures the channel name and DBSQL version of the warehouse. CHANNEL_NAME_CUSTOM should be chosen only when `dbsql_version` is specified. */
+export interface CreateChannel {
+  name?: ChannelName | undefined;
+  dbsqlVersion?: string | undefined;
+}
+
+/**
+ * Represents a per-user default warehouse override configuration.
+ * This resource allows users or administrators to customize how a user's
+ * default warehouse is selected for SQL operations.
+ * If no override exists for a user, the workspace default warehouse will be used.
+ */
+export interface CreateDefaultWarehouseOverride {
+  /**
+   * The resource name of the default warehouse override.
+   * Format: default-warehouse-overrides/{default_warehouse_override_id}
+   */
+  name?: string | undefined;
+  /** The type of override behavior. */
+  type: DefaultWarehouseOverrideType;
+  /**
+   * The specific warehouse ID when type is CUSTOM.
+   * Not set for LAST_SELECTED type.
+   */
+  warehouseId?: string | undefined;
+}
+
 /** Request message for CreateDefaultWarehouseOverride. */
 export interface CreateDefaultWarehouseOverrideRequest {
   /**
@@ -774,7 +801,27 @@ export interface CreateDefaultWarehouseOverrideRequest {
    */
   defaultWarehouseOverrideId?: string | undefined;
   /** Required. The default warehouse override to create. */
-  defaultWarehouseOverride?: DefaultWarehouseOverride | undefined;
+  defaultWarehouseOverride: CreateDefaultWarehouseOverride;
+}
+
+export interface CreateEndpointConfPair {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+export interface CreateEndpointTagPair {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+export interface CreateEndpointTags {
+  customTags?: CreateEndpointTagPair[] | undefined;
+}
+
+export interface CreateRepeatedEndpointConfPairs {
+  /** Deprecated: Use configuration_pairs */
+  configPair?: CreateEndpointConfPair[] | undefined;
+  configurationPairs?: CreateEndpointConfPair[] | undefined;
 }
 
 /** Creates a new SQL warehouse. */
@@ -854,7 +901,7 @@ export interface CreateWarehouseRequest {
    * Supported values:
    * - Number of tags < 45.
    */
-  tags?: EndpointTags | undefined;
+  tags?: CreateEndpointTags | undefined;
   /** Configurations whether the endpoint should use spot instances. */
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
@@ -864,7 +911,7 @@ export interface CreateWarehouseRequest {
    */
   enablePhoton?: boolean | undefined;
   /** Channel Details */
-  channel?: Channel | undefined;
+  channel?: CreateChannel | undefined;
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
   /**
@@ -880,6 +927,20 @@ export interface CreateWarehouseResponse {
    * This value is unique across all SQL warehouses.
    */
   id?: string | undefined;
+}
+
+/**
+ * *
+ * Configuration values to enable or disable the access to specific warehouse
+ * types in the workspace.
+ */
+export interface CreateWarehouseTypePair {
+  warehouseType?: WarehouseType | undefined;
+  /**
+   * If set to false the specific warehouse type will not be allowed as a
+   * value for warehouse_type in CreateWarehouse and EditWarehouse
+   */
+  enabled?: boolean | undefined;
 }
 
 /**
@@ -1001,7 +1062,7 @@ export interface EditWarehouseRequest {
    * Supported values:
    * - Number of tags < 45.
    */
-  tags?: EndpointTags | undefined;
+  tags?: CreateEndpointTags | undefined;
   /** Configurations whether the endpoint should use spot instances. */
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
@@ -1011,7 +1072,7 @@ export interface EditWarehouseRequest {
    */
   enablePhoton?: boolean | undefined;
   /** Channel Details */
-  channel?: Channel | undefined;
+  channel?: CreateChannel | undefined;
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
   /**
@@ -1400,7 +1461,7 @@ export interface SetWorkspaceWarehouseConfigRequest {
    * Spark confs for external hive metastore configuration
    * JSON serialized size must be less than <= 512K
    */
-  dataAccessConfig?: EndpointConfPair[] | undefined;
+  dataAccessConfig?: CreateEndpointConfPair[] | undefined;
   /**
    * AWS Only: The instance profile used to pass an IAM role to the SQL
    * warehouses. This configuration is also applied to the workspace's
@@ -1408,15 +1469,15 @@ export interface SetWorkspaceWarehouseConfigRequest {
    */
   instanceProfileArn?: string | undefined;
   /** Optional: Channel selection details */
-  channel?: Channel | undefined;
+  channel?: CreateChannel | undefined;
   /** Deprecated: only setting this to true is allowed. */
   enableServerlessCompute?: boolean | undefined;
   /** Deprecated: Use sql_configuration_parameters */
-  globalParam?: RepeatedEndpointConfPairs | undefined;
+  globalParam?: CreateRepeatedEndpointConfPairs | undefined;
   /** Deprecated: Use sql_configuration_parameters */
-  configParam?: RepeatedEndpointConfPairs | undefined;
+  configParam?: CreateRepeatedEndpointConfPairs | undefined;
   /** SQL configuration parameters */
-  sqlConfigurationParameters?: RepeatedEndpointConfPairs | undefined;
+  sqlConfigurationParameters?: CreateRepeatedEndpointConfPairs | undefined;
   /**
    * GCP only: Google Service Account used to pass to cluster to access Google
    * Cloud Storage
@@ -1431,7 +1492,7 @@ export interface SetWorkspaceWarehouseConfigRequest {
    * another type. Used by frontend to save specific type availability in the
    * warehouse create and edit form UI.
    */
-  enabledWarehouseTypes?: WarehouseTypePair[] | undefined;
+  enabledWarehouseTypes?: CreateWarehouseTypePair[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1452,6 +1513,27 @@ export interface TerminationReason {
   parameters?: Record<string, string> | undefined;
 }
 
+/**
+ * Represents a per-user default warehouse override configuration.
+ * This resource allows users or administrators to customize how a user's
+ * default warehouse is selected for SQL operations.
+ * If no override exists for a user, the workspace default warehouse will be used.
+ */
+export interface UpdateDefaultWarehouseOverride {
+  /**
+   * The resource name of the default warehouse override.
+   * Format: default-warehouse-overrides/{default_warehouse_override_id}
+   */
+  name?: string | undefined;
+  /** The type of override behavior. */
+  type?: DefaultWarehouseOverrideType | undefined;
+  /**
+   * The specific warehouse ID when type is CUSTOM.
+   * Not set for LAST_SELECTED type.
+   */
+  warehouseId?: string | undefined;
+}
+
 /** Request message for UpdateDefaultWarehouseOverride. */
 export interface UpdateDefaultWarehouseOverrideRequest {
   /**
@@ -1459,14 +1541,14 @@ export interface UpdateDefaultWarehouseOverrideRequest {
    * The name field must be set in the format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
    */
-  defaultWarehouseOverride?: DefaultWarehouseOverride | undefined;
+  defaultWarehouseOverride?: UpdateDefaultWarehouseOverride | undefined;
   /**
    * Required. Field mask specifying which fields to update.
    * Only the fields specified in the mask will be updated.
    * Use "*" to update all fields.
    * When allow_missing is true, this field is ignored and all fields are applied.
    */
-  updateMask?: FieldMask<DefaultWarehouseOverride> | undefined;
+  updateMask?: FieldMask<UpdateDefaultWarehouseOverride> | undefined;
   /**
    * If set to true, and the override is not found, a new override will be created.
    * In this situation, `update_mask` is ignored and all fields are applied.
@@ -1848,7 +1930,7 @@ export const unmarshalWarehouseTypePairSchema: z.ZodType<WarehouseTypePair> = z
     enabled: d.enabled,
   }));
 
-export const marshalChannelSchema: z.ZodType = z
+export const marshalCreateChannelSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     dbsqlVersion: z.string().optional(),
@@ -1856,6 +1938,62 @@ export const marshalChannelSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     dbsql_version: d.dbsqlVersion,
+  }));
+
+export const marshalCreateDefaultWarehouseOverrideSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    type: z.string(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type: d.type,
+    warehouse_id: d.warehouseId,
+  }));
+
+export const marshalCreateEndpointConfPairSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateEndpointTagPairSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalCreateEndpointTagsSchema: z.ZodType = z
+  .object({
+    customTags: z
+      .array(z.lazy(() => marshalCreateEndpointTagPairSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    custom_tags: d.customTags,
+  }));
+
+export const marshalCreateRepeatedEndpointConfPairsSchema: z.ZodType = z
+  .object({
+    configPair: z
+      .array(z.lazy(() => marshalCreateEndpointConfPairSchema))
+      .optional(),
+    configurationPairs: z
+      .array(z.lazy(() => marshalCreateEndpointConfPairSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    config_pair: d.configPair,
+    configuration_pairs: d.configurationPairs,
   }));
 
 export const marshalCreateWarehouseRequestSchema: z.ZodType = z
@@ -1867,10 +2005,10 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     autoStopMins: z.number().optional(),
     creatorName: z.string().optional(),
     instanceProfileArn: z.string().optional(),
-    tags: z.lazy(() => marshalEndpointTagsSchema).optional(),
+    tags: z.lazy(() => marshalCreateEndpointTagsSchema).optional(),
     spotInstancePolicy: z.string().optional(),
     enablePhoton: z.boolean().optional(),
-    channel: z.lazy(() => marshalChannelSchema).optional(),
+    channel: z.lazy(() => marshalCreateChannelSchema).optional(),
     enableServerlessCompute: z.boolean().optional(),
     warehouseType: z.string().optional(),
   })
@@ -1890,18 +2028,14 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     warehouse_type: d.warehouseType,
   }));
 
-export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
+export const marshalCreateWarehouseTypePairSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    defaultWarehouseOverrideId: z.string().optional(),
-    type: z.string().optional(),
-    warehouseId: z.string().optional(),
+    warehouseType: z.string().optional(),
+    enabled: z.boolean().optional(),
   })
   .transform(d => ({
-    name: d.name,
-    default_warehouse_override_id: d.defaultWarehouseOverrideId,
-    type: d.type,
-    warehouse_id: d.warehouseId,
+    warehouse_type: d.warehouseType,
+    enabled: d.enabled,
   }));
 
 export const marshalEditWarehouseRequestSchema: z.ZodType = z
@@ -1914,10 +2048,10 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     autoStopMins: z.number().optional(),
     creatorName: z.string().optional(),
     instanceProfileArn: z.string().optional(),
-    tags: z.lazy(() => marshalEndpointTagsSchema).optional(),
+    tags: z.lazy(() => marshalCreateEndpointTagsSchema).optional(),
     spotInstancePolicy: z.string().optional(),
     enablePhoton: z.boolean().optional(),
-    channel: z.lazy(() => marshalChannelSchema).optional(),
+    channel: z.lazy(() => marshalCreateChannelSchema).optional(),
     enableServerlessCompute: z.boolean().optional(),
     warehouseType: z.string().optional(),
   })
@@ -1938,67 +2072,27 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     warehouse_type: d.warehouseType,
   }));
 
-export const marshalEndpointConfPairSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalEndpointTagPairSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalEndpointTagsSchema: z.ZodType = z
-  .object({
-    customTags: z.array(z.lazy(() => marshalEndpointTagPairSchema)).optional(),
-  })
-  .transform(d => ({
-    custom_tags: d.customTags,
-  }));
-
-export const marshalRepeatedEndpointConfPairsSchema: z.ZodType = z
-  .object({
-    configPair: z.array(z.lazy(() => marshalEndpointConfPairSchema)).optional(),
-    configurationPairs: z
-      .array(z.lazy(() => marshalEndpointConfPairSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    config_pair: d.configPair,
-    configuration_pairs: d.configurationPairs,
-  }));
-
 export const marshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType = z
   .object({
     securityPolicy: z.string().optional(),
     dataAccessConfig: z
-      .array(z.lazy(() => marshalEndpointConfPairSchema))
+      .array(z.lazy(() => marshalCreateEndpointConfPairSchema))
       .optional(),
     instanceProfileArn: z.string().optional(),
-    channel: z.lazy(() => marshalChannelSchema).optional(),
+    channel: z.lazy(() => marshalCreateChannelSchema).optional(),
     enableServerlessCompute: z.boolean().optional(),
     globalParam: z
-      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
+      .lazy(() => marshalCreateRepeatedEndpointConfPairsSchema)
       .optional(),
     configParam: z
-      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
+      .lazy(() => marshalCreateRepeatedEndpointConfPairsSchema)
       .optional(),
     sqlConfigurationParameters: z
-      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
+      .lazy(() => marshalCreateRepeatedEndpointConfPairsSchema)
       .optional(),
     googleServiceAccount: z.string().optional(),
     enabledWarehouseTypes: z
-      .array(z.lazy(() => marshalWarehouseTypePairSchema))
+      .array(z.lazy(() => marshalCreateWarehouseTypePairSchema))
       .optional(),
   })
   .transform(d => ({
@@ -2014,14 +2108,16 @@ export const marshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType = z
     enabled_warehouse_types: d.enabledWarehouseTypes,
   }));
 
-export const marshalWarehouseTypePairSchema: z.ZodType = z
+export const marshalUpdateDefaultWarehouseOverrideSchema: z.ZodType = z
   .object({
-    warehouseType: z.string().optional(),
-    enabled: z.boolean().optional(),
+    name: z.string().optional(),
+    type: z.string().optional(),
+    warehouseId: z.string().optional(),
   })
   .transform(d => ({
-    warehouse_type: d.warehouseType,
-    enabled: d.enabled,
+    name: d.name,
+    type: d.type,
+    warehouse_id: d.warehouseId,
   }));
 
 export const marshalStartRequestSchema: z.ZodType = z
@@ -2040,18 +2136,17 @@ export const marshalStopRequestSchema: z.ZodType = z
     id: d.id,
   }));
 
-const defaultWarehouseOverrideFieldMaskSchema: FieldMaskSchema = {
-  defaultWarehouseOverrideId: {wire: 'default_warehouse_override_id'},
+const updateDefaultWarehouseOverrideFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
   type: {wire: 'type'},
   warehouseId: {wire: 'warehouse_id'},
 };
 
-export function defaultWarehouseOverrideFieldMask(
+export function updateDefaultWarehouseOverrideFieldMask(
   ...paths: string[]
-): FieldMask<DefaultWarehouseOverride> {
-  return FieldMask.build<DefaultWarehouseOverride>(
+): FieldMask<UpdateDefaultWarehouseOverride> {
+  return FieldMask.build<UpdateDefaultWarehouseOverride>(
     paths,
-    defaultWarehouseOverrideFieldMaskSchema
+    updateDefaultWarehouseOverrideFieldMaskSchema
   );
 }

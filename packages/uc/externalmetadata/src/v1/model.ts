@@ -36,8 +36,27 @@ export type SystemType =
   | (typeof SystemType)[keyof typeof SystemType]
   | (string & {});
 
+export interface CreateExternalMetadata {
+  /** Name of the external metadata object. */
+  name: string;
+  /** Type of external system. */
+  systemType: SystemType;
+  /** Type of entity within the external system. */
+  entityType: string;
+  /** URL associated with the external metadata object. */
+  url?: string | undefined;
+  /** User-provided free-form text description. */
+  description?: string | undefined;
+  /** List of columns associated with the external metadata object. */
+  columns?: string[] | undefined;
+  /** A map of key-value properties attached to the external metadata object. */
+  properties?: Record<string, string> | undefined;
+  /** Owner of the external metadata object. */
+  owner?: string | undefined;
+}
+
 export interface CreateExternalMetadataRequest {
-  externalMetadata?: ExternalMetadata | undefined;
+  externalMetadata?: CreateExternalMetadata | undefined;
 }
 
 export interface DeleteExternalMetadataRequest {
@@ -94,9 +113,28 @@ export interface ListExternalMetadataResponseV2 {
   nextPageToken?: string | undefined;
 }
 
+export interface UpdateExternalMetadata {
+  /** Name of the external metadata object. */
+  name?: string | undefined;
+  /** Type of external system. */
+  systemType?: SystemType | undefined;
+  /** Type of entity within the external system. */
+  entityType?: string | undefined;
+  /** URL associated with the external metadata object. */
+  url?: string | undefined;
+  /** User-provided free-form text description. */
+  description?: string | undefined;
+  /** List of columns associated with the external metadata object. */
+  columns?: string[] | undefined;
+  /** A map of key-value properties attached to the external metadata object. */
+  properties?: Record<string, string> | undefined;
+  /** Owner of the external metadata object. */
+  owner?: string | undefined;
+}
+
 export interface UpdateExternalMetadataRequest {
-  externalMetadata?: ExternalMetadata | undefined;
-  updateMask?: FieldMask<ExternalMetadata> | undefined;
+  externalMetadata?: UpdateExternalMetadata | undefined;
+  updateMask?: FieldMask<UpdateExternalMetadata> | undefined;
 }
 
 export const unmarshalExternalMetadataSchema: z.ZodType<ExternalMetadata> = z
@@ -152,28 +190,16 @@ export const unmarshalListExternalMetadataResponseV2Schema: z.ZodType<ListExtern
       nextPageToken: d.next_page_token,
     }));
 
-export const marshalExternalMetadataSchema: z.ZodType = z
+export const marshalCreateExternalMetadataSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    systemType: z.string().optional(),
-    entityType: z.string().optional(),
+    name: z.string(),
+    systemType: z.string(),
+    entityType: z.string(),
     url: z.string().optional(),
     description: z.string().optional(),
     columns: z.array(z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     owner: z.string().optional(),
-    metastoreId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    createdBy: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updatedBy: z.string().optional(),
-    id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -184,36 +210,46 @@ export const marshalExternalMetadataSchema: z.ZodType = z
     columns: d.columns,
     properties: d.properties,
     owner: d.owner,
-    metastore_id: d.metastoreId,
-    create_time: d.createTime,
-    created_by: d.createdBy,
-    update_time: d.updateTime,
-    updated_by: d.updatedBy,
-    id: d.id,
   }));
 
-const externalMetadataFieldMaskSchema: FieldMaskSchema = {
+export const marshalUpdateExternalMetadataSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    systemType: z.string().optional(),
+    entityType: z.string().optional(),
+    url: z.string().optional(),
+    description: z.string().optional(),
+    columns: z.array(z.string()).optional(),
+    properties: z.record(z.string(), z.string()).optional(),
+    owner: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    system_type: d.systemType,
+    entity_type: d.entityType,
+    url: d.url,
+    description: d.description,
+    columns: d.columns,
+    properties: d.properties,
+    owner: d.owner,
+  }));
+
+const updateExternalMetadataFieldMaskSchema: FieldMaskSchema = {
   columns: {wire: 'columns'},
-  createTime: {wire: 'create_time'},
-  createdBy: {wire: 'created_by'},
   description: {wire: 'description'},
   entityType: {wire: 'entity_type'},
-  id: {wire: 'id'},
-  metastoreId: {wire: 'metastore_id'},
   name: {wire: 'name'},
   owner: {wire: 'owner'},
   properties: {wire: 'properties'},
   systemType: {wire: 'system_type'},
-  updateTime: {wire: 'update_time'},
-  updatedBy: {wire: 'updated_by'},
   url: {wire: 'url'},
 };
 
-export function externalMetadataFieldMask(
+export function updateExternalMetadataFieldMask(
   ...paths: string[]
-): FieldMask<ExternalMetadata> {
-  return FieldMask.build<ExternalMetadata>(
+): FieldMask<UpdateExternalMetadata> {
+  return FieldMask.build<UpdateExternalMetadata>(
     paths,
-    externalMetadataFieldMaskSchema
+    updateExternalMetadataFieldMaskSchema
   );
 }

@@ -124,7 +124,7 @@ export interface CreateLogDeliveryConfigurationParams {
  * Properties of the new log delivery configuration.
  */
 export interface CreateLogDeliveryConfigurationRequest {
-  logDeliveryConfiguration?: CreateLogDeliveryConfigurationParams | undefined;
+  logDeliveryConfiguration: CreateLogDeliveryConfigurationParams;
 }
 
 export interface CreateLogDeliveryConfigurationResponse {
@@ -385,9 +385,9 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
 
 export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
-    logDeliveryConfiguration: z
-      .lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema)
-      .optional(),
+    logDeliveryConfiguration: z.lazy(
+      () => marshalCreateLogDeliveryConfigurationParamsSchema
+    ),
   })
   .transform(d => ({
     log_delivery_configuration: d.logDeliveryConfiguration,

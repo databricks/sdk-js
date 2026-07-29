@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 export interface CreateRepoRequest {
   /** URL of the Git repository to be linked. */
-  url?: string | undefined;
+  url: string;
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
@@ -12,7 +12,7 @@ export interface CreateRepoRequest {
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
    * (deprecated by AWS, not accepting new customers).
    */
-  provider?: string | undefined;
+  provider: string;
   /**
    * Desired path for the repo in the workspace. Almost any path in the workspace can be chosen.
    * If repo is created in `/Repos`, path must be in the format `/Repos/{folder}/{repo-name}`.
@@ -22,7 +22,7 @@ export interface CreateRepoRequest {
    * If specified, the repo will be created with sparse checkout enabled. You cannot enable/disable
    * sparse checkout after the repo is created.
    */
-  sparseCheckout?: SparseCheckout | undefined;
+  sparseCheckout?: CreateSparseCheckout | undefined;
 }
 
 export interface CreateRepoResponse {
@@ -44,6 +44,16 @@ export interface CreateRepoResponse {
   headCommitId?: string | undefined;
   /** Sparse checkout settings for the Git folder (repo). */
   sparseCheckout?: SparseCheckout | undefined;
+}
+
+/** Sparse checkout configuration, it contains options like cone patterns. */
+export interface CreateSparseCheckout {
+  /**
+   * List of sparse checkout cone patterns, see
+   * [cone mode handling](https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling)
+   * for details.
+   */
+  patterns?: string[] | undefined;
 }
 
 export interface DeleteRepoRequest {
@@ -276,10 +286,10 @@ export const unmarshalUpdateRepoResponseSchema: z.ZodType<UpdateRepoResponse> =
 
 export const marshalCreateRepoRequestSchema: z.ZodType = z
   .object({
-    url: z.string().optional(),
-    provider: z.string().optional(),
+    url: z.string(),
+    provider: z.string(),
     path: z.string().optional(),
-    sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
+    sparseCheckout: z.lazy(() => marshalCreateSparseCheckoutSchema).optional(),
   })
   .transform(d => ({
     url: d.url,
@@ -288,7 +298,7 @@ export const marshalCreateRepoRequestSchema: z.ZodType = z
     sparse_checkout: d.sparseCheckout,
   }));
 
-export const marshalSparseCheckoutSchema: z.ZodType = z
+export const marshalCreateSparseCheckoutSchema: z.ZodType = z
   .object({
     patterns: z.array(z.string()).optional(),
   })

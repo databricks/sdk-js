@@ -12,8 +12,15 @@ export {
 } from './model';
 
 export type {
+  CreateFailoverGroup,
   CreateFailoverGroupRequest,
+  CreateLocationMapping,
+  CreateLocationMappingEntry,
+  CreateStableUrl,
   CreateStableUrlRequest,
+  CreateUcCatalog,
+  CreateUcReplicationConfig,
+  CreateWorkspaceSet,
   DeleteFailoverGroupRequest,
   DeleteStableUrlRequest,
   FailoverFailoverGroupRequest,
@@ -29,8 +36,14 @@ export type {
   StableUrl,
   UcCatalog,
   UcReplicationConfig,
+  UpdateFailoverGroup,
   UpdateFailoverGroupRequest,
+  UpdateLocationMapping,
+  UpdateLocationMappingEntry,
+  UpdateUcCatalog,
+  UpdateUcReplicationConfig,
+  UpdateWorkspaceSet,
   WorkspaceSet,
 } from './model';
 
-export {failoverGroupFieldMask} from './model';
+export {updateFailoverGroupFieldMask} from './model';

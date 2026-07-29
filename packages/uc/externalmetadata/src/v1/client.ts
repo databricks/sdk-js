@@ -26,7 +26,8 @@ import type {
   UpdateExternalMetadataRequest,
 } from './model';
 import {
-  marshalExternalMetadataSchema,
+  marshalCreateExternalMetadataSchema,
+  marshalUpdateExternalMetadataSchema,
   unmarshalExternalMetadataSchema,
   unmarshalListExternalMetadataResponseV2Schema,
 } from './model';
@@ -76,7 +77,7 @@ export class ExternalMetadataClient {
     const url = `${host}/api/2.0/lineage-tracking/external-metadata`;
     const body = marshalRequest(
       req.externalMetadata,
-      marshalExternalMetadataSchema
+      marshalCreateExternalMetadataSchema
     );
     let resp: ExternalMetadata | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -240,7 +241,7 @@ export class ExternalMetadataClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.externalMetadata,
-      marshalExternalMetadataSchema
+      marshalUpdateExternalMetadataSchema
     );
     let resp: ExternalMetadata | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

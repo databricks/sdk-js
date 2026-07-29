@@ -7,13 +7,15 @@
 export {SecretsClient} from './client';
 
 export type {
+  CreateSecret,
   CreateSecretRequest,
   DeleteSecretRequest,
   GetSecretRequest,
   ListSecretsRequest,
   ListSecretsResponse,
   Secret,
+  UpdateSecret,
   UpdateSecretRequest,
 } from './model';
 
-export {secretFieldMask} from './model';
+export {updateSecretFieldMask} from './model';

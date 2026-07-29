@@ -16,8 +16,9 @@ export type {
   PublicTokenInfo,
   RevokeTokenRequest,
   RevokeTokenResponse,
+  UpdatePublicTokenInfo,
   UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';
 
-export {publicTokenInfoFieldMask} from './model';
+export {updatePublicTokenInfoFieldMask} from './model';

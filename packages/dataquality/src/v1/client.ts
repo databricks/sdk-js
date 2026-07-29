@@ -36,8 +36,10 @@ import type {
 } from './model';
 import {
   marshalCancelRefreshRequestSchema,
-  marshalMonitorSchema,
-  marshalRefreshSchema,
+  marshalCreateMonitorSchema,
+  marshalCreateRefreshSchema,
+  marshalUpdateMonitorSchema,
+  marshalUpdateRefreshSchema,
   unmarshalCancelRefreshResponseSchema,
   unmarshalListMonitorResponseSchema,
   unmarshalListRefreshResponseSchema,
@@ -136,7 +138,7 @@ export class DataQualityClient {
   ): Promise<Monitor> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/data-quality/v1/monitors`;
-    const body = marshalRequest(req.monitor, marshalMonitorSchema);
+    const body = marshalRequest(req.monitor, marshalCreateMonitorSchema);
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -174,7 +176,7 @@ export class DataQualityClient {
   ): Promise<Refresh> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/data-quality/v1/monitors/${req.refresh?.objectType ?? ''}/${req.refresh?.objectId ?? ''}/refreshes`;
-    const body = marshalRequest(req.refresh, marshalRefreshSchema);
+    const body = marshalRequest(req.refresh, marshalCreateRefreshSchema);
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -486,7 +488,7 @@ export class DataQualityClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.monitor, marshalMonitorSchema);
+    const body = marshalRequest(req.monitor, marshalUpdateMonitorSchema);
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -528,7 +530,7 @@ export class DataQualityClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.refresh, marshalRefreshSchema);
+    const body = marshalRequest(req.refresh, marshalUpdateRefreshSchema);
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

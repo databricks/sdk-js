@@ -22,18 +22,18 @@ export type ForecastingExperiment_State =
 
 export interface CreateForecastingExperimentRequest {
   /** The fully qualified path of a Unity Catalog table, formatted as catalog_name.schema_name.table_name, used as training data for the forecasting model. */
-  trainDataPath?: string | undefined;
+  trainDataPath: string;
   /** The column in the input training table used as the prediction target for model training. The values in this column are used as the ground truth for model training. */
-  targetColumn?: string | undefined;
+  targetColumn: string;
   /** The column in the input training table that represents each row's timestamp. */
-  timeColumn?: string | undefined;
+  timeColumn: string;
   /**
    * The time interval between consecutive rows in the time series data.
    * Possible values include: '1 second', '1 minute', '5 minutes', '10 minutes', '15 minutes', '30 minutes', 'Hourly', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'.
    */
-  forecastGranularity?: string | undefined;
+  forecastGranularity: string;
   /** The number of time steps into the future to make predictions, calculated as a multiple of forecast_granularity. This value represents how far ahead the model should forecast. */
-  forecastHorizon?: bigint | undefined;
+  forecastHorizon: bigint;
   /** The evaluation metric used to optimize the forecasting model. */
   primaryMetric?: string | undefined;
   /** List of frameworks to include for model tuning. Possible values are 'Prophet', 'ARIMA', 'DeepAR'. An empty list includes all supported frameworks. */
@@ -111,11 +111,11 @@ export const unmarshalForecastingExperimentSchema: z.ZodType<ForecastingExperime
 
 export const marshalCreateForecastingExperimentRequestSchema: z.ZodType = z
   .object({
-    trainDataPath: z.string().optional(),
-    targetColumn: z.string().optional(),
-    timeColumn: z.string().optional(),
-    forecastGranularity: z.string().optional(),
-    forecastHorizon: z.bigint().optional(),
+    trainDataPath: z.string(),
+    targetColumn: z.string(),
+    timeColumn: z.string(),
+    forecastGranularity: z.string(),
+    forecastHorizon: z.bigint(),
     primaryMetric: z.string().optional(),
     trainingFrameworks: z.array(z.string()).optional(),
     experimentPath: z.string().optional(),

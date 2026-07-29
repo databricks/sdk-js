@@ -325,10 +325,277 @@ export interface ConnectionDependency {
   connectionName?: string | undefined;
 }
 
+export interface CreateColumnInfo {
+  /** Name of Column. */
+  name?: string | undefined;
+  /** Full data type specification as SQL/catalogString text. */
+  typeText?: string | undefined;
+  typeName?: ColumnTypeName | undefined;
+  /** Ordinal position of column (starting at position 0). */
+  position?: number | undefined;
+  /** Digits of precision; required for DecimalTypes. */
+  typePrecision?: number | undefined;
+  /** Digits to right of decimal; Required for DecimalTypes. */
+  typeScale?: number | undefined;
+  /** Format of IntervalType. */
+  typeIntervalType?: string | undefined;
+  /** Full data type specification, JSON-serialized. */
+  typeJson?: string | undefined;
+  /** User-provided free-form text description. */
+  comment?: string | undefined;
+  /** Whether field may be Null (default: true). */
+  nullable?: boolean | undefined;
+  /** Partition index for column. */
+  partitionIndex?: number | undefined;
+  mask?: CreateColumnMask | undefined;
+}
+
+export interface CreateColumnMask {
+  /** The full name of the column mask SQL UDF. */
+  functionName?: string | undefined;
+  /**
+   * The list of additional table columns to be passed as input to the column mask function. The
+   * first arg of the mask function should be of the type of the column being masked and the
+   * types of the rest of the args should match the types of columns in 'using_column_names'.
+   */
+  usingColumnNames?: string[] | undefined;
+  /**
+   * The list of additional table columns or literals to be passed as additional arguments to
+   * a column mask function. This is the replacement of the deprecated using_column_names field and
+   * carries information about the types (alias or constant) of the arguments to the mask function.
+   */
+  usingArguments?: CreatePolicyFunctionArgument[] | undefined;
+}
+
+/** A connection that is dependent on a SQL object. */
+export interface CreateConnectionDependency {
+  /** Full name of the dependent connection, in the form of __connection_name__. */
+  connectionName?: string | undefined;
+}
+
+/** A credential that is dependent on a SQL object. */
+export interface CreateCredentialDependency {
+  /** Full name of the dependent credential, in the form of __credential_name__. */
+  credentialName?: string | undefined;
+}
+
+/**
+ * Properties pertaining to the current state of the delta table as given by the commit server.
+ * This does not contain **delta.*** (input) properties in __TableInfo.properties__.
+ */
+export interface CreateDeltaRuntimePropertiesKvPairs {
+  /** A map of key-value properties attached to the securable. */
+  deltaRuntimeProperties: Record<string, string>;
+}
+
+/**
+ * A dependency of a SQL object. One of the following fields must be defined:
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
+ */
+export interface CreateDependency {
+  value?:
+    | {$case: 'table'; table: CreateTableDependency}
+    | {$case: 'function'; function: CreateFunctionDependency}
+    | {$case: 'connection'; connection: CreateConnectionDependency}
+    | {$case: 'credential'; credential: CreateCredentialDependency}
+    | undefined;
+}
+
+/** A list of dependencies. */
+export interface CreateDependencyList {
+  /** Array of dependencies. */
+  dependencies?: CreateDependency[] | undefined;
+}
+
+export interface CreateEffectivePredictiveOptimizationFlag {
+  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  value: string;
+  /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromType?: string | undefined;
+  /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromName?: string | undefined;
+}
+
+/** Encryption options that apply to clients connecting to cloud storage. */
+export interface CreateEncryptionDetails {
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: CreateSseEncryptionDetails;
+      }
+    | undefined;
+}
+
+export interface CreateForeignKeyConstraint {
+  /** The name of the constraint. */
+  name: string;
+  /** Column names for this constraint. */
+  childColumns: string[];
+  /** The full name of the parent constraint. */
+  parentTable: string;
+  /** Column names for this constraint. */
+  parentColumns: string[];
+  /** True if the constraint is RELY, false or unset if NORELY. */
+  rely?: boolean | undefined;
+}
+
+/** A function that is dependent on a SQL object. */
+export interface CreateFunctionDependency {
+  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  functionFullName: string;
+}
+
+export interface CreateNamedTableConstraint {
+  /** The name of the constraint. */
+  name: string;
+}
+
+/**
+ * Spec of an allowed option on a securable kind and its attributes.
+ * This is mostly used by UI to provide user friendly hints and descriptions
+ * in order to facilitate the securable creation process.
+ */
+export interface CreateOptionSpec {
+  /** The unique name of the option. */
+  name?: string | undefined;
+  /** The type of the option. */
+  type?: OptionSpec_OptionType | undefined;
+  /** The default value of the option, for example, value '443' for 'port' option. */
+  defaultValue?: string | undefined;
+  /**
+   * For drop down / radio button selections, UI will want to know the possible
+   * input values, it can also be used by other option types to limit input selections.
+   */
+  allowedValues?: string[] | undefined;
+  /**
+   * The hint is used on the UI to suggest what the input value
+   * can possibly be like, for example: example.com for 'host' option.
+   * Unlike default value, it will not be applied automatically without user input.
+   */
+  hint?: string | undefined;
+  /** A concise user facing description of what the input value of this option should look like. */
+  description?: string | undefined;
+  /** Is the option required. */
+  isRequired?: boolean | undefined;
+  /** Is the option value considered secret and thus redacted on the UI. */
+  isSecret?: boolean | undefined;
+  /** Is the option value not user settable and is thus not shown on the UI. */
+  isHidden?: boolean | undefined;
+  /** Is the option updatable by users. */
+  isUpdatable?: boolean | undefined;
+  /** Specifies when the option value is displayed on the UI within the OAuth flow. */
+  oauthStage?: OptionSpec_OauthStage | undefined;
+  /** Specifies whether this option is safe to log, i.e. no sensitive information. */
+  isLoggable?: boolean | undefined;
+  /** Indicates whether an option can be provided by users in the create/update path of an entity. */
+  isCreatable?: boolean | undefined;
+  /** Indicates whether an option should be displayed with copy button on the UI. */
+  isCopiable?: boolean | undefined;
+}
+
+/**
+ * A positional argument passed to a row filter or column mask function.
+ * Distinguishes between column references and literals.
+ */
+export interface CreatePolicyFunctionArgument {
+  arg?:
+    | {
+        $case: 'column';
+        /** A column reference. */
+        column: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | undefined;
+}
+
+export interface CreatePrimaryKeyConstraint {
+  /** The name of the constraint. */
+  name: string;
+  /** Column names for this constraint. */
+  childColumns: string[];
+  /** Column names that represent a timeseries. */
+  timeseriesColumns?: string[] | undefined;
+  /** True if the constraint is RELY, false or unset if NORELY. */
+  rely?: boolean | undefined;
+}
+
+export interface CreateRowFilter {
+  /** The full name of the row filter SQL UDF. */
+  functionName: string;
+  /**
+   * The list of table columns to be passed as input to the row filter function. The column types
+   * should match the types of the filter function arguments.
+   */
+  inputColumnNames: string[];
+  /**
+   * The list of additional table columns or literals to be passed as additional arguments to
+   * a row filter function. This is the replacement of the deprecated input_column_names field and
+   * carries information about the types (alias or constant) of the arguments to the filter function.
+   */
+  inputArguments?: CreatePolicyFunctionArgument[] | undefined;
+}
+
+/** Manifest of a specific securable kind. */
+export interface CreateSecurableKindManifest {
+  /** Securable Type of the kind. */
+  securableType?: SecurableType | undefined;
+  /** Securable kind to get manifest of. */
+  securableKind?: SecurableKind | undefined;
+  /** Privileges that can be assigned to the securable. */
+  assignablePrivileges?: string[] | undefined;
+  /** Detailed specs of allowed options. */
+  options?: CreateOptionSpec[] | undefined;
+  /** A list of capabilities in the securable kind. */
+  capabilities?: string[] | undefined;
+}
+
+/** Server-Side Encryption properties for clients communicating with AWS s3. */
+export interface CreateSseEncryptionDetails {
+  /** Sets the value of the 'x-amz-server-side-encryption' header in S3 request. */
+  algorithm?: SseEncryptionAlgorithm | undefined;
+  /**
+   * Optional. The ARN of the SSE-KMS key used with the S3 location, when algorithm = "SSE-KMS".
+   * Sets the value of the 'x-amz-server-side-encryption-aws-kms-key-id' header.
+   */
+  awsKmsKeyArn?: string | undefined;
+}
+
+/**
+ * A table constraint, as defined by *one* of the following fields being set:
+ * __primary_key_constraint__, __foreign_key_constraint__, __named_table_constraint__.
+ */
+export interface CreateTableConstraint {
+  constraint?:
+    | {
+        $case: 'primaryKeyConstraint';
+        primaryKeyConstraint: CreatePrimaryKeyConstraint;
+      }
+    | {
+        $case: 'foreignKeyConstraint';
+        foreignKeyConstraint: CreateForeignKeyConstraint;
+      }
+    | {
+        $case: 'namedTableConstraint';
+        namedTableConstraint: CreateNamedTableConstraint;
+      }
+    | undefined;
+}
+
 export interface CreateTableConstraintRequest {
   /** The full name of the table referenced by the constraint. */
-  fullNameArg?: string | undefined;
-  constraint?: TableConstraint | undefined;
+  fullNameArg: string;
+  constraint: CreateTableConstraint;
+}
+
+/** A table that is dependent on a SQL object. */
+export interface CreateTableDependency {
+  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  tableFullName: string;
 }
 
 export interface CreateTableRequest {
@@ -351,7 +618,7 @@ export interface CreateTableRequest {
    * - when DependencyList is not an empty list, dependencies are provided and recorded.
    * Note: this field is not set in the output of the __listTables__ API.
    */
-  viewDependencies?: DependencyList | undefined;
+  viewDependencies?: CreateDependencyList | undefined;
   /** List of schemes whose objects can be referenced without qualification. */
   sqlPath?: string | undefined;
   /** Username of current owner of table. */
@@ -361,8 +628,8 @@ export interface CreateTableRequest {
   /** Name of the storage credential, when a storage credential is configured for use with this table. */
   storageCredentialName?: string | undefined;
   /** List of table constraints. Note: this field is not set in the output of the __listTables__ API. */
-  tableConstraints?: TableConstraint[] | undefined;
-  rowFilter?: RowFilter | undefined;
+  tableConstraints?: CreateTableConstraint[] | undefined;
+  rowFilter?: CreateRowFilter | undefined;
   /** The pipeline ID of the table. Applicable for tables created by pipelines (Materialized View, Streaming Table, etc.). */
   pipelineId?: string | undefined;
   enablePredictiveOptimization?: string | undefined;
@@ -383,23 +650,25 @@ export interface CreateTableRequest {
   /** The unique identifier of the table. */
   tableId?: string | undefined;
   /** Information pertaining to current state of the delta table. */
-  deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
+  deltaRuntimePropertiesKvpairs?:
+    | CreateDeltaRuntimePropertiesKvPairs
+    | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
   deletedAt?: bigint | undefined;
   effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
+    | CreateEffectivePredictiveOptimizationFlag
     | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  encryptionDetails?: EncryptionDetails | undefined;
+  encryptionDetails?: CreateEncryptionDetails | undefined;
   /** SecurableKindManifest of table, including capabilities the table has. */
-  securableKindManifest?: SecurableKindManifest | undefined;
+  securableKindManifest?: CreateSecurableKindManifest | undefined;
   /** The array of __ColumnInfo__ definitions of the table's columns. */
-  columns?: ColumnInfo[] | undefined;
+  columns?: CreateColumnInfo[] | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 /** A credential that is dependent on a SQL object. */
@@ -818,6 +1087,273 @@ export interface TableSummary {
   securableKindManifest?: SecurableKindManifest | undefined;
 }
 
+export interface UpdateColumnInfo {
+  /** Name of Column. */
+  name?: string | undefined;
+  /** Full data type specification as SQL/catalogString text. */
+  typeText?: string | undefined;
+  typeName?: ColumnTypeName | undefined;
+  /** Ordinal position of column (starting at position 0). */
+  position?: number | undefined;
+  /** Digits of precision; required for DecimalTypes. */
+  typePrecision?: number | undefined;
+  /** Digits to right of decimal; Required for DecimalTypes. */
+  typeScale?: number | undefined;
+  /** Format of IntervalType. */
+  typeIntervalType?: string | undefined;
+  /** Full data type specification, JSON-serialized. */
+  typeJson?: string | undefined;
+  /** User-provided free-form text description. */
+  comment?: string | undefined;
+  /** Whether field may be Null (default: true). */
+  nullable?: boolean | undefined;
+  /** Partition index for column. */
+  partitionIndex?: number | undefined;
+  mask?: UpdateColumnMask | undefined;
+}
+
+export interface UpdateColumnMask {
+  /** The full name of the column mask SQL UDF. */
+  functionName?: string | undefined;
+  /**
+   * The list of additional table columns to be passed as input to the column mask function. The
+   * first arg of the mask function should be of the type of the column being masked and the
+   * types of the rest of the args should match the types of columns in 'using_column_names'.
+   */
+  usingColumnNames?: string[] | undefined;
+  /**
+   * The list of additional table columns or literals to be passed as additional arguments to
+   * a column mask function. This is the replacement of the deprecated using_column_names field and
+   * carries information about the types (alias or constant) of the arguments to the mask function.
+   */
+  usingArguments?: UpdatePolicyFunctionArgument[] | undefined;
+}
+
+/** A connection that is dependent on a SQL object. */
+export interface UpdateConnectionDependency {
+  /** Full name of the dependent connection, in the form of __connection_name__. */
+  connectionName?: string | undefined;
+}
+
+/** A credential that is dependent on a SQL object. */
+export interface UpdateCredentialDependency {
+  /** Full name of the dependent credential, in the form of __credential_name__. */
+  credentialName?: string | undefined;
+}
+
+/**
+ * Properties pertaining to the current state of the delta table as given by the commit server.
+ * This does not contain **delta.*** (input) properties in __TableInfo.properties__.
+ */
+export interface UpdateDeltaRuntimePropertiesKvPairs {
+  /** A map of key-value properties attached to the securable. */
+  deltaRuntimeProperties?: Record<string, string> | undefined;
+}
+
+/**
+ * A dependency of a SQL object. One of the following fields must be defined:
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
+ */
+export interface UpdateDependency {
+  value?:
+    | {$case: 'table'; table: UpdateTableDependency}
+    | {$case: 'function'; function: UpdateFunctionDependency}
+    | {$case: 'connection'; connection: UpdateConnectionDependency}
+    | {$case: 'credential'; credential: UpdateCredentialDependency}
+    | undefined;
+}
+
+/** A list of dependencies. */
+export interface UpdateDependencyList {
+  /** Array of dependencies. */
+  dependencies?: UpdateDependency[] | undefined;
+}
+
+export interface UpdateEffectivePredictiveOptimizationFlag {
+  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  value?: string | undefined;
+  /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromType?: string | undefined;
+  /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
+  inheritedFromName?: string | undefined;
+}
+
+/** Encryption options that apply to clients connecting to cloud storage. */
+export interface UpdateEncryptionDetails {
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: UpdateSseEncryptionDetails;
+      }
+    | undefined;
+}
+
+export interface UpdateForeignKeyConstraint {
+  /** The name of the constraint. */
+  name?: string | undefined;
+  /** Column names for this constraint. */
+  childColumns?: string[] | undefined;
+  /** The full name of the parent constraint. */
+  parentTable?: string | undefined;
+  /** Column names for this constraint. */
+  parentColumns?: string[] | undefined;
+  /** True if the constraint is RELY, false or unset if NORELY. */
+  rely?: boolean | undefined;
+}
+
+/** A function that is dependent on a SQL object. */
+export interface UpdateFunctionDependency {
+  /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
+  functionFullName?: string | undefined;
+}
+
+export interface UpdateNamedTableConstraint {
+  /** The name of the constraint. */
+  name?: string | undefined;
+}
+
+/**
+ * Spec of an allowed option on a securable kind and its attributes.
+ * This is mostly used by UI to provide user friendly hints and descriptions
+ * in order to facilitate the securable creation process.
+ */
+export interface UpdateOptionSpec {
+  /** The unique name of the option. */
+  name?: string | undefined;
+  /** The type of the option. */
+  type?: OptionSpec_OptionType | undefined;
+  /** The default value of the option, for example, value '443' for 'port' option. */
+  defaultValue?: string | undefined;
+  /**
+   * For drop down / radio button selections, UI will want to know the possible
+   * input values, it can also be used by other option types to limit input selections.
+   */
+  allowedValues?: string[] | undefined;
+  /**
+   * The hint is used on the UI to suggest what the input value
+   * can possibly be like, for example: example.com for 'host' option.
+   * Unlike default value, it will not be applied automatically without user input.
+   */
+  hint?: string | undefined;
+  /** A concise user facing description of what the input value of this option should look like. */
+  description?: string | undefined;
+  /** Is the option required. */
+  isRequired?: boolean | undefined;
+  /** Is the option value considered secret and thus redacted on the UI. */
+  isSecret?: boolean | undefined;
+  /** Is the option value not user settable and is thus not shown on the UI. */
+  isHidden?: boolean | undefined;
+  /** Is the option updatable by users. */
+  isUpdatable?: boolean | undefined;
+  /** Specifies when the option value is displayed on the UI within the OAuth flow. */
+  oauthStage?: OptionSpec_OauthStage | undefined;
+  /** Specifies whether this option is safe to log, i.e. no sensitive information. */
+  isLoggable?: boolean | undefined;
+  /** Indicates whether an option can be provided by users in the create/update path of an entity. */
+  isCreatable?: boolean | undefined;
+  /** Indicates whether an option should be displayed with copy button on the UI. */
+  isCopiable?: boolean | undefined;
+}
+
+/**
+ * A positional argument passed to a row filter or column mask function.
+ * Distinguishes between column references and literals.
+ */
+export interface UpdatePolicyFunctionArgument {
+  arg?:
+    | {
+        $case: 'column';
+        /** A column reference. */
+        column: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | undefined;
+}
+
+export interface UpdatePrimaryKeyConstraint {
+  /** The name of the constraint. */
+  name?: string | undefined;
+  /** Column names for this constraint. */
+  childColumns?: string[] | undefined;
+  /** Column names that represent a timeseries. */
+  timeseriesColumns?: string[] | undefined;
+  /** True if the constraint is RELY, false or unset if NORELY. */
+  rely?: boolean | undefined;
+}
+
+export interface UpdateRowFilter {
+  /** The full name of the row filter SQL UDF. */
+  functionName?: string | undefined;
+  /**
+   * The list of table columns to be passed as input to the row filter function. The column types
+   * should match the types of the filter function arguments.
+   */
+  inputColumnNames?: string[] | undefined;
+  /**
+   * The list of additional table columns or literals to be passed as additional arguments to
+   * a row filter function. This is the replacement of the deprecated input_column_names field and
+   * carries information about the types (alias or constant) of the arguments to the filter function.
+   */
+  inputArguments?: UpdatePolicyFunctionArgument[] | undefined;
+}
+
+/** Manifest of a specific securable kind. */
+export interface UpdateSecurableKindManifest {
+  /** Securable Type of the kind. */
+  securableType?: SecurableType | undefined;
+  /** Securable kind to get manifest of. */
+  securableKind?: SecurableKind | undefined;
+  /** Privileges that can be assigned to the securable. */
+  assignablePrivileges?: string[] | undefined;
+  /** Detailed specs of allowed options. */
+  options?: UpdateOptionSpec[] | undefined;
+  /** A list of capabilities in the securable kind. */
+  capabilities?: string[] | undefined;
+}
+
+/** Server-Side Encryption properties for clients communicating with AWS s3. */
+export interface UpdateSseEncryptionDetails {
+  /** Sets the value of the 'x-amz-server-side-encryption' header in S3 request. */
+  algorithm?: SseEncryptionAlgorithm | undefined;
+  /**
+   * Optional. The ARN of the SSE-KMS key used with the S3 location, when algorithm = "SSE-KMS".
+   * Sets the value of the 'x-amz-server-side-encryption-aws-kms-key-id' header.
+   */
+  awsKmsKeyArn?: string | undefined;
+}
+
+/**
+ * A table constraint, as defined by *one* of the following fields being set:
+ * __primary_key_constraint__, __foreign_key_constraint__, __named_table_constraint__.
+ */
+export interface UpdateTableConstraint {
+  constraint?:
+    | {
+        $case: 'primaryKeyConstraint';
+        primaryKeyConstraint: UpdatePrimaryKeyConstraint;
+      }
+    | {
+        $case: 'foreignKeyConstraint';
+        foreignKeyConstraint: UpdateForeignKeyConstraint;
+      }
+    | {
+        $case: 'namedTableConstraint';
+        namedTableConstraint: UpdateNamedTableConstraint;
+      }
+    | undefined;
+}
+
+/** A table that is dependent on a SQL object. */
+export interface UpdateTableDependency {
+  /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
+  tableFullName?: string | undefined;
+}
+
 export interface UpdateTableRequest {
   /** Full name of the table. */
   fullNameArg?: string | undefined;
@@ -840,7 +1376,7 @@ export interface UpdateTableRequest {
    * - when DependencyList is not an empty list, dependencies are provided and recorded.
    * Note: this field is not set in the output of the __listTables__ API.
    */
-  viewDependencies?: DependencyList | undefined;
+  viewDependencies?: UpdateDependencyList | undefined;
   /** List of schemes whose objects can be referenced without qualification. */
   sqlPath?: string | undefined;
   /** Username of current owner of table. */
@@ -850,8 +1386,8 @@ export interface UpdateTableRequest {
   /** Name of the storage credential, when a storage credential is configured for use with this table. */
   storageCredentialName?: string | undefined;
   /** List of table constraints. Note: this field is not set in the output of the __listTables__ API. */
-  tableConstraints?: TableConstraint[] | undefined;
-  rowFilter?: RowFilter | undefined;
+  tableConstraints?: UpdateTableConstraint[] | undefined;
+  rowFilter?: UpdateRowFilter | undefined;
   /** The pipeline ID of the table. Applicable for tables created by pipelines (Materialized View, Streaming Table, etc.). */
   pipelineId?: string | undefined;
   enablePredictiveOptimization?: string | undefined;
@@ -872,21 +1408,23 @@ export interface UpdateTableRequest {
   /** The unique identifier of the table. */
   tableId?: string | undefined;
   /** Information pertaining to current state of the delta table. */
-  deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
+  deltaRuntimePropertiesKvpairs?:
+    | UpdateDeltaRuntimePropertiesKvPairs
+    | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
   deletedAt?: bigint | undefined;
   effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
+    | UpdateEffectivePredictiveOptimizationFlag
     | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  encryptionDetails?: EncryptionDetails | undefined;
+  encryptionDetails?: UpdateEncryptionDetails | undefined;
   /** SecurableKindManifest of table, including capabilities the table has. */
-  securableKindManifest?: SecurableKindManifest | undefined;
+  securableKindManifest?: UpdateSecurableKindManifest | undefined;
   /** The array of __ColumnInfo__ definitions of the table's columns. */
-  columns?: ColumnInfo[] | undefined;
+  columns?: UpdateColumnInfo[] | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -1349,7 +1887,7 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
 export const unmarshalUpdateTableResponseSchema: z.ZodType<UpdateTableResponse> =
   z.object({});
 
-export const marshalColumnInfoSchema: z.ZodType = z
+export const marshalCreateColumnInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     typeText: z.string().optional(),
@@ -1362,7 +1900,7 @@ export const marshalColumnInfoSchema: z.ZodType = z
     comment: z.string().optional(),
     nullable: z.boolean().optional(),
     partitionIndex: z.number().optional(),
-    mask: z.lazy(() => marshalColumnMaskSchema).optional(),
+    mask: z.lazy(() => marshalCreateColumnMaskSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1379,12 +1917,12 @@ export const marshalColumnInfoSchema: z.ZodType = z
     mask: d.mask,
   }));
 
-export const marshalColumnMaskSchema: z.ZodType = z
+export const marshalCreateColumnMaskSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
     usingColumnNames: z.array(z.string()).optional(),
     usingArguments: z
-      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
+      .array(z.lazy(() => marshalCreatePolicyFunctionArgumentSchema))
       .optional(),
   })
   .transform(d => ({
@@ -1393,7 +1931,7 @@ export const marshalColumnMaskSchema: z.ZodType = z
     using_arguments: d.usingArguments,
   }));
 
-export const marshalConnectionDependencySchema: z.ZodType = z
+export const marshalCreateConnectionDependencySchema: z.ZodType = z
   .object({
     connectionName: z.string().optional(),
   })
@@ -1401,14 +1939,281 @@ export const marshalConnectionDependencySchema: z.ZodType = z
     connection_name: d.connectionName,
   }));
 
+export const marshalCreateCredentialDependencySchema: z.ZodType = z
+  .object({
+    credentialName: z.string().optional(),
+  })
+  .transform(d => ({
+    credential_name: d.credentialName,
+  }));
+
+export const marshalCreateDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
+  .object({
+    deltaRuntimeProperties: z.record(z.string(), z.string()),
+  })
+  .transform(d => ({
+    delta_runtime_properties: d.deltaRuntimeProperties,
+  }));
+
+export const marshalCreateDependencySchema: z.ZodType = z
+  .object({
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('table'),
+          table: z.lazy(() => marshalCreateTableDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('function'),
+          function: z.lazy(() => marshalCreateFunctionDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('connection'),
+          connection: z.lazy(() => marshalCreateConnectionDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('credential'),
+          credential: z.lazy(() => marshalCreateCredentialDependencySchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.value?.$case === 'table' && {table: d.value.table}),
+    ...(d.value?.$case === 'function' && {function: d.value.function}),
+    ...(d.value?.$case === 'connection' && {connection: d.value.connection}),
+    ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
+  }));
+
+export const marshalCreateDependencyListSchema: z.ZodType = z
+  .object({
+    dependencies: z
+      .array(z.lazy(() => marshalCreateDependencySchema))
+      .optional(),
+  })
+  .transform(d => ({
+    dependencies: d.dependencies,
+  }));
+
+export const marshalCreateEffectivePredictiveOptimizationFlagSchema: z.ZodType =
+  z
+    .object({
+      value: z.string(),
+      inheritedFromType: z.string().optional(),
+      inheritedFromName: z.string().optional(),
+    })
+    .transform(d => ({
+      value: d.value,
+      inherited_from_type: d.inheritedFromType,
+      inherited_from_name: d.inheritedFromName,
+    }));
+
+export const marshalCreateEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(
+            () => marshalCreateSseEncryptionDetailsSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
+  }));
+
+export const marshalCreateForeignKeyConstraintSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    childColumns: z.array(z.string()),
+    parentTable: z.string(),
+    parentColumns: z.array(z.string()),
+    rely: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    child_columns: d.childColumns,
+    parent_table: d.parentTable,
+    parent_columns: d.parentColumns,
+    rely: d.rely,
+  }));
+
+export const marshalCreateFunctionDependencySchema: z.ZodType = z
+  .object({
+    functionFullName: z.string(),
+  })
+  .transform(d => ({
+    function_full_name: d.functionFullName,
+  }));
+
+export const marshalCreateNamedTableConstraintSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalCreateOptionSpecSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    type: z.string().optional(),
+    defaultValue: z.string().optional(),
+    allowedValues: z.array(z.string()).optional(),
+    hint: z.string().optional(),
+    description: z.string().optional(),
+    isRequired: z.boolean().optional(),
+    isSecret: z.boolean().optional(),
+    isHidden: z.boolean().optional(),
+    isUpdatable: z.boolean().optional(),
+    oauthStage: z.string().optional(),
+    isLoggable: z.boolean().optional(),
+    isCreatable: z.boolean().optional(),
+    isCopiable: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type: d.type,
+    default_value: d.defaultValue,
+    allowed_values: d.allowedValues,
+    hint: d.hint,
+    description: d.description,
+    is_required: d.isRequired,
+    is_secret: d.isSecret,
+    is_hidden: d.isHidden,
+    is_updatable: d.isUpdatable,
+    oauth_stage: d.oauthStage,
+    is_loggable: d.isLoggable,
+    is_creatable: d.isCreatable,
+    is_copiable: d.isCopiable,
+  }));
+
+export const marshalCreatePolicyFunctionArgumentSchema: z.ZodType = z
+  .object({
+    arg: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('column'), column: z.string()}),
+        z.object({$case: z.literal('constant'), constant: z.string()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.arg?.$case === 'column' && {column: d.arg.column}),
+    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+  }));
+
+export const marshalCreatePrimaryKeyConstraintSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    childColumns: z.array(z.string()),
+    timeseriesColumns: z.array(z.string()).optional(),
+    rely: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    child_columns: d.childColumns,
+    timeseries_columns: d.timeseriesColumns,
+    rely: d.rely,
+  }));
+
+export const marshalCreateRowFilterSchema: z.ZodType = z
+  .object({
+    functionName: z.string(),
+    inputColumnNames: z.array(z.string()),
+    inputArguments: z
+      .array(z.lazy(() => marshalCreatePolicyFunctionArgumentSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    function_name: d.functionName,
+    input_column_names: d.inputColumnNames,
+    input_arguments: d.inputArguments,
+  }));
+
+export const marshalCreateSecurableKindManifestSchema: z.ZodType = z
+  .object({
+    securableType: z.string().optional(),
+    securableKind: z.string().optional(),
+    assignablePrivileges: z.array(z.string()).optional(),
+    options: z.array(z.lazy(() => marshalCreateOptionSpecSchema)).optional(),
+    capabilities: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    securable_type: d.securableType,
+    securable_kind: d.securableKind,
+    assignable_privileges: d.assignablePrivileges,
+    options: d.options,
+    capabilities: d.capabilities,
+  }));
+
+export const marshalCreateSseEncryptionDetailsSchema: z.ZodType = z
+  .object({
+    algorithm: z.string().optional(),
+    awsKmsKeyArn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    aws_kms_key_arn: d.awsKmsKeyArn,
+  }));
+
+export const marshalCreateTableConstraintSchema: z.ZodType = z
+  .object({
+    constraint: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('primaryKeyConstraint'),
+          primaryKeyConstraint: z.lazy(
+            () => marshalCreatePrimaryKeyConstraintSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('foreignKeyConstraint'),
+          foreignKeyConstraint: z.lazy(
+            () => marshalCreateForeignKeyConstraintSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('namedTableConstraint'),
+          namedTableConstraint: z.lazy(
+            () => marshalCreateNamedTableConstraintSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.constraint?.$case === 'primaryKeyConstraint' && {
+      primary_key_constraint: d.constraint.primaryKeyConstraint,
+    }),
+    ...(d.constraint?.$case === 'foreignKeyConstraint' && {
+      foreign_key_constraint: d.constraint.foreignKeyConstraint,
+    }),
+    ...(d.constraint?.$case === 'namedTableConstraint' && {
+      named_table_constraint: d.constraint.namedTableConstraint,
+    }),
+  }));
+
 export const marshalCreateTableConstraintRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
-    constraint: z.lazy(() => marshalTableConstraintSchema).optional(),
+    fullNameArg: z.string(),
+    constraint: z.lazy(() => marshalCreateTableConstraintSchema),
   })
   .transform(d => ({
     full_name_arg: d.fullNameArg,
     constraint: d.constraint,
+  }));
+
+export const marshalCreateTableDependencySchema: z.ZodType = z
+  .object({
+    tableFullName: z.string(),
+  })
+  .transform(d => ({
+    table_full_name: d.tableFullName,
   }));
 
 export const marshalCreateTableRequestSchema: z.ZodType = z
@@ -1420,15 +2225,17 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
     dataSourceFormat: z.string().optional(),
     storageLocation: z.string().optional(),
     viewDefinition: z.string().optional(),
-    viewDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
+    viewDependencies: z
+      .lazy(() => marshalCreateDependencyListSchema)
+      .optional(),
     sqlPath: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageCredentialName: z.string().optional(),
     tableConstraints: z
-      .array(z.lazy(() => marshalTableConstraintSchema))
+      .array(z.lazy(() => marshalCreateTableConstraintSchema))
       .optional(),
-    rowFilter: z.lazy(() => marshalRowFilterSchema).optional(),
+    rowFilter: z.lazy(() => marshalCreateRowFilterSchema).optional(),
     pipelineId: z.string().optional(),
     enablePredictiveOptimization: z.string().optional(),
     metastoreId: z.string().optional(),
@@ -1440,20 +2247,22 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     tableId: z.string().optional(),
     deltaRuntimePropertiesKvpairs: z
-      .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
+      .lazy(() => marshalCreateDeltaRuntimePropertiesKvPairsSchema)
       .optional(),
     deletedAt: z.bigint().optional(),
     effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .lazy(() => marshalCreateEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     accessPoint: z.string().optional(),
     browseOnly: z.boolean().optional(),
-    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
-    securableKindManifest: z
-      .lazy(() => marshalSecurableKindManifestSchema)
+    encryptionDetails: z
+      .lazy(() => marshalCreateEncryptionDetailsSchema)
       .optional(),
-    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    securableKindManifest: z
+      .lazy(() => marshalCreateSecurableKindManifestSchema)
+      .optional(),
+    columns: z.array(z.lazy(() => marshalCreateColumnInfoSchema)).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     name: d.name,
@@ -1492,7 +2301,59 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
     properties: d.properties,
   }));
 
-export const marshalCredentialDependencySchema: z.ZodType = z
+export const marshalUpdateColumnInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    typeText: z.string().optional(),
+    typeName: z.string().optional(),
+    position: z.number().optional(),
+    typePrecision: z.number().optional(),
+    typeScale: z.number().optional(),
+    typeIntervalType: z.string().optional(),
+    typeJson: z.string().optional(),
+    comment: z.string().optional(),
+    nullable: z.boolean().optional(),
+    partitionIndex: z.number().optional(),
+    mask: z.lazy(() => marshalUpdateColumnMaskSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type_text: d.typeText,
+    type_name: d.typeName,
+    position: d.position,
+    type_precision: d.typePrecision,
+    type_scale: d.typeScale,
+    type_interval_type: d.typeIntervalType,
+    type_json: d.typeJson,
+    comment: d.comment,
+    nullable: d.nullable,
+    partition_index: d.partitionIndex,
+    mask: d.mask,
+  }));
+
+export const marshalUpdateColumnMaskSchema: z.ZodType = z
+  .object({
+    functionName: z.string().optional(),
+    usingColumnNames: z.array(z.string()).optional(),
+    usingArguments: z
+      .array(z.lazy(() => marshalUpdatePolicyFunctionArgumentSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    function_name: d.functionName,
+    using_column_names: d.usingColumnNames,
+    using_arguments: d.usingArguments,
+  }));
+
+export const marshalUpdateConnectionDependencySchema: z.ZodType = z
+  .object({
+    connectionName: z.string().optional(),
+  })
+  .transform(d => ({
+    connection_name: d.connectionName,
+  }));
+
+export const marshalUpdateCredentialDependencySchema: z.ZodType = z
   .object({
     credentialName: z.string().optional(),
   })
@@ -1500,7 +2361,7 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
-export const marshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
+export const marshalUpdateDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
   .object({
     deltaRuntimeProperties: z.record(z.string(), z.string()).optional(),
   })
@@ -1508,25 +2369,25 @@ export const marshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
     delta_runtime_properties: d.deltaRuntimeProperties,
   }));
 
-export const marshalDependencySchema: z.ZodType = z
+export const marshalUpdateDependencySchema: z.ZodType = z
   .object({
     value: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('table'),
-          table: z.lazy(() => marshalTableDependencySchema),
+          table: z.lazy(() => marshalUpdateTableDependencySchema),
         }),
         z.object({
           $case: z.literal('function'),
-          function: z.lazy(() => marshalFunctionDependencySchema),
+          function: z.lazy(() => marshalUpdateFunctionDependencySchema),
         }),
         z.object({
           $case: z.literal('connection'),
-          connection: z.lazy(() => marshalConnectionDependencySchema),
+          connection: z.lazy(() => marshalUpdateConnectionDependencySchema),
         }),
         z.object({
           $case: z.literal('credential'),
-          credential: z.lazy(() => marshalCredentialDependencySchema),
+          credential: z.lazy(() => marshalUpdateCredentialDependencySchema),
         }),
       ])
       .optional(),
@@ -1538,33 +2399,38 @@ export const marshalDependencySchema: z.ZodType = z
     ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
   }));
 
-export const marshalDependencyListSchema: z.ZodType = z
+export const marshalUpdateDependencyListSchema: z.ZodType = z
   .object({
-    dependencies: z.array(z.lazy(() => marshalDependencySchema)).optional(),
+    dependencies: z
+      .array(z.lazy(() => marshalUpdateDependencySchema))
+      .optional(),
   })
   .transform(d => ({
     dependencies: d.dependencies,
   }));
 
-export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
-  .object({
-    value: z.string().optional(),
-    inheritedFromType: z.string().optional(),
-    inheritedFromName: z.string().optional(),
-  })
-  .transform(d => ({
-    value: d.value,
-    inherited_from_type: d.inheritedFromType,
-    inherited_from_name: d.inheritedFromName,
-  }));
+export const marshalUpdateEffectivePredictiveOptimizationFlagSchema: z.ZodType =
+  z
+    .object({
+      value: z.string().optional(),
+      inheritedFromType: z.string().optional(),
+      inheritedFromName: z.string().optional(),
+    })
+    .transform(d => ({
+      value: d.value,
+      inherited_from_type: d.inheritedFromType,
+      inherited_from_name: d.inheritedFromName,
+    }));
 
-export const marshalEncryptionDetailsSchema: z.ZodType = z
+export const marshalUpdateEncryptionDetailsSchema: z.ZodType = z
   .object({
     encryptionDetailsType: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('sseEncryptionDetails'),
-          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
+          sseEncryptionDetails: z.lazy(
+            () => marshalUpdateSseEncryptionDetailsSchema
+          ),
         }),
       ])
       .optional(),
@@ -1575,7 +2441,7 @@ export const marshalEncryptionDetailsSchema: z.ZodType = z
     }),
   }));
 
-export const marshalForeignKeyConstraintSchema: z.ZodType = z
+export const marshalUpdateForeignKeyConstraintSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     childColumns: z.array(z.string()).optional(),
@@ -1591,7 +2457,7 @@ export const marshalForeignKeyConstraintSchema: z.ZodType = z
     rely: d.rely,
   }));
 
-export const marshalFunctionDependencySchema: z.ZodType = z
+export const marshalUpdateFunctionDependencySchema: z.ZodType = z
   .object({
     functionFullName: z.string().optional(),
   })
@@ -1599,7 +2465,7 @@ export const marshalFunctionDependencySchema: z.ZodType = z
     function_full_name: d.functionFullName,
   }));
 
-export const marshalNamedTableConstraintSchema: z.ZodType = z
+export const marshalUpdateNamedTableConstraintSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -1607,7 +2473,7 @@ export const marshalNamedTableConstraintSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalOptionSpecSchema: z.ZodType = z
+export const marshalUpdateOptionSpecSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     type: z.string().optional(),
@@ -1641,7 +2507,7 @@ export const marshalOptionSpecSchema: z.ZodType = z
     is_copiable: d.isCopiable,
   }));
 
-export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
+export const marshalUpdatePolicyFunctionArgumentSchema: z.ZodType = z
   .object({
     arg: z
       .discriminatedUnion('$case', [
@@ -1655,7 +2521,7 @@ export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
   }));
 
-export const marshalPrimaryKeyConstraintSchema: z.ZodType = z
+export const marshalUpdatePrimaryKeyConstraintSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     childColumns: z.array(z.string()).optional(),
@@ -1669,12 +2535,12 @@ export const marshalPrimaryKeyConstraintSchema: z.ZodType = z
     rely: d.rely,
   }));
 
-export const marshalRowFilterSchema: z.ZodType = z
+export const marshalUpdateRowFilterSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
     inputColumnNames: z.array(z.string()).optional(),
     inputArguments: z
-      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
+      .array(z.lazy(() => marshalUpdatePolicyFunctionArgumentSchema))
       .optional(),
   })
   .transform(d => ({
@@ -1683,12 +2549,12 @@ export const marshalRowFilterSchema: z.ZodType = z
     input_arguments: d.inputArguments,
   }));
 
-export const marshalSecurableKindManifestSchema: z.ZodType = z
+export const marshalUpdateSecurableKindManifestSchema: z.ZodType = z
   .object({
     securableType: z.string().optional(),
     securableKind: z.string().optional(),
     assignablePrivileges: z.array(z.string()).optional(),
-    options: z.array(z.lazy(() => marshalOptionSpecSchema)).optional(),
+    options: z.array(z.lazy(() => marshalUpdateOptionSpecSchema)).optional(),
     capabilities: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -1699,7 +2565,7 @@ export const marshalSecurableKindManifestSchema: z.ZodType = z
     capabilities: d.capabilities,
   }));
 
-export const marshalSseEncryptionDetailsSchema: z.ZodType = z
+export const marshalUpdateSseEncryptionDetailsSchema: z.ZodType = z
   .object({
     algorithm: z.string().optional(),
     awsKmsKeyArn: z.string().optional(),
@@ -1709,21 +2575,27 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
     aws_kms_key_arn: d.awsKmsKeyArn,
   }));
 
-export const marshalTableConstraintSchema: z.ZodType = z
+export const marshalUpdateTableConstraintSchema: z.ZodType = z
   .object({
     constraint: z
       .discriminatedUnion('$case', [
         z.object({
           $case: z.literal('primaryKeyConstraint'),
-          primaryKeyConstraint: z.lazy(() => marshalPrimaryKeyConstraintSchema),
+          primaryKeyConstraint: z.lazy(
+            () => marshalUpdatePrimaryKeyConstraintSchema
+          ),
         }),
         z.object({
           $case: z.literal('foreignKeyConstraint'),
-          foreignKeyConstraint: z.lazy(() => marshalForeignKeyConstraintSchema),
+          foreignKeyConstraint: z.lazy(
+            () => marshalUpdateForeignKeyConstraintSchema
+          ),
         }),
         z.object({
           $case: z.literal('namedTableConstraint'),
-          namedTableConstraint: z.lazy(() => marshalNamedTableConstraintSchema),
+          namedTableConstraint: z.lazy(
+            () => marshalUpdateNamedTableConstraintSchema
+          ),
         }),
       ])
       .optional(),
@@ -1740,7 +2612,7 @@ export const marshalTableConstraintSchema: z.ZodType = z
     }),
   }));
 
-export const marshalTableDependencySchema: z.ZodType = z
+export const marshalUpdateTableDependencySchema: z.ZodType = z
   .object({
     tableFullName: z.string().optional(),
   })
@@ -1758,15 +2630,17 @@ export const marshalUpdateTableRequestSchema: z.ZodType = z
     dataSourceFormat: z.string().optional(),
     storageLocation: z.string().optional(),
     viewDefinition: z.string().optional(),
-    viewDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
+    viewDependencies: z
+      .lazy(() => marshalUpdateDependencyListSchema)
+      .optional(),
     sqlPath: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageCredentialName: z.string().optional(),
     tableConstraints: z
-      .array(z.lazy(() => marshalTableConstraintSchema))
+      .array(z.lazy(() => marshalUpdateTableConstraintSchema))
       .optional(),
-    rowFilter: z.lazy(() => marshalRowFilterSchema).optional(),
+    rowFilter: z.lazy(() => marshalUpdateRowFilterSchema).optional(),
     pipelineId: z.string().optional(),
     enablePredictiveOptimization: z.string().optional(),
     metastoreId: z.string().optional(),
@@ -1778,19 +2652,21 @@ export const marshalUpdateTableRequestSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     tableId: z.string().optional(),
     deltaRuntimePropertiesKvpairs: z
-      .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
+      .lazy(() => marshalUpdateDeltaRuntimePropertiesKvPairsSchema)
       .optional(),
     deletedAt: z.bigint().optional(),
     effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .lazy(() => marshalUpdateEffectivePredictiveOptimizationFlagSchema)
       .optional(),
     accessPoint: z.string().optional(),
     browseOnly: z.boolean().optional(),
-    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
-    securableKindManifest: z
-      .lazy(() => marshalSecurableKindManifestSchema)
+    encryptionDetails: z
+      .lazy(() => marshalUpdateEncryptionDetailsSchema)
       .optional(),
-    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+    securableKindManifest: z
+      .lazy(() => marshalUpdateSecurableKindManifestSchema)
+      .optional(),
+    columns: z.array(z.lazy(() => marshalUpdateColumnInfoSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({

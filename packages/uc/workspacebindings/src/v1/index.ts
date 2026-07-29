@@ -15,6 +15,7 @@ export type {
   GetWorkspaceBindingsResponse,
   UpdateCatalogWorkspaceBindingsRequest,
   UpdateCatalogWorkspaceBindingsResponse,
+  UpdateWorkspaceBindingInfo,
   UpdateWorkspaceBindingsRequest,
   UpdateWorkspaceBindingsResponse,
   WorkspaceBindingInfo,

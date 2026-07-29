@@ -9,6 +9,7 @@ export {FeatureStoreClient} from './client';
 export {OnlineStore_State, PublishSpec_PublishMode} from './model';
 
 export type {
+  CreateOnlineStore,
   CreateOnlineStoreRequest,
   DeleteOnlineStoreRequest,
   DeleteOnlineTableRequest,
@@ -19,7 +20,8 @@ export type {
   PublishSpec,
   PublishTableRequest,
   PublishTableResponse,
+  UpdateOnlineStore,
   UpdateOnlineStoreRequest,
 } from './model';
 
-export {onlineStoreFieldMask} from './model';
+export {updateOnlineStoreFieldMask} from './model';

@@ -9,6 +9,7 @@ export {ReposClient} from './client';
 export type {
   CreateRepoRequest,
   CreateRepoResponse,
+  CreateSparseCheckout,
   DeleteRepoRequest,
   DeleteRepoResponse,
   GetRepoRequest,

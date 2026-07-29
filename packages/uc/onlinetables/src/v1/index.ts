@@ -10,13 +10,17 @@ export {OnlineTableState, ProvisioningInfo_State} from './model';
 
 export type {
   ContinuousUpdateStatus,
+  CreateOnlineTable,
   CreateOnlineTableRequest,
+  CreateOnlineTableSpec,
   DeleteOnlineTableRequest,
   FailedStatus,
   GetOnlineTableRequest,
   OnlineTable,
   OnlineTableSpec,
   OnlineTableSpec_ContinuousSchedulingPolicy,
+  OnlineTableSpec_CreateContinuousSchedulingPolicy,
+  OnlineTableSpec_CreateTriggeredSchedulingPolicy,
   OnlineTableSpec_TriggeredSchedulingPolicy,
   OnlineTableStatus,
   PipelineProgress,

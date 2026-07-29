@@ -42,12 +42,35 @@ export type FailoverGroup_State =
   | (typeof FailoverGroup_State)[keyof typeof FailoverGroup_State]
   | (string & {});
 
+/**
+ * A failover group manages disaster recovery across workspace sets,
+ * coordinating Unity Catalog and workspace assets replication.
+ */
+export interface CreateFailoverGroup {
+  /**
+   * Fully qualified resource name in the format
+   * accounts/{account_id}/failover-groups/{failover_group_id}.
+   */
+  name?: string | undefined;
+  /** List of all regions participating in this failover group. */
+  regions: string[];
+  /** Workspace sets, each containing workspaces that replicate to each other. */
+  workspaceSets: CreateWorkspaceSet[];
+  /** Unity Catalog replication configuration. */
+  unityCatalogAssets?: CreateUcReplicationConfig | undefined;
+  /**
+   * Initial primary region. Used only in Create requests to set the starting
+   * primary region. Not returned in responses.
+   */
+  initialPrimaryRegion: string;
+}
+
 /** Request to create a new failover group. */
 export interface CreateFailoverGroupRequest {
   /** The parent resource. Format: accounts/{account_id}. */
   parent?: string | undefined;
   /** The failover group to create. */
-  failoverGroup?: FailoverGroup | undefined;
+  failoverGroup: CreateFailoverGroup;
   /** When true, validates the request without creating the failover group. */
   validateOnly?: boolean | undefined;
   /**
@@ -57,12 +80,52 @@ export interface CreateFailoverGroupRequest {
   failoverGroupId?: string | undefined;
 }
 
+/**
+ * A location mapping identified by a name, with URIs per region.
+ * The system derives replication direction from effective_primary_region.
+ */
+export interface CreateLocationMapping {
+  /** Resource name for this location. */
+  name: string;
+  /** URI for each region. Each entry maps a region name to a storage URI. */
+  uriByRegion: CreateLocationMappingEntry[];
+}
+
+/**
+ * A single entry in a location mapping, mapping a region to a storage URI.
+ * Used instead of map<string, string> for proto2 compatibility.
+ */
+export interface CreateLocationMappingEntry {
+  /** The region name. */
+  region: string;
+  /** The storage URI for this region. */
+  uri: string;
+}
+
+/**
+ * A stable URL provides a failover-aware endpoint for accessing a workspace.
+ * Its lifecycle is independent of any failover group.
+ */
+export interface CreateStableUrl {
+  /**
+   * Fully qualified resource name.
+   * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
+   */
+  name?: string | undefined;
+  /**
+   * The workspace this stable URL is initially bound to. Used only in Create
+   * requests to associate the stable URL with a workspace. Not returned in
+   * responses.
+   */
+  initialWorkspaceId: string;
+}
+
 /** Request to create a new stable URL for failover-aware workspace access. */
 export interface CreateStableUrlRequest {
   /** The parent resource. Format: accounts/{account_id}. */
   parent?: string | undefined;
   /** The stable URL to create. */
-  stableUrl?: StableUrl | undefined;
+  stableUrl: CreateStableUrl;
   /** When true, validates the request without creating the stable URL. */
   validateOnly?: boolean | undefined;
   /**
@@ -70,6 +133,47 @@ export interface CreateStableUrlRequest {
    * resource name as {parent}/stable-urls/{stable_url_id}.
    */
   stableUrlId?: string | undefined;
+}
+
+/** A Unity Catalog catalog to replicate. */
+export interface CreateUcCatalog {
+  /** The name of the UC catalog to replicate. */
+  name: string;
+}
+
+/** Unity Catalog replication configuration (top-level, not per-set). */
+export interface CreateUcReplicationConfig {
+  /** Location mappings - storage URI per region for each location. */
+  locationMappings?: CreateLocationMapping[] | undefined;
+  /** UC catalogs to replicate. */
+  catalogs: CreateUcCatalog[];
+  /**
+   * The workspace set whose workspaces will be used for data replication
+   * of all UC catalogs' underlying storage.
+   */
+  dataReplicationWorkspaceSet: string;
+}
+
+/** A set of workspaces that replicate to each other across regions. */
+export interface CreateWorkspaceSet {
+  /** Resource name for this workspace set. */
+  name: string;
+  /**
+   * Workspace IDs in this set. The system derives and validates regions.
+   * All workspaces must be in the Mission Critical tier.
+   */
+  workspaceIds: string[];
+  /**
+   * Whether to enable control plane DR (notebooks, jobs, clusters, etc.) for this set.
+   * Defaults to false.
+   */
+  replicateWorkspaceAssets?: boolean | undefined;
+  /**
+   * Resource names of stable URLs associated with this workspace set.
+   * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
+   * The referenced stable URLs must already exist (via CreateStableUrl).
+   */
+  stableUrlNames?: string[] | undefined;
 }
 
 /** Request to delete a failover group. */
@@ -106,14 +210,14 @@ export interface FailoverFailoverGroupRequest {
    * The target primary region. Must be one of the participating regions and different
    * from the current effective_primary_region. Serves as an idempotency check.
    */
-  targetPrimaryRegion?: string | undefined;
+  targetPrimaryRegion: string;
   /**
    * Opaque version string for optimistic locking. If provided, must match the
    * current etag. If omitted, the failover proceeds regardless of current state.
    */
   etag?: string | undefined;
   /** The type of failover to perform. */
-  failoverType?: FailoverFailoverGroupRequest_FailoverType | undefined;
+  failoverType: FailoverFailoverGroupRequest_FailoverType;
 }
 
 /**
@@ -147,11 +251,6 @@ export interface FailoverGroup {
   updateTime?: Temporal.Instant | undefined;
   /** The latest point in time to which data has been replicated. */
   replicationPoint?: Temporal.Instant | undefined;
-  /**
-   * Initial primary region. Used only in Create requests to set the starting
-   * primary region. Not returned in responses.
-   */
-  initialPrimaryRegion?: string | undefined;
 }
 
 /** Request to get a failover group. */
@@ -274,12 +373,6 @@ export interface StableUrl {
    */
   url?: string | undefined;
   /**
-   * The workspace this stable URL is initially bound to. Used only in Create
-   * requests to associate the stable URL with a workspace. Not returned in
-   * responses.
-   */
-  initialWorkspaceId?: string | undefined;
-  /**
    * Fully qualified resource name of the FailoverGroup this stable URL is
    * currently linked to, in the format
    * `accounts/{account_id}/failover-groups/{failover_group_id}`. Empty when
@@ -307,21 +400,107 @@ export interface UcReplicationConfig {
   dataReplicationWorkspaceSet?: string | undefined;
 }
 
+/**
+ * A failover group manages disaster recovery across workspace sets,
+ * coordinating Unity Catalog and workspace assets replication.
+ */
+export interface UpdateFailoverGroup {
+  /**
+   * Fully qualified resource name in the format
+   * accounts/{account_id}/failover-groups/{failover_group_id}.
+   */
+  name?: string | undefined;
+  /** List of all regions participating in this failover group. */
+  regions?: string[] | undefined;
+  /** Workspace sets, each containing workspaces that replicate to each other. */
+  workspaceSets?: UpdateWorkspaceSet[] | undefined;
+  /** Unity Catalog replication configuration. */
+  unityCatalogAssets?: UpdateUcReplicationConfig | undefined;
+  /**
+   * Initial primary region. Used only in Create requests to set the starting
+   * primary region. Not returned in responses.
+   */
+  initialPrimaryRegion?: string | undefined;
+}
+
 /** Request to update a failover group. */
 export interface UpdateFailoverGroupRequest {
   /**
    * The failover group with updated fields. The name field identifies the resource
    * and is populated from the URL path.
    */
-  failoverGroup?: FailoverGroup | undefined;
+  failoverGroup?: UpdateFailoverGroup | undefined;
   /** Comma-separated list of fields to update. */
-  updateMask?: FieldMask<FailoverGroup> | undefined;
+  updateMask?: FieldMask<UpdateFailoverGroup> | undefined;
   /**
    * Optional opaque version string for optimistic locking, obtained from a prior read of
    * the failover group. If provided, the update is rejected unless it matches the failover
    * group's current etag. If omitted, the update proceeds without an optimistic-lock check.
    */
   etag?: string | undefined;
+}
+
+/**
+ * A location mapping identified by a name, with URIs per region.
+ * The system derives replication direction from effective_primary_region.
+ */
+export interface UpdateLocationMapping {
+  /** Resource name for this location. */
+  name?: string | undefined;
+  /** URI for each region. Each entry maps a region name to a storage URI. */
+  uriByRegion?: UpdateLocationMappingEntry[] | undefined;
+}
+
+/**
+ * A single entry in a location mapping, mapping a region to a storage URI.
+ * Used instead of map<string, string> for proto2 compatibility.
+ */
+export interface UpdateLocationMappingEntry {
+  /** The region name. */
+  region?: string | undefined;
+  /** The storage URI for this region. */
+  uri?: string | undefined;
+}
+
+/** A Unity Catalog catalog to replicate. */
+export interface UpdateUcCatalog {
+  /** The name of the UC catalog to replicate. */
+  name?: string | undefined;
+}
+
+/** Unity Catalog replication configuration (top-level, not per-set). */
+export interface UpdateUcReplicationConfig {
+  /** Location mappings - storage URI per region for each location. */
+  locationMappings?: UpdateLocationMapping[] | undefined;
+  /** UC catalogs to replicate. */
+  catalogs?: UpdateUcCatalog[] | undefined;
+  /**
+   * The workspace set whose workspaces will be used for data replication
+   * of all UC catalogs' underlying storage.
+   */
+  dataReplicationWorkspaceSet?: string | undefined;
+}
+
+/** A set of workspaces that replicate to each other across regions. */
+export interface UpdateWorkspaceSet {
+  /** Resource name for this workspace set. */
+  name?: string | undefined;
+  /**
+   * Workspace IDs in this set. The system derives and validates regions.
+   * All workspaces must be in the Mission Critical tier.
+   */
+  workspaceIds?: string[] | undefined;
+  /**
+   * Whether to enable control plane DR (notebooks, jobs, clusters, etc.) for this set.
+   * Defaults to false.
+   */
+  replicateWorkspaceAssets?: boolean | undefined;
+  /**
+   * Resource names of stable URLs associated with this workspace set.
+   * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
+   * The referenced stable URLs must already exist (via CreateStableUrl).
+   */
+  stableUrlNames?: string[] | undefined;
 }
 
 /** A set of workspaces that replicate to each other across regions. */
@@ -371,7 +550,6 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    initial_primary_region: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -384,7 +562,6 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
     createTime: d.create_time,
     updateTime: d.update_time,
     replicationPoint: d.replication_point,
-    initialPrimaryRegion: d.initial_primary_region,
   }));
 
 export const unmarshalListFailoverGroupsResponseSchema: z.ZodType<ListFailoverGroupsResponse> =
@@ -438,13 +615,11 @@ export const unmarshalStableUrlSchema: z.ZodType<StableUrl> = z
   .object({
     name: z.string().optional(),
     url: z.string().optional(),
-    initial_workspace_id: z.string().optional(),
     failover_group_name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     url: d.url,
-    initialWorkspaceId: d.initial_workspace_id,
     failoverGroupName: d.failover_group_name,
   }));
 
@@ -485,12 +660,96 @@ export const unmarshalWorkspaceSetSchema: z.ZodType<WorkspaceSet> = z
     stableUrlNames: d.stable_url_names,
   }));
 
+export const marshalCreateFailoverGroupSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    regions: z.array(z.string()),
+    workspaceSets: z.array(z.lazy(() => marshalCreateWorkspaceSetSchema)),
+    unityCatalogAssets: z
+      .lazy(() => marshalCreateUcReplicationConfigSchema)
+      .optional(),
+    initialPrimaryRegion: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+    regions: d.regions,
+    workspace_sets: d.workspaceSets,
+    unity_catalog_assets: d.unityCatalogAssets,
+    initial_primary_region: d.initialPrimaryRegion,
+  }));
+
+export const marshalCreateLocationMappingSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    uriByRegion: z.array(z.lazy(() => marshalCreateLocationMappingEntrySchema)),
+  })
+  .transform(d => ({
+    name: d.name,
+    uri_by_region: d.uriByRegion,
+  }));
+
+export const marshalCreateLocationMappingEntrySchema: z.ZodType = z
+  .object({
+    region: z.string(),
+    uri: z.string(),
+  })
+  .transform(d => ({
+    region: d.region,
+    uri: d.uri,
+  }));
+
+export const marshalCreateStableUrlSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    initialWorkspaceId: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+    initial_workspace_id: d.initialWorkspaceId,
+  }));
+
+export const marshalCreateUcCatalogSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalCreateUcReplicationConfigSchema: z.ZodType = z
+  .object({
+    locationMappings: z
+      .array(z.lazy(() => marshalCreateLocationMappingSchema))
+      .optional(),
+    catalogs: z.array(z.lazy(() => marshalCreateUcCatalogSchema)),
+    dataReplicationWorkspaceSet: z.string(),
+  })
+  .transform(d => ({
+    location_mappings: d.locationMappings,
+    catalogs: d.catalogs,
+    data_replication_workspace_set: d.dataReplicationWorkspaceSet,
+  }));
+
+export const marshalCreateWorkspaceSetSchema: z.ZodType = z
+  .object({
+    name: z.string(),
+    workspaceIds: z.array(z.string()),
+    replicateWorkspaceAssets: z.boolean().optional(),
+    stableUrlNames: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    workspace_ids: d.workspaceIds,
+    replicate_workspace_assets: d.replicateWorkspaceAssets,
+    stable_url_names: d.stableUrlNames,
+  }));
+
 export const marshalFailoverFailoverGroupRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    targetPrimaryRegion: z.string().optional(),
+    targetPrimaryRegion: z.string(),
     etag: z.string().optional(),
-    failoverType: z.string().optional(),
+    failoverType: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -499,50 +758,31 @@ export const marshalFailoverFailoverGroupRequestSchema: z.ZodType = z
     failover_type: d.failoverType,
   }));
 
-export const marshalFailoverGroupSchema: z.ZodType = z
+export const marshalUpdateFailoverGroupSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    effectivePrimaryRegion: z.string().optional(),
     regions: z.array(z.string()).optional(),
-    workspaceSets: z.array(z.lazy(() => marshalWorkspaceSetSchema)).optional(),
+    workspaceSets: z
+      .array(z.lazy(() => marshalUpdateWorkspaceSetSchema))
+      .optional(),
     unityCatalogAssets: z
-      .lazy(() => marshalUcReplicationConfigSchema)
-      .optional(),
-    state: z.string().optional(),
-    etag: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    replicationPoint: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+      .lazy(() => marshalUpdateUcReplicationConfigSchema)
       .optional(),
     initialPrimaryRegion: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    effective_primary_region: d.effectivePrimaryRegion,
     regions: d.regions,
     workspace_sets: d.workspaceSets,
     unity_catalog_assets: d.unityCatalogAssets,
-    state: d.state,
-    etag: d.etag,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    replication_point: d.replicationPoint,
     initial_primary_region: d.initialPrimaryRegion,
   }));
 
-export const marshalLocationMappingSchema: z.ZodType = z
+export const marshalUpdateLocationMappingSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     uriByRegion: z
-      .array(z.lazy(() => marshalLocationMappingEntrySchema))
+      .array(z.lazy(() => marshalUpdateLocationMappingEntrySchema))
       .optional(),
   })
   .transform(d => ({
@@ -550,7 +790,7 @@ export const marshalLocationMappingSchema: z.ZodType = z
     uri_by_region: d.uriByRegion,
   }));
 
-export const marshalLocationMappingEntrySchema: z.ZodType = z
+export const marshalUpdateLocationMappingEntrySchema: z.ZodType = z
   .object({
     region: z.string().optional(),
     uri: z.string().optional(),
@@ -560,21 +800,7 @@ export const marshalLocationMappingEntrySchema: z.ZodType = z
     uri: d.uri,
   }));
 
-export const marshalStableUrlSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    url: z.string().optional(),
-    initialWorkspaceId: z.string().optional(),
-    failoverGroupName: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    url: d.url,
-    initial_workspace_id: d.initialWorkspaceId,
-    failover_group_name: d.failoverGroupName,
-  }));
-
-export const marshalUcCatalogSchema: z.ZodType = z
+export const marshalUpdateUcCatalogSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -582,12 +808,12 @@ export const marshalUcCatalogSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalUcReplicationConfigSchema: z.ZodType = z
+export const marshalUpdateUcReplicationConfigSchema: z.ZodType = z
   .object({
     locationMappings: z
-      .array(z.lazy(() => marshalLocationMappingSchema))
+      .array(z.lazy(() => marshalUpdateLocationMappingSchema))
       .optional(),
-    catalogs: z.array(z.lazy(() => marshalUcCatalogSchema)).optional(),
+    catalogs: z.array(z.lazy(() => marshalUpdateUcCatalogSchema)).optional(),
     dataReplicationWorkspaceSet: z.string().optional(),
   })
   .transform(d => ({
@@ -596,7 +822,7 @@ export const marshalUcReplicationConfigSchema: z.ZodType = z
     data_replication_workspace_set: d.dataReplicationWorkspaceSet,
   }));
 
-export const marshalWorkspaceSetSchema: z.ZodType = z
+export const marshalUpdateWorkspaceSetSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     workspaceIds: z.array(z.string()).optional(),
@@ -610,30 +836,27 @@ export const marshalWorkspaceSetSchema: z.ZodType = z
     stable_url_names: d.stableUrlNames,
   }));
 
-const failoverGroupFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  effectivePrimaryRegion: {wire: 'effective_primary_region'},
-  etag: {wire: 'etag'},
+const updateFailoverGroupFieldMaskSchema: FieldMaskSchema = {
   initialPrimaryRegion: {wire: 'initial_primary_region'},
   name: {wire: 'name'},
   regions: {wire: 'regions'},
-  replicationPoint: {wire: 'replication_point'},
-  state: {wire: 'state'},
   unityCatalogAssets: {
     wire: 'unity_catalog_assets',
-    children: () => ucReplicationConfigFieldMaskSchema,
+    children: () => updateUcReplicationConfigFieldMaskSchema,
   },
-  updateTime: {wire: 'update_time'},
   workspaceSets: {wire: 'workspace_sets'},
 };
 
-export function failoverGroupFieldMask(
+export function updateFailoverGroupFieldMask(
   ...paths: string[]
-): FieldMask<FailoverGroup> {
-  return FieldMask.build<FailoverGroup>(paths, failoverGroupFieldMaskSchema);
+): FieldMask<UpdateFailoverGroup> {
+  return FieldMask.build<UpdateFailoverGroup>(
+    paths,
+    updateFailoverGroupFieldMaskSchema
+  );
 }
 
-const ucReplicationConfigFieldMaskSchema: FieldMaskSchema = {
+const updateUcReplicationConfigFieldMaskSchema: FieldMaskSchema = {
   catalogs: {wire: 'catalogs'},
   dataReplicationWorkspaceSet: {wire: 'data_replication_workspace_set'},
   locationMappings: {wire: 'location_mappings'},

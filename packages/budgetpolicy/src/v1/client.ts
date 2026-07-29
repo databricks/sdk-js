@@ -27,11 +27,11 @@ import type {
   UpdateBudgetPolicyRequest,
 } from './model';
 import {
-  marshalBudgetPolicySchema,
   marshalCreateBudgetPolicyRequestSchema,
   marshalFilterSchema,
   marshalLimitConfigSchema,
   marshalSortSpecSchema,
+  marshalUpdateBudgetPolicySchema,
   unmarshalBudgetPolicySchema,
   unmarshalListBudgetPoliciesResponseSchema,
 } from './model';
@@ -225,7 +225,7 @@ export class BudgetPolicyClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalBudgetPolicySchema);
+    const body = marshalRequest(req.policy, marshalUpdateBudgetPolicySchema);
     let resp: BudgetPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

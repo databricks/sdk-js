@@ -5,13 +5,47 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/**
+ * A secret stored in Unity Catalog. Secrets are three-level namespace objects
+ * (catalog.schema.secret) that securely store sensitive credential data such as
+ * passwords, tokens, and keys.
+ */
+export interface CreateSecret {
+  /** The name of the secret, relative to its parent schema. */
+  name: string;
+  /**
+   * The owner of the secret. Defaults to the creating principal on creation. Can be updated to
+   * transfer ownership of the secret to another principal.
+   */
+  owner?: string | undefined;
+  /** User-provided free-form text description of the secret. */
+  comment?: string | undefined;
+  /** The name of the catalog where the schema and the secret reside. */
+  catalogName: string;
+  /** The name of the schema where the secret resides. */
+  schemaName: string;
+  /**
+   * The secret value to store. This field is input-only and is not returned in responses — use
+   * the **effective_value** field (via GetSecret with **include_value** set to true) to read the
+   * secret value. The maximum size is 60 KiB (pre-encryption). Accepted content includes
+   * passwords, tokens, keys, and other sensitive credential data.
+   */
+  value: string;
+  /**
+   * User-provided expiration time of the secret. This field indicates when the secret should no
+   * longer be used and may be displayed as a warning in the UI. It is purely informational and
+   * does not trigger any automatic actions or affect the secret's lifecycle.
+   */
+  expireTime?: Temporal.Instant | undefined;
+}
+
 /** Request message for CreateSecret. */
 export interface CreateSecretRequest {
   /**
    * The secret object to create. The **name**, **catalog_name**, **schema_name**, and **value**
    * fields are required.
    */
-  secret?: Secret | undefined;
+  secret: CreateSecret;
 }
 
 /** Request message for DeleteSecret. */
@@ -90,11 +124,6 @@ export interface Secret {
   /** The name of the secret, relative to its parent schema. */
   name?: string | undefined;
   /**
-   * The owner of the secret. Defaults to the creating principal on creation. Can be updated to
-   * transfer ownership of the secret to another principal.
-   */
-  owner?: string | undefined;
-  /**
    * The effective owner of the secret, which may differ from the directly-set **owner** due to
    * inheritance.
    */
@@ -118,13 +147,6 @@ export interface Secret {
   /** The name of the schema where the secret resides. */
   schemaName?: string | undefined;
   /**
-   * The secret value to store. This field is input-only and is not returned in responses — use
-   * the **effective_value** field (via GetSecret with **include_value** set to true) to read the
-   * secret value. The maximum size is 60 KiB (pre-encryption). Accepted content includes
-   * passwords, tokens, keys, and other sensitive credential data.
-   */
-  value?: string | undefined;
-  /**
    * The secret value. Only populated in responses when you have the **READ_SECRET**
    * privilege and **include_value** is set to true in the request. The maximum size is 60 KiB.
    */
@@ -143,6 +165,40 @@ export interface Secret {
   externalSecretId?: string | undefined;
 }
 
+/**
+ * A secret stored in Unity Catalog. Secrets are three-level namespace objects
+ * (catalog.schema.secret) that securely store sensitive credential data such as
+ * passwords, tokens, and keys.
+ */
+export interface UpdateSecret {
+  /** The name of the secret, relative to its parent schema. */
+  name?: string | undefined;
+  /**
+   * The owner of the secret. Defaults to the creating principal on creation. Can be updated to
+   * transfer ownership of the secret to another principal.
+   */
+  owner?: string | undefined;
+  /** User-provided free-form text description of the secret. */
+  comment?: string | undefined;
+  /** The name of the catalog where the schema and the secret reside. */
+  catalogName?: string | undefined;
+  /** The name of the schema where the secret resides. */
+  schemaName?: string | undefined;
+  /**
+   * The secret value to store. This field is input-only and is not returned in responses — use
+   * the **effective_value** field (via GetSecret with **include_value** set to true) to read the
+   * secret value. The maximum size is 60 KiB (pre-encryption). Accepted content includes
+   * passwords, tokens, keys, and other sensitive credential data.
+   */
+  value?: string | undefined;
+  /**
+   * User-provided expiration time of the secret. This field indicates when the secret should no
+   * longer be used and may be displayed as a warning in the UI. It is purely informational and
+   * does not trigger any automatic actions or affect the secret's lifecycle.
+   */
+  expireTime?: Temporal.Instant | undefined;
+}
+
 /** Request message for UpdateSecret. */
 export interface UpdateSecretRequest {
   /**
@@ -154,12 +210,12 @@ export interface UpdateSecretRequest {
    * The secret object containing the fields to update. Only fields specified in **update_mask**
    * will be updated.
    */
-  secret?: Secret | undefined;
+  secret?: UpdateSecret | undefined;
   /**
    * The field mask specifying which fields of the secret to update. Supported fields: **value**,
    * **comment**, **owner**, **expire_time**.
    */
-  updateMask?: FieldMask<Secret> | undefined;
+  updateMask?: FieldMask<UpdateSecret> | undefined;
 }
 
 export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> =
@@ -176,7 +232,6 @@ export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> 
 export const unmarshalSecretSchema: z.ZodType<Secret> = z
   .object({
     name: z.string().optional(),
-    owner: z.string().optional(),
     effective_owner: z.string().optional(),
     metastore_id: z.string().optional(),
     create_time: z
@@ -193,7 +248,6 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     full_name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    value: z.string().optional(),
     effective_value: z.string().optional(),
     browse_only: z.boolean().optional(),
     expire_time: z
@@ -204,7 +258,6 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
   })
   .transform(d => ({
     name: d.name,
-    owner: d.owner,
     effectiveOwner: d.effective_owner,
     metastoreId: d.metastore_id,
     createTime: d.create_time,
@@ -215,82 +268,70 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     fullName: d.full_name,
     catalogName: d.catalog_name,
     schemaName: d.schema_name,
-    value: d.value,
     effectiveValue: d.effective_value,
     browseOnly: d.browse_only,
     expireTime: d.expire_time,
     externalSecretId: d.external_secret_id,
   }));
 
-export const marshalSecretSchema: z.ZodType = z
+export const marshalCreateSecretSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     owner: z.string().optional(),
-    effectiveOwner: z.string().optional(),
-    metastoreId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    createdBy: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updatedBy: z.string().optional(),
     comment: z.string().optional(),
-    fullName: z.string().optional(),
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    value: z.string().optional(),
-    effectiveValue: z.string().optional(),
-    browseOnly: z.boolean().optional(),
+    catalogName: z.string(),
+    schemaName: z.string(),
+    value: z.string(),
     expireTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    externalSecretId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     owner: d.owner,
-    effective_owner: d.effectiveOwner,
-    metastore_id: d.metastoreId,
-    create_time: d.createTime,
-    created_by: d.createdBy,
-    update_time: d.updateTime,
-    updated_by: d.updatedBy,
     comment: d.comment,
-    full_name: d.fullName,
     catalog_name: d.catalogName,
     schema_name: d.schemaName,
     value: d.value,
-    effective_value: d.effectiveValue,
-    browse_only: d.browseOnly,
     expire_time: d.expireTime,
-    external_secret_id: d.externalSecretId,
   }));
 
-const secretFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
+export const marshalUpdateSecretSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    value: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    owner: d.owner,
+    comment: d.comment,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    value: d.value,
+    expire_time: d.expireTime,
+  }));
+
+const updateSecretFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   comment: {wire: 'comment'},
-  createTime: {wire: 'create_time'},
-  createdBy: {wire: 'created_by'},
-  effectiveOwner: {wire: 'effective_owner'},
-  effectiveValue: {wire: 'effective_value'},
   expireTime: {wire: 'expire_time'},
-  externalSecretId: {wire: 'external_secret_id'},
-  fullName: {wire: 'full_name'},
-  metastoreId: {wire: 'metastore_id'},
   name: {wire: 'name'},
   owner: {wire: 'owner'},
   schemaName: {wire: 'schema_name'},
-  updateTime: {wire: 'update_time'},
-  updatedBy: {wire: 'updated_by'},
   value: {wire: 'value'},
 };
 
-export function secretFieldMask(...paths: string[]): FieldMask<Secret> {
-  return FieldMask.build<Secret>(paths, secretFieldMaskSchema);
+export function updateSecretFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateSecret> {
+  return FieldMask.build<UpdateSecret>(paths, updateSecretFieldMaskSchema);
 }

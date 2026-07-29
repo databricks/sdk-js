@@ -1044,7 +1044,7 @@ export interface GenieCreateConversationMessageRequest {
   /** The ID associated with the conversation. */
   conversationId?: string | undefined;
   /** User message content. */
-  content?: string | undefined;
+  content: string;
   /** Enable visualization generation. */
   enableVisualization?: boolean | undefined;
 }
@@ -1064,12 +1064,12 @@ export interface GenieCreateMessageCommentRequest {
   /** The ID associated with the message. */
   messageId?: string | undefined;
   /** Comment text content. */
-  content?: string | undefined;
+  content: string;
 }
 
 export interface GenieCreateSpaceRequest {
   /** Warehouse to associate with the new space */
-  warehouseId?: string | undefined;
+  warehouseId: string;
   /** Parent folder path where the space will be registered */
   parentPath?: string | undefined;
   /**
@@ -1077,7 +1077,7 @@ export interface GenieCreateSpaceRequest {
    * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
    * This field provides the structure of the JSON string that represents the space's layout and components.
    */
-  serializedSpace?: string | undefined;
+  serializedSpace: string;
   /** Optional title override */
   title?: string | undefined;
   /** Optional description */
@@ -1555,7 +1555,7 @@ export interface GenieSendMessageFeedbackRequest {
   /** The ID associated with the message to provide feedback for. */
   messageId?: string | undefined;
   /** The rating (POSITIVE, NEGATIVE, or NONE). */
-  rating?: GenieFeedbackRating | undefined;
+  rating: GenieFeedbackRating;
   /** Optional text feedback that will be stored as a comment. */
   comment?: string | undefined;
 }
@@ -1589,7 +1589,7 @@ export interface GenieStartConversationRequest {
   /** The ID associated with the Genie space where you want to start a conversation. */
   spaceId?: string | undefined;
   /** The text of the message that starts the conversation. */
-  content?: string | undefined;
+  content: string;
   /** Enable visualization generation. */
   enableVisualization?: boolean | undefined;
 }
@@ -2733,7 +2733,7 @@ export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z
   .object({
     spaceId: z.string().optional(),
     conversationId: z.string().optional(),
-    content: z.string().optional(),
+    content: z.string(),
     enableVisualization: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2758,7 +2758,7 @@ export const marshalGenieCreateMessageCommentRequestSchema: z.ZodType = z
     spaceId: z.string().optional(),
     conversationId: z.string().optional(),
     messageId: z.string().optional(),
-    content: z.string().optional(),
+    content: z.string(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -2769,9 +2769,9 @@ export const marshalGenieCreateMessageCommentRequestSchema: z.ZodType = z
 
 export const marshalGenieCreateSpaceRequestSchema: z.ZodType = z
   .object({
-    warehouseId: z.string().optional(),
+    warehouseId: z.string(),
     parentPath: z.string().optional(),
-    serializedSpace: z.string().optional(),
+    serializedSpace: z.string(),
     title: z.string().optional(),
     description: z.string().optional(),
   })
@@ -2830,7 +2830,7 @@ export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
     spaceId: z.string().optional(),
     conversationId: z.string().optional(),
     messageId: z.string().optional(),
-    rating: z.string().optional(),
+    rating: z.string(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -2844,7 +2844,7 @@ export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
 export const marshalGenieStartConversationRequestSchema: z.ZodType = z
   .object({
     spaceId: z.string().optional(),
-    content: z.string().optional(),
+    content: z.string(),
     enableVisualization: z.boolean().optional(),
   })
   .transform(d => ({

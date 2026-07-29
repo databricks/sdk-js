@@ -138,7 +138,7 @@ export interface CreateBudgetConfigurationBudget {
 
 export interface CreateBudgetConfigurationRequest {
   /** Properties of the new budget configuration. */
-  budget?: CreateBudgetConfigurationBudget | undefined;
+  budget: CreateBudgetConfigurationBudget;
 }
 
 export interface CreateBudgetConfigurationResponse {
@@ -489,9 +489,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
 
 export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
-    budget: z
-      .lazy(() => marshalCreateBudgetConfigurationBudgetSchema)
-      .optional(),
+    budget: z.lazy(() => marshalCreateBudgetConfigurationBudgetSchema),
   })
   .transform(d => ({
     budget: d.budget,

@@ -63,8 +63,49 @@ export interface AuthorizationDetails_GrantRule {
   permissionSet?: string | undefined;
 }
 
+export interface CreateCronSchedule {
+  /**
+   * A cron expression using quartz syntax. EX: `0 0 8 * * ?` represents everyday at 8am.
+   * See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
+   */
+  quartzCronExpression: string;
+  /**
+   * A Java timezone id. The schedule will be resolved with respect to this timezone.
+   * See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.
+   */
+  timezoneId: string;
+}
+
+export interface CreateDashboard {
+  /** The display name of the dashboard. */
+  displayName?: string | undefined;
+  /** The warehouse ID used to run the dashboard. */
+  warehouseId?: string | undefined;
+  /**
+   * The etag for the dashboard. Can be optionally provided on updates to ensure that the dashboard
+   * has not been modified since the last read.
+   * This field is excluded in List Dashboards responses.
+   */
+  etag?: string | undefined;
+  /**
+   * The contents of the dashboard in serialized string form.
+   * This field is excluded in List Dashboards responses.
+   * Use the [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get)
+   * to retrieve an example response, which includes the `serialized_dashboard` field.
+   * This field provides the structure of the JSON string that represents the dashboard's
+   * layout and components.
+   */
+  serializedDashboard?: string | undefined;
+  /**
+   * The workspace path of the folder containing the dashboard. Includes leading slash and no
+   * trailing slash.
+   * This field is excluded in List Dashboards responses.
+   */
+  parentPath?: string | undefined;
+}
+
 export interface CreateDashboardRequest {
-  dashboard?: Dashboard | undefined;
+  dashboard: CreateDashboard;
   /**
    * Sets the default catalog for all datasets in this dashboard.
    * Does not impact table references that use fully qualified catalog names (ex: samples.nyctaxi.trips).
@@ -79,14 +120,51 @@ export interface CreateDashboardRequest {
   datasetSchema?: string | undefined;
 }
 
+export interface CreateSchedule {
+  /** UUID identifying the dashboard to which the schedule belongs. */
+  dashboardId?: string | undefined;
+  /** The cron expression describing the frequency of the periodic refresh for this schedule. */
+  cronSchedule: CreateCronSchedule;
+  /** The status indicates whether this schedule is paused or not. */
+  pauseStatus?: SchedulePauseStatus | undefined;
+  /** The display name for schedule. */
+  displayName?: string | undefined;
+  /**
+   * The etag for the schedule. Must be left empty on create, must be provided on updates to ensure
+   * that the schedule has not been modified since the last read, and can be optionally provided on delete.
+   */
+  etag?: string | undefined;
+  /** The warehouse id to run the dashboard with for the schedule. */
+  warehouseId?: string | undefined;
+}
+
 export interface CreateScheduleRequest {
   /** The schedule to create. A dashboard is limited to 10 schedules. */
-  schedule?: Schedule | undefined;
+  schedule: CreateSchedule;
+}
+
+export interface CreateSubscription {
+  /** UUID identifying the schedule to which the subscription belongs. */
+  scheduleId?: string | undefined;
+  /** UUID identifying the dashboard to which the subscription belongs. */
+  dashboardId?: string | undefined;
+  /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
+  subscriber: Subscription_CreateSubscriber;
+  /**
+   * The etag for the subscription. Must be left empty on create, can be optionally provided on delete
+   * to ensure that the subscription has not been deleted since the last read.
+   */
+  etag?: string | undefined;
+  /**
+   * Controls whether notifications are sent to the subscriber for scheduled dashboard refreshes.
+   * If not defined, defaults to false in the backend to match the current behavior (refresh and notify)
+   */
+  skipNotify?: boolean | undefined;
 }
 
 export interface CreateSubscriptionRequest {
   /** The subscription to create. A schedule is limited to 100 subscriptions. */
-  subscription?: Subscription | undefined;
+  subscription: CreateSubscription;
 }
 
 export interface CronSchedule {
@@ -296,7 +374,7 @@ export interface ListSubscriptionsResponse {
 
 export interface MigrateDashboardRequest {
   /** UUID of the dashboard to be migrated. */
-  sourceDashboardId?: string | undefined;
+  sourceDashboardId: string;
   /** Display name for the new Lakeview dashboard. */
   displayName?: string | undefined;
   /** The workspace path of the folder to contain the migrated Lakeview dashboard. */
@@ -404,6 +482,20 @@ export interface Subscription {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_CreateSubscriber {
+  /**
+   * The user to receive the subscription email.
+   * This parameter is mutually exclusive with `destination_subscriber`.
+   */
+  userSubscriber?: Subscription_Subscriber_CreateUser | undefined;
+  /**
+   * The destination to receive the subscription email.
+   * This parameter is mutually exclusive with `user_subscriber`.
+   */
+  destinationSubscriber?: Subscription_Subscriber_CreateDestination | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber {
   /**
    * The user to receive the subscription email.
@@ -415,6 +507,18 @@ export interface Subscription_Subscriber {
    * This parameter is mutually exclusive with `user_subscriber`.
    */
   destinationSubscriber?: Subscription_Subscriber_Destination | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_Subscriber_CreateDestination {
+  /** The canonical identifier of the destination to receive email notification. */
+  destinationId: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_Subscriber_CreateUser {
+  /** UserId of the subscriber. */
+  userId: bigint;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -445,8 +549,51 @@ export interface UnpublishDashboardRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UnpublishDashboardResponse {}
 
+export interface UpdateCronSchedule {
+  /**
+   * A cron expression using quartz syntax. EX: `0 0 8 * * ?` represents everyday at 8am.
+   * See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
+   */
+  quartzCronExpression?: string | undefined;
+  /**
+   * A Java timezone id. The schedule will be resolved with respect to this timezone.
+   * See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.
+   */
+  timezoneId?: string | undefined;
+}
+
+export interface UpdateDashboard {
+  /** UUID identifying the dashboard. */
+  dashboardId?: string | undefined;
+  /** The display name of the dashboard. */
+  displayName?: string | undefined;
+  /** The warehouse ID used to run the dashboard. */
+  warehouseId?: string | undefined;
+  /**
+   * The etag for the dashboard. Can be optionally provided on updates to ensure that the dashboard
+   * has not been modified since the last read.
+   * This field is excluded in List Dashboards responses.
+   */
+  etag?: string | undefined;
+  /**
+   * The contents of the dashboard in serialized string form.
+   * This field is excluded in List Dashboards responses.
+   * Use the [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get)
+   * to retrieve an example response, which includes the `serialized_dashboard` field.
+   * This field provides the structure of the JSON string that represents the dashboard's
+   * layout and components.
+   */
+  serializedDashboard?: string | undefined;
+  /**
+   * The workspace path of the folder containing the dashboard. Includes leading slash and no
+   * trailing slash.
+   * This field is excluded in List Dashboards responses.
+   */
+  parentPath?: string | undefined;
+}
+
 export interface UpdateDashboardRequest {
-  dashboard?: Dashboard | undefined;
+  dashboard?: UpdateDashboard | undefined;
   /**
    * Sets the default catalog for all datasets in this dashboard.
    * Does not impact table references that use fully qualified catalog names (ex: samples.nyctaxi.trips).
@@ -461,9 +608,29 @@ export interface UpdateDashboardRequest {
   datasetSchema?: string | undefined;
 }
 
+export interface UpdateSchedule {
+  /** UUID identifying the schedule. */
+  scheduleId?: string | undefined;
+  /** UUID identifying the dashboard to which the schedule belongs. */
+  dashboardId?: string | undefined;
+  /** The cron expression describing the frequency of the periodic refresh for this schedule. */
+  cronSchedule?: UpdateCronSchedule | undefined;
+  /** The status indicates whether this schedule is paused or not. */
+  pauseStatus?: SchedulePauseStatus | undefined;
+  /** The display name for schedule. */
+  displayName?: string | undefined;
+  /**
+   * The etag for the schedule. Must be left empty on create, must be provided on updates to ensure
+   * that the schedule has not been modified since the last read, and can be optionally provided on delete.
+   */
+  etag?: string | undefined;
+  /** The warehouse id to run the dashboard with for the schedule. */
+  warehouseId?: string | undefined;
+}
+
 export interface UpdateScheduleRequest {
   /** The schedule to update. */
-  schedule?: Schedule | undefined;
+  schedule?: UpdateSchedule | undefined;
 }
 
 export const unmarshalAuthorizationDetailsSchema: z.ZodType<AuthorizationDetails> =
@@ -720,51 +887,69 @@ export const unmarshalTrashDashboardResponseSchema: z.ZodType<TrashDashboardResp
 export const unmarshalUnpublishDashboardResponseSchema: z.ZodType<UnpublishDashboardResponse> =
   z.object({});
 
-export const marshalCronScheduleSchema: z.ZodType = z
+export const marshalCreateCronScheduleSchema: z.ZodType = z
   .object({
-    quartzCronExpression: z.string().optional(),
-    timezoneId: z.string().optional(),
+    quartzCronExpression: z.string(),
+    timezoneId: z.string(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
     timezone_id: d.timezoneId,
   }));
 
-export const marshalDashboardSchema: z.ZodType = z
+export const marshalCreateDashboardSchema: z.ZodType = z
   .object({
-    dashboardId: z.string().optional(),
     displayName: z.string().optional(),
-    path: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     warehouseId: z.string().optional(),
     etag: z.string().optional(),
     serializedDashboard: z.string().optional(),
-    lifecycleState: z.string().optional(),
     parentPath: z.string().optional(),
   })
   .transform(d => ({
-    dashboard_id: d.dashboardId,
     display_name: d.displayName,
-    path: d.path,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     warehouse_id: d.warehouseId,
     etag: d.etag,
     serialized_dashboard: d.serializedDashboard,
-    lifecycle_state: d.lifecycleState,
     parent_path: d.parentPath,
+  }));
+
+export const marshalCreateScheduleSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    cronSchedule: z.lazy(() => marshalCreateCronScheduleSchema),
+    pauseStatus: z.string().optional(),
+    displayName: z.string().optional(),
+    etag: z.string().optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    cron_schedule: d.cronSchedule,
+    pause_status: d.pauseStatus,
+    display_name: d.displayName,
+    etag: d.etag,
+    warehouse_id: d.warehouseId,
+  }));
+
+export const marshalCreateSubscriptionSchema: z.ZodType = z
+  .object({
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+    subscriber: z.lazy(() => marshalSubscription_CreateSubscriberSchema),
+    etag: z.string().optional(),
+    skipNotify: z.boolean().optional(),
+  })
+  .transform(d => ({
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+    subscriber: d.subscriber,
+    etag: d.etag,
+    skip_notify: d.skipNotify,
   }));
 
 export const marshalMigrateDashboardRequestSchema: z.ZodType = z
   .object({
-    sourceDashboardId: z.string().optional(),
+    sourceDashboardId: z.string(),
     displayName: z.string().optional(),
     parentPath: z.string().optional(),
     updateParameterSyntax: z.boolean().optional(),
@@ -798,22 +983,76 @@ export const marshalRevertDashboardRequestSchema: z.ZodType = z
     etag: d.etag,
   }));
 
-export const marshalScheduleSchema: z.ZodType = z
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_CreateSubscriberSchema: z.ZodType = z
+  .object({
+    userSubscriber: z
+      .lazy(() => marshalSubscription_Subscriber_CreateUserSchema)
+      .optional(),
+    destinationSubscriber: z
+      .lazy(() => marshalSubscription_Subscriber_CreateDestinationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    user_subscriber: d.userSubscriber,
+    destination_subscriber: d.destinationSubscriber,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_Subscriber_CreateDestinationSchema: z.ZodType =
+  z
+    .object({
+      destinationId: z.string(),
+    })
+    .transform(d => ({
+      destination_id: d.destinationId,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_Subscriber_CreateUserSchema: z.ZodType = z
+  .object({
+    userId: z.bigint(),
+  })
+  .transform(d => ({
+    user_id: d.userId,
+  }));
+
+export const marshalUpdateCronScheduleSchema: z.ZodType = z
+  .object({
+    quartzCronExpression: z.string().optional(),
+    timezoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    quartz_cron_expression: d.quartzCronExpression,
+    timezone_id: d.timezoneId,
+  }));
+
+export const marshalUpdateDashboardSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    displayName: z.string().optional(),
+    warehouseId: z.string().optional(),
+    etag: z.string().optional(),
+    serializedDashboard: z.string().optional(),
+    parentPath: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    display_name: d.displayName,
+    warehouse_id: d.warehouseId,
+    etag: d.etag,
+    serialized_dashboard: d.serializedDashboard,
+    parent_path: d.parentPath,
+  }));
+
+export const marshalUpdateScheduleSchema: z.ZodType = z
   .object({
     scheduleId: z.string().optional(),
     dashboardId: z.string().optional(),
-    cronSchedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    cronSchedule: z.lazy(() => marshalUpdateCronScheduleSchema).optional(),
     pauseStatus: z.string().optional(),
     displayName: z.string().optional(),
     etag: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     warehouseId: z.string().optional(),
   })
   .transform(d => ({
@@ -823,70 +1062,5 @@ export const marshalScheduleSchema: z.ZodType = z
     pause_status: d.pauseStatus,
     display_name: d.displayName,
     etag: d.etag,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     warehouse_id: d.warehouseId,
-  }));
-
-export const marshalSubscriptionSchema: z.ZodType = z
-  .object({
-    subscriptionId: z.string().optional(),
-    scheduleId: z.string().optional(),
-    dashboardId: z.string().optional(),
-    subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
-    createdByUserId: z.bigint().optional(),
-    etag: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    skipNotify: z.boolean().optional(),
-  })
-  .transform(d => ({
-    subscription_id: d.subscriptionId,
-    schedule_id: d.scheduleId,
-    dashboard_id: d.dashboardId,
-    subscriber: d.subscriber,
-    created_by_user_id: d.createdByUserId,
-    etag: d.etag,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    skip_notify: d.skipNotify,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSubscription_SubscriberSchema: z.ZodType = z
-  .object({
-    userSubscriber: z
-      .lazy(() => marshalSubscription_Subscriber_UserSchema)
-      .optional(),
-    destinationSubscriber: z
-      .lazy(() => marshalSubscription_Subscriber_DestinationSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    user_subscriber: d.userSubscriber,
-    destination_subscriber: d.destinationSubscriber,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSubscription_Subscriber_DestinationSchema: z.ZodType = z
-  .object({
-    destinationId: z.string().optional(),
-  })
-  .transform(d => ({
-    destination_id: d.destinationId,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSubscription_Subscriber_UserSchema: z.ZodType = z
-  .object({
-    userId: z.bigint().optional(),
-  })
-  .transform(d => ({
-    user_id: d.userId,
   }));

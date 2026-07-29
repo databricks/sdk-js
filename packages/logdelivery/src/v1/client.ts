@@ -89,7 +89,7 @@ export class LogDeliveryClient {
     options?: CallOptions
   ): Promise<CreateLogDeliveryConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? accountId ?? ''}/log-delivery`;
+    const url = `${host}/api/2.0/accounts/${req.logDeliveryConfiguration.accountId ?? accountId ?? ''}/log-delivery`;
     const body = marshalRequest(
       req,
       marshalCreateLogDeliveryConfigurationRequestSchema

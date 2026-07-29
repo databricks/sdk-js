@@ -4,9 +4,9 @@ import {z} from 'zod';
 
 export interface CreateGlobalInitScriptRequest {
   /** The name of the script */
-  name?: string | undefined;
+  name: string;
   /** The Base64-encoded content of the script. */
-  script?: Uint8Array | undefined;
+  script: Uint8Array;
   /**
    * The position of a global init script, where 0 represents the first script to run, 1 is the second script to run, in ascending order.
    *
@@ -149,13 +149,12 @@ export const unmarshalUpdateGlobalInitScriptResponseSchema: z.ZodType<UpdateGlob
 
 export const marshalCreateGlobalInitScriptRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     script: z
       .any()
       .transform((d: Uint8Array) =>
         btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+      ),
     position: z.number().optional(),
     enabled: z.boolean().optional(),
   })

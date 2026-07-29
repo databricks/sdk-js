@@ -26,7 +26,8 @@ import type {
   UpdateTagAssignmentRequest,
 } from './model';
 import {
-  marshalTagAssignmentSchema,
+  marshalCreateTagAssignmentSchema,
+  marshalUpdateTagAssignmentSchema,
   unmarshalListTagAssignmentsResponseSchema,
   unmarshalTagAssignmentSchema,
 } from './model';
@@ -71,7 +72,10 @@ export class TagAssignmentsClient {
   ): Promise<TagAssignment> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/entity-tag-assignments`;
-    const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
+    const body = marshalRequest(
+      req.tagAssignment,
+      marshalCreateTagAssignmentSchema
+    );
     let resp: TagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -214,7 +218,10 @@ export class TagAssignmentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
+    const body = marshalRequest(
+      req.tagAssignment,
+      marshalUpdateTagAssignmentSchema
+    );
     let resp: TagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

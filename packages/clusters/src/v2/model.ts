@@ -1227,7 +1227,7 @@ export interface AzureAttributes {
 /** Request to cancel the pending enforcement for a cluster. */
 export interface CancelPendingClusterEnforcementRequest {
   /** The ID of the cluster to cancel the pending enforcement for. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * If true and no pending enforcement exists, the request will succeed but no action
    * will be taken.
@@ -1244,9 +1244,9 @@ export interface CancelPendingClusterEnforcementRequest {
 export interface CancelPendingClusterEnforcementResponse {}
 
 export interface ChangeClusterOwnerRequest {
-  clusterId?: string | undefined;
+  clusterId: string;
   /** New owner of the cluster_id after this RPC. */
-  ownerUsername?: string | undefined;
+  ownerUsername: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1962,6 +1962,180 @@ export interface ClusterSize {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ClusterState {}
 
+/** A storage location in Adls Gen2 */
+export interface CreateAdlsgen2Info {
+  /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
+  destination: string;
+}
+
+export interface CreateAutoScale {
+  /**
+   * The minimum number of workers to which the cluster can scale down when underutilized.
+   * It is also the initial number of workers the cluster will have after creation.
+   */
+  minWorkers?: number | undefined;
+  /**
+   * The maximum number of workers to which the cluster can scale up when overloaded.
+   * Note that `max_workers` must be strictly greater than `min_workers`.
+   */
+  maxWorkers?: number | undefined;
+}
+
+/** Attributes set during cluster creation which are related to Amazon Web Services. */
+export interface CreateAwsAttributes {
+  /**
+   * The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.
+   * If this value is greater than 0, the cluster driver node in particular will be placed on an
+   * on-demand instance. If this value is greater than or equal to the current cluster size, all
+   * nodes will be placed on on-demand instances. If this value is less than the current cluster
+   * size, `first_on_demand` nodes will be placed on on-demand instances and the remainder will
+   * be placed on `availability` instances. Note that this value does not affect
+   * cluster size and cannot currently be mutated over the lifetime of a cluster.
+   */
+  firstOnDemand?: number | undefined;
+  availability?: AwsAvailability | undefined;
+  /**
+   * Identifier for the availability zone/datacenter in which the cluster resides.
+   * This string will be of a form like "us-west-2a". The provided availability
+   * zone must be in the same region as the <Databricks> deployment. For example, "us-west-2a"
+   * is not a valid zone id if the <Databricks> deployment resides in the "us-east-1" region.
+   * This is an optional field at cluster creation, and if not specified, the zone "auto" will be used.
+   * If the zone specified is "auto", will try to place cluster in a zone with high availability,
+   * and will retry placement in a different AZ if there is not enough capacity.
+   *
+   * The list of available zones as well as the default value can be found by using the
+   * `List Zones` method.
+   */
+  zoneId?: string | undefined;
+  /**
+   * Nodes for this cluster will only be placed on AWS instances with this instance profile. If
+   * ommitted, nodes will be placed on instances without an IAM instance profile. The instance
+   * profile must have previously been added to the <Databricks> environment by an account
+   * administrator.
+   *
+   * This feature may only be available to certain customer plans.
+   */
+  instanceProfileArn?: string | undefined;
+  /**
+   * The bid price for AWS spot instances, as a percentage of the corresponding instance type's
+   * on-demand price.
+   * For example, if this field is set to 50, and the cluster needs a new `r3.xlarge` spot
+   * instance, then the bid price is half of the price of
+   * on-demand `r3.xlarge` instances. Similarly, if this field is set to 200, the bid price is twice
+   * the price of on-demand `r3.xlarge` instances. If not specified, the default value is 100.
+   * When spot instances are requested for this cluster, only spot instances whose bid price
+   * percentage matches this field will be considered.
+   * Note that, for safety, we enforce this field to be no more than 10000.
+   */
+  spotBidPricePercent?: number | undefined;
+  /** The type of EBS volumes that will be launched with this cluster. */
+  ebsVolumeType?: EbsVolumeType | undefined;
+  /**
+   * The number of volumes launched for each instance. Users can choose up to 10 volumes.
+   * This feature is only enabled for supported node types. Legacy node types cannot specify
+   * custom EBS volumes.
+   * For node types with no instance store, at least one EBS volume needs to be specified;
+   * otherwise, cluster creation will fail.
+   *
+   * These EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.
+   * Instance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.
+   *
+   * If EBS volumes are attached, <Databricks> will configure Spark to use only the EBS volumes for
+   * scratch storage because heterogenously sized scratch devices can lead to inefficient disk
+   * utilization. If no EBS volumes are attached, <Databricks> will configure Spark to use instance
+   * store volumes.
+   *
+   * Please note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`
+   * will be overridden.
+   */
+  ebsVolumeCount?: number | undefined;
+  /**
+   * The size of each EBS volume (in GiB) launched for each instance. For general purpose
+   * SSD, this value must be within the range 100 - 4096. For throughput optimized HDD,
+   * this value must be within the range 500 - 4096.
+   */
+  ebsVolumeSize?: number | undefined;
+  /** If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used. */
+  ebsVolumeIops?: number | undefined;
+  /** If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used. */
+  ebsVolumeThroughput?: number | undefined;
+}
+
+/** Attributes set during cluster creation which are related to Microsoft Azure. */
+export interface CreateAzureAttributes {
+  /** Defines values necessary to configure and run Azure Log Analytics agent */
+  logAnalyticsInfo?: CreateLogAnalyticsInfo | undefined;
+  /**
+   * The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.
+   * This value should be greater than 0, to make sure the cluster driver node is placed on an
+   * on-demand instance. If this value is greater than or equal to the current cluster size, all
+   * nodes will be placed on on-demand instances. If this value is less than the current cluster
+   * size, `first_on_demand` nodes will be placed on on-demand instances and the remainder will
+   * be placed on `availability` instances. Note that this value does not affect
+   * cluster size and cannot currently be mutated over the lifetime of a cluster.
+   */
+  firstOnDemand?: number | undefined;
+  /**
+   * Availability type used for all subsequent nodes past the `first_on_demand` ones.
+   * Note: If `first_on_demand` is zero, this availability
+   * type will be used for the entire cluster.
+   */
+  availability?: AzureAvailability | undefined;
+  /**
+   * The max bid price to be used for Azure spot instances.
+   * The Max price for the bid cannot be higher than the on-demand price of the instance.
+   * If not specified, the default value is -1, which specifies that the instance cannot be evicted
+   * on the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.
+   */
+  spotBidMaxPrice?: number | undefined;
+  /**
+   * The Azure capacity reservation group resource ID to use for launching VMs.
+   * When specified, VMs will be launched using the provided capacity reservation.
+   *
+   * Capacity reservations can only be specified when the workspace uses injected vnet (i.e. customer defined vnet not
+   * managed by databricks). Ensure the databricks-login-prod Enterprise Application is granted the following four permissions:
+   * 1. Microsoft.Compute/capacityReservationGroups/read
+   * 2. Microsoft.Compute/capacityReservationGroups/deploy/action
+   * 3. Microsoft.Compute/capacityReservationGroups/capacityReservations/read
+   * 4. Microsoft.Compute/capacityReservationGroups/capacityReservations/deploy/action
+   *
+   * Format: `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/capacityReservationGroups/{capacityReservationGroupName}`
+   */
+  capacityReservationGroup?: string | undefined;
+}
+
+/** Cluster log delivery config */
+export interface CreateClusterLogConf {
+  storageInfo?:
+    | {
+        $case: 'dbfs';
+        /**
+         * destination needs to be provided. e.g.
+         * `{ "dbfs" : { "destination" : "dbfs:/home/cluster_log" } }`
+         */
+        dbfs: CreateDbfsStorageInfo;
+      }
+    | {
+        $case: 's3';
+        /**
+         * destination and either the region or endpoint need to be provided. e.g.
+         * `{ "s3": { "destination" : "s3://cluster_log_bucket/prefix", "region" : "us-west-2" } }`
+         * Cluster iam role is used to access s3, please make sure the cluster iam role in
+         * `instance_profile_arn` has permission to write data to the s3 destination.
+         */
+        s3: CreateS3StorageInfo;
+      }
+    | {
+        $case: 'volumes';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "volumes": { "destination": "/Volumes/catalog/schema/volume/cluster_log" } }`
+         */
+        volumes: CreateVolumesStorageInfo;
+      }
+    | undefined;
+}
+
 export interface CreateClusterRequest {
   /**
    * When set to true, fixed and default values from the policy will be used for fields that are omitted.
@@ -1991,7 +2165,7 @@ export interface CreateClusterRequest {
          * Parameters needed in order to automatically scale clusters up and down based on load.
          * Note: autoscaling works best with DB runtime versions 3.0 or later.
          */
-        autoscale: AutoScale;
+        autoscale: CreateAutoScale;
       }
     | undefined;
   /**
@@ -2016,17 +2190,17 @@ export interface CreateClusterRequest {
    * Attributes related to clusters running on Amazon Web Services.
    * If not specified at cluster creation, a set of default values will be used.
    */
-  awsAttributes?: AwsAttributes | undefined;
+  awsAttributes?: CreateAwsAttributes | undefined;
   /**
    * Attributes related to clusters running on Microsoft Azure.
    * If not specified at cluster creation, a set of default values will be used.
    */
-  azureAttributes?: AzureAttributes | undefined;
+  azureAttributes?: CreateAzureAttributes | undefined;
   /**
    * Attributes related to clusters running on Google Cloud Platform.
    * If not specified at cluster creation, a set of default values will be used.
    */
-  gcpAttributes?: GcpAttributes | undefined;
+  gcpAttributes?: CreateGcpAttributes | undefined;
   /**
    * This field encodes, through a single value, the resources available to each of
    * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
@@ -2044,9 +2218,9 @@ export interface CreateClusterRequest {
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
-  workerNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  workerNodeTypeFlexibility?: CreateNodeTypeFlexibility | undefined;
   /** Flexible node type configuration for the driver node. */
-  driverNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  driverNodeTypeFlexibility?: CreateNodeTypeFlexibility | undefined;
   /**
    * SSH public key contents that will be added to each Spark node in this cluster. The
    * corresponding private keys can be used to login with the user name `ubuntu` on port `2200`.
@@ -2069,7 +2243,7 @@ export interface CreateClusterRequest {
    * `5 mins`. The destination of driver logs is `$destination/$clusterId/driver`, while
    * the destination of executor logs is `$destination/$clusterId/executor`.
    */
-  clusterLogConf?: ClusterLogConf | undefined;
+  clusterLogConf?: CreateClusterLogConf | undefined;
   /**
    * An object containing a set of optional, user-specified environment variable key-value pairs.
    * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
@@ -2101,9 +2275,9 @@ export interface CreateClusterRequest {
    * The scripts are executed sequentially in the order provided.
    * If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.
    */
-  initScripts?: InitScriptInfo[] | undefined;
+  initScripts?: CreateInitScriptInfo[] | undefined;
   /** Custom docker image BYOC */
-  dockerImage?: DockerImage | undefined;
+  dockerImage?: CreateDockerImage | undefined;
   /** The optional ID of the instance pool to which the cluster belongs. */
   instancePoolId?: string | undefined;
   /** Single user name if data_security_mode is `SINGLE_USER` */
@@ -2118,7 +2292,7 @@ export interface CreateClusterRequest {
    * assigned.
    */
   driverInstancePoolId?: string | undefined;
-  workloadType?: WorkloadType | undefined;
+  workloadType?: CreateWorkloadType | undefined;
   dataSecurityMode?: DataSecurityMode | undefined;
   /**
    * Determines the cluster's runtime engine, either standard or Photon.
@@ -2151,6 +2325,234 @@ export interface CreateClusterRequest {
 
 export interface CreateClusterResponse {
   clusterId?: string | undefined;
+}
+
+/** A storage location in DBFS */
+export interface CreateDbfsStorageInfo {
+  /** dbfs destination, e.g. `dbfs:/my/path` */
+  destination: string;
+}
+
+export interface CreateDockerBasicAuth {
+  /** Name of the user */
+  username?: string | undefined;
+  /** Password of the user */
+  password?: string | undefined;
+}
+
+export interface CreateDockerImage {
+  /** URL of the docker image. */
+  url?: string | undefined;
+  credsOneof?:
+    | {
+        $case: 'basicAuth';
+        /** Basic auth with username and password */
+        basicAuth: CreateDockerBasicAuth;
+      }
+    | undefined;
+}
+
+/** Attributes set during cluster creation which are related to GCP. */
+export interface CreateGcpAttributes {
+  /**
+   * This field determines whether the spark executors will be scheduled to run on preemptible
+   * VMs (when set to true) versus standard compute engine VMs (when set to false; default).
+   * Note: Soon to be deprecated, use the 'availability' field instead.
+   */
+  usePreemptibleExecutors?: boolean | undefined;
+  /**
+   * If provided, the cluster will impersonate the google service account when accessing
+   * gcloud services (like GCS). The google service account
+   * must have previously been added to the <Databricks> environment by an account
+   * administrator.
+   */
+  googleServiceAccount?: string | undefined;
+  /** Boot disk size in GB */
+  bootDiskSize?: number | undefined;
+  /**
+   * This field determines whether the spark executors will be scheduled to run on preemptible
+   * VMs, on-demand VMs, or preemptible VMs with a fallback to on-demand VMs if the former is unavailable.
+   */
+  availability?: GcpAvailability | undefined;
+  /**
+   * Identifier for the availability zone in which the cluster resides.
+   * This can be one of the following:
+   * - "HA" => High availability, spread nodes across availability zones for a
+   * <Databricks> deployment region [default].
+   * - "AUTO" => <Databricks> picks an availability zone to schedule the cluster on.
+   * - A GCP availability zone => Pick One of the available zones for (machine type + region) from
+   * https://cloud.google.com/compute/docs/regions-zones.
+   */
+  zoneId?: string | undefined;
+  /**
+   * If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached.
+   * Each local SSD is 375GB in size.
+   * Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds)
+   * for the supported number of local SSDs for each instance type.
+   */
+  localSsdCount?: number | undefined;
+  /**
+   * The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.
+   * This value should be greater than 0, to make sure the cluster driver node is placed on an
+   * on-demand instance. If this value is greater than or equal to the current cluster size, all
+   * nodes will be placed on on-demand instances. If this value is less than the current cluster
+   * size, `first_on_demand` nodes will be placed on on-demand instances and the remainder will
+   * be placed on `availability` instances. Note that this value does not affect
+   * cluster size and cannot currently be mutated over the lifetime of a cluster.
+   */
+  firstOnDemand?: number | undefined;
+  /**
+   * The confidential computing technology for this cluster's instances.
+   * Currently only SEV_SNP is supported, and only on N2D instance types.
+   * When not set, no confidential computing is applied.
+   */
+  confidentialComputeType?: ConfidentialComputeType | undefined;
+}
+
+/** A storage location in Google Cloud Platform's GCS */
+export interface CreateGcsStorageInfo {
+  /** GCS destination/URI, e.g. `gs://my-bucket/some-prefix` */
+  destination: string;
+}
+
+/** Config for an individual init script */
+export interface CreateInitScriptInfo {
+  storageInfo?:
+    | {
+        $case: 'dbfs';
+        /**
+         * destination needs to be provided. e.g.
+         * `{ "dbfs": { "destination" : "dbfs:/home/cluster_log" } }`
+         */
+        dbfs: CreateDbfsStorageInfo;
+      }
+    | {
+        $case: 's3';
+        /**
+         * destination and either the region or endpoint need to be provided. e.g.
+         * `{ \"s3\": { \"destination\": \"s3://cluster_log_bucket/prefix\", \"region\": \"us-west-2\" } }`
+         * Cluster iam role is used to access s3, please make sure the cluster iam role in
+         * `instance_profile_arn` has permission to write data to the s3 destination.
+         */
+        s3: CreateS3StorageInfo;
+      }
+    | {
+        $case: 'file';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "file": { "destination": "file:/my/local/file.sh" } }`
+         */
+        file: CreateLocalFileInfo;
+      }
+    | {
+        $case: 'gcs';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "gcs": { "destination": "gs://my-bucket/file.sh" } }`
+         */
+        gcs: CreateGcsStorageInfo;
+      }
+    | {
+        $case: 'abfss';
+        /**
+         * destination needs to be provided, e.g.
+         * `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`
+         */
+        abfss: CreateAdlsgen2Info;
+      }
+    | {
+        $case: 'workspace';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "workspace": { "destination": "/cluster-init-scripts/setup-datadog.sh" } }`
+         */
+        workspace: CreateWorkspaceStorageInfo;
+      }
+    | {
+        $case: 'volumes';
+        /**
+         * destination needs to be provided. e.g.
+         * `{ \"volumes\" : { \"destination\" : \"/Volumes/my-init.sh\" } }`
+         */
+        volumes: CreateVolumesStorageInfo;
+      }
+    | undefined;
+}
+
+export interface CreateLocalFileInfo {
+  /** local file destination, e.g. `file:/my/local/file.sh` */
+  destination: string;
+}
+
+export interface CreateLogAnalyticsInfo {
+  logAnalyticsWorkspaceId?: string | undefined;
+  logAnalyticsPrimaryKey?: string | undefined;
+}
+
+/** Configuration for flexible node types, allowing fallback to alternate node types during cluster launch and upscale. */
+export interface CreateNodeTypeFlexibility {
+  /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
+  alternateNodeTypeIds?: string[] | undefined;
+}
+
+/** A storage location in Amazon S3 */
+export interface CreateS3StorageInfo {
+  /**
+   * S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using
+   * cluster iam role, please make sure you set cluster iam role and the role has write access to the
+   * destination. Please also note that you cannot use AWS keys to deliver logs.
+   */
+  destination: string;
+  /**
+   * S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,
+   * endpoint will be used.
+   */
+  region?: string | undefined;
+  /**
+   * S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.
+   * If both are set, endpoint will be used.
+   */
+  endpoint?: string | undefined;
+  /** (Optional) Flag to enable server side encryption, `false` by default. */
+  enableEncryption?: boolean | undefined;
+  /**
+   * (Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when
+   * encryption is enabled and the default type is `sse-s3`.
+   */
+  encryptionType?: string | undefined;
+  /** (Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`. */
+  kmsKey?: string | undefined;
+  /**
+   * (Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.
+   * If `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on
+   * the destination bucket and prefix. The full list of possible canned acl can be found at
+   * http://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.
+   * Please also note that by default only the object owner gets full controls. If you are using cross account
+   * role for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to
+   * read the logs.
+   */
+  cannedAcl?: string | undefined;
+}
+
+/** A storage location back by UC Volumes. */
+export interface CreateVolumesStorageInfo {
+  /**
+   * UC Volumes destination, e.g. `/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
+   * or `dbfs:/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
+   */
+  destination: string;
+}
+
+/** Cluster Attributes showing for clusters workload types. */
+export interface CreateWorkloadType {
+  /** defined what type of clients can use the cluster. E.g. Notebooks, Jobs */
+  clients: WorkloadType_CreateClientsTypes;
+}
+
+/** A storage location in Workspace Filesystem (WSFS) */
+export interface CreateWorkspaceStorageInfo {
+  /** wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh` */
+  destination: string;
 }
 
 export interface DataPlaneEventDetails {
@@ -2219,7 +2621,7 @@ export interface EditClusterRequest {
          * Parameters needed in order to automatically scale clusters up and down based on load.
          * Note: autoscaling works best with DB runtime versions 3.0 or later.
          */
-        autoscale: AutoScale;
+        autoscale: CreateAutoScale;
       }
     | undefined;
   /**
@@ -2244,17 +2646,17 @@ export interface EditClusterRequest {
    * Attributes related to clusters running on Amazon Web Services.
    * If not specified at cluster creation, a set of default values will be used.
    */
-  awsAttributes?: AwsAttributes | undefined;
+  awsAttributes?: CreateAwsAttributes | undefined;
   /**
    * Attributes related to clusters running on Microsoft Azure.
    * If not specified at cluster creation, a set of default values will be used.
    */
-  azureAttributes?: AzureAttributes | undefined;
+  azureAttributes?: CreateAzureAttributes | undefined;
   /**
    * Attributes related to clusters running on Google Cloud Platform.
    * If not specified at cluster creation, a set of default values will be used.
    */
-  gcpAttributes?: GcpAttributes | undefined;
+  gcpAttributes?: CreateGcpAttributes | undefined;
   /**
    * This field encodes, through a single value, the resources available to each of
    * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
@@ -2272,9 +2674,9 @@ export interface EditClusterRequest {
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
-  workerNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  workerNodeTypeFlexibility?: CreateNodeTypeFlexibility | undefined;
   /** Flexible node type configuration for the driver node. */
-  driverNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  driverNodeTypeFlexibility?: CreateNodeTypeFlexibility | undefined;
   /**
    * SSH public key contents that will be added to each Spark node in this cluster. The
    * corresponding private keys can be used to login with the user name `ubuntu` on port `2200`.
@@ -2297,7 +2699,7 @@ export interface EditClusterRequest {
    * `5 mins`. The destination of driver logs is `$destination/$clusterId/driver`, while
    * the destination of executor logs is `$destination/$clusterId/executor`.
    */
-  clusterLogConf?: ClusterLogConf | undefined;
+  clusterLogConf?: CreateClusterLogConf | undefined;
   /**
    * An object containing a set of optional, user-specified environment variable key-value pairs.
    * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
@@ -2329,9 +2731,9 @@ export interface EditClusterRequest {
    * The scripts are executed sequentially in the order provided.
    * If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.
    */
-  initScripts?: InitScriptInfo[] | undefined;
+  initScripts?: CreateInitScriptInfo[] | undefined;
   /** Custom docker image BYOC */
-  dockerImage?: DockerImage | undefined;
+  dockerImage?: CreateDockerImage | undefined;
   /** The optional ID of the instance pool to which the cluster belongs. */
   instancePoolId?: string | undefined;
   /** Single user name if data_security_mode is `SINGLE_USER` */
@@ -2346,7 +2748,7 @@ export interface EditClusterRequest {
    * assigned.
    */
   driverInstancePoolId?: string | undefined;
-  workloadType?: WorkloadType | undefined;
+  workloadType?: CreateWorkloadType | undefined;
   dataSecurityMode?: DataSecurityMode | undefined;
   /**
    * Determines the cluster's runtime engine, either standard or Photon.
@@ -2382,7 +2784,7 @@ export interface EditClusterResponse {}
 
 export interface EnforcePolicyComplianceForClusterRequest {
   /** The ID of the cluster you want to enforce policy compliance on. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * If set, previews the changes that would be made to a cluster
    * to enforce compliance but does not update the cluster.
@@ -3038,7 +3440,7 @@ export interface ListClustersResponse {
 
 export interface ListEventsRequest {
   /** The ID of the cluster to retrieve events about. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * The start time in epoch milliseconds.
    * If empty, returns events starting from the beginning of time.
@@ -3231,14 +3633,14 @@ export interface PendingEnforcement {
 
 export interface PermanentDeleteClusterRequest {
   /** The cluster to be deleted. */
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface PermanentDeleteClusterResponse {}
 
 export interface PinClusterRequest {
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3271,7 +3673,7 @@ export interface ResizeClusterRequest {
          * Parameters needed in order to automatically scale clusters up and down based on load.
          * Note: autoscaling works best with DB runtime versions 3.0 or later.
          */
-        autoscale: AutoScale;
+        autoscale: CreateAutoScale;
       }
     | undefined;
 }
@@ -3398,7 +3800,7 @@ export interface TerminationReason {
 }
 
 export interface UnpinClusterRequest {
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3616,6 +4018,14 @@ export interface WorkloadType {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface WorkloadType_ClientsTypes {
+  /** With notebooks set, this cluster can be used for notebooks */
+  notebooks?: boolean | undefined;
+  /** With jobs set, the cluster can be used for jobs */
+  jobs?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface WorkloadType_CreateClientsTypes {
   /** With notebooks set, this cluster can be used for notebooks */
   notebooks?: boolean | undefined;
   /** With jobs set, the cluster can be used for jobs */
@@ -4524,7 +4934,7 @@ export const unmarshalListClustersResponseSchema: z.ZodType<ListClustersResponse
 
 export const unmarshalListEventsRequestSchema: z.ZodType<ListEventsRequest> = z
   .object({
-    cluster_id: z.string().optional(),
+    cluster_id: z.string(),
     start_time: z
       .union([z.number(), z.bigint()])
       .transform(v => BigInt(v))
@@ -4903,7 +5313,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
 
 export const marshalCancelPendingClusterEnforcementRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     allowMissing: z.boolean().optional(),
   })
   .transform(d => ({
@@ -4913,8 +5323,8 @@ export const marshalCancelPendingClusterEnforcementRequestSchema: z.ZodType = z
 
 export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
-    ownerUsername: z.string().optional(),
+    clusterId: z.string(),
+    ownerUsername: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -4954,6 +5364,93 @@ export const marshalClusterLogConfSchema: z.ZodType = z
     ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
   }));
 
+export const marshalCreateAdlsgen2InfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
+
+export const marshalCreateAutoScaleSchema: z.ZodType = z
+  .object({
+    minWorkers: z.number().optional(),
+    maxWorkers: z.number().optional(),
+  })
+  .transform(d => ({
+    min_workers: d.minWorkers,
+    max_workers: d.maxWorkers,
+  }));
+
+export const marshalCreateAwsAttributesSchema: z.ZodType = z
+  .object({
+    firstOnDemand: z.number().optional(),
+    availability: z.string().optional(),
+    zoneId: z.string().optional(),
+    instanceProfileArn: z.string().optional(),
+    spotBidPricePercent: z.number().optional(),
+    ebsVolumeType: z.string().optional(),
+    ebsVolumeCount: z.number().optional(),
+    ebsVolumeSize: z.number().optional(),
+    ebsVolumeIops: z.number().optional(),
+    ebsVolumeThroughput: z.number().optional(),
+  })
+  .transform(d => ({
+    first_on_demand: d.firstOnDemand,
+    availability: d.availability,
+    zone_id: d.zoneId,
+    instance_profile_arn: d.instanceProfileArn,
+    spot_bid_price_percent: d.spotBidPricePercent,
+    ebs_volume_type: d.ebsVolumeType,
+    ebs_volume_count: d.ebsVolumeCount,
+    ebs_volume_size: d.ebsVolumeSize,
+    ebs_volume_iops: d.ebsVolumeIops,
+    ebs_volume_throughput: d.ebsVolumeThroughput,
+  }));
+
+export const marshalCreateAzureAttributesSchema: z.ZodType = z
+  .object({
+    logAnalyticsInfo: z
+      .lazy(() => marshalCreateLogAnalyticsInfoSchema)
+      .optional(),
+    firstOnDemand: z.number().optional(),
+    availability: z.string().optional(),
+    spotBidMaxPrice: z.number().optional(),
+    capacityReservationGroup: z.string().optional(),
+  })
+  .transform(d => ({
+    log_analytics_info: d.logAnalyticsInfo,
+    first_on_demand: d.firstOnDemand,
+    availability: d.availability,
+    spot_bid_max_price: d.spotBidMaxPrice,
+    capacity_reservation_group: d.capacityReservationGroup,
+  }));
+
+export const marshalCreateClusterLogConfSchema: z.ZodType = z
+  .object({
+    storageInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dbfs'),
+          dbfs: z.lazy(() => marshalCreateDbfsStorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('s3'),
+          s3: z.lazy(() => marshalCreateS3StorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('volumes'),
+          volumes: z.lazy(() => marshalCreateVolumesStorageInfoSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
+    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
+    ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
+  }));
+
 export const marshalCreateClusterRequestSchema: z.ZodType = z
   .object({
     applyPolicyDefaultValues: z.boolean().optional(),
@@ -4963,38 +5460,42 @@ export const marshalCreateClusterRequestSchema: z.ZodType = z
         z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
         z.object({
           $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalAutoScaleSchema),
+          autoscale: z.lazy(() => marshalCreateAutoScaleSchema),
         }),
       ])
       .optional(),
     clusterName: z.string().optional(),
     sparkVersion: z.string().optional(),
     sparkConf: z.record(z.string(), z.string()).optional(),
-    awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
-    azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
-    gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+    awsAttributes: z.lazy(() => marshalCreateAwsAttributesSchema).optional(),
+    azureAttributes: z
+      .lazy(() => marshalCreateAzureAttributesSchema)
+      .optional(),
+    gcpAttributes: z.lazy(() => marshalCreateGcpAttributesSchema).optional(),
     nodeTypeId: z.string().optional(),
     driverNodeTypeId: z.string().optional(),
     workerNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .lazy(() => marshalCreateNodeTypeFlexibilitySchema)
       .optional(),
     driverNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .lazy(() => marshalCreateNodeTypeFlexibilitySchema)
       .optional(),
     sshPublicKeys: z.array(z.string()).optional(),
     customTags: z.record(z.string(), z.string()).optional(),
-    clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+    clusterLogConf: z.lazy(() => marshalCreateClusterLogConfSchema).optional(),
     sparkEnvVars: z.record(z.string(), z.string()).optional(),
     autoterminationMinutes: z.number().optional(),
     enableElasticDisk: z.boolean().optional(),
-    initScripts: z.array(z.lazy(() => marshalInitScriptInfoSchema)).optional(),
-    dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+    initScripts: z
+      .array(z.lazy(() => marshalCreateInitScriptInfoSchema))
+      .optional(),
+    dockerImage: z.lazy(() => marshalCreateDockerImageSchema).optional(),
     instancePoolId: z.string().optional(),
     singleUserName: z.string().optional(),
     policyId: z.string().optional(),
     enableLocalDiskEncryption: z.boolean().optional(),
     driverInstancePoolId: z.string().optional(),
-    workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+    workloadType: z.lazy(() => marshalCreateWorkloadTypeSchema).optional(),
     dataSecurityMode: z.string().optional(),
     runtimeEngine: z.string().optional(),
     kind: z.string().optional(),
@@ -5039,6 +5540,190 @@ export const marshalCreateClusterRequestSchema: z.ZodType = z
     is_single_node: d.isSingleNode,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+  }));
+
+export const marshalCreateDbfsStorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
+
+export const marshalCreateDockerBasicAuthSchema: z.ZodType = z
+  .object({
+    username: z.string().optional(),
+    password: z.string().optional(),
+  })
+  .transform(d => ({
+    username: d.username,
+    password: d.password,
+  }));
+
+export const marshalCreateDockerImageSchema: z.ZodType = z
+  .object({
+    url: z.string().optional(),
+    credsOneof: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('basicAuth'),
+          basicAuth: z.lazy(() => marshalCreateDockerBasicAuthSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    ...(d.credsOneof?.$case === 'basicAuth' && {
+      basic_auth: d.credsOneof.basicAuth,
+    }),
+  }));
+
+export const marshalCreateGcpAttributesSchema: z.ZodType = z
+  .object({
+    usePreemptibleExecutors: z.boolean().optional(),
+    googleServiceAccount: z.string().optional(),
+    bootDiskSize: z.number().optional(),
+    availability: z.string().optional(),
+    zoneId: z.string().optional(),
+    localSsdCount: z.number().optional(),
+    firstOnDemand: z.number().optional(),
+    confidentialComputeType: z.string().optional(),
+  })
+  .transform(d => ({
+    use_preemptible_executors: d.usePreemptibleExecutors,
+    google_service_account: d.googleServiceAccount,
+    boot_disk_size: d.bootDiskSize,
+    availability: d.availability,
+    zone_id: d.zoneId,
+    local_ssd_count: d.localSsdCount,
+    first_on_demand: d.firstOnDemand,
+    confidential_compute_type: d.confidentialComputeType,
+  }));
+
+export const marshalCreateGcsStorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
+
+export const marshalCreateInitScriptInfoSchema: z.ZodType = z
+  .object({
+    storageInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dbfs'),
+          dbfs: z.lazy(() => marshalCreateDbfsStorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('s3'),
+          s3: z.lazy(() => marshalCreateS3StorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('file'),
+          file: z.lazy(() => marshalCreateLocalFileInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('gcs'),
+          gcs: z.lazy(() => marshalCreateGcsStorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('abfss'),
+          abfss: z.lazy(() => marshalCreateAdlsgen2InfoSchema),
+        }),
+        z.object({
+          $case: z.literal('workspace'),
+          workspace: z.lazy(() => marshalCreateWorkspaceStorageInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('volumes'),
+          volumes: z.lazy(() => marshalCreateVolumesStorageInfoSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
+    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
+    ...(d.storageInfo?.$case === 'file' && {file: d.storageInfo.file}),
+    ...(d.storageInfo?.$case === 'gcs' && {gcs: d.storageInfo.gcs}),
+    ...(d.storageInfo?.$case === 'abfss' && {abfss: d.storageInfo.abfss}),
+    ...(d.storageInfo?.$case === 'workspace' && {
+      workspace: d.storageInfo.workspace,
+    }),
+    ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
+  }));
+
+export const marshalCreateLocalFileInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
+
+export const marshalCreateLogAnalyticsInfoSchema: z.ZodType = z
+  .object({
+    logAnalyticsWorkspaceId: z.string().optional(),
+    logAnalyticsPrimaryKey: z.string().optional(),
+  })
+  .transform(d => ({
+    log_analytics_workspace_id: d.logAnalyticsWorkspaceId,
+    log_analytics_primary_key: d.logAnalyticsPrimaryKey,
+  }));
+
+export const marshalCreateNodeTypeFlexibilitySchema: z.ZodType = z
+  .object({
+    alternateNodeTypeIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    alternate_node_type_ids: d.alternateNodeTypeIds,
+  }));
+
+export const marshalCreateS3StorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+    region: z.string().optional(),
+    endpoint: z.string().optional(),
+    enableEncryption: z.boolean().optional(),
+    encryptionType: z.string().optional(),
+    kmsKey: z.string().optional(),
+    cannedAcl: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    region: d.region,
+    endpoint: d.endpoint,
+    enable_encryption: d.enableEncryption,
+    encryption_type: d.encryptionType,
+    kms_key: d.kmsKey,
+    canned_acl: d.cannedAcl,
+  }));
+
+export const marshalCreateVolumesStorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
+
+export const marshalCreateWorkloadTypeSchema: z.ZodType = z
+  .object({
+    clients: z.lazy(() => marshalWorkloadType_CreateClientsTypesSchema),
+  })
+  .transform(d => ({
+    clients: d.clients,
+  }));
+
+export const marshalCreateWorkspaceStorageInfoSchema: z.ZodType = z
+  .object({
+    destination: z.string(),
+  })
+  .transform(d => ({
+    destination: d.destination,
   }));
 
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
@@ -5095,38 +5780,42 @@ export const marshalEditClusterRequestSchema: z.ZodType = z
         z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
         z.object({
           $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalAutoScaleSchema),
+          autoscale: z.lazy(() => marshalCreateAutoScaleSchema),
         }),
       ])
       .optional(),
     clusterName: z.string().optional(),
     sparkVersion: z.string().optional(),
     sparkConf: z.record(z.string(), z.string()).optional(),
-    awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
-    azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
-    gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+    awsAttributes: z.lazy(() => marshalCreateAwsAttributesSchema).optional(),
+    azureAttributes: z
+      .lazy(() => marshalCreateAzureAttributesSchema)
+      .optional(),
+    gcpAttributes: z.lazy(() => marshalCreateGcpAttributesSchema).optional(),
     nodeTypeId: z.string().optional(),
     driverNodeTypeId: z.string().optional(),
     workerNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .lazy(() => marshalCreateNodeTypeFlexibilitySchema)
       .optional(),
     driverNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .lazy(() => marshalCreateNodeTypeFlexibilitySchema)
       .optional(),
     sshPublicKeys: z.array(z.string()).optional(),
     customTags: z.record(z.string(), z.string()).optional(),
-    clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+    clusterLogConf: z.lazy(() => marshalCreateClusterLogConfSchema).optional(),
     sparkEnvVars: z.record(z.string(), z.string()).optional(),
     autoterminationMinutes: z.number().optional(),
     enableElasticDisk: z.boolean().optional(),
-    initScripts: z.array(z.lazy(() => marshalInitScriptInfoSchema)).optional(),
-    dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+    initScripts: z
+      .array(z.lazy(() => marshalCreateInitScriptInfoSchema))
+      .optional(),
+    dockerImage: z.lazy(() => marshalCreateDockerImageSchema).optional(),
     instancePoolId: z.string().optional(),
     singleUserName: z.string().optional(),
     policyId: z.string().optional(),
     enableLocalDiskEncryption: z.boolean().optional(),
     driverInstancePoolId: z.string().optional(),
-    workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+    workloadType: z.lazy(() => marshalCreateWorkloadTypeSchema).optional(),
     dataSecurityMode: z.string().optional(),
     runtimeEngine: z.string().optional(),
     kind: z.string().optional(),
@@ -5176,7 +5865,7 @@ export const marshalEditClusterRequestSchema: z.ZodType = z
 export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
   z
     .object({
-      clusterId: z.string().optional(),
+      clusterId: z.string(),
       validateOnly: z.boolean().optional(),
       enforceMode: z.string().optional(),
     })
@@ -5265,7 +5954,7 @@ export const marshalInitScriptInfoSchema: z.ZodType = z
 
 export const marshalListEventsRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     startTime: z.bigint().optional(),
     endTime: z.bigint().optional(),
     order: z.string().optional(),
@@ -5315,7 +6004,7 @@ export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
 
 export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5323,7 +6012,7 @@ export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
 
 export const marshalPinClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5337,7 +6026,7 @@ export const marshalResizeClusterRequestSchema: z.ZodType = z
         z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
         z.object({
           $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalAutoScaleSchema),
+          autoscale: z.lazy(() => marshalCreateAutoScaleSchema),
         }),
       ])
       .optional(),
@@ -5388,7 +6077,7 @@ export const marshalStartClusterRequestSchema: z.ZodType = z
 
 export const marshalUnpinClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5516,6 +6205,17 @@ export const marshalWorkloadTypeSchema: z.ZodType = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalWorkloadType_ClientsTypesSchema: z.ZodType = z
+  .object({
+    notebooks: z.boolean().optional(),
+    jobs: z.boolean().optional(),
+  })
+  .transform(d => ({
+    notebooks: d.notebooks,
+    jobs: d.jobs,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalWorkloadType_CreateClientsTypesSchema: z.ZodType = z
   .object({
     notebooks: z.boolean().optional(),
     jobs: z.boolean().optional(),

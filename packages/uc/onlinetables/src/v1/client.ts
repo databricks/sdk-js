@@ -27,7 +27,7 @@ import type {
 } from './model';
 import {
   ProvisioningInfo_State,
-  marshalOnlineTableSchema,
+  marshalCreateOnlineTableSchema,
   unmarshalOnlineTableSchema,
 } from './model';
 
@@ -71,7 +71,7 @@ export class OnlineTablesClient {
   ): Promise<OnlineTable> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/online-tables`;
-    const body = marshalRequest(req.table, marshalOnlineTableSchema);
+    const body = marshalRequest(req.table, marshalCreateOnlineTableSchema);
     let resp: OnlineTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

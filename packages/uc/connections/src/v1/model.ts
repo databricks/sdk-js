@@ -152,7 +152,7 @@ export interface CreateConnectionRequest {
   /** User-provided free-form text description. */
   comment?: string | undefined;
   /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
-  environmentSettings?: EnvironmentSettings | undefined;
+  environmentSettings?: CreateEnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -172,11 +172,22 @@ export interface CreateConnectionRequest {
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
   securableType?: SecurableType | undefined;
-  provisioningInfo?: ProvisioningInfo | undefined;
+  provisioningInfo?: CreateProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
+}
+
+export interface CreateEnvironmentSettings {
+  javaDependencies?: string[] | undefined;
+  environmentVersion?: string | undefined;
+}
+
+/** Status of an asynchronously provisioned resource. */
+export interface CreateProvisioningInfo {
+  /** The provisioning state of the resource. */
+  state?: ProvisioningInfo_State | undefined;
 }
 
 export interface DeleteConnectionRequest {
@@ -242,7 +253,7 @@ export interface UpdateConnectionRequest {
   /** User-provided free-form text description. */
   comment?: string | undefined;
   /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
-  environmentSettings?: EnvironmentSettings | undefined;
+  environmentSettings?: UpdateEnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -262,11 +273,22 @@ export interface UpdateConnectionRequest {
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
   securableType?: SecurableType | undefined;
-  provisioningInfo?: ProvisioningInfo | undefined;
+  provisioningInfo?: UpdateProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
+}
+
+export interface UpdateEnvironmentSettings {
+  javaDependencies?: string[] | undefined;
+  environmentVersion?: string | undefined;
+}
+
+/** Status of an asynchronously provisioned resource. */
+export interface UpdateProvisioningInfo {
+  /** The provisioning state of the resource. */
+  state?: ProvisioningInfo_State | undefined;
 }
 
 export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
@@ -364,7 +386,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
+      .lazy(() => marshalCreateEnvironmentSettingsSchema)
       .optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
@@ -376,9 +398,11 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     securableType: z.string().optional(),
-    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+    provisioningInfo: z
+      .lazy(() => marshalCreateProvisioningInfoSchema)
+      .optional(),
     options: z.record(z.string(), z.string()).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     name: d.name,
@@ -402,7 +426,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     properties: d.properties,
   }));
 
-export const marshalEnvironmentSettingsSchema: z.ZodType = z
+export const marshalCreateEnvironmentSettingsSchema: z.ZodType = z
   .object({
     javaDependencies: z.array(z.string()).optional(),
     environmentVersion: z.string().optional(),
@@ -412,7 +436,7 @@ export const marshalEnvironmentSettingsSchema: z.ZodType = z
     environment_version: d.environmentVersion,
   }));
 
-export const marshalProvisioningInfoSchema: z.ZodType = z
+export const marshalCreateProvisioningInfoSchema: z.ZodType = z
   .object({
     state: z.string().optional(),
   })
@@ -430,7 +454,7 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
+      .lazy(() => marshalUpdateEnvironmentSettingsSchema)
       .optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
@@ -442,7 +466,9 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
     securableType: z.string().optional(),
-    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+    provisioningInfo: z
+      .lazy(() => marshalUpdateProvisioningInfoSchema)
+      .optional(),
     options: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -468,4 +494,22 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     provisioning_info: d.provisioningInfo,
     options: d.options,
     properties: d.properties,
+  }));
+
+export const marshalUpdateEnvironmentSettingsSchema: z.ZodType = z
+  .object({
+    javaDependencies: z.array(z.string()).optional(),
+    environmentVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    java_dependencies: d.javaDependencies,
+    environment_version: d.environmentVersion,
+  }));
+
+export const marshalUpdateProvisioningInfoSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
   }));

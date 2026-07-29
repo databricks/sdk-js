@@ -259,19 +259,39 @@ export interface ComplexValue {
   value?: string | undefined;
 }
 
+export interface CreateAccountComplexValue {
+  display?: string | undefined;
+  primary?: boolean | undefined;
+  ref?: string | undefined;
+  type?: string | undefined;
+  value?: string | undefined;
+}
+
 export interface CreateAccountGroupRequest {
   /** String that represents a human-readable group name */
   displayName?: string | undefined;
   externalId?: string | undefined;
   /** <Databricks> group ID */
   id?: string | undefined;
-  members?: AccountComplexValue[] | undefined;
+  members?: CreateAccountComplexValue[] | undefined;
   /** Container  for the group identifier. Workspace local versus account. */
-  meta?: AccountResourceMeta | undefined;
+  meta?: CreateAccountResourceMeta | undefined;
   /** Indicates if the group has the admin role. */
-  roles?: AccountComplexValue[] | undefined;
+  roles?: CreateAccountComplexValue[] | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
+}
+
+export interface CreateAccountName {
+  /** Family name of the <Databricks> user. */
+  familyName?: string | undefined;
+  /** Given name of the <Databricks> user. */
+  givenName?: string | undefined;
+}
+
+export interface CreateAccountResourceMeta {
+  /** Identifier for group type. Can be local workspace group (`WorkspaceGroup`) or account group (`Group`). */
+  resourceType?: string | undefined;
 }
 
 export interface CreateAccountServicePrincipalRequest {
@@ -285,7 +305,7 @@ export interface CreateAccountServicePrincipalRequest {
   /** <Databricks> service principal ID. */
   id?: string | undefined;
   /** Indicates if the group has the admin role. */
-  roles?: AccountComplexValue[] | undefined;
+  roles?: CreateAccountComplexValue[] | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -296,36 +316,67 @@ export interface CreateAccountUserRequest {
   /** String that represents a concatenation of given and family names. For example `John Smith`. */
   displayName?: string | undefined;
   /** All the emails associated with the <Databricks> user. */
-  emails?: AccountComplexValue[] | undefined;
+  emails?: CreateAccountComplexValue[] | undefined;
   /** External ID is not currently supported. It is reserved for future use. */
   externalId?: string | undefined;
   /** <Databricks> user ID. */
   id?: string | undefined;
-  name?: AccountName | undefined;
+  name?: CreateAccountName | undefined;
   /** Indicates if the group has the admin role. */
-  roles?: AccountComplexValue[] | undefined;
+  roles?: CreateAccountComplexValue[] | undefined;
   /** Email address of the <Databricks> user. */
   userName?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
 
+export interface CreateComplexValue {
+  display?: string | undefined;
+  primary?: boolean | undefined;
+  ref?: string | undefined;
+  type?: string | undefined;
+  value?: string | undefined;
+}
+
 export interface CreateGroupRequest {
   /** String that represents a human-readable group name */
   displayName?: string | undefined;
   /** Entitlements assigned to the group. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
-  entitlements?: ComplexValue[] | undefined;
+  entitlements?: CreateComplexValue[] | undefined;
   externalId?: string | undefined;
-  groups?: ComplexValue[] | undefined;
+  groups?: CreateComplexValue[] | undefined;
   /** <Databricks> group ID */
   id?: string | undefined;
-  members?: ComplexValue[] | undefined;
+  members?: CreateComplexValue[] | undefined;
   /** Container  for the group identifier. Workspace local versus account. */
-  meta?: ResourceMeta | undefined;
+  meta?: CreateResourceMeta | undefined;
   /** Corresponds to AWS instance profile/arn role. */
-  roles?: ComplexValue[] | undefined;
+  roles?: CreateComplexValue[] | undefined;
   /** The schema of the group. */
   schemas?: GroupSchema[] | undefined;
+}
+
+export interface CreateName {
+  /** Family name of the <Databricks> user. */
+  familyName?: string | undefined;
+  /** Given name of the <Databricks> user. */
+  givenName?: string | undefined;
+}
+
+export interface CreatePasswordAccessControlRequest {
+  /** name of the group */
+  groupName?: string | undefined;
+  /** Permission level */
+  permissionLevel?: PasswordPermission_Level | undefined;
+  /** application ID of a service principal */
+  servicePrincipalName?: string | undefined;
+  /** name of the user */
+  userName?: string | undefined;
+}
+
+export interface CreateResourceMeta {
+  /** Identifier for group type. Can be local workspace group (`WorkspaceGroup`) or account group (`Group`). */
+  resourceType?: string | undefined;
 }
 
 export interface CreateServicePrincipalRequest {
@@ -336,13 +387,13 @@ export interface CreateServicePrincipalRequest {
   /** String that represents a concatenation of given and family names. */
   displayName?: string | undefined;
   /** Entitlements assigned to the service principal. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
-  entitlements?: ComplexValue[] | undefined;
+  entitlements?: CreateComplexValue[] | undefined;
   externalId?: string | undefined;
-  groups?: ComplexValue[] | undefined;
+  groups?: CreateComplexValue[] | undefined;
   /** <Databricks> service principal ID. */
   id?: string | undefined;
   /** Corresponds to AWS instance profile/arn role. */
-  roles?: ComplexValue[] | undefined;
+  roles?: CreateComplexValue[] | undefined;
   /** The schema of the List response. */
   schemas?: ServicePrincipalSchema[] | undefined;
 }
@@ -353,17 +404,17 @@ export interface CreateUserRequest {
   /** String that represents a concatenation of given and family names. For example `John Smith`. This field cannot be updated through the Workspace SCIM APIs when [identity federation is enabled](https://docs.databricks.com/administration-guide/users-groups/best-practices.html#enable-identity-federation). Use Account SCIM APIs to update `displayName`. */
   displayName?: string | undefined;
   /** All the emails associated with the <Databricks> user. */
-  emails?: ComplexValue[] | undefined;
+  emails?: CreateComplexValue[] | undefined;
   /** Entitlements assigned to the user. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
-  entitlements?: ComplexValue[] | undefined;
+  entitlements?: CreateComplexValue[] | undefined;
   /** External ID is not currently supported. It is reserved for future use. */
   externalId?: string | undefined;
-  groups?: ComplexValue[] | undefined;
+  groups?: CreateComplexValue[] | undefined;
   /** <Databricks> user ID. */
   id?: string | undefined;
-  name?: Name | undefined;
+  name?: CreateName | undefined;
   /** Corresponds to AWS instance profile/arn role. */
-  roles?: ComplexValue[] | undefined;
+  roles?: CreateComplexValue[] | undefined;
   /** The schema of the user. */
   schemas?: UserSchema[] | undefined;
   /** Email address of the <Databricks> user. */
@@ -764,7 +815,7 @@ export interface PasswordPermissionsDescription {
 }
 
 export interface PasswordPermissionsRequest {
-  accessControlList?: PasswordAccessControlRequest[] | undefined;
+  accessControlList?: CreatePasswordAccessControlRequest[] | undefined;
 }
 
 export interface Patch {
@@ -854,19 +905,39 @@ export interface ServicePrincipal {
   schemas?: ServicePrincipalSchema[] | undefined;
 }
 
+export interface UpdateAccountComplexValue {
+  display?: string | undefined;
+  primary?: boolean | undefined;
+  ref?: string | undefined;
+  type?: string | undefined;
+  value?: string | undefined;
+}
+
 export interface UpdateAccountGroupRequest {
   /** String that represents a human-readable group name */
   displayName?: string | undefined;
   externalId?: string | undefined;
   /** <Databricks> group ID */
   id?: string | undefined;
-  members?: AccountComplexValue[] | undefined;
+  members?: UpdateAccountComplexValue[] | undefined;
   /** Container  for the group identifier. Workspace local versus account. */
-  meta?: AccountResourceMeta | undefined;
+  meta?: UpdateAccountResourceMeta | undefined;
   /** Indicates if the group has the admin role. */
-  roles?: AccountComplexValue[] | undefined;
+  roles?: UpdateAccountComplexValue[] | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
+}
+
+export interface UpdateAccountName {
+  /** Family name of the <Databricks> user. */
+  familyName?: string | undefined;
+  /** Given name of the <Databricks> user. */
+  givenName?: string | undefined;
+}
+
+export interface UpdateAccountResourceMeta {
+  /** Identifier for group type. Can be local workspace group (`WorkspaceGroup`) or account group (`Group`). */
+  resourceType?: string | undefined;
 }
 
 export interface UpdateAccountServicePrincipalRequest {
@@ -880,7 +951,7 @@ export interface UpdateAccountServicePrincipalRequest {
   /** <Databricks> service principal ID. */
   id?: string | undefined;
   /** Indicates if the group has the admin role. */
-  roles?: AccountComplexValue[] | undefined;
+  roles?: UpdateAccountComplexValue[] | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -891,36 +962,56 @@ export interface UpdateAccountUserRequest {
   /** String that represents a concatenation of given and family names. For example `John Smith`. */
   displayName?: string | undefined;
   /** All the emails associated with the <Databricks> user. */
-  emails?: AccountComplexValue[] | undefined;
+  emails?: UpdateAccountComplexValue[] | undefined;
   /** External ID is not currently supported. It is reserved for future use. */
   externalId?: string | undefined;
   /** <Databricks> user ID. */
   id?: string | undefined;
-  name?: AccountName | undefined;
+  name?: UpdateAccountName | undefined;
   /** Indicates if the group has the admin role. */
-  roles?: AccountComplexValue[] | undefined;
+  roles?: UpdateAccountComplexValue[] | undefined;
   /** Email address of the <Databricks> user. */
   userName?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
 
+export interface UpdateComplexValue {
+  display?: string | undefined;
+  primary?: boolean | undefined;
+  ref?: string | undefined;
+  type?: string | undefined;
+  value?: string | undefined;
+}
+
 export interface UpdateGroupRequest {
   /** String that represents a human-readable group name */
   displayName?: string | undefined;
   /** Entitlements assigned to the group. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
-  entitlements?: ComplexValue[] | undefined;
+  entitlements?: UpdateComplexValue[] | undefined;
   externalId?: string | undefined;
-  groups?: ComplexValue[] | undefined;
+  groups?: UpdateComplexValue[] | undefined;
   /** <Databricks> group ID */
   id?: string | undefined;
-  members?: ComplexValue[] | undefined;
+  members?: UpdateComplexValue[] | undefined;
   /** Container  for the group identifier. Workspace local versus account. */
-  meta?: ResourceMeta | undefined;
+  meta?: UpdateResourceMeta | undefined;
   /** Corresponds to AWS instance profile/arn role. */
-  roles?: ComplexValue[] | undefined;
+  roles?: UpdateComplexValue[] | undefined;
   /** The schema of the group. */
   schemas?: GroupSchema[] | undefined;
+}
+
+export interface UpdateName {
+  /** Family name of the <Databricks> user. */
+  familyName?: string | undefined;
+  /** Given name of the <Databricks> user. */
+  givenName?: string | undefined;
+}
+
+export interface UpdateResourceMeta {
+  /** Identifier for group type. Can be local workspace group (`WorkspaceGroup`) or account group (`Group`). */
+  resourceType?: string | undefined;
 }
 
 export interface UpdateServicePrincipalRequest {
@@ -931,13 +1022,13 @@ export interface UpdateServicePrincipalRequest {
   /** String that represents a concatenation of given and family names. */
   displayName?: string | undefined;
   /** Entitlements assigned to the service principal. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
-  entitlements?: ComplexValue[] | undefined;
+  entitlements?: UpdateComplexValue[] | undefined;
   externalId?: string | undefined;
-  groups?: ComplexValue[] | undefined;
+  groups?: UpdateComplexValue[] | undefined;
   /** <Databricks> service principal ID. */
   id?: string | undefined;
   /** Corresponds to AWS instance profile/arn role. */
-  roles?: ComplexValue[] | undefined;
+  roles?: UpdateComplexValue[] | undefined;
   /** The schema of the List response. */
   schemas?: ServicePrincipalSchema[] | undefined;
 }
@@ -948,17 +1039,17 @@ export interface UpdateUserRequest {
   /** String that represents a concatenation of given and family names. For example `John Smith`. This field cannot be updated through the Workspace SCIM APIs when [identity federation is enabled](https://docs.databricks.com/administration-guide/users-groups/best-practices.html#enable-identity-federation). Use Account SCIM APIs to update `displayName`. */
   displayName?: string | undefined;
   /** All the emails associated with the <Databricks> user. */
-  emails?: ComplexValue[] | undefined;
+  emails?: UpdateComplexValue[] | undefined;
   /** Entitlements assigned to the user. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
-  entitlements?: ComplexValue[] | undefined;
+  entitlements?: UpdateComplexValue[] | undefined;
   /** External ID is not currently supported. It is reserved for future use. */
   externalId?: string | undefined;
-  groups?: ComplexValue[] | undefined;
+  groups?: UpdateComplexValue[] | undefined;
   /** <Databricks> user ID. */
   id?: string | undefined;
-  name?: Name | undefined;
+  name?: UpdateName | undefined;
   /** Corresponds to AWS instance profile/arn role. */
-  roles?: ComplexValue[] | undefined;
+  roles?: UpdateComplexValue[] | undefined;
   /** The schema of the user. */
   schemas?: UserSchema[] | undefined;
   /** Email address of the <Databricks> user. */
@@ -1391,32 +1482,6 @@ export const unmarshalUserSchema: z.ZodType<User> = z
     userName: d.userName,
   }));
 
-export const marshalAccountComplexValueSchema: z.ZodType = z
-  .object({
-    display: z.string().optional(),
-    primary: z.boolean().optional(),
-    ref: z.string().optional(),
-    type: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    display: d.display,
-    primary: d.primary,
-    $ref: d.ref,
-    type: d.type,
-    value: d.value,
-  }));
-
-export const marshalAccountNameSchema: z.ZodType = z
-  .object({
-    familyName: z.string().optional(),
-    givenName: z.string().optional(),
-  })
-  .transform(d => ({
-    familyName: d.familyName,
-    givenName: d.givenName,
-  }));
-
 export const marshalAccountPatchSchema: z.ZodType = z
   .object({
     op: z.string().optional(),
@@ -1429,15 +1494,7 @@ export const marshalAccountPatchSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalAccountResourceMetaSchema: z.ZodType = z
-  .object({
-    resourceType: z.string().optional(),
-  })
-  .transform(d => ({
-    resourceType: d.resourceType,
-  }));
-
-export const marshalComplexValueSchema: z.ZodType = z
+export const marshalCreateAccountComplexValueSchema: z.ZodType = z
   .object({
     display: z.string().optional(),
     primary: z.boolean().optional(),
@@ -1458,9 +1515,13 @@ export const marshalCreateAccountGroupRequestSchema: z.ZodType = z
     displayName: z.string().optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    members: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
-    meta: z.lazy(() => marshalAccountResourceMetaSchema).optional(),
-    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    members: z
+      .array(z.lazy(() => marshalCreateAccountComplexValueSchema))
+      .optional(),
+    meta: z.lazy(() => marshalCreateAccountResourceMetaSchema).optional(),
+    roles: z
+      .array(z.lazy(() => marshalCreateAccountComplexValueSchema))
+      .optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1473,6 +1534,24 @@ export const marshalCreateAccountGroupRequestSchema: z.ZodType = z
     account_id: d.accountId,
   }));
 
+export const marshalCreateAccountNameSchema: z.ZodType = z
+  .object({
+    familyName: z.string().optional(),
+    givenName: z.string().optional(),
+  })
+  .transform(d => ({
+    familyName: d.familyName,
+    givenName: d.givenName,
+  }));
+
+export const marshalCreateAccountResourceMetaSchema: z.ZodType = z
+  .object({
+    resourceType: z.string().optional(),
+  })
+  .transform(d => ({
+    resourceType: d.resourceType,
+  }));
+
 export const marshalCreateAccountServicePrincipalRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
@@ -1480,7 +1559,9 @@ export const marshalCreateAccountServicePrincipalRequestSchema: z.ZodType = z
     displayName: z.string().optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    roles: z
+      .array(z.lazy(() => marshalCreateAccountComplexValueSchema))
+      .optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1497,11 +1578,15 @@ export const marshalCreateAccountUserRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     displayName: z.string().optional(),
-    emails: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    emails: z
+      .array(z.lazy(() => marshalCreateAccountComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    name: z.lazy(() => marshalAccountNameSchema).optional(),
-    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    name: z.lazy(() => marshalCreateAccountNameSchema).optional(),
+    roles: z
+      .array(z.lazy(() => marshalCreateAccountComplexValueSchema))
+      .optional(),
     userName: z.string().optional(),
     accountId: z.string().optional(),
   })
@@ -1517,16 +1602,34 @@ export const marshalCreateAccountUserRequestSchema: z.ZodType = z
     account_id: d.accountId,
   }));
 
+export const marshalCreateComplexValueSchema: z.ZodType = z
+  .object({
+    display: z.string().optional(),
+    primary: z.boolean().optional(),
+    ref: z.string().optional(),
+    type: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    display: d.display,
+    primary: d.primary,
+    $ref: d.ref,
+    type: d.type,
+    value: d.value,
+  }));
+
 export const marshalCreateGroupRequestSchema: z.ZodType = z
   .object({
     displayName: z.string().optional(),
-    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    entitlements: z
+      .array(z.lazy(() => marshalCreateComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
-    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    groups: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
     id: z.string().optional(),
-    members: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    meta: z.lazy(() => marshalResourceMetaSchema).optional(),
-    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    members: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
+    meta: z.lazy(() => marshalCreateResourceMetaSchema).optional(),
+    roles: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -1541,16 +1644,50 @@ export const marshalCreateGroupRequestSchema: z.ZodType = z
     schemas: d.schemas,
   }));
 
+export const marshalCreateNameSchema: z.ZodType = z
+  .object({
+    familyName: z.string().optional(),
+    givenName: z.string().optional(),
+  })
+  .transform(d => ({
+    familyName: d.familyName,
+    givenName: d.givenName,
+  }));
+
+export const marshalCreatePasswordAccessControlRequestSchema: z.ZodType = z
+  .object({
+    groupName: z.string().optional(),
+    permissionLevel: z.string().optional(),
+    servicePrincipalName: z.string().optional(),
+    userName: z.string().optional(),
+  })
+  .transform(d => ({
+    group_name: d.groupName,
+    permission_level: d.permissionLevel,
+    service_principal_name: d.servicePrincipalName,
+    user_name: d.userName,
+  }));
+
+export const marshalCreateResourceMetaSchema: z.ZodType = z
+  .object({
+    resourceType: z.string().optional(),
+  })
+  .transform(d => ({
+    resourceType: d.resourceType,
+  }));
+
 export const marshalCreateServicePrincipalRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     applicationId: z.string().optional(),
     displayName: z.string().optional(),
-    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    entitlements: z
+      .array(z.lazy(() => marshalCreateComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
-    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    groups: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
     id: z.string().optional(),
-    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    roles: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -1569,13 +1706,15 @@ export const marshalCreateUserRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     displayName: z.string().optional(),
-    emails: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    emails: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
+    entitlements: z
+      .array(z.lazy(() => marshalCreateComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
-    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    groups: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
     id: z.string().optional(),
-    name: z.lazy(() => marshalNameSchema).optional(),
-    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    name: z.lazy(() => marshalCreateNameSchema).optional(),
+    roles: z.array(z.lazy(() => marshalCreateComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     userName: z.string().optional(),
   })
@@ -1593,34 +1732,10 @@ export const marshalCreateUserRequestSchema: z.ZodType = z
     userName: d.userName,
   }));
 
-export const marshalNameSchema: z.ZodType = z
-  .object({
-    familyName: z.string().optional(),
-    givenName: z.string().optional(),
-  })
-  .transform(d => ({
-    familyName: d.familyName,
-    givenName: d.givenName,
-  }));
-
-export const marshalPasswordAccessControlRequestSchema: z.ZodType = z
-  .object({
-    groupName: z.string().optional(),
-    permissionLevel: z.string().optional(),
-    servicePrincipalName: z.string().optional(),
-    userName: z.string().optional(),
-  })
-  .transform(d => ({
-    group_name: d.groupName,
-    permission_level: d.permissionLevel,
-    service_principal_name: d.servicePrincipalName,
-    user_name: d.userName,
-  }));
-
 export const marshalPasswordPermissionsRequestSchema: z.ZodType = z
   .object({
     accessControlList: z
-      .array(z.lazy(() => marshalPasswordAccessControlRequestSchema))
+      .array(z.lazy(() => marshalCreatePasswordAccessControlRequestSchema))
       .optional(),
   })
   .transform(d => ({
@@ -1717,12 +1832,20 @@ export const marshalPatchUserRequestSchema: z.ZodType = z
     schemas: d.schemas,
   }));
 
-export const marshalResourceMetaSchema: z.ZodType = z
+export const marshalUpdateAccountComplexValueSchema: z.ZodType = z
   .object({
-    resourceType: z.string().optional(),
+    display: z.string().optional(),
+    primary: z.boolean().optional(),
+    ref: z.string().optional(),
+    type: z.string().optional(),
+    value: z.string().optional(),
   })
   .transform(d => ({
-    resourceType: d.resourceType,
+    display: d.display,
+    primary: d.primary,
+    $ref: d.ref,
+    type: d.type,
+    value: d.value,
   }));
 
 export const marshalUpdateAccountGroupRequestSchema: z.ZodType = z
@@ -1730,9 +1853,13 @@ export const marshalUpdateAccountGroupRequestSchema: z.ZodType = z
     displayName: z.string().optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    members: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
-    meta: z.lazy(() => marshalAccountResourceMetaSchema).optional(),
-    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    members: z
+      .array(z.lazy(() => marshalUpdateAccountComplexValueSchema))
+      .optional(),
+    meta: z.lazy(() => marshalUpdateAccountResourceMetaSchema).optional(),
+    roles: z
+      .array(z.lazy(() => marshalUpdateAccountComplexValueSchema))
+      .optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1745,6 +1872,24 @@ export const marshalUpdateAccountGroupRequestSchema: z.ZodType = z
     account_id: d.accountId,
   }));
 
+export const marshalUpdateAccountNameSchema: z.ZodType = z
+  .object({
+    familyName: z.string().optional(),
+    givenName: z.string().optional(),
+  })
+  .transform(d => ({
+    familyName: d.familyName,
+    givenName: d.givenName,
+  }));
+
+export const marshalUpdateAccountResourceMetaSchema: z.ZodType = z
+  .object({
+    resourceType: z.string().optional(),
+  })
+  .transform(d => ({
+    resourceType: d.resourceType,
+  }));
+
 export const marshalUpdateAccountServicePrincipalRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
@@ -1752,7 +1897,9 @@ export const marshalUpdateAccountServicePrincipalRequestSchema: z.ZodType = z
     displayName: z.string().optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    roles: z
+      .array(z.lazy(() => marshalUpdateAccountComplexValueSchema))
+      .optional(),
     accountId: z.string().optional(),
   })
   .transform(d => ({
@@ -1769,11 +1916,15 @@ export const marshalUpdateAccountUserRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     displayName: z.string().optional(),
-    emails: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    emails: z
+      .array(z.lazy(() => marshalUpdateAccountComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    name: z.lazy(() => marshalAccountNameSchema).optional(),
-    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    name: z.lazy(() => marshalUpdateAccountNameSchema).optional(),
+    roles: z
+      .array(z.lazy(() => marshalUpdateAccountComplexValueSchema))
+      .optional(),
     userName: z.string().optional(),
     accountId: z.string().optional(),
   })
@@ -1789,16 +1940,34 @@ export const marshalUpdateAccountUserRequestSchema: z.ZodType = z
     account_id: d.accountId,
   }));
 
+export const marshalUpdateComplexValueSchema: z.ZodType = z
+  .object({
+    display: z.string().optional(),
+    primary: z.boolean().optional(),
+    ref: z.string().optional(),
+    type: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    display: d.display,
+    primary: d.primary,
+    $ref: d.ref,
+    type: d.type,
+    value: d.value,
+  }));
+
 export const marshalUpdateGroupRequestSchema: z.ZodType = z
   .object({
     displayName: z.string().optional(),
-    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    entitlements: z
+      .array(z.lazy(() => marshalUpdateComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
-    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    groups: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
     id: z.string().optional(),
-    members: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    meta: z.lazy(() => marshalResourceMetaSchema).optional(),
-    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    members: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
+    meta: z.lazy(() => marshalUpdateResourceMetaSchema).optional(),
+    roles: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -1813,16 +1982,36 @@ export const marshalUpdateGroupRequestSchema: z.ZodType = z
     schemas: d.schemas,
   }));
 
+export const marshalUpdateNameSchema: z.ZodType = z
+  .object({
+    familyName: z.string().optional(),
+    givenName: z.string().optional(),
+  })
+  .transform(d => ({
+    familyName: d.familyName,
+    givenName: d.givenName,
+  }));
+
+export const marshalUpdateResourceMetaSchema: z.ZodType = z
+  .object({
+    resourceType: z.string().optional(),
+  })
+  .transform(d => ({
+    resourceType: d.resourceType,
+  }));
+
 export const marshalUpdateServicePrincipalRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     applicationId: z.string().optional(),
     displayName: z.string().optional(),
-    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    entitlements: z
+      .array(z.lazy(() => marshalUpdateComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
-    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    groups: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
     id: z.string().optional(),
-    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    roles: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -1841,13 +2030,15 @@ export const marshalUpdateUserRequestSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     displayName: z.string().optional(),
-    emails: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
-    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    emails: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
+    entitlements: z
+      .array(z.lazy(() => marshalUpdateComplexValueSchema))
+      .optional(),
     externalId: z.string().optional(),
-    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    groups: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
     id: z.string().optional(),
-    name: z.lazy(() => marshalNameSchema).optional(),
-    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    name: z.lazy(() => marshalUpdateNameSchema).optional(),
+    roles: z.array(z.lazy(() => marshalUpdateComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     userName: z.string().optional(),
   })

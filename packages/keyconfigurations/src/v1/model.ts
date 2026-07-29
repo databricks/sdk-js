@@ -95,7 +95,7 @@ export interface CreateCustomerManagedKeyRequest {
     | {$case: 'azureKeyInfo'; azureKeyInfo: CreateAzureKeyInfo}
     | undefined;
   /** The cases that the key can be used for. */
-  useCases?: CmkUseCase[] | undefined;
+  useCases: CmkUseCase[];
 }
 
 export interface CreateGcpKeyInfo {
@@ -332,7 +332,7 @@ export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    useCases: z.array(z.string()).optional(),
+    useCases: z.array(z.string()),
   })
   .transform(d => ({
     account_id: d.accountId,

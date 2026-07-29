@@ -41,10 +41,13 @@ import type {
   UpdateKnowledgeSourceRequest,
 } from './model';
 import {
-  marshalExampleSchema,
-  marshalKnowledgeAssistantSchema,
-  marshalKnowledgeSourceSchema,
+  marshalCreateExampleSchema,
+  marshalCreateKnowledgeAssistantSchema,
+  marshalCreateKnowledgeSourceSchema,
   marshalSyncKnowledgeSourcesRequestSchema,
+  marshalUpdateExampleSchema,
+  marshalUpdateKnowledgeAssistantSchema,
+  marshalUpdateKnowledgeSourceSchema,
   unmarshalExampleSchema,
   unmarshalKnowledgeAssistantSchema,
   unmarshalKnowledgeSourceSchema,
@@ -93,7 +96,7 @@ export class KnowledgeAssistantsClient {
   ): Promise<Example> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/${req.parent ?? ''}/examples`;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const body = marshalRequest(req.example, marshalCreateExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -125,7 +128,7 @@ export class KnowledgeAssistantsClient {
     const url = `${host}/api/2.1/knowledge-assistants`;
     const body = marshalRequest(
       req.knowledgeAssistant,
-      marshalKnowledgeAssistantSchema
+      marshalCreateKnowledgeAssistantSchema
     );
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -158,7 +161,7 @@ export class KnowledgeAssistantsClient {
     const url = `${host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
     const body = marshalRequest(
       req.knowledgeSource,
-      marshalKnowledgeSourceSchema
+      marshalCreateKnowledgeSourceSchema
     );
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -546,7 +549,7 @@ export class KnowledgeAssistantsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const body = marshalRequest(req.example, marshalUpdateExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -590,7 +593,7 @@ export class KnowledgeAssistantsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.knowledgeAssistant,
-      marshalKnowledgeAssistantSchema
+      marshalUpdateKnowledgeAssistantSchema
     );
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -635,7 +638,7 @@ export class KnowledgeAssistantsClient {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.knowledgeSource,
-      marshalKnowledgeSourceSchema
+      marshalUpdateKnowledgeSourceSchema
     );
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
