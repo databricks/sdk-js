@@ -236,7 +236,7 @@ export interface AccountUser {
   active?: boolean | undefined;
   /** String that represents a concatenation of given and family names. For example `John Smith`. */
   displayName?: string | undefined;
-  /** All the emails associated with the <Databricks> user. */
+  /** All the emails associated with the <Databricks> user. This attribute cannot be updated through the SCIM PATCH or PUT APIs; any supplied change is ignored. */
   emails?: AccountComplexValue[] | undefined;
   /** External ID is not currently supported. It is reserved for future use. */
   externalId?: string | undefined;
@@ -245,7 +245,7 @@ export interface AccountUser {
   name?: AccountName | undefined;
   /** Indicates if the group has the admin role. */
   roles?: AccountComplexValue[] | undefined;
-  /** Email address of the <Databricks> user. */
+  /** Email address of the <Databricks> user. This attribute cannot be updated through the SCIM PATCH or PUT APIs; any supplied change is ignored. */
   userName?: string | undefined;
   /** <Databricks> account ID */
   accountId?: string | undefined;
@@ -970,7 +970,7 @@ export interface User {
   active?: boolean | undefined;
   /** String that represents a concatenation of given and family names. For example `John Smith`. This field cannot be updated through the Workspace SCIM APIs when [identity federation is enabled](https://docs.databricks.com/administration-guide/users-groups/best-practices.html#enable-identity-federation). Use Account SCIM APIs to update `displayName`. */
   displayName?: string | undefined;
-  /** All the emails associated with the <Databricks> user. */
+  /** All the emails associated with the <Databricks> user. This attribute cannot be updated through the SCIM PATCH or PUT APIs; any supplied change is ignored. */
   emails?: ComplexValue[] | undefined;
   /** Entitlements assigned to the user. See [assigning entitlements](https://docs.databricks.com/administration-guide/users-groups/index.html#assigning-entitlements) for a full list of supported values. */
   entitlements?: ComplexValue[] | undefined;
@@ -984,7 +984,7 @@ export interface User {
   roles?: ComplexValue[] | undefined;
   /** The schema of the user. */
   schemas?: UserSchema[] | undefined;
-  /** Email address of the <Databricks> user. */
+  /** Email address of the <Databricks> user. This attribute cannot be updated through the SCIM PATCH or PUT APIs; any supplied change is ignored. */
   userName?: string | undefined;
 }
 

@@ -845,15 +845,12 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderConfig {
  *
  * Authentication is one of two mutually exclusive modes, exactly one of which
  * must be supplied on Create:
- * - Access keys: set both `aws_access_key_id` and `aws_secret_access_key`,
- * leave `service_credential` unset.
+ * - Access keys: set `aws_access_key`, leave `service_credential` unset.
  * - UC service credential: set `service_credential.name` to the AIP-122
- * resource-name form `credentials/{name}`, leave both access-key fields
- * unset. The credential value lives in UC and is referenced by name, not
- * held on this message.
- * Setting `service_credential` alongside either access-key field is
- * rejected by service-side validation on Create; the proto itself allows any
- * combination on the wire.
+ * resource-name form `credentials/{name}`, leave `aws_access_key` unset. The
+ * credential value lives in UC and is referenced by name, not held on this
+ * message.
+ * Setting more than one mode is rejected.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
@@ -863,24 +860,27 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
    */
   region?: string | undefined;
   /**
-   * AWS access key ID for Bedrock authentication. Required on Create when using
-   * access-key auth; must be paired with `aws_secret_access_key` and is
-   * mutually exclusive with `service_credential`. Treated as
-   * username-equivalent (not a secret value): round-trips on reads and is
-   * scrubbed from audit logs.
+   * Deprecated flat AWS access key ID. Superseded by
+   * `aws_access_key.access_key_id`. Kept for one migration cycle; the handler
+   * mirrors it to/from `aws_access_key`. Treated as username-equivalent (not a
+   * secret value): round-trips on reads and is scrubbed from audit logs.
    */
   awsAccessKeyId?: string | undefined;
   /**
-   * AWS secret access key paired with `aws_access_key_id`. Required on Create
-   * when using access-key auth; mutually exclusive with `service_credential`.
-   * Supplied as inline plaintext via `ProviderSecret.plaintext`.
+   * Deprecated flat AWS secret access key. Superseded by
+   * `aws_access_key.secret_access_key`. Kept for one migration cycle; the
+   * handler mirrors it to/from `aws_access_key`. Supplied as inline plaintext
+   * via `ProviderSecret.plaintext`.
    */
   awsSecretAccessKey?: ModelProviderServiceConfig_ProviderSecret | undefined;
   /**
    * Authentication mode. Exactly one variant may be set.
-   * (-- The access-key pair (aws_access_key_id + aws_secret_access_key) stays
-   * outside the oneof because a oneof arm holds a single field; that
-   * cross-exclusivity is validator-enforced. --)
+   * (-- `aws_access_key` is the canonical home for the access-key pair. The
+   * top-level `aws_access_key_id` / `aws_secret_access_key` fields are the
+   * pre-AIGOV-188 flat form, kept for one migration cycle: on read the handler
+   * populates BOTH the flat fields and this arm so old and new clients both
+   * work, and on write it accepts either shape. The flat fields are removed
+   * once all readers/writers have migrated to the oneof. --)
    */
   authMode?:
     | {
@@ -889,13 +889,21 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
          * Reference to a UC service credential authorizing Bedrock requests. On
          * Create the caller supplies `service_credential.name` in the AIP-122
          * resource-name form `credentials/{name}`. Required on Create when using
-         * UC-service-credential auth; mutually exclusive with the aws_access_key_id
-         * + aws_secret_access_key pair. The credential is referenced by name; its
-         * value is not carried here. On read the resolved `id` and `is_deleted` are
-         * also populated. Only supported on AWS-hosted workspaces; Create requests
-         * from other clouds are rejected with INVALID_PARAMETER_VALUE.
+         * UC-service-credential auth; mutually exclusive with `aws_access_key`. The
+         * credential is referenced by name; its value is not carried here. On read the
+         * resolved `id` and `is_deleted` are also populated. Only supported on AWS-hosted
+         * workspaces; Create requests from other clouds are rejected with
+         * INVALID_PARAMETER_VALUE.
          */
         serviceCredential: ModelProviderServiceConfig_ServiceCredential;
+      }
+    | {
+        $case: 'awsAccessKey';
+        /**
+         * AWS access-key-pair auth. Mutually exclusive with `service_credential`.
+         * Supersedes the flat `aws_access_key_id` / `aws_secret_access_key` fields.
+         */
+        awsAccessKey: ModelProviderServiceConfig_AwsAccessKey;
       }
     | undefined;
 }
@@ -976,6 +984,23 @@ export interface ModelProviderServiceConfig_AnthropicProviderRelayedConfig {
     | undefined;
 }
 
+/** AWS access-key-pair auth for Amazon Bedrock: a SigV4-signing key pair. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_AwsAccessKey {
+  /**
+   * AWS access key ID. Required on Create when using access-key auth. Treated as
+   * username-equivalent (not a secret value): round-trips on reads and is
+   * scrubbed from audit logs.
+   */
+  accessKeyId?: string | undefined;
+  /**
+   * AWS secret access key paired with `access_key_id`. Required on Create when
+   * using access-key auth. Supplied as inline plaintext via
+   * `ProviderSecret.plaintext`.
+   */
+  secretAccessKey?: ModelProviderServiceConfig_ProviderSecret | undefined;
+}
+
 /** Azure OpenAI provider configuration. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_AzureOpenAiProviderConfig {
@@ -997,35 +1022,36 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderConfig {
 /**
  * Direct form of Azure OpenAI provider config. Exactly one of three
  * mutually-exclusive auth modes must be supplied on Create:
- * - API key: set `api_key`, leave the Entra fields and `service_credential`
- * unset.
- * - Entra ID (service principal): set all of `tenant_id`, `client_id`, and
- * `client_secret`, leave `api_key` and `service_credential` unset.
+ * - API key: set `api_key`, leave `entra_service_principal` and
+ * `service_credential` unset.
+ * - Entra ID (service principal): set `entra_service_principal`, leave
+ * `api_key` and `service_credential` unset.
  * - UC service credential: set `service_credential.name` to the AIP-122
- * resource-name form `credentials/{name}`, leave `api_key` and all Entra
- * fields unset. The credential value lives in UC and is referenced by name,
- * not held on this message. Only supported on Azure-hosted workspaces.
- * Setting more than one mode, or an incomplete Entra triple, is rejected.
+ * resource-name form `credentials/{name}`, leave `api_key` and
+ * `entra_service_principal` unset. The credential value lives in UC and is
+ * referenced by name, not held on this message. Only supported on
+ * Azure-hosted workspaces.
+ * Setting more than one mode is rejected.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
   /**
-   * Entra ID (Azure AD) tenant ID for service-principal auth. Set together with
-   * `client_id` and `client_secret`; mutually exclusive with `api_key` and
-   * `service_credential`.
+   * Deprecated flat Entra tenant ID. Superseded by
+   * `entra_service_principal.tenant_id`. Kept for one migration cycle; the
+   * handler mirrors it to/from `entra_service_principal`.
    */
   tenantId?: string | undefined;
   /**
-   * Entra ID client (application) ID for service-principal auth. Set together
-   * with `tenant_id` and `client_secret`; mutually exclusive with `api_key`
-   * and `service_credential`.
+   * Deprecated flat Entra client ID. Superseded by
+   * `entra_service_principal.client_id`. Kept for one migration cycle; the
+   * handler mirrors it to/from `entra_service_principal`.
    */
   clientId?: string | undefined;
   /**
-   * Entra ID client secret for service-principal auth. Set together with
-   * `tenant_id` and `client_id`; mutually exclusive with `api_key` and
-   * `service_credential`. Supplied as
-   * inline plaintext via `ProviderSecret.plaintext`.
+   * Deprecated flat Entra client secret. Superseded by
+   * `entra_service_principal.client_secret`. Kept for one migration cycle; the
+   * handler mirrors it to/from `entra_service_principal`. Supplied as inline
+   * plaintext via `ProviderSecret.plaintext`.
    */
   clientSecret?: ModelProviderServiceConfig_ProviderSecret | undefined;
   /**
@@ -1035,16 +1061,20 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
   baseUrl?: string | undefined;
   /**
    * Authentication mode. Exactly one variant may be set.
-   * (-- The Entra service principal (tenant_id + client_id + client_secret) stays
-   * outside the oneof because a oneof arm holds a single field; that
-   * cross-exclusivity and the Entra-triple completeness are validator-enforced. --)
+   * (-- `entra_service_principal` is the canonical home for the Entra triple. The
+   * top-level `tenant_id` / `client_id` / `client_secret` fields are the
+   * pre-AIGOV-188 flat form, kept for one migration cycle: on read the handler
+   * populates BOTH the flat fields and this arm so old and new clients both
+   * work, and on write it accepts either shape. The flat fields are removed
+   * once all readers/writers have migrated to the oneof. --)
    */
   authMode?:
     | {
         $case: 'apiKey';
         /**
-         * Azure OpenAI API key. Mutually exclusive with the Entra fields. Supplied as
-         * inline plaintext via `ProviderSecret.plaintext`.
+         * Azure OpenAI API key. Mutually exclusive with the Entra and
+         * service-credential modes. Supplied as inline plaintext via
+         * `ProviderSecret.plaintext`.
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
       }
@@ -1054,14 +1084,23 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
          * Reference to a UC service credential authorizing Azure OpenAI requests. On
          * Create the caller supplies `service_credential.name` in the AIP-122
          * resource-name form `credentials/{name}`. Required on Create when using
-         * UC-service-credential auth; mutually exclusive with `api_key` and with the
-         * Entra triple (tenant_id + client_id + client_secret). The credential is
+         * UC-service-credential auth; mutually exclusive with `api_key` and
+         * `entra_service_principal`. The credential is
          * referenced by name; its value is not carried here. On read the resolved `id`
          * and `is_deleted` are also populated. Only supported on Azure-hosted
          * workspaces; Create requests from other clouds are rejected with
          * INVALID_PARAMETER_VALUE.
          */
         serviceCredential: ModelProviderServiceConfig_ServiceCredential;
+      }
+    | {
+        $case: 'entraServicePrincipal';
+        /**
+         * Entra ID (service principal) auth. Mutually exclusive with `api_key` and
+         * `service_credential`. Supersedes the flat `tenant_id` / `client_id` /
+         * `client_secret` fields.
+         */
+        entraServicePrincipal: ModelProviderServiceConfig_EntraServicePrincipal;
       }
     | undefined;
 }
@@ -1115,6 +1154,37 @@ export interface ModelProviderServiceConfig_CustomProviderDirectConfig {
          * `ProviderSecret.plaintext`. Set this for bearer-token auth.
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
+      }
+    | undefined;
+}
+
+/**
+ * Entra ID (Azure AD) service-principal auth: AI Gateway exchanges the
+ * `tenant_id` + `client_id` identify the service principal, and the `credential`
+ * oneof proves that identity, exchanged for an Entra bearer token on outbound
+ * requests via the OAuth2 client-credentials grant. Shared by the Azure OpenAI
+ * and Microsoft Foundry provider configs.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_EntraServicePrincipal {
+  /** Entra ID (Azure AD) tenant ID. Required on Create. */
+  tenantId?: string | undefined;
+  /** Entra ID client (application) ID. Required on Create. */
+  clientId?: string | undefined;
+  /**
+   * How the service principal proves its identity. Exactly one variant must be
+   * set on Create. Today only `client_secret` is supported.
+   * (-- A oneof so additional proof mechanisms can be added as non-breaking
+   * variants without changing the tenant_id / client_id identity fields. --)
+   */
+  credential?:
+    | {
+        $case: 'clientSecret';
+        /**
+         * Entra ID client secret. Supplied as inline plaintext via
+         * `ProviderSecret.plaintext`.
+         */
+        clientSecret: ModelProviderServiceConfig_ProviderSecret;
       }
     | undefined;
 }
@@ -1187,53 +1257,58 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderConfig {
  *
  * Authentication is one of three mutually exclusive modes, exactly one of which
  * must be supplied on Create:
- * - API key: set `api_key`, leave the Entra fields and `service_credential`
- * unset.
- * - Entra ID (service principal): set all of `tenant_id`, `client_id`, and
- * `client_secret`, leave `api_key` and `service_credential` unset. AI
- * Gateway exchanges these for an Entra bearer token on outbound requests via
- * the OAuth2 client-credentials grant.
+ * - API key: set `api_key`, leave `entra_service_principal` and
+ * `service_credential` unset.
+ * - Entra ID (service principal): set `entra_service_principal`, leave
+ * `api_key` and `service_credential` unset. AI Gateway exchanges these for
+ * an Entra bearer token on outbound requests via the OAuth2
+ * client-credentials grant.
  * - UC service credential: set `service_credential.name` to the AIP-122
- * resource-name form `credentials/{name}`, leave `api_key` and all Entra
- * fields unset. The credential value lives in UC and is referenced by name,
- * not held on this message. Only supported on Azure-hosted workspaces.
- * Setting more than one mode, or an incomplete Entra triple, is rejected.
+ * resource-name form `credentials/{name}`, leave `api_key` and
+ * `entra_service_principal` unset. The credential value lives in UC and is
+ * referenced by name, not held on this message. Only supported on
+ * Azure-hosted workspaces.
+ * Setting more than one mode is rejected.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig {
   /** Microsoft AI Foundry endpoint URL. Required on Create. */
   baseUrl?: string | undefined;
   /**
-   * Entra ID (Azure AD) tenant ID for service-principal auth. Set together with
-   * `client_id` and `client_secret`; mutually exclusive with `api_key` and
-   * `service_credential`.
+   * Deprecated flat Entra tenant ID. Superseded by
+   * `entra_service_principal.tenant_id`. Kept for one migration cycle; the
+   * handler mirrors it to/from `entra_service_principal`.
    */
   tenantId?: string | undefined;
   /**
-   * Entra ID client (application) ID for service-principal auth. Set together
-   * with `tenant_id` and `client_secret`; mutually exclusive with `api_key`
-   * and `service_credential`.
+   * Deprecated flat Entra client ID. Superseded by
+   * `entra_service_principal.client_id`. Kept for one migration cycle; the
+   * handler mirrors it to/from `entra_service_principal`.
    */
   clientId?: string | undefined;
   /**
-   * Entra ID client secret for service-principal auth. Set together with
-   * `tenant_id` and `client_id`; mutually exclusive with `api_key` and
-   * `service_credential`. Supplied as
-   * inline plaintext via `ProviderSecret.plaintext`.
+   * Deprecated flat Entra client secret. Superseded by
+   * `entra_service_principal.client_secret`. Kept for one migration cycle; the
+   * handler mirrors it to/from `entra_service_principal`. Supplied as inline
+   * plaintext via `ProviderSecret.plaintext`.
    */
   clientSecret?: ModelProviderServiceConfig_ProviderSecret | undefined;
   /**
    * Authentication mode. Exactly one variant may be set.
-   * (-- The Entra service principal (tenant_id + client_id + client_secret) stays
-   * outside the oneof because a oneof arm holds a single field; that
-   * cross-exclusivity and the Entra-triple completeness are validator-enforced. --)
+   * (-- `entra_service_principal` is the canonical home for the Entra triple. The
+   * top-level `tenant_id` / `client_id` / `client_secret` fields are the
+   * pre-AIGOV-188 flat form, kept for one migration cycle: on read the handler
+   * populates BOTH the flat fields and this arm so old and new clients both
+   * work, and on write it accepts either shape. The flat fields are removed
+   * once all readers/writers have migrated to the oneof. --)
    */
   authMode?:
     | {
         $case: 'apiKey';
         /**
-         * Microsoft AI Foundry API key. Mutually exclusive with the Entra fields.
-         * Supplied as inline plaintext via `ProviderSecret.plaintext`.
+         * Microsoft AI Foundry API key. Mutually exclusive with the Entra and
+         * service-credential modes. Supplied as inline plaintext via
+         * `ProviderSecret.plaintext`.
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
       }
@@ -1243,14 +1318,23 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig
          * Reference to a UC service credential authorizing Microsoft Foundry requests.
          * On Create the caller supplies `service_credential.name` in the AIP-122
          * resource-name form `credentials/{name}`. Required on Create when using
-         * UC-service-credential auth; mutually exclusive with `api_key` and with the
-         * Entra triple (tenant_id + client_id + client_secret). The credential is
+         * UC-service-credential auth; mutually exclusive with `api_key` and
+         * `entra_service_principal`. The credential is
          * referenced by name; its value is not carried here. On read the resolved `id`
          * and `is_deleted` are also populated. Only supported on Azure-hosted
          * workspaces; Create requests from other clouds are rejected with
          * INVALID_PARAMETER_VALUE.
          */
         serviceCredential: ModelProviderServiceConfig_ServiceCredential;
+      }
+    | {
+        $case: 'entraServicePrincipal';
+        /**
+         * Entra ID (service principal) auth. Mutually exclusive with `api_key` and
+         * `service_credential`. Supersedes the flat `tenant_id` / `client_id` /
+         * `client_secret` fields.
+         */
+        entraServicePrincipal: ModelProviderServiceConfig_EntraServicePrincipal;
       }
     | undefined;
 }
@@ -2004,6 +2088,9 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
       service_credential: z
         .lazy(() => unmarshalModelProviderServiceConfig_ServiceCredentialSchema)
         .optional(),
+      aws_access_key: z
+        .lazy(() => unmarshalModelProviderServiceConfig_AwsAccessKeySchema)
+        .optional(),
     })
     .transform(d => ({
       region: d.region,
@@ -2015,7 +2102,9 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
               $case: 'serviceCredential' as const,
               serviceCredential: d.service_credential,
             }
-          : undefined,
+          : d.aws_access_key !== undefined
+            ? {$case: 'awsAccessKey' as const, awsAccessKey: d.aws_access_key}
+            : undefined,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2070,6 +2159,20 @@ export const unmarshalModelProviderServiceConfig_AnthropicProviderRelayedConfigS
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType<ModelProviderServiceConfig_AwsAccessKey> =
+  z
+    .object({
+      access_key_id: z.string().optional(),
+      secret_access_key: z
+        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      accessKeyId: d.access_key_id,
+      secretAccessKey: d.secret_access_key,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderConfigSchema: z.ZodType<ModelProviderServiceConfig_AzureOpenAiProviderConfig> =
   z
     .object({
@@ -2103,6 +2206,11 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfig
       service_credential: z
         .lazy(() => unmarshalModelProviderServiceConfig_ServiceCredentialSchema)
         .optional(),
+      entra_service_principal: z
+        .lazy(
+          () => unmarshalModelProviderServiceConfig_EntraServicePrincipalSchema
+        )
+        .optional(),
     })
     .transform(d => ({
       tenantId: d.tenant_id,
@@ -2117,7 +2225,12 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfig
                 $case: 'serviceCredential' as const,
                 serviceCredential: d.service_credential,
               }
-            : undefined,
+            : d.entra_service_principal !== undefined
+              ? {
+                  $case: 'entraServicePrincipal' as const,
+                  entraServicePrincipal: d.entra_service_principal,
+                }
+              : undefined,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2152,6 +2265,25 @@ export const unmarshalModelProviderServiceConfig_CustomProviderDirectConfigSchem
       authMode:
         d.api_key !== undefined
           ? {$case: 'apiKey' as const, apiKey: d.api_key}
+          : undefined,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalModelProviderServiceConfig_EntraServicePrincipalSchema: z.ZodType<ModelProviderServiceConfig_EntraServicePrincipal> =
+  z
+    .object({
+      tenant_id: z.string().optional(),
+      client_id: z.string().optional(),
+      client_secret: z
+        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      tenantId: d.tenant_id,
+      clientId: d.client_id,
+      credential:
+        d.client_secret !== undefined
+          ? {$case: 'clientSecret' as const, clientSecret: d.client_secret}
           : undefined,
     }));
 
@@ -2226,6 +2358,11 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
       service_credential: z
         .lazy(() => unmarshalModelProviderServiceConfig_ServiceCredentialSchema)
         .optional(),
+      entra_service_principal: z
+        .lazy(
+          () => unmarshalModelProviderServiceConfig_EntraServicePrincipalSchema
+        )
+        .optional(),
     })
     .transform(d => ({
       baseUrl: d.base_url,
@@ -2240,7 +2377,12 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
                 $case: 'serviceCredential' as const,
                 serviceCredential: d.service_credential,
               }
-            : undefined,
+            : d.entra_service_principal !== undefined
+              ? {
+                  $case: 'entraServicePrincipal' as const,
+                  entraServicePrincipal: d.entra_service_principal,
+                }
+              : undefined,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2795,6 +2937,12 @@ export const marshalModelProviderServiceConfig_AmazonBedrockProviderDirectConfig
               () => marshalModelProviderServiceConfig_ServiceCredentialSchema
             ),
           }),
+          z.object({
+            $case: z.literal('awsAccessKey'),
+            awsAccessKey: z.lazy(
+              () => marshalModelProviderServiceConfig_AwsAccessKeySchema
+            ),
+          }),
         ])
         .optional(),
     })
@@ -2804,6 +2952,9 @@ export const marshalModelProviderServiceConfig_AmazonBedrockProviderDirectConfig
       aws_secret_access_key: d.awsSecretAccessKey,
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
+      }),
+      ...(d.authMode?.$case === 'awsAccessKey' && {
+        aws_access_key: d.authMode.awsAccessKey,
       }),
     }));
 
@@ -2869,6 +3020,19 @@ export const marshalModelProviderServiceConfig_AnthropicProviderRelayedConfigSch
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType = z
+  .object({
+    accessKeyId: z.string().optional(),
+    secretAccessKey: z
+      .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    access_key_id: d.accessKeyId,
+    secret_access_key: d.secretAccessKey,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelProviderServiceConfig_AzureOpenAiProviderConfigSchema: z.ZodType =
   z
     .object({
@@ -2914,6 +3078,13 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSc
               () => marshalModelProviderServiceConfig_ServiceCredentialSchema
             ),
           }),
+          z.object({
+            $case: z.literal('entraServicePrincipal'),
+            entraServicePrincipal: z.lazy(
+              () =>
+                marshalModelProviderServiceConfig_EntraServicePrincipalSchema
+            ),
+          }),
         ])
         .optional(),
     })
@@ -2925,6 +3096,9 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSc
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
+      }),
+      ...(d.authMode?.$case === 'entraServicePrincipal' && {
+        entra_service_principal: d.authMode.entraServicePrincipal,
       }),
     }));
 
@@ -2969,6 +3143,31 @@ export const marshalModelProviderServiceConfig_CustomProviderDirectConfigSchema:
     .transform(d => ({
       base_url: d.baseUrl,
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalModelProviderServiceConfig_EntraServicePrincipalSchema: z.ZodType =
+  z
+    .object({
+      tenantId: z.string().optional(),
+      clientId: z.string().optional(),
+      credential: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('clientSecret'),
+            clientSecret: z.lazy(
+              () => marshalModelProviderServiceConfig_ProviderSecretSchema
+            ),
+          }),
+        ])
+        .optional(),
+    })
+    .transform(d => ({
+      tenant_id: d.tenantId,
+      client_id: d.clientId,
+      ...(d.credential?.$case === 'clientSecret' && {
+        client_secret: d.credential.clientSecret,
+      }),
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3062,6 +3261,13 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
               () => marshalModelProviderServiceConfig_ServiceCredentialSchema
             ),
           }),
+          z.object({
+            $case: z.literal('entraServicePrincipal'),
+            entraServicePrincipal: z.lazy(
+              () =>
+                marshalModelProviderServiceConfig_EntraServicePrincipalSchema
+            ),
+          }),
         ])
         .optional(),
     })
@@ -3073,6 +3279,9 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
+      }),
+      ...(d.authMode?.$case === 'entraServicePrincipal' && {
+        entra_service_principal: d.authMode.entraServicePrincipal,
       }),
     }));
 
@@ -3493,6 +3702,10 @@ const modelProviderServiceConfig_AmazonBedrockProviderConfigFieldMaskSchema: Fie
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_AmazonBedrockProviderDirectConfigFieldMaskSchema: FieldMaskSchema =
   {
+    awsAccessKey: {
+      wire: 'aws_access_key',
+      children: () => modelProviderServiceConfig_AwsAccessKeyFieldMaskSchema,
+    },
     awsAccessKeyId: {wire: 'aws_access_key_id'},
     awsSecretAccessKey: {
       wire: 'aws_secret_access_key',
@@ -3537,6 +3750,16 @@ const modelProviderServiceConfig_AnthropicProviderRelayedConfigFieldMaskSchema: 
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const modelProviderServiceConfig_AwsAccessKeyFieldMaskSchema: FieldMaskSchema =
+  {
+    accessKeyId: {wire: 'access_key_id'},
+    secretAccessKey: {
+      wire: 'secret_access_key',
+      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_AzureOpenAiProviderConfigFieldMaskSchema: FieldMaskSchema =
   {
     direct: {
@@ -3558,6 +3781,11 @@ const modelProviderServiceConfig_AzureOpenAiProviderDirectConfigFieldMaskSchema:
     clientSecret: {
       wire: 'client_secret',
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
+    },
+    entraServicePrincipal: {
+      wire: 'entra_service_principal',
+      children: () =>
+        modelProviderServiceConfig_EntraServicePrincipalFieldMaskSchema,
     },
     serviceCredential: {
       wire: 'service_credential',
@@ -3585,6 +3813,17 @@ const modelProviderServiceConfig_CustomProviderDirectConfigFieldMaskSchema: Fiel
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
     },
     baseUrl: {wire: 'base_url'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const modelProviderServiceConfig_EntraServicePrincipalFieldMaskSchema: FieldMaskSchema =
+  {
+    clientId: {wire: 'client_id'},
+    clientSecret: {
+      wire: 'client_secret',
+      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
+    },
+    tenantId: {wire: 'tenant_id'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3630,6 +3869,11 @@ const modelProviderServiceConfig_MicrosoftFoundryProviderDirectConfigFieldMaskSc
     clientSecret: {
       wire: 'client_secret',
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
+    },
+    entraServicePrincipal: {
+      wire: 'entra_service_principal',
+      children: () =>
+        modelProviderServiceConfig_EntraServicePrincipalFieldMaskSchema,
     },
     serviceCredential: {
       wire: 'service_credential',
