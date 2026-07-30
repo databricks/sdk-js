@@ -693,7 +693,10 @@ export class ScimClient {
     }
   }
 
-  /** Partially updates a user resource by applying the supplied operations on specific user attributes. */
+  /**
+   * Partially updates a user resource by applying the supplied operations on specific user attributes.
+   * The `userName` and `emails` attributes cannot be updated through this API; any supplied changes to them are ignored (no-op).
+   */
   async patchAccountUser(
     req: PatchAccountUserRequest,
     options?: CallOptions
@@ -1417,7 +1420,10 @@ export class ScimClient {
     }
   }
 
-  /** Partially updates a user resource by applying the supplied operations on specific user attributes. */
+  /**
+   * Partially updates a user resource by applying the supplied operations on specific user attributes.
+   * The `userName` and `emails` attributes cannot be updated through this API; any supplied changes to them are ignored (no-op).
+   */
   async patchUser(req: PatchUserRequest, options?: CallOptions): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
