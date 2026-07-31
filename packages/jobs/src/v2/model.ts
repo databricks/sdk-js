@@ -5161,6 +5161,12 @@ export interface TriggerState {
     | undefined;
   /** State for SQL condition evaluation, can coexist with other trigger states. */
   sqlCondition?: SqlConditionState | undefined;
+  /**
+   * Whether this trigger is paused or not. For continuous schedules, it can differ from the
+   * configured pause_status whenever a paused continuous job is kickstarted by an operation
+   * other than an update, such as a run-now.
+   */
+  pauseStatus?: SchedulePauseStatus | undefined;
 }
 
 export interface UpdateJobRequest {
@@ -8453,6 +8459,7 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
       .lazy(() => unmarshalFileArrivalTriggerStateSchema)
       .optional(),
     sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
+    pause_status: z.string().optional(),
   })
   .transform(d => ({
     triggerType:
@@ -8462,6 +8469,7 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
           ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
           : undefined,
     sqlCondition: d.sql_condition,
+    pauseStatus: d.pause_status,
   }));
 
 export const unmarshalUpdateJobResponseSchema: z.ZodType<UpdateJobResponse> =
