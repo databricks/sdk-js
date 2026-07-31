@@ -657,7 +657,9 @@ export type ScoreReason =
 /** Purpose/intent of a text attachment */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TextAttachmentPurpose = {
+  /** Default value. Returned when the text attachment purpose is not set. */
   TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED: '',
+  /** A clarifying question Genie asks back to the user, not the answer. */
   FOLLOW_UP_QUESTION: 'FOLLOW_UP_QUESTION',
 } as const;
 export type TextAttachmentPurpose =
@@ -1828,11 +1830,20 @@ export interface Struct {
   fields?: MapStringValueEntry[] | undefined;
 }
 
+/**
+ * A text response on a conversation message: the answer, the final summary, or a
+ * clarifying follow-up question, along with optional phase and verification metadata.
+ */
 export interface TextAttachment {
   /** AI generated message */
   content?: string | undefined;
   id?: string | undefined;
-  /** Purpose/intent of this text attachment */
+  /**
+   * Purpose of this text attachment. A completed message may contain more than
+   * one text attachment (for example a clarifying follow-up question alongside
+   * the final answer); use this field to tell them apart. `TEXT_ATTACHMENT_PURPOSE_ANSWER`
+   * marks the final answer/summary and `FOLLOW_UP_QUESTION` marks a clarifying question.
+   */
   purpose?: TextAttachmentPurpose | undefined;
 }
 

@@ -717,7 +717,10 @@ export class ScimClient {
     await executeCall(call, options);
   }
 
-  /** Replaces a user's information with the data supplied in request. */
+  /**
+   * Replaces a user's information with the data supplied in request.
+   * The `userName` and `emails` attributes cannot be updated through this API; any supplied changes to them are ignored (no-op).
+   */
   async updateAccountUser(
     req: UpdateAccountUserRequest,
     options?: CallOptions
@@ -1504,7 +1507,10 @@ export class ScimClient {
     return resp;
   }
 
-  /** Replaces a user's information with the data supplied in request. */
+  /**
+   * Replaces a user's information with the data supplied in request.
+   * The `userName` and `emails` attributes cannot be updated through this API; any supplied changes to them are ignored (no-op).
+   */
   async updateUser(
     req: UpdateUserRequest,
     options?: CallOptions
