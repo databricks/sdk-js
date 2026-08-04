@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+- Fixed generated `*_UNSPECIFIED` enum constants to use the values declared by the API instead of empty strings.
+
 ### Documentation
 
 ### Internal Changes

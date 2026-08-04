@@ -8,7 +8,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningPhase = {
   /** The default phase. It should not be reported by any synced tables. */
-  PROVISIONING_PHASE_UNSPECIFIED: '',
+  PROVISIONING_PHASE_UNSPECIFIED: 'PROVISIONING_PHASE_UNSPECIFIED',
   /** Ingestion phase of the synced table. This is when the synced table is ingesting data from the delta table. */
   PROVISIONING_PHASE_MAIN: 'PROVISIONING_PHASE_MAIN',
   /** Index scan phase of the synced table. This is when the synced table is creating indexes on the ingested data. */
@@ -22,7 +22,8 @@ export type ProvisioningPhase =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTableSchedulingPolicy = {
-  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED: '',
+  SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED:
+    'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
   /**
    * Pipeline runs continuously after generating the initial data.
    * Requires the source table to have Change Data Feed (CDF) enabled.
@@ -48,7 +49,7 @@ export type SyncedTableSchedulingPolicy =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTableState = {
   /** The default state. It should not be reported by any synced tables. */
-  SYNCED_TABLE_STATE_UNSPECIFIED: '',
+  SYNCED_TABLE_STATE_UNSPECIFIED: 'SYNCED_TABLE_STATE_UNSPECIFIED',
   /**
    * The synced table has just been created and resources are being provisioned. This is also the
    * catch-all state if there is not a more suitable state to report for the synced table.
@@ -106,7 +107,7 @@ export type SyncedTableState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DatabaseInstance_State = {
   /** Default value, not used */
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   /** The instance is being brought online. */
   STARTING: 'STARTING',
   /** The instance is active and ready to use. */
@@ -128,7 +129,7 @@ export type DatabaseInstance_State =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DatabaseInstanceRole_IdentityType = {
   /** Default value, not used */
-  IDENTITY_TYPE_UNSPECIFIED: '',
+  IDENTITY_TYPE_UNSPECIFIED: 'IDENTITY_TYPE_UNSPECIFIED',
   /** A role without a Databricks identity. */
   PG_ONLY: 'PG_ONLY',
   /** A user in a Databricks workspace. */
@@ -147,7 +148,7 @@ export type DatabaseInstanceRole_IdentityType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DatabaseInstanceRole_MembershipRole = {
   /** Indicates that the DatabaseInstanceRole is not a member of any standard, managed roles. */
-  MEMBERSHIP_ROLE_UNSPECIFIED: '',
+  MEMBERSHIP_ROLE_UNSPECIFIED: 'MEMBERSHIP_ROLE_UNSPECIFIED',
   /** Indicates membership in DATABRICKS_SUPERUSER, the highest set of privileges exposed to customers. */
   DATABRICKS_SUPERUSER: 'DATABRICKS_SUPERUSER',
 } as const;
@@ -158,7 +159,7 @@ export type DatabaseInstanceRole_MembershipRole =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningInfo_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   PROVISIONING: 'PROVISIONING',
   ACTIVE: 'ACTIVE',
   FAILED: 'FAILED',
@@ -174,7 +175,7 @@ export type ProvisioningInfo_State =
 /** Might add WRITE in the future */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const RequestedClaims_PermissionSet = {
-  PERMISSION_SET_UNSPECIFIED: '',
+  PERMISSION_SET_UNSPECIFIED: 'PERMISSION_SET_UNSPECIFIED',
   READ_ONLY: 'READ_ONLY',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -186,7 +187,7 @@ export type RequestedClaims_PermissionSet =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SyncedTableSpec_PgSpecificType = {
   /** Default value. Indicates that no type override was selected. */
-  PG_SPECIFIC_TYPE_UNSPECIFIED: '',
+  PG_SPECIFIC_TYPE_UNSPECIFIED: 'PG_SPECIFIC_TYPE_UNSPECIFIED',
   /** Maps the column to the pgvector vector type. */
   PG_SPECIFIC_TYPE_VECTOR: 'PG_SPECIFIC_TYPE_VECTOR',
 } as const;

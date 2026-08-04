@@ -541,7 +541,7 @@ export type ErrorCode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EvaluationStatusType = {
-  EVALUATION_STATUS_TYPE_UNSPECIFIED: '',
+  EVALUATION_STATUS_TYPE_UNSPECIFIED: 'EVALUATION_STATUS_TYPE_UNSPECIFIED',
   RUNNING: 'RUNNING',
   DONE: 'DONE',
   NOT_STARTED: 'NOT_STARTED',
@@ -555,7 +555,7 @@ export type EvaluationStatusType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Format = {
-  FORMAT_UNSPECIFIED: '',
+  FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
   JSON_ARRAY: 'JSON_ARRAY',
   ARROW_STREAM: 'ARROW_STREAM',
   CSV: 'CSV',
@@ -564,7 +564,7 @@ export type Format = (typeof Format)[keyof typeof Format] | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GenieEvalAssessment = {
-  GENIE_EVAL_ASSESSMENT_UNSPECIFIED: '',
+  GENIE_EVAL_ASSESSMENT_UNSPECIFIED: 'GENIE_EVAL_ASSESSMENT_UNSPECIFIED',
   GOOD: 'GOOD',
   BAD: 'BAD',
   NEEDS_REVIEW: 'NEEDS_REVIEW',
@@ -575,7 +575,7 @@ export type GenieEvalAssessment =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GenieEvalResponseType = {
-  GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED: '',
+  GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED: 'GENIE_EVAL_RESPONSE_TYPE_UNSPECIFIED',
   TEXT: 'TEXT',
   SQL: 'SQL',
 } as const;
@@ -586,7 +586,7 @@ export type GenieEvalResponseType =
 /** Feedback rating for Genie messages */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GenieFeedbackRating = {
-  GENIE_FEEDBACK_RATING_UNSPECIFIED: '',
+  GENIE_FEEDBACK_RATING_UNSPECIFIED: 'GENIE_FEEDBACK_RATING_UNSPECIFIED',
   POSITIVE: 'POSITIVE',
   NEGATIVE: 'NEGATIVE',
   NONE: 'NONE',
@@ -614,7 +614,7 @@ export type NullValue =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ScoreReason = {
-  SCORE_REASON_UNSPECIFIED: '',
+  SCORE_REASON_UNSPECIFIED: 'SCORE_REASON_UNSPECIFIED',
   EMPTY_RESULT: 'EMPTY_RESULT',
   RESULT_MISSING_ROWS: 'RESULT_MISSING_ROWS',
   RESULT_EXTRA_ROWS: 'RESULT_EXTRA_ROWS',
@@ -658,7 +658,7 @@ export type ScoreReason =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TextAttachmentPurpose = {
   /** Default value. Returned when the text attachment purpose is not set. */
-  TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED: '',
+  TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED: 'TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED',
   /** A clarifying question Genie asks back to the user, not the answer. */
   FOLLOW_UP_QUESTION: 'FOLLOW_UP_QUESTION',
 } as const;
@@ -680,7 +680,7 @@ export type TextAttachmentPurpose =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ThoughtType = {
-  THOUGHT_TYPE_UNSPECIFIED: '',
+  THOUGHT_TYPE_UNSPECIFIED: 'THOUGHT_TYPE_UNSPECIFIED',
   /** A high-level description of how the question was interpreted. */
   THOUGHT_TYPE_DESCRIPTION: 'THOUGHT_TYPE_DESCRIPTION',
   /** How ambiguous parts of the question were resolved. */
@@ -698,7 +698,7 @@ export type ThoughtType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const MessageError_Type = {
-  TYPE_UNSPECIFIED: '',
+  TYPE_UNSPECIFIED: 'TYPE_UNSPECIFIED',
   UNEXPECTED_REPLY_PROCESS_EXCEPTION: 'UNEXPECTED_REPLY_PROCESS_EXCEPTION',
   GENERIC_CHAT_COMPLETION_EXCEPTION: 'GENERIC_CHAT_COMPLETION_EXCEPTION',
   /** TokenCounter estimates were off and OpenAi responds with an error due to the token limit. */
@@ -828,7 +828,7 @@ export type MessageStatus_MessageStatus =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StatementStatus_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
   SUCCEEDED: 'SUCCEEDED',

@@ -5,7 +5,7 @@ import {z} from 'zod';
 /** The artifact type */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ArtifactType = {
-  ARTIFACT_TYPE_UNSPECIFIED: '',
+  ARTIFACT_TYPE_UNSPECIFIED: 'ARTIFACT_TYPE_UNSPECIFIED',
   INIT_SCRIPT: 'INIT_SCRIPT',
   LIBRARY_JAR: 'LIBRARY_JAR',
   LIBRARY_MAVEN: 'LIBRARY_MAVEN',
@@ -18,7 +18,7 @@ export type ArtifactType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ArtifactMatcher_MatchType = {
   /** In the future, we will add EXACT_MATCH, WILDCARDS, and more types */
-  MATCH_TYPE_UNSPECIFIED: '',
+  MATCH_TYPE_UNSPECIFIED: 'MATCH_TYPE_UNSPECIFIED',
   PREFIX_MATCH: 'PREFIX_MATCH',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.

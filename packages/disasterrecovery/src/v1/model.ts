@@ -8,7 +8,7 @@ import {z} from 'zod';
 /** The type of failover to perform. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const FailoverFailoverGroupRequest_FailoverType = {
-  FAILOVER_TYPE_UNSPECIFIED: '',
+  FAILOVER_TYPE_UNSPECIFIED: 'FAILOVER_TYPE_UNSPECIFIED',
   FORCED: 'FORCED',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -19,7 +19,7 @@ export type FailoverFailoverGroupRequest_FailoverType =
 /** The aggregate state of a FailoverGroup. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const FailoverGroup_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   /** FailoverGroup is being created, setup in progress. */
   CREATING: 'CREATING',
   /** FailoverGroup creation failed. */
