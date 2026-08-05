@@ -317,11 +317,6 @@ export interface GetMcpServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
-  /**
-   * Whether to include MCP services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /** Request to get a model provider service. */
@@ -332,11 +327,6 @@ export interface GetModelProviderServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
-  /**
-   * Whether to include provider services for which the principal can only
-   * access selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /** Request to get a model service. */
@@ -347,11 +337,6 @@ export interface GetModelServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
-  /**
-   * Whether to include model services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /**
@@ -415,16 +400,11 @@ export interface ListMcpServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of MCP services to return. Defaults to 100 when unset or 0;
-   * the maximum is 1000. Use `next_page_token` to retrieve additional pages.
+   * the maximum is 100. Use `next_page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /**
-   * Whether to include MCP services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
   /** View selector controlling which fields are populated per row. */
   view?: ListMcpServicesRequest_View | undefined;
 }
@@ -450,16 +430,11 @@ export interface ListModelProviderServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of provider services to return. Defaults to 100 when unset or
-   * 0; the maximum is 1000. Use `next_page_token` to retrieve additional pages.
+   * 0; the maximum is 100. Use `next_page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /**
-   * Whether to include provider services for which the principal can only
-   * access selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
   /** View selector controlling which fields are populated per row. */
   view?: ListModelProviderServicesRequest_View | undefined;
 }
@@ -485,16 +460,11 @@ export interface ListModelServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of model services to return. Defaults to 100 when unset or 0;
-   * the maximum is 1000. Use `next_page_token` to retrieve additional pages.
+   * the maximum is 100. Use `next_page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /**
-   * Whether to include model services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
   /** View selector controlling which fields are populated per row. */
   view?: ListModelServicesRequest_View | undefined;
 }
@@ -548,11 +518,6 @@ export interface McpService {
    * subpath) appears in `update_mask`.
    */
   config?: McpServiceConfig | undefined;
-  /**
-   * Whether the caller sees only metadata available through the BROWSE
-   * privilege.
-   */
-  browseOnly?: boolean | undefined;
   /**
    * Optimistic concurrency control token. Server-generated from the
    * entity's state and returned on every read. To use it as an if-match
@@ -666,11 +631,6 @@ export interface ModelProviderService {
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
-  /**
-   * Whether the caller sees only metadata available through the BROWSE
-   * privilege.
-   */
-  browseOnly?: boolean | undefined;
   /**
    * Optimistic concurrency control token. Server-generated from the
    * entity's state and returned on every read. To use it as an if-match
@@ -1174,19 +1134,23 @@ export interface ModelProviderServiceConfig_GeminiEnterpriseProviderConfig {
     | undefined;
 }
 
-/** Direct form of Gemini Enterprise provider config. */
+/**
+ * Direct form of Gemini Enterprise provider config.
+ *
+ * Authentication is one of two mutually exclusive modes; exactly one must be
+ * supplied on Create:
+ * - API key: set `api_key`, leave `service_credential` unset.
+ * - UC service credential: set `service_credential`, leave `api_key` unset.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_GeminiEnterpriseProviderDirectConfig {
-  /**
-   * Authentication mode. Exactly one variant may be set.
-   * (-- Wrapped in a oneof so future auth modes (e.g. a UC service credential)
-   * can be added as additional variants without a breaking change. --)
-   */
+  /** Authentication mode. Exactly one variant may be set. */
   authMode?:
     | {
         $case: 'apiKey';
         /**
-         * Google Gemini Enterprise API key. Required on Create. Supplied as inline
+         * Google Gemini Enterprise API key. Required on Create when using API-key
+         * auth; mutually exclusive with `service_credential`. Supplied as inline
          * plaintext via `ProviderSecret.plaintext`.
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
@@ -1442,11 +1406,6 @@ export interface ModelService {
    * `update_mask`.
    */
   config?: ModelServiceConfig | undefined;
-  /**
-   * Whether the caller sees only metadata available through the BROWSE
-   * privilege.
-   */
-  browseOnly?: boolean | undefined;
   /**
    * Optimistic concurrency control token. Server-generated from the
    * entity's state and returned on every read. To use it as an if-match
@@ -1815,7 +1774,6 @@ export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
     updated_by: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => unmarshalMcpServiceConfigSchema).optional(),
-    browse_only: z.boolean().optional(),
     etag: z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -1832,7 +1790,6 @@ export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
     updatedBy: d.updated_by,
     comment: d.comment,
     config: d.config,
-    browseOnly: d.browse_only,
     etag: d.etag,
   }));
 
@@ -1886,7 +1843,6 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
         .optional(),
       updated_by: z.string().optional(),
       comment: z.string().optional(),
-      browse_only: z.boolean().optional(),
       etag: z
         .string()
         .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -1905,7 +1861,6 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
       updateTime: d.update_time,
       updatedBy: d.updated_by,
       comment: d.comment,
-      browseOnly: d.browse_only,
       etag: d.etag,
       config: d.config,
     }));
@@ -2401,7 +2356,6 @@ export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
     updated_by: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => unmarshalModelServiceConfigSchema).optional(),
-    browse_only: z.boolean().optional(),
     etag: z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -2419,7 +2373,6 @@ export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
     updatedBy: d.updated_by,
     comment: d.comment,
     config: d.config,
-    browseOnly: d.browse_only,
     etag: d.etag,
     supportedApiTypes: d.supported_api_types,
   }));
@@ -2634,7 +2587,6 @@ export const marshalMcpServiceSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => marshalMcpServiceConfigSchema).optional(),
-    browseOnly: z.boolean().optional(),
     etag: z
       .any()
       .transform((d: Uint8Array) =>
@@ -2653,7 +2605,6 @@ export const marshalMcpServiceSchema: z.ZodType = z
     updated_by: d.updatedBy,
     comment: d.comment,
     config: d.config,
-    browse_only: d.browseOnly,
     etag: d.etag,
   }));
 
@@ -2708,7 +2659,6 @@ export const marshalModelProviderServiceSchema: z.ZodType = z
       .optional(),
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
-    browseOnly: z.boolean().optional(),
     etag: z
       .any()
       .transform((d: Uint8Array) =>
@@ -2727,7 +2677,6 @@ export const marshalModelProviderServiceSchema: z.ZodType = z
     update_time: d.updateTime,
     updated_by: d.updatedBy,
     comment: d.comment,
-    browse_only: d.browseOnly,
     etag: d.etag,
     config: d.config,
   }));
@@ -3288,7 +3237,6 @@ export const marshalModelServiceSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => marshalModelServiceConfigSchema).optional(),
-    browseOnly: z.boolean().optional(),
     etag: z
       .any()
       .transform((d: Uint8Array) =>
@@ -3308,7 +3256,6 @@ export const marshalModelServiceSchema: z.ZodType = z
     updated_by: d.updatedBy,
     comment: d.comment,
     config: d.config,
-    browse_only: d.browseOnly,
     etag: d.etag,
     supported_api_types: d.supportedApiTypes,
   }));
@@ -3484,7 +3431,6 @@ const inferenceTableConfigFieldMaskSchema: FieldMaskSchema = {
 };
 
 const mcpServiceFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   comment: {wire: 'comment'},
   config: {wire: 'config', children: () => mcpServiceConfigFieldMaskSchema},
   createTime: {wire: 'create_time'},
@@ -3518,7 +3464,6 @@ const mcpServiceConfig_SourceConnectionFieldMaskSchema: FieldMaskSchema = {
 };
 
 const modelProviderServiceFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   comment: {wire: 'comment'},
   config: {
     wire: 'config',
@@ -3804,7 +3749,6 @@ const modelProviderServiceConfig_ServiceCredentialFieldMaskSchema: FieldMaskSche
   };
 
 const modelServiceFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   comment: {wire: 'comment'},
   config: {wire: 'config', children: () => modelServiceConfigFieldMaskSchema},
   createTime: {wire: 'create_time'},
