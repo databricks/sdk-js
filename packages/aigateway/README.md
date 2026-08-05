@@ -1,4 +1,4 @@
-# @databricks/sdk-uc-aigateway
+# @databricks/sdk-aigateway
 
 > [!NOTE]
 >
@@ -9,15 +9,15 @@
 ## Installation
 
 ```bash
-npm install @databricks/sdk-uc-aigateway
+npm install @databricks/sdk-aigateway
 ```
 
 ## Usage
 
 ```typescript
-import {AiGatewayClient} from '@databricks/sdk-uc-aigateway/v1';
+import {AiGatewayClient} from '@databricks/sdk-aigateway/v1';
 
 const client = new AiGatewayClient({});
 ```
 
-For a full getting-started guide, see the [root README](../../../README.md).
+For a full getting-started guide, see the [root README](../../README.md).

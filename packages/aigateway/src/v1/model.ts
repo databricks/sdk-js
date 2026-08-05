@@ -860,20 +860,6 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
    */
   region?: string | undefined;
   /**
-   * Deprecated flat AWS access key ID. Superseded by
-   * `aws_access_key.access_key_id`. Kept for one migration cycle; the handler
-   * mirrors it to/from `aws_access_key`. Treated as username-equivalent (not a
-   * secret value): round-trips on reads and is scrubbed from audit logs.
-   */
-  awsAccessKeyId?: string | undefined;
-  /**
-   * Deprecated flat AWS secret access key. Superseded by
-   * `aws_access_key.secret_access_key`. Kept for one migration cycle; the
-   * handler mirrors it to/from `aws_access_key`. Supplied as inline plaintext
-   * via `ProviderSecret.plaintext`.
-   */
-  awsSecretAccessKey?: ModelProviderServiceConfig_ProviderSecret | undefined;
-  /**
    * Authentication mode. Exactly one variant may be set.
    * (-- `aws_access_key` is the canonical home for the access-key pair. The
    * top-level `aws_access_key_id` / `aws_secret_access_key` fields are the
@@ -1035,25 +1021,6 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderConfig {
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
-  /**
-   * Deprecated flat Entra tenant ID. Superseded by
-   * `entra_service_principal.tenant_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  tenantId?: string | undefined;
-  /**
-   * Deprecated flat Entra client ID. Superseded by
-   * `entra_service_principal.client_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  clientId?: string | undefined;
-  /**
-   * Deprecated flat Entra client secret. Superseded by
-   * `entra_service_principal.client_secret`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`. Supplied as inline
-   * plaintext via `ProviderSecret.plaintext`.
-   */
-  clientSecret?: ModelProviderServiceConfig_ProviderSecret | undefined;
   /**
    * Full Azure OpenAI endpoint base URL, e.g.
    * `https://myresource.openai.azure.com`. Required on Create.
@@ -1274,25 +1241,6 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderConfig {
 export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig {
   /** Microsoft AI Foundry endpoint URL. Required on Create. */
   baseUrl?: string | undefined;
-  /**
-   * Deprecated flat Entra tenant ID. Superseded by
-   * `entra_service_principal.tenant_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  tenantId?: string | undefined;
-  /**
-   * Deprecated flat Entra client ID. Superseded by
-   * `entra_service_principal.client_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  clientId?: string | undefined;
-  /**
-   * Deprecated flat Entra client secret. Superseded by
-   * `entra_service_principal.client_secret`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`. Supplied as inline
-   * plaintext via `ProviderSecret.plaintext`.
-   */
-  clientSecret?: ModelProviderServiceConfig_ProviderSecret | undefined;
   /**
    * Authentication mode. Exactly one variant may be set.
    * (-- `entra_service_principal` is the canonical home for the Entra triple. The
@@ -2081,10 +2029,6 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
   z
     .object({
       region: z.string().optional(),
-      aws_access_key_id: z.string().optional(),
-      aws_secret_access_key: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       service_credential: z
         .lazy(() => unmarshalModelProviderServiceConfig_ServiceCredentialSchema)
         .optional(),
@@ -2094,8 +2038,6 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
     })
     .transform(d => ({
       region: d.region,
-      awsAccessKeyId: d.aws_access_key_id,
-      awsSecretAccessKey: d.aws_secret_access_key,
       authMode:
         d.service_credential !== undefined
           ? {
@@ -2194,11 +2136,6 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderConfigSchema
 export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSchema: z.ZodType<ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig> =
   z
     .object({
-      tenant_id: z.string().optional(),
-      client_id: z.string().optional(),
-      client_secret: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       base_url: z.string().optional(),
       api_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
@@ -2213,9 +2150,6 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfig
         .optional(),
     })
     .transform(d => ({
-      tenantId: d.tenant_id,
-      clientId: d.client_id,
-      clientSecret: d.client_secret,
       baseUrl: d.base_url,
       authMode:
         d.api_key !== undefined
@@ -2347,11 +2281,6 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
   z
     .object({
       base_url: z.string().optional(),
-      tenant_id: z.string().optional(),
-      client_id: z.string().optional(),
-      client_secret: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       api_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
         .optional(),
@@ -2366,9 +2295,6 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
     })
     .transform(d => ({
       baseUrl: d.base_url,
-      tenantId: d.tenant_id,
-      clientId: d.client_id,
-      clientSecret: d.client_secret,
       authMode:
         d.api_key !== undefined
           ? {$case: 'apiKey' as const, apiKey: d.api_key}
@@ -2925,10 +2851,6 @@ export const marshalModelProviderServiceConfig_AmazonBedrockProviderDirectConfig
   z
     .object({
       region: z.string().optional(),
-      awsAccessKeyId: z.string().optional(),
-      awsSecretAccessKey: z
-        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       authMode: z
         .discriminatedUnion('$case', [
           z.object({
@@ -2948,8 +2870,6 @@ export const marshalModelProviderServiceConfig_AmazonBedrockProviderDirectConfig
     })
     .transform(d => ({
       region: d.region,
-      aws_access_key_id: d.awsAccessKeyId,
-      aws_secret_access_key: d.awsSecretAccessKey,
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
       }),
@@ -3058,11 +2978,6 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderConfigSchema: 
 export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSchema: z.ZodType =
   z
     .object({
-      tenantId: z.string().optional(),
-      clientId: z.string().optional(),
-      clientSecret: z
-        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       baseUrl: z.string().optional(),
       authMode: z
         .discriminatedUnion('$case', [
@@ -3089,9 +3004,6 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSc
         .optional(),
     })
     .transform(d => ({
-      tenant_id: d.tenantId,
-      client_id: d.clientId,
-      client_secret: d.clientSecret,
       base_url: d.baseUrl,
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       ...(d.authMode?.$case === 'serviceCredential' && {
@@ -3242,11 +3154,6 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
   z
     .object({
       baseUrl: z.string().optional(),
-      tenantId: z.string().optional(),
-      clientId: z.string().optional(),
-      clientSecret: z
-        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       authMode: z
         .discriminatedUnion('$case', [
           z.object({
@@ -3273,9 +3180,6 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
     })
     .transform(d => ({
       base_url: d.baseUrl,
-      tenant_id: d.tenantId,
-      client_id: d.clientId,
-      client_secret: d.clientSecret,
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
@@ -3706,11 +3610,6 @@ const modelProviderServiceConfig_AmazonBedrockProviderDirectConfigFieldMaskSchem
       wire: 'aws_access_key',
       children: () => modelProviderServiceConfig_AwsAccessKeyFieldMaskSchema,
     },
-    awsAccessKeyId: {wire: 'aws_access_key_id'},
-    awsSecretAccessKey: {
-      wire: 'aws_secret_access_key',
-      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
-    },
     region: {wire: 'region'},
     serviceCredential: {
       wire: 'service_credential',
@@ -3777,11 +3676,6 @@ const modelProviderServiceConfig_AzureOpenAiProviderDirectConfigFieldMaskSchema:
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
     },
     baseUrl: {wire: 'base_url'},
-    clientId: {wire: 'client_id'},
-    clientSecret: {
-      wire: 'client_secret',
-      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
-    },
     entraServicePrincipal: {
       wire: 'entra_service_principal',
       children: () =>
@@ -3792,7 +3686,6 @@ const modelProviderServiceConfig_AzureOpenAiProviderDirectConfigFieldMaskSchema:
       children: () =>
         modelProviderServiceConfig_ServiceCredentialFieldMaskSchema,
     },
-    tenantId: {wire: 'tenant_id'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3865,11 +3758,6 @@ const modelProviderServiceConfig_MicrosoftFoundryProviderDirectConfigFieldMaskSc
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
     },
     baseUrl: {wire: 'base_url'},
-    clientId: {wire: 'client_id'},
-    clientSecret: {
-      wire: 'client_secret',
-      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
-    },
     entraServicePrincipal: {
       wire: 'entra_service_principal',
       children: () =>
@@ -3880,7 +3768,6 @@ const modelProviderServiceConfig_MicrosoftFoundryProviderDirectConfigFieldMaskSc
       children: () =>
         modelProviderServiceConfig_ServiceCredentialFieldMaskSchema,
     },
-    tenantId: {wire: 'tenant_id'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
