@@ -317,11 +317,6 @@ export interface GetMcpServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
-  /**
-   * Whether to include MCP services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /** Request to get a model provider service. */
@@ -332,11 +327,6 @@ export interface GetModelProviderServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
-  /**
-   * Whether to include provider services for which the principal can only
-   * access selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /** Request to get a model service. */
@@ -347,11 +337,6 @@ export interface GetModelServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
-  /**
-   * Whether to include model services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
 }
 
 /**
@@ -415,16 +400,11 @@ export interface ListMcpServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of MCP services to return. Defaults to 100 when unset or 0;
-   * the maximum is 1000. Use `next_page_token` to retrieve additional pages.
+   * the maximum is 100. Use `next_page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /**
-   * Whether to include MCP services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
   /** View selector controlling which fields are populated per row. */
   view?: ListMcpServicesRequest_View | undefined;
 }
@@ -450,16 +430,11 @@ export interface ListModelProviderServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of provider services to return. Defaults to 100 when unset or
-   * 0; the maximum is 1000. Use `next_page_token` to retrieve additional pages.
+   * 0; the maximum is 100. Use `next_page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /**
-   * Whether to include provider services for which the principal can only
-   * access selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
   /** View selector controlling which fields are populated per row. */
   view?: ListModelProviderServicesRequest_View | undefined;
 }
@@ -485,16 +460,11 @@ export interface ListModelServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of model services to return. Defaults to 100 when unset or 0;
-   * the maximum is 1000. Use `next_page_token` to retrieve additional pages.
+   * the maximum is 100. Use `next_page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /**
-   * Whether to include model services for which the principal can only access
-   * selective metadata.
-   */
-  includeBrowse?: boolean | undefined;
   /** View selector controlling which fields are populated per row. */
   view?: ListModelServicesRequest_View | undefined;
 }
@@ -548,11 +518,6 @@ export interface McpService {
    * subpath) appears in `update_mask`.
    */
   config?: McpServiceConfig | undefined;
-  /**
-   * Whether the caller sees only metadata available through the BROWSE
-   * privilege.
-   */
-  browseOnly?: boolean | undefined;
   /**
    * Optimistic concurrency control token. Server-generated from the
    * entity's state and returned on every read. To use it as an if-match
@@ -666,11 +631,6 @@ export interface ModelProviderService {
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
-  /**
-   * Whether the caller sees only metadata available through the BROWSE
-   * privilege.
-   */
-  browseOnly?: boolean | undefined;
   /**
    * Optimistic concurrency control token. Server-generated from the
    * entity's state and returned on every read. To use it as an if-match
@@ -860,20 +820,6 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
    */
   region?: string | undefined;
   /**
-   * Deprecated flat AWS access key ID. Superseded by
-   * `aws_access_key.access_key_id`. Kept for one migration cycle; the handler
-   * mirrors it to/from `aws_access_key`. Treated as username-equivalent (not a
-   * secret value): round-trips on reads and is scrubbed from audit logs.
-   */
-  awsAccessKeyId?: string | undefined;
-  /**
-   * Deprecated flat AWS secret access key. Superseded by
-   * `aws_access_key.secret_access_key`. Kept for one migration cycle; the
-   * handler mirrors it to/from `aws_access_key`. Supplied as inline plaintext
-   * via `ProviderSecret.plaintext`.
-   */
-  awsSecretAccessKey?: ModelProviderServiceConfig_ProviderSecret | undefined;
-  /**
    * Authentication mode. Exactly one variant may be set.
    * (-- `aws_access_key` is the canonical home for the access-key pair. The
    * top-level `aws_access_key_id` / `aws_secret_access_key` fields are the
@@ -1036,25 +982,6 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
   /**
-   * Deprecated flat Entra tenant ID. Superseded by
-   * `entra_service_principal.tenant_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  tenantId?: string | undefined;
-  /**
-   * Deprecated flat Entra client ID. Superseded by
-   * `entra_service_principal.client_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  clientId?: string | undefined;
-  /**
-   * Deprecated flat Entra client secret. Superseded by
-   * `entra_service_principal.client_secret`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`. Supplied as inline
-   * plaintext via `ProviderSecret.plaintext`.
-   */
-  clientSecret?: ModelProviderServiceConfig_ProviderSecret | undefined;
-  /**
    * Full Azure OpenAI endpoint base URL, e.g.
    * `https://myresource.openai.azure.com`. Required on Create.
    */
@@ -1207,19 +1134,23 @@ export interface ModelProviderServiceConfig_GeminiEnterpriseProviderConfig {
     | undefined;
 }
 
-/** Direct form of Gemini Enterprise provider config. */
+/**
+ * Direct form of Gemini Enterprise provider config.
+ *
+ * Authentication is one of two mutually exclusive modes; exactly one must be
+ * supplied on Create:
+ * - API key: set `api_key`, leave `service_credential` unset.
+ * - UC service credential: set `service_credential`, leave `api_key` unset.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_GeminiEnterpriseProviderDirectConfig {
-  /**
-   * Authentication mode. Exactly one variant may be set.
-   * (-- Wrapped in a oneof so future auth modes (e.g. a UC service credential)
-   * can be added as additional variants without a breaking change. --)
-   */
+  /** Authentication mode. Exactly one variant may be set. */
   authMode?:
     | {
         $case: 'apiKey';
         /**
-         * Google Gemini Enterprise API key. Required on Create. Supplied as inline
+         * Google Gemini Enterprise API key. Required on Create when using API-key
+         * auth; mutually exclusive with `service_credential`. Supplied as inline
          * plaintext via `ProviderSecret.plaintext`.
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
@@ -1274,25 +1205,6 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderConfig {
 export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig {
   /** Microsoft AI Foundry endpoint URL. Required on Create. */
   baseUrl?: string | undefined;
-  /**
-   * Deprecated flat Entra tenant ID. Superseded by
-   * `entra_service_principal.tenant_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  tenantId?: string | undefined;
-  /**
-   * Deprecated flat Entra client ID. Superseded by
-   * `entra_service_principal.client_id`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`.
-   */
-  clientId?: string | undefined;
-  /**
-   * Deprecated flat Entra client secret. Superseded by
-   * `entra_service_principal.client_secret`. Kept for one migration cycle; the
-   * handler mirrors it to/from `entra_service_principal`. Supplied as inline
-   * plaintext via `ProviderSecret.plaintext`.
-   */
-  clientSecret?: ModelProviderServiceConfig_ProviderSecret | undefined;
   /**
    * Authentication mode. Exactly one variant may be set.
    * (-- `entra_service_principal` is the canonical home for the Entra triple. The
@@ -1494,11 +1406,6 @@ export interface ModelService {
    * `update_mask`.
    */
   config?: ModelServiceConfig | undefined;
-  /**
-   * Whether the caller sees only metadata available through the BROWSE
-   * privilege.
-   */
-  browseOnly?: boolean | undefined;
   /**
    * Optimistic concurrency control token. Server-generated from the
    * entity's state and returned on every read. To use it as an if-match
@@ -1867,7 +1774,6 @@ export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
     updated_by: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => unmarshalMcpServiceConfigSchema).optional(),
-    browse_only: z.boolean().optional(),
     etag: z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -1884,7 +1790,6 @@ export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
     updatedBy: d.updated_by,
     comment: d.comment,
     config: d.config,
-    browseOnly: d.browse_only,
     etag: d.etag,
   }));
 
@@ -1938,7 +1843,6 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
         .optional(),
       updated_by: z.string().optional(),
       comment: z.string().optional(),
-      browse_only: z.boolean().optional(),
       etag: z
         .string()
         .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -1957,7 +1861,6 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
       updateTime: d.update_time,
       updatedBy: d.updated_by,
       comment: d.comment,
-      browseOnly: d.browse_only,
       etag: d.etag,
       config: d.config,
     }));
@@ -2081,10 +1984,6 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
   z
     .object({
       region: z.string().optional(),
-      aws_access_key_id: z.string().optional(),
-      aws_secret_access_key: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       service_credential: z
         .lazy(() => unmarshalModelProviderServiceConfig_ServiceCredentialSchema)
         .optional(),
@@ -2094,8 +1993,6 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
     })
     .transform(d => ({
       region: d.region,
-      awsAccessKeyId: d.aws_access_key_id,
-      awsSecretAccessKey: d.aws_secret_access_key,
       authMode:
         d.service_credential !== undefined
           ? {
@@ -2194,11 +2091,6 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderConfigSchema
 export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSchema: z.ZodType<ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig> =
   z
     .object({
-      tenant_id: z.string().optional(),
-      client_id: z.string().optional(),
-      client_secret: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       base_url: z.string().optional(),
       api_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
@@ -2213,9 +2105,6 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfig
         .optional(),
     })
     .transform(d => ({
-      tenantId: d.tenant_id,
-      clientId: d.client_id,
-      clientSecret: d.client_secret,
       baseUrl: d.base_url,
       authMode:
         d.api_key !== undefined
@@ -2347,11 +2236,6 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
   z
     .object({
       base_url: z.string().optional(),
-      tenant_id: z.string().optional(),
-      client_id: z.string().optional(),
-      client_secret: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       api_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
         .optional(),
@@ -2366,9 +2250,6 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
     })
     .transform(d => ({
       baseUrl: d.base_url,
-      tenantId: d.tenant_id,
-      clientId: d.client_id,
-      clientSecret: d.client_secret,
       authMode:
         d.api_key !== undefined
           ? {$case: 'apiKey' as const, apiKey: d.api_key}
@@ -2475,7 +2356,6 @@ export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
     updated_by: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => unmarshalModelServiceConfigSchema).optional(),
-    browse_only: z.boolean().optional(),
     etag: z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -2493,7 +2373,6 @@ export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
     updatedBy: d.updated_by,
     comment: d.comment,
     config: d.config,
-    browseOnly: d.browse_only,
     etag: d.etag,
     supportedApiTypes: d.supported_api_types,
   }));
@@ -2708,7 +2587,6 @@ export const marshalMcpServiceSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => marshalMcpServiceConfigSchema).optional(),
-    browseOnly: z.boolean().optional(),
     etag: z
       .any()
       .transform((d: Uint8Array) =>
@@ -2727,7 +2605,6 @@ export const marshalMcpServiceSchema: z.ZodType = z
     updated_by: d.updatedBy,
     comment: d.comment,
     config: d.config,
-    browse_only: d.browseOnly,
     etag: d.etag,
   }));
 
@@ -2782,7 +2659,6 @@ export const marshalModelProviderServiceSchema: z.ZodType = z
       .optional(),
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
-    browseOnly: z.boolean().optional(),
     etag: z
       .any()
       .transform((d: Uint8Array) =>
@@ -2801,7 +2677,6 @@ export const marshalModelProviderServiceSchema: z.ZodType = z
     update_time: d.updateTime,
     updated_by: d.updatedBy,
     comment: d.comment,
-    browse_only: d.browseOnly,
     etag: d.etag,
     config: d.config,
   }));
@@ -2925,10 +2800,6 @@ export const marshalModelProviderServiceConfig_AmazonBedrockProviderDirectConfig
   z
     .object({
       region: z.string().optional(),
-      awsAccessKeyId: z.string().optional(),
-      awsSecretAccessKey: z
-        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       authMode: z
         .discriminatedUnion('$case', [
           z.object({
@@ -2948,8 +2819,6 @@ export const marshalModelProviderServiceConfig_AmazonBedrockProviderDirectConfig
     })
     .transform(d => ({
       region: d.region,
-      aws_access_key_id: d.awsAccessKeyId,
-      aws_secret_access_key: d.awsSecretAccessKey,
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
       }),
@@ -3058,11 +2927,6 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderConfigSchema: 
 export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSchema: z.ZodType =
   z
     .object({
-      tenantId: z.string().optional(),
-      clientId: z.string().optional(),
-      clientSecret: z
-        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       baseUrl: z.string().optional(),
       authMode: z
         .discriminatedUnion('$case', [
@@ -3089,9 +2953,6 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSc
         .optional(),
     })
     .transform(d => ({
-      tenant_id: d.tenantId,
-      client_id: d.clientId,
-      client_secret: d.clientSecret,
       base_url: d.baseUrl,
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       ...(d.authMode?.$case === 'serviceCredential' && {
@@ -3242,11 +3103,6 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
   z
     .object({
       baseUrl: z.string().optional(),
-      tenantId: z.string().optional(),
-      clientId: z.string().optional(),
-      clientSecret: z
-        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
       authMode: z
         .discriminatedUnion('$case', [
           z.object({
@@ -3273,9 +3129,6 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
     })
     .transform(d => ({
       base_url: d.baseUrl,
-      tenant_id: d.tenantId,
-      client_id: d.clientId,
-      client_secret: d.clientSecret,
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       ...(d.authMode?.$case === 'serviceCredential' && {
         service_credential: d.authMode.serviceCredential,
@@ -3384,7 +3237,6 @@ export const marshalModelServiceSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
     config: z.lazy(() => marshalModelServiceConfigSchema).optional(),
-    browseOnly: z.boolean().optional(),
     etag: z
       .any()
       .transform((d: Uint8Array) =>
@@ -3404,7 +3256,6 @@ export const marshalModelServiceSchema: z.ZodType = z
     updated_by: d.updatedBy,
     comment: d.comment,
     config: d.config,
-    browse_only: d.browseOnly,
     etag: d.etag,
     supported_api_types: d.supportedApiTypes,
   }));
@@ -3580,7 +3431,6 @@ const inferenceTableConfigFieldMaskSchema: FieldMaskSchema = {
 };
 
 const mcpServiceFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   comment: {wire: 'comment'},
   config: {wire: 'config', children: () => mcpServiceConfigFieldMaskSchema},
   createTime: {wire: 'create_time'},
@@ -3614,7 +3464,6 @@ const mcpServiceConfig_SourceConnectionFieldMaskSchema: FieldMaskSchema = {
 };
 
 const modelProviderServiceFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   comment: {wire: 'comment'},
   config: {
     wire: 'config',
@@ -3706,11 +3555,6 @@ const modelProviderServiceConfig_AmazonBedrockProviderDirectConfigFieldMaskSchem
       wire: 'aws_access_key',
       children: () => modelProviderServiceConfig_AwsAccessKeyFieldMaskSchema,
     },
-    awsAccessKeyId: {wire: 'aws_access_key_id'},
-    awsSecretAccessKey: {
-      wire: 'aws_secret_access_key',
-      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
-    },
     region: {wire: 'region'},
     serviceCredential: {
       wire: 'service_credential',
@@ -3777,11 +3621,6 @@ const modelProviderServiceConfig_AzureOpenAiProviderDirectConfigFieldMaskSchema:
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
     },
     baseUrl: {wire: 'base_url'},
-    clientId: {wire: 'client_id'},
-    clientSecret: {
-      wire: 'client_secret',
-      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
-    },
     entraServicePrincipal: {
       wire: 'entra_service_principal',
       children: () =>
@@ -3792,7 +3631,6 @@ const modelProviderServiceConfig_AzureOpenAiProviderDirectConfigFieldMaskSchema:
       children: () =>
         modelProviderServiceConfig_ServiceCredentialFieldMaskSchema,
     },
-    tenantId: {wire: 'tenant_id'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3865,11 +3703,6 @@ const modelProviderServiceConfig_MicrosoftFoundryProviderDirectConfigFieldMaskSc
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
     },
     baseUrl: {wire: 'base_url'},
-    clientId: {wire: 'client_id'},
-    clientSecret: {
-      wire: 'client_secret',
-      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
-    },
     entraServicePrincipal: {
       wire: 'entra_service_principal',
       children: () =>
@@ -3880,7 +3713,6 @@ const modelProviderServiceConfig_MicrosoftFoundryProviderDirectConfigFieldMaskSc
       children: () =>
         modelProviderServiceConfig_ServiceCredentialFieldMaskSchema,
     },
-    tenantId: {wire: 'tenant_id'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3917,7 +3749,6 @@ const modelProviderServiceConfig_ServiceCredentialFieldMaskSchema: FieldMaskSche
   };
 
 const modelServiceFieldMaskSchema: FieldMaskSchema = {
-  browseOnly: {wire: 'browse_only'},
   comment: {wire: 'comment'},
   config: {wire: 'config', children: () => modelServiceConfigFieldMaskSchema},
   createTime: {wire: 'create_time'},
