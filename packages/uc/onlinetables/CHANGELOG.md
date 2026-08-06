@@ -1,5 +1,12 @@
 # Version changelog
 
+## Release v0.33.0 (2026-08-06)
+
+### Bug Fixes
+
+- Fixed generated `*_UNSPECIFIED` enum constants to use the values declared by the API instead of empty strings.
+
+
 ## Release v0.32.0 (2026-08-05)
 
 
