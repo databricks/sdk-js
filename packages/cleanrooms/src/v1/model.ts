@@ -8,7 +8,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskRunLifeCycleState = {
-  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: '',
+  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
   TERMINATING: 'TERMINATING',
@@ -29,7 +29,7 @@ export type CleanRoomTaskRunLifeCycleState =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskRunResultState = {
-  RUN_RESULT_STATE_UNSPECIFIED: '',
+  RUN_RESULT_STATE_UNSPECIFIED: 'RUN_RESULT_STATE_UNSPECIFIED',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
   TIMEDOUT: 'TIMEDOUT',
@@ -50,7 +50,7 @@ export type CleanRoomTaskRunResultState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskType = {
-  CLEAN_ROOM_TASK_TYPE_UNSPECIFIED: '',
+  CLEAN_ROOM_TASK_TYPE_UNSPECIFIED: 'CLEAN_ROOM_TASK_TYPE_UNSPECIFIED',
   NOTEBOOK: 'NOTEBOOK',
   JAR: 'JAR',
 } as const;
@@ -93,7 +93,7 @@ export type ColumnTypeName =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComplianceStandard = {
   /** Sentinel value, should not be used in prod */
-  COMPLIANCE_STANDARD_UNSPECIFIED: '',
+  COMPLIANCE_STANDARD_UNSPECIFIED: 'COMPLIANCE_STANDARD_UNSPECIFIED',
   /**
    * For customers who buy Enhanced Security Compliance (ESC) product
    * but don't belong to any standards.
@@ -154,7 +154,7 @@ export type CleanRoom_AccessRestricted =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoom_Status_Enum = {
-  ENUM_UNSPECIFIED: '',
+  ENUM_UNSPECIFIED: 'ENUM_UNSPECIFIED',
   ACTIVE: 'ACTIVE',
   PROVISIONING: 'PROVISIONING',
   DELETED: 'DELETED',
@@ -167,7 +167,7 @@ export type CleanRoom_Status_Enum =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomAsset_AssetType = {
-  ASSET_TYPE_UNSPECIFIED: '',
+  ASSET_TYPE_UNSPECIFIED: 'ASSET_TYPE_UNSPECIFIED',
   TABLE: 'TABLE',
   NOTEBOOK_FILE: 'NOTEBOOK_FILE',
   VOLUME: 'VOLUME',
@@ -182,7 +182,7 @@ export type CleanRoomAsset_AssetType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomAsset_Status_Enum = {
-  ENUM_UNSPECIFIED: '',
+  ENUM_UNSPECIFIED: 'ENUM_UNSPECIFIED',
   ACTIVE: 'ACTIVE',
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   PENDING: 'PENDING',
@@ -194,7 +194,7 @@ export type CleanRoomAsset_Status_Enum =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomAutoApprovalRule_AuthorScope = {
-  AUTHOR_SCOPE_UNSPECIFIED: '',
+  AUTHOR_SCOPE_UNSPECIFIED: 'AUTHOR_SCOPE_UNSPECIFIED',
   ANY_AUTHOR: 'ANY_AUTHOR',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -204,7 +204,8 @@ export type CleanRoomAutoApprovalRule_AuthorScope =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomJarAnalysisReview_JarAnalysisReviewState = {
-  JAR_ANALYSIS_REVIEW_STATE_UNSPECIFIED: '',
+  JAR_ANALYSIS_REVIEW_STATE_UNSPECIFIED:
+    'JAR_ANALYSIS_REVIEW_STATE_UNSPECIFIED',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
   PENDING: 'PENDING',
@@ -216,7 +217,8 @@ export type CleanRoomJarAnalysisReview_JarAnalysisReviewState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason = {
-  JAR_ANALYSIS_REVIEW_SUB_REASON_UNSPECIFIED: '',
+  JAR_ANALYSIS_REVIEW_SUB_REASON_UNSPECIFIED:
+    'JAR_ANALYSIS_REVIEW_SUB_REASON_UNSPECIFIED',
   AUTO_APPROVED: 'AUTO_APPROVED',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -226,7 +228,7 @@ export type CleanRoomJarAnalysisReview_JarAnalysisReviewSubReason =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomNotebookReview_NotebookReviewState = {
-  NOTEBOOK_REVIEW_STATE_UNSPECIFIED: '',
+  NOTEBOOK_REVIEW_STATE_UNSPECIFIED: 'NOTEBOOK_REVIEW_STATE_UNSPECIFIED',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
   PENDING: 'PENDING',
@@ -238,7 +240,8 @@ export type CleanRoomNotebookReview_NotebookReviewState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomNotebookReview_NotebookReviewSubReason = {
-  NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED: '',
+  NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED:
+    'NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED',
   BACKFILLED: 'BACKFILLED',
   AUTO_APPROVED: 'AUTO_APPROVED',
 } as const;
@@ -249,7 +252,7 @@ export type CleanRoomNotebookReview_NotebookReviewSubReason =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomOutputCatalog_OutputCatalogStatus = {
-  OUTPUT_CATALOG_STATUS_UNSPECIFIED: '',
+  OUTPUT_CATALOG_STATUS_UNSPECIFIED: 'OUTPUT_CATALOG_STATUS_UNSPECIFIED',
   /** The clean room is not eligible for output catalog. */
   NOT_ELIGIBLE: 'NOT_ELIGIBLE',
   /** The output catalog of the clean room is not yet created. */
@@ -271,7 +274,8 @@ export type CleanRoomOutputCatalog_OutputCatalogStatus =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol =
   {
-    INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED: '',
+    INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED:
+      'INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED',
     TCP: 'TCP',
   } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -283,7 +287,8 @@ export type EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_Interne
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType =
   {
-    INTERNET_DESTINATION_TYPE_UNSPECIFIED: '',
+    INTERNET_DESTINATION_TYPE_UNSPECIFIED:
+      'INTERNET_DESTINATION_TYPE_UNSPECIFIED',
     FQDN: 'FQDN',
   } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -295,7 +300,7 @@ export type EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_Interne
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType =
   {
-    LOG_ONLY_MODE_TYPE_UNSPECIFIED: '',
+    LOG_ONLY_MODE_TYPE_UNSPECIFIED: 'LOG_ONLY_MODE_TYPE_UNSPECIFIED',
     ALL_SERVICES: 'ALL_SERVICES',
     SELECTED_SERVICES: 'SELECTED_SERVICES',
   } as const;
@@ -309,7 +314,7 @@ export type EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType =
   {
-    WORKLOAD_TYPE_UNSPECIFIED: '',
+    WORKLOAD_TYPE_UNSPECIFIED: 'WORKLOAD_TYPE_UNSPECIFIED',
     DBSQL: 'DBSQL',
     ML_SERVING: 'ML_SERVING',
   } as const;
@@ -327,7 +332,7 @@ export type EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode = {
-  RESTRICTION_MODE_UNSPECIFIED: '',
+  RESTRICTION_MODE_UNSPECIFIED: 'RESTRICTION_MODE_UNSPECIFIED',
   FULL_ACCESS: 'FULL_ACCESS',
   PRIVATE_ACCESS_ONLY: 'PRIVATE_ACCESS_ONLY',
   RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
@@ -340,7 +345,8 @@ export type EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType =
   {
-    STORAGE_DESTINATION_TYPE_UNSPECIFIED: '',
+    STORAGE_DESTINATION_TYPE_UNSPECIFIED:
+      'STORAGE_DESTINATION_TYPE_UNSPECIFIED',
     AWS_S3: 'AWS_S3',
     CLOUDFLARE_R2: 'CLOUDFLARE_R2',
     AZURE_STORAGE: 'AZURE_STORAGE',

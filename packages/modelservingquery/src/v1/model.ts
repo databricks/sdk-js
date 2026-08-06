@@ -17,7 +17,7 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 /** The role of the message. One of [system, user, assistant]. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ChatMessageRole = {
-  CHAT_MESSAGE_ROLE_UNSPECIFIED: '',
+  CHAT_MESSAGE_ROLE_UNSPECIFIED: 'CHAT_MESSAGE_ROLE_UNSPECIFIED',
   SYSTEM: 'system',
   USER: 'user',
   ASSISTANT: 'assistant',
@@ -29,7 +29,8 @@ export type ChatMessageRole =
 /** This will always be 'embedding'. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EmbeddingsV1ResponseEmbeddingElementObject = {
-  EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED: '',
+  EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED:
+    'EMBEDDINGS_V1_RESPONSE_EMBEDDING_ELEMENT_OBJECT_UNSPECIFIED',
   EMBEDDING: 'embedding',
 } as const;
 export type EmbeddingsV1ResponseEmbeddingElementObject =
@@ -42,7 +43,8 @@ export type EmbeddingsV1ResponseEmbeddingElementObject =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const QueryEndpointResponseObject = {
-  QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED: '',
+  QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED:
+    'QUERY_ENDPOINT_RESPONSE_OBJECT_UNSPECIFIED',
   TEXT_COMPLETION: 'text_completion',
   CHAT_COMPLETION: 'chat.completion',
   LIST: 'list',

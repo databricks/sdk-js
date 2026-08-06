@@ -57,7 +57,7 @@ export type PipelineType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ScalingChangeState = {
-  SCALING_CHANGE_UNSPECIFIED: '',
+  SCALING_CHANGE_UNSPECIFIED: 'SCALING_CHANGE_UNSPECIFIED',
   SCALING_CHANGE_APPLIED: 'SCALING_CHANGE_APPLIED',
   SCALING_CHANGE_IN_PROGRESS: 'SCALING_CHANGE_IN_PROGRESS',
 } as const;

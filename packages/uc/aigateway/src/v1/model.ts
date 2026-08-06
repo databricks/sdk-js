@@ -13,7 +13,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ListMcpServicesRequest_View = {
   /** Server treats as BASIC. */
-  VIEW_UNSPECIFIED: '',
+  VIEW_UNSPECIFIED: 'VIEW_UNSPECIFIED',
   /**
    * All fields populated, including the fully resolved `config`
    * (connection details) and rate-limit principal names.
@@ -39,7 +39,7 @@ export type ListMcpServicesRequest_View =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ListModelProviderServicesRequest_View = {
   /** Server treats as BASIC. */
-  VIEW_UNSPECIFIED: '',
+  VIEW_UNSPECIFIED: 'VIEW_UNSPECIFIED',
   /**
    * All fields populated, including the fully resolved `config`
    * (inference-table details) and rate-limit principal names.
@@ -65,7 +65,7 @@ export type ListModelProviderServicesRequest_View =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ListModelServicesRequest_View = {
   /** Server treats as BASIC. */
-  VIEW_UNSPECIFIED: '',
+  VIEW_UNSPECIFIED: 'VIEW_UNSPECIFIED',
   /**
    * All fields populated, including the fully resolved `config`
    * (destinations and inference-table details) and rate-limit principal

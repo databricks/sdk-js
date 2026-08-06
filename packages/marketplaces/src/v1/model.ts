@@ -4,7 +4,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AssetType = {
-  ASSET_TYPE_UNSPECIFIED: '',
+  ASSET_TYPE_UNSPECIFIED: 'ASSET_TYPE_UNSPECIFIED',
   ASSET_TYPE_GIT_REPO: 'ASSET_TYPE_GIT_REPO',
   ASSET_TYPE_DATA_TABLE: 'ASSET_TYPE_DATA_TABLE',
   ASSET_TYPE_MODEL: 'ASSET_TYPE_MODEL',
@@ -156,7 +156,7 @@ export type ListingStatus =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ListingTagType = {
-  LISTING_TAG_TYPE_UNSPECIFIED: '',
+  LISTING_TAG_TYPE_UNSPECIFIED: 'LISTING_TAG_TYPE_UNSPECIFIED',
   LISTING_TAG_TYPE_LANGUAGE: 'LISTING_TAG_TYPE_LANGUAGE',
   LISTING_TAG_TYPE_TASK: 'LISTING_TAG_TYPE_TASK',
 } as const;

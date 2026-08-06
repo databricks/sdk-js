@@ -6,7 +6,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ChannelName = {
-  CHANNEL_NAME_UNSPECIFIED: '',
+  CHANNEL_NAME_UNSPECIFIED: 'CHANNEL_NAME_UNSPECIFIED',
   CHANNEL_NAME_PREVIEW: 'CHANNEL_NAME_PREVIEW',
   CHANNEL_NAME_CURRENT: 'CHANNEL_NAME_CURRENT',
   CHANNEL_NAME_PREVIOUS: 'CHANNEL_NAME_PREVIOUS',
@@ -20,7 +20,8 @@ export type ChannelName =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DefaultWarehouseOverrideType = {
   /** Unspecified default warehouse override type. */
-  DEFAULT_WAREHOUSE_OVERRIDE_TYPE_UNSPECIFIED: '',
+  DEFAULT_WAREHOUSE_OVERRIDE_TYPE_UNSPECIFIED:
+    'DEFAULT_WAREHOUSE_OVERRIDE_TYPE_UNSPECIFIED',
   /** The user should remember their last-selected warehouse. */
   LAST_SELECTED: 'LAST_SELECTED',
   /** The user should use a specific warehouse. */
@@ -81,7 +82,7 @@ export const EndpointSpotInstancePolicy = {
    * This follows Google APIs:
    * https://cloud.google.com/apis/design/design_patterns#enum_default_value.
    */
-  POLICY_UNSPECIFIED: '',
+  POLICY_UNSPECIFIED: 'POLICY_UNSPECIFIED',
   /** COST_OPTIMIZED to prefer spot instance. */
   COST_OPTIMIZED: 'COST_OPTIMIZED',
   /** RELIABILITY_OPTIMIZED to prefer on demand instance. */
@@ -729,7 +730,7 @@ export type TerminationType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const WarehouseType = {
   /** UNDOCUMENTED. Indicates no value is specified. */
-  TYPE_UNSPECIFIED: '',
+  TYPE_UNSPECIFIED: 'TYPE_UNSPECIFIED',
   /** Classic warehouse type */
   CLASSIC: 'CLASSIC',
   /** Pro warehouse type */
@@ -742,7 +743,7 @@ export type WarehouseType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointHealth_Status = {
   /** UNDOCUMENTED. Indicates no value is specified. An implementation detail. */
-  STATUS_UNSPECIFIED: '',
+  STATUS_UNSPECIFIED: 'STATUS_UNSPECIFIED',
   /** Endpoint is functioning normally and there are no known issues. */
   HEALTHY: 'HEALTHY',
   /**

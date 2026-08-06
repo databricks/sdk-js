@@ -16,7 +16,7 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GetSortOrder = {
-  GET_SORT_ORDER_UNSPECIFIED: '',
+  GET_SORT_ORDER_UNSPECIFIED: 'GET_SORT_ORDER_UNSPECIFIED',
   ASCENDING: 'ascending',
   DESCENDING: 'descending',
 } as const;
@@ -26,7 +26,7 @@ export type GetSortOrder =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GroupSchema = {
-  GROUP_SCHEMA_UNSPECIFIED: '',
+  GROUP_SCHEMA_UNSPECIFIED: 'GROUP_SCHEMA_UNSPECIFIED',
   URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_GROUP:
     'urn:ietf:params:scim:schemas:core:2.0:Group',
 } as const;
@@ -36,7 +36,7 @@ export type GroupSchema =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ListResponseSchema = {
-  LIST_RESPONSE_SCHEMA_UNSPECIFIED: '',
+  LIST_RESPONSE_SCHEMA_UNSPECIFIED: 'LIST_RESPONSE_SCHEMA_UNSPECIFIED',
   URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_LIST_RESPONSE:
     'urn:ietf:params:scim:api:messages:2.0:ListResponse',
 } as const;
@@ -47,7 +47,7 @@ export type ListResponseSchema =
 /** Type of patch operation. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PatchOp = {
-  PATCH_OP_UNSPECIFIED: '',
+  PATCH_OP_UNSPECIFIED: 'PATCH_OP_UNSPECIFIED',
   ADD: 'add',
   REMOVE: 'remove',
   REPLACE: 'replace',
@@ -56,7 +56,7 @@ export type PatchOp = (typeof PatchOp)[keyof typeof PatchOp] | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PatchSchema = {
-  PATCH_SCHEMA_UNSPECIFIED: '',
+  PATCH_SCHEMA_UNSPECIFIED: 'PATCH_SCHEMA_UNSPECIFIED',
   URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP:
     'urn:ietf:params:scim:api:messages:2.0:PatchOp',
 } as const;
@@ -66,7 +66,7 @@ export type PatchSchema =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ServicePrincipalSchema = {
-  SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED: '',
+  SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED: 'SERVICE_PRINCIPAL_SCHEMA_UNSPECIFIED',
   URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_SERVICE_PRINCIPAL:
     'urn:ietf:params:scim:schemas:core:2.0:ServicePrincipal',
 } as const;
@@ -76,7 +76,7 @@ export type ServicePrincipalSchema =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const UserSchema = {
-  USER_SCHEMA_UNSPECIFIED: '',
+  USER_SCHEMA_UNSPECIFIED: 'USER_SCHEMA_UNSPECIFIED',
   URN_IETF_PARAMS_SCIM_SCHEMAS_CORE_2_0_USER:
     'urn:ietf:params:scim:schemas:core:2.0:User',
   URN_IETF_PARAMS_SCIM_SCHEMAS_EXTENSION_WORKSPACE_2_0_USER:
@@ -88,7 +88,7 @@ export type UserSchema =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AccountGetSortOrder_GetSortOrder = {
-  GET_SORT_ORDER_UNSPECIFIED: '',
+  GET_SORT_ORDER_UNSPECIFIED: 'GET_SORT_ORDER_UNSPECIFIED',
   ASCENDING: 'ascending',
   DESCENDING: 'descending',
 } as const;
@@ -99,7 +99,7 @@ export type AccountGetSortOrder_GetSortOrder =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AccountListSort_Order = {
-  ORDER_UNSPECIFIED: '',
+  ORDER_UNSPECIFIED: 'ORDER_UNSPECIFIED',
   ASCENDING: 'ascending',
   DESCENDING: 'descending',
 } as const;
@@ -111,7 +111,7 @@ export type AccountListSort_Order =
 /** Type of patch operation. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AccountPatchOp_PatchOp = {
-  PATCH_OP_UNSPECIFIED: '',
+  PATCH_OP_UNSPECIFIED: 'PATCH_OP_UNSPECIFIED',
   ADD: 'add',
   REMOVE: 'remove',
   REPLACE: 'replace',
@@ -123,7 +123,7 @@ export type AccountPatchOp_PatchOp =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AccountPatchSchema_PatchSchema = {
-  PATCH_SCHEMA_UNSPECIFIED: '',
+  PATCH_SCHEMA_UNSPECIFIED: 'PATCH_SCHEMA_UNSPECIFIED',
   URN_IETF_PARAMS_SCIM_API_MESSAGES_2_0_PATCH_OP:
     'urn:ietf:params:scim:api:messages:2.0:PatchOp',
 } as const;
@@ -134,7 +134,7 @@ export type AccountPatchSchema_PatchSchema =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ListSort_Order = {
-  ORDER_UNSPECIFIED: '',
+  ORDER_UNSPECIFIED: 'ORDER_UNSPECIFIED',
   ASCENDING: 'ascending',
   DESCENDING: 'descending',
 } as const;
@@ -146,7 +146,7 @@ export type ListSort_Order =
 /** Permission level */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PasswordPermission_Level = {
-  LEVEL_UNSPECIFIED: '',
+  LEVEL_UNSPECIFIED: 'LEVEL_UNSPECIFIED',
   CAN_USE: 'CAN_USE',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
