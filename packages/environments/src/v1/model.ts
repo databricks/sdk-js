@@ -8,7 +8,7 @@ import {z} from 'zod';
 /** If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const BaseEnvironmentType = {
-  BASE_ENVIRONMENT_TYPE_UNSPECIFIED: '',
+  BASE_ENVIRONMENT_TYPE_UNSPECIFIED: 'BASE_ENVIRONMENT_TYPE_UNSPECIFIED',
   CPU: 'CPU',
   GPU: 'GPU',
 } as const;
@@ -525,7 +525,7 @@ export type ErrorCode =
 /** Status of the environment materialization. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const WorkspaceBaseEnvironmentCache_Status = {
-  STATUS_UNSPECIFIED: '',
+  STATUS_UNSPECIFIED: 'STATUS_UNSPECIFIED',
   /** Materialized environment creation is pending. */
   PENDING: 'PENDING',
   /** Materialized environment has been successfully created. */

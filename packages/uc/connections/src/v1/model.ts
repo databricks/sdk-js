@@ -89,7 +89,7 @@ export type SecurableType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningInfo_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   PROVISIONING: 'PROVISIONING',
   ACTIVE: 'ACTIVE',
   FAILED: 'FAILED',

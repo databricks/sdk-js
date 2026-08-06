@@ -9,7 +9,8 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TagAssignmentSourceType = {
   /** Includes (but not limited to) tags manually assigned by users */
-  TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED: '',
+  TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED:
+    'TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED',
   /** Automatically assigned by Data Classification */
   TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION:
     'TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION',

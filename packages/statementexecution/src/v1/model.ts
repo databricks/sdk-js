@@ -43,7 +43,7 @@ export type ColumnTypeName =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Disposition = {
-  FETCH_DISPOSITION_UNSPECIFIED: '',
+  FETCH_DISPOSITION_UNSPECIFIED: 'FETCH_DISPOSITION_UNSPECIFIED',
   INLINE: 'INLINE',
   EXTERNAL_LINKS: 'EXTERNAL_LINKS',
 } as const;
@@ -53,7 +53,7 @@ export type Disposition =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Format = {
-  FORMAT_UNSPECIFIED: '',
+  FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
   JSON_ARRAY: 'JSON_ARRAY',
   ARROW_STREAM: 'ARROW_STREAM',
   CSV: 'CSV',
@@ -90,7 +90,7 @@ export type ServiceErrorCode =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TimeoutAction = {
-  TIMEOUT_ACTION_UNSPECIFIED: '',
+  TIMEOUT_ACTION_UNSPECIFIED: 'TIMEOUT_ACTION_UNSPECIFIED',
   CONTINUE: 'CONTINUE',
   CANCEL: 'CANCEL',
 } as const;
@@ -100,7 +100,7 @@ export type TimeoutAction =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StatementStatus_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
   SUCCEEDED: 'SUCCEEDED',

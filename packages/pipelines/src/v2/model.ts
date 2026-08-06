@@ -19,7 +19,7 @@ export type CloneMode =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConnectorType = {
-  CONNECTOR_TYPE_UNSPECIFIED: '',
+  CONNECTOR_TYPE_UNSPECIFIED: 'CONNECTOR_TYPE_UNSPECIFIED',
   /**
    * If connector_type = CDC and ingestion_gateway_id is provided then we use Ingestion Gateway pipeline with
    * Cdc Managed Ingestion Pipeline for ingestion, if connector_type = CDC and connection_name is provided
@@ -38,7 +38,7 @@ export type ConnectorType =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DayOfWeek = {
-  DAY_OF_WEEK_UNSPECIFIED: '',
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
   MONDAY: 'MONDAY',
   TUESDAY: 'TUESDAY',
   WEDNESDAY: 'WEDNESDAY',
@@ -78,7 +78,7 @@ export type EventLevel =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IngestionSourceType = {
-  INGESTION_SOURCE_TYPE_UNSPECIFIED: '',
+  INGESTION_SOURCE_TYPE_UNSPECIFIED: 'INGESTION_SOURCE_TYPE_UNSPECIFIED',
   MYSQL: 'MYSQL',
   POSTGRESQL: 'POSTGRESQL',
   SQLSERVER: 'SQLSERVER',
@@ -118,7 +118,7 @@ export type MaturityLevel =
 /** Attachment behavior mode for Outlook ingestion */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OutlookAttachmentMode = {
-  OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED: '',
+  OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED: 'OUTLOOK_ATTACHMENT_MODE_UNSPECIFIED',
   /** Ingest all attachments (both inline and non-inline) */
   ALL: 'ALL',
   /** Ingest only non-inline attachments (recommended to avoid corporate signature images) */
@@ -135,7 +135,7 @@ export type OutlookAttachmentMode =
 /** Body format for Outlook email content */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const OutlookBodyFormat = {
-  OUTLOOK_BODY_FORMAT_UNSPECIFIED: '',
+  OUTLOOK_BODY_FORMAT_UNSPECIFIED: 'OUTLOOK_BODY_FORMAT_UNSPECIFIED',
   TEXT_HTML: 'TEXT_HTML',
   TEXT_PLAIN: 'TEXT_PLAIN',
 } as const;
@@ -216,7 +216,7 @@ export type PipelinesGcpAvailability =
 /** Enum representing the publishing mode of a pipeline. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PublishingMode = {
-  PUBLISHING_MODE_UNSPECIFIED: '',
+  PUBLISHING_MODE_UNSPECIFIED: 'PUBLISHING_MODE_UNSPECIFIED',
   LEGACY_PUBLISHING_MODE: 'LEGACY_PUBLISHING_MODE',
   DEFAULT_PUBLISHING_MODE: 'DEFAULT_PUBLISHING_MODE',
 } as const;
@@ -278,7 +278,7 @@ export type UpdateState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const FileIngestionOptions_FileFormat = {
-  FILE_FORMAT_UNSPECIFIED: '',
+  FILE_FORMAT_UNSPECIFIED: 'FILE_FORMAT_UNSPECIFIED',
   BINARYFILE: 'BINARYFILE',
   JSON: 'JSON',
   CSV: 'CSV',
@@ -296,7 +296,7 @@ export type FileIngestionOptions_FileFormat =
 /** Based on https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#how-does-auto-loader-schema-evolution-work */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const FileIngestionOptions_SchemaEvolutionMode = {
-  SCHEMA_EVOLUTION_MODE_UNSPECIFIED: '',
+  SCHEMA_EVOLUTION_MODE_UNSPECIFIED: 'SCHEMA_EVOLUTION_MODE_UNSPECIFIED',
   ADD_NEW_COLUMNS_WITH_TYPE_WIDENING: 'ADD_NEW_COLUMNS_WITH_TYPE_WIDENING',
   ADD_NEW_COLUMNS: 'ADD_NEW_COLUMNS',
   RESCUE: 'RESCUE',
@@ -310,7 +310,7 @@ export type FileIngestionOptions_SchemaEvolutionMode =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GoogleDriveOptions_GoogleDriveEntityType = {
-  GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED: '',
+  GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED: 'GOOGLE_DRIVE_ENTITY_TYPE_UNSPECIFIED',
   FILE: 'FILE',
   FILE_METADATA: 'FILE_METADATA',
   PERMISSION: 'PERMISSION',
@@ -350,7 +350,7 @@ export type PipelineState_PipelineState =
 /** The SCD type to use to ingest the table. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ScdType_ScdType = {
-  SCD_TYPE_UNSPECIFIED: '',
+  SCD_TYPE_UNSPECIFIED: 'SCD_TYPE_UNSPECIFIED',
   SCD_TYPE_1: 'SCD_TYPE_1',
   SCD_TYPE_2: 'SCD_TYPE_2',
   /**
@@ -366,7 +366,7 @@ export type ScdType_ScdType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SharepointOptions_SharepointEntityType = {
-  SHAREPOINT_ENTITY_TYPE_UNSPECIFIED: '',
+  SHAREPOINT_ENTITY_TYPE_UNSPECIFIED: 'SHAREPOINT_ENTITY_TYPE_UNSPECIFIED',
   FILE: 'FILE',
   FILE_METADATA: 'FILE_METADATA',
   PERMISSION: 'PERMISSION',
@@ -380,7 +380,7 @@ export type SharepointOptions_SharepointEntityType =
 /** Data level for TikTok Ads report aggregation. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TikTokAdsOptions_TikTokDataLevel = {
-  TIK_TOK_DATA_LEVEL_UNSPECIFIED: '',
+  TIK_TOK_DATA_LEVEL_UNSPECIFIED: 'TIK_TOK_DATA_LEVEL_UNSPECIFIED',
   AUCTION_ADVERTISER: 'AUCTION_ADVERTISER',
   AUCTION_CAMPAIGN: 'AUCTION_CAMPAIGN',
   AUCTION_ADGROUP: 'AUCTION_ADGROUP',
@@ -394,7 +394,7 @@ export type TikTokAdsOptions_TikTokDataLevel =
 /** Report type for TikTok Ads API. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TikTokAdsOptions_TikTokReportType = {
-  TIK_TOK_REPORT_TYPE_UNSPECIFIED: '',
+  TIK_TOK_REPORT_TYPE_UNSPECIFIED: 'TIK_TOK_REPORT_TYPE_UNSPECIFIED',
   BASIC: 'BASIC',
   AUDIENCE: 'AUDIENCE',
   PLAYABLE_AD: 'PLAYABLE_AD',
@@ -409,7 +409,7 @@ export type TikTokAdsOptions_TikTokReportType =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const Transformer_Format = {
-  FORMAT_UNSPECIFIED: '',
+  FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
   STRING: 'STRING',
   JSON: 'JSON',
 } as const;

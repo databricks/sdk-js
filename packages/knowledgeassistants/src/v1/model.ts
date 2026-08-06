@@ -7,7 +7,7 @@ import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const KnowledgeAssistant_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   CREATING: 'CREATING',
   ACTIVE: 'ACTIVE',
   FAILED: 'FAILED',
@@ -19,7 +19,7 @@ export type KnowledgeAssistant_State =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const KnowledgeSource_State = {
-  STATE_UNSPECIFIED: '',
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
   UPDATING: 'UPDATING',
   UPDATED: 'UPDATED',
   FAILED_UPDATE: 'FAILED_UPDATE',

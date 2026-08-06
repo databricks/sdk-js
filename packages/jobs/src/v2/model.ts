@@ -65,7 +65,7 @@ export type AzureAvailability =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComputeKind = {
-  COMPUTE_KIND_UNSPECIFIED: '',
+  COMPUTE_KIND_UNSPECIFIED: 'COMPUTE_KIND_UNSPECIFIED',
   CLASSIC_PREVIEW: 'CLASSIC_PREVIEW',
 } as const;
 export type ComputeKind =
@@ -80,7 +80,8 @@ export type ComputeKind =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ConfidentialComputeType = {
-  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED: '',
+  CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED:
+    'CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED',
   CONFIDENTIAL_COMPUTE_TYPE_NONE: 'CONFIDENTIAL_COMPUTE_TYPE_NONE',
   SEV_SNP: 'SEV_SNP',
 } as const;
@@ -153,7 +154,7 @@ export type DataSecurityMode =
 /** Response enumeration from calling the dbt platform API, for inclusion in output */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DbtPlatformRunStatus = {
-  DBT_PLATFORM_RUN_STATUS_UNSPECIFIED: '',
+  DBT_PLATFORM_RUN_STATUS_UNSPECIFIED: 'DBT_PLATFORM_RUN_STATUS_UNSPECIFIED',
   QUEUED: 'QUEUED',
   STARTING: 'STARTING',
   RUNNING: 'RUNNING',
@@ -174,7 +175,7 @@ export type DbtPlatformRunStatus =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DependencyMode = {
-  DEPENDENCY_MODE_UNSPECIFIED: '',
+  DEPENDENCY_MODE_UNSPECIFIED: 'DEPENDENCY_MODE_UNSPECIFIED',
   DEPENDENCY_MODE_ENVIRONMENTS: 'DEPENDENCY_MODE_ENVIRONMENTS',
   DEPENDENCY_MODE_CLUSTER_LIBRARIES: 'DEPENDENCY_MODE_CLUSTER_LIBRARIES',
   DEPENDENCY_MODE_AUTO: 'DEPENDENCY_MODE_AUTO',
@@ -361,7 +362,8 @@ export type Source = (typeof Source)[keyof typeof Source] | (string & {});
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SqlConditionTriggerMode = {
-  SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED: '',
+  SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED:
+    'SQL_CONDITION_TRIGGER_MODE_UNSPECIFIED',
   QUERY_RETURNS_ROWS: 'QUERY_RETURNS_ROWS',
   RESULT_VALUE_CHANGES: 'RESULT_VALUE_CHANGES',
 } as const;
@@ -487,7 +489,7 @@ export type AccessControlRequest_JobPermission =
 /** Same alert evaluation state as in redash-v2/api/proto/alertsv2/alerts.proto */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AlertEvaluationState_AlertEvaluationState = {
-  ALERT_EVALUATION_STATE_UNSPECIFIED: '',
+  ALERT_EVALUATION_STATE_UNSPECIFIED: 'ALERT_EVALUATION_STATE_UNSPECIFIED',
   UNKNOWN: 'UNKNOWN',
   TRIGGERED: 'TRIGGERED',
   OK: 'OK',
@@ -504,7 +506,7 @@ export type AlertEvaluationState_AlertEvaluationState =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState = {
-  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: '',
+  RUN_LIFE_CYCLE_STATE_UNSPECIFIED: 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
   TERMINATING: 'TERMINATING',
@@ -526,7 +528,7 @@ export type CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CleanRoomTaskRunResultState_CleanRoomTaskRunResultState = {
-  RUN_RESULT_STATE_UNSPECIFIED: '',
+  RUN_RESULT_STATE_UNSPECIFIED: 'RUN_RESULT_STATE_UNSPECIFIED',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
   TIMEDOUT: 'TIMEDOUT',
@@ -619,7 +621,7 @@ export type JobSource_DirtyState =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ModelTriggerConfiguration_ModelTriggerCondition = {
-  CONDITION_UNSPECIFIED: '',
+  CONDITION_UNSPECIFIED: 'CONDITION_UNSPECIFIED',
   MODEL_CREATED: 'MODEL_CREATED',
   MODEL_VERSION_READY: 'MODEL_VERSION_READY',
   MODEL_ALIAS_SET: 'MODEL_ALIAS_SET',
@@ -636,7 +638,7 @@ export type ModelTriggerConfiguration_ModelTriggerCondition =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PerformanceTarget_PerformanceTarget = {
-  PERFORMANCE_TARGET_UNSPECIFIED: '',
+  PERFORMANCE_TARGET_UNSPECIFIED: 'PERFORMANCE_TARGET_UNSPECIFIED',
   PERFORMANCE_OPTIMIZED: 'PERFORMANCE_OPTIMIZED',
   STANDARD: 'STANDARD',
 } as const;
@@ -647,7 +649,7 @@ export type PerformanceTarget_PerformanceTarget =
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PeriodicTriggerConfiguration_TimeUnit = {
-  TIME_UNIT_UNSPECIFIED: '',
+  TIME_UNIT_UNSPECIFIED: 'TIME_UNIT_UNSPECIFIED',
   HOURS: 'HOURS',
   DAYS: 'DAYS',
   WEEKS: 'WEEKS',

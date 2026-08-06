@@ -7,7 +7,7 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PolicyType = {
   /** For detecting field not being set to a supported value */
-  POLICY_TYPE_UNSPECIFIED: '',
+  POLICY_TYPE_UNSPECIFIED: 'POLICY_TYPE_UNSPECIFIED',
   POLICY_TYPE_ROW_FILTER: 'POLICY_TYPE_ROW_FILTER',
   POLICY_TYPE_COLUMN_MASK: 'POLICY_TYPE_COLUMN_MASK',
 } as const;

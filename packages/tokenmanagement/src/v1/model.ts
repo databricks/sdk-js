@@ -12,7 +12,7 @@ import {z} from 'zod';
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AutoscopeState = {
-  AUTOSCOPE_STATE_UNSPECIFIED: '',
+  AUTOSCOPE_STATE_UNSPECIFIED: 'AUTOSCOPE_STATE_UNSPECIFIED',
   AUTOSCOPE_STATE_DISABLED: 'AUTOSCOPE_STATE_DISABLED',
   AUTOSCOPE_STATE_RUNNING: 'AUTOSCOPE_STATE_RUNNING',
   AUTOSCOPE_STATE_COMPLETED: 'AUTOSCOPE_STATE_COMPLETED',
