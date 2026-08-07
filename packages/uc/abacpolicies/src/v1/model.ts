@@ -10,6 +10,7 @@ export const PolicyType = {
   POLICY_TYPE_UNSPECIFIED: 'POLICY_TYPE_UNSPECIFIED',
   POLICY_TYPE_ROW_FILTER: 'POLICY_TYPE_ROW_FILTER',
   POLICY_TYPE_COLUMN_MASK: 'POLICY_TYPE_COLUMN_MASK',
+  POLICY_TYPE_GRANT: 'POLICY_TYPE_GRANT',
 } as const;
 export type PolicyType =
   | (typeof PolicyType)[keyof typeof PolicyType]
@@ -102,6 +103,16 @@ export interface GetPolicyRequest {
   onSecurableFullname?: string | undefined;
   /** Required. The name of the policy to retrieve. */
   name?: string | undefined;
+}
+
+export interface GrantOptions {
+  /**
+   * List of privileges to grant.
+   * When any of these privileges are requested, the policy will grant access
+   * if the principal and condition match.
+   * Required on create and update.
+   */
+  privileges?: string[] | undefined;
 }
 
 export interface ListPoliciesRequest {
@@ -202,6 +213,15 @@ export interface PolicyInfo {
          */
         columnMask: ColumnMaskOptions;
       }
+    | {
+        $case: 'grant';
+        /**
+         * Options for grant policies. Valid only if `policy_type` is `POLICY_TYPE_GRANT`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        grant: GrantOptions;
+      }
     | undefined;
   /**
    * Optional list of condition expressions used to match table columns.
@@ -287,6 +307,14 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
           : undefined,
   }));
 
+export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
+  .object({
+    privileges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    privileges: d.privileges,
+  }));
+
 export const unmarshalListPoliciesResponseSchema: z.ZodType<ListPoliciesResponse> =
   z
     .object({
@@ -322,6 +350,7 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     policy_type: z.string().optional(),
     row_filter: z.lazy(() => unmarshalRowFilterOptionsSchema).optional(),
     column_mask: z.lazy(() => unmarshalColumnMaskOptionsSchema).optional(),
+    grant: z.lazy(() => unmarshalGrantOptionsSchema).optional(),
     match_columns: z.array(z.lazy(() => unmarshalMatchColumnSchema)).optional(),
     created_at: z
       .union([z.number(), z.bigint()])
@@ -350,7 +379,9 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
         ? {$case: 'rowFilter' as const, rowFilter: d.row_filter}
         : d.column_mask !== undefined
           ? {$case: 'columnMask' as const, columnMask: d.column_mask}
-          : undefined,
+          : d.grant !== undefined
+            ? {$case: 'grant' as const, grant: d.grant}
+            : undefined,
     matchColumns: d.match_columns,
     createdAt: d.created_at,
     createdBy: d.created_by,
@@ -394,6 +425,14 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
   }));
 
+export const marshalGrantOptionsSchema: z.ZodType = z
+  .object({
+    privileges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    privileges: d.privileges,
+  }));
+
 export const marshalMatchColumnSchema: z.ZodType = z
   .object({
     condition: z.string().optional(),
@@ -426,6 +465,10 @@ export const marshalPolicyInfoSchema: z.ZodType = z
           $case: z.literal('columnMask'),
           columnMask: z.lazy(() => marshalColumnMaskOptionsSchema),
         }),
+        z.object({
+          $case: z.literal('grant'),
+          grant: z.lazy(() => marshalGrantOptionsSchema),
+        }),
       ])
       .optional(),
     matchColumns: z.array(z.lazy(() => marshalMatchColumnSchema)).optional(),
@@ -449,6 +492,7 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     ...(d.options?.$case === 'columnMask' && {
       column_mask: d.options.columnMask,
     }),
+    ...(d.options?.$case === 'grant' && {grant: d.options.grant}),
     match_columns: d.matchColumns,
     created_at: d.createdAt,
     created_by: d.createdBy,
@@ -472,6 +516,10 @@ const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
   using: {wire: 'using'},
 };
 
+const grantOptionsFieldMaskSchema: FieldMaskSchema = {
+  privileges: {wire: 'privileges'},
+};
+
 const policyInfoFieldMaskSchema: FieldMaskSchema = {
   columnMask: {
     wire: 'column_mask',
@@ -482,6 +530,7 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   createdBy: {wire: 'created_by'},
   exceptPrincipals: {wire: 'except_principals'},
   forSecurableType: {wire: 'for_securable_type'},
+  grant: {wire: 'grant', children: () => grantOptionsFieldMaskSchema},
   id: {wire: 'id'},
   matchColumns: {wire: 'match_columns'},
   name: {wire: 'name'},

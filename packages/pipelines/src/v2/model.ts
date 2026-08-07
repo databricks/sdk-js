@@ -246,6 +246,20 @@ export type UpdateCause =
   | (typeof UpdateCause)[keyof typeof UpdateCause]
   | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const UpdateMode = {
+  /** default update mode, a.k.a. "triggered" mode */
+  DEFAULT: 'DEFAULT',
+  /**
+   * continuous execution mode (regardless of whether the update was triggered
+   * by a continuous job or by a legacy continuous pipeline)
+   */
+  CONTINUOUS: 'CONTINUOUS',
+} as const;
+export type UpdateMode =
+  | (typeof UpdateMode)[keyof typeof UpdateMode]
+  | (string & {});
+
 /** The update state. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const UpdateState = {
@@ -2694,6 +2708,16 @@ export interface Transformer {
   config?:
     | {$case: 'jsonOptions'; jsonOptions: JsonTransformerOptions}
     | undefined;
+  /**
+   * Optional input column to transform. When set, the transformer reads
+   * from this column instead of the default source column.
+   */
+  inputColumn?: string | undefined;
+  /**
+   * Optional output column name. When set, the transformed result is
+   * written to this column instead of replacing the input column.
+   */
+  outputColumn?: string | undefined;
 }
 
 /** Information about truncations applied to this event. */
@@ -2749,6 +2773,11 @@ export interface UpdateInfo {
   fullRefreshSelection?: string[] | undefined;
   /** If true, this update only validates the correctness of pipeline source code but does not materialize or publish any datasets. */
   validateOnly?: boolean | undefined;
+  /**
+   * Indicates whether the update is either part of a continuous job run, or running in legacy continuous pipeline mode.
+   * Returned only for GetUpdate; not populated in ListUpdates responses.
+   */
+  mode?: UpdateMode | undefined;
   /** Key/value map of parameters used to initiate the update */
   parameters?: Record<string, string> | undefined;
 }
@@ -4317,6 +4346,8 @@ export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
     json_options: z
       .lazy(() => unmarshalJsonTransformerOptionsSchema)
       .optional(),
+    input_column: z.string().optional(),
+    output_column: z.string().optional(),
   })
   .transform(d => ({
     format: d.format,
@@ -4324,6 +4355,8 @@ export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
       d.json_options !== undefined
         ? {$case: 'jsonOptions' as const, jsonOptions: d.json_options}
         : undefined,
+    inputColumn: d.input_column,
+    outputColumn: d.output_column,
   }));
 
 export const unmarshalTruncationSchema: z.ZodType<Truncation> = z
@@ -4362,6 +4395,7 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     refresh_selection: z.array(z.string()).optional(),
     full_refresh_selection: z.array(z.string()).optional(),
     validate_only: z.boolean().optional(),
+    mode: z.string().optional(),
     parameters: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -4376,6 +4410,7 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     refreshSelection: d.refresh_selection,
     fullRefreshSelection: d.full_refresh_selection,
     validateOnly: d.validate_only,
+    mode: d.mode,
     parameters: d.parameters,
   }));
 
@@ -5894,12 +5929,16 @@ export const marshalTransformerSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    inputColumn: z.string().optional(),
+    outputColumn: z.string().optional(),
   })
   .transform(d => ({
     format: d.format,
     ...(d.config?.$case === 'jsonOptions' && {
       json_options: d.config.jsonOptions,
     }),
+    input_column: d.inputColumn,
+    output_column: d.outputColumn,
   }));
 
 export const marshalZendeskSupportOptionsSchema: z.ZodType = z
