@@ -15,6 +15,7 @@ export type {
   DeletePolicyResponse,
   FunctionArgument,
   GetPolicyRequest,
+  GrantOptions,
   ListPoliciesRequest,
   ListPoliciesResponse,
   MatchColumn,

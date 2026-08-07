@@ -23,6 +23,7 @@ export {
   PipelinesGcpAvailability,
   PublishingMode,
   UpdateCause,
+  UpdateMode,
   UpdateState,
   FileIngestionOptions_FileFormat,
   FileIngestionOptions_SchemaEvolutionMode,

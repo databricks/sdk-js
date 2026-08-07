@@ -30,6 +30,11 @@ export interface GetSecretRequest {
    * (for example, **catalog_name.schema_name.secret_name**).
    */
   fullName?: string | undefined;
+  /**
+   * Whether to include the secret value in the response. Defaults to false. Requires the
+   * **READ_SECRET** privilege.
+   */
+  includeValue?: boolean | undefined;
 }
 
 /** Request message for ListSecrets. */

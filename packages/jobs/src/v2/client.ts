@@ -696,7 +696,7 @@ export class JobsClient {
     }
   }
 
-  /** List runs in descending order by start time. */
+  /** List runs in descending order by end time. If a run has not finished, it falls back to start time. */
   async listRuns(
     req: ListRunsRequest,
     options?: CallOptions

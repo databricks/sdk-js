@@ -6,6 +6,11 @@ import {z} from 'zod';
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ActionConfigurationType = {
   EMAIL_NOTIFICATION: 'EMAIL_NOTIFICATION',
+  /**
+   * Blocks further usage when the alert threshold is reached. Supported only on
+   * AI Gateway budgets. No `target` is required for this action type.
+   */
+  BLOCK_USAGE: 'BLOCK_USAGE',
 } as const;
 export type ActionConfigurationType =
   | (typeof ActionConfigurationType)[keyof typeof ActionConfigurationType]
@@ -17,6 +22,20 @@ export const AlertConfigurationQuantityType = {
 } as const;
 export type AlertConfigurationQuantityType =
   | (typeof AlertConfigurationQuantityType)[keyof typeof AlertConfigurationQuantityType]
+  | (string & {});
+
+/** Evaluation scope for an alert configuration. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AlertConfigurationScopeType = {
+  /** Alert evaluates aggregate spend across all users. */
+  ALERT_CONFIGURATION_SCOPE_TYPE_SHARED:
+    'ALERT_CONFIGURATION_SCOPE_TYPE_SHARED',
+  /** Alert evaluates spend per individual user identity. */
+  ALERT_CONFIGURATION_SCOPE_TYPE_PER_USER:
+    'ALERT_CONFIGURATION_SCOPE_TYPE_PER_USER',
+} as const;
+export type AlertConfigurationScopeType =
+  | (typeof AlertConfigurationScopeType)[keyof typeof AlertConfigurationScopeType]
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -33,6 +52,22 @@ export const AlertConfigurationTriggerType = {
 } as const;
 export type AlertConfigurationTriggerType =
   | (typeof AlertConfigurationTriggerType)[keyof typeof AlertConfigurationTriggerType]
+  | (string & {});
+
+/**
+ * Resource scope for a budget configuration. Determines whether the budget tracks all
+ * resources or a specific resource.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BudgetResourceType = {
+  /** The budget applies to spending across all resources. */
+  BUDGET_RESOURCE_TYPE_ALL_RESOURCES: 'BUDGET_RESOURCE_TYPE_ALL_RESOURCES',
+  /** The budget applies only to Unity AI Gateway spending. */
+  BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY:
+    'BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY',
+} as const;
+export type BudgetResourceType =
+  | (typeof BudgetResourceType)[keyof typeof BudgetResourceType]
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -66,6 +101,10 @@ export interface AlertConfiguration {
   quantityThreshold?: string | undefined;
   /** Configured actions for this alert. These define what happens when an alert enters a triggered state. */
   actionConfigurations?: ActionConfiguration[] | undefined;
+  /** How the alert threshold is evaluated. Determines whether spend is tracked in aggregate or per individual user. */
+  scopeType?: AlertConfigurationScopeType | undefined;
+  /** Per-principal threshold overrides for this alert. Only applies to per-user alerts (`scope_type` = `ALERT_CONFIGURATION_SCOPE_TYPE_PER_USER`); ignored for shared alerts. */
+  principalOverrides?: PrincipalOverride[] | undefined;
 }
 
 export interface BudgetConfiguration {
@@ -86,6 +125,8 @@ export interface BudgetConfiguration {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+  /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
+  resourceType?: BudgetResourceType | undefined;
 }
 
 export interface BudgetConfigurationFilter {
@@ -134,6 +175,8 @@ export interface CreateBudgetConfigurationBudget {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+  /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
+  resourceType?: BudgetResourceType | undefined;
 }
 
 export interface CreateBudgetConfigurationRequest {
@@ -190,6 +233,14 @@ export interface ListBudgetConfigurationsResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Per-principal threshold override on a PER_USER alert: bumps the alert's quantity_threshold for one principal_id. */
+export interface PrincipalOverride {
+  /** Account-level principal id (user, group, or service principal). */
+  principalId?: bigint | undefined;
+  /** Dollar amount that overrides the parent alert's quantity_threshold for this principal. */
+  overrideThreshold?: string | undefined;
+}
+
 export interface UpdateBudgetConfigurationBudget {
   /** <Databricks> budget configuration ID. */
   budgetConfigurationId?: string | undefined;
@@ -208,6 +259,8 @@ export interface UpdateBudgetConfigurationBudget {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+  /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
+  resourceType?: BudgetResourceType | undefined;
 }
 
 export interface UpdateBudgetConfigurationRequest {
@@ -246,6 +299,10 @@ export const unmarshalAlertConfigurationSchema: z.ZodType<AlertConfiguration> =
       action_configurations: z
         .array(z.lazy(() => unmarshalActionConfigurationSchema))
         .optional(),
+      scope_type: z.string().optional(),
+      principal_overrides: z
+        .array(z.lazy(() => unmarshalPrincipalOverrideSchema))
+        .optional(),
     })
     .transform(d => ({
       alertConfigurationId: d.alert_configuration_id,
@@ -254,6 +311,8 @@ export const unmarshalAlertConfigurationSchema: z.ZodType<AlertConfiguration> =
       quantityType: d.quantity_type,
       quantityThreshold: d.quantity_threshold,
       actionConfigurations: d.action_configurations,
+      scopeType: d.scope_type,
+      principalOverrides: d.principal_overrides,
     }));
 
 export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> =
@@ -274,6 +333,7 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
         .optional(),
       filter: z.lazy(() => unmarshalBudgetConfigurationFilterSchema).optional(),
       display_name: z.string().optional(),
+      resource_type: z.string().optional(),
     })
     .transform(d => ({
       budgetConfigurationId: d.budget_configuration_id,
@@ -283,6 +343,7 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
       alertConfigurations: d.alert_configurations,
       filter: d.filter,
       displayName: d.display_name,
+      resourceType: d.resource_type,
     }));
 
 export const unmarshalBudgetConfigurationFilterSchema: z.ZodType<BudgetConfigurationFilter> =
@@ -374,6 +435,19 @@ export const unmarshalListBudgetConfigurationsResponseSchema: z.ZodType<ListBudg
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalPrincipalOverrideSchema: z.ZodType<PrincipalOverride> = z
+  .object({
+    principal_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    override_threshold: z.string().optional(),
+  })
+  .transform(d => ({
+    principalId: d.principal_id,
+    overrideThreshold: d.override_threshold,
+  }));
+
 export const unmarshalUpdateBudgetConfigurationResponseSchema: z.ZodType<UpdateBudgetConfigurationResponse> =
   z
     .object({
@@ -405,6 +479,10 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
     actionConfigurations: z
       .array(z.lazy(() => marshalActionConfigurationSchema))
       .optional(),
+    scopeType: z.string().optional(),
+    principalOverrides: z
+      .array(z.lazy(() => marshalPrincipalOverrideSchema))
+      .optional(),
   })
   .transform(d => ({
     alert_configuration_id: d.alertConfigurationId,
@@ -413,6 +491,8 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
     quantity_type: d.quantityType,
     quantity_threshold: d.quantityThreshold,
     action_configurations: d.actionConfigurations,
+    scope_type: d.scopeType,
+    principal_overrides: d.principalOverrides,
   }));
 
 export const marshalBudgetConfigurationFilterSchema: z.ZodType = z
@@ -476,6 +556,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
       .optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
+    resourceType: z.string().optional(),
   })
   .transform(d => ({
     budget_configuration_id: d.budgetConfigurationId,
@@ -485,6 +566,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
+    resource_type: d.resourceType,
   }));
 
 export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
@@ -495,6 +577,16 @@ export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     budget: d.budget,
+  }));
+
+export const marshalPrincipalOverrideSchema: z.ZodType = z
+  .object({
+    principalId: z.bigint().optional(),
+    overrideThreshold: z.string().optional(),
+  })
+  .transform(d => ({
+    principal_id: d.principalId,
+    override_threshold: d.overrideThreshold,
   }));
 
 export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
@@ -508,6 +600,7 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
       .optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
+    resourceType: z.string().optional(),
   })
   .transform(d => ({
     budget_configuration_id: d.budgetConfigurationId,
@@ -517,6 +610,7 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
+    resource_type: d.resourceType,
   }));
 
 export const marshalUpdateBudgetConfigurationRequestSchema: z.ZodType = z

@@ -9,8 +9,10 @@ export {BudgetsClient} from './client';
 export {
   ActionConfigurationType,
   AlertConfigurationQuantityType,
+  AlertConfigurationScopeType,
   AlertConfigurationTimePeriod,
   AlertConfigurationTriggerType,
+  BudgetResourceType,
   BudgetConfigurationFilter_Operator,
 } from './model';
 
@@ -31,6 +33,7 @@ export type {
   GetBudgetConfigurationResponse,
   ListBudgetConfigurationsRequest,
   ListBudgetConfigurationsResponse,
+  PrincipalOverride,
   UpdateBudgetConfigurationBudget,
   UpdateBudgetConfigurationRequest,
   UpdateBudgetConfigurationResponse,

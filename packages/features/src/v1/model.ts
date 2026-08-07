@@ -680,6 +680,36 @@ export interface KafkaSubscriptionMode {
     | undefined;
 }
 
+/**
+ * Kinesis-specific configuration for a Stream. For the underlying connector and its source
+ * options, see the <Databricks> documentation on connecting to Amazon Kinesis
+ * (https://docs.databricks.com/aws/en/connect/streaming/kinesis).
+ */
+export interface KinesisStreamConfig {
+  /**
+   * Identifies the Kinesis data stream(s) to read from. Set exactly one of stream_names or
+   * stream_arns (identify the streams by name or by ARN, but not both). A single Stream may
+   * read from one or more Kinesis streams.
+   */
+  streamIdentifier?:
+    | {
+        $case: 'streamNames';
+        /** Kinesis stream names to read from. */
+        streamNames: StreamNameList;
+      }
+    | {
+        $case: 'streamArns';
+        /** Kinesis stream ARNs to read from. */
+        streamArns: StreamArnList;
+      }
+    | undefined;
+  /**
+   * Optional Kinesis source options, validated against a server-side allowlist at request time.
+   * Auth and connection details belong on the parent Stream's `connection_config`, not here.
+   */
+  extraOptions?: Record<string, string> | undefined;
+}
+
 /** Returns the last N distinct values, ordered by the feature's timeseries column. */
 export interface LastDistinctFunction {
   /** The input column from which the last N distinct values are returned. */
@@ -1172,6 +1202,15 @@ export interface Stream {
   browseOnly?: boolean | undefined;
 }
 
+/** A list of Kinesis stream ARNs to read from. */
+export interface StreamArnList {
+  /**
+   * Kinesis stream ARNs to read from. For example,
+   * 'arn:aws:kinesis:us-west-2:111122223333:stream/stream-a'.
+   */
+  arns?: string[] | undefined;
+}
+
 /** Specifies how to connect and authenticate to the stream platform. */
 export interface StreamConnectionConfig {
   connectionConfig?:
@@ -1193,6 +1232,12 @@ export interface StreamConnectionConfig {
         directMtlsConfig: DirectMtlsConfig;
       }
     | undefined;
+}
+
+/** A list of Kinesis stream names to read from. */
+export interface StreamNameList {
+  /** Kinesis stream names to read from. */
+  names?: string[] | undefined;
 }
 
 /**
@@ -1240,6 +1285,11 @@ export interface StreamSourceConfig {
         $case: 'kafkaStreamConfig';
         /** Configuration for Apache Kafka streams. */
         kafkaStreamConfig: KafkaStreamConfig;
+      }
+    | {
+        $case: 'kinesisStreamConfig';
+        /** Configuration for AWS Kinesis Data Streams. */
+        kinesisStreamConfig: KinesisStreamConfig;
       }
     | undefined;
 }
@@ -1935,6 +1985,23 @@ export const unmarshalKafkaSubscriptionModeSchema: z.ZodType<KafkaSubscriptionMo
               : undefined,
     }));
 
+export const unmarshalKinesisStreamConfigSchema: z.ZodType<KinesisStreamConfig> =
+  z
+    .object({
+      stream_names: z.lazy(() => unmarshalStreamNameListSchema).optional(),
+      stream_arns: z.lazy(() => unmarshalStreamArnListSchema).optional(),
+      extra_options: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      streamIdentifier:
+        d.stream_names !== undefined
+          ? {$case: 'streamNames' as const, streamNames: d.stream_names}
+          : d.stream_arns !== undefined
+            ? {$case: 'streamArns' as const, streamArns: d.stream_arns}
+            : undefined,
+      extraOptions: d.extra_options,
+    }));
+
 export const unmarshalLastDistinctFunctionSchema: z.ZodType<LastDistinctFunction> =
   z
     .object({
@@ -2356,6 +2423,14 @@ export const unmarshalStreamSchema: z.ZodType<Stream> = z
     browseOnly: d.browse_only,
   }));
 
+export const unmarshalStreamArnListSchema: z.ZodType<StreamArnList> = z
+  .object({
+    arns: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    arns: d.arns,
+  }));
+
 export const unmarshalStreamConnectionConfigSchema: z.ZodType<StreamConnectionConfig> =
   z
     .object({
@@ -2378,6 +2453,14 @@ export const unmarshalStreamConnectionConfigSchema: z.ZodType<StreamConnectionCo
               }
             : undefined,
     }));
+
+export const unmarshalStreamNameListSchema: z.ZodType<StreamNameList> = z
+  .object({
+    names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    names: d.names,
+  }));
 
 export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
   z
@@ -2419,6 +2502,9 @@ export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
       kafka_stream_config: z
         .lazy(() => unmarshalKafkaStreamConfigSchema)
         .optional(),
+      kinesis_stream_config: z
+        .lazy(() => unmarshalKinesisStreamConfigSchema)
+        .optional(),
     })
     .transform(d => ({
       sourceConfig:
@@ -2427,7 +2513,12 @@ export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
               $case: 'kafkaStreamConfig' as const,
               kafkaStreamConfig: d.kafka_stream_config,
             }
-          : undefined,
+          : d.kinesis_stream_config !== undefined
+            ? {
+                $case: 'kinesisStreamConfig' as const,
+                kinesisStreamConfig: d.kinesis_stream_config,
+              }
+            : undefined,
     }));
 
 export const unmarshalStreamingModeSchema: z.ZodType<StreamingMode> = z
@@ -3125,6 +3216,32 @@ export const marshalKafkaSubscriptionModeSchema: z.ZodType = z
     }),
   }));
 
+export const marshalKinesisStreamConfigSchema: z.ZodType = z
+  .object({
+    streamIdentifier: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('streamNames'),
+          streamNames: z.lazy(() => marshalStreamNameListSchema),
+        }),
+        z.object({
+          $case: z.literal('streamArns'),
+          streamArns: z.lazy(() => marshalStreamArnListSchema),
+        }),
+      ])
+      .optional(),
+    extraOptions: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    ...(d.streamIdentifier?.$case === 'streamNames' && {
+      stream_names: d.streamIdentifier.streamNames,
+    }),
+    ...(d.streamIdentifier?.$case === 'streamArns' && {
+      stream_arns: d.streamIdentifier.streamArns,
+    }),
+    extra_options: d.extraOptions,
+  }));
+
 export const marshalLastDistinctFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
@@ -3493,6 +3610,14 @@ export const marshalStreamSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
+export const marshalStreamArnListSchema: z.ZodType = z
+  .object({
+    arns: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    arns: d.arns,
+  }));
+
 export const marshalStreamConnectionConfigSchema: z.ZodType = z
   .object({
     connectionConfig: z
@@ -3515,6 +3640,14 @@ export const marshalStreamConnectionConfigSchema: z.ZodType = z
     ...(d.connectionConfig?.$case === 'directMtlsConfig' && {
       direct_mtls_config: d.connectionConfig.directMtlsConfig,
     }),
+  }));
+
+export const marshalStreamNameListSchema: z.ZodType = z
+  .object({
+    names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    names: d.names,
   }));
 
 export const marshalStreamSchemaConfigSchema: z.ZodType = z
@@ -3563,12 +3696,19 @@ export const marshalStreamSourceConfigSchema: z.ZodType = z
           $case: z.literal('kafkaStreamConfig'),
           kafkaStreamConfig: z.lazy(() => marshalKafkaStreamConfigSchema),
         }),
+        z.object({
+          $case: z.literal('kinesisStreamConfig'),
+          kinesisStreamConfig: z.lazy(() => marshalKinesisStreamConfigSchema),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.sourceConfig?.$case === 'kafkaStreamConfig' && {
       kafka_stream_config: d.sourceConfig.kafkaStreamConfig,
+    }),
+    ...(d.sourceConfig?.$case === 'kinesisStreamConfig' && {
+      kinesis_stream_config: d.sourceConfig.kinesisStreamConfig,
     }),
   }));
 
@@ -3962,6 +4102,18 @@ const kafkaSubscriptionModeFieldMaskSchema: FieldMaskSchema = {
   subscribePattern: {wire: 'subscribe_pattern'},
 };
 
+const kinesisStreamConfigFieldMaskSchema: FieldMaskSchema = {
+  extraOptions: {wire: 'extra_options'},
+  streamArns: {
+    wire: 'stream_arns',
+    children: () => streamArnListFieldMaskSchema,
+  },
+  streamNames: {
+    wire: 'stream_names',
+    children: () => streamNameListFieldMaskSchema,
+  },
+};
+
 const lastDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   n: {wire: 'n'},
@@ -4164,12 +4316,20 @@ export function streamFieldMask(...paths: string[]): FieldMask<Stream> {
   return FieldMask.build<Stream>(paths, streamFieldMaskSchema);
 }
 
+const streamArnListFieldMaskSchema: FieldMaskSchema = {
+  arns: {wire: 'arns'},
+};
+
 const streamConnectionConfigFieldMaskSchema: FieldMaskSchema = {
   directMtlsConfig: {
     wire: 'direct_mtls_config',
     children: () => directMtlsConfigFieldMaskSchema,
   },
   ucConnectionName: {wire: 'uc_connection_name'},
+};
+
+const streamNameListFieldMaskSchema: FieldMaskSchema = {
+  names: {wire: 'names'},
 };
 
 const streamSchemaConfigFieldMaskSchema: FieldMaskSchema = {
@@ -4194,6 +4354,10 @@ const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {
   kafkaStreamConfig: {
     wire: 'kafka_stream_config',
     children: () => kafkaStreamConfigFieldMaskSchema,
+  },
+  kinesisStreamConfig: {
+    wire: 'kinesis_stream_config',
+    children: () => kinesisStreamConfigFieldMaskSchema,
   },
 };
 

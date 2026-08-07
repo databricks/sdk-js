@@ -3865,8 +3865,6 @@ export interface RunNowRequest {
    * is launched with that idempotency token.
    *
    * This token must have at most 64 characters.
-   *
-   * For more information, see [How to ensure idempotency for jobs](https://kb.databricks.com/jobs/jobs-idempotency.html).
    */
   idempotencyToken?: string | undefined;
   /** The queue settings of the run. */
@@ -4809,8 +4807,6 @@ export interface SubmitRunRequest {
    * one run is launched with that idempotency token.
    *
    * This token must have at most 64 characters.
-   *
-   * For more information, see [How to ensure idempotency for jobs](https://kb.databricks.com/jobs/jobs-idempotency.html).
    */
   idempotencyToken?: string | undefined;
   tasks?: RunTaskSettings[] | undefined;
