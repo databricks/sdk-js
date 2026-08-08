@@ -819,15 +819,7 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
    * Required on Create.
    */
   region?: string | undefined;
-  /**
-   * Authentication mode. Exactly one variant may be set.
-   * (-- `aws_access_key` is the canonical home for the access-key pair. The
-   * top-level `aws_access_key_id` / `aws_secret_access_key` fields are the
-   * pre-AIGOV-188 flat form, kept for one migration cycle: on read the handler
-   * populates BOTH the flat fields and this arm so old and new clients both
-   * work, and on write it accepts either shape. The flat fields are removed
-   * once all readers/writers have migrated to the oneof. --)
-   */
+  /** Authentication mode. Exactly one variant may be set. */
   authMode?:
     | {
         $case: 'serviceCredential';
@@ -845,10 +837,7 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
       }
     | {
         $case: 'awsAccessKey';
-        /**
-         * AWS access-key-pair auth. Mutually exclusive with `service_credential`.
-         * Supersedes the flat `aws_access_key_id` / `aws_secret_access_key` fields.
-         */
+        /** AWS access-key-pair auth. Mutually exclusive with `service_credential`. */
         awsAccessKey: ModelProviderServiceConfig_AwsAccessKey;
       }
     | undefined;
@@ -986,15 +975,7 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
    * `https://myresource.openai.azure.com`. Required on Create.
    */
   baseUrl?: string | undefined;
-  /**
-   * Authentication mode. Exactly one variant may be set.
-   * (-- `entra_service_principal` is the canonical home for the Entra triple. The
-   * top-level `tenant_id` / `client_id` / `client_secret` fields are the
-   * pre-AIGOV-188 flat form, kept for one migration cycle: on read the handler
-   * populates BOTH the flat fields and this arm so old and new clients both
-   * work, and on write it accepts either shape. The flat fields are removed
-   * once all readers/writers have migrated to the oneof. --)
-   */
+  /** Authentication mode. Exactly one variant may be set. */
   authMode?:
     | {
         $case: 'apiKey';
@@ -1024,8 +1005,7 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
         $case: 'entraServicePrincipal';
         /**
          * Entra ID (service principal) auth. Mutually exclusive with `api_key` and
-         * `service_credential`. Supersedes the flat `tenant_id` / `client_id` /
-         * `client_secret` fields.
+         * `service_credential`.
          */
         entraServicePrincipal: ModelProviderServiceConfig_EntraServicePrincipal;
       }
@@ -1205,15 +1185,7 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderConfig {
 export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig {
   /** Microsoft AI Foundry endpoint URL. Required on Create. */
   baseUrl?: string | undefined;
-  /**
-   * Authentication mode. Exactly one variant may be set.
-   * (-- `entra_service_principal` is the canonical home for the Entra triple. The
-   * top-level `tenant_id` / `client_id` / `client_secret` fields are the
-   * pre-AIGOV-188 flat form, kept for one migration cycle: on read the handler
-   * populates BOTH the flat fields and this arm so old and new clients both
-   * work, and on write it accepts either shape. The flat fields are removed
-   * once all readers/writers have migrated to the oneof. --)
-   */
+  /** Authentication mode. Exactly one variant may be set. */
   authMode?:
     | {
         $case: 'apiKey';
@@ -1243,8 +1215,7 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig
         $case: 'entraServicePrincipal';
         /**
          * Entra ID (service principal) auth. Mutually exclusive with `api_key` and
-         * `service_credential`. Supersedes the flat `tenant_id` / `client_id` /
-         * `client_secret` fields.
+         * `service_credential`.
          */
         entraServicePrincipal: ModelProviderServiceConfig_EntraServicePrincipal;
       }

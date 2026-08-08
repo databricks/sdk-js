@@ -984,6 +984,13 @@ export interface AiRuntimeTask {
    * regular users the experiment defaults to the user's home directory.
    */
   mlflowExperimentDirectory?: string | undefined;
+  /**
+   * Optional Docker image URL for a custom container image. When set,
+   * the task runs on the specified container image instead of the default
+   * <Databricks> client image. Format:
+   * `{organization}/{repository}:{tag}`
+   */
+  dockerImageUrl?: string | undefined;
 }
 
 /**
@@ -5269,6 +5276,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     code_source_path: z.string().optional(),
     mlflow_run: z.string().optional(),
     mlflow_experiment_directory: z.string().optional(),
+    docker_image_url: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
@@ -5276,6 +5284,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     codeSourcePath: d.code_source_path,
     mlflowRun: d.mlflow_run,
     mlflowExperimentDirectory: d.mlflow_experiment_directory,
+    dockerImageUrl: d.docker_image_url,
   }));
 
 export const unmarshalAiRuntimeTaskOutputSchema: z.ZodType<AiRuntimeTaskOutput> =
@@ -8603,6 +8612,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     codeSourcePath: z.string().optional(),
     mlflowRun: z.string().optional(),
     mlflowExperimentDirectory: z.string().optional(),
+    dockerImageUrl: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
@@ -8610,6 +8620,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     code_source_path: d.codeSourcePath,
     mlflow_run: d.mlflowRun,
     mlflow_experiment_directory: d.mlflowExperimentDirectory,
+    docker_image_url: d.dockerImageUrl,
   }));
 
 export const marshalAlertTaskSchema: z.ZodType = z
