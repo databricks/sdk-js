@@ -75,7 +75,7 @@ describe('profile-client example', () => {
     const url = new URL(seen.url);
     expect(url.origin).toBe('https://profile-host.cloud.databricks.com');
     expect(url.pathname).toBe(
-      '/api/serving-endpoints/my-embeddings-endpoint/invocations'
+      '/serving-endpoints/my-embeddings-endpoint/invocations'
     );
     expect(seen.headers.get('X-Databricks-Workspace-Id')).toBe(
       'ws-from-profile'

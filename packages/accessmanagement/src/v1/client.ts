@@ -258,9 +258,12 @@ export class AccessManagementClient {
     req: GetRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/access-control/rule-sets`;
     const params = new URLSearchParams();
+    if (req.accountId !== undefined) {
+      params.append('account_id', req.accountId);
+    }
     if (req.name !== undefined) {
       params.append('name', req.name);
     }
@@ -272,6 +275,9 @@ export class AccessManagementClient {
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -334,9 +340,12 @@ export class AccessManagementClient {
     req: ListAssignableRolesForResourceRequest,
     options?: CallOptions
   ): Promise<ListAssignableRolesForResourceResponse> {
-    const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/assignable-roles`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/access-control/assignable-roles`;
     const params = new URLSearchParams();
+    if (req.accountId !== undefined) {
+      params.append('account_id', req.accountId);
+    }
     if (req.resource !== undefined) {
       params.append('resource', req.resource);
     }
@@ -345,6 +354,9 @@ export class AccessManagementClient {
     let resp: ListAssignableRolesForResourceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
@@ -402,12 +414,15 @@ export class AccessManagementClient {
     req: UpdateRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/preview/accounts/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({

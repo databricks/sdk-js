@@ -1228,6 +1228,13 @@ export interface BaseJob {
   effectiveBudgetPolicyId?: string | undefined;
   /** The id of the usage policy used by this job for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * Per-trigger runtime information for the multi-trigger surface. Same length
+   * and order as `JobSettings.triggers`; `trigger_details[i]` corresponds to
+   * `triggers[i]`. Sub-fields (`state`, `history`) are populated independently
+   * based on the `GetJob.include_trigger_state` / `include_trigger_history` flags.
+   */
+  triggerDetails?: TriggerDetails[] | undefined;
 }
 
 export interface BaseRun {
@@ -1717,6 +1724,21 @@ export interface ContinuousSettings {
   taskRetryMode?: TaskRetryMode | undefined;
 }
 
+/**
+ * Continuous trigger. Stripped-down counterpart to `ContinuousSettings`: `pause_status` is owned by the enclosing
+ * `TriggerConfiguration` and intentionally omitted here.
+ */
+export interface ContinuousTriggerConfiguration {
+  /** Whether the continuous job applies task-level retries. Defaults to NEVER. */
+  taskRetryMode?: TaskRetryMode | undefined;
+}
+
+export interface ContinuousTriggerState {
+  consecutiveFailures?: number | undefined;
+  nextAttemptMs?: bigint | undefined;
+  isBackingOff?: boolean | undefined;
+}
+
 export interface CreateJobRequest {
   /** List of permissions to set on the job. */
   accessControlList?: AccessControlRequest[] | undefined;
@@ -1815,6 +1837,12 @@ export interface CreateJobRequest {
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
   parentPath?: string | undefined;
+  /**
+   * List of triggers attached to this job. A run starts when any active trigger evaluates to true. Cannot be set in
+   * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. The 10-trigger cap is the design's
+   * hard limit; rollout steps the effective cap 3 -> 5 -> 10 via internal validation during the preview.
+   */
+  triggers?: TriggerConfiguration[] | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
   maxRetries?: number | undefined;
   /** An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried. */
@@ -1846,6 +1874,23 @@ export interface CronSchedule {
    * after the cron expression fires and must return a truthy result for the run to proceed.
    */
   sqlCondition?: SqlConditionConfiguration | undefined;
+}
+
+/**
+ * Cron schedule trigger. Stripped-down counterpart to `CronSchedule`: `pause_status` and `sql_condition` are owned
+ * by the enclosing `TriggerConfiguration` and intentionally omitted here.
+ */
+export interface CronTriggerConfiguration {
+  /**
+   * A Cron expression using Quartz syntax that describes the schedule for this trigger. See
+   * [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
+   */
+  quartzCronExpression?: string | undefined;
+  /**
+   * A Java timezone ID. The schedule is resolved with respect to this timezone. See
+   * [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.
+   */
+  timezoneId?: string | undefined;
 }
 
 export interface DashboardPageSnapshot {
@@ -2351,6 +2396,13 @@ export interface GetJobResponse {
   effectiveBudgetPolicyId?: string | undefined;
   /** The id of the usage policy used by this job for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * Per-trigger runtime information for the multi-trigger surface. Same length
+   * and order as `JobSettings.triggers`; `trigger_details[i]` corresponds to
+   * `triggers[i]`. Sub-fields (`state`, `history`) are populated independently
+   * based on the `GetJob.include_trigger_state` / `include_trigger_history` flags.
+   */
+  triggerDetails?: TriggerDetails[] | undefined;
 }
 
 export interface GetPolicyComplianceForJobRequest {
@@ -2885,6 +2937,12 @@ export interface JobSettings {
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
   parentPath?: string | undefined;
+  /**
+   * List of triggers attached to this job. A run starts when any active trigger evaluates to true. Cannot be set in
+   * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. The 10-trigger cap is the design's
+   * hard limit; rollout steps the effective cap 3 -> 5 -> 10 via internal validation during the preview.
+   */
+  triggers?: TriggerConfiguration[] | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
   maxRetries?: number | undefined;
   /** An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried. */
@@ -3189,6 +3247,13 @@ export interface ModelTriggerConfiguration {
   waitAfterLastChangeSeconds?: number | undefined;
 }
 
+/**
+ * Runtime state for a model trigger. Currently empty because model triggers do not
+ * expose any trigger-specific runtime state.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ModelTriggerState {}
+
 /** Configuration for flexible node types, allowing fallback to alternate node types during cluster launch and upscale. */
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
@@ -3260,6 +3325,32 @@ export interface OutputSchemaInfo {
   expirationTime?: bigint | undefined;
 }
 
+/**
+ * Per-trigger runtime state for the multi-trigger surface. Mirrors `TriggerConfiguration`'s
+ * trigger-type variants 1:1; each entry sets exactly one variant matching the corresponding
+ * trigger's type. Variants with no runtime state today (`schedule`, `model`) are emitted as
+ * empty messages.
+ */
+export interface PerTriggerState {
+  /**
+   * (-- Next ID: 9. --)
+   * Runtime-state variant for the corresponding trigger; exactly one field is set,
+   * matching the trigger's type in `TriggerConfiguration`.
+   */
+  triggerType?:
+    | {$case: 'periodic'; periodic: PeriodicTriggerState}
+    | {$case: 'schedule'; schedule: ScheduleTriggerState}
+    | {$case: 'continuous'; continuous: ContinuousTriggerState}
+    | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
+    | {$case: 'tableUpdate'; tableUpdate: TableTriggerState}
+    | {$case: 'model'; model: ModelTriggerState}
+    | undefined;
+  /** State for SQL condition evaluation, can coexist with other trigger states. */
+  sqlCondition?: SqlConditionState | undefined;
+  /** Whether this trigger is paused or not. Mirrors the configured pause_status. */
+  pauseStatus?: SchedulePauseStatus | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface PerformanceTarget {}
 
@@ -3268,6 +3359,10 @@ export interface PeriodicTriggerConfiguration {
   interval?: number | undefined;
   /** The unit of time for the interval. */
   unit?: PeriodicTriggerConfiguration_TimeUnit | undefined;
+}
+
+export interface PeriodicTriggerState {
+  nextRunTime?: bigint | undefined;
 }
 
 export interface PipelineParameters {
@@ -4513,6 +4608,13 @@ export interface S3StorageInfo {
   cannedAcl?: string | undefined;
 }
 
+/**
+ * Runtime state for a schedule trigger. Currently empty because schedule triggers
+ * do not expose any trigger-specific runtime state.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ScheduleTriggerState {}
+
 export interface SparkJarTask {
   /**
    * Deprecated since 04/2016. For classic compute, provide a `jar` through the `libraries` field instead. For serverless compute, provide a `jar` though the `java_dependencies` field inside the `environments` list.
@@ -5134,6 +5236,64 @@ export interface TerminationDetails {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface TerminationType {}
 
+/**
+ * A single trigger attached to a job via `JobSettings.triggers`. Exactly one of the trigger-type fields
+ * (`periodic`, `schedule`, `continuous`, `file_arrival`, `table_update`, `model`) must be set; mutual exclusivity
+ * is enforced in the API handler rather than via `oneof` so that codegen, validation, and JSON serialization
+ * across SDKs and Terraform behave consistently.
+ */
+export interface TriggerConfiguration {
+  /** Whether this trigger is paused. Defaults to UNPAUSED when unset; the server always returns an explicit value on read. */
+  pauseStatus?: SchedulePauseStatus | undefined;
+  /**
+   * Trigger type: exactly one must be set; mutual exclusivity is enforced in the API handler
+   * Periodic trigger configuration.
+   */
+  periodic?: PeriodicTriggerConfiguration | undefined;
+  /** Cron schedule trigger configuration. */
+  schedule?: CronTriggerConfiguration | undefined;
+  /** Continuous trigger configuration. */
+  continuous?: ContinuousTriggerConfiguration | undefined;
+  /** File arrival trigger configuration. */
+  fileArrival?: FileArrivalTriggerConfiguration | undefined;
+  /** Table update trigger configuration. */
+  tableUpdate?: TableTriggerConfiguration | undefined;
+  /** Model trigger configuration. */
+  model?: ModelTriggerConfiguration | undefined;
+  /** Optional SQL condition that gates whether this trigger fires. */
+  sqlCondition?: SqlConditionConfiguration | undefined;
+}
+
+/**
+ * Per-trigger runtime details returned by `GetJob`. Same length and order as
+ * `JobSettings.triggers`; sub-fields are populated independently based on the
+ * corresponding `GetJob.include_trigger_state` / `include_trigger_history` flags.
+ */
+export interface TriggerDetails {
+  /** Current runtime state. Populated when `GetJob.include_trigger_state` is set. */
+  state?: PerTriggerState | undefined;
+  /** Recent evaluation history. Populated when `GetJob.include_trigger_history` is set. */
+  history?: TriggerHistory | undefined;
+}
+
+export interface TriggerEvaluation {
+  /** Timestamp at which the trigger was evaluated. */
+  timestamp?: bigint | undefined;
+  /** Human-readable description of the trigger evaluation result. Explains why the trigger evaluation triggered or did not trigger a run, or failed. */
+  description?: string | undefined;
+  /** The ID of the run that was triggered by the trigger evaluation. Only returned if a run was triggered. */
+  runId?: bigint | undefined;
+}
+
+export interface TriggerHistory {
+  /** The last time the run was triggered due to a file arrival. */
+  lastTriggered?: TriggerEvaluation | undefined;
+  /** The last time the trigger was evaluated but did not trigger a run. */
+  lastNotTriggered?: TriggerEvaluation | undefined;
+  /** The last time the trigger failed to evaluate. */
+  lastFailed?: TriggerEvaluation | undefined;
+}
+
 export interface TriggerSettings {
   /** Whether this trigger is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
@@ -5410,6 +5570,9 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    trigger_details: z
+      .array(z.lazy(() => unmarshalTriggerDetailsSchema))
+      .optional(),
   })
   .transform(d => ({
     jobId: d.job_id,
@@ -5421,6 +5584,7 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
     hasMore: d.has_more,
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    triggerDetails: d.trigger_details,
   }));
 
 export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
@@ -5788,6 +5952,31 @@ export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
       taskRetryMode: d.task_retry_mode,
     }));
 
+export const unmarshalContinuousTriggerConfigurationSchema: z.ZodType<ContinuousTriggerConfiguration> =
+  z
+    .object({
+      task_retry_mode: z.string().optional(),
+    })
+    .transform(d => ({
+      taskRetryMode: d.task_retry_mode,
+    }));
+
+export const unmarshalContinuousTriggerStateSchema: z.ZodType<ContinuousTriggerState> =
+  z
+    .object({
+      consecutive_failures: z.number().optional(),
+      next_attempt_ms: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+      is_backing_off: z.boolean().optional(),
+    })
+    .transform(d => ({
+      consecutiveFailures: d.consecutive_failures,
+      nextAttemptMs: d.next_attempt_ms,
+      isBackingOff: d.is_backing_off,
+    }));
+
 export const unmarshalCreateJobResponseSchema: z.ZodType<CreateJobResponse> = z
   .object({
     job_id: z
@@ -5814,6 +6003,17 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     pauseStatus: d.pause_status,
     sqlCondition: d.sql_condition,
   }));
+
+export const unmarshalCronTriggerConfigurationSchema: z.ZodType<CronTriggerConfiguration> =
+  z
+    .object({
+      quartz_cron_expression: z.string().optional(),
+      timezone_id: z.string().optional(),
+    })
+    .transform(d => ({
+      quartzCronExpression: d.quartz_cron_expression,
+      timezoneId: d.timezone_id,
+    }));
 
 export const unmarshalDashboardPageSnapshotSchema: z.ZodType<DashboardPageSnapshot> =
   z
@@ -6188,6 +6388,9 @@ export const unmarshalGetJobResponseSchema: z.ZodType<GetJobResponse> = z
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    trigger_details: z
+      .array(z.lazy(() => unmarshalTriggerDetailsSchema))
+      .optional(),
   })
   .transform(d => ({
     nextPageToken: d.next_page_token,
@@ -6200,6 +6403,7 @@ export const unmarshalGetJobResponseSchema: z.ZodType<GetJobResponse> = z
     hasMore: d.has_more,
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    triggerDetails: d.trigger_details,
   }));
 
 export const unmarshalGetPolicyComplianceForJobResponseSchema: z.ZodType<GetPolicyComplianceForJobResponse> =
@@ -6614,6 +6818,9 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     usage_policy_id: z.string().optional(),
     performance_target: z.string().optional(),
     parent_path: z.string().optional(),
+    triggers: z
+      .array(z.lazy(() => unmarshalTriggerConfigurationSchema))
+      .optional(),
     max_retries: z.number().optional(),
     min_retry_interval_millis: z.number().optional(),
     retry_on_timeout: z.boolean().optional(),
@@ -6646,6 +6853,7 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     usagePolicyId: d.usage_policy_id,
     performanceTarget: d.performance_target,
     parentPath: d.parent_path,
+    triggers: d.triggers,
     maxRetries: d.max_retries,
     minRetryIntervalMillis: d.min_retry_interval_millis,
     retryOnTimeout: d.retry_on_timeout,
@@ -6834,6 +7042,9 @@ export const unmarshalModelTriggerConfigurationSchema: z.ZodType<ModelTriggerCon
       waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
     }));
 
+export const unmarshalModelTriggerStateSchema: z.ZodType<ModelTriggerState> =
+  z.object({});
+
 export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> =
   z
     .object({
@@ -6897,6 +7108,38 @@ export const unmarshalOutputSchemaInfoSchema: z.ZodType<OutputSchemaInfo> = z
     expirationTime: d.expiration_time,
   }));
 
+export const unmarshalPerTriggerStateSchema: z.ZodType<PerTriggerState> = z
+  .object({
+    periodic: z.lazy(() => unmarshalPeriodicTriggerStateSchema).optional(),
+    schedule: z.lazy(() => unmarshalScheduleTriggerStateSchema).optional(),
+    continuous: z.lazy(() => unmarshalContinuousTriggerStateSchema).optional(),
+    file_arrival: z
+      .lazy(() => unmarshalFileArrivalTriggerStateSchema)
+      .optional(),
+    table_update: z.lazy(() => unmarshalTableTriggerStateSchema).optional(),
+    model: z.lazy(() => unmarshalModelTriggerStateSchema).optional(),
+    sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
+    pause_status: z.string().optional(),
+  })
+  .transform(d => ({
+    triggerType:
+      d.periodic !== undefined
+        ? {$case: 'periodic' as const, periodic: d.periodic}
+        : d.schedule !== undefined
+          ? {$case: 'schedule' as const, schedule: d.schedule}
+          : d.continuous !== undefined
+            ? {$case: 'continuous' as const, continuous: d.continuous}
+            : d.file_arrival !== undefined
+              ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
+              : d.table_update !== undefined
+                ? {$case: 'tableUpdate' as const, tableUpdate: d.table_update}
+                : d.model !== undefined
+                  ? {$case: 'model' as const, model: d.model}
+                  : undefined,
+    sqlCondition: d.sql_condition,
+    pauseStatus: d.pause_status,
+  }));
+
 export const unmarshalPeriodicTriggerConfigurationSchema: z.ZodType<PeriodicTriggerConfiguration> =
   z
     .object({
@@ -6906,6 +7149,18 @@ export const unmarshalPeriodicTriggerConfigurationSchema: z.ZodType<PeriodicTrig
     .transform(d => ({
       interval: d.interval,
       unit: d.unit,
+    }));
+
+export const unmarshalPeriodicTriggerStateSchema: z.ZodType<PeriodicTriggerState> =
+  z
+    .object({
+      next_run_time: z
+        .union([z.number(), z.bigint()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      nextRunTime: d.next_run_time,
     }));
 
 export const unmarshalPipelineParametersSchema: z.ZodType<PipelineParameters> =
@@ -7836,6 +8091,9 @@ export const unmarshalS3StorageInfoSchema: z.ZodType<S3StorageInfo> = z
     cannedAcl: d.canned_acl,
   }));
 
+export const unmarshalScheduleTriggerStateSchema: z.ZodType<ScheduleTriggerState> =
+  z.object({});
+
 export const unmarshalSparkJarTaskSchema: z.ZodType<SparkJarTask> = z
   .object({
     jar_uri: z.string().optional(),
@@ -8427,6 +8685,83 @@ export const unmarshalTerminationDetailsSchema: z.ZodType<TerminationDetails> =
       message: d.message,
     }));
 
+export const unmarshalTriggerConfigurationSchema: z.ZodType<TriggerConfiguration> =
+  z
+    .object({
+      pause_status: z.string().optional(),
+      periodic: z
+        .lazy(() => unmarshalPeriodicTriggerConfigurationSchema)
+        .optional(),
+      schedule: z
+        .lazy(() => unmarshalCronTriggerConfigurationSchema)
+        .optional(),
+      continuous: z
+        .lazy(() => unmarshalContinuousTriggerConfigurationSchema)
+        .optional(),
+      file_arrival: z
+        .lazy(() => unmarshalFileArrivalTriggerConfigurationSchema)
+        .optional(),
+      table_update: z
+        .lazy(() => unmarshalTableTriggerConfigurationSchema)
+        .optional(),
+      model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
+      sql_condition: z
+        .lazy(() => unmarshalSqlConditionConfigurationSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      pauseStatus: d.pause_status,
+      periodic: d.periodic,
+      schedule: d.schedule,
+      continuous: d.continuous,
+      fileArrival: d.file_arrival,
+      tableUpdate: d.table_update,
+      model: d.model,
+      sqlCondition: d.sql_condition,
+    }));
+
+export const unmarshalTriggerDetailsSchema: z.ZodType<TriggerDetails> = z
+  .object({
+    state: z.lazy(() => unmarshalPerTriggerStateSchema).optional(),
+    history: z.lazy(() => unmarshalTriggerHistorySchema).optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    history: d.history,
+  }));
+
+export const unmarshalTriggerEvaluationSchema: z.ZodType<TriggerEvaluation> = z
+  .object({
+    timestamp: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+    description: z.string().optional(),
+    run_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    timestamp: d.timestamp,
+    description: d.description,
+    runId: d.run_id,
+  }));
+
+export const unmarshalTriggerHistorySchema: z.ZodType<TriggerHistory> = z
+  .object({
+    last_triggered: z.lazy(() => unmarshalTriggerEvaluationSchema).optional(),
+    last_not_triggered: z
+      .lazy(() => unmarshalTriggerEvaluationSchema)
+      .optional(),
+    last_failed: z.lazy(() => unmarshalTriggerEvaluationSchema).optional(),
+  })
+  .transform(d => ({
+    lastTriggered: d.last_triggered,
+    lastNotTriggered: d.last_not_triggered,
+    lastFailed: d.last_failed,
+  }));
+
 export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
   .object({
     pause_status: z.string().optional(),
@@ -8911,6 +9246,14 @@ export const marshalContinuousSettingsSchema: z.ZodType = z
     task_retry_mode: d.taskRetryMode,
   }));
 
+export const marshalContinuousTriggerConfigurationSchema: z.ZodType = z
+  .object({
+    taskRetryMode: z.string().optional(),
+  })
+  .transform(d => ({
+    task_retry_mode: d.taskRetryMode,
+  }));
+
 export const marshalCreateJobRequestSchema: z.ZodType = z
   .object({
     accessControlList: z
@@ -8950,6 +9293,9 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     usagePolicyId: z.string().optional(),
     performanceTarget: z.string().optional(),
     parentPath: z.string().optional(),
+    triggers: z
+      .array(z.lazy(() => marshalTriggerConfigurationSchema))
+      .optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -8983,6 +9329,7 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     usage_policy_id: d.usagePolicyId,
     performance_target: d.performanceTarget,
     parent_path: d.parentPath,
+    triggers: d.triggers,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
@@ -9003,6 +9350,16 @@ export const marshalCronScheduleSchema: z.ZodType = z
     timezone_id: d.timezoneId,
     pause_status: d.pauseStatus,
     sql_condition: d.sqlCondition,
+  }));
+
+export const marshalCronTriggerConfigurationSchema: z.ZodType = z
+  .object({
+    quartzCronExpression: z.string().optional(),
+    timezoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    quartz_cron_expression: d.quartzCronExpression,
+    timezone_id: d.timezoneId,
   }));
 
 export const marshalDashboardTaskSchema: z.ZodType = z
@@ -9435,6 +9792,9 @@ export const marshalJobSettingsSchema: z.ZodType = z
     usagePolicyId: z.string().optional(),
     performanceTarget: z.string().optional(),
     parentPath: z.string().optional(),
+    triggers: z
+      .array(z.lazy(() => marshalTriggerConfigurationSchema))
+      .optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -9467,6 +9827,7 @@ export const marshalJobSettingsSchema: z.ZodType = z
     usage_policy_id: d.usagePolicyId,
     performance_target: d.performanceTarget,
     parent_path: d.parentPath,
+    triggers: d.triggers,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
@@ -10601,6 +10962,38 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
     disable_auto_optimization: d.disableAutoOptimization,
+  }));
+
+export const marshalTriggerConfigurationSchema: z.ZodType = z
+  .object({
+    pauseStatus: z.string().optional(),
+    periodic: z
+      .lazy(() => marshalPeriodicTriggerConfigurationSchema)
+      .optional(),
+    schedule: z.lazy(() => marshalCronTriggerConfigurationSchema).optional(),
+    continuous: z
+      .lazy(() => marshalContinuousTriggerConfigurationSchema)
+      .optional(),
+    fileArrival: z
+      .lazy(() => marshalFileArrivalTriggerConfigurationSchema)
+      .optional(),
+    tableUpdate: z
+      .lazy(() => marshalTableTriggerConfigurationSchema)
+      .optional(),
+    model: z.lazy(() => marshalModelTriggerConfigurationSchema).optional(),
+    sqlCondition: z
+      .lazy(() => marshalSqlConditionConfigurationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    pause_status: d.pauseStatus,
+    periodic: d.periodic,
+    schedule: d.schedule,
+    continuous: d.continuous,
+    file_arrival: d.fileArrival,
+    table_update: d.tableUpdate,
+    model: d.model,
+    sql_condition: d.sqlCondition,
   }));
 
 export const marshalTriggerSettingsSchema: z.ZodType = z
