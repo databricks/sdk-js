@@ -895,6 +895,8 @@ export interface App {
   thumbnailUrl?: string | undefined;
   /** Name of the space this app belongs to. */
   space?: string | undefined;
+  /** Forward the user's access token to the app. Requires stopping and starting app compute to take effect. */
+  forwardUserAccessToken?: boolean | undefined;
 }
 
 export interface AppDeployment {
@@ -1131,6 +1133,8 @@ export interface AppUpdate {
   /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
   computeMaxInstances?: number | undefined;
   gitRepository?: GitRepository | undefined;
+  /** Forward the user's access token to the app. Requires stopping and starting app compute to take effect. */
+  forwardUserAccessToken?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1590,6 +1594,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .optional(),
     thumbnail_url: z.string().optional(),
     space: z.string().optional(),
+    forward_user_access_token: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1624,6 +1629,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     telemetryExportDestinations: d.telemetry_export_destinations,
     thumbnailUrl: d.thumbnail_url,
     space: d.space,
+    forwardUserAccessToken: d.forward_user_access_token,
   }));
 
 export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
@@ -2009,6 +2015,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     compute_min_instances: z.number().optional(),
     compute_max_instances: z.number().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    forward_user_access_token: z.boolean().optional(),
   })
   .transform(d => ({
     status: d.status,
@@ -2021,6 +2028,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     computeMinInstances: d.compute_min_instances,
     computeMaxInstances: d.compute_max_instances,
     gitRepository: d.git_repository,
+    forwardUserAccessToken: d.forward_user_access_token,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2344,6 +2352,7 @@ export const marshalAppSchema: z.ZodType = z
       .optional(),
     thumbnailUrl: z.string().optional(),
     space: z.string().optional(),
+    forwardUserAccessToken: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2378,6 +2387,7 @@ export const marshalAppSchema: z.ZodType = z
     telemetry_export_destinations: d.telemetryExportDestinations,
     thumbnail_url: d.thumbnailUrl,
     space: d.space,
+    forward_user_access_token: d.forwardUserAccessToken,
   }));
 
 export const marshalAppDeploymentSchema: z.ZodType = z
@@ -3013,6 +3023,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
   effectiveBudgetPolicyId: {wire: 'effective_budget_policy_id'},
   effectiveUsagePolicyId: {wire: 'effective_usage_policy_id'},
   effectiveUserApiScopes: {wire: 'effective_user_api_scopes'},
+  forwardUserAccessToken: {wire: 'forward_user_access_token'},
   gitRepository: {
     wire: 'git_repository',
     children: () => gitRepositoryFieldMaskSchema,

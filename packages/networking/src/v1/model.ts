@@ -238,6 +238,12 @@ export type IngressNetworkPolicy_AuthenticationIdentity_PrincipalType =
 export const IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode = {
   FULL_ACCESS: 'FULL_ACCESS',
   RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
+  /**
+   * Cross-workspace ingress is not governed by this policy. Traffic from other workspaces is
+   * subject only to the workspace's pre-existing network controls, not to the allow and deny
+   * rules configured here.
+   */
+  LEGACY_MODE: 'LEGACY_MODE',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode =
