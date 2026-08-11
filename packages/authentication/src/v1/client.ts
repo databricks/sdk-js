@@ -500,8 +500,8 @@ export class AuthenticationClient {
     req: CreateServicePrincipalSecretRequest,
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
-    const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const body = marshalRequest(
       req,
       marshalCreateServicePrincipalSecretRequestSchema
@@ -509,6 +509,9 @@ export class AuthenticationClient {
     let resp: CreateServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
@@ -562,13 +565,22 @@ export class AuthenticationClient {
     req: DeleteServicePrincipalSecretRequest,
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecretResponse> {
-    const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.accountId !== undefined) {
+      params.append('account_id', req.accountId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DeleteServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
@@ -646,9 +658,12 @@ export class AuthenticationClient {
     req: ListServicePrincipalSecretsRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalSecretsResponse> {
-    const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const params = new URLSearchParams();
+    if (req.accountId !== undefined) {
+      params.append('account_id', req.accountId);
+    }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }
@@ -660,6 +675,9 @@ export class AuthenticationClient {
     let resp: ListServicePrincipalSecretsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({

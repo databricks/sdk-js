@@ -182,7 +182,6 @@ export interface PolicyInfo {
   exceptPrincipals?: string[] | undefined;
   /**
    * Type of securables that the policy should take effect on.
-   * Only `TABLE` is supported at this moment.
    * Required on create and optional on update.
    */
   forSecurableType?: SecurableType | undefined;

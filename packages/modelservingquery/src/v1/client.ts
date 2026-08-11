@@ -61,7 +61,7 @@ export class ModelServingQueryClient {
     options?: CallOptions
   ): Promise<QueryEndpointResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/serving-endpoints/${req.name ?? ''}/invocations`;
+    const url = `${host}/serving-endpoints/${req.name ?? ''}/invocations`;
     const body = marshalRequest(req, marshalQueryEndpointRequestSchema);
     let resp: QueryEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

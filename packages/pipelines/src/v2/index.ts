@@ -37,6 +37,8 @@ export {
 } from './model';
 
 export type {
+  ApiSourceConnectorConfig,
+  ApiSourceConnectorOptions,
   ApplyEnvironmentRequest,
   ApplyEnvironmentResponse,
   AutoFullRefreshPolicy,

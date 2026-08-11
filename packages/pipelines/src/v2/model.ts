@@ -432,6 +432,18 @@ export type Transformer_Format =
   | (typeof Transformer_Format)[keyof typeof Transformer_Format]
   | (string & {});
 
+/** Top-level configuration for API Source connectors with arbitrary configuration. */
+export interface ApiSourceConnectorConfig {
+  /** Arbitrary key-value configuration values for the API Source connector. */
+  configs?: Record<string, string> | undefined;
+}
+
+/** Options for API Source connectors with arbitrary configuration. */
+export interface ApiSourceConnectorOptions {
+  /** Arbitrary key-value configuration options for the API Source connector. */
+  options?: Record<string, string> | undefined;
+}
+
 export interface ApplyEnvironmentRequest {
   pipelineId?: string | undefined;
 }
@@ -574,6 +586,11 @@ export interface ConnectorOptions {
       }
     | {$case: 'kafkaOptions'; kafkaOptions: KafkaOptions}
     | {$case: 'redditAdsOptions'; redditAdsOptions: RedditAdsOptions}
+    | {
+        $case: 'apiSourceConnectorOptions';
+        /** Connector-specific options for API Source connectors. */
+        apiSourceConnectorOptions: ApiSourceConnectorOptions;
+      }
     | undefined;
 }
 
@@ -2565,6 +2582,11 @@ export interface SourceConfig {
    */
   connectorConfig?:
     | {$case: 'googleAdsConfig'; googleAdsConfig: GoogleAdsConfig}
+    | {
+        $case: 'apiSourceConnectorConfig';
+        /** Connector-specific top-level configuration for API Source connectors. */
+        apiSourceConnectorConfig: ApiSourceConnectorConfig;
+      }
     | undefined;
 }
 
@@ -2797,6 +2819,24 @@ export interface ZendeskSupportOptions {
   startDate?: string | undefined;
 }
 
+export const unmarshalApiSourceConnectorConfigSchema: z.ZodType<ApiSourceConnectorConfig> =
+  z
+    .object({
+      configs: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      configs: d.configs,
+    }));
+
+export const unmarshalApiSourceConnectorOptionsSchema: z.ZodType<ApiSourceConnectorOptions> =
+  z
+    .object({
+      options: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      options: d.options,
+    }));
+
 export const unmarshalApplyEnvironmentResponseSchema: z.ZodType<ApplyEnvironmentResponse> =
   z.object({});
 
@@ -2868,6 +2908,9 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
     reddit_ads_options: z
       .lazy(() => unmarshalRedditAdsOptionsSchema)
       .optional(),
+    api_source_connector_options: z
+      .lazy(() => unmarshalApiSourceConnectorOptionsSchema)
+      .optional(),
   })
   .transform(d => ({
     connectorOptions:
@@ -2931,7 +2974,13 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                                   $case: 'redditAdsOptions' as const,
                                   redditAdsOptions: d.reddit_ads_options,
                                 }
-                              : undefined,
+                              : d.api_source_connector_options !== undefined
+                                ? {
+                                    $case: 'apiSourceConnectorOptions' as const,
+                                    apiSourceConnectorOptions:
+                                      d.api_source_connector_options,
+                                  }
+                                : undefined,
   }));
 
 export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResponse> =
@@ -4260,6 +4309,9 @@ export const unmarshalSourceConfigSchema: z.ZodType<SourceConfig> = z
   .object({
     catalog: z.lazy(() => unmarshalSourceCatalogConfigSchema).optional(),
     google_ads_config: z.lazy(() => unmarshalGoogleAdsConfigSchema).optional(),
+    api_source_connector_config: z
+      .lazy(() => unmarshalApiSourceConnectorConfigSchema)
+      .optional(),
   })
   .transform(d => ({
     catalog: d.catalog,
@@ -4269,7 +4321,12 @@ export const unmarshalSourceConfigSchema: z.ZodType<SourceConfig> = z
             $case: 'googleAdsConfig' as const,
             googleAdsConfig: d.google_ads_config,
           }
-        : undefined,
+        : d.api_source_connector_config !== undefined
+          ? {
+              $case: 'apiSourceConnectorConfig' as const,
+              apiSourceConnectorConfig: d.api_source_connector_config,
+            }
+          : undefined,
   }));
 
 export const unmarshalStackFrameSchema: z.ZodType<StackFrame> = z
@@ -4434,6 +4491,22 @@ export const unmarshalZendeskSupportOptionsSchema: z.ZodType<ZendeskSupportOptio
     .transform(d => ({
       startDate: d.start_date,
     }));
+
+export const marshalApiSourceConnectorConfigSchema: z.ZodType = z
+  .object({
+    configs: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    configs: d.configs,
+  }));
+
+export const marshalApiSourceConnectorOptionsSchema: z.ZodType = z
+  .object({
+    options: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    options: d.options,
+  }));
 
 export const marshalApplyEnvironmentRequestSchema: z.ZodType = z
   .object({
@@ -4601,6 +4674,12 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
           $case: z.literal('redditAdsOptions'),
           redditAdsOptions: z.lazy(() => marshalRedditAdsOptionsSchema),
         }),
+        z.object({
+          $case: z.literal('apiSourceConnectorOptions'),
+          apiSourceConnectorOptions: z.lazy(
+            () => marshalApiSourceConnectorOptionsSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -4640,6 +4719,10 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     }),
     ...(d.connectorOptions?.$case === 'redditAdsOptions' && {
       reddit_ads_options: d.connectorOptions.redditAdsOptions,
+    }),
+    ...(d.connectorOptions?.$case === 'apiSourceConnectorOptions' && {
+      api_source_connector_options:
+        d.connectorOptions.apiSourceConnectorOptions,
     }),
   }));
 
@@ -5830,6 +5913,12 @@ export const marshalSourceConfigSchema: z.ZodType = z
           $case: z.literal('googleAdsConfig'),
           googleAdsConfig: z.lazy(() => marshalGoogleAdsConfigSchema),
         }),
+        z.object({
+          $case: z.literal('apiSourceConnectorConfig'),
+          apiSourceConnectorConfig: z.lazy(
+            () => marshalApiSourceConnectorConfigSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -5837,6 +5926,9 @@ export const marshalSourceConfigSchema: z.ZodType = z
     catalog: d.catalog,
     ...(d.connectorConfig?.$case === 'googleAdsConfig' && {
       google_ads_config: d.connectorConfig.googleAdsConfig,
+    }),
+    ...(d.connectorConfig?.$case === 'apiSourceConnectorConfig' && {
+      api_source_connector_config: d.connectorConfig.apiSourceConnectorConfig,
     }),
   }));
 
