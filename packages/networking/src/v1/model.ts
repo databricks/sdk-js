@@ -908,6 +908,16 @@ export interface GcpEndpoint {
          */
         serviceAttachment: string;
       }
+    | {
+        $case: 'googleApiEndpoints';
+        /** Selected Google API hostnames, e.g. "storage.googleapis.com", "bigquery.googleapis.com". */
+        googleApiEndpoints: GoogleApiEndpoints;
+      }
+    | {
+        $case: 'allVpcScServices';
+        /** All Google APIs that support VPC Service Controls (a subset of all Google APIs). */
+        allVpcScServices: boolean;
+      }
     | undefined;
 }
 
@@ -1035,6 +1045,18 @@ export interface GetWorkspaceNetworkOptionRequest {
   accountId?: string | undefined;
   /** The workspace ID. */
   workspaceId?: bigint | undefined;
+}
+
+/**
+ * Wrapper for a list of Google API hostnames. Wrapped in a message because
+ * proto3 oneof does not support repeated fields directly.
+ */
+export interface GoogleApiEndpoints {
+  /**
+   * Google API hostnames, e.g. "storage.googleapis.com",
+   * "bigquery.googleapis.com". Use "googleapis.com" to cover all Google APIs.
+   */
+  endpoints?: string[] | undefined;
 }
 
 /** The network policies applying for ingress traffic. */
@@ -2342,6 +2364,10 @@ export const unmarshalGcpEndpointSchema: z.ZodType<GcpEndpoint> = z
   .object({
     psc_endpoint_uri: z.string().optional(),
     service_attachment: z.string().optional(),
+    google_api_endpoints: z
+      .lazy(() => unmarshalGoogleApiEndpointsSchema)
+      .optional(),
+    all_vpc_sc_services: z.boolean().optional(),
   })
   .transform(d => ({
     pscEndpointUri: d.psc_endpoint_uri,
@@ -2351,7 +2377,17 @@ export const unmarshalGcpEndpointSchema: z.ZodType<GcpEndpoint> = z
             $case: 'serviceAttachment' as const,
             serviceAttachment: d.service_attachment,
           }
-        : undefined,
+        : d.google_api_endpoints !== undefined
+          ? {
+              $case: 'googleApiEndpoints' as const,
+              googleApiEndpoints: d.google_api_endpoints,
+            }
+          : d.all_vpc_sc_services !== undefined
+            ? {
+                $case: 'allVpcScServices' as const,
+                allVpcScServices: d.all_vpc_sc_services,
+              }
+            : undefined,
   }));
 
 export const unmarshalGcpNetworkInfoSchema: z.ZodType<GcpNetworkInfo> = z
@@ -2424,6 +2460,15 @@ export const unmarshalGetIpAccessListResponseSchema: z.ZodType<GetIpAccessListRe
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
+    }));
+
+export const unmarshalGoogleApiEndpointsSchema: z.ZodType<GoogleApiEndpoints> =
+  z
+    .object({
+      endpoints: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      endpoints: d.endpoints,
     }));
 
 export const unmarshalIngressNetworkPolicySchema: z.ZodType<IngressNetworkPolicy> =
@@ -3788,6 +3833,14 @@ export const marshalGcpEndpointSchema: z.ZodType = z
           $case: z.literal('serviceAttachment'),
           serviceAttachment: z.string(),
         }),
+        z.object({
+          $case: z.literal('googleApiEndpoints'),
+          googleApiEndpoints: z.lazy(() => marshalGoogleApiEndpointsSchema),
+        }),
+        z.object({
+          $case: z.literal('allVpcScServices'),
+          allVpcScServices: z.boolean(),
+        }),
       ])
       .optional(),
   })
@@ -3795,6 +3848,12 @@ export const marshalGcpEndpointSchema: z.ZodType = z
     psc_endpoint_uri: d.pscEndpointUri,
     ...(d.targetServices?.$case === 'serviceAttachment' && {
       service_attachment: d.targetServices.serviceAttachment,
+    }),
+    ...(d.targetServices?.$case === 'googleApiEndpoints' && {
+      google_api_endpoints: d.targetServices.googleApiEndpoints,
+    }),
+    ...(d.targetServices?.$case === 'allVpcScServices' && {
+      all_vpc_sc_services: d.targetServices.allVpcScServices,
     }),
   }));
 
@@ -3846,6 +3905,14 @@ export const marshalGcpVpcEndpointInfoSchema: z.ZodType = z
     psc_endpoint_name: d.pscEndpointName,
     endpoint_region: d.endpointRegion,
     service_attachment_id: d.serviceAttachmentId,
+  }));
+
+export const marshalGoogleApiEndpointsSchema: z.ZodType = z
+  .object({
+    endpoints: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
   }));
 
 export const marshalIngressNetworkPolicySchema: z.ZodType = z
@@ -4533,8 +4600,17 @@ export const marshalWorkspaceNetworkOptionSchema: z.ZodType = z
   }));
 
 const gcpEndpointFieldMaskSchema: FieldMaskSchema = {
+  allVpcScServices: {wire: 'all_vpc_sc_services'},
+  googleApiEndpoints: {
+    wire: 'google_api_endpoints',
+    children: () => googleApiEndpointsFieldMaskSchema,
+  },
   pscEndpointUri: {wire: 'psc_endpoint_uri'},
   serviceAttachment: {wire: 'service_attachment'},
+};
+
+const googleApiEndpointsFieldMaskSchema: FieldMaskSchema = {
+  endpoints: {wire: 'endpoints'},
 };
 
 const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
