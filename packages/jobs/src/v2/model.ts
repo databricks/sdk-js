@@ -991,6 +991,15 @@ export interface AiRuntimeTask {
    * `{organization}/{repository}:{tag}`
    */
   dockerImageUrl?: string | undefined;
+  /**
+   * Optional root location for MLflow artifacts logged by the run.
+   * If this field isn't specified the default artifact location will be in dbfs
+   * i.e. `dbfs:/databricks/mlflow-tracking/<experiment_id>/...`
+   * If dbfs access is restricted or UC is preferred this can be a custom location in UC:
+   * `dbfs:/Volumes/<catalog>/<schema>/<volume>/...`
+   * The location should be unique for each experiment.
+   */
+  mlflowArtifactLocation?: string | undefined;
 }
 
 /**
@@ -5437,6 +5446,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     mlflow_run: z.string().optional(),
     mlflow_experiment_directory: z.string().optional(),
     docker_image_url: z.string().optional(),
+    mlflow_artifact_location: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
@@ -5445,6 +5455,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     mlflowRun: d.mlflow_run,
     mlflowExperimentDirectory: d.mlflow_experiment_directory,
     dockerImageUrl: d.docker_image_url,
+    mlflowArtifactLocation: d.mlflow_artifact_location,
   }));
 
 export const unmarshalAiRuntimeTaskOutputSchema: z.ZodType<AiRuntimeTaskOutput> =
@@ -8948,6 +8959,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     mlflowRun: z.string().optional(),
     mlflowExperimentDirectory: z.string().optional(),
     dockerImageUrl: z.string().optional(),
+    mlflowArtifactLocation: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
@@ -8956,6 +8968,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     mlflow_run: d.mlflowRun,
     mlflow_experiment_directory: d.mlflowExperimentDirectory,
     docker_image_url: d.dockerImageUrl,
+    mlflow_artifact_location: d.mlflowArtifactLocation,
   }));
 
 export const marshalAlertTaskSchema: z.ZodType = z

@@ -87,6 +87,7 @@ export type {
   GetPrivateAccessSettingsRequest,
   GetVpcEndpointRequest,
   GetWorkspaceNetworkOptionRequest,
+  GoogleApiEndpoints,
   IngressNetworkPolicy,
   IngressNetworkPolicy_AccountApiDestination,
   IngressNetworkPolicy_AccountDatabricksOneDestination,
