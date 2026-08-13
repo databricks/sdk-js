@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -1585,6 +1586,10 @@ export interface GenieSpace {
    * concurrent changes.
    */
   etag?: string | undefined;
+  /** Time when the Genie space was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Time when the Genie space was last modified, matching the value shown in the Genie Agent UI. */
+  updateTime?: Temporal.Instant | undefined;
 }
 
 export interface GenieStartConversationRequest {
@@ -2465,6 +2470,14 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
     parent_path: z.string().optional(),
     serialized_space: z.string().optional(),
     etag: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     spaceId: d.space_id,
@@ -2474,6 +2487,8 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
     parentPath: d.parent_path,
     serializedSpace: d.serialized_space,
     etag: d.etag,
+    createTime: d.create_time,
+    updateTime: d.update_time,
   }));
 
 export const unmarshalGenieStartConversationResponseSchema: z.ZodType<GenieStartConversationResponse> =
