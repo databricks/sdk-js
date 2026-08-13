@@ -1848,8 +1848,7 @@ export interface CreateJobRequest {
   parentPath?: string | undefined;
   /**
    * List of triggers attached to this job. A run starts when any active trigger evaluates to true. Cannot be set in
-   * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. The 10-trigger cap is the design's
-   * hard limit; rollout steps the effective cap 3 -> 5 -> 10 via internal validation during the preview.
+   * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. Gated behind the "Multiple Triggers" feature preview.
    */
   triggers?: TriggerConfiguration[] | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
@@ -2948,8 +2947,7 @@ export interface JobSettings {
   parentPath?: string | undefined;
   /**
    * List of triggers attached to this job. A run starts when any active trigger evaluates to true. Cannot be set in
-   * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. The 10-trigger cap is the design's
-   * hard limit; rollout steps the effective cap 3 -> 5 -> 10 via internal validation during the preview.
+   * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. Gated behind the "Multiple Triggers" feature preview.
    */
   triggers?: TriggerConfiguration[] | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */

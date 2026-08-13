@@ -1195,7 +1195,13 @@ export interface IngestionPipelineDefinition_ReportSpec {
 export interface IngestionPipelineDefinition_SchemaSpec {
   /** The source catalog name. Might be optional depending on the type of source. */
   sourceCatalog?: string | undefined;
-  /** Required. Schema name in the source database. */
+  /**
+   * Schema name in the source database. Currently required; this field will become optional in
+   * an upcoming release, since some source types (for example streaming / message-bus connectors)
+   * do not use it. When that change ships, this field's type in the generated SDKs and CLI will
+   * change from required to optional (nullable); clients that assume it is always present should
+   * handle its absence.
+   */
   sourceSchema?: string | undefined;
   /** Required. Destination catalog to store tables. */
   destinationCatalog?: string | undefined;
@@ -1222,7 +1228,13 @@ export interface IngestionPipelineDefinition_TableSpec {
   sourceCatalog?: string | undefined;
   /** Schema name in the source database. Might be optional depending on the type of source. */
   sourceSchema?: string | undefined;
-  /** Required. Table name in the source database. */
+  /**
+   * Table name in the source database. Currently required; this field will become optional in
+   * an upcoming release, since some source types (for example streaming / message-bus connectors)
+   * do not use it. When that change ships, this field's type in the generated SDKs and CLI will
+   * change from required to optional (nullable); clients that assume it is always present should
+   * handle its absence.
+   */
   sourceTable?: string | undefined;
   /** Required. Destination catalog to store table. */
   destinationCatalog?: string | undefined;
