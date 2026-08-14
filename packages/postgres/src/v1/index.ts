@@ -43,6 +43,7 @@ export {
   SyncedTableState,
   BranchStatus_State,
   EndpointStatus_State,
+  NewPipelineSpec_PipelineChannel,
   ProvisioningInfo_State,
   RequestedClaims_PermissionSet,
   Role_AuthMethod,

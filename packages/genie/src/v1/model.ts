@@ -563,6 +563,24 @@ export const Format = {
 } as const;
 export type Format = (typeof Format)[keyof typeof Format] | (string & {});
 
+/**
+ * The type of a Genie conversation. Distinguishes an agent-mode conversation from
+ * a classic chat conversation so callers can route message retrieval accordingly
+ * without a per-conversation lookup.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const GenieConversationType = {
+  /** Default value, returned when the conversation type is unset or not recognized. */
+  GENIE_CONVERSATION_TYPE_UNSPECIFIED: 'GENIE_CONVERSATION_TYPE_UNSPECIFIED',
+  /** A classic Genie chat conversation. */
+  GENIE_CONVERSATION_TYPE_CHAT: 'GENIE_CONVERSATION_TYPE_CHAT',
+  /** An agent-mode conversation. */
+  GENIE_CONVERSATION_TYPE_AGENT: 'GENIE_CONVERSATION_TYPE_AGENT',
+} as const;
+export type GenieConversationType =
+  | (typeof GenieConversationType)[keyof typeof GenieConversationType]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const GenieEvalAssessment = {
   GENIE_EVAL_ASSESSMENT_UNSPECIFIED: 'GENIE_EVAL_ASSESSMENT_UNSPECIFIED',
@@ -662,6 +680,11 @@ export const TextAttachmentPurpose = {
   TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED: 'TEXT_ATTACHMENT_PURPOSE_UNSPECIFIED',
   /** A clarifying question Genie asks back to the user, not the answer. */
   FOLLOW_UP_QUESTION: 'FOLLOW_UP_QUESTION',
+  /**
+   * The final answer / summary for the message. Consumers reading the Get
+   * Message API can use this to identify which text attachment holds the answer.
+   */
+  TEXT_ATTACHMENT_PURPOSE_ANSWER: 'TEXT_ATTACHMENT_PURPOSE_ANSWER',
 } as const;
 export type TextAttachmentPurpose =
   | (typeof TextAttachmentPurpose)[keyof typeof TextAttachmentPurpose]
@@ -1039,6 +1062,11 @@ export interface GenieConversationSummary {
   conversationId?: string | undefined;
   title?: string | undefined;
   createdTimestamp?: bigint | undefined;
+  /**
+   * Whether this is a classic chat or an agent-mode conversation. Allows callers to
+   * route message retrieval (chat vs. agent endpoint) without an extra lookup.
+   */
+  agentType?: GenieConversationType | undefined;
 }
 
 export interface GenieCreateConversationMessageRequest {
@@ -2096,11 +2124,13 @@ export const unmarshalGenieConversationSummarySchema: z.ZodType<GenieConversatio
         .union([z.number(), z.bigint()])
         .transform(v => BigInt(v))
         .optional(),
+      agent_type: z.string().optional(),
     })
     .transform(d => ({
       conversationId: d.conversation_id,
       title: d.title,
       createdTimestamp: d.created_timestamp,
+      agentType: d.agent_type,
     }));
 
 export const unmarshalGenieEvalResponseSchema: z.ZodType<GenieEvalResponse> = z

@@ -15,6 +15,7 @@ export {
   ErrorCode,
   EvaluationStatusType,
   Format,
+  GenieConversationType,
   GenieEvalAssessment,
   GenieEvalResponseType,
   GenieFeedbackRating,

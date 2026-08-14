@@ -4188,6 +4188,11 @@ export interface RunTask {
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /**
+   * The id of the serverless compute this task ran on, either explicitly configured on the task
+   * or the workspace default. Only set once the compute has been resolved at run trigger.
+   */
+  effectiveServerlessComputeId?: string | undefined;
+  /**
    * A unique name for the task. This field is used to refer to this task from other tasks.
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
@@ -7835,6 +7840,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     resolved_values: z.lazy(() => unmarshalResolvedValuesSchema).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     effective_performance_target: z.string().optional(),
+    effective_serverless_compute_id: z.string().optional(),
     task_key: z.string().optional(),
     description: z.string().optional(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
@@ -7926,6 +7932,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     resolvedValues: d.resolved_values,
     status: d.status,
     effectivePerformanceTarget: d.effective_performance_target,
+    effectiveServerlessComputeId: d.effective_serverless_compute_id,
     taskKey: d.task_key,
     description: d.description,
     dependsOn: d.depends_on,
