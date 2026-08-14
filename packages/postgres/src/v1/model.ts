@@ -681,6 +681,26 @@ export type EndpointStatus_State =
   | (typeof EndpointStatus_State)[keyof typeof EndpointStatus_State]
   | (string & {});
 
+/**
+ * Release channel of the underlying pipeline's runtime.
+ * PREVIEW provides early access to the latest features but may be less stable.
+ * Some source table configurations (e.g., read-time CDF) require PREVIEW.
+ * Defaults to CURRENT if not specified.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const NewPipelineSpec_PipelineChannel = {
+  /** Default value; the pipeline channel is not specified and defaults to CURRENT. */
+  PIPELINE_CHANNEL_UNSPECIFIED: 'PIPELINE_CHANNEL_UNSPECIFIED',
+  /** Uses the stable, generally available runtime. */
+  CURRENT: 'CURRENT',
+  /** Uses the latest preview runtime. Required for Auto CDF (read-time CDF) sources. */
+  PREVIEW: 'PREVIEW',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type NewPipelineSpec_PipelineChannel =
+  | (typeof NewPipelineSpec_PipelineChannel)[keyof typeof NewPipelineSpec_PipelineChannel]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ProvisioningInfo_State = {
   STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
@@ -2023,6 +2043,12 @@ export interface NewPipelineSpec {
   storageSchema?: string | undefined;
   /** Budget policy to set on the newly created pipeline. */
   budgetPolicyId?: string | undefined;
+  /**
+   * Release channel of the underlying pipeline's runtime.
+   * Some source table configurations (e.g., read-time CDF) require PREVIEW.
+   * Defaults to CURRENT if not specified.
+   */
+  pipelineChannel?: NewPipelineSpec_PipelineChannel | undefined;
 }
 
 /**
@@ -2556,7 +2582,7 @@ export interface UpdateBranchRequest {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   branch?: Branch | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /** The list of fields to update. */
   updateMask?: FieldMask<Branch> | undefined;
 }
 
@@ -2567,7 +2593,7 @@ export interface UpdateDataApiRequest {
    * The data_api's `name` field identifies the resource.
    */
   dataApi?: DataApi | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /** The list of fields to update. */
   updateMask?: FieldMask<DataApi> | undefined;
 }
 
@@ -2579,7 +2605,7 @@ export interface UpdateDatabaseRequest {
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
   database?: Database | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /** The list of fields to update. */
   updateMask?: FieldMask<Database> | undefined;
 }
 
@@ -2591,7 +2617,7 @@ export interface UpdateEndpointRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: Endpoint | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /** The list of fields to update. */
   updateMask?: FieldMask<Endpoint> | undefined;
 }
 
@@ -2603,7 +2629,7 @@ export interface UpdateProjectRequest {
    * Format: projects/{project_id}
    */
   project?: Project | undefined;
-  /** The list of fields to update. If unspecified, all fields will be updated when possible. */
+  /** The list of fields to update. */
   updateMask?: FieldMask<Project> | undefined;
 }
 
@@ -2615,10 +2641,7 @@ export interface UpdateRoleRequest {
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    */
   role?: Role | undefined;
-  /**
-   * The list of fields to update in Postgres Role.
-   * If unspecified, all fields will be updated when possible.
-   */
+  /** The list of fields to update. */
   updateMask?: FieldMask<Role> | undefined;
 }
 
@@ -3297,11 +3320,13 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
     storage_catalog: z.string().optional(),
     storage_schema: z.string().optional(),
     budget_policy_id: z.string().optional(),
+    pipeline_channel: z.string().optional(),
   })
   .transform(d => ({
     storageCatalog: d.storage_catalog,
     storageSchema: d.storage_schema,
     budgetPolicyId: d.budget_policy_id,
+    pipelineChannel: d.pipeline_channel,
   }));
 
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
@@ -4307,11 +4332,13 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storageCatalog: z.string().optional(),
     storageSchema: z.string().optional(),
     budgetPolicyId: z.string().optional(),
+    pipelineChannel: z.string().optional(),
   })
   .transform(d => ({
     storage_catalog: d.storageCatalog,
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
+    pipeline_channel: d.pipelineChannel,
   }));
 
 export const marshalProjectSchema: z.ZodType = z
