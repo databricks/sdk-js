@@ -207,15 +207,12 @@ export type RateLimit_RateLimitRenewalPeriod =
 /** Request to create a new MCP service. */
 export interface CreateMcpServiceRequest {
   /**
-   * Resource name of the parent schema.
+   * Name of the parent schema.
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
   parent?: string | undefined;
-  /**
-   * Leaf identifier for the MCP service (the unqualified name within the
-   * parent schema, e.g. "my_mcp_service").
-   */
+  /** Name for the MCP service, e.g. "my_mcp_service". */
   mcpServiceId?: string | undefined;
   /**
    * The MCP service to create. The server populates `name` from `parent` +
@@ -227,15 +224,12 @@ export interface CreateMcpServiceRequest {
 /** Request to create a new model provider service. */
 export interface CreateModelProviderServiceRequest {
   /**
-   * Resource name of the parent schema.
+   * Name of the parent schema.
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
   parent?: string | undefined;
-  /**
-   * Leaf identifier for the provider service (the unqualified name within the
-   * parent schema, e.g. "openai_prod").
-   */
+  /** Name for the model provider service, e.g. "openai_prod". */
   modelProviderServiceId?: string | undefined;
   /**
    * The model provider service to create. The server populates `name` from
@@ -247,15 +241,12 @@ export interface CreateModelProviderServiceRequest {
 /** Request to create a new model service. */
 export interface CreateModelServiceRequest {
   /**
-   * Resource name of the parent schema.
+   * Name of the parent schema.
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
   parent?: string | undefined;
-  /**
-   * Leaf identifier for the model service (the unqualified name within the
-   * parent schema, e.g. "my_model_service").
-   */
+  /** Name for the model service, e.g. "my_model_service". */
   modelServiceId?: string | undefined;
   /**
    * The model service to create. The server populates `name` from `parent` +
@@ -393,19 +384,23 @@ export interface InferenceTableConfig {
  */
 export interface ListMcpServicesRequest {
   /**
-   * Resource name of the parent schema to list within, as
+   * Name of the parent schema to list within, as
    * `schemas/{catalog}.{schema}`. Each `{...}` component is capped at 255
    * characters individually.
    */
   parent?: string | undefined;
   /**
    * Maximum number of MCP services to return. Defaults to 100 when unset or 0;
-   * the maximum is 100. Use `next_page_token` to retrieve additional pages.
+   * the maximum is 100. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /** View selector controlling which fields are populated per row. */
+  /**
+   * View selector controlling which fields are populated per row. `FULL`
+   * returns the full representation of the service; `BASIC` returns a more
+   * compact version. Defaults to `BASIC` when unset.
+   */
   view?: ListMcpServicesRequest_View | undefined;
 }
 
@@ -423,19 +418,23 @@ export interface ListMcpServicesResponse {
  */
 export interface ListModelProviderServicesRequest {
   /**
-   * Resource name of the parent schema to list within, as
+   * Name of the parent schema to list within, as
    * `schemas/{catalog}.{schema}`. Each `{...}` component is capped at 255
    * characters individually.
    */
   parent?: string | undefined;
   /**
    * Maximum number of provider services to return. Defaults to 100 when unset or
-   * 0; the maximum is 100. Use `next_page_token` to retrieve additional pages.
+   * 0; the maximum is 100. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /** View selector controlling which fields are populated per row. */
+  /**
+   * View selector controlling which fields are populated per row. `FULL`
+   * returns the full representation of the service; `BASIC` returns a more
+   * compact version. Defaults to `BASIC` when unset.
+   */
   view?: ListModelProviderServicesRequest_View | undefined;
 }
 
@@ -453,19 +452,23 @@ export interface ListModelProviderServicesResponse {
  */
 export interface ListModelServicesRequest {
   /**
-   * Resource name of the parent schema to list within, as
+   * Name of the parent schema to list within, as
    * `schemas/{catalog}.{schema}`. Each `{...}` component is capped at 255
    * characters individually.
    */
   parent?: string | undefined;
   /**
    * Maximum number of model services to return. Defaults to 100 when unset or 0;
-   * the maximum is 100. Use `next_page_token` to retrieve additional pages.
+   * the maximum is 100. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
-  /** View selector controlling which fields are populated per row. */
+  /**
+   * View selector controlling which fields are populated per row. `FULL`
+   * returns the full representation of the service; `BASIC` returns a more
+   * compact version. Defaults to `BASIC` when unset.
+   */
   view?: ListModelServicesRequest_View | undefined;
 }
 
@@ -585,6 +588,10 @@ export interface McpServiceConfig {
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface McpServiceConfig_SourceConnection {
+  /**
+   * Name of the UC connection that hosts the MCP server, as
+   * `connections/{catalog}.{schema}.{connection}`.
+   */
   name?: string | undefined;
   isDeleted?: boolean | undefined;
 }
