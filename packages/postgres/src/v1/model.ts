@@ -798,6 +798,10 @@ export const SyncedTable_SyncedTableSpec_PgSpecificType = {
   PG_SPECIFIC_TYPE_UNSPECIFIED: 'PG_SPECIFIC_TYPE_UNSPECIFIED',
   /** Maps the column to the pgvector vector type. */
   PG_SPECIFIC_TYPE_VECTOR: 'PG_SPECIFIC_TYPE_VECTOR',
+  /** Maps the column to the pgvector half-precision halfvec type. */
+  PG_SPECIFIC_TYPE_HALFVEC: 'PG_SPECIFIC_TYPE_HALFVEC',
+  /** Maps the column to a length-bounded character varying(N) type. */
+  PG_SPECIFIC_TYPE_VARCHAR: 'PG_SPECIFIC_TYPE_VARCHAR',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type SyncedTable_SyncedTableSpec_PgSpecificType =
