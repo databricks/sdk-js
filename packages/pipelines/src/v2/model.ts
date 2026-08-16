@@ -334,6 +334,66 @@ export type GoogleDriveOptions_GoogleDriveEntityType =
   | (typeof GoogleDriveOptions_GoogleDriveEntityType)[keyof typeof GoogleDriveOptions_GoogleDriveEntityType]
   | (string & {});
 
+/** Entity pivot to group by. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsEntityGranularity =
+  {
+    LINKED_IN_ADS_ENTITY_GRANULARITY_UNSPECIFIED:
+      'LINKED_IN_ADS_ENTITY_GRANULARITY_UNSPECIFIED',
+    CAMPAIGN: 'CAMPAIGN',
+    CREATIVE: 'CREATIVE',
+    CAMPAIGN_GROUP: 'CAMPAIGN_GROUP',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsEntityGranularity =
+
+    | (typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsEntityGranularity)[keyof typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsEntityGranularity]
+    | (string & {});
+
+/**
+ * adAnalytics finder. Determines call shape, valid pivots, and metric
+ * requirements.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder =
+  {
+    LINKED_IN_ADS_FINDER_UNSPECIFIED: 'LINKED_IN_ADS_FINDER_UNSPECIFIED',
+    /** exactly 1 pivot, customer metrics ("analytics") */
+    ANALYTICS: 'ANALYTICS',
+    /** 1-3 pivots, customer metrics ("statistics") */
+    STATISTICS: 'STATISTICS',
+    /**
+     * 1-2 pivots (CAMPAIGN/CAMPAIGN_GROUP only), full revenue-metric struct
+     * ("attributedRevenueMetrics")
+     */
+    ATTRIBUTED_REVENUE_METRICS: 'ATTRIBUTED_REVENUE_METRICS',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder =
+
+    | (typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder)[keyof typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder]
+    | (string & {});
+
+/**
+ * Time aggregation. Used by analytics/statistics; ignored for
+ * attributedRevenueMetrics. Defaults to DAILY when unspecified.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity =
+  {
+    LINKED_IN_ADS_TIME_GRANULARITY_UNSPECIFIED:
+      'LINKED_IN_ADS_TIME_GRANULARITY_UNSPECIFIED',
+    ALL: 'ALL',
+    DAILY: 'DAILY',
+    MONTHLY: 'MONTHLY',
+    YEARLY: 'YEARLY',
+  } as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity =
+
+    | (typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity)[keyof typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity]
+    | (string & {});
+
 /** The pipeline state. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PipelineState_PipelineState = {
@@ -585,6 +645,8 @@ export interface ConnectorOptions {
         zendeskSupportOptions: ZendeskSupportOptions;
       }
     | {$case: 'kafkaOptions'; kafkaOptions: KafkaOptions}
+    | {$case: 'marketoOptions'; marketoOptions: MarketoOptions}
+    | {$case: 'linkedinAdsOptions'; linkedinAdsOptions: LinkedInAdsOptions}
     | {$case: 'redditAdsOptions'; redditAdsOptions: RedditAdsOptions}
     | {
         $case: 'apiSourceConnectorOptions';
@@ -1465,6 +1527,72 @@ export interface KafkaOptions {
 }
 
 /**
+ * LinkedIn Ads specific options for ingestion.
+ * sync_start_date and lookback_window_days apply to both the prebuilt analytics
+ * tables and custom reports. custom_report_options defines a custom (user-defined)
+ * adAnalytics report and is only valid on a table object.
+ */
+export interface LinkedInAdsOptions {
+  /**
+   * (Optional) Start date for the initial sync of report tables, YYYY-MM-DD.
+   * Earliest date from which to sync historical data; overrides the default
+   * when set. For finder attributedRevenueMetrics, this must be between 30 and
+   * 366 days before today.
+   * If not specified, defaults to 1 year of history.
+   */
+  syncStartDate?: string | undefined;
+  /**
+   * (Optional) Days to look back during incremental sync for late-arriving data.
+   * If not specified, defaults to 30 days.
+   */
+  lookbackWindowDays?: number | undefined;
+  /**
+   * (Optional) Custom report definition. Only valid on a table object. When set,
+   * the table is synthesized from /rest/adAnalytics using the finder, pivots,
+   * time granularity and metrics here. When unset, the table must match one of
+   * the connector's prebuilt sources.
+   */
+  customReportOptions?:
+    | LinkedInAdsOptions_LinkedInAdsCustomReportOptions
+    | undefined;
+}
+
+/**
+ * User-defined custom report for the LinkedIn Ads connector. The destination
+ * table name comes from the enclosing TableSpec.destination_table, the start
+ * date from the enclosing LinkedInAdsOptions.sync_start_date, and the account
+ * it runs against from the source schema (namespace) -- none are repeated here.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface LinkedInAdsOptions_LinkedInAdsCustomReportOptions {
+  /** (Required) adAnalytics finder. See LinkedInAdsFinder. */
+  finder?:
+    | LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder
+    | undefined;
+  /** (Required) Entity pivots to group by; count/constraints depend on finder. */
+  entityGranularity?:
+    | LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsEntityGranularity[]
+    | undefined;
+  /**
+   * (Optional) Time aggregation. Defaults to DAILY when unspecified. Used by
+   * analytics/statistics; ignored for attributedRevenueMetrics.
+   */
+  timeGranularity?:
+    | LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity
+    | undefined;
+  /**
+   * (Optional) LinkedIn metric names for the report. Open vocabulary (not an
+   * enum): the valid set is large (~100) and evolves with the LinkedIn
+   * adAnalytics API, so values are passed through verbatim. If empty, a
+   * pivot-safe default core set is ingested: impressions, clicks,
+   * costInLocalCurrency, externalWebsiteConversions (valid for every pivot).
+   * Ignored for attributedRevenueMetrics (always returns the full
+   * RevenueAttributionMetrics struct).
+   */
+  metrics?: string[] | undefined;
+}
+
+/**
  * The request/response messages for the ListPipelines API. The default behavior is to return
  * the 25 newest events in timestamp descending order for the given pipeline.
  */
@@ -1582,6 +1710,16 @@ export interface ListUpdatesResponse {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ManualTrigger {}
+
+/** Marketo specific options for ingestion */
+export interface MarketoOptions {
+  /**
+   * (Optional) Start date for the initial sync in YYYY-MM-DD format.
+   * This determines the earliest date from which to sync historical data.
+   * If not specified, complete history is ingested.
+   */
+  syncStartDate?: string | undefined;
+}
 
 /** Meta Marketing (Meta Ads) specific options for ingestion */
 export interface MetaMarketingOptions {
@@ -2917,6 +3055,10 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
       .lazy(() => unmarshalZendeskSupportOptionsSchema)
       .optional(),
     kafka_options: z.lazy(() => unmarshalKafkaOptionsSchema).optional(),
+    marketo_options: z.lazy(() => unmarshalMarketoOptionsSchema).optional(),
+    linkedin_ads_options: z
+      .lazy(() => unmarshalLinkedInAdsOptionsSchema)
+      .optional(),
     reddit_ads_options: z
       .lazy(() => unmarshalRedditAdsOptionsSchema)
       .optional(),
@@ -2981,18 +3123,29 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                                 $case: 'kafkaOptions' as const,
                                 kafkaOptions: d.kafka_options,
                               }
-                            : d.reddit_ads_options !== undefined
+                            : d.marketo_options !== undefined
                               ? {
-                                  $case: 'redditAdsOptions' as const,
-                                  redditAdsOptions: d.reddit_ads_options,
+                                  $case: 'marketoOptions' as const,
+                                  marketoOptions: d.marketo_options,
                                 }
-                              : d.api_source_connector_options !== undefined
+                              : d.linkedin_ads_options !== undefined
                                 ? {
-                                    $case: 'apiSourceConnectorOptions' as const,
-                                    apiSourceConnectorOptions:
-                                      d.api_source_connector_options,
+                                    $case: 'linkedinAdsOptions' as const,
+                                    linkedinAdsOptions: d.linkedin_ads_options,
                                   }
-                                : undefined,
+                                : d.reddit_ads_options !== undefined
+                                  ? {
+                                      $case: 'redditAdsOptions' as const,
+                                      redditAdsOptions: d.reddit_ads_options,
+                                    }
+                                  : d.api_source_connector_options !== undefined
+                                    ? {
+                                        $case:
+                                          'apiSourceConnectorOptions' as const,
+                                        apiSourceConnectorOptions:
+                                          d.api_source_connector_options,
+                                      }
+                                    : undefined,
   }));
 
 export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResponse> =
@@ -3582,6 +3735,39 @@ export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
     clientConfig: d.client_config,
   }));
 
+export const unmarshalLinkedInAdsOptionsSchema: z.ZodType<LinkedInAdsOptions> =
+  z
+    .object({
+      sync_start_date: z.string().optional(),
+      lookback_window_days: z.number().optional(),
+      custom_report_options: z
+        .lazy(
+          () => unmarshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      syncStartDate: d.sync_start_date,
+      lookbackWindowDays: d.lookback_window_days,
+      customReportOptions: d.custom_report_options,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema: z.ZodType<LinkedInAdsOptions_LinkedInAdsCustomReportOptions> =
+  z
+    .object({
+      finder: z.string().optional(),
+      entity_granularity: z.array(z.string()).optional(),
+      time_granularity: z.string().optional(),
+      metrics: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      finder: d.finder,
+      entityGranularity: d.entity_granularity,
+      timeGranularity: d.time_granularity,
+      metrics: d.metrics,
+    }));
+
 export const unmarshalListPipelineEventsResponseSchema: z.ZodType<ListPipelineEventsResponse> =
   z
     .object({
@@ -3624,6 +3810,14 @@ export const unmarshalListUpdatesResponseSchema: z.ZodType<ListUpdatesResponse> 
 export const unmarshalManualTriggerSchema: z.ZodType<ManualTrigger> = z.object(
   {}
 );
+
+export const unmarshalMarketoOptionsSchema: z.ZodType<MarketoOptions> = z
+  .object({
+    sync_start_date: z.string().optional(),
+  })
+  .transform(d => ({
+    syncStartDate: d.sync_start_date,
+  }));
 
 export const unmarshalMetaMarketingOptionsSchema: z.ZodType<MetaMarketingOptions> =
   z
@@ -4683,6 +4877,14 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
           kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema),
         }),
         z.object({
+          $case: z.literal('marketoOptions'),
+          marketoOptions: z.lazy(() => marshalMarketoOptionsSchema),
+        }),
+        z.object({
+          $case: z.literal('linkedinAdsOptions'),
+          linkedinAdsOptions: z.lazy(() => marshalLinkedInAdsOptionsSchema),
+        }),
+        z.object({
           $case: z.literal('redditAdsOptions'),
           redditAdsOptions: z.lazy(() => marshalRedditAdsOptionsSchema),
         }),
@@ -4728,6 +4930,12 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     }),
     ...(d.connectorOptions?.$case === 'kafkaOptions' && {
       kafka_options: d.connectorOptions.kafkaOptions,
+    }),
+    ...(d.connectorOptions?.$case === 'marketoOptions' && {
+      marketo_options: d.connectorOptions.marketoOptions,
+    }),
+    ...(d.connectorOptions?.$case === 'linkedinAdsOptions' && {
+      linkedin_ads_options: d.connectorOptions.linkedinAdsOptions,
     }),
     ...(d.connectorOptions?.$case === 'redditAdsOptions' && {
       reddit_ads_options: d.connectorOptions.redditAdsOptions,
@@ -5378,7 +5586,47 @@ export const marshalKafkaOptionsSchema: z.ZodType = z
     client_config: d.clientConfig,
   }));
 
+export const marshalLinkedInAdsOptionsSchema: z.ZodType = z
+  .object({
+    syncStartDate: z.string().optional(),
+    lookbackWindowDays: z.number().optional(),
+    customReportOptions: z
+      .lazy(
+        () => marshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    sync_start_date: d.syncStartDate,
+    lookback_window_days: d.lookbackWindowDays,
+    custom_report_options: d.customReportOptions,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema: z.ZodType =
+  z
+    .object({
+      finder: z.string().optional(),
+      entityGranularity: z.array(z.string()).optional(),
+      timeGranularity: z.string().optional(),
+      metrics: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      finder: d.finder,
+      entity_granularity: d.entityGranularity,
+      time_granularity: d.timeGranularity,
+      metrics: d.metrics,
+    }));
+
 export const marshalManualTriggerSchema: z.ZodType = z.object({});
+
+export const marshalMarketoOptionsSchema: z.ZodType = z
+  .object({
+    syncStartDate: z.string().optional(),
+  })
+  .transform(d => ({
+    sync_start_date: d.syncStartDate,
+  }));
 
 export const marshalMetaMarketingOptionsSchema: z.ZodType = z
   .object({
