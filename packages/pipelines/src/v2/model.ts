@@ -999,6 +999,8 @@ export interface GetPipelineResponse {
    * Maximum total size: 10k characters (JSON format)
    */
   parameters?: Record<string, string> | undefined;
+  /** Serverless compute ID resolved for the pipeline. */
+  effectiveServerlessComputeId?: string | undefined;
 }
 
 export interface GetUpdateRequest {
@@ -3307,6 +3309,7 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
       effective_publishing_mode: z.string().optional(),
       run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
       parameters: z.record(z.string(), z.string()).optional(),
+      effective_serverless_compute_id: z.string().optional(),
     })
     .transform(d => ({
       pipelineId: d.pipeline_id,
@@ -3324,6 +3327,7 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
       effectivePublishingMode: d.effective_publishing_mode,
       runAs: d.run_as,
       parameters: d.parameters,
+      effectiveServerlessComputeId: d.effective_serverless_compute_id,
     }));
 
 export const unmarshalGetUpdateResponseSchema: z.ZodType<GetUpdateResponse> = z

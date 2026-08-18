@@ -266,6 +266,20 @@ export interface CronSchedule {
   cronExpression?: string | undefined;
 }
 
+/**
+ * A CustomUdf function applies a registered Unity Catalog function row-wise to
+ * source columns, producing a single output column per row.
+ */
+export interface CustomUdf {
+  /** Fully qualified 3-part Unity Catalog path of the function to apply. */
+  functionPath?: string | undefined;
+  /**
+   * Binds each UC function parameter to a source column.
+   * May be empty for zero-argument functions (e.g. a timestamp generator).
+   */
+  inputBindings?: InputBinding[] | undefined;
+}
+
 /** Specifies the data source backing a feature. Exactly one source type must be set. */
 export interface DataSource {
   dataSource?:
@@ -498,6 +512,11 @@ export interface Function {
         /** Selects the latest value of a single column in a data source */
         columnSelection: ColumnSelection;
       }
+    | {
+        $case: 'customUdf';
+        /** Applies a registered Unity Catalog function row-wise to source columns. */
+        customUdf: CustomUdf;
+      }
     | undefined;
 }
 
@@ -577,6 +596,14 @@ export interface IngestionDestination {
         deltaTableName: string;
       }
     | undefined;
+}
+
+/** Binds a single UC function parameter to a source column. */
+export interface InputBinding {
+  /** Name of the UC function parameter. */
+  parameter?: string | undefined;
+  /** Source column whose value is passed for this parameter at execution time. */
+  column?: string | undefined;
 }
 
 export interface JobContext {
@@ -1650,6 +1677,18 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     cronExpression: d.cron_expression,
   }));
 
+export const unmarshalCustomUdfSchema: z.ZodType<CustomUdf> = z
+  .object({
+    function_path: z.string().optional(),
+    input_bindings: z
+      .array(z.lazy(() => unmarshalInputBindingSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    functionPath: d.function_path,
+    inputBindings: d.input_bindings,
+  }));
+
 export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
   .object({
     delta_table_source: z
@@ -1823,6 +1862,7 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
       .lazy(() => unmarshalAggregationFunctionSchema)
       .optional(),
     column_selection: z.lazy(() => unmarshalColumnSelectionSchema).optional(),
+    custom_udf: z.lazy(() => unmarshalCustomUdfSchema).optional(),
   })
   .transform(d => ({
     functionType: d.function_type,
@@ -1838,7 +1878,9 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
               $case: 'columnSelection' as const,
               columnSelection: d.column_selection,
             }
-          : undefined,
+          : d.custom_udf !== undefined
+            ? {$case: 'customUdf' as const, customUdf: d.custom_udf}
+            : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1893,6 +1935,16 @@ export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination
             }
           : undefined,
     }));
+
+export const unmarshalInputBindingSchema: z.ZodType<InputBinding> = z
+  .object({
+    parameter: z.string().optional(),
+    column: z.string().optional(),
+  })
+  .transform(d => ({
+    parameter: d.parameter,
+    column: d.column,
+  }));
 
 export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
   .object({
@@ -2880,6 +2932,16 @@ export const marshalCronScheduleSchema: z.ZodType = z
     cron_expression: d.cronExpression,
   }));
 
+export const marshalCustomUdfSchema: z.ZodType = z
+  .object({
+    functionPath: z.string().optional(),
+    inputBindings: z.array(z.lazy(() => marshalInputBindingSchema)).optional(),
+  })
+  .transform(d => ({
+    function_path: d.functionPath,
+    input_bindings: d.inputBindings,
+  }));
+
 export const marshalDataSourceSchema: z.ZodType = z
   .object({
     dataSource: z
@@ -3065,6 +3127,10 @@ export const marshalFunctionSchema: z.ZodType = z
           $case: z.literal('columnSelection'),
           columnSelection: z.lazy(() => marshalColumnSelectionSchema),
         }),
+        z.object({
+          $case: z.literal('customUdf'),
+          customUdf: z.lazy(() => marshalCustomUdfSchema),
+        }),
       ])
       .optional(),
   })
@@ -3076,6 +3142,9 @@ export const marshalFunctionSchema: z.ZodType = z
     }),
     ...(d.function?.$case === 'columnSelection' && {
       column_selection: d.function.columnSelection,
+    }),
+    ...(d.function?.$case === 'customUdf' && {
+      custom_udf: d.function.customUdf,
     }),
   }));
 
@@ -3125,6 +3194,16 @@ export const marshalIngestionDestinationSchema: z.ZodType = z
     ...(d.ingestionDestination?.$case === 'deltaTableName' && {
       delta_table_name: d.ingestionDestination.deltaTableName,
     }),
+  }));
+
+export const marshalInputBindingSchema: z.ZodType = z
+  .object({
+    parameter: z.string().optional(),
+    column: z.string().optional(),
+  })
+  .transform(d => ({
+    parameter: d.parameter,
+    column: d.column,
   }));
 
 export const marshalJobContextSchema: z.ZodType = z
@@ -3924,6 +4003,11 @@ const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   cronExpression: {wire: 'cron_expression'},
 };
 
+const customUdfFieldMaskSchema: FieldMaskSchema = {
+  functionPath: {wire: 'function_path'},
+  inputBindings: {wire: 'input_bindings'},
+};
+
 const dataSourceFieldMaskSchema: FieldMaskSchema = {
   deltaTableSource: {
     wire: 'delta_table_source',
@@ -4020,6 +4104,7 @@ const functionFieldMaskSchema: FieldMaskSchema = {
     wire: 'column_selection',
     children: () => columnSelectionFieldMaskSchema,
   },
+  customUdf: {wire: 'custom_udf', children: () => customUdfFieldMaskSchema},
   extraParameters: {wire: 'extra_parameters'},
   functionType: {wire: 'function_type'},
 };
