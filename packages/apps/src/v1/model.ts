@@ -868,6 +868,12 @@ export interface App {
    * created. This field tracks the workspace source code path of the last active deployment.
    */
   defaultSourceCodePath?: string | undefined;
+  /**
+   * The Git source of the app's most recent active deployment, including the repository
+   * configuration and the resolved reference. Populated by the system after a Git-based
+   * deployment and used as the default reference when automatic deployments are enabled.
+   */
+  defaultGitSource?: GitSource | undefined;
   budgetPolicyId?: string | undefined;
   effectiveBudgetPolicyId?: string | undefined;
   servicePrincipalClientId?: string | undefined;
@@ -895,6 +901,18 @@ export interface App {
   thumbnailUrl?: string | undefined;
   /** Name of the space this app belongs to. */
   space?: string | undefined;
+  deploymentSource?:
+    | {$case: 'sourceCodePath'; sourceCodePath: string}
+    | {
+        $case: 'gitSource';
+        /**
+         * The Git source to deploy from, specifying the reference to check out (branch, tag, or
+         * commit) and an optional path to the app source code within the repository configured in
+         * git_repository.
+         */
+        gitSource: GitSource;
+      }
+    | undefined;
   /** Forward the user's access token to the app. Requires stopping and starting app compute to take effect. */
   forwardUserAccessToken?: boolean | undefined;
 }
@@ -1290,6 +1308,16 @@ export interface GitRepository {
    * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
    */
   provider?: string | undefined;
+  /**
+   * When true, automatically deploys the app on push events to the branch configured in
+   * the app's deployment_source.git_source.
+   */
+  autoDeploy?: boolean | undefined;
+  /**
+   * ID of a personal access token Git credential owned by the caller, used to
+   * grant the app's service principal access to this repository.
+   */
+  callerCredentialId?: bigint | undefined;
 }
 
 /** Complete git source specification including repository location and reference. */
@@ -1575,6 +1603,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .optional(),
     service_principal_name: z.string().optional(),
     default_source_code_path: z.string().optional(),
+    default_git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     budget_policy_id: z.string().optional(),
     effective_budget_policy_id: z.string().optional(),
     service_principal_client_id: z.string().optional(),
@@ -1594,6 +1623,8 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .optional(),
     thumbnail_url: z.string().optional(),
     space: z.string().optional(),
+    source_code_path: z.string().optional(),
+    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     forward_user_access_token: z.boolean().optional(),
   })
   .transform(d => ({
@@ -1612,6 +1643,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     servicePrincipalId: d.service_principal_id,
     servicePrincipalName: d.service_principal_name,
     defaultSourceCodePath: d.default_source_code_path,
+    defaultGitSource: d.default_git_source,
     budgetPolicyId: d.budget_policy_id,
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     servicePrincipalClientId: d.service_principal_client_id,
@@ -1629,6 +1661,12 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     telemetryExportDestinations: d.telemetry_export_destinations,
     thumbnailUrl: d.thumbnail_url,
     space: d.space,
+    deploymentSource:
+      d.source_code_path !== undefined
+        ? {$case: 'sourceCodePath' as const, sourceCodePath: d.source_code_path}
+        : d.git_source !== undefined
+          ? {$case: 'gitSource' as const, gitSource: d.git_source}
+          : undefined,
     forwardUserAccessToken: d.forward_user_access_token,
   }));
 
@@ -2107,10 +2145,17 @@ export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
+    auto_deploy: z.boolean().optional(),
+    caller_credential_id: z
+      .union([z.number(), z.bigint()])
+      .transform(v => BigInt(v))
+      .optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
+    autoDeploy: d.auto_deploy,
+    callerCredentialId: d.caller_credential_id,
   }));
 
 export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
@@ -2333,6 +2378,7 @@ export const marshalAppSchema: z.ZodType = z
     servicePrincipalId: z.bigint().optional(),
     servicePrincipalName: z.string().optional(),
     defaultSourceCodePath: z.string().optional(),
+    defaultGitSource: z.lazy(() => marshalGitSourceSchema).optional(),
     budgetPolicyId: z.string().optional(),
     effectiveBudgetPolicyId: z.string().optional(),
     servicePrincipalClientId: z.string().optional(),
@@ -2352,6 +2398,18 @@ export const marshalAppSchema: z.ZodType = z
       .optional(),
     thumbnailUrl: z.string().optional(),
     space: z.string().optional(),
+    deploymentSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sourceCodePath'),
+          sourceCodePath: z.string(),
+        }),
+        z.object({
+          $case: z.literal('gitSource'),
+          gitSource: z.lazy(() => marshalGitSourceSchema),
+        }),
+      ])
+      .optional(),
     forwardUserAccessToken: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2370,6 +2428,7 @@ export const marshalAppSchema: z.ZodType = z
     service_principal_id: d.servicePrincipalId,
     service_principal_name: d.servicePrincipalName,
     default_source_code_path: d.defaultSourceCodePath,
+    default_git_source: d.defaultGitSource,
     budget_policy_id: d.budgetPolicyId,
     effective_budget_policy_id: d.effectiveBudgetPolicyId,
     service_principal_client_id: d.servicePrincipalClientId,
@@ -2387,6 +2446,12 @@ export const marshalAppSchema: z.ZodType = z
     telemetry_export_destinations: d.telemetryExportDestinations,
     thumbnail_url: d.thumbnailUrl,
     space: d.space,
+    ...(d.deploymentSource?.$case === 'sourceCodePath' && {
+      source_code_path: d.deploymentSource.sourceCodePath,
+    }),
+    ...(d.deploymentSource?.$case === 'gitSource' && {
+      git_source: d.deploymentSource.gitSource,
+    }),
     forward_user_access_token: d.forwardUserAccessToken,
   }));
 
@@ -2862,10 +2927,14 @@ export const marshalGitRepositorySchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
+    autoDeploy: z.boolean().optional(),
+    callerCredentialId: z.bigint().optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
+    auto_deploy: d.autoDeploy,
+    caller_credential_id: d.callerCredentialId,
   }));
 
 export const marshalGitSourceSchema: z.ZodType = z
@@ -3018,6 +3087,10 @@ const appFieldMaskSchema: FieldMaskSchema = {
   },
   createTime: {wire: 'create_time'},
   creator: {wire: 'creator'},
+  defaultGitSource: {
+    wire: 'default_git_source',
+    children: () => gitSourceFieldMaskSchema,
+  },
   defaultSourceCodePath: {wire: 'default_source_code_path'},
   description: {wire: 'description'},
   effectiveBudgetPolicyId: {wire: 'effective_budget_policy_id'},
@@ -3028,6 +3101,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
     wire: 'git_repository',
     children: () => gitRepositoryFieldMaskSchema,
   },
+  gitSource: {wire: 'git_source', children: () => gitSourceFieldMaskSchema},
   id: {wire: 'id'},
   name: {wire: 'name'},
   oauth2AppClientId: {wire: 'oauth2_app_client_id'},
@@ -3040,6 +3114,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
   servicePrincipalClientId: {wire: 'service_principal_client_id'},
   servicePrincipalId: {wire: 'service_principal_id'},
   servicePrincipalName: {wire: 'service_principal_name'},
+  sourceCodePath: {wire: 'source_code_path'},
   space: {wire: 'space'},
   telemetryExportDestinations: {wire: 'telemetry_export_destinations'},
   thumbnailUrl: {wire: 'thumbnail_url'},
@@ -3093,6 +3168,8 @@ const computeStatusFieldMaskSchema: FieldMaskSchema = {
 };
 
 const gitRepositoryFieldMaskSchema: FieldMaskSchema = {
+  autoDeploy: {wire: 'auto_deploy'},
+  callerCredentialId: {wire: 'caller_credential_id'},
   provider: {wire: 'provider'},
   url: {wire: 'url'},
 };

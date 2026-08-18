@@ -17,24 +17,32 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  ClusterPolicyRevision,
   CreatePolicyRequest,
   CreatePolicyResponse,
   DeletePolicyRequest,
   DeletePolicyResponse,
   EditPolicyRequest,
   EditPolicyResponse,
+  GetClusterPolicyRevisionRequest,
   GetPolicyRequest,
+  ListClusterPolicyRevisionsRequest,
+  ListClusterPolicyRevisionsResponse,
   ListPoliciesRequest,
   ListPoliciesResponse,
   Policy,
+  RollbackClusterPolicyRequest,
 } from './model';
 import {
   marshalCreatePolicyRequestSchema,
   marshalDeletePolicyRequestSchema,
   marshalEditPolicyRequestSchema,
+  marshalRollbackClusterPolicyRequestSchema,
+  unmarshalClusterPolicyRevisionSchema,
   unmarshalCreatePolicyResponseSchema,
   unmarshalDeletePolicyResponseSchema,
   unmarshalEditPolicyResponseSchema,
+  unmarshalListClusterPolicyRevisionsResponseSchema,
   unmarshalListPoliciesResponseSchema,
   unmarshalPolicySchema,
 } from './model';
@@ -70,6 +78,123 @@ export class ClusterPoliciesClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /** Get details of a cluster policy revision. */
+  async getClusterPolicyRevision(
+    req: GetClusterPolicyRevisionRequest,
+    options?: CallOptions
+  ): Promise<ClusterPolicyRevision> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    let resp: ClusterPolicyRevision | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalClusterPolicyRevisionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists a cluster policy's revisions, ordered from most to least recent. */
+  async listClusterPolicyRevisions(
+    req: ListClusterPolicyRevisionsRequest,
+    options?: CallOptions
+  ): Promise<ListClusterPolicyRevisionsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/${req.parent ?? ''}/revisions`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListClusterPolicyRevisionsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListClusterPolicyRevisionsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listClusterPolicyRevisionsIter(
+    req: ListClusterPolicyRevisionsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<ClusterPolicyRevision> {
+    const pageReq: ListClusterPolicyRevisionsRequest = {...req};
+    for (;;) {
+      const resp = await this.listClusterPolicyRevisions(pageReq, options);
+      for (const item of resp.clusterPolicyRevisions ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Rolls back a cluster policy to a previous revision. */
+  async rollbackClusterPolicy(
+    req: RollbackClusterPolicyRequest,
+    options?: CallOptions
+  ): Promise<ClusterPolicyRevision> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/${req.name ?? ''}/rollback`;
+    const body = marshalRequest(req, marshalRollbackClusterPolicyRequestSchema);
+    let resp: ClusterPolicyRevision | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalClusterPolicyRevisionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
   }
 
   /** Creates a new policy with prescribed settings. */
