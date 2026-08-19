@@ -432,13 +432,13 @@ export const unmarshalGkeConfigSchema: z.ZodType<GkeConfig> = z
 export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
   .object({
     workspace_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     workspace_name: z.string().optional(),
     aws_region: z.string().optional(),
     creation_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     deployment_name: z.string().optional(),

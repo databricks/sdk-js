@@ -313,7 +313,7 @@ export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
       .optional(),
     uid: z.string().optional(),
     service_principal_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     policy_id: z.string().optional(),

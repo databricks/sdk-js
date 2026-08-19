@@ -352,12 +352,12 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     grant: z.lazy(() => unmarshalGrantOptionsSchema).optional(),
     match_columns: z.array(z.lazy(() => unmarshalMatchColumnSchema)).optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),

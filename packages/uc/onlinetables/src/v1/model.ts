@@ -262,7 +262,7 @@ export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateSt
   z
     .object({
       last_processed_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       timestamp: z
@@ -282,7 +282,7 @@ export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateSt
 export const unmarshalFailedStatusSchema: z.ZodType<FailedStatus> = z
   .object({
     last_processed_commit_version: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     timestamp: z
@@ -392,15 +392,15 @@ export const unmarshalOnlineTableStatusSchema: z.ZodType<OnlineTableStatus> = z
 export const unmarshalPipelineProgressSchema: z.ZodType<PipelineProgress> = z
   .object({
     latest_version_currently_processing: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     synced_row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     total_row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     sync_progress_completion: z.number().optional(),
@@ -429,7 +429,7 @@ export const unmarshalTriggeredUpdateStatusSchema: z.ZodType<TriggeredUpdateStat
   z
     .object({
       last_processed_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       timestamp: z

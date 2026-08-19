@@ -1620,7 +1620,7 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     warehouse_type: z.string().optional(),
     num_clusters: z.number().optional(),
     num_active_sessions: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.string().optional(),
@@ -1690,7 +1690,7 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
       warehouse_type: z.string().optional(),
       num_clusters: z.number().optional(),
       num_active_sessions: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       state: z.string().optional(),

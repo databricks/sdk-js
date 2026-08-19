@@ -321,11 +321,11 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
       budget_configuration_id: z.string().optional(),
       account_id: z.string().optional(),
       create_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       update_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       alert_configurations: z
@@ -393,7 +393,11 @@ export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodTy
     .object({
       operator: z.string().optional(),
       values: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
     })
     .transform(d => ({
@@ -438,7 +442,7 @@ export const unmarshalListBudgetConfigurationsResponseSchema: z.ZodType<ListBudg
 export const unmarshalPrincipalOverrideSchema: z.ZodType<PrincipalOverride> = z
   .object({
     principal_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     override_threshold: z.string().optional(),

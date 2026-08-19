@@ -556,7 +556,7 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
     group_name: z.string().optional(),
     service_principal_name: z.string().optional(),
     principal_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     display_name: z.string().optional(),

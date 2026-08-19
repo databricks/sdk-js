@@ -344,12 +344,12 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     connection_name: z.string().optional(),
     metastore_id: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -363,7 +363,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     full_name: z.string().optional(),
     securable_type: z.string().optional(),
     custom_max_retention_hours: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     managed_encryption_settings: z

@@ -2511,11 +2511,11 @@ export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
     renewal_period: z.string().optional(),
     principal: z.string().optional(),
     requests: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     tokens: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     request_tag_key: z.string().optional(),

@@ -1946,15 +1946,15 @@ export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
   .object({
     chunk_index: z.number().optional(),
     row_offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_chunk_index: z.number().optional(),
@@ -2033,15 +2033,15 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     http_headers: z.record(z.string(), z.string()).optional(),
     chunk_index: z.number().optional(),
     row_offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_chunk_index: z.number().optional(),
@@ -2091,15 +2091,15 @@ export const unmarshalGenieConversationSchema: z.ZodType<GenieConversation> = z
     id: z.string().optional(),
     space_id: z.string().optional(),
     user_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     title: z.string().optional(),
@@ -2121,7 +2121,7 @@ export const unmarshalGenieConversationSummarySchema: z.ZodType<GenieConversatio
       conversation_id: z.string().optional(),
       title: z.string().optional(),
       created_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       agent_type: z.string().optional(),
@@ -2156,7 +2156,7 @@ export const unmarshalGenieEvalResultSchema: z.ZodType<GenieEvalResult> = z
     question: z.string().optional(),
     benchmark_answer: z.string().optional(),
     created_by_user: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -2205,31 +2205,31 @@ export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse
       eval_run_id: z.string().optional(),
       eval_run_status: z.string().optional(),
       run_by_user: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       created_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       num_questions: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       num_correct: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       num_needs_review: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       num_done: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       last_updated_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -2381,15 +2381,15 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
     space_id: z.string().optional(),
     conversation_id: z.string().optional(),
     user_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     status: z.string().optional(),
@@ -2426,12 +2426,12 @@ export const unmarshalGenieMessageCommentSchema: z.ZodType<GenieMessageComment> 
       message_id: z.string().optional(),
       message_comment_id: z.string().optional(),
       user_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       content: z.string().optional(),
       created_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -2452,7 +2452,7 @@ export const unmarshalGenieQueryAttachmentSchema: z.ZodType<GenieQueryAttachment
       query: z.string().optional(),
       description: z.string().optional(),
       last_updated_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       parameters: z
@@ -2481,7 +2481,7 @@ export const unmarshalGenieResultMetadataSchema: z.ZodType<GenieResultMetadata> 
   z
     .object({
       row_count: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       is_truncated: z.boolean().optional(),
@@ -2617,7 +2617,7 @@ export const unmarshalResultSchema: z.ZodType<Result> = z
   .object({
     statement_id: z.string().optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     is_truncated: z.boolean().optional(),
@@ -2638,15 +2638,15 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
     data_array: z.array(z.lazy(() => unmarshalListValueSchema)).optional(),
     chunk_index: z.number().optional(),
     row_offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_chunk_index: z.number().optional(),
@@ -2670,11 +2670,11 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
     total_row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     total_byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     truncated: z.boolean().optional(),

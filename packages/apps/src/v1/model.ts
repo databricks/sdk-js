@@ -1598,7 +1598,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     pending_deployment: z.lazy(() => unmarshalAppDeploymentSchema).optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
     service_principal_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     service_principal_name: z.string().optional(),
@@ -2147,7 +2147,7 @@ export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
     provider: z.string().optional(),
     auto_deploy: z.boolean().optional(),
     caller_credential_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -2268,7 +2268,7 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     user_api_scopes: z.array(z.string()).optional(),
     effective_user_api_scopes: z.array(z.string()).optional(),
     service_principal_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     service_principal_name: z.string().optional(),

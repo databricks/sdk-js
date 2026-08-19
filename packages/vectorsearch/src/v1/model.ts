@@ -862,11 +862,11 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     name: z.string().optional(),
     creator: z.string().optional(),
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     endpoint_type: z.string().optional(),
@@ -900,7 +900,7 @@ export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> 
     .object({
       state: z.string().optional(),
       requested_target_qps: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -997,7 +997,7 @@ export const unmarshalMetricLabelSchema: z.ZodType<MetricLabel> = z
 export const unmarshalMetricValueSchema: z.ZodType<MetricValue> = z
   .object({
     timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     value: z.number().optional(),
@@ -1170,7 +1170,7 @@ export const unmarshalUpsertDeleteDataResultSchema: z.ZodType<UpsertDeleteDataRe
   z
     .object({
       success_row_count: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       failed_primary_keys: z.array(z.string()).optional(),
@@ -1247,7 +1247,7 @@ export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
   .object({
     message: z.string().optional(),
     indexed_row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     ready: z.boolean().optional(),

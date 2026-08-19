@@ -71,7 +71,7 @@ export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistIn
       metastore_id: z.string().optional(),
       created_by: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })

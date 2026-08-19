@@ -2745,7 +2745,7 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     logical_size_bytes: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     expire_time: z
@@ -3049,7 +3049,7 @@ export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
     .object({
       delta_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       delta_commit_time: z
@@ -3478,11 +3478,11 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
       .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
       .optional(),
     branch_logical_size_limit_bytes: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     synthetic_storage_size_bytes: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     compute_last_active_time: z
@@ -3699,7 +3699,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
         .optional(),
       provisioning_phase: z.string().optional(),
       last_processed_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       last_sync_time: z
@@ -3730,15 +3730,15 @@ export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePi
   z
     .object({
       latest_version_currently_processing: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       synced_row_count: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       total_row_count: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       sync_progress_completion: z.number().optional(),

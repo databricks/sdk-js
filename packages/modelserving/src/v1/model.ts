@@ -35,6 +35,25 @@ export type ServingEndpointDetailedPermissionLevel =
   | (typeof ServingEndpointDetailedPermissionLevel)[keyof typeof ServingEndpointDetailedPermissionLevel]
   | (string & {});
 
+/**
+ * A telemetry signal that a serving endpoint can export to Unity Catalog. Use these values to
+ * select which signals the endpoint exports.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TelemetryFeature = {
+  /** Application logs emitted by the served model, exported to the logs table. */
+  TELEMETRY_FEATURE_LOGS: 'TELEMETRY_FEATURE_LOGS',
+  /** Request traces (spans), exported to the traces table. */
+  TELEMETRY_FEATURE_TRACES: 'TELEMETRY_FEATURE_TRACES',
+  /** Endpoint metrics, exported to the metrics table. */
+  TELEMETRY_FEATURE_METRICS: 'TELEMETRY_FEATURE_METRICS',
+  /** Request and response payloads, logged to the endpoint's inference table. */
+  TELEMETRY_FEATURE_INFERENCE_TABLE: 'TELEMETRY_FEATURE_INFERENCE_TABLE',
+} as const;
+export type TelemetryFeature =
+  | (typeof TelemetryFeature)[keyof typeof TelemetryFeature]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ExternalFunctionRequest_HttpMethod = {
   HTTP_METHOD_UNSPECIFIED: 'HTTP_METHOD_UNSPECIFIED',
@@ -1114,6 +1133,11 @@ export interface TelemetryConfig {
     | undefined;
   /** Configuration for inference table payload logging, including sampling. */
   inferenceTableConfig?: TelemetryInferenceTableConfig | undefined;
+  /**
+   * The telemetry signals to enable for this endpoint. If empty or omitted, all signals are
+   * enabled; otherwise only the listed signals are enabled.
+   */
+  enabledTelemetryFeatures?: TelemetryFeature[] | undefined;
 }
 
 /** Inference table payload logging configuration */
@@ -1205,14 +1229,14 @@ export const unmarshalAiGatewayRateLimitSchema: z.ZodType<AiGatewayRateLimit> =
   z
     .object({
       calls: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       key: z.string().optional(),
       renewal_period: z.string().optional(),
       principal: z.string().optional(),
       tokens: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1394,7 +1418,7 @@ export const unmarshalEndpointCoreConfigOutputSchema: z.ZodType<EndpointCoreConf
   z
     .object({
       config_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       served_entities: z
@@ -1572,11 +1596,11 @@ export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
     name: z.string().optional(),
     creator: z.string().optional(),
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
@@ -1613,11 +1637,11 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
       name: z.string().optional(),
       creator: z.string().optional(),
       creation_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       last_updated_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
@@ -1777,7 +1801,7 @@ export const unmarshalPendingConfigSchema: z.ZodType<PendingConfig> = z
     traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
     config_version: z.number().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     auto_capture_config: z
@@ -1836,7 +1860,7 @@ export const unmarshalPutInferenceEndpointRateLimitsResponseSchema: z.ZodType<Pu
 export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
     calls: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     key: z.string().optional(),
@@ -1872,7 +1896,7 @@ export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
     max_provisioned_concurrency: z.number().optional(),
     workload_size: z.string().optional(),
     provisioned_model_units: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     burst_scaling_enabled: z.boolean().optional(),
@@ -1885,7 +1909,7 @@ export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
     state: z.lazy(() => unmarshalServedModelStateSchema).optional(),
     creator: z.string().optional(),
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -1949,6 +1973,7 @@ export const unmarshalTelemetryConfigSchema: z.ZodType<TelemetryConfig> = z
     inference_table_config: z
       .lazy(() => unmarshalTelemetryInferenceTableConfigSchema)
       .optional(),
+    enabled_telemetry_features: z.array(z.string()).optional(),
   })
   .transform(d => ({
     telemetryProfile:
@@ -1961,6 +1986,7 @@ export const unmarshalTelemetryConfigSchema: z.ZodType<TelemetryConfig> = z
           ? {$case: 'tableNames' as const, tableNames: d.table_names}
           : undefined,
     inferenceTableConfig: d.inference_table_config,
+    enabledTelemetryFeatures: d.enabled_telemetry_features,
   }));
 
 export const unmarshalTelemetryInferenceTableConfigSchema: z.ZodType<TelemetryInferenceTableConfig> =
@@ -2703,6 +2729,7 @@ export const marshalTelemetryConfigSchema: z.ZodType = z
     inferenceTableConfig: z
       .lazy(() => marshalTelemetryInferenceTableConfigSchema)
       .optional(),
+    enabledTelemetryFeatures: z.array(z.string()).optional(),
   })
   .transform(d => ({
     ...(d.telemetryProfile?.$case === 'telemetryProfileId' && {
@@ -2712,6 +2739,7 @@ export const marshalTelemetryConfigSchema: z.ZodType = z
       table_names: d.telemetryProfile.tableNames,
     }),
     inference_table_config: d.inferenceTableConfig,
+    enabled_telemetry_features: d.enabledTelemetryFeatures,
   }));
 
 export const marshalTelemetryInferenceTableConfigSchema: z.ZodType = z

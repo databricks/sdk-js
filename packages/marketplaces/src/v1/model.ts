@@ -1119,7 +1119,7 @@ export const unmarshalCreateProviderResponseSchema: z.ZodType<CreateProviderResp
 export const unmarshalDataRefreshInfoSchema: z.ZodType<DataRefreshInfo> = z
   .object({
     interval: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     unit: z.string().optional(),
@@ -1154,12 +1154,12 @@ export const unmarshalExchangeSchema: z.ZodType<Exchange> = z
     comment: z.string().optional(),
     filters: z.array(z.lazy(() => unmarshalExchangeFilterSchema)).optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1186,12 +1186,12 @@ export const unmarshalExchangeFilterSchema: z.ZodType<ExchangeFilter> = z
     filter_value: z.string().optional(),
     name: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1217,7 +1217,7 @@ export const unmarshalExchangeListingSchema: z.ZodType<ExchangeListing> = z
     listing_id: z.string().optional(),
     listing_name: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
@@ -1240,11 +1240,11 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     mime_type: z.string().optional(),
     download_link: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     display_name: z.string().optional(),
@@ -1308,7 +1308,7 @@ export const unmarshalGetLatestVersionProviderAnalyticsDashboardResponseSchema: 
   z
     .object({
       version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1419,7 +1419,7 @@ export const unmarshalInstallationDetailSchema: z.ZodType<InstallationDetail> =
       share_name: z.string().optional(),
       catalog_name: z.string().optional(),
       installed_on: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       status: z.string().optional(),
@@ -1549,7 +1549,7 @@ export const unmarshalListProviderAnalyticsDashboardResponseSchema: z.ZodType<Li
     .object({
       id: z.string().optional(),
       version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       dashboard_id: z.string().optional(),
@@ -1613,11 +1613,11 @@ export const unmarshalListingDetailSchema: z.ZodType<ListingDetail> = z
       .lazy(() => unmarshalDataRefreshInfoSchema)
       .optional(),
     collection_date_start: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     collection_date_end: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     data_source: z.string().optional(),
@@ -1682,28 +1682,28 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
     provider_region: z.lazy(() => unmarshalRegionInfoSchema).optional(),
     setting: z.lazy(() => unmarshalListingSettingSchema).optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
     published_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     published_by: z.string().optional(),
     categories: z.array(z.string()).optional(),
     listingType: z.string().optional(),
     created_by_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     provider_id: z.string().optional(),
@@ -1754,12 +1754,12 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
       status_message: z.string().optional(),
       share: z.lazy(() => unmarshalShareInfoSchema).optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       listing_id: z.string().optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       metastore_id: z.string().optional(),
@@ -1891,17 +1891,17 @@ export const unmarshalTokenInfoSchema: z.ZodType<TokenInfo> = z
   .object({
     id: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     activation_url: z.string().optional(),
     expiration_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1966,7 +1966,7 @@ export const unmarshalUpdateProviderAnalyticsDashboardResponseSchema: z.ZodType<
     .object({
       id: z.string().optional(),
       version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       dashboard_id: z.string().optional(),

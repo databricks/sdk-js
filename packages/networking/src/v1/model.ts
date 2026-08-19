@@ -2043,19 +2043,19 @@ export const unmarshalAccountIpAccessListSchema: z.ZodType<AccountIpAccessList> 
       address_count: z.number().optional(),
       list_type: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       created_by: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_by: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       enabled: z.boolean().optional(),
@@ -2260,7 +2260,11 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_DatabricksDestinat
   z
     .object({
       workspace_ids: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
     })
     .transform(d => ({
@@ -2556,7 +2560,7 @@ export const unmarshalIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodTy
     .object({
       principal_type: z.string().optional(),
       principal_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -2879,7 +2883,11 @@ export const unmarshalIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType<Ingr
   z
     .object({
       workspace_ids: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
     })
     .transform(d => ({
@@ -2904,19 +2912,19 @@ export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
     address_count: z.number().optional(),
     list_type: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     enabled: z.boolean().optional(),
@@ -3014,16 +3022,16 @@ export const unmarshalNccPrivateEndpointRuleSchema: z.ZodType<NccPrivateEndpoint
       connection_state: z.string().optional(),
       domain_names: z.array(z.string()).optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       deactivated: z.boolean().optional(),
       deactivated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       error_message: z.string().optional(),
@@ -3066,7 +3074,7 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
     network_id: z.string().optional(),
     account_id: z.string().optional(),
     workspace_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     vpc_id: z.string().optional(),
@@ -3078,7 +3086,7 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
       .optional(),
     network_name: z.string().optional(),
     creation_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     warning_messages: z
@@ -3120,11 +3128,11 @@ export const unmarshalNetworkConnectivityConfigSchema: z.ZodType<NetworkConnecti
         )
         .optional(),
       updated_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -3150,16 +3158,16 @@ export const unmarshalNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.Z
       vpc_endpoint_id: z.string().optional(),
       connection_state: z.string().optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       deactivated: z.boolean().optional(),
       deactivated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       enabled: z.boolean().optional(),
@@ -3192,16 +3200,16 @@ export const unmarshalNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z
       endpoint_name: z.string().optional(),
       connection_state: z.string().optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       deactivated: z.boolean().optional(),
       deactivated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       domain_names: z.array(z.string()).optional(),
@@ -3399,7 +3407,7 @@ export const unmarshalWorkspaceNetworkOptionSchema: z.ZodType<WorkspaceNetworkOp
     .object({
       network_policy_id: z.string().optional(),
       workspace_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })

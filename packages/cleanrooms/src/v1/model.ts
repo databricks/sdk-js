@@ -1320,11 +1320,11 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     status: z.string().optional(),
@@ -1355,7 +1355,7 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
     name: z.string().optional(),
     asset_type: z.string().optional(),
     added_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     status: z.string().optional(),
@@ -1559,7 +1559,7 @@ export const unmarshalCleanRoomAutoApprovalRuleSchema: z.ZodType<CleanRoomAutoAp
       author_scope: z.string().optional(),
       runner_collaborator_alias: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1592,7 +1592,7 @@ export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborat
       global_metastore_id: z.string().optional(),
       organization_name: z.string().optional(),
       invite_recipient_workspace_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       invite_recipient_email: z.string().optional(),
@@ -1613,7 +1613,7 @@ export const unmarshalCleanRoomJarAnalysisReviewSchema: z.ZodType<CleanRoomJarAn
     .object({
       reviewer_collaborator_alias: z.string().optional(),
       created_at_millis: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       review_state: z.string().optional(),
@@ -1633,7 +1633,7 @@ export const unmarshalCleanRoomNotebookReviewSchema: z.ZodType<CleanRoomNotebook
     .object({
       reviewer_collaborator_alias: z.string().optional(),
       created_at_millis: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       review_state: z.string().optional(),
@@ -1653,11 +1653,11 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
     .object({
       notebook_name: z.string().optional(),
       start_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       run_duration: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       notebook_job_run_state: z
@@ -1668,17 +1668,17 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
         .optional(),
       output_schema_name: z.string().optional(),
       output_schema_expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       notebook_etag: z.string().optional(),
       notebook_updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       shared_output_schema_name: z.string().optional(),
       shared_output_schema_expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1743,11 +1743,11 @@ export const unmarshalCleanRoomTaskRunSchema: z.ZodType<CleanRoomTaskRun> = z
     name: z.string().optional(),
     task_type: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     task_run_state: z
@@ -1784,7 +1784,7 @@ export const unmarshalCleanRoomTaskRun_CleanRoomTaskAnalysisDetailsSchema: z.Zod
     .object({
       etag: z.string().optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1799,7 +1799,7 @@ export const unmarshalCleanRoomTaskRun_OutputInfoSchema: z.ZodType<CleanRoomTask
     .object({
       output_schema_name: z.string().optional(),
       output_schema_expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1823,19 +1823,19 @@ export const unmarshalCollaboratorJobRunInfoSchema: z.ZodType<CollaboratorJobRun
   z
     .object({
       collaborator_job_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       collaborator_job_run_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       collaborator_task_run_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       collaborator_workspace_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       collaborator_alias: z.string().optional(),

@@ -1151,14 +1151,14 @@ export interface UpdateRegistryWebhookResponse {
 export const unmarshalActivitySchema: z.ZodType<Activity> = z
   .object({
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
     activity_type: z.string().optional(),
     comment: z.string().optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     from_stage: z.string().optional(),
@@ -1192,14 +1192,14 @@ export const unmarshalApproveTransitionResponseSchema: z.ZodType<ApproveTransiti
 export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
   .object({
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
     activity_type: z.string().optional(),
     comment: z.string().optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     from_stage: z.string().optional(),
@@ -1419,11 +1419,11 @@ export const unmarshalModelVersionSchema: z.ZodType<ModelVersion> = z
     name: z.string().optional(),
     version: z.string().optional(),
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
@@ -1458,11 +1458,11 @@ export const unmarshalModelVersionDatabricksSchema: z.ZodType<ModelVersionDatabr
       name: z.string().optional(),
       version: z.string().optional(),
       creation_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       last_updated_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       user_id: z.string().optional(),
@@ -1513,11 +1513,11 @@ export const unmarshalRegisteredModelSchema: z.ZodType<RegisteredModel> = z
   .object({
     name: z.string().optional(),
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
@@ -1542,11 +1542,11 @@ export const unmarshalRegisteredModelDatabricksSchema: z.ZodType<RegisteredModel
     .object({
       name: z.string().optional(),
       creation_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       last_updated_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       user_id: z.string().optional(),
@@ -1586,11 +1586,11 @@ export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
     id: z.string().optional(),
     events: z.array(z.string()).optional(),
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     description: z.string().optional(),
@@ -1686,14 +1686,14 @@ export const unmarshalTransitionModelVersionStageDatabricksResponseSchema: z.Zod
 export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
   .object({
     creation_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     user_id: z.string().optional(),
     activity_type: z.string().optional(),
     comment: z.string().optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     from_stage: z.string().optional(),

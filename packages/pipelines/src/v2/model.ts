@@ -3175,7 +3175,7 @@ export const unmarshalDataPlaneIdSchema: z.ZodType<DataPlaneId> = z
   .object({
     instance: z.string().optional(),
     seq_no: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -3301,7 +3301,7 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
         .array(z.lazy(() => unmarshalUpdateStateInfoSchema))
         .optional(),
       last_modified: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       run_as_user_name: z.string().optional(),
@@ -3646,7 +3646,7 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBased
       cursor_columns: z.array(z.string()).optional(),
       deletion_condition: z.string().optional(),
       hard_deletion_sync_min_interval_in_seconds: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -3724,7 +3724,7 @@ export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
     value_transformer: z.lazy(() => unmarshalTransformerSchema).optional(),
     starting_offset: z.string().optional(),
     max_offsets_per_trigger: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     client_config: z.record(z.string(), z.string()).optional(),
@@ -3909,7 +3909,7 @@ export const unmarshalOriginSchema: z.ZodType<Origin> = z
     cloud: z.string().optional(),
     region: z.string().optional(),
     org_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     pipeline_id: z.string().optional(),
@@ -3922,7 +3922,7 @@ export const unmarshalOriginSchema: z.ZodType<Origin> = z
     flow_id: z.string().optional(),
     flow_name: z.string().optional(),
     batch_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     request_id: z.string().optional(),
@@ -4457,7 +4457,7 @@ export const unmarshalSequencingSchema: z.ZodType<Sequencing> = z
   .object({
     data_plane_id: z.lazy(() => unmarshalDataPlaneIdSchema).optional(),
     control_plane_seq_no: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -4655,7 +4655,7 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     state: z.string().optional(),
     cluster_id: z.string().optional(),
     creation_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     full_refresh: z.boolean().optional(),

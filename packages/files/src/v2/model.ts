@@ -295,7 +295,7 @@ export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryRe
 export const unmarshalCreateResponseSchema: z.ZodType<CreateResponse> = z
   .object({
     handle: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -333,11 +333,11 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     path: z.string().optional(),
     is_dir: z.boolean().optional(),
     file_size: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     modification_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -355,7 +355,7 @@ export const unmarshalGetFileMetadataResponseSchema: z.ZodType<GetFileMetadataRe
   z
     .object({
       'content-length': z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       'content-type': z.string().optional(),
@@ -372,11 +372,11 @@ export const unmarshalGetStatusResponseSchema: z.ZodType<GetStatusResponse> = z
     path: z.string().optional(),
     is_dir: z.boolean().optional(),
     file_size: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     modification_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -419,7 +419,7 @@ export const unmarshalPutResponseSchema: z.ZodType<PutResponse> = z.object({});
 export const unmarshalReadResponseSchema: z.ZodType<ReadResponse> = z
   .object({
     bytes_read: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     data: z

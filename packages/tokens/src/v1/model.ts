@@ -125,11 +125,11 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
   .object({
     token_id: z.string().optional(),
     creation_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     expiry_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     comment: z.string().optional(),

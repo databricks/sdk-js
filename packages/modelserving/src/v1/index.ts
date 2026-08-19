@@ -16,6 +16,7 @@ export {
   Behavior,
   ServedModelDeploymentState,
   ServingEndpointDetailedPermissionLevel,
+  TelemetryFeature,
   ExternalFunctionRequest_HttpMethod,
   InferenceEndpointState_ConfigUpdateState,
   InferenceEndpointState_ReadyState,

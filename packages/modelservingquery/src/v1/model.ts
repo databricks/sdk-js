@@ -248,7 +248,7 @@ export const unmarshalQueryEndpointResponseSchema: z.ZodType<QueryEndpointRespon
       usage: z.lazy(() => unmarshalExternalModelUsageElementSchema).optional(),
       id: z.string().optional(),
       created: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       object: z.string().optional(),

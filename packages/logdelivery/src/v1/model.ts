@@ -298,17 +298,21 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
       credentials_id: z.string().optional(),
       storage_configuration_id: z.string().optional(),
       workspace_ids_filter: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
       delivery_path_prefix: z.string().optional(),
       delivery_start_time: z.string().optional(),
       status: z.string().optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       update_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       log_delivery_status: z

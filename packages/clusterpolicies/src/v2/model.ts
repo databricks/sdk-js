@@ -470,7 +470,7 @@ export const unmarshalPolicySchema: z.ZodType<Policy> = z
     policy_id: z.string().optional(),
     creator_user_name: z.string().optional(),
     created_at_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     is_default: z.boolean().optional(),
@@ -480,7 +480,7 @@ export const unmarshalPolicySchema: z.ZodType<Policy> = z
     policy_family_id: z.string().optional(),
     policy_family_definition_overrides: z.string().optional(),
     max_clusters_per_user: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
@@ -508,7 +508,7 @@ export const unmarshalPolicyOwnAttributesSchema: z.ZodType<PolicyOwnAttributes> 
       policy_family_id: z.string().optional(),
       policy_family_definition_overrides: z.string().optional(),
       max_clusters_per_user: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),

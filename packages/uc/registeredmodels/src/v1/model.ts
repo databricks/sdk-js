@@ -504,7 +504,7 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
     comment: z.string().optional(),
     run_id: z.string().optional(),
     run_workspace_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     model_version_dependencies: z
@@ -512,18 +512,18 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
       .optional(),
     status: z.string().optional(),
     version: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     storage_location: z.string().optional(),
     metastore_id: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -558,7 +558,7 @@ export const unmarshalRegisteredModelAliasInfoSchema: z.ZodType<RegisteredModelA
     .object({
       alias_name: z.string().optional(),
       version_num: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       id: z.string().optional(),
@@ -587,12 +587,12 @@ export const unmarshalRegisteredModelInfoSchema: z.ZodType<RegisteredModelInfo> 
       metastore_id: z.string().optional(),
       full_name: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       created_by: z.string().optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_by: z.string().optional(),

@@ -3913,7 +3913,7 @@ export const unmarshalClusterEventSchema: z.ZodType<ClusterEvent> = z
   .object({
     cluster_id: z.string().optional(),
     timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     type: z.string().optional(),
@@ -3937,7 +3937,7 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     state: z.string().optional(),
     state_message: z.string().optional(),
     cluster_memory_mb: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     cluster_cores: z.number().optional(),
@@ -3952,7 +3952,7 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
       .array(z.lazy(() => unmarshalSparkInfo_SparkNodeSchema))
       .optional(),
     spark_context_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     jdbc_port: z.number().optional(),
@@ -3995,19 +3995,19 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     total_initial_remote_disk_size: z.number().optional(),
     dependency_mode: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     terminated_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_state_loss_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_restarted_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     num_workers: z.number().optional(),
@@ -4226,7 +4226,7 @@ export const unmarshalDataPlaneEventDetailsSchema: z.ZodType<DataPlaneEventDetai
     .object({
       event_type: z.string().optional(),
       timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       host_id: z.string().optional(),
@@ -4410,15 +4410,15 @@ export const unmarshalEventDetailsSchema: z.ZodType<EventDetails> = z
     reason: z.lazy(() => unmarshalTerminationReasonSchema).optional(),
     user: z.string().optional(),
     previous_disk_size: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     disk_size: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     free_space: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     instance_id: z.string().optional(),
@@ -4491,7 +4491,7 @@ export const unmarshalGetEventsResponseSchema: z.ZodType<GetEventsResponse> = z
     events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
     next_page: z.lazy(() => unmarshalListEventsRequestSchema).optional(),
     total_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_page_token: z.string().optional(),
@@ -4680,21 +4680,21 @@ export const unmarshalListEventsRequestSchema: z.ZodType<ListEventsRequest> = z
   .object({
     cluster_id: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     order: z.string().optional(),
     event_types: z.array(z.string()).optional(),
     offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     limit: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     page_token: z.string().optional(),
@@ -4742,7 +4742,7 @@ export const unmarshalLogAnalyticsInfoSchema: z.ZodType<LogAnalyticsInfo> = z
 export const unmarshalLogSyncStatusSchema: z.ZodType<LogSyncStatus> = z
   .object({
     last_attempted: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_exception: z.string().optional(),
@@ -4898,7 +4898,7 @@ export const unmarshalSparkInfo_SparkNodeSchema: z.ZodType<SparkInfo_SparkNode> 
       node_id: z.string().optional(),
       instance_id: z.string().optional(),
       start_timestamp: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       node_aws_attributes: z
