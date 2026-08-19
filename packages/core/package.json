@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-core",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "description": "Databricks core library for JavaScript/TypeScript",
   "type": "module",
   "main": "./dist/index.js",
