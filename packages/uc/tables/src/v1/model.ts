@@ -1264,12 +1264,12 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     full_name: z.string().optional(),
     data_access_configuration_id: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1278,7 +1278,7 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
       .lazy(() => unmarshalDeltaRuntimePropertiesKvPairsSchema)
       .optional(),
     deleted_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     effective_predictive_optimization_flag: z

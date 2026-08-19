@@ -1107,11 +1107,11 @@ export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
     artifact_location: z.string().optional(),
     lifecycle_stage: z.string().optional(),
     last_update_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     creation_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     tags: z.array(z.lazy(() => unmarshalExperimentTagSchema)).optional(),
@@ -1162,7 +1162,7 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     path: z.string().optional(),
     is_dir: z.boolean().optional(),
     file_size: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -1312,17 +1312,17 @@ export const unmarshalLoggedModelInfoSchema: z.ZodType<LoggedModelInfo> = z
     experiment_id: z.string().optional(),
     name: z.string().optional(),
     creation_timestamp_ms: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     last_updated_timestamp_ms: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     artifact_uri: z.string().optional(),
     status: z.string().optional(),
     creator_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     model_type: z.string().optional(),
@@ -1371,11 +1371,11 @@ export const unmarshalMetricSchema: z.ZodType<Metric> = z
     key: z.string().optional(),
     value: z.number().optional(),
     timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     step: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     dataset_name: z.string().optional(),
@@ -1460,11 +1460,11 @@ export const unmarshalRunInfoSchema: z.ZodType<RunInfo> = z
     user_id: z.string().optional(),
     status: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     artifact_uri: z.string().optional(),

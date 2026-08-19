@@ -243,12 +243,12 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -260,7 +260,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
     custom_max_retention_hours: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     properties: z.record(z.string(), z.string()).optional(),

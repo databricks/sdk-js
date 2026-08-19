@@ -407,7 +407,7 @@ export const unmarshalLineageModelVersionInfoSchema: z.ZodType<LineageModelVersi
     .object({
       model_name: z.string().optional(),
       version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       event_time: z

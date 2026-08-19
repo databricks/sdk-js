@@ -5570,14 +5570,14 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
 export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
   .object({
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
     settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
     created_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
@@ -5604,20 +5604,20 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
 export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
   .object({
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     creator_user_name: z.string().optional(),
     number_in_job: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     original_attempt_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
@@ -5643,7 +5643,7 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     job_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     has_more: z.boolean().optional(),
@@ -5652,31 +5652,31 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     setup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     execution_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     cleanup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     queue_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -5980,7 +5980,7 @@ export const unmarshalContinuousTriggerStateSchema: z.ZodType<ContinuousTriggerS
     .object({
       consecutive_failures: z.number().optional(),
       next_attempt_ms: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       is_backing_off: z.boolean().optional(),
@@ -5994,7 +5994,7 @@ export const unmarshalContinuousTriggerStateSchema: z.ZodType<ContinuousTriggerS
 export const unmarshalCreateJobResponseSchema: z.ZodType<CreateJobResponse> = z
   .object({
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -6093,7 +6093,7 @@ export const unmarshalDbtCloudJobRunStepSchema: z.ZodType<DbtCloudJobRunStep> =
 export const unmarshalDbtCloudTaskSchema: z.ZodType<DbtCloudTask> = z
   .object({
     dbt_cloud_job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     connection_resource_name: z.string().optional(),
@@ -6107,7 +6107,7 @@ export const unmarshalDbtCloudTaskOutputSchema: z.ZodType<DbtCloudTaskOutput> =
   z
     .object({
       dbt_cloud_job_run_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       dbt_cloud_job_run_url: z.string().optional(),
@@ -6388,14 +6388,14 @@ export const unmarshalGetJobResponseSchema: z.ZodType<GetJobResponse> = z
   .object({
     next_page_token: z.string().optional(),
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
     settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
     created_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
@@ -6527,20 +6527,20 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
   .object({
     next_page_token: z.string().optional(),
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     creator_user_name: z.string().optional(),
     number_in_job: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     original_attempt_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
@@ -6566,7 +6566,7 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     job_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     has_more: z.boolean().optional(),
@@ -6575,31 +6575,31 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     setup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     execution_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     cleanup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     queue_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -6897,7 +6897,7 @@ export const unmarshalJobsHealthRuleSchema: z.ZodType<JobsHealthRule> = z
     metric: z.string().optional(),
     op: z.string().optional(),
     value: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -6952,7 +6952,7 @@ export const unmarshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType<
   z
     .object({
       job_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       is_compliant: z.boolean().optional(),
@@ -7112,7 +7112,7 @@ export const unmarshalOutputSchemaInfoSchema: z.ZodType<OutputSchemaInfo> = z
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
     expiration_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -7169,7 +7169,7 @@ export const unmarshalPeriodicTriggerStateSchema: z.ZodType<PeriodicTriggerState
   z
     .object({
       next_run_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -7341,20 +7341,22 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
   .object({
     type: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
     id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     task_run_ids: z
-      .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+      .array(
+        z.union([z.number(), z.bigint(), z.string()]).transform(v => BigInt(v))
+      )
       .optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     effective_performance_target: z.string().optional(),
@@ -7373,7 +7375,7 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
 export const unmarshalRepairRunResponseSchema: z.ZodType<RepairRunResponse> = z
   .object({
     repair_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -7587,20 +7589,20 @@ export const unmarshalResolvedValues_SqlTaskResolvedValuesSchema: z.ZodType<Reso
 export const unmarshalRunSchema: z.ZodType<Run> = z
   .object({
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     creator_user_name: z.string().optional(),
     number_in_job: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     original_attempt_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
@@ -7626,7 +7628,7 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     job_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     has_more: z.boolean().optional(),
@@ -7635,31 +7637,31 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     setup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     execution_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     cleanup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     queue_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -7719,7 +7721,7 @@ export const unmarshalRun_JobLevelParametersSchema: z.ZodType<Run_JobLevelParame
 export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
   .object({
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     job_parameters: z.record(z.string(), z.string()).optional(),
@@ -7750,7 +7752,7 @@ export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_Ru
   z
     .object({
       run_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -7761,11 +7763,11 @@ export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_Ru
 export const unmarshalRunNowResponseSchema: z.ZodType<RunNowResponse> = z
   .object({
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     number_in_job: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -7829,7 +7831,7 @@ export const unmarshalRunStatusSchema: z.ZodType<RunStatus> = z
 export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
   .object({
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.lazy(() => unmarshalRunStateSchema).optional(),
@@ -7894,31 +7896,31 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     retry_on_timeout: z.boolean().optional(),
     disable_auto_optimization: z.boolean().optional(),
     start_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     setup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     execution_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     cleanup_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     run_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     queue_duration: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -8078,7 +8080,7 @@ export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
       .lazy(() => unmarshalSqlConditionRunInfoDetailsSchema)
       .optional(),
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -8261,11 +8263,11 @@ export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_
       status: z.string().optional(),
       error: z.lazy(() => unmarshalSqlTask_SqlOutputErrorSchema).optional(),
       start_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       end_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -8415,7 +8417,7 @@ export const unmarshalSqlTaskSubscriptionSchema: z.ZodType<SqlTaskSubscription> 
 export const unmarshalSubmitRunResponseSchema: z.ZodType<SubmitRunResponse> = z
   .object({
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -8749,12 +8751,12 @@ export const unmarshalTriggerDetailsSchema: z.ZodType<TriggerDetails> = z
 export const unmarshalTriggerEvaluationSchema: z.ZodType<TriggerEvaluation> = z
   .object({
     timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     description: z.string().optional(),
     run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })

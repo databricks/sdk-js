@@ -76,7 +76,7 @@ export const unmarshalStorageConfigurationSchema: z.ZodType<StorageConfiguration
       root_bucket_info: z.lazy(() => unmarshalRootBucketInfoSchema).optional(),
       storage_configuration_name: z.string().optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       role_arn: z.string().optional(),

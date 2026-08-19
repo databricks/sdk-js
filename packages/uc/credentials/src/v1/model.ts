@@ -1521,12 +1521,12 @@ export const unmarshalCredentialInfoSchema: z.ZodType<CredentialInfo> = z
     id: z.string().optional(),
     metastore_id: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1587,7 +1587,7 @@ export const unmarshalCredentialsSchema: z.ZodType<Credentials> = z
     aws_credentials: z.lazy(() => unmarshalAwsCredentialsSchema).optional(),
     credentials_name: z.string().optional(),
     creation_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -1659,7 +1659,7 @@ export const unmarshalGenerateTemporaryPathCredentialResponseSchema: z.ZodType<G
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
       expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       url: z.string().optional(),
@@ -1710,7 +1710,7 @@ export const unmarshalGenerateTemporaryTableCredentialResponseSchema: z.ZodType<
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
       expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       url: z.string().optional(),
@@ -1761,7 +1761,7 @@ export const unmarshalGenerateTemporaryVolumeCredentialResponseSchema: z.ZodType
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
       expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       url: z.string().optional(),
@@ -1860,12 +1860,12 @@ export const unmarshalStorageCredentialInfoSchema: z.ZodType<StorageCredentialIn
       id: z.string().optional(),
       metastore_id: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       created_by: z.string().optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_by: z.string().optional(),
@@ -1951,7 +1951,7 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
       expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       url: z.string().optional(),

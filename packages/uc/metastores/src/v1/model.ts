@@ -562,7 +562,11 @@ export const unmarshalAccountsListWorkspaceIdsForMetastoreResponseSchema: z.ZodT
   z
     .object({
       workspace_ids: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
     })
     .transform(d => ({
@@ -604,19 +608,19 @@ export const unmarshalGetMetastoreSummaryResponseSchema: z.ZodType<GetMetastoreS
       privilege_model_version: z.string().optional(),
       delta_sharing_scope: z.string().optional(),
       delta_sharing_recipient_token_lifetime_in_seconds: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       delta_sharing_organization_name: z.string().optional(),
       storage_root: z.string().optional(),
       owner: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       created_by: z.string().optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_by: z.string().optional(),
@@ -662,7 +666,7 @@ export const unmarshalMetastoreAssignmentSchema: z.ZodType<MetastoreAssignment> 
   z
     .object({
       workspace_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       metastore_id: z.string().optional(),
@@ -682,7 +686,7 @@ export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
     storage_root_credential_id: z.string().optional(),
     delta_sharing_scope: z.string().optional(),
     delta_sharing_recipient_token_lifetime_in_seconds: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     delta_sharing_organization_name: z.string().optional(),
@@ -691,12 +695,12 @@ export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
     region: z.string().optional(),
     metastore_id: z.string().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),

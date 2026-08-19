@@ -649,7 +649,7 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
     dashboard_id: z.string().optional(),
     subscriber: z.lazy(() => unmarshalSubscription_SubscriberSchema).optional(),
     created_by_user_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     etag: z.string().optional(),
@@ -706,7 +706,7 @@ export const unmarshalSubscription_Subscriber_UserSchema: z.ZodType<Subscription
   z
     .object({
       user_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })

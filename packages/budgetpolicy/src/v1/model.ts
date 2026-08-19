@@ -179,7 +179,9 @@ export const unmarshalBudgetPolicySchema: z.ZodType<BudgetPolicy> = z
       .array(z.lazy(() => unmarshalCustomPolicyTagSchema))
       .optional(),
     binding_workspace_ids: z
-      .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+      .array(
+        z.union([z.number(), z.bigint(), z.string()]).transform(v => BigInt(v))
+      )
       .optional(),
   })
   .transform(d => ({

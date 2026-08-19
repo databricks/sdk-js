@@ -288,7 +288,7 @@ export const unmarshalSecretMetadataSchema: z.ZodType<SecretMetadata> = z
   .object({
     key: z.string().optional(),
     last_updated_timestamp: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })

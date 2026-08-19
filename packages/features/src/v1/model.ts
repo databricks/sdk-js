@@ -1056,8 +1056,9 @@ export interface RollingWindow {
    */
   windowDuration?: Temporal.Duration | undefined;
   /**
-   * The delay applied to the end of the rolling window (must be non-negative).
-   * For example, delay=1d shifts the window end 1 day before the evaluation time.
+   * Non-negative analytic lag that evaluates the window this far in the past. Use this for timing
+   * variations unrelated to source lateness, such as a 30-day count as of one week ago. If unset,
+   * the analytic lag is zero. It composes with source.lateness when both are set.
    */
   delay?: Temporal.Duration | undefined;
 }
@@ -1077,10 +1078,7 @@ export interface SawtoothWindow {
    * (aggregate over the entity's entire history).
    */
   windowDuration?: Temporal.Duration | undefined;
-  /**
-   * The delay applied to the end of the window (must be non-negative).
-   * For example, delay=1d shifts the window end 1 day before the evaluation time.
-   */
+  /** Delay is not currently supported for Sawtooth windows. */
   delay?: Temporal.Duration | undefined;
 }
 
@@ -1561,7 +1559,7 @@ export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentile
       input: z.string().optional(),
       percentile: z.number().optional(),
       accuracy: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1814,7 +1812,7 @@ export const unmarshalFirstDistinctFunctionSchema: z.ZodType<FirstDistinctFuncti
     .object({
       input: z.string().optional(),
       n: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1835,7 +1833,7 @@ export const unmarshalFirstNFunctionSchema: z.ZodType<FirstNFunction> = z
   .object({
     input: z.string().optional(),
     n: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -1904,11 +1902,11 @@ export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
     deduplication_columns: z.array(z.string()).optional(),
     ingestion_pipeline_id: z.string().optional(),
     ingestion_job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     backfill_job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -1949,11 +1947,11 @@ export const unmarshalInputBindingSchema: z.ZodType<InputBinding> = z
 export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
   .object({
     job_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     job_run_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -2059,7 +2057,7 @@ export const unmarshalLastDistinctFunctionSchema: z.ZodType<LastDistinctFunction
     .object({
       input: z.string().optional(),
       n: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -2080,7 +2078,7 @@ export const unmarshalLastNFunctionSchema: z.ZodType<LastNFunction> = z
   .object({
     input: z.string().optional(),
     n: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })
@@ -2092,7 +2090,7 @@ export const unmarshalLastNFunctionSchema: z.ZodType<LastNFunction> = z
 export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
   .object({
     notebook_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     job_context: z.lazy(() => unmarshalJobContextSchema).optional(),

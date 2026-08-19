@@ -9,8 +9,7 @@ export interface CreateRepoRequest {
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
-   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
-   * (deprecated by AWS, not accepting new customers).
+   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
    */
   provider?: string | undefined;
   /**
@@ -40,7 +39,7 @@ export interface CreateRepoResponse {
   /**
    * Git provider of the linked Git repository, e.g. `gitHub`, `azureDevOpsServices`,
    * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
-   * Self-Managed), or `awsCodeCommit` (deprecated).
+   * Self-Managed), or `awsCodeCommit`.
    */
   provider?: string | undefined;
   /** Branch that the Git folder (repo) is checked out to. */
@@ -74,7 +73,7 @@ export interface GetRepoResponse {
   /**
    * Git provider of the linked Git repository, e.g. `gitHub`, `azureDevOpsServices`,
    * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
-   * Self-Managed), or `awsCodeCommit` (deprecated).
+   * Self-Managed), or `awsCodeCommit`.
    */
   provider?: string | undefined;
   /** Branch that the local version of the repo is checked out to. */
@@ -125,7 +124,7 @@ export interface RepoInfo {
   /**
    * Git provider of the remote git repository, e.g. `gitHub`, `azureDevOpsServices`,
    * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
-   * Self-Managed), or `awsCodeCommit` (deprecated).
+   * Self-Managed), or `awsCodeCommit`.
    */
   provider?: string | undefined;
   /** Name of the current git branch of the git folder (repo). */
@@ -199,7 +198,7 @@ export const unmarshalCreateRepoResponseSchema: z.ZodType<CreateRepoResponse> =
   z
     .object({
       id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       path: z.string().optional(),
@@ -225,7 +224,7 @@ export const unmarshalDeleteRepoResponseSchema: z.ZodType<DeleteRepoResponse> =
 export const unmarshalGetRepoResponseSchema: z.ZodType<GetRepoResponse> = z
   .object({
     id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     path: z.string().optional(),
@@ -260,7 +259,7 @@ export const unmarshalListReposResponseSchema: z.ZodType<ListReposResponse> = z
 export const unmarshalRepoInfoSchema: z.ZodType<RepoInfo> = z
   .object({
     id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     path: z.string().optional(),

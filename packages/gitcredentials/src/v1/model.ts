@@ -7,8 +7,7 @@ export interface CreateCredentialsRequest {
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
-   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
-   * (deprecated by AWS, not accepting new customers).
+   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
    */
   gitProvider?: string | undefined;
   /**
@@ -71,7 +70,7 @@ export interface Credential {
    * The Git provider associated with the credential. One of `gitHub`, `bitbucketCloud`,
    * `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including Microsoft Entra ID
    * authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket Data Center),
-   * `gitLabEnterpriseEdition` (GitLab Self-Managed), or `awsCodeCommit` (deprecated).
+   * `gitLabEnterpriseEdition` (GitLab Self-Managed), or `awsCodeCommit`.
    */
   gitProvider?: string | undefined;
   /**
@@ -159,8 +158,7 @@ export interface UpdateCredentialsRequest {
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
-   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
-   * (deprecated by AWS, not accepting new customers).
+   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
    */
   gitProvider?: string | undefined;
   /**
@@ -192,7 +190,7 @@ export const unmarshalCreateCredentialsResponseSchema: z.ZodType<CreateCredentia
   z
     .object({
       credential_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       git_provider: z.string().optional(),
@@ -213,7 +211,7 @@ export const unmarshalCreateCredentialsResponseSchema: z.ZodType<CreateCredentia
 export const unmarshalCredentialSchema: z.ZodType<Credential> = z
   .object({
     credential_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     git_provider: z.string().optional(),
@@ -238,7 +236,7 @@ export const unmarshalGetCredentialsResponseSchema: z.ZodType<GetCredentialsResp
   z
     .object({
       credential_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       git_provider: z.string().optional(),

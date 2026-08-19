@@ -1094,7 +1094,7 @@ export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
     .object({
       delta_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       delta_commit_timestamp: z
@@ -1200,7 +1200,7 @@ export const unmarshalSyncedTableContinuousUpdateStatusSchema: z.ZodType<SyncedT
   z
     .object({
       last_processed_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       timestamp: z
@@ -1221,7 +1221,7 @@ export const unmarshalSyncedTableFailedStatusSchema: z.ZodType<SyncedTableFailed
   z
     .object({
       last_processed_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       timestamp: z
@@ -1238,15 +1238,15 @@ export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePi
   z
     .object({
       latest_version_currently_processing: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       synced_row_count: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       total_row_count: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       sync_progress_completion: z.number().optional(),
@@ -1389,7 +1389,7 @@ export const unmarshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType<SyncedTa
   z
     .object({
       last_processed_commit_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       timestamp: z

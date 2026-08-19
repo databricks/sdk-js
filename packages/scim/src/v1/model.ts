@@ -1152,7 +1152,7 @@ export const unmarshalListAccountGroupsResponseSchema: z.ZodType<ListAccountGrou
       itemsPerPage: z.number().optional(),
       Resources: z.array(z.lazy(() => unmarshalAccountGroupSchema)).optional(),
       startIndex: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       totalResults: z.number().optional(),
@@ -1172,7 +1172,7 @@ export const unmarshalListAccountServicePrincipalsResponseSchema: z.ZodType<List
         .array(z.lazy(() => unmarshalAccountServicePrincipalSchema))
         .optional(),
       startIndex: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       totalResults: z.number().optional(),
@@ -1190,7 +1190,7 @@ export const unmarshalListAccountUsersResponseSchema: z.ZodType<ListAccountUsers
       itemsPerPage: z.number().optional(),
       Resources: z.array(z.lazy(() => unmarshalAccountUserSchema)).optional(),
       startIndex: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       totalResults: z.number().optional(),
@@ -1209,7 +1209,7 @@ export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> =
       Resources: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
       schemas: z.array(z.string()).optional(),
       startIndex: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       totalResults: z.number().optional(),
@@ -1231,7 +1231,7 @@ export const unmarshalListServicePrincipalResponseSchema: z.ZodType<ListServiceP
         .optional(),
       schemas: z.array(z.string()).optional(),
       startIndex: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       totalResults: z.number().optional(),
@@ -1250,7 +1250,7 @@ export const unmarshalListUsersResponseSchema: z.ZodType<ListUsersResponse> = z
     Resources: z.array(z.lazy(() => unmarshalUserSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     startIndex: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     totalResults: z.number().optional(),

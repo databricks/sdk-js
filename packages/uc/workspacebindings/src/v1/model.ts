@@ -96,7 +96,11 @@ export const unmarshalGetCatalogWorkspaceBindingsResponseSchema: z.ZodType<GetCa
   z
     .object({
       workspaces: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
     })
     .transform(d => ({
@@ -120,7 +124,11 @@ export const unmarshalUpdateCatalogWorkspaceBindingsResponseSchema: z.ZodType<Up
   z
     .object({
       workspaces: z
-        .array(z.union([z.number(), z.bigint()]).transform(v => BigInt(v)))
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
         .optional(),
     })
     .transform(d => ({
@@ -142,7 +150,7 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
   z
     .object({
       workspace_id: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       binding_type: z.string().optional(),

@@ -224,7 +224,7 @@ export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
     .object({
       customer_managed_key_id: z.string().optional(),
       creation_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       account_id: z.string().optional(),

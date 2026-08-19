@@ -545,15 +545,15 @@ export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
   .object({
     chunk_index: z.number().optional(),
     row_offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_chunk_index: z.number().optional(),
@@ -595,15 +595,15 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     http_headers: z.record(z.string(), z.string()).optional(),
     chunk_index: z.number().optional(),
     row_offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_chunk_index: z.number().optional(),
@@ -629,15 +629,15 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
     data_array: z.array(z.array(jsonValueSchema)).optional(),
     chunk_index: z.number().optional(),
     row_offset: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     next_chunk_index: z.number().optional(),
@@ -661,11 +661,11 @@ export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
     total_row_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     total_byte_count: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     truncated: z.boolean().optional(),

@@ -101,7 +101,7 @@ export const unmarshalQuotaInfoSchema: z.ZodType<QuotaInfo> = z
     quota_count: z.number().optional(),
     quota_limit: z.number().optional(),
     last_refreshed_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
   })

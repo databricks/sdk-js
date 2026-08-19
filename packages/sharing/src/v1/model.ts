@@ -1622,12 +1622,12 @@ export const unmarshalProviderInfoSchema: z.ZodType<ProviderInfo> = z
     owner: z.string().optional(),
     recipient_profile: z.lazy(() => unmarshalRecipientProfileSchema).optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1674,19 +1674,19 @@ export const unmarshalRecipientInfoSchema: z.ZodType<RecipientInfo> = z
       .lazy(() => unmarshalPropertiesKvPairsSchema)
       .optional(),
     expiration_time: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     activation_url: z.string().optional(),
     activated: z.boolean().optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     tokens: z.array(z.lazy(() => unmarshalRecipientTokenInfoSchema)).optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1735,17 +1735,17 @@ export const unmarshalRecipientTokenInfoSchema: z.ZodType<RecipientTokenInfo> =
     .object({
       id: z.string().optional(),
       created_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       created_by: z.string().optional(),
       activation_url: z.string().optional(),
       expiration_time: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_at: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       updated_by: z.string().optional(),
@@ -1765,7 +1765,7 @@ export const unmarshalRegisteredModelAliasSchema: z.ZodType<RegisteredModelAlias
     .object({
       alias_name: z.string().optional(),
       version_num: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
     })
@@ -1807,12 +1807,12 @@ export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
     storage_root: z.string().optional(),
     objects: z.array(z.lazy(() => unmarshalSharedDataObjectSchema)).optional(),
     created_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     created_by: z.string().optional(),
     updated_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
@@ -1849,7 +1849,7 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
     name: z.string().optional(),
     data_object_type: z.string().optional(),
     added_at: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     added_by: z.string().optional(),
@@ -1858,7 +1858,7 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
     cdf_enabled: z.boolean().optional(),
     history_data_sharing_status: z.string().optional(),
     start_version: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     status: z.string().optional(),

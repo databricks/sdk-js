@@ -597,7 +597,7 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
       drift_metrics_table_name: z.string().optional(),
       dashboard_id: z.string().optional(),
       monitor_version: z
-        .union([z.number(), z.bigint()])
+        .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
       effective_warehouse_id: z.string().optional(),
@@ -731,17 +731,17 @@ export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
     object_type: z.string().optional(),
     object_id: z.string().optional(),
     refresh_id: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     state: z.string().optional(),
     message: z.string().optional(),
     start_time_ms: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     end_time_ms: z
-      .union([z.number(), z.bigint()])
+      .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     trigger: z.string().optional(),
