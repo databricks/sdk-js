@@ -1768,7 +1768,11 @@ export interface CreateJobRequest {
   schedule?: CronSchedule | undefined;
   /** A configuration to trigger a run when certain conditions are met. The default behavior is that the job runs only when triggered by clicking “Run Now” in the Jobs UI or sending an API request to `runNow`. */
   trigger?: TriggerSettings | undefined;
-  /** An optional continuous property for this job. The continuous property will ensure that there is always one run executing. Only one of `schedule` and `continuous` can be used. */
+  /**
+   * An optional continuous property for this job. The continuous property will ensure that there is always one run executing. Only one of `schedule` and `continuous` can be used.
+   *
+   * Pipelines started by a continuous job also run continuously, regardless of their own pipeline mode setting.
+   */
   continuous?: ContinuousSettings | undefined;
   /**
    * An optional maximum allowed number of concurrent runs of the job.
@@ -2867,7 +2871,11 @@ export interface JobSettings {
   schedule?: CronSchedule | undefined;
   /** A configuration to trigger a run when certain conditions are met. The default behavior is that the job runs only when triggered by clicking “Run Now” in the Jobs UI or sending an API request to `runNow`. */
   trigger?: TriggerSettings | undefined;
-  /** An optional continuous property for this job. The continuous property will ensure that there is always one run executing. Only one of `schedule` and `continuous` can be used. */
+  /**
+   * An optional continuous property for this job. The continuous property will ensure that there is always one run executing. Only one of `schedule` and `continuous` can be used.
+   *
+   * Pipelines started by a continuous job also run continuously, regardless of their own pipeline mode setting.
+   */
   continuous?: ContinuousSettings | undefined;
   /**
    * An optional maximum allowed number of concurrent runs of the job.

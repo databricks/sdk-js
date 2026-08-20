@@ -28,29 +28,6 @@ export type ScalarDataType =
   | (typeof ScalarDataType)[keyof typeof ScalarDataType]
   | (string & {});
 
-/** Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead. Kept for backwards compatibility. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
-export const Function_FunctionType = {
-  FUNCTION_TYPE_UNSPECIFIED: 'FUNCTION_TYPE_UNSPECIFIED',
-  AVG: 'AVG',
-  COUNT: 'COUNT',
-  SUM: 'SUM',
-  MIN: 'MIN',
-  MAX: 'MAX',
-  FIRST: 'FIRST',
-  LAST: 'LAST',
-  APPROX_COUNT_DISTINCT: 'APPROX_COUNT_DISTINCT',
-  APPROX_PERCENTILE: 'APPROX_PERCENTILE',
-  STDDEV_POP: 'STDDEV_POP',
-  STDDEV_SAMP: 'STDDEV_SAMP',
-  VAR_POP: 'VAR_POP',
-  VAR_SAMP: 'VAR_SAMP',
-} as const;
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export type Function_FunctionType =
-  | (typeof Function_FunctionType)[keyof typeof Function_FunctionType]
-  | (string & {});
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const MaterializedFeature_PipelineScheduleState = {
   /** Default value, not used. */
@@ -207,26 +184,10 @@ export interface BatchCreateMaterializedFeaturesResponse {
   materializedFeatures?: MaterializedFeature[] | undefined;
 }
 
-export interface ColumnIdentifier {
-  /**
-   * String representation of the column name using dot-prefixed path notation. For nested fields, the leaf value is what will be present in materialized tables
-   * and expected to match at query time. For example, the leaf node of value.trip_details.location_details.pickup_zip is pickup_zip.
-   */
-  variantExprPath?: string | undefined;
-}
-
-/** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime ContinuousWindow */
+/** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime window */
 export interface ColumnSelection {
   /** Column name from source to select as the feature value. */
   column?: string | undefined;
-}
-
-/** Deprecated: use RollingWindow with `delay` instead. */
-export interface ContinuousWindow {
-  /** The duration of the continuous window (must be positive). */
-  windowDuration?: Temporal.Duration | undefined;
-  /** The offset of the continuous window (must be non-positive). */
-  offset?: Temporal.Duration | undefined;
 }
 
 /** Computes the count of values. */
@@ -304,6 +265,11 @@ export interface DataSource {
         streamSource: StreamSource;
       }
     | undefined;
+  /**
+   * Completeness timing for this Feature's use of the source. This configuration is part of the
+   * Feature definition; it does not modify the underlying table or stream.
+   */
+  lateness?: SourceLateness | undefined;
 }
 
 export interface DeleteFeatureRequest {
@@ -330,16 +296,6 @@ export interface DeleteStreamRequest {
 export interface DeltaTableSource {
   /** The full three-part (catalog, schema, table) name of the Delta table. */
   fullName?: string | undefined;
-  /**
-   * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
-   * The entity columns of the Delta table.
-   */
-  entityColumns?: string[] | undefined;
-  /**
-   * Deprecated: Use Feature.timeseries_column instead. Kept for backwards compatibility.
-   * The timeseries column of the Delta table.
-   */
-  timeseriesColumn?: string | undefined;
   /** Single WHERE clause to filter delta table before applying transformations. Will be row-wise evaluated, so should only include conditionals and projections. */
   filterCondition?: string | undefined;
   /**
@@ -405,25 +361,10 @@ export interface Feature {
   fullName?: string | undefined;
   /** The data source of the feature. */
   source?: DataSource | undefined;
-  /**
-   * Deprecated: Use AggregationFunction.inputs instead. Kept for backwards compatibility.
-   * The input columns from which the feature is computed.
-   */
-  inputs?: string[] | undefined;
   /** The function by which the feature is computed. */
   function?: Function | undefined;
-  /**
-   * Deprecated: Use Function.aggregation_function.time_window instead. Kept for backwards compatibility.
-   * The time window in which the feature is computed.
-   */
-  timeWindow?: TimeWindow | undefined;
   /** The description of the feature. */
   description?: string | undefined;
-  /**
-   * Deprecated: Use DeltaTableSource.filter_condition or KafkaSource.filter_condition instead. Kept for backwards compatibility.
-   * The filter condition applied to the source data before aggregation.
-   */
-  filterCondition?: string | undefined;
   /**
    * Lineage context information for this feature.
    * WARNING: This field is primarily intended for internal use by <Databricks> systems and
@@ -491,16 +432,6 @@ export interface FlatSchema {
 }
 
 export interface Function {
-  /**
-   * Deprecated: Use the function oneof with AggregationFunction instead. Kept for backwards compatibility.
-   * The type of the function.
-   */
-  functionType?: Function_FunctionType | undefined;
-  /**
-   * Deprecated: Use the function oneof with AggregationFunction instead. Kept for backwards compatibility.
-   * Extra parameters for parameterized functions.
-   */
-  extraParameters?: Function_ExtraParameter[] | undefined;
   function?:
     | {
         $case: 'aggregationFunction';
@@ -518,18 +449,6 @@ export interface Function {
         customUdf: CustomUdf;
       }
     | undefined;
-}
-
-/**
- * Deprecated: Use typed fields on function-specific messages (e.g. ApproxPercentileFunction.percentile)
- * or AggregationFunction.ExtraParameter instead. Kept for backwards compatibility.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface Function_ExtraParameter {
-  /** The name of the parameter. */
-  key?: string | undefined;
-  /** The value of the parameter. */
-  value?: string | undefined;
 }
 
 export interface GetFeatureRequest {
@@ -647,16 +566,6 @@ export interface KafkaConfig {
 export interface KafkaSource {
   /** Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name. */
   name?: string | undefined;
-  /**
-   * Deprecated: Use Feature.entity instead. Kept for backwards compatibility.
-   * The entity column identifiers of the Kafka source.
-   */
-  entityColumnIdentifiers?: ColumnIdentifier[] | undefined;
-  /**
-   * Deprecated: Use Feature.timeseries_column instead. Kept for backwards compatibility.
-   * The timeseries column identifier of the Kafka source.
-   */
-  timeseriesColumnIdentifier?: ColumnIdentifier | undefined;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
 }
@@ -887,11 +796,6 @@ export interface MaterializedFeature {
    * If the pipeline has not run yet, this field will be null.
    */
   lastMaterializationTime?: Temporal.Instant | undefined;
-  /**
-   * The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone.
-   * Hidden from GraphQL: superseded by the `trigger` oneof (cron_schedule_trigger), so not exposed to Catalog Explorer.
-   */
-  cronSchedule?: string | undefined;
   /** True if this is an online materialized feature. False if it is an offline materialized feature. */
   isOnline?: boolean | undefined;
   /** The trigger configuration for the materialization pipeline. */
@@ -1044,11 +948,7 @@ export interface RequestSource {
     | undefined;
 }
 
-/**
- * A rolling time window with an optional delay. This is the SQL-spec-aligned
- * replacement for ContinuousWindow: `delay` is the non-negative counterpart
- * of the legacy non-positive `ContinuousWindow.offset`.
- */
+/** A rolling time window with an optional non-negative delay. */
 export interface RollingWindow {
   /**
    * The duration of the rolling window. Must be positive when set; absent means lifetime
@@ -1173,6 +1073,30 @@ export interface SlidingWindow {
   windowDuration?: Temporal.Duration | undefined;
   /** The slide duration (interval by which windows advance, must be positive and less than duration). */
   slideDuration?: Temporal.Duration | undefined;
+  /**
+   * Non-negative analytic lag that evaluates the window this far in the past. Use this for timing
+   * variations unrelated to source lateness, such as a 30-day count as of one week ago. If unset,
+   * the analytic lag is zero. It composes with source.lateness when both are set.
+   */
+  delay?: Temporal.Duration | undefined;
+  /**
+   * Non-negative phase shift from the default midnight UTC alignment. For example, offset=22h on
+   * a 24h slide produces boundaries at 22:00 UTC (17:00 New York in standard time) instead of
+   * midnight UTC. If unset, the offset is zero. Must be shorter than slide_duration (and therefore
+   * window_duration).
+   */
+  offset?: Temporal.Duration | undefined;
+}
+
+/** Configures when event-time data from this source is considered complete for a Feature. */
+export interface SourceLateness {
+  /**
+   * Non-negative time to wait after a window ends before treating its source data as complete.
+   * Training shifts the eligible evaluation time backwards by this duration so it does not join
+   * data that would still have been settling online. Materialization waits for the duration to
+   * elapse before publishing the window. If unset, source data is considered settled immediately.
+   */
+  settlingDelay?: Temporal.Duration | undefined;
 }
 
 /** Computes the population standard deviation. */
@@ -1372,7 +1296,6 @@ export interface TableTrigger {}
 
 export interface TimeWindow {
   windowType?:
-    | {$case: 'continuous'; continuous: ContinuousWindow}
     | {$case: 'tumbling'; tumbling: TumblingWindow}
     | {$case: 'sliding'; sliding: SlidingWindow}
     | {$case: 'rolling'; rolling: RollingWindow}
@@ -1382,6 +1305,16 @@ export interface TimeWindow {
         sawtooth: SawtoothWindow;
       }
     | undefined;
+  /**
+   * Earliest event-time boundary at which the Feature may emit an output. This gates outputs, not
+   * the historical inputs read by a window. For example, a 365-day window with
+   * start_time=2026-01-01 begins emitting partial-window values on that date instead of waiting
+   * for 365 days of data; a lifetime window produces no output before start_time. If unset,
+   * tumbling and fixed-duration sliding windows first emit at an offset-aligned boundary after a
+   * full window can be formed. If unset, lifetime sliding windows and rolling windows emit as soon as
+   * eligible source data exists.
+   */
+  startTime?: Temporal.Instant | undefined;
 }
 
 export interface TimeseriesColumn {
@@ -1399,6 +1332,18 @@ export interface TimeseriesColumn {
 export interface TumblingWindow {
   /** The duration of each tumbling window (non-overlapping, fixed-duration windows). */
   windowDuration?: Temporal.Duration | undefined;
+  /**
+   * Non-negative analytic lag that evaluates the window this far in the past. Use this for timing
+   * variations unrelated to source lateness, such as a 30-day count as of one week ago. If unset,
+   * the analytic lag is zero. It composes with source.lateness when both are set.
+   */
+  delay?: Temporal.Duration | undefined;
+  /**
+   * Non-negative phase shift from the default midnight UTC alignment. For example, offset=22h on
+   * a 24h window produces boundaries at 22:00 UTC (17:00 New York in standard time) instead of
+   * midnight UTC. If unset, the offset is zero. Must be shorter than window_duration.
+   */
+  offset?: Temporal.Duration | undefined;
 }
 
 export interface UpdateFeatureRequest {
@@ -1627,36 +1572,12 @@ export const unmarshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType<B
       materializedFeatures: d.materialized_features,
     }));
 
-export const unmarshalColumnIdentifierSchema: z.ZodType<ColumnIdentifier> = z
-  .object({
-    variant_expr_path: z.string().optional(),
-  })
-  .transform(d => ({
-    variantExprPath: d.variant_expr_path,
-  }));
-
 export const unmarshalColumnSelectionSchema: z.ZodType<ColumnSelection> = z
   .object({
     column: z.string().optional(),
   })
   .transform(d => ({
     column: d.column,
-  }));
-
-export const unmarshalContinuousWindowSchema: z.ZodType<ContinuousWindow> = z
-  .object({
-    window_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    offset: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-  })
-  .transform(d => ({
-    windowDuration: d.window_duration,
-    offset: d.offset,
   }));
 
 export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
@@ -1695,6 +1616,7 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
     kafka_source: z.lazy(() => unmarshalKafkaSourceSchema).optional(),
     request_source: z.lazy(() => unmarshalRequestSourceSchema).optional(),
     stream_source: z.lazy(() => unmarshalStreamSourceSchema).optional(),
+    lateness: z.lazy(() => unmarshalSourceLatenessSchema).optional(),
   })
   .transform(d => ({
     dataSource:
@@ -1710,21 +1632,18 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
             : d.stream_source !== undefined
               ? {$case: 'streamSource' as const, streamSource: d.stream_source}
               : undefined,
+    lateness: d.lateness,
   }));
 
 export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
   .object({
     full_name: z.string().optional(),
-    entity_columns: z.array(z.string()).optional(),
-    timeseries_column: z.string().optional(),
     filter_condition: z.string().optional(),
     transformation_sql: z.string().optional(),
     dataframe_schema: z.string().optional(),
   })
   .transform(d => ({
     fullName: d.full_name,
-    entityColumns: d.entity_columns,
-    timeseriesColumn: d.timeseries_column,
     filterCondition: d.filter_condition,
     transformationSql: d.transformation_sql,
     dataframeSchema: d.dataframe_schema,
@@ -1762,11 +1681,8 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
   .object({
     full_name: z.string().optional(),
     source: z.lazy(() => unmarshalDataSourceSchema).optional(),
-    inputs: z.array(z.string()).optional(),
     function: z.lazy(() => unmarshalFunctionSchema).optional(),
-    time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
     description: z.string().optional(),
-    filter_condition: z.string().optional(),
     lineage_context: z.lazy(() => unmarshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => unmarshalEntityColumnSchema)).optional(),
     timeseries_column: z.lazy(() => unmarshalTimeseriesColumnSchema).optional(),
@@ -1782,11 +1698,8 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
   .transform(d => ({
     fullName: d.full_name,
     source: d.source,
-    inputs: d.inputs,
     function: d.function,
-    timeWindow: d.time_window,
     description: d.description,
-    filterCondition: d.filter_condition,
     lineageContext: d.lineage_context,
     entities: d.entities,
     timeseriesColumn: d.timeseries_column,
@@ -1852,10 +1765,6 @@ export const unmarshalFlatSchemaSchema: z.ZodType<FlatSchema> = z
 
 export const unmarshalFunctionSchema: z.ZodType<Function> = z
   .object({
-    function_type: z.string().optional(),
-    extra_parameters: z
-      .array(z.lazy(() => unmarshalFunction_ExtraParameterSchema))
-      .optional(),
     aggregation_function: z
       .lazy(() => unmarshalAggregationFunctionSchema)
       .optional(),
@@ -1863,8 +1772,6 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
     custom_udf: z.lazy(() => unmarshalCustomUdfSchema).optional(),
   })
   .transform(d => ({
-    functionType: d.function_type,
-    extraParameters: d.extra_parameters,
     function:
       d.aggregation_function !== undefined
         ? {
@@ -1880,18 +1787,6 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
             ? {$case: 'customUdf' as const, customUdf: d.custom_udf}
             : undefined,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFunction_ExtraParameterSchema: z.ZodType<Function_ExtraParameter> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
 
 export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
   .object({
@@ -1987,18 +1882,10 @@ export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
 export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
   .object({
     name: z.string().optional(),
-    entity_column_identifiers: z
-      .array(z.lazy(() => unmarshalColumnIdentifierSchema))
-      .optional(),
-    timeseries_column_identifier: z
-      .lazy(() => unmarshalColumnIdentifierSchema)
-      .optional(),
     filter_condition: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    entityColumnIdentifiers: d.entity_column_identifiers,
-    timeseriesColumnIdentifier: d.timeseries_column_identifier,
     filterCondition: d.filter_condition,
   }));
 
@@ -2165,7 +2052,6 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .string()
         .transform(s => Temporal.Instant.from(s))
         .optional(),
-      cron_schedule: z.string().optional(),
       is_online: z.boolean().optional(),
       cron_schedule_trigger: z
         .lazy(() => unmarshalCronScheduleSchema)
@@ -2191,7 +2077,6 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       tableName: d.table_name,
       pipelineScheduleState: d.pipeline_schedule_state,
       lastMaterializationTime: d.last_materialization_time,
-      cronSchedule: d.cron_schedule,
       isOnline: d.is_online,
       trigger:
         d.cron_schedule_trigger !== undefined
@@ -2414,10 +2299,31 @@ export const unmarshalSlidingWindowSchema: z.ZodType<SlidingWindow> = z
       .string()
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
+    delay: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    offset: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
   })
   .transform(d => ({
     windowDuration: d.window_duration,
     slideDuration: d.slide_duration,
+    delay: d.delay,
+    offset: d.offset,
+  }));
+
+export const unmarshalSourceLatenessSchema: z.ZodType<SourceLateness> = z
+  .object({
+    settling_delay: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    settlingDelay: d.settling_delay,
   }));
 
 export const unmarshalStddevPopFunctionSchema: z.ZodType<StddevPopFunction> = z
@@ -2615,25 +2521,27 @@ export const unmarshalTableTriggerSchema: z.ZodType<TableTrigger> = z.object(
 
 export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
   .object({
-    continuous: z.lazy(() => unmarshalContinuousWindowSchema).optional(),
     tumbling: z.lazy(() => unmarshalTumblingWindowSchema).optional(),
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
     rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
     sawtooth: z.lazy(() => unmarshalSawtoothWindowSchema).optional(),
+    start_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     windowType:
-      d.continuous !== undefined
-        ? {$case: 'continuous' as const, continuous: d.continuous}
-        : d.tumbling !== undefined
-          ? {$case: 'tumbling' as const, tumbling: d.tumbling}
-          : d.sliding !== undefined
-            ? {$case: 'sliding' as const, sliding: d.sliding}
-            : d.rolling !== undefined
-              ? {$case: 'rolling' as const, rolling: d.rolling}
-              : d.sawtooth !== undefined
-                ? {$case: 'sawtooth' as const, sawtooth: d.sawtooth}
-                : undefined,
+      d.tumbling !== undefined
+        ? {$case: 'tumbling' as const, tumbling: d.tumbling}
+        : d.sliding !== undefined
+          ? {$case: 'sliding' as const, sliding: d.sliding}
+          : d.rolling !== undefined
+            ? {$case: 'rolling' as const, rolling: d.rolling}
+            : d.sawtooth !== undefined
+              ? {$case: 'sawtooth' as const, sawtooth: d.sawtooth}
+              : undefined,
+    startTime: d.start_time,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -2650,9 +2558,19 @@ export const unmarshalTumblingWindowSchema: z.ZodType<TumblingWindow> = z
       .string()
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
+    delay: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    offset: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
   })
   .transform(d => ({
     windowDuration: d.window_duration,
+    delay: d.delay,
+    offset: d.offset,
   }));
 
 export const unmarshalVarPopFunctionSchema: z.ZodType<VarPopFunction> = z
@@ -2872,36 +2790,12 @@ export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
     requests: d.requests,
   }));
 
-export const marshalColumnIdentifierSchema: z.ZodType = z
-  .object({
-    variantExprPath: z.string().optional(),
-  })
-  .transform(d => ({
-    variant_expr_path: d.variantExprPath,
-  }));
-
 export const marshalColumnSelectionSchema: z.ZodType = z
   .object({
     column: z.string().optional(),
   })
   .transform(d => ({
     column: d.column,
-  }));
-
-export const marshalContinuousWindowSchema: z.ZodType = z
-  .object({
-    windowDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    offset: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-  })
-  .transform(d => ({
-    window_duration: d.windowDuration,
-    offset: d.offset,
   }));
 
 export const marshalCountFunctionSchema: z.ZodType = z
@@ -2962,6 +2856,7 @@ export const marshalDataSourceSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    lateness: z.lazy(() => marshalSourceLatenessSchema).optional(),
   })
   .transform(d => ({
     ...(d.dataSource?.$case === 'deltaTableSource' && {
@@ -2976,21 +2871,18 @@ export const marshalDataSourceSchema: z.ZodType = z
     ...(d.dataSource?.$case === 'streamSource' && {
       stream_source: d.dataSource.streamSource,
     }),
+    lateness: d.lateness,
   }));
 
 export const marshalDeltaTableSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
-    entityColumns: z.array(z.string()).optional(),
-    timeseriesColumn: z.string().optional(),
     filterCondition: z.string().optional(),
     transformationSql: z.string().optional(),
     dataframeSchema: z.string().optional(),
   })
   .transform(d => ({
     full_name: d.fullName,
-    entity_columns: d.entityColumns,
-    timeseries_column: d.timeseriesColumn,
     filter_condition: d.filterCondition,
     transformation_sql: d.transformationSql,
     dataframe_schema: d.dataframeSchema,
@@ -3028,11 +2920,8 @@ export const marshalFeatureSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
     source: z.lazy(() => marshalDataSourceSchema).optional(),
-    inputs: z.array(z.string()).optional(),
     function: z.lazy(() => marshalFunctionSchema).optional(),
-    timeWindow: z.lazy(() => marshalTimeWindowSchema).optional(),
     description: z.string().optional(),
-    filterCondition: z.string().optional(),
     lineageContext: z.lazy(() => marshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => marshalEntityColumnSchema)).optional(),
     timeseriesColumn: z.lazy(() => marshalTimeseriesColumnSchema).optional(),
@@ -3048,11 +2937,8 @@ export const marshalFeatureSchema: z.ZodType = z
   .transform(d => ({
     full_name: d.fullName,
     source: d.source,
-    inputs: d.inputs,
     function: d.function,
-    time_window: d.timeWindow,
     description: d.description,
-    filter_condition: d.filterCondition,
     lineage_context: d.lineageContext,
     entities: d.entities,
     timeseries_column: d.timeseriesColumn,
@@ -3111,10 +2997,6 @@ export const marshalFlatSchemaSchema: z.ZodType = z
 
 export const marshalFunctionSchema: z.ZodType = z
   .object({
-    functionType: z.string().optional(),
-    extraParameters: z
-      .array(z.lazy(() => marshalFunction_ExtraParameterSchema))
-      .optional(),
     function: z
       .discriminatedUnion('$case', [
         z.object({
@@ -3133,8 +3015,6 @@ export const marshalFunctionSchema: z.ZodType = z
       .optional(),
   })
   .transform(d => ({
-    function_type: d.functionType,
-    extra_parameters: d.extraParameters,
     ...(d.function?.$case === 'aggregationFunction' && {
       aggregation_function: d.function.aggregationFunction,
     }),
@@ -3144,17 +3024,6 @@ export const marshalFunctionSchema: z.ZodType = z
     ...(d.function?.$case === 'customUdf' && {
       custom_udf: d.function.customUdf,
     }),
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalFunction_ExtraParameterSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalIngestionConfigSchema: z.ZodType = z
@@ -3241,18 +3110,10 @@ export const marshalKafkaConfigSchema: z.ZodType = z
 export const marshalKafkaSourceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    entityColumnIdentifiers: z
-      .array(z.lazy(() => marshalColumnIdentifierSchema))
-      .optional(),
-    timeseriesColumnIdentifier: z
-      .lazy(() => marshalColumnIdentifierSchema)
-      .optional(),
     filterCondition: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    entity_column_identifiers: d.entityColumnIdentifiers,
-    timeseries_column_identifier: d.timeseriesColumnIdentifier,
     filter_condition: d.filterCondition,
   }));
 
@@ -3379,7 +3240,6 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    cronSchedule: z.string().optional(),
     isOnline: z.boolean().optional(),
     trigger: z
       .discriminatedUnion('$case', [
@@ -3410,7 +3270,6 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     table_name: d.tableName,
     pipeline_schedule_state: d.pipelineScheduleState,
     last_materialization_time: d.lastMaterializationTime,
-    cron_schedule: d.cronSchedule,
     is_online: d.isOnline,
     ...(d.trigger?.$case === 'cronScheduleTrigger' && {
       cron_schedule_trigger: d.trigger.cronScheduleTrigger,
@@ -3629,10 +3488,31 @@ export const marshalSlidingWindowSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
       .optional(),
+    delay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    offset: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
   })
   .transform(d => ({
     window_duration: d.windowDuration,
     slide_duration: d.slideDuration,
+    delay: d.delay,
+    offset: d.offset,
+  }));
+
+export const marshalSourceLatenessSchema: z.ZodType = z
+  .object({
+    settlingDelay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    settling_delay: d.settlingDelay,
   }));
 
 export const marshalStddevPopFunctionSchema: z.ZodType = z
@@ -3839,10 +3719,6 @@ export const marshalTimeWindowSchema: z.ZodType = z
     windowType: z
       .discriminatedUnion('$case', [
         z.object({
-          $case: z.literal('continuous'),
-          continuous: z.lazy(() => marshalContinuousWindowSchema),
-        }),
-        z.object({
           $case: z.literal('tumbling'),
           tumbling: z.lazy(() => marshalTumblingWindowSchema),
         }),
@@ -3860,11 +3736,12 @@ export const marshalTimeWindowSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    startTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
-    ...(d.windowType?.$case === 'continuous' && {
-      continuous: d.windowType.continuous,
-    }),
     ...(d.windowType?.$case === 'tumbling' && {
       tumbling: d.windowType.tumbling,
     }),
@@ -3873,6 +3750,7 @@ export const marshalTimeWindowSchema: z.ZodType = z
     ...(d.windowType?.$case === 'sawtooth' && {
       sawtooth: d.windowType.sawtooth,
     }),
+    start_time: d.startTime,
   }));
 
 export const marshalTimeseriesColumnSchema: z.ZodType = z
@@ -3889,9 +3767,19 @@ export const marshalTumblingWindowSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
       .optional(),
+    delay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    offset: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
   })
   .transform(d => ({
     window_duration: d.windowDuration,
+    delay: d.delay,
+    offset: d.offset,
   }));
 
 export const marshalVarPopFunctionSchema: z.ZodType = z
@@ -3980,17 +3868,8 @@ const backfillSourceFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
-const columnIdentifierFieldMaskSchema: FieldMaskSchema = {
-  variantExprPath: {wire: 'variant_expr_path'},
-};
-
 const columnSelectionFieldMaskSchema: FieldMaskSchema = {
   column: {wire: 'column'},
-};
-
-const continuousWindowFieldMaskSchema: FieldMaskSchema = {
-  offset: {wire: 'offset'},
-  windowDuration: {wire: 'window_duration'},
 };
 
 const countFunctionFieldMaskSchema: FieldMaskSchema = {
@@ -4015,6 +3894,7 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'kafka_source',
     children: () => kafkaSourceFieldMaskSchema,
   },
+  lateness: {wire: 'lateness', children: () => sourceLatenessFieldMaskSchema},
   requestSource: {
     wire: 'request_source',
     children: () => requestSourceFieldMaskSchema,
@@ -4027,10 +3907,8 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
 
 const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
   dataframeSchema: {wire: 'dataframe_schema'},
-  entityColumns: {wire: 'entity_columns'},
   filterCondition: {wire: 'filter_condition'},
   fullName: {wire: 'full_name'},
-  timeseriesColumn: {wire: 'timeseries_column'},
   transformationSql: {wire: 'transformation_sql'},
 };
 
@@ -4053,10 +3931,8 @@ const featureFieldMaskSchema: FieldMaskSchema = {
   createdBy: {wire: 'created_by'},
   description: {wire: 'description'},
   entities: {wire: 'entities'},
-  filterCondition: {wire: 'filter_condition'},
   fullName: {wire: 'full_name'},
   function: {wire: 'function', children: () => functionFieldMaskSchema},
-  inputs: {wire: 'inputs'},
   lineageContext: {
     wire: 'lineage_context',
     children: () => lineageContextFieldMaskSchema,
@@ -4064,7 +3940,6 @@ const featureFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
   schemaName: {wire: 'schema_name'},
   source: {wire: 'source', children: () => dataSourceFieldMaskSchema},
-  timeWindow: {wire: 'time_window', children: () => timeWindowFieldMaskSchema},
   timeseriesColumn: {
     wire: 'timeseries_column',
     children: () => timeseriesColumnFieldMaskSchema,
@@ -4103,8 +3978,6 @@ const functionFieldMaskSchema: FieldMaskSchema = {
     children: () => columnSelectionFieldMaskSchema,
   },
   customUdf: {wire: 'custom_udf', children: () => customUdfFieldMaskSchema},
-  extraParameters: {wire: 'extra_parameters'},
-  functionType: {wire: 'function_type'},
 };
 
 const ingestionConfigFieldMaskSchema: FieldMaskSchema = {
@@ -4162,13 +4035,8 @@ export function kafkaConfigFieldMask(
 }
 
 const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
-  entityColumnIdentifiers: {wire: 'entity_column_identifiers'},
   filterCondition: {wire: 'filter_condition'},
   name: {wire: 'name'},
-  timeseriesColumnIdentifier: {
-    wire: 'timeseries_column_identifier',
-    children: () => columnIdentifierFieldMaskSchema,
-  },
 };
 
 const kafkaStreamConfigFieldMaskSchema: FieldMaskSchema = {
@@ -4217,7 +4085,6 @@ const lineageContextFieldMaskSchema: FieldMaskSchema = {
 };
 
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
-  cronSchedule: {wire: 'cron_schedule'},
   cronScheduleTrigger: {
     wire: 'cron_schedule_trigger',
     children: () => cronScheduleFieldMaskSchema,
@@ -4357,8 +4224,14 @@ const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
 };
 
 const slidingWindowFieldMaskSchema: FieldMaskSchema = {
+  delay: {wire: 'delay'},
+  offset: {wire: 'offset'},
   slideDuration: {wire: 'slide_duration'},
   windowDuration: {wire: 'window_duration'},
+};
+
+const sourceLatenessFieldMaskSchema: FieldMaskSchema = {
+  settlingDelay: {wire: 'settling_delay'},
 };
 
 const stddevPopFunctionFieldMaskSchema: FieldMaskSchema = {
@@ -4462,13 +4335,10 @@ const sumFunctionFieldMaskSchema: FieldMaskSchema = {
 const tableTriggerFieldMaskSchema: FieldMaskSchema = {};
 
 const timeWindowFieldMaskSchema: FieldMaskSchema = {
-  continuous: {
-    wire: 'continuous',
-    children: () => continuousWindowFieldMaskSchema,
-  },
   rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
   sawtooth: {wire: 'sawtooth', children: () => sawtoothWindowFieldMaskSchema},
   sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},
+  startTime: {wire: 'start_time'},
   tumbling: {wire: 'tumbling', children: () => tumblingWindowFieldMaskSchema},
 };
 
@@ -4477,6 +4347,8 @@ const timeseriesColumnFieldMaskSchema: FieldMaskSchema = {
 };
 
 const tumblingWindowFieldMaskSchema: FieldMaskSchema = {
+  delay: {wire: 'delay'},
+  offset: {wire: 'offset'},
   windowDuration: {wire: 'window_duration'},
 };
 
