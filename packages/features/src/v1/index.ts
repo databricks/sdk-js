@@ -8,7 +8,6 @@ export {FeaturesClient} from './client';
 
 export {
   ScalarDataType,
-  Function_FunctionType,
   MaterializedFeature_PipelineScheduleState,
   SchemaLocator_Format,
   StreamingMode_StreamingModeType,
@@ -23,9 +22,7 @@ export type {
   BackfillSource,
   BatchCreateMaterializedFeaturesRequest,
   BatchCreateMaterializedFeaturesResponse,
-  ColumnIdentifier,
   ColumnSelection,
-  ContinuousWindow,
   CountFunction,
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
@@ -49,7 +46,6 @@ export type {
   FirstNFunction,
   FlatSchema,
   Function,
-  Function_ExtraParameter,
   GetFeatureRequest,
   GetKafkaConfigRequest,
   GetMaterializedFeatureRequest,
@@ -91,6 +87,7 @@ export type {
   SchemaRegistryConfig,
   SecretScopeReference,
   SlidingWindow,
+  SourceLateness,
   StddevPopFunction,
   StddevSampFunction,
   Stream,

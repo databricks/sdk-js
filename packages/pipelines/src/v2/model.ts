@@ -558,7 +558,13 @@ export interface ClonePipelineRequest {
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
   filters?: Filters | undefined;
-  /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
+  /**
+   * Whether the pipeline is continuous or triggered. This replaces `trigger`.
+   *
+   * Deprecated: wrap the pipeline in a continuous job instead, which also lets you take advantage
+   * of job-level settings such as performance mode. When the pipeline is started by a continuous
+   * job, the job's setting takes precedence and this field is ignored.
+   */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
   development?: boolean | undefined;
@@ -690,7 +696,13 @@ export interface CreatePipelineRequest {
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
   filters?: Filters | undefined;
-  /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
+  /**
+   * Whether the pipeline is continuous or triggered. This replaces `trigger`.
+   *
+   * Deprecated: wrap the pipeline in a continuous job instead, which also lets you take advantage
+   * of job-level settings such as performance mode. When the pipeline is started by a continuous
+   * job, the job's setting takes precedence and this field is ignored.
+   */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
   development?: boolean | undefined;
@@ -827,7 +839,13 @@ export interface EditPipelineRequest {
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
   filters?: Filters | undefined;
-  /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
+  /**
+   * Whether the pipeline is continuous or triggered. This replaces `trigger`.
+   *
+   * Deprecated: wrap the pipeline in a continuous job instead, which also lets you take advantage
+   * of job-level settings such as performance mode. When the pipeline is started by a continuous
+   * job, the job's setting takes precedence and this field is ignored.
+   */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
   development?: boolean | undefined;
@@ -2163,7 +2181,13 @@ export interface PipelineSpec {
   schema?: string | undefined;
   /** Filters on which Pipeline packages to include in the deployed graph. */
   filters?: Filters | undefined;
-  /** Whether the pipeline is continuous or triggered. This replaces `trigger`. */
+  /**
+   * Whether the pipeline is continuous or triggered. This replaces `trigger`.
+   *
+   * Deprecated: wrap the pipeline in a continuous job instead, which also lets you take advantage
+   * of job-level settings such as performance mode. When the pipeline is started by a continuous
+   * job, the job's setting takes precedence and this field is ignored.
+   */
   continuous?: boolean | undefined;
   /** Whether the pipeline is in Development mode. Defaults to false. */
   development?: boolean | undefined;
