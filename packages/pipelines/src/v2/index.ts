@@ -125,6 +125,7 @@ export type {
   PipelinesS3StorageInfo,
   PostgresCatalogConfig,
   PostgresSlotConfig,
+  RabbitmqOptions,
   RedditAdsOptions,
   RedditAdsOptions_RedditAdsCustomReportOptions,
   ReplaceWhereOverride,

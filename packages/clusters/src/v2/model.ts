@@ -1457,7 +1457,7 @@ export interface ClusterAttributes {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;
@@ -1718,7 +1718,7 @@ export interface ClusterInfo {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;
@@ -1915,7 +1915,7 @@ export interface ClusterInfo_ComputeSpec {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;
@@ -2210,7 +2210,7 @@ export interface CreateClusterRequest {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;
@@ -2440,7 +2440,7 @@ export interface EditClusterRequest {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;
@@ -2646,7 +2646,7 @@ export interface EnforcePolicyComplianceForClusterResponse_ClusterSettings {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;
@@ -3702,7 +3702,7 @@ export interface UpdateClusterRequest_UpdateClusterResource {
   isSingleNode?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
   remoteDiskThroughput?: number | undefined;
-  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Supported for GCP. */
   totalInitialRemoteDiskSize?: number | undefined;
   /** Controls dependency configuration for the cluster. */
   dependencyMode?: DependencyMode | undefined;

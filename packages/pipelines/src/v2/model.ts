@@ -98,6 +98,7 @@ export const IngestionSourceType = {
   CONFLUENCE: 'CONFLUENCE',
   META_MARKETING: 'META_MARKETING',
   ZENDESK: 'ZENDESK',
+  RABBITMQ: 'RABBITMQ',
   FOREIGN_CATALOG: 'FOREIGN_CATALOG',
 } as const;
 export type IngestionSourceType =
@@ -651,6 +652,7 @@ export interface ConnectorOptions {
         zendeskSupportOptions: ZendeskSupportOptions;
       }
     | {$case: 'kafkaOptions'; kafkaOptions: KafkaOptions}
+    | {$case: 'rabbitmqOptions'; rabbitmqOptions: RabbitmqOptions}
     | {$case: 'marketoOptions'; marketoOptions: MarketoOptions}
     | {$case: 'linkedinAdsOptions'; linkedinAdsOptions: LinkedInAdsOptions}
     | {$case: 'redditAdsOptions'; redditAdsOptions: RedditAdsOptions}
@@ -2594,6 +2596,17 @@ export interface PostgresSlotConfig {
   publicationName?: string | undefined;
 }
 
+/**
+ * RabbitMQ specific options for ingestion.
+ * Performance tuning options (consumers_per_task, max_messages_per_fetch, etc.)
+ * are intentionally not exposed in the public API. The managed connector uses
+ * sensible defaults internally. These can be added later if user demand arises.
+ */
+export interface RabbitmqOptions {
+  /** (Required) RabbitMQ queue name to consume from. */
+  queue?: string | undefined;
+}
+
 /** Reddit Ads specific options for ingestion */
 export interface RedditAdsOptions {
   /**
@@ -3081,6 +3094,7 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
       .lazy(() => unmarshalZendeskSupportOptionsSchema)
       .optional(),
     kafka_options: z.lazy(() => unmarshalKafkaOptionsSchema).optional(),
+    rabbitmq_options: z.lazy(() => unmarshalRabbitmqOptionsSchema).optional(),
     marketo_options: z.lazy(() => unmarshalMarketoOptionsSchema).optional(),
     linkedin_ads_options: z
       .lazy(() => unmarshalLinkedInAdsOptionsSchema)
@@ -3149,29 +3163,36 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                                 $case: 'kafkaOptions' as const,
                                 kafkaOptions: d.kafka_options,
                               }
-                            : d.marketo_options !== undefined
+                            : d.rabbitmq_options !== undefined
                               ? {
-                                  $case: 'marketoOptions' as const,
-                                  marketoOptions: d.marketo_options,
+                                  $case: 'rabbitmqOptions' as const,
+                                  rabbitmqOptions: d.rabbitmq_options,
                                 }
-                              : d.linkedin_ads_options !== undefined
+                              : d.marketo_options !== undefined
                                 ? {
-                                    $case: 'linkedinAdsOptions' as const,
-                                    linkedinAdsOptions: d.linkedin_ads_options,
+                                    $case: 'marketoOptions' as const,
+                                    marketoOptions: d.marketo_options,
                                   }
-                                : d.reddit_ads_options !== undefined
+                                : d.linkedin_ads_options !== undefined
                                   ? {
-                                      $case: 'redditAdsOptions' as const,
-                                      redditAdsOptions: d.reddit_ads_options,
+                                      $case: 'linkedinAdsOptions' as const,
+                                      linkedinAdsOptions:
+                                        d.linkedin_ads_options,
                                     }
-                                  : d.api_source_connector_options !== undefined
+                                  : d.reddit_ads_options !== undefined
                                     ? {
-                                        $case:
-                                          'apiSourceConnectorOptions' as const,
-                                        apiSourceConnectorOptions:
-                                          d.api_source_connector_options,
+                                        $case: 'redditAdsOptions' as const,
+                                        redditAdsOptions: d.reddit_ads_options,
                                       }
-                                    : undefined,
+                                    : d.api_source_connector_options !==
+                                        undefined
+                                      ? {
+                                          $case:
+                                            'apiSourceConnectorOptions' as const,
+                                          apiSourceConnectorOptions:
+                                            d.api_source_connector_options,
+                                        }
+                                      : undefined,
   }));
 
 export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResponse> =
@@ -4439,6 +4460,14 @@ export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
       publicationName: d.publication_name,
     }));
 
+export const unmarshalRabbitmqOptionsSchema: z.ZodType<RabbitmqOptions> = z
+  .object({
+    queue: z.string().optional(),
+  })
+  .transform(d => ({
+    queue: d.queue,
+  }));
+
 export const unmarshalRedditAdsOptionsSchema: z.ZodType<RedditAdsOptions> = z
   .object({
     sync_start_date: z.string().optional(),
@@ -4905,6 +4934,10 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
           kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema),
         }),
         z.object({
+          $case: z.literal('rabbitmqOptions'),
+          rabbitmqOptions: z.lazy(() => marshalRabbitmqOptionsSchema),
+        }),
+        z.object({
           $case: z.literal('marketoOptions'),
           marketoOptions: z.lazy(() => marshalMarketoOptionsSchema),
         }),
@@ -4958,6 +4991,9 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     }),
     ...(d.connectorOptions?.$case === 'kafkaOptions' && {
       kafka_options: d.connectorOptions.kafkaOptions,
+    }),
+    ...(d.connectorOptions?.$case === 'rabbitmqOptions' && {
+      rabbitmq_options: d.connectorOptions.rabbitmqOptions,
     }),
     ...(d.connectorOptions?.$case === 'marketoOptions' && {
       marketo_options: d.connectorOptions.marketoOptions,
@@ -6079,6 +6115,14 @@ export const marshalPostgresSlotConfigSchema: z.ZodType = z
   .transform(d => ({
     slot_name: d.slotName,
     publication_name: d.publicationName,
+  }));
+
+export const marshalRabbitmqOptionsSchema: z.ZodType = z
+  .object({
+    queue: z.string().optional(),
+  })
+  .transform(d => ({
+    queue: d.queue,
   }));
 
 export const marshalRedditAdsOptionsSchema: z.ZodType = z
