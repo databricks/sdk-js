@@ -36,6 +36,7 @@ import type {
   CreateEndpointRequest,
   CreateProjectRequest,
   CreateRoleRequest,
+  CreateSnapshotRequest,
   CreateSyncedTableRequest,
   DataApi,
   DataApiOperationMetadata,
@@ -50,6 +51,7 @@ import type {
   DeleteEndpointRequest,
   DeleteProjectRequest,
   DeleteRoleRequest,
+  DeleteSnapshotRequest,
   DeleteSyncedTableRequest,
   Endpoint,
   EndpointOperationMetadata,
@@ -64,6 +66,7 @@ import type {
   GetOperationRequest,
   GetProjectRequest,
   GetRoleRequest,
+  GetSnapshotRequest,
   GetSyncedTableRequest,
   ListBranchesRequest,
   ListBranchesResponse,
@@ -79,11 +82,15 @@ import type {
   ListProjectsResponse,
   ListRolesRequest,
   ListRolesResponse,
+  ListSnapshotsRequest,
+  ListSnapshotsResponse,
   Operation,
   Project,
   ProjectOperationMetadata,
   Role,
   RoleOperationMetadata,
+  Snapshot,
+  SnapshotOperationMetadata,
   SyncedTable,
   SyncedTableOperationMetadata,
   UndeleteBranchRequest,
@@ -105,6 +112,7 @@ import {
   marshalGenerateDatabaseCredentialRequestSchema,
   marshalProjectSchema,
   marshalRoleSchema,
+  marshalSnapshotSchema,
   marshalSyncedTableSchema,
   marshalUndeleteBranchRequestSchema,
   marshalUndeleteProjectRequestSchema,
@@ -129,11 +137,14 @@ import {
   unmarshalListEndpointsResponseSchema,
   unmarshalListProjectsResponseSchema,
   unmarshalListRolesResponseSchema,
+  unmarshalListSnapshotsResponseSchema,
   unmarshalOperationSchema,
   unmarshalProjectOperationMetadataSchema,
   unmarshalProjectSchema,
   unmarshalRoleOperationMetadataSchema,
   unmarshalRoleSchema,
+  unmarshalSnapshotOperationMetadataSchema,
+  unmarshalSnapshotSchema,
   unmarshalSyncedTableOperationMetadataSchema,
   unmarshalSyncedTableSchema,
 } from './model';
@@ -613,6 +624,59 @@ export class PostgresClient {
     );
   }
 
+  /** Creates a snapshot, an immutable point-in-time copy of a branch's data, within the project. */
+  private async createSnapshotBase(
+    req: CreateSnapshotRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/snapshots`;
+    const params = new URLSearchParams();
+    if (req.snapshotId !== undefined) {
+      params.append('snapshot_id', req.snapshotId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.snapshot, marshalSnapshotSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a snapshot, an immutable point-in-time copy of a branch's data, within the project. */
+  async createSnapshot(
+    req: CreateSnapshotRequest,
+    options?: CallOptions
+  ): Promise<CreateSnapshotOperation> {
+    const op = await this.createSnapshotBase(req, options);
+    return new CreateSnapshotOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Create a Synced Table. */
   private async createSyncedTableBase(
     req: CreateSyncedTableRequest,
@@ -1018,6 +1082,46 @@ export class PostgresClient {
     );
   }
 
+  /** Deletes the specified snapshot. */
+  private async deleteSnapshotBase(
+    req: DeleteSnapshotRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes the specified snapshot. */
+  async deleteSnapshot(
+    req: DeleteSnapshotRequest,
+    options?: CallOptions
+  ): Promise<DeleteSnapshotOperation> {
+    const op = await this.deleteSnapshotBase(req, options);
+    return new DeleteSnapshotOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Delete a Synced Table. */
   private async deleteSyncedTableBase(
     req: DeleteSyncedTableRequest,
@@ -1377,6 +1481,35 @@ export class PostgresClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRoleSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Retrieves information about the specified snapshot. */
+  async getSnapshot(
+    req: GetSnapshotRequest,
+    options?: CallOptions
+  ): Promise<Snapshot> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: Snapshot | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSnapshotSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1804,6 +1937,61 @@ export class PostgresClient {
     for (;;) {
       const resp = await this.listRoles(pageReq, options);
       for (const item of resp.roles ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Returns a paginated list of snapshots in the project. */
+  async listSnapshots(
+    req: ListSnapshotsRequest,
+    options?: CallOptions
+  ): Promise<ListSnapshotsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/snapshots`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListSnapshotsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListSnapshotsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listSnapshotsIter(
+    req: ListSnapshotsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Snapshot> {
+    const pageReq: ListSnapshotsRequest = {...req};
+    for (;;) {
+      const resp = await this.listSnapshots(pageReq, options);
+      for (const item of resp.snapshots ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
@@ -2886,6 +3074,90 @@ export class CreateRoleOperation {
   }
 }
 
+export class CreateSnapshotOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<SnapshotOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSnapshotOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<Snapshot> {
+    let result: Snapshot | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalSnapshotSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
 export class CreateSyncedTableOperation {
   constructor(
     private operation: Operation,
@@ -3498,6 +3770,78 @@ export class DeleteRoleOperation {
     return Promise.resolve(
       z
         .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<void> {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+    };
+
+    await executeWait(call, options);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class DeleteSnapshotOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<SnapshotOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSnapshotOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
   }

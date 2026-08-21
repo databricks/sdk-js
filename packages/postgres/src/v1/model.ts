@@ -1254,6 +1254,21 @@ export interface CreateRoleRequest {
   replaceExisting?: boolean | undefined;
 }
 
+export interface CreateSnapshotRequest {
+  /**
+   * The project in which to create the snapshot.
+   * Format: projects/{project_id}
+   */
+  parent?: string | undefined;
+  /** The snapshot to create. */
+  snapshot?: Snapshot | undefined;
+  /**
+   * Client-chosen ID for the snapshot. It becomes the final segment of the
+   * snapshot resource name and cannot be changed after creation.
+   */
+  snapshotId?: string | undefined;
+}
+
 /** Establish a synchronisation to the Postgres database for Reverse ETL for the source table selected from the Unity Catalog. */
 export interface CreateSyncedTableRequest {
   /**
@@ -1519,6 +1534,14 @@ export interface DeleteRoleRequest {
    * SQL queries.
    */
   reassignOwnedTo?: string | undefined;
+}
+
+export interface DeleteSnapshotRequest {
+  /**
+   * The resource name of the snapshot to delete.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  name?: string | undefined;
 }
 
 export interface DeleteSyncedTableRequest {
@@ -1829,6 +1852,14 @@ export interface GetRoleRequest {
   name?: string | undefined;
 }
 
+export interface GetSnapshotRequest {
+  /**
+   * The resource name of the snapshot to retrieve.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  name?: string | undefined;
+}
+
 export interface GetSyncedTableRequest {
   /**
    * The Full resource name of the synced table.
@@ -2031,6 +2062,25 @@ export interface ListRolesResponse {
   /** List of Postgres roles in the branch. */
   roles?: Role[] | undefined;
   /** Token to request the next page of Postgres roles. */
+  nextPageToken?: string | undefined;
+}
+
+export interface ListSnapshotsRequest {
+  /**
+   * The project that owns the snapshots.
+   * Format: projects/{project_id}
+   */
+  parent?: string | undefined;
+  /** Page token from a previous response; omit for the first page. */
+  pageToken?: string | undefined;
+  /** Maximum number of snapshots to return per page. */
+  pageSize?: number | undefined;
+}
+
+export interface ListSnapshotsResponse {
+  /** The snapshots in the project. */
+  snapshots?: Snapshot[] | undefined;
+  /** Token to retrieve the next page; empty if there are no more pages. */
   nextPageToken?: string | undefined;
 }
 
@@ -2366,6 +2416,122 @@ export interface Role_RoleStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RoleOperationMetadata {}
+
+/**
+ * An immutable, point-in-time copy of a branch's data within a project. It
+ * remains available after the source branch is deleted.
+ */
+export interface Snapshot {
+  /**
+   * The resource name of the snapshot.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  name?: string | undefined;
+  /** Unique system-generated ID for the snapshot. */
+  uid?: string | undefined;
+  /** When the snapshot was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Client-provided configuration of the snapshot. */
+  spec?: SnapshotSpec | undefined;
+  /** Server-observed state of the snapshot. */
+  status?: SnapshotStatus | undefined;
+  /** The user-chosen ID; the final segment of `name`. */
+  snapshotId?: string | undefined;
+}
+
+/** Metadata for the long-running snapshot Create and Delete operations. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface SnapshotOperationMetadata {}
+
+/** Client-provided configuration of the snapshot. */
+export interface SnapshotSpec {
+  /**
+   * The source branch to snapshot.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  sourceBranch?: string | undefined;
+  /**
+   * The point in time to snapshot from. If unset, the current head of the
+   * source branch is used. The chosen LSN or timestamp must fall within the
+   * project's point-in-time-recovery window (its history_retention_duration);
+   * otherwise the request returns INVALID_PARAMETER_VALUE.
+   */
+  pointInTime?:
+    | {
+        $case: 'sourceBranchLsn';
+        /**
+         * LSN to snapshot from, e.g. `16/B374D848`.
+         * Mutually exclusive with `source_branch_time`.
+         */
+        sourceBranchLsn: string;
+      }
+    | {
+        $case: 'sourceBranchTime';
+        /**
+         * Timestamp to snapshot from.
+         * Mutually exclusive with `source_branch_lsn`.
+         */
+        sourceBranchTime: Temporal.Instant;
+      }
+    | undefined;
+  /** Expiration policy. If unset, the snapshot is kept until deleted. */
+  expiration?:
+    | {
+        $case: 'expireTime';
+        /**
+         * Absolute time at which the snapshot is deleted.
+         * Mutually exclusive with `ttl` and `no_expiry`.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | {
+        $case: 'ttl';
+        /**
+         * Time-to-live. The snapshot expires this long after it is created.
+         * Mutually exclusive with `expire_time` and `no_expiry`. Reads report the
+         * resolved absolute `expire_time` instead.
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'noExpiry';
+        /**
+         * If true, the snapshot never expires.
+         * Mutually exclusive with `ttl` and `expire_time`.
+         */
+        noExpiry: boolean;
+      }
+    | undefined;
+}
+
+/** Server-observed state of a snapshot. */
+export interface SnapshotStatus {
+  /**
+   * The source branch the snapshot was taken from.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  sourceBranch?: string | undefined;
+  /** Observed expiration state of the snapshot. */
+  expiration?:
+    | {
+        $case: 'expireTime';
+        /** Absolute time at which the snapshot is deleted. */
+        expireTime: Temporal.Instant;
+      }
+    | {
+        $case: 'noExpiry';
+        /** True if the snapshot never expires. */
+        noExpiry: boolean;
+      }
+    | undefined;
+  /** Full logical size of the snapshot, in bytes. */
+  fullSizeBytes?: bigint | undefined;
+  /**
+   * Incremental storage size in bytes since the previous snapshot. Unset when
+   * the snapshot is not billed on incremental usage.
+   */
+  diffSizeBytes?: bigint | undefined;
+}
 
 export interface SyncedTable {
   /**
@@ -3319,6 +3485,17 @@ export const unmarshalListRolesResponseSchema: z.ZodType<ListRolesResponse> = z
     nextPageToken: d.next_page_token,
   }));
 
+export const unmarshalListSnapshotsResponseSchema: z.ZodType<ListSnapshotsResponse> =
+  z
+    .object({
+      snapshots: z.array(z.lazy(() => unmarshalSnapshotSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      snapshots: d.snapshots,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
   .object({
     storage_catalog: z.string().optional(),
@@ -3591,6 +3768,101 @@ export const unmarshalRole_RoleStatusSchema: z.ZodType<Role_RoleStatus> = z
 
 export const unmarshalRoleOperationMetadataSchema: z.ZodType<RoleOperationMetadata> =
   z.object({});
+
+export const unmarshalSnapshotSchema: z.ZodType<Snapshot> = z
+  .object({
+    name: z.string().optional(),
+    uid: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    spec: z.lazy(() => unmarshalSnapshotSpecSchema).optional(),
+    status: z.lazy(() => unmarshalSnapshotStatusSchema).optional(),
+    snapshot_id: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    uid: d.uid,
+    createTime: d.create_time,
+    spec: d.spec,
+    status: d.status,
+    snapshotId: d.snapshot_id,
+  }));
+
+export const unmarshalSnapshotOperationMetadataSchema: z.ZodType<SnapshotOperationMetadata> =
+  z.object({});
+
+export const unmarshalSnapshotSpecSchema: z.ZodType<SnapshotSpec> = z
+  .object({
+    source_branch: z.string().optional(),
+    source_branch_lsn: z.string().optional(),
+    source_branch_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    ttl: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    no_expiry: z.boolean().optional(),
+  })
+  .transform(d => ({
+    sourceBranch: d.source_branch,
+    pointInTime:
+      d.source_branch_lsn !== undefined
+        ? {
+            $case: 'sourceBranchLsn' as const,
+            sourceBranchLsn: d.source_branch_lsn,
+          }
+        : d.source_branch_time !== undefined
+          ? {
+              $case: 'sourceBranchTime' as const,
+              sourceBranchTime: d.source_branch_time,
+            }
+          : undefined,
+    expiration:
+      d.expire_time !== undefined
+        ? {$case: 'expireTime' as const, expireTime: d.expire_time}
+        : d.ttl !== undefined
+          ? {$case: 'ttl' as const, ttl: d.ttl}
+          : d.no_expiry !== undefined
+            ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
+            : undefined,
+  }));
+
+export const unmarshalSnapshotStatusSchema: z.ZodType<SnapshotStatus> = z
+  .object({
+    source_branch: z.string().optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    no_expiry: z.boolean().optional(),
+    full_size_bytes: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    diff_size_bytes: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    sourceBranch: d.source_branch,
+    expiration:
+      d.expire_time !== undefined
+        ? {$case: 'expireTime' as const, expireTime: d.expire_time}
+        : d.no_expiry !== undefined
+          ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
+          : undefined,
+    fullSizeBytes: d.full_size_bytes,
+    diffSizeBytes: d.diff_size_bytes,
+  }));
 
 export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
   .object({
@@ -4592,6 +4864,106 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     auth_method: d.authMethod,
     postgres_role: d.postgresRole,
     role_id: d.roleId,
+  }));
+
+export const marshalSnapshotSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    uid: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    spec: z.lazy(() => marshalSnapshotSpecSchema).optional(),
+    status: z.lazy(() => marshalSnapshotStatusSchema).optional(),
+    snapshotId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    uid: d.uid,
+    create_time: d.createTime,
+    spec: d.spec,
+    status: d.status,
+    snapshot_id: d.snapshotId,
+  }));
+
+export const marshalSnapshotSpecSchema: z.ZodType = z
+  .object({
+    sourceBranch: z.string().optional(),
+    pointInTime: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sourceBranchLsn'),
+          sourceBranchLsn: z.string(),
+        }),
+        z.object({
+          $case: z.literal('sourceBranchTime'),
+          sourceBranchTime: z
+            .any()
+            .transform((d: Temporal.Instant) => d.toString()),
+        }),
+      ])
+      .optional(),
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    source_branch: d.sourceBranch,
+    ...(d.pointInTime?.$case === 'sourceBranchLsn' && {
+      source_branch_lsn: d.pointInTime.sourceBranchLsn,
+    }),
+    ...(d.pointInTime?.$case === 'sourceBranchTime' && {
+      source_branch_time: d.pointInTime.sourceBranchTime,
+    }),
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'noExpiry' && {
+      no_expiry: d.expiration.noExpiry,
+    }),
+  }));
+
+export const marshalSnapshotStatusSchema: z.ZodType = z
+  .object({
+    sourceBranch: z.string().optional(),
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+        z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
+      ])
+      .optional(),
+    fullSizeBytes: z.bigint().optional(),
+    diffSizeBytes: z.bigint().optional(),
+  })
+  .transform(d => ({
+    source_branch: d.sourceBranch,
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
+    ...(d.expiration?.$case === 'noExpiry' && {
+      no_expiry: d.expiration.noExpiry,
+    }),
+    full_size_bytes: d.fullSizeBytes,
+    diff_size_bytes: d.diffSizeBytes,
   }));
 
 export const marshalSyncedTableSchema: z.ZodType = z
