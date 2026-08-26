@@ -14,6 +14,7 @@ function findDef(field: string): PropertyDef {
 }
 
 const STRING_DEF = findDef('host');
+const GROUP_ID_DEF = findDef('groupId');
 const SECRET_DEF = findDef('token');
 
 describe('property set and get', () => {
@@ -35,6 +36,12 @@ describe('property set and get', () => {
       def: STRING_DEF,
       raw: 'https://x.com?a=1&b=2',
       wantGet: 'https://x.com?a=1&b=2',
+    },
+    {
+      name: 'group ID',
+      def: GROUP_ID_DEF,
+      raw: 'group-123',
+      wantGet: 'group-123',
     },
     // Secret properties.
     {
@@ -77,6 +84,13 @@ describe('property set and get', () => {
 });
 
 describe('PROPERTY_DEFS', () => {
+  it('maps groupId to the Databricks environment and INI names', () => {
+    expect(GROUP_ID_DEF).toMatchObject({
+      envVar: 'DATABRICKS_GROUP_ID',
+      iniKey: 'group_id',
+    });
+  });
+
   it('should cover every Profile field except name and extra', () => {
     // Set every property to a sentinel value via PROPERTY_DEFS, then check
     // that no Profile field was missed. The source of truth is the Profile

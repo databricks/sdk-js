@@ -3,7 +3,11 @@ import type {Stats} from 'node:fs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import type {U2mCredentialsErrorCode} from '../../src/credentials';
-import {U2mCredentialsError, newU2mCredentials} from '../../src/credentials';
+import {
+  U2mCredentialsError,
+  defaultCredentials,
+  newU2mCredentials,
+} from '../../src/credentials';
 
 type ExecFileCallback = (
   err: Error | null,
@@ -81,6 +85,23 @@ describe('newU2mCredentials', () => {
     execFileMock.mockReset();
     statMock.mockReset();
     vi.unstubAllEnvs();
+  });
+
+  it('rejects grouped explicit CLI auth before invoking the CLI', async () => {
+    const credentials = defaultCredentials({
+      profile: {
+        name: DEFAULT_PROFILE,
+        host: 'https://workspace.example',
+        authType: 'databricks-cli',
+        groupId: 'group-123',
+      },
+    });
+
+    await expect(credentials.authHeaders()).rejects.toMatchObject({
+      code: 'GROUP_ROLE_UNSUPPORTED',
+    });
+    expect(statMock).not.toHaveBeenCalled();
+    expect(execFileMock).not.toHaveBeenCalled();
   });
 
   const successCases: {

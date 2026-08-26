@@ -15,6 +15,8 @@ import {DefaultCredentialsError} from './errors';
 export interface Strategy {
   /** Short identifier, e.g. `pat`, `oauth-m2m`, or `databricks-cli`. */
   readonly name: string;
+  /** Whether this strategy can request credentials for an assumed group. */
+  readonly supportsGroupAssumption: boolean;
   readonly configure: (profile: Profile) => Credentials | undefined;
 }
 
@@ -57,6 +59,13 @@ export class DefaultCredentials implements Credentials {
       return this.resolveByAuthType(profile, profile.authType);
     }
     for (const strategy of this.strategies) {
+      if (
+        profile.groupId !== undefined &&
+        profile.groupId !== '' &&
+        !strategy.supportsGroupAssumption
+      ) {
+        continue;
+      }
       const built = strategy.configure(profile);
       if (built !== undefined) {
         return built;
@@ -76,6 +85,16 @@ export class DefaultCredentials implements Credentials {
         `auth type "${authType}" not found, please check ${AUTH_DOC_URL} for a list of supported auth types`
       );
     }
+    if (
+      profile.groupId !== undefined &&
+      profile.groupId !== '' &&
+      !strategy.supportsGroupAssumption
+    ) {
+      throw new DefaultCredentialsError(
+        'GROUP_ROLE_UNSUPPORTED',
+        `auth type "${authType}" does not support group role assumption. Use OAuth M2M or Workload Identity Federation`
+      );
+    }
     const built = strategy.configure(profile);
     if (built === undefined) {
       throw new DefaultCredentialsError(
@@ -90,6 +109,7 @@ export class DefaultCredentials implements Credentials {
 /** PAT strategy: configured when `token` is set in the profile. */
 export const patStrategy: Strategy = {
   name: 'pat',
+  supportsGroupAssumption: false,
   configure: profile => {
     if (profile.host === undefined) return undefined;
     if (profile.token === undefined) return undefined;
@@ -103,6 +123,7 @@ export const patStrategy: Strategy = {
  */
 export const m2mStrategy: Strategy = {
   name: 'oauth-m2m',
+  supportsGroupAssumption: true,
   configure: profile => {
     if (profile.host === undefined) return undefined;
     if (profile.clientId === undefined) return undefined;
@@ -112,6 +133,7 @@ export const m2mStrategy: Strategy = {
       clientId: profile.clientId,
       clientSecret: profile.clientSecret.value,
       ...(profile.accountId !== undefined && {accountId: profile.accountId}),
+      ...(profile.groupId !== undefined && {groupId: profile.groupId}),
     });
   },
 };

@@ -34,6 +34,12 @@ export interface M2mCredentialsOptions {
   accountId?: string;
 
   /**
+   * ID of the group whose role is assumed by the issued token. When omitted
+   * or empty, no group role is assumed.
+   */
+  groupId?: string;
+
+  /**
    * OAuth scopes to request. When omitted or empty, defaults to
    * `['all-apis']`.
    */

@@ -26,6 +26,10 @@ interface DefaultCredentialsOptions {
  *   2. OAuth M2M (`oauth-m2m`).
  *   3. Databricks CLI (`databricks-cli`).
  *
+ * When the resolved profile contains a non-empty group ID, strategies that
+ * cannot assume a group are skipped. Explicitly selecting such a strategy
+ * through `authType` returns an error.
+ *
  * When no profile is provided via `options.profile`, the profile is
  * resolved on first use from the default config file (~/.databrickscfg)
  * and environment variables.
