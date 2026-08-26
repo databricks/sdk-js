@@ -78,10 +78,14 @@ export function newM2mCredentials(
       ? options.scopes
       : DEFAULT_SCOPES;
 
-  const body = new URLSearchParams({
+  const params = new URLSearchParams({
     grant_type: 'client_credentials',
     scope: scopes.join(' '),
-  }).toString();
+  });
+  if (options.groupId !== undefined && options.groupId !== '') {
+    params.set('assume_group', options.groupId);
+  }
+  const body = params.toString();
 
   // Client ID and secret are URL-encoded before Basic auth encoding to
   // avoid ambiguity with special characters in either value, matching the

@@ -44,6 +44,12 @@ export interface DatabricksOidcTokenProviderConfig {
   host: string;
 
   /**
+   * ID of the group whose role is assumed by the exchanged token. When
+   * omitted or empty, no group role is assumed.
+   */
+  groupId?: string;
+
+  /**
    * TokenEndpointProvider returns the token endpoint for the Databricks OIDC
    * application.
    */
@@ -89,6 +95,9 @@ async function exchangeIdToken(
   params.set('subject_token_type', 'urn:ietf:params:oauth:token-type:jwt');
   params.set('subject_token', idToken.value);
   params.set('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
+  if (config.groupId !== undefined && config.groupId !== '') {
+    params.set('assume_group', config.groupId);
+  }
 
   const response = await fetch(endpoints.tokenEndpoint, {
     method: 'POST',
