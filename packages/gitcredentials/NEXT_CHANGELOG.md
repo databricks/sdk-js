@@ -1,6 +1,6 @@
 # NEXT CHANGELOG
 
-## Release v0.45.0
+## Release v0.46.0
 
 ### New Features and Improvements
 
