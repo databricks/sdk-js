@@ -139,7 +139,7 @@ export interface ConnectionInfo {
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 export interface CreateConnectionRequest {
@@ -183,12 +183,12 @@ export interface CreateConnectionRequest {
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 export interface DeleteConnectionRequest {
   /** The name of the connection to be deleted. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -201,7 +201,7 @@ export interface EnvironmentSettings {
 
 export interface GetConnectionRequest {
   /** Name of the connection. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 export interface ListConnectionsRequest {
@@ -237,7 +237,7 @@ export interface ProvisioningInfo {
 
 export interface UpdateConnectionRequest {
   /** Name of the connection. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name for the connection. */
   newName?: string | undefined;
   /** Name of the connection. */
@@ -275,7 +275,7 @@ export interface UpdateConnectionRequest {
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
@@ -306,7 +306,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     securable_type: z.string().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     name: d.name,
@@ -388,7 +388,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     securableType: z.string().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     parent: d.parent,
@@ -433,7 +433,7 @@ export const marshalProvisioningInfoSchema: z.ZodType = z
 
 export const marshalUpdateConnectionRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     connectionType: z.string().optional(),
@@ -455,7 +455,7 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     securableType: z.string().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     name_arg: d.nameArg,

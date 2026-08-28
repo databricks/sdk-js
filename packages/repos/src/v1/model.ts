@@ -4,14 +4,14 @@ import {z} from 'zod';
 
 export interface CreateRepoRequest {
   /** URL of the Git repository to be linked. */
-  url?: string | undefined;
+  url: string;
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
    */
-  provider?: string | undefined;
+  provider: string;
   /**
    * Desired path for the repo in the workspace. Almost any path in the workspace can be chosen.
    * If repo is created in `/Repos`, path must be in the format `/Repos/{folder}/{repo-name}`.
@@ -52,7 +52,7 @@ export interface CreateRepoResponse {
 
 export interface DeleteRepoRequest {
   /** The ID for the corresponding repo to delete. */
-  id?: bigint | undefined;
+  id: bigint;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -60,7 +60,7 @@ export interface DeleteRepoResponse {}
 
 export interface GetRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
-  id?: bigint | undefined;
+  id: bigint;
 }
 
 export interface GetRepoResponse {
@@ -157,7 +157,7 @@ export interface SparseCheckoutUpdate {
 
 export interface UpdateRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
-  id?: bigint | undefined;
+  id: bigint;
   /** Branch that the local version of the repo is checked out to. */
   branch?: string | undefined;
   /**
@@ -292,8 +292,8 @@ export const unmarshalUpdateRepoResponseSchema: z.ZodType<UpdateRepoResponse> =
 
 export const marshalCreateRepoRequestSchema: z.ZodType = z
   .object({
-    url: z.string().optional(),
-    provider: z.string().optional(),
+    url: z.string(),
+    provider: z.string(),
     path: z.string().optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
     gitCredentialId: z.bigint().optional(),
@@ -324,7 +324,7 @@ export const marshalSparseCheckoutUpdateSchema: z.ZodType = z
 
 export const marshalUpdateRepoRequestSchema: z.ZodType = z
   .object({
-    id: z.bigint().optional(),
+    id: z.bigint(),
     branch: z.string().optional(),
     tag: z.string().optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutUpdateSchema).optional(),

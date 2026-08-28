@@ -55,27 +55,6 @@ export type CloudProviderNodeStatus =
   | (typeof CloudProviderNodeStatus)[keyof typeof CloudProviderNodeStatus]
   | (string & {});
 
-/** Possible reasons a cluster might be edited. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
-export const ClusterEditReason = {
-  /** Default value. Not used. */
-  CLUSTER_EDIT_REASON_UNSPECIFIED: 'CLUSTER_EDIT_REASON_UNSPECIFIED',
-  /** Cluster was initially created. */
-  CREATION: 'CREATION',
-  /** Cluster was manually edited by the user. */
-  MANUAL_EDIT: 'MANUAL_EDIT',
-  /** Cluster was edited as part of a policy enforcement. */
-  POLICY_ENFORCEMENT: 'POLICY_ENFORCEMENT',
-  /**
-   * Cluster was edited as part of a policy enforcement that
-   * was scheduled on the next cluster termination / restart.
-   */
-  DEFERRED_POLICY_ENFORCEMENT: 'DEFERRED_POLICY_ENFORCEMENT',
-} as const;
-export type ClusterEditReason =
-  | (typeof ClusterEditReason)[keyof typeof ClusterEditReason]
-  | (string & {});
-
 /**
  * The kind of compute described by this compute specification.
  *
@@ -1124,7 +1103,7 @@ export type ResizeCause_ResizeCause =
 /** A storage location in Adls Gen2 */
 export interface Adlsgen2Info {
   /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export interface AutoScale {
@@ -1266,7 +1245,7 @@ export interface AzureAttributes {
 /** Request to cancel the pending enforcement for a cluster. */
 export interface CancelPendingClusterEnforcementRequest {
   /** The ID of the cluster to cancel the pending enforcement for. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * If true and no pending enforcement exists, the request will succeed but no action
    * will be taken.
@@ -1283,9 +1262,9 @@ export interface CancelPendingClusterEnforcementRequest {
 export interface CancelPendingClusterEnforcementResponse {}
 
 export interface ChangeClusterOwnerRequest {
-  clusterId?: string | undefined;
+  clusterId: string;
   /** New owner of the cluster_id after this RPC. */
-  ownerUsername?: string | undefined;
+  ownerUsername: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1293,7 +1272,7 @@ export interface ChangeClusterOwnerResponse {}
 
 export interface CloneCluster {
   /** The cluster that is being cloned. */
-  sourceClusterId?: string | undefined;
+  sourceClusterId: string;
 }
 
 export interface CloudProviderNodeInfo {
@@ -1465,7 +1444,7 @@ export interface ClusterAttributes {
 
 export interface ClusterCompliance {
   /** Canonical unique identifier for a cluster. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /** Whether this cluster is in compliance with the latest version of its policy. */
   isCompliant?: boolean | undefined;
   /**
@@ -1482,7 +1461,7 @@ export interface ClusterCompliance {
 }
 
 export interface ClusterEvent {
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * The timestamp when the event occurred, stored as the number of milliseconds since
    * the Unix epoch. If not provided, this will be assigned by the Timeline service.
@@ -1977,26 +1956,6 @@ export interface ClusterLogConf {
     | undefined;
 }
 
-/**
- * Represents a cluster revision.
- *
- * Only the 100 most recent revisions are stored for each cluster.
- */
-export interface ClusterRevision {
-  /** ID of the cluster revision. */
-  revisionId?: string | undefined;
-  /** Time when the cluster revision was created. */
-  createTime?: Temporal.Instant | undefined;
-  /** Settings used to create/edit the cluster. */
-  settings?: ClusterInfo_ComputeSpec | undefined;
-  /** Reason the cluster was edited. */
-  editReason?: ClusterEditReason | undefined;
-  /** Name of the user who edited this cluster. */
-  editUser?: string | undefined;
-  /** Whether this is the current revision. */
-  isCurrent?: boolean | undefined;
-}
-
 export interface ClusterSize {
   size?:
     | {
@@ -2230,12 +2189,12 @@ export interface DataPlaneEventDetails {
 /** A storage location in DBFS */
 export interface DbfsStorageInfo {
   /** dbfs destination, e.g. `dbfs:/my/path` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export interface DeleteClusterRequest {
   /** The cluster to be terminated. */
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -2262,7 +2221,7 @@ export interface DockerImage {
 
 export interface EditClusterRequest {
   /** ID of the cluster */
-  clusterId?: string | undefined;
+  clusterId: string;
   /** When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied. */
   applyPolicyDefaultValues?: boolean | undefined;
   size?:
@@ -2451,7 +2410,7 @@ export interface EditClusterResponse {}
 
 export interface EnforcePolicyComplianceForClusterRequest {
   /** The ID of the cluster you want to enforce policy compliance on. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * If set, previews the changes that would be made to a cluster
    * to enforce compliance but does not update the cluster.
@@ -2811,21 +2770,12 @@ export interface GcpAttributes {
 /** A storage location in Google Cloud Platform's GCS */
 export interface GcsStorageInfo {
   /** GCS destination/URI, e.g. `gs://my-bucket/some-prefix` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export interface GetClusterRequest {
   /** The cluster about which to retrieve information. */
-  clusterId?: string | undefined;
-}
-
-/** Request to get a cluster revision by ID. */
-export interface GetClusterRevisionRequest {
-  /**
-   * The fully qualified resource name of the cluster revision.
-   * Format: clusters/{cluster_id}/revisions/{revision_id}.
-   */
-  name?: string | undefined;
+  clusterId: string;
 }
 
 export interface GetEventsResponse {
@@ -2857,7 +2807,7 @@ export interface GetEventsResponse {
 
 export interface GetPolicyComplianceForClusterRequest {
   /** The ID of the cluster to get the compliance status */
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 export interface GetPolicyComplianceForClusterResponse {
@@ -3066,7 +3016,7 @@ export interface ListAvailableZonesResponse {
 
 export interface ListClusterComplianceForPolicyRequest {
   /** Canonical unique identifier for the cluster policy. */
-  policyId?: string | undefined;
+  policyId: string;
   /**
    * A page token that can be used to navigate to the next page or previous page as
    * returned by `next_page_token` or `prev_page_token`.
@@ -3095,27 +3045,6 @@ export interface ListClusterComplianceForPolicyResponse {
   prevPageToken?: string | undefined;
 }
 
-/** Request to list cluster revisions. */
-export interface ListClusterRevisionsRequest {
-  /**
-   * The fully qualified resource name of the parent cluster.
-   * Format: clusters/{cluster_id}.
-   */
-  parent?: string | undefined;
-  /** Maximum number of cluster revisions to return per page. */
-  pageSize?: number | undefined;
-  /** Pagination token from a previous list cluster revisions request. */
-  pageToken?: string | undefined;
-}
-
-/** Response when listing cluster revisions. */
-export interface ListClusterRevisionsResponse {
-  /** Cluster revisions in the current page. */
-  clusterRevisions?: ClusterRevision[] | undefined;
-  /** Token for fetching the next page. Empty when there are no more results. */
-  nextPageToken?: string | undefined;
-}
-
 export interface ListClustersRequest {
   /** Use next_page_token or prev_page_token returned from the previous request to list the next or previous page of clusters respectively. */
   pageToken?: string | undefined;
@@ -3139,7 +3068,7 @@ export interface ListClustersResponse {
 
 export interface ListEventsRequest {
   /** The ID of the cluster to retrieve events about. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /**
    * The start time in epoch milliseconds.
    * If empty, returns events starting from the beginning of time.
@@ -3195,7 +3124,7 @@ export interface ListNodeTypesResponse {
 
 export interface LocalFileInfo {
   /** local file destination, e.g. `file:/my/local/file.sh` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export interface LogAnalyticsInfo {
@@ -3224,7 +3153,7 @@ export interface LogSyncStatus {
  */
 export interface NodeInstanceType {
   /** Unique identifier across instance types */
-  instanceTypeId?: string | undefined;
+  instanceTypeId: string;
   /** Number of local disks that are present on this instance. */
   localDisks?: number | undefined;
   /** Size of the individual local disks attached to this instance (i.e. per local disk). */
@@ -3241,26 +3170,26 @@ export interface NodeInstanceType {
  */
 export interface NodeType {
   /** Unique identifier for this node type. */
-  nodeTypeId?: string | undefined;
+  nodeTypeId: string;
   /** Memory (in MB) available for this node type. */
-  memoryMb?: number | undefined;
+  memoryMb: number;
   /**
    * Number of CPU cores available for this node type.
    * Note that this can be fractional, e.g., 2.5 cores, if the number of cores on a
    * machine instance is not divisible by the number of Spark nodes on that machine.
    */
-  numCores?: number | undefined;
+  numCores: number;
   /** A string description associated with this node type, e.g., "r3.xlarge". */
-  description?: string | undefined;
+  description: string;
   /** An identifier for the type of hardware that this node runs on, e.g., "r3.2xlarge" in AWS. */
-  instanceTypeId?: string | undefined;
+  instanceTypeId: string;
   /** Whether the node type is deprecated. Non-deprecated node types offer greater performance. */
   isDeprecated?: boolean | undefined;
   /**
    * A descriptive category for this node type. Examples include "Memory Optimized" and
    * "Compute Optimized".
    */
-  category?: string | undefined;
+  category: string;
   /**
    * Whether this node type support EBS volumes. EBS volumes is disabled for node types that
    * we could place multiple corresponding containers on the same hosting instance.
@@ -3300,6 +3229,11 @@ export interface NodeType {
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
   alternateNodeTypeIds?: string[] | undefined;
+  /**
+   * The AWS Context ID for EC2 Fleet.
+   * When set (non-empty), the value is passed to AWS CreateFleet API to create the EC2 Fleet.
+   */
+  awsContextId?: string | undefined;
 }
 
 /**
@@ -3332,14 +3266,14 @@ export interface PendingEnforcement {
 
 export interface PermanentDeleteClusterRequest {
   /** The cluster to be deleted. */
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface PermanentDeleteClusterResponse {}
 
 export interface PinClusterRequest {
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3350,7 +3284,7 @@ export interface ResizeCause {}
 
 export interface ResizeClusterRequest {
   /** The cluster to be resized. */
-  clusterId?: string | undefined;
+  clusterId: string;
   size?:
     | {
         $case: 'numWorkers';
@@ -3382,21 +3316,12 @@ export interface ResizeClusterResponse {}
 
 export interface RestartClusterRequest {
   /** The cluster to be started. */
-  clusterId?: string | undefined;
+  clusterId: string;
   restartUser?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RestartClusterResponse {}
-
-/** Request to roll back cluster. */
-export interface RollbackClusterRequest {
-  /**
-   * The fully qualified resource name of the cluster revision.
-   * Format: clusters/{cluster_id}/revisions/{revision_id}.
-   */
-  name?: string | undefined;
-}
 
 /** A storage location in Amazon S3 */
 export interface S3StorageInfo {
@@ -3405,7 +3330,7 @@ export interface S3StorageInfo {
    * cluster iam role, please make sure you set cluster iam role and the role has write access to the
    * destination. Please also note that you cannot use AWS keys to deliver logs.
    */
-  destination?: string | undefined;
+  destination: string;
   /**
    * S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,
    * endpoint will be used.
@@ -3492,7 +3417,7 @@ export interface SparkVersion {
 
 export interface StartClusterRequest {
   /** The cluster to be started. */
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3508,7 +3433,7 @@ export interface TerminationReason {
 }
 
 export interface UnpinClusterRequest {
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3516,13 +3441,11 @@ export interface UnpinClusterResponse {}
 
 export interface UpdateClusterRequest {
   /** ID of the cluster. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /** The cluster to be updated. */
   cluster?: UpdateClusterRequest_UpdateClusterResource | undefined;
   /** Used to specify which cluster attributes and size fields to update. See https://google.aip.dev/161 for more details. */
-  updateMask?:
-    | FieldMask<UpdateClusterRequest_UpdateClusterResource>
-    | undefined;
+  updateMask: FieldMask<UpdateClusterRequest_UpdateClusterResource>;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3717,13 +3640,13 @@ export interface VolumesStorageInfo {
    * UC Volumes destination, e.g. `/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
    * or `dbfs:/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
    */
-  destination?: string | undefined;
+  destination: string;
 }
 
 /** Cluster Attributes showing for clusters workload types. */
 export interface WorkloadType {
   /** defined what type of clients can use the cluster. E.g. Notebooks, Jobs */
-  clients?: WorkloadType_ClientsTypes | undefined;
+  clients: WorkloadType_ClientsTypes;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3737,12 +3660,12 @@ export interface WorkloadType_ClientsTypes {
 /** A storage location in Workspace Filesystem (WSFS) */
 export interface WorkspaceStorageInfo {
   /** wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export const unmarshalAdlsgen2InfoSchema: z.ZodType<Adlsgen2Info> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -3895,7 +3818,7 @@ export const unmarshalClusterAttributesSchema: z.ZodType<ClusterAttributes> = z
 
 export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
   .object({
-    cluster_id: z.string().optional(),
+    cluster_id: z.string(),
     is_compliant: z.boolean().optional(),
     violations: z.record(z.string(), z.string()).optional(),
     pending_enforcement: z
@@ -3911,7 +3834,7 @@ export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
 
 export const unmarshalClusterEventSchema: z.ZodType<ClusterEvent> = z
   .object({
-    cluster_id: z.string().optional(),
+    cluster_id: z.string(),
     timestamp: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -4177,27 +4100,6 @@ export const unmarshalClusterLogConfSchema: z.ZodType<ClusterLogConf> = z
             : undefined,
   }));
 
-export const unmarshalClusterRevisionSchema: z.ZodType<ClusterRevision> = z
-  .object({
-    revision_id: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    settings: z.lazy(() => unmarshalClusterInfo_ComputeSpecSchema).optional(),
-    edit_reason: z.string().optional(),
-    edit_user: z.string().optional(),
-    is_current: z.boolean().optional(),
-  })
-  .transform(d => ({
-    revisionId: d.revision_id,
-    createTime: d.create_time,
-    settings: d.settings,
-    editReason: d.edit_reason,
-    editUser: d.edit_user,
-    isCurrent: d.is_current,
-  }));
-
 export const unmarshalClusterSizeSchema: z.ZodType<ClusterSize> = z
   .object({
     num_workers: z.number().optional(),
@@ -4241,7 +4143,7 @@ export const unmarshalDataPlaneEventDetailsSchema: z.ZodType<DataPlaneEventDetai
 
 export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -4480,7 +4382,7 @@ export const unmarshalGcpAttributesSchema: z.ZodType<GcpAttributes> = z
 
 export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -4650,19 +4552,6 @@ export const unmarshalListClusterComplianceForPolicyResponseSchema: z.ZodType<Li
       prevPageToken: d.prev_page_token,
     }));
 
-export const unmarshalListClusterRevisionsResponseSchema: z.ZodType<ListClusterRevisionsResponse> =
-  z
-    .object({
-      cluster_revisions: z
-        .array(z.lazy(() => unmarshalClusterRevisionSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      clusterRevisions: d.cluster_revisions,
-      nextPageToken: d.next_page_token,
-    }));
-
 export const unmarshalListClustersResponseSchema: z.ZodType<ListClustersResponse> =
   z
     .object({
@@ -4678,7 +4567,7 @@ export const unmarshalListClustersResponseSchema: z.ZodType<ListClustersResponse
 
 export const unmarshalListEventsRequestSchema: z.ZodType<ListEventsRequest> = z
   .object({
-    cluster_id: z.string().optional(),
+    cluster_id: z.string(),
     start_time: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -4723,7 +4612,7 @@ export const unmarshalListNodeTypesResponseSchema: z.ZodType<ListNodeTypesRespon
 
 export const unmarshalLocalFileInfoSchema: z.ZodType<LocalFileInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -4754,7 +4643,7 @@ export const unmarshalLogSyncStatusSchema: z.ZodType<LogSyncStatus> = z
 
 export const unmarshalNodeInstanceTypeSchema: z.ZodType<NodeInstanceType> = z
   .object({
-    instance_type_id: z.string().optional(),
+    instance_type_id: z.string(),
     local_disks: z.number().optional(),
     local_disk_size_gb: z.number().optional(),
     local_nvme_disk_size_gb: z.number().optional(),
@@ -4770,13 +4659,13 @@ export const unmarshalNodeInstanceTypeSchema: z.ZodType<NodeInstanceType> = z
 
 export const unmarshalNodeTypeSchema: z.ZodType<NodeType> = z
   .object({
-    node_type_id: z.string().optional(),
-    memory_mb: z.number().optional(),
-    num_cores: z.number().optional(),
-    description: z.string().optional(),
-    instance_type_id: z.string().optional(),
+    node_type_id: z.string(),
+    memory_mb: z.number(),
+    num_cores: z.number(),
+    description: z.string(),
+    instance_type_id: z.string(),
     is_deprecated: z.boolean().optional(),
-    category: z.string().optional(),
+    category: z.string(),
     support_ebs_volumes: z.boolean().optional(),
     support_cluster_tags: z.boolean().optional(),
     num_gpus: z.number().optional(),
@@ -4820,9 +4709,11 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
   z
     .object({
       alternate_node_type_ids: z.array(z.string()).optional(),
+      aws_context_id: z.string().optional(),
     })
     .transform(d => ({
       alternateNodeTypeIds: d.alternate_node_type_ids,
+      awsContextId: d.aws_context_id,
     }));
 
 export const unmarshalPendingEnforcementSchema: z.ZodType<PendingEnforcement> =
@@ -4871,7 +4762,7 @@ export const unmarshalRestartClusterResponseSchema: z.ZodType<RestartClusterResp
 
 export const unmarshalS3StorageInfoSchema: z.ZodType<S3StorageInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
     region: z.string().optional(),
     endpoint: z.string().optional(),
     enable_encryption: z.boolean().optional(),
@@ -4960,7 +4851,7 @@ export const unmarshalUpdateClusterResponseSchema: z.ZodType<UpdateClusterRespon
 export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
   z
     .object({
-      destination: z.string().optional(),
+      destination: z.string(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -4968,7 +4859,7 @@ export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
 
 export const unmarshalWorkloadTypeSchema: z.ZodType<WorkloadType> = z
   .object({
-    clients: z.lazy(() => unmarshalWorkloadType_ClientsTypesSchema).optional(),
+    clients: z.lazy(() => unmarshalWorkloadType_ClientsTypesSchema),
   })
   .transform(d => ({
     clients: d.clients,
@@ -4989,7 +4880,7 @@ export const unmarshalWorkloadType_ClientsTypesSchema: z.ZodType<WorkloadType_Cl
 export const unmarshalWorkspaceStorageInfoSchema: z.ZodType<WorkspaceStorageInfo> =
   z
     .object({
-      destination: z.string().optional(),
+      destination: z.string(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -4997,7 +4888,7 @@ export const unmarshalWorkspaceStorageInfoSchema: z.ZodType<WorkspaceStorageInfo
 
 export const marshalAdlsgen2InfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5057,7 +4948,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
 
 export const marshalCancelPendingClusterEnforcementRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     allowMissing: z.boolean().optional(),
   })
   .transform(d => ({
@@ -5067,8 +4958,8 @@ export const marshalCancelPendingClusterEnforcementRequestSchema: z.ZodType = z
 
 export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
-    ownerUsername: z.string().optional(),
+    clusterId: z.string(),
+    ownerUsername: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5077,7 +4968,7 @@ export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
 
 export const marshalCloneClusterSchema: z.ZodType = z
   .object({
-    sourceClusterId: z.string().optional(),
+    sourceClusterId: z.string(),
   })
   .transform(d => ({
     source_cluster_id: d.sourceClusterId,
@@ -5199,7 +5090,7 @@ export const marshalCreateClusterRequestSchema: z.ZodType = z
 
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5207,7 +5098,7 @@ export const marshalDbfsStorageInfoSchema: z.ZodType = z
 
 export const marshalDeleteClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5244,7 +5135,7 @@ export const marshalDockerImageSchema: z.ZodType = z
 
 export const marshalEditClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     applyPolicyDefaultValues: z.boolean().optional(),
     size: z
       .discriminatedUnion('$case', [
@@ -5334,7 +5225,7 @@ export const marshalEditClusterRequestSchema: z.ZodType = z
 export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
   z
     .object({
-      clusterId: z.string().optional(),
+      clusterId: z.string(),
       validateOnly: z.boolean().optional(),
       enforceMode: z.string().optional(),
     })
@@ -5368,7 +5259,7 @@ export const marshalGcpAttributesSchema: z.ZodType = z
 
 export const marshalGcsStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5423,7 +5314,7 @@ export const marshalInitScriptInfoSchema: z.ZodType = z
 
 export const marshalListEventsRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     startTime: z.bigint().optional(),
     endTime: z.bigint().optional(),
     order: z.string().optional(),
@@ -5447,7 +5338,7 @@ export const marshalListEventsRequestSchema: z.ZodType = z
 
 export const marshalLocalFileInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5466,14 +5357,16 @@ export const marshalLogAnalyticsInfoSchema: z.ZodType = z
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
+    awsContextId: z.string().optional(),
   })
   .transform(d => ({
     alternate_node_type_ids: d.alternateNodeTypeIds,
+    aws_context_id: d.awsContextId,
   }));
 
 export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5481,7 +5374,7 @@ export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
 
 export const marshalPinClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5489,7 +5382,7 @@ export const marshalPinClusterRequestSchema: z.ZodType = z
 
 export const marshalResizeClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     size: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
@@ -5508,7 +5401,7 @@ export const marshalResizeClusterRequestSchema: z.ZodType = z
 
 export const marshalRestartClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     restartUser: z.string().optional(),
   })
   .transform(d => ({
@@ -5516,17 +5409,9 @@ export const marshalRestartClusterRequestSchema: z.ZodType = z
     restart_user: d.restartUser,
   }));
 
-export const marshalRollbackClusterRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const marshalS3StorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
     region: z.string().optional(),
     endpoint: z.string().optional(),
     enableEncryption: z.boolean().optional(),
@@ -5546,7 +5431,7 @@ export const marshalS3StorageInfoSchema: z.ZodType = z
 
 export const marshalStartClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5554,7 +5439,7 @@ export const marshalStartClusterRequestSchema: z.ZodType = z
 
 export const marshalUnpinClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5562,14 +5447,11 @@ export const marshalUnpinClusterRequestSchema: z.ZodType = z
 
 export const marshalUpdateClusterRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
+    clusterId: z.string(),
     cluster: z
       .lazy(() => marshalUpdateClusterRequest_UpdateClusterResourceSchema)
       .optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -5668,7 +5550,7 @@ export const marshalUpdateClusterRequest_UpdateClusterResourceSchema: z.ZodType 
 
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5676,7 +5558,7 @@ export const marshalVolumesStorageInfoSchema: z.ZodType = z
 
 export const marshalWorkloadTypeSchema: z.ZodType = z
   .object({
-    clients: z.lazy(() => marshalWorkloadType_ClientsTypesSchema).optional(),
+    clients: z.lazy(() => marshalWorkloadType_ClientsTypesSchema),
   })
   .transform(d => ({
     clients: d.clients,
@@ -5695,7 +5577,7 @@ export const marshalWorkloadType_ClientsTypesSchema: z.ZodType = z
 
 export const marshalWorkspaceStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5771,6 +5653,7 @@ const logAnalyticsInfoFieldMaskSchema: FieldMaskSchema = {
 
 const nodeTypeFlexibilityFieldMaskSchema: FieldMaskSchema = {
   alternateNodeTypeIds: {wire: 'alternate_node_type_ids'},
+  awsContextId: {wire: 'aws_context_id'},
 };
 
 const s3StorageInfoFieldMaskSchema: FieldMaskSchema = {

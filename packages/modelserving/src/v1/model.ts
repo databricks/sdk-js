@@ -140,7 +140,7 @@ export interface AiGatewayRateLimit {
    */
   key?: string | undefined;
   /** Renewal period field for a rate limit. Currently, only 'minute' is supported. */
-  renewalPeriod?: string | undefined;
+  renewalPeriod: string;
   /** Principal field for a user, user group, or service principal to apply rate limiting to. Accepts a user email, group name, or service principal application ID. */
   principal?: string | undefined;
   /** Used to specify how many tokens are allowed for a key within the renewal_period. */
@@ -173,7 +173,7 @@ export interface AiGuardrails {
 
 export interface AmazonBedrockConfig {
   /** The AWS region to use. Bedrock has to be enabled there. */
-  awsRegion?: string | undefined;
+  awsRegion: string;
   /**
    * The <Databricks> secret key reference for an AWS access key ID with
    * permissions to interact with Bedrock services. If you prefer to paste
@@ -195,7 +195,7 @@ export interface AmazonBedrockConfig {
    * The underlying provider in Amazon Bedrock. Supported values (case
    * insensitive) include: Anthropic, Cohere, AI21Labs, Amazon.
    */
-  bedrockProvider?: string | undefined;
+  bedrockProvider: string;
   /**
    * An AWS access key ID with permissions to interact with Bedrock services
    * provided as a plaintext string. If you prefer to reference your key using
@@ -241,7 +241,7 @@ export interface AnthropicConfig {
 
 export interface ApiKeyAuth {
   /** The name of the API key parameter used for authentication. */
-  key?: string | undefined;
+  key: string;
   /**
    * The <Databricks> secret key reference for an API Key.
    * If you prefer to paste your token directly, see `value_plaintext`.
@@ -314,7 +314,7 @@ export interface CreateInferenceEndpointRequest {
    * The name of the serving endpoint. This field is required and must be unique across a <Workspace>.
    * An endpoint name can consist of alphanumeric characters, dashes, and underscores.
    */
-  name?: string | undefined;
+  name: string;
   /** The core config of the serving endpoint. */
   config?: EndpointCoreConfig | undefined;
   /** Tags to be attached to the serving endpoint and automatically propagated to billing logs. */
@@ -339,9 +339,9 @@ export interface CreatePtEndpointRequest {
    * The name of the serving endpoint. This field is required and must be unique across a <Workspace>.
    * An endpoint name can consist of alphanumeric characters, dashes, and underscores.
    */
-  name?: string | undefined;
+  name: string;
   /** The core config of the serving endpoint. */
-  config?: PtEndpointCoreConfig | undefined;
+  config: PtEndpointCoreConfig;
   /** Tags to be attached to the serving endpoint and automatically propagated to billing logs. */
   tags?: EndpointTag[] | undefined;
   /** The AI Gateway configuration for the serving endpoint. */
@@ -355,7 +355,7 @@ export interface CreatePtEndpointRequest {
 /** Configs needed to create a custom provider model route. */
 export interface CustomProviderConfig {
   /** This is a field to provide the URL of the custom provider API. */
-  customProviderUrl?: string | undefined;
+  customProviderUrl: string;
   /**
    * This is a field to provide bearer token authentication for the custom provider API.
    * You can only specify one authentication method.
@@ -390,7 +390,7 @@ export interface DatabricksModelServingConfig {
    * The URL of the <Databricks> workspace containing the model serving endpoint
    * pointed to by this external model.
    */
-  databricksWorkspaceUrl?: string | undefined;
+  databricksWorkspaceUrl: string;
   /**
    * The Databricks API token that corresponds to a user or service principal
    * with Can Query access to the model serving endpoint pointed to by this
@@ -403,7 +403,7 @@ export interface DatabricksModelServingConfig {
 }
 
 export interface DeleteInferenceEndpointRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -459,7 +459,7 @@ export interface EndpointCoreConfigSummary {
 
 export interface EndpointTag {
   /** Key field for a serving endpoint tag. */
-  key?: string | undefined;
+  key: string;
   /** Optional value field for a serving endpoint tag. */
   value?: string | undefined;
 }
@@ -481,11 +481,11 @@ export interface ExportMetricsResponse {
 /** Simple Proto message for testing */
 export interface ExternalFunctionRequest {
   /** The connection name to use. This is required to identify the external connection. */
-  connectionName?: string | undefined;
+  connectionName: string;
   /** The HTTP method to use (e.g., 'GET', 'POST'). */
-  method?: ExternalFunctionRequest_HttpMethod | undefined;
+  method: ExternalFunctionRequest_HttpMethod;
   /** The relative path for the API endpoint. This is required. */
-  path?: string | undefined;
+  path: string;
   /** The JSON payload to send in the request body. */
   json?: string | undefined;
   /** Additional headers for the request. If not provided, only auth headers from connections would be passed. */
@@ -507,11 +507,11 @@ export interface ExternalFunctionResponse {
 
 export interface ExternalModel {
   /** The name of the provider for the external model. Currently, the supported providers are 'ai21labs', 'anthropic', 'amazon-bedrock', 'cohere', 'databricks-model-serving', 'google-cloud-vertex-ai', 'openai', 'palm', and 'custom'. */
-  provider?: string | undefined;
+  provider: string;
   /** The name of the external model. */
-  name?: string | undefined;
+  name: string;
   /** The task type of the external model. */
-  task?: string | undefined;
+  task: string;
   /** external model config. The config corresponding to the provider will be used. */
   config?:
     | {
@@ -569,7 +569,7 @@ export interface FallbackConfig {
    * endpoint, following the order of served entity list, until a successful response is returned.
    * If all attempts fail, return the last response with the error code.
    */
-  enabled?: boolean | undefined;
+  enabled: boolean;
 }
 
 /** All fields are not sensitive as they are hard-coded in the system and made available to customers. */
@@ -582,17 +582,17 @@ export interface FoundationModel {
 
 export interface GetExportEndpointMetricsRequest {
   /** The name of the serving endpoint to retrieve metrics for. This field is required. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetInferenceEndpointRequest {
   /** The name of the serving endpoint. This field is required. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetInferenceEndpointSchemaRequest {
   /** The name of the serving endpoint that the served model belongs to. This field is required. */
-  name?: string | undefined;
+  name: string;
 }
 
 /** The top level proto message that represents an OpenAPI 3.0 document. */
@@ -602,26 +602,26 @@ export interface GetOpenApiResponse {
 
 export interface GetServedModelBuildLogsRequest {
   /** The name of the serving endpoint that the served model belongs to. This field is required. */
-  name?: string | undefined;
+  name: string;
   /** The name of the served model that build logs will be retrieved for. This field is required. */
   servedModelName?: string | undefined;
 }
 
 export interface GetServedModelBuildLogsResponse {
   /** The logs associated with building the served entity's environment. */
-  logs?: string | undefined;
+  logs: string;
 }
 
 export interface GetServedModelLogsRequest {
   /** The name of the serving endpoint that the served model belongs to. This field is required. */
-  name?: string | undefined;
+  name: string;
   /** The name of the served model that logs will be retrieved for. This field is required. */
   servedModelName?: string | undefined;
 }
 
 export interface GetServedModelLogsResponse {
   /** The most recent log lines of the model server processing invocation requests. */
-  logs?: string | undefined;
+  logs: string;
 }
 
 export interface GoogleCloudVertexAiConfig {
@@ -640,7 +640,7 @@ export interface GoogleCloudVertexAiConfig {
    * This is the Google Cloud project id that the service account is
    * associated with.
    */
-  projectId?: string | undefined;
+  projectId: string;
   /**
    * This is the region for the Google Cloud Vertex AI Service. See [supported
    * regions] for more details. Some models are only available in specific
@@ -648,7 +648,7 @@ export interface GoogleCloudVertexAiConfig {
    *
    * [supported regions]: https://cloud.google.com/vertex-ai/docs/general/locations
    */
-  region?: string | undefined;
+  region: string;
   /**
    * The private key for the service account which has access to the Google
    * Cloud Vertex AI Service provided as a plaintext secret. See [Best
@@ -879,7 +879,7 @@ export interface PaLmConfig {
 
 export interface PatchInferenceEndpointTagsRequest {
   /** The name of the serving endpoint who's tags to patch. This field is required. */
-  name?: string | undefined;
+  name: string;
   /** List of endpoint tags to add */
   addTags?: EndpointTag[] | undefined;
   /** List of tag keys to delete */
@@ -893,7 +893,7 @@ export interface PatchInferenceEndpointTagsResponse {
 /** Updates the telemetry configuration of a serving endpoint. */
 export interface PatchInferenceEndpointTelemetryConfigRequest {
   /** The name of the serving endpoint whose telemetry configuration is being updated. This field is required. */
-  name?: string | undefined;
+  name: string;
   /**
    * The telemetry configuration to be applied to the serving endpoint.
    * Can specify either a telemetry_profile_id to use an existing profile,
@@ -944,10 +944,10 @@ export interface PtServedModel {
   /** The name of a served entity. It must be unique across an endpoint. A served entity name can consist of alphanumeric characters, dashes, and underscores. If not specified for an external model, this field defaults to external_model.name, with '.' and ':' replaced with '-', and if not specified for other entities, it defaults to entity_name-entity_version. */
   name?: string | undefined;
   /** The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC), or a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of **catalog_name.schema_name.model_name**. */
-  entityName?: string | undefined;
+  entityName: string;
   entityVersion?: string | undefined;
   /** The number of model units to be provisioned. */
-  provisionedModelUnits?: bigint | undefined;
+  provisionedModelUnits: bigint;
   /**
    * Whether burst scaling is enabled. When enabled (default), the endpoint can automatically
    * scale up beyond provisioned capacity to handle traffic spikes. When disabled, the endpoint
@@ -958,7 +958,7 @@ export interface PtServedModel {
 
 export interface PutInferenceEndpointAiGatewayRequest {
   /** The name of the serving endpoint whose AI Gateway is being updated. This field is required. */
-  name?: string | undefined;
+  name: string;
   /**
    * Configuration to enable usage tracking using system tables.
    * These tables allow you to monitor operational usage on endpoints and their associated costs.
@@ -1004,7 +1004,7 @@ export interface PutInferenceEndpointAiGatewayResponse {
 
 export interface PutInferenceEndpointConfigRequest {
   /** The name of the serving endpoint to update. This field is required. */
-  name?: string | undefined;
+  name: string;
   /** The list of served entities under the serving endpoint config. */
   servedEntities?: ServedModel[] | undefined;
   /** (Deprecated, use served_entities instead) The list of served models under the serving endpoint config. */
@@ -1022,7 +1022,7 @@ export interface PutInferenceEndpointConfigRequest {
 
 export interface PutInferenceEndpointRateLimitsRequest {
   /** The name of the serving endpoint whose rate limits are being updated. This field is required. */
-  name?: string | undefined;
+  name: string;
   /** The list of endpoint rate limits. */
   rateLimits?: RateLimit[] | undefined;
 }
@@ -1034,24 +1034,24 @@ export interface PutInferenceEndpointRateLimitsResponse {
 
 export interface PutPtEndpointConfigRequest {
   /** The name of the pt endpoint to update. This field is required. */
-  name?: string | undefined;
-  config?: PtEndpointCoreConfig | undefined;
+  name: string;
+  config: PtEndpointCoreConfig;
 }
 
 export interface RateLimit {
   /** Used to specify how many calls are allowed for a key within the renewal_period. */
-  calls?: bigint | undefined;
+  calls: bigint;
   /** Key field for a serving endpoint rate limit. Currently, only 'user' and 'endpoint' are supported, with 'endpoint' being the default if not specified. */
   key?: string | undefined;
   /** Renewal period field for a serving endpoint rate limit. Currently, only 'minute' is supported. */
-  renewalPeriod?: string | undefined;
+  renewalPeriod: string;
 }
 
 export interface Route {
   /** The name of the served model this route configures traffic for. */
   servedModelName?: string | undefined;
   /** The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive. */
-  trafficPercentage?: number | undefined;
+  trafficPercentage: number;
   servedEntityName?: string | undefined;
 }
 
@@ -1083,8 +1083,8 @@ export interface ServedModel {
   burstScalingEnabled?: boolean | undefined;
   /** Whether the compute resources for the served entity should scale down to zero. */
   scaleToZeroEnabled?: boolean | undefined;
-  modelName?: string | undefined;
-  modelVersion?: string | undefined;
+  modelName: string;
+  modelVersion: string;
   /** An object containing a set of optional, user-specified environment variable key-value pairs used for serving this entity. Note: this is an experimental feature and subject to change. Example entity environment variables that refer to <Databricks> secrets: `{"OPENAI_API_KEY": "{{secrets/my_scope/my_key}}", "DATABRICKS_TOKEN": "{{secrets/my_scope2/my_key2}}"}` */
   environmentVars?: Record<string, string> | undefined;
   /** ARN of the instance profile that the served entity uses to access AWS resources. */
@@ -1178,7 +1178,7 @@ export interface UnityCatalogTableNames {
 
 export interface UpdateInferenceEndpointNotificationsRequest {
   /** The name of the serving endpoint whose notifications are being updated. This field is required. */
-  name?: string | undefined;
+  name: string;
   /** The email notification settings to update. Specify email addresses to notify when endpoint state changes occur. */
   emailNotifications?: EmailNotifications | undefined;
 }
@@ -1233,7 +1233,7 @@ export const unmarshalAiGatewayRateLimitSchema: z.ZodType<AiGatewayRateLimit> =
         .transform(v => BigInt(v))
         .optional(),
       key: z.string().optional(),
-      renewal_period: z.string().optional(),
+      renewal_period: z.string(),
       principal: z.string().optional(),
       tokens: z
         .union([z.number(), z.bigint(), z.string()])
@@ -1276,10 +1276,10 @@ export const unmarshalAiGuardrailsSchema: z.ZodType<AiGuardrails> = z
 export const unmarshalAmazonBedrockConfigSchema: z.ZodType<AmazonBedrockConfig> =
   z
     .object({
-      aws_region: z.string().optional(),
+      aws_region: z.string(),
       aws_access_key_id: z.string().optional(),
       aws_secret_access_key: z.string().optional(),
-      bedrock_provider: z.string().optional(),
+      bedrock_provider: z.string(),
       aws_access_key_id_plaintext: z.string().optional(),
       aws_secret_access_key_plaintext: z.string().optional(),
       instance_profile_arn: z.string().optional(),
@@ -1306,7 +1306,7 @@ export const unmarshalAnthropicConfigSchema: z.ZodType<AnthropicConfig> = z
 
 export const unmarshalApiKeyAuthSchema: z.ZodType<ApiKeyAuth> = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
     value_plaintext: z.string().optional(),
   })
@@ -1365,7 +1365,7 @@ export const unmarshalCohereConfigSchema: z.ZodType<CohereConfig> = z
 export const unmarshalCustomProviderConfigSchema: z.ZodType<CustomProviderConfig> =
   z
     .object({
-      custom_provider_url: z.string().optional(),
+      custom_provider_url: z.string(),
       bearer_token_auth: z
         .lazy(() => unmarshalBearerTokenAuthSchema)
         .optional(),
@@ -1391,7 +1391,7 @@ export const unmarshalDatabricksModelServingConfigSchema: z.ZodType<DatabricksMo
   z
     .object({
       databricks_api_token: z.string().optional(),
-      databricks_workspace_url: z.string().optional(),
+      databricks_workspace_url: z.string(),
       databricks_api_token_plaintext: z.string().optional(),
     })
     .transform(d => ({
@@ -1457,7 +1457,7 @@ export const unmarshalEndpointCoreConfigSummarySchema: z.ZodType<EndpointCoreCon
 
 export const unmarshalEndpointTagSchema: z.ZodType<EndpointTag> = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({
@@ -1467,9 +1467,9 @@ export const unmarshalEndpointTagSchema: z.ZodType<EndpointTag> = z
 
 export const unmarshalExternalModelSchema: z.ZodType<ExternalModel> = z
   .object({
-    provider: z.string().optional(),
-    name: z.string().optional(),
-    task: z.string().optional(),
+    provider: z.string(),
+    name: z.string(),
+    task: z.string(),
     ai21labs_config: z.lazy(() => unmarshalAi21LabsConfigSchema).optional(),
     anthropic_config: z.lazy(() => unmarshalAnthropicConfigSchema).optional(),
     amazon_bedrock_config: z
@@ -1538,7 +1538,7 @@ export const unmarshalExternalModelSchema: z.ZodType<ExternalModel> = z
 
 export const unmarshalFallbackConfigSchema: z.ZodType<FallbackConfig> = z
   .object({
-    enabled: z.boolean().optional(),
+    enabled: z.boolean(),
   })
   .transform(d => ({
     enabled: d.enabled,
@@ -1561,7 +1561,7 @@ export const unmarshalFoundationModelSchema: z.ZodType<FoundationModel> = z
 export const unmarshalGetServedModelBuildLogsResponseSchema: z.ZodType<GetServedModelBuildLogsResponse> =
   z
     .object({
-      logs: z.string().optional(),
+      logs: z.string(),
     })
     .transform(d => ({
       logs: d.logs,
@@ -1570,7 +1570,7 @@ export const unmarshalGetServedModelBuildLogsResponseSchema: z.ZodType<GetServed
 export const unmarshalGetServedModelLogsResponseSchema: z.ZodType<GetServedModelLogsResponse> =
   z
     .object({
-      logs: z.string().optional(),
+      logs: z.string(),
     })
     .transform(d => ({
       logs: d.logs,
@@ -1580,8 +1580,8 @@ export const unmarshalGoogleCloudVertexAiConfigSchema: z.ZodType<GoogleCloudVert
   z
     .object({
       private_key: z.string().optional(),
-      project_id: z.string().optional(),
-      region: z.string().optional(),
+      project_id: z.string(),
+      region: z.string(),
       private_key_plaintext: z.string().optional(),
     })
     .transform(d => ({
@@ -1861,10 +1861,9 @@ export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
     calls: z
       .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
+      .transform(v => BigInt(v)),
     key: z.string().optional(),
-    renewal_period: z.string().optional(),
+    renewal_period: z.string(),
   })
   .transform(d => ({
     calls: d.calls,
@@ -1875,7 +1874,7 @@ export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
 export const unmarshalRouteSchema: z.ZodType<Route> = z
   .object({
     served_model_name: z.string().optional(),
-    traffic_percentage: z.number().optional(),
+    traffic_percentage: z.number(),
     served_entity_name: z.string().optional(),
   })
   .transform(d => ({
@@ -1901,8 +1900,8 @@ export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
       .optional(),
     burst_scaling_enabled: z.boolean().optional(),
     scale_to_zero_enabled: z.boolean().optional(),
-    model_name: z.string().optional(),
-    model_version: z.string().optional(),
+    model_name: z.string(),
+    model_version: z.string(),
     environment_vars: z.record(z.string(), z.string()).optional(),
     instance_profile_arn: z.string().optional(),
     foundation_model: z.lazy(() => unmarshalFoundationModelSchema).optional(),
@@ -2081,7 +2080,7 @@ export const marshalAiGatewayRateLimitSchema: z.ZodType = z
   .object({
     calls: z.bigint().optional(),
     key: z.string().optional(),
-    renewalPeriod: z.string().optional(),
+    renewalPeriod: z.string(),
     principal: z.string().optional(),
     tokens: z.bigint().optional(),
   })
@@ -2119,10 +2118,10 @@ export const marshalAiGuardrailsSchema: z.ZodType = z
 
 export const marshalAmazonBedrockConfigSchema: z.ZodType = z
   .object({
-    awsRegion: z.string().optional(),
+    awsRegion: z.string(),
     awsAccessKeyId: z.string().optional(),
     awsSecretAccessKey: z.string().optional(),
-    bedrockProvider: z.string().optional(),
+    bedrockProvider: z.string(),
     awsAccessKeyIdPlaintext: z.string().optional(),
     awsSecretAccessKeyPlaintext: z.string().optional(),
     instanceProfileArn: z.string().optional(),
@@ -2149,7 +2148,7 @@ export const marshalAnthropicConfigSchema: z.ZodType = z
 
 export const marshalApiKeyAuthSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
     valuePlaintext: z.string().optional(),
   })
@@ -2207,7 +2206,7 @@ export const marshalCohereConfigSchema: z.ZodType = z
 
 export const marshalCreateInferenceEndpointRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     config: z.lazy(() => marshalEndpointCoreConfigSchema).optional(),
     tags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
     routeOptimized: z.boolean().optional(),
@@ -2235,8 +2234,8 @@ export const marshalCreateInferenceEndpointRequestSchema: z.ZodType = z
 
 export const marshalCreatePtEndpointRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    config: z.lazy(() => marshalPtEndpointCoreConfigSchema).optional(),
+    name: z.string(),
+    config: z.lazy(() => marshalPtEndpointCoreConfigSchema),
     tags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
     aiGateway: z.lazy(() => marshalAiGatewayConfigSchema).optional(),
     budgetPolicyId: z.string().optional(),
@@ -2255,7 +2254,7 @@ export const marshalCreatePtEndpointRequestSchema: z.ZodType = z
 
 export const marshalCustomProviderConfigSchema: z.ZodType = z
   .object({
-    customProviderUrl: z.string().optional(),
+    customProviderUrl: z.string(),
     bearerTokenAuth: z.lazy(() => marshalBearerTokenAuthSchema).optional(),
     apiKeyAuth: z.lazy(() => marshalApiKeyAuthSchema).optional(),
   })
@@ -2268,7 +2267,7 @@ export const marshalCustomProviderConfigSchema: z.ZodType = z
 export const marshalDatabricksModelServingConfigSchema: z.ZodType = z
   .object({
     databricksApiToken: z.string().optional(),
-    databricksWorkspaceUrl: z.string().optional(),
+    databricksWorkspaceUrl: z.string(),
     databricksApiTokenPlaintext: z.string().optional(),
   })
   .transform(d => ({
@@ -2303,7 +2302,7 @@ export const marshalEndpointCoreConfigSchema: z.ZodType = z
 
 export const marshalEndpointTagSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({
@@ -2313,9 +2312,9 @@ export const marshalEndpointTagSchema: z.ZodType = z
 
 export const marshalExternalFunctionRequestSchema: z.ZodType = z
   .object({
-    connectionName: z.string().optional(),
-    method: z.string().optional(),
-    path: z.string().optional(),
+    connectionName: z.string(),
+    method: z.string(),
+    path: z.string(),
     json: z.string().optional(),
     headers: z.string().optional(),
     params: z.string().optional(),
@@ -2333,9 +2332,9 @@ export const marshalExternalFunctionRequestSchema: z.ZodType = z
 
 export const marshalExternalModelSchema: z.ZodType = z
   .object({
-    provider: z.string().optional(),
-    name: z.string().optional(),
-    task: z.string().optional(),
+    provider: z.string(),
+    name: z.string(),
+    task: z.string(),
     config: z
       .discriminatedUnion('$case', [
         z.object({
@@ -2414,7 +2413,7 @@ export const marshalExternalModelSchema: z.ZodType = z
 
 export const marshalFallbackConfigSchema: z.ZodType = z
   .object({
-    enabled: z.boolean().optional(),
+    enabled: z.boolean(),
   })
   .transform(d => ({
     enabled: d.enabled,
@@ -2437,8 +2436,8 @@ export const marshalFoundationModelSchema: z.ZodType = z
 export const marshalGoogleCloudVertexAiConfigSchema: z.ZodType = z
   .object({
     privateKey: z.string().optional(),
-    projectId: z.string().optional(),
-    region: z.string().optional(),
+    projectId: z.string(),
+    region: z.string(),
     privateKeyPlaintext: z.string().optional(),
   })
   .transform(d => ({
@@ -2503,7 +2502,7 @@ export const marshalPaLmConfigSchema: z.ZodType = z
 
 export const marshalPatchInferenceEndpointTagsRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     addTags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
     deleteTags: z.array(z.string()).optional(),
   })
@@ -2516,7 +2515,7 @@ export const marshalPatchInferenceEndpointTagsRequestSchema: z.ZodType = z
 export const marshalPatchInferenceEndpointTelemetryConfigRequestSchema: z.ZodType =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       telemetryConfig: z.lazy(() => marshalTelemetryConfigSchema).optional(),
     })
     .transform(d => ({
@@ -2559,9 +2558,9 @@ export const marshalPtEndpointCoreConfigSchema: z.ZodType = z
 export const marshalPtServedModelSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    entityName: z.string().optional(),
+    entityName: z.string(),
     entityVersion: z.string().optional(),
-    provisionedModelUnits: z.bigint().optional(),
+    provisionedModelUnits: z.bigint(),
     burstScalingEnabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2574,7 +2573,7 @@ export const marshalPtServedModelSchema: z.ZodType = z
 
 export const marshalPutInferenceEndpointAiGatewayRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     usageTrackingConfig: z
       .lazy(() => marshalUsageTrackingConfigSchema)
       .optional(),
@@ -2598,7 +2597,7 @@ export const marshalPutInferenceEndpointAiGatewayRequestSchema: z.ZodType = z
 
 export const marshalPutInferenceEndpointConfigRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     servedEntities: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
     servedModels: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
     trafficConfig: z.lazy(() => marshalTrafficConfigSchema).optional(),
@@ -2614,7 +2613,7 @@ export const marshalPutInferenceEndpointConfigRequestSchema: z.ZodType = z
 
 export const marshalPutInferenceEndpointRateLimitsRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     rateLimits: z.array(z.lazy(() => marshalRateLimitSchema)).optional(),
   })
   .transform(d => ({
@@ -2624,8 +2623,8 @@ export const marshalPutInferenceEndpointRateLimitsRequestSchema: z.ZodType = z
 
 export const marshalPutPtEndpointConfigRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    config: z.lazy(() => marshalPtEndpointCoreConfigSchema).optional(),
+    name: z.string(),
+    config: z.lazy(() => marshalPtEndpointCoreConfigSchema),
   })
   .transform(d => ({
     name: d.name,
@@ -2634,9 +2633,9 @@ export const marshalPutPtEndpointConfigRequestSchema: z.ZodType = z
 
 export const marshalRateLimitSchema: z.ZodType = z
   .object({
-    calls: z.bigint().optional(),
+    calls: z.bigint(),
     key: z.string().optional(),
-    renewalPeriod: z.string().optional(),
+    renewalPeriod: z.string(),
   })
   .transform(d => ({
     calls: d.calls,
@@ -2647,7 +2646,7 @@ export const marshalRateLimitSchema: z.ZodType = z
 export const marshalRouteSchema: z.ZodType = z
   .object({
     servedModelName: z.string().optional(),
-    trafficPercentage: z.number().optional(),
+    trafficPercentage: z.number(),
     servedEntityName: z.string().optional(),
   })
   .transform(d => ({
@@ -2670,8 +2669,8 @@ export const marshalServedModelSchema: z.ZodType = z
     provisionedModelUnits: z.bigint().optional(),
     burstScalingEnabled: z.boolean().optional(),
     scaleToZeroEnabled: z.boolean().optional(),
-    modelName: z.string().optional(),
-    modelVersion: z.string().optional(),
+    modelName: z.string(),
+    modelVersion: z.string(),
     environmentVars: z.record(z.string(), z.string()).optional(),
     instanceProfileArn: z.string().optional(),
     foundationModel: z.lazy(() => marshalFoundationModelSchema).optional(),
@@ -2777,7 +2776,7 @@ export const marshalUnityCatalogTableNamesSchema: z.ZodType = z
 export const marshalUpdateInferenceEndpointNotificationsRequestSchema: z.ZodType =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       emailNotifications: z
         .lazy(() => marshalEmailNotificationsSchema)
         .optional(),

@@ -201,26 +201,26 @@ export type SyncedTableSpec_PgSpecificType =
   | (string & {});
 
 export interface CreateDatabaseCatalogRequest {
-  catalog?: DatabaseCatalog | undefined;
+  catalog: DatabaseCatalog;
 }
 
 export interface CreateDatabaseInstanceRequest {
   /** Instance to create. */
-  databaseInstance?: DatabaseInstance | undefined;
+  databaseInstance: DatabaseInstance;
 }
 
 export interface CreateDatabaseInstanceRoleRequest {
   instanceName?: string | undefined;
-  databaseInstanceRole?: DatabaseInstanceRole | undefined;
+  databaseInstanceRole: DatabaseInstanceRole;
   databaseInstanceName?: string | undefined;
 }
 
 export interface CreateDatabaseTableRequest {
-  table?: DatabaseTable | undefined;
+  table: DatabaseTable;
 }
 
 export interface CreateSyncedDatabaseTableRequest {
-  syncedTable?: SyncedDatabaseTable | undefined;
+  syncedTable: SyncedDatabaseTable;
 }
 
 export interface CustomTag {
@@ -232,11 +232,11 @@ export interface CustomTag {
 
 export interface DatabaseCatalog {
   /** The name of the catalog in UC. */
-  name?: string | undefined;
+  name: string;
   /** The name of the DatabaseInstance housing the database. */
-  databaseInstanceName?: string | undefined;
+  databaseInstanceName: string;
   /** The name of the database (in an instance) associated with the catalog. */
-  databaseName?: string | undefined;
+  databaseName: string;
   uid?: string | undefined;
   createDatabaseIfNotExists?: boolean | undefined;
 }
@@ -251,7 +251,7 @@ export interface DatabaseInstance {
   /** An immutable UUID identifier for the instance. */
   uid?: string | undefined;
   /** The name of the instance. This is the unique identifier for the instance. */
-  name?: string | undefined;
+  name: string;
   /** The email of the creator of the instance. */
   creator?: string | undefined;
   /** The DNS endpoint to connect to the instance for read+write access. */
@@ -400,7 +400,7 @@ export interface DatabaseInstanceRef {
 /** A DatabaseInstanceRole represents a Postgres role in a database instance. */
 export interface DatabaseInstanceRole {
   /** The name of the role. This is the unique identifier for the role in an instance. */
-  name?: string | undefined;
+  name: string;
   /** The type of the role. */
   identityType?: DatabaseInstanceRole_IdentityType | undefined;
   /** An enum value for a standard role that this role is a member of. */
@@ -432,7 +432,7 @@ export interface DatabaseInstanceRole_Attributes {
 
 export interface DatabaseTable {
   /** Full three-part (catalog, schema, table) name of the table. */
-  name?: string | undefined;
+  name: string;
   /**
    * Name of the target database instance. This is required when creating database tables in standard catalogs.
    * This is optional when creating database tables in registered catalogs. If this field is specified
@@ -452,7 +452,7 @@ export interface DatabaseTable {
 }
 
 export interface DeleteDatabaseCatalogRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteDatabaseInstanceRequest {
@@ -471,19 +471,19 @@ export interface DeleteDatabaseInstanceRequest {
 }
 
 export interface DeleteDatabaseInstanceRoleRequest {
-  instanceName?: string | undefined;
-  name?: string | undefined;
+  instanceName: string;
+  name: string;
   reassignOwnedTo?: string | undefined;
   /** This is the AIP standard name for the equivalent of Postgres' `IF EXISTS` option */
   allowMissing?: boolean | undefined;
 }
 
 export interface DeleteDatabaseTableRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteSyncedDatabaseTableRequest {
-  name?: string | undefined;
+  name: string;
   /** Optional. When set to true, the actual PostgreSQL table will be dropped from the database. */
   purgeData?: boolean | undefined;
 }
@@ -519,7 +519,7 @@ export interface GenerateDatabaseCredentialRequest {
 }
 
 export interface GetDatabaseCatalogRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetDatabaseInstanceRequest {
@@ -533,11 +533,11 @@ export interface GetDatabaseInstanceRoleRequest {
 }
 
 export interface GetDatabaseTableRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetSyncedDatabaseTableRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface ListDatabaseCatalogsRequest {
@@ -644,7 +644,7 @@ export interface RequestedResource {
 
 export interface SyncedDatabaseTable {
   /** Full three-part (catalog, schema, table) name of the table. */
-  name?: string | undefined;
+  name: string;
   /**
    * Name of the target database instance. This is required when creating synced database tables in standard catalogs.
    * This is optional when creating synced database tables in registered catalogs. If this field is specified
@@ -823,9 +823,9 @@ export interface SyncedTableSpec {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTableSpec_TypeOverride {
   /** Name of the source column whose target PostgreSQL type should be overridden. */
-  columnName?: string | undefined;
+  columnName: string;
   /** PostgreSQL-specific target type to use for the column. */
-  pgType?: SyncedTableSpec_PgSpecificType | undefined;
+  pgType: SyncedTableSpec_PgSpecificType;
   /**
    * Size parameter for the target type, for types that take one (e.g. vector
    * dimension, varchar length). Required when the chosen pg_type needs a size.
@@ -893,25 +893,25 @@ export interface SyncedTableTriggeredUpdateStatus {
 
 export interface UpdateDatabaseCatalogRequest {
   /** Note that updating a database catalog is not yet supported. */
-  databaseCatalog?: DatabaseCatalog | undefined;
+  databaseCatalog: DatabaseCatalog;
   /** The list of fields to update. Setting this field is not yet supported. */
-  updateMask?: FieldMask<DatabaseCatalog> | undefined;
+  updateMask: FieldMask<DatabaseCatalog>;
 }
 
 export interface UpdateDatabaseInstanceRequest {
-  databaseInstance?: DatabaseInstance | undefined;
+  databaseInstance: DatabaseInstance;
   /**
    * The list of fields to update. If unspecified, all fields will be updated when possible. To wipe out custom_tags,
    * specify custom_tags in the update_mask with an empty custom_tags map.
    */
-  updateMask?: FieldMask<DatabaseInstance> | undefined;
+  updateMask: FieldMask<DatabaseInstance>;
 }
 
 export interface UpdateSyncedDatabaseTableRequest {
   /** Note that updating a synced database table is not yet supported. */
-  syncedTable?: SyncedDatabaseTable | undefined;
+  syncedTable: SyncedDatabaseTable;
   /** The list of fields to update. Setting this field is not yet supported. */
-  updateMask?: FieldMask<SyncedDatabaseTable> | undefined;
+  updateMask: FieldMask<SyncedDatabaseTable>;
 }
 
 export const unmarshalCustomTagSchema: z.ZodType<CustomTag> = z
@@ -926,9 +926,9 @@ export const unmarshalCustomTagSchema: z.ZodType<CustomTag> = z
 
 export const unmarshalDatabaseCatalogSchema: z.ZodType<DatabaseCatalog> = z
   .object({
-    name: z.string().optional(),
-    database_instance_name: z.string().optional(),
-    database_name: z.string().optional(),
+    name: z.string(),
+    database_instance_name: z.string(),
+    database_name: z.string(),
     uid: z.string().optional(),
     create_database_if_not_exists: z.boolean().optional(),
   })
@@ -957,7 +957,7 @@ export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> =
 export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
   .object({
     uid: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     creator: z.string().optional(),
     read_write_dns: z.string().optional(),
     creation_time: z
@@ -1044,7 +1044,7 @@ export const unmarshalDatabaseInstanceRefSchema: z.ZodType<DatabaseInstanceRef> 
 export const unmarshalDatabaseInstanceRoleSchema: z.ZodType<DatabaseInstanceRole> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       identity_type: z.string().optional(),
       membership_role: z.string().optional(),
       attributes: z
@@ -1080,7 +1080,7 @@ export const unmarshalDatabaseInstanceRole_AttributesSchema: z.ZodType<DatabaseI
 
 export const unmarshalDatabaseTableSchema: z.ZodType<DatabaseTable> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     database_instance_name: z.string().optional(),
     logical_database_name: z.string().optional(),
   })
@@ -1174,7 +1174,7 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
 export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       database_instance_name: z.string().optional(),
       effective_database_instance_name: z.string().optional(),
       logical_database_name: z.string().optional(),
@@ -1330,8 +1330,8 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
 export const unmarshalSyncedTableSpec_TypeOverrideSchema: z.ZodType<SyncedTableSpec_TypeOverride> =
   z
     .object({
-      column_name: z.string().optional(),
-      pg_type: z.string().optional(),
+      column_name: z.string(),
+      pg_type: z.string(),
       size: z.number().optional(),
     })
     .transform(d => ({
@@ -1418,9 +1418,9 @@ export const marshalCustomTagSchema: z.ZodType = z
 
 export const marshalDatabaseCatalogSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    databaseInstanceName: z.string().optional(),
-    databaseName: z.string().optional(),
+    name: z.string(),
+    databaseInstanceName: z.string(),
+    databaseName: z.string(),
     uid: z.string().optional(),
     createDatabaseIfNotExists: z.boolean().optional(),
   })
@@ -1435,7 +1435,7 @@ export const marshalDatabaseCatalogSchema: z.ZodType = z
 export const marshalDatabaseInstanceSchema: z.ZodType = z
   .object({
     uid: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     creator: z.string().optional(),
     readWriteDns: z.string().optional(),
     creationTime: z
@@ -1520,7 +1520,7 @@ export const marshalDatabaseInstanceRefSchema: z.ZodType = z
 
 export const marshalDatabaseInstanceRoleSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     identityType: z.string().optional(),
     membershipRole: z.string().optional(),
     attributes: z
@@ -1555,7 +1555,7 @@ export const marshalDatabaseInstanceRole_AttributesSchema: z.ZodType = z
 
 export const marshalDatabaseTableSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     databaseInstanceName: z.string().optional(),
     logicalDatabaseName: z.string().optional(),
   })
@@ -1635,7 +1635,7 @@ export const marshalRequestedResourceSchema: z.ZodType = z
 
 export const marshalSyncedDatabaseTableSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     databaseInstanceName: z.string().optional(),
     effectiveDatabaseInstanceName: z.string().optional(),
     logicalDatabaseName: z.string().optional(),
@@ -1771,8 +1771,8 @@ export const marshalSyncedTableSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSyncedTableSpec_TypeOverrideSchema: z.ZodType = z
   .object({
-    columnName: z.string().optional(),
-    pgType: z.string().optional(),
+    columnName: z.string(),
+    pgType: z.string(),
     size: z.number().optional(),
   })
   .transform(d => ({

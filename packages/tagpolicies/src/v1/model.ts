@@ -6,15 +6,15 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateTagPolicyRequest {
-  tagPolicy?: TagPolicy | undefined;
+  tagPolicy: TagPolicy;
 }
 
 export interface DeleteTagPolicyRequest {
-  tagKey?: string | undefined;
+  tagKey: string;
 }
 
 export interface GetTagPolicyRequest {
-  tagKey?: string | undefined;
+  tagKey: string;
 }
 
 export interface ListTagPoliciesRequest {
@@ -34,7 +34,7 @@ export interface ListTagPoliciesResponse {
 }
 
 export interface TagPolicy {
-  tagKey?: string | undefined;
+  tagKey: string;
   id?: string | undefined;
   description?: string | undefined;
   values?: Value[] | undefined;
@@ -45,12 +45,12 @@ export interface TagPolicy {
 }
 
 export interface UpdateTagPolicyRequest {
-  tagPolicy?: TagPolicy | undefined;
-  updateMask?: FieldMask<TagPolicy> | undefined;
+  tagPolicy: TagPolicy;
+  updateMask: FieldMask<TagPolicy>;
 }
 
 export interface Value {
-  name?: string | undefined;
+  name: string;
 }
 
 export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesResponse> =
@@ -66,7 +66,7 @@ export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesRe
 
 export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
   .object({
-    tag_key: z.string().optional(),
+    tag_key: z.string(),
     id: z.string().optional(),
     description: z.string().optional(),
     values: z.array(z.lazy(() => unmarshalValueSchema)).optional(),
@@ -90,7 +90,7 @@ export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
 
 export const unmarshalValueSchema: z.ZodType<Value> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -98,7 +98,7 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
 
 export const marshalTagPolicySchema: z.ZodType = z
   .object({
-    tagKey: z.string().optional(),
+    tagKey: z.string(),
     id: z.string().optional(),
     description: z.string().optional(),
     values: z.array(z.lazy(() => marshalValueSchema)).optional(),
@@ -122,7 +122,7 @@ export const marshalTagPolicySchema: z.ZodType = z
 
 export const marshalValueSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,

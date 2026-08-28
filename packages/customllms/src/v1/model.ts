@@ -19,14 +19,14 @@ export const State = {
 export type State = (typeof State)[keyof typeof State] | (string & {});
 
 export interface CancelCustomLlmOptimizationRunRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface CreateCustomLlmRequest {
   /** Name of the custom LLM. Only alphanumeric characters and dashes allowed. */
-  name?: string | undefined;
+  name: string;
   /** Instructions for the custom LLM to follow */
-  instructions?: string | undefined;
+  instructions: string;
   /**
    * Datasets used for training and evaluating the model, not for inference.
    * Currently, only 1 dataset is accepted.
@@ -45,11 +45,11 @@ export interface CreateCustomLlmRequest {
 export interface CustomLlm {
   id?: string | undefined;
   /** Name of the custom LLM */
-  name?: string | undefined;
+  name: string;
   /** Name of the endpoint that will be used to serve the custom LLM */
   endpointName?: string | undefined;
   /** Instructions for the custom LLM to follow */
-  instructions?: string | undefined;
+  instructions: string;
   /** Datasets used for training and evaluating the model, not for inference */
   datasets?: Dataset[] | undefined;
   /** Guidelines for the custom LLM to adhere to */
@@ -64,29 +64,29 @@ export interface CustomLlm {
 }
 
 export interface Dataset {
-  table?: Table | undefined;
+  table: Table;
 }
 
 export interface DeleteCustomLlmRequest {
   /** The id of the custom llm */
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetCustomLlmRequest {
   /** The id of the custom llm */
-  id?: string | undefined;
+  id: string;
 }
 
 export interface StartCustomLlmOptimizationRunRequest {
   /** The Id of the tile. */
-  id?: string | undefined;
+  id: string;
 }
 
 export interface Table {
   /** Full UC table path in catalog.schema.table_name format */
-  tablePath?: string | undefined;
+  tablePath: string;
   /** Name of the request column */
-  requestCol?: string | undefined;
+  requestCol: string;
   /** Optional: Name of the response column if the data is labeled */
   responseCol?: string | undefined;
 }
@@ -95,17 +95,17 @@ export interface UpdateCustomLlmRequest {
   /** The id of the custom llm */
   id?: string | undefined;
   /** The CustomLlm containing the fields which should be updated. */
-  customLlm?: CustomLlm | undefined;
+  customLlm: CustomLlm;
   /** The list of the CustomLlm fields to update. These should correspond to the values (or lack thereof) present in `custom_llm`. */
-  updateMask?: FieldMask<CustomLlm> | undefined;
+  updateMask: FieldMask<CustomLlm>;
 }
 
 export const unmarshalCustomLlmSchema: z.ZodType<CustomLlm> = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     endpoint_name: z.string().optional(),
-    instructions: z.string().optional(),
+    instructions: z.string(),
     datasets: z.array(z.lazy(() => unmarshalDatasetSchema)).optional(),
     guidelines: z.array(z.string()).optional(),
     optimization_state: z.string().optional(),
@@ -131,7 +131,7 @@ export const unmarshalCustomLlmSchema: z.ZodType<CustomLlm> = z
 
 export const unmarshalDatasetSchema: z.ZodType<Dataset> = z
   .object({
-    table: z.lazy(() => unmarshalTableSchema).optional(),
+    table: z.lazy(() => unmarshalTableSchema),
   })
   .transform(d => ({
     table: d.table,
@@ -139,8 +139,8 @@ export const unmarshalDatasetSchema: z.ZodType<Dataset> = z
 
 export const unmarshalTableSchema: z.ZodType<Table> = z
   .object({
-    table_path: z.string().optional(),
-    request_col: z.string().optional(),
+    table_path: z.string(),
+    request_col: z.string(),
     response_col: z.string().optional(),
   })
   .transform(d => ({
@@ -151,7 +151,7 @@ export const unmarshalTableSchema: z.ZodType<Table> = z
 
 export const marshalCancelCustomLlmOptimizationRunRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -159,8 +159,8 @@ export const marshalCancelCustomLlmOptimizationRunRequestSchema: z.ZodType = z
 
 export const marshalCreateCustomLlmRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    instructions: z.string().optional(),
+    name: z.string(),
+    instructions: z.string(),
     datasets: z.array(z.lazy(() => marshalDatasetSchema)).optional(),
     guidelines: z.array(z.string()).optional(),
     agentArtifactPath: z.string().optional(),
@@ -176,9 +176,9 @@ export const marshalCreateCustomLlmRequestSchema: z.ZodType = z
 export const marshalCustomLlmSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     endpointName: z.string().optional(),
-    instructions: z.string().optional(),
+    instructions: z.string(),
     datasets: z.array(z.lazy(() => marshalDatasetSchema)).optional(),
     guidelines: z.array(z.string()).optional(),
     optimizationState: z.string().optional(),
@@ -204,7 +204,7 @@ export const marshalCustomLlmSchema: z.ZodType = z
 
 export const marshalDatasetSchema: z.ZodType = z
   .object({
-    table: z.lazy(() => marshalTableSchema).optional(),
+    table: z.lazy(() => marshalTableSchema),
   })
   .transform(d => ({
     table: d.table,
@@ -212,7 +212,7 @@ export const marshalDatasetSchema: z.ZodType = z
 
 export const marshalStartCustomLlmOptimizationRunRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -220,8 +220,8 @@ export const marshalStartCustomLlmOptimizationRunRequestSchema: z.ZodType = z
 
 export const marshalTableSchema: z.ZodType = z
   .object({
-    tablePath: z.string().optional(),
-    requestCol: z.string().optional(),
+    tablePath: z.string(),
+    requestCol: z.string(),
     responseCol: z.string().optional(),
   })
   .transform(d => ({
@@ -233,11 +233,8 @@ export const marshalTableSchema: z.ZodType = z
 export const marshalUpdateCustomLlmRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    customLlm: z.lazy(() => marshalCustomLlmSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    customLlm: z.lazy(() => marshalCustomLlmSchema),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
   })
   .transform(d => ({
     id: d.id,

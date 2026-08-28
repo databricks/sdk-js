@@ -7,30 +7,30 @@ import {z} from 'zod';
 
 export interface CreateAccountFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /**
    * The identifier for the federation policy. The identifier must contain only lowercase
    * alphanumeric characters, numbers, hyphens, and slashes. If unspecified, the id will be
    * assigned by <Databricks>.
    */
   policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policy: FederationPolicy;
 }
 
 export interface CreateServicePrincipalFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /**
    * The identifier for the federation policy. The identifier must contain only lowercase
    * alphanumeric characters, numbers, hyphens, and slashes. If unspecified, the id will be
    * assigned by <Databricks>.
    */
   policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policy: FederationPolicy;
 }
 
 export interface CreateServicePrincipalSecretRequest {
@@ -61,20 +61,20 @@ export interface CreateServicePrincipalSecretResponse {
 
 export interface DeleteAccountFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /** The identifier for the federation policy. */
-  policyId?: string | undefined;
+  policyId: string;
 }
 
 export interface DeleteServicePrincipalFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /** The identifier for the federation policy. */
-  policyId?: string | undefined;
+  policyId: string;
 }
 
 export interface DeleteServicePrincipalSecretRequest {
@@ -116,27 +116,27 @@ export interface FederationPolicy {
 
 export interface GetAccountFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /** The identifier for the federation policy. */
-  policyId?: string | undefined;
+  policyId: string;
 }
 
 export interface GetServicePrincipalFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /** The identifier for the federation policy. */
-  policyId?: string | undefined;
+  policyId: string;
 }
 
 export interface ListAccountFederationPoliciesRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   pageSize?: number | undefined;
   pageToken?: string | undefined;
 }
@@ -148,9 +148,9 @@ export interface ListFederationPoliciesResponse {
 
 export interface ListServicePrincipalFederationPoliciesRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   pageSize?: number | undefined;
   pageToken?: string | undefined;
 }
@@ -237,12 +237,12 @@ export interface ServicePrincipalSecret {
 
 export interface UpdateAccountFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /** The identifier for the federation policy. */
-  policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policyId: string;
+  policy: FederationPolicy;
   /**
    * The field mask specifies which fields of the policy to update. To specify multiple fields
    * in the field mask, use comma as the separator (no space). The special value '*' indicates
@@ -255,12 +255,12 @@ export interface UpdateAccountFederationPolicyRequest {
 
 export interface UpdateServicePrincipalFederationPolicyRequest {
   /** The account id for the federation policy. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The service principal id for the federation policy. */
-  servicePrincipalId?: bigint | undefined;
+  servicePrincipalId: bigint;
   /** The identifier for the federation policy. */
-  policyId?: string | undefined;
-  policy?: FederationPolicy | undefined;
+  policyId: string;
+  policy: FederationPolicy;
   /**
    * The field mask specifies which fields of the policy to update. To specify multiple fields
    * in the field mask, use comma as the separator (no space). The special value '*' indicates

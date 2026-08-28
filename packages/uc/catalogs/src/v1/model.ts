@@ -67,7 +67,7 @@ export type ProvisioningInfo_State =
   | (string & {});
 
 export interface AzureEncryptionSettings {
-  azureTenantId?: string | undefined;
+  azureTenantId: string;
   azureCmkAccessConnectorId?: string | undefined;
   azureCmkManagedIdentityId?: string | undefined;
 }
@@ -122,7 +122,7 @@ export interface CatalogInfo {
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
@@ -177,14 +177,14 @@ export interface CreateCatalogRequest {
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
 
 export interface DeleteCatalogRequest {
   /** The name of the catalog. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** Force deletion even if the catalog is not empty. */
   force?: boolean | undefined;
 }
@@ -194,7 +194,7 @@ export interface DeleteCatalogResponse {}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
-  value?: string | undefined;
+  value: string;
   /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
   inheritedFromType?: string | undefined;
   /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
@@ -216,7 +216,7 @@ export interface EncryptionSettings {
 
 export interface GetCatalogRequest {
   /** The name of the catalog. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** Whether to include catalogs in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
@@ -261,7 +261,7 @@ export interface ProvisioningInfo {
 
 export interface UpdateCatalogRequest {
   /** The name of the catalog. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name for the catalog. */
   newName?: string | undefined;
   /** Name of catalog. */
@@ -313,7 +313,7 @@ export interface UpdateCatalogRequest {
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
@@ -321,7 +321,7 @@ export interface UpdateCatalogRequest {
 export const unmarshalAzureEncryptionSettingsSchema: z.ZodType<AzureEncryptionSettings> =
   z
     .object({
-      azure_tenant_id: z.string().optional(),
+      azure_tenant_id: z.string(),
       azure_cmk_access_connector_id: z.string().optional(),
       azure_cmk_managed_identity_id: z.string().optional(),
     })
@@ -369,7 +369,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     managed_encryption_settings: z
       .lazy(() => unmarshalEncryptionSettingsSchema)
       .optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -407,7 +407,7 @@ export const unmarshalDeleteCatalogResponseSchema: z.ZodType<DeleteCatalogRespon
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
   z
     .object({
-      value: z.string().optional(),
+      value: z.string(),
       inherited_from_type: z.string().optional(),
       inherited_from_name: z.string().optional(),
     })
@@ -453,7 +453,7 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
 
 export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
   .object({
-    azureTenantId: z.string().optional(),
+    azureTenantId: z.string(),
     azureCmkAccessConnectorId: z.string().optional(),
     azureCmkManagedIdentityId: z.string().optional(),
   })
@@ -492,7 +492,7 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
       .optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -526,7 +526,7 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
   .object({
-    value: z.string().optional(),
+    value: z.string(),
     inheritedFromType: z.string().optional(),
     inheritedFromName: z.string().optional(),
   })
@@ -560,7 +560,7 @@ export const marshalProvisioningInfoSchema: z.ZodType = z
 
 export const marshalUpdateCatalogRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     owner: z.string().optional(),
@@ -589,7 +589,7 @@ export const marshalUpdateCatalogRequestSchema: z.ZodType = z
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
       .optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({

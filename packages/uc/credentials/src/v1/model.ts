@@ -83,9 +83,9 @@ export type ValidateStorageCredentialRequest_Result =
 
 export interface AccountsCreateStorageCredentialRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   credentialInfo?: CreateAccountsStorageCredential | undefined;
   /**
    * Optional, default false.
@@ -101,11 +101,11 @@ export interface AccountsCreateStorageCredentialResponse {
 /** Deletes a storage credential for an account */
 export interface AccountsDeleteStorageCredentialRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /** Name of the storage credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** Force deletion even if the Storage Credential is not empty. Default is false. */
   force?: boolean | undefined;
 }
@@ -117,11 +117,11 @@ export interface AccountsDeleteStorageCredentialResponse {}
 /** Retrieves a single storage credential */
 export interface AccountsGetStorageCredentialRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /** Required. Name of the storage credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 /** The storage credential was successfully retrieved. */
@@ -132,9 +132,9 @@ export interface AccountsGetStorageCredentialResponse {
 /** Lists all storage credentials for the given account and metastore */
 export interface AccountsListStorageCredentialsRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
 }
 
 /** The metastore storage credentials were successfully returned. */
@@ -146,11 +146,11 @@ export interface AccountsListStorageCredentialsResponse {
 /** The storage credential to update. */
 export interface AccountsUpdateStorageCredentialRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /** Name of the storage credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
   credentialInfo?: UpdateAccountsStorageCredential | undefined;
   /** Optional. Supplying true to this argument skips validation of the updated set of credentials. */
   skipValidation?: boolean | undefined;
@@ -200,7 +200,7 @@ export interface AzureManagedIdentity {
    * The Azure resource ID of the Azure Databricks Access Connector. Use the format
    * `/subscriptions/{guid}/resourceGroups/{rg-name}/providers/Microsoft.Databricks/accessConnectors/{connector-name}`.
    */
-  accessConnectorId?: string | undefined;
+  accessConnectorId: string;
   /**
    * The Azure resource ID of the managed identity. Use the format,
    * `/subscriptions/{guid}/resourceGroups/{rg-name}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identity-name}`
@@ -215,11 +215,11 @@ export interface AzureManagedIdentity {
 /** The Azure service principal configuration. Only applicable when purpose is **STORAGE**. */
 export interface AzureServicePrincipal {
   /** The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application. */
-  directoryId?: string | undefined;
+  directoryId: string;
   /** The application ID of the application registration within the referenced AAD tenant. */
-  applicationId?: string | undefined;
+  applicationId: string;
   /** The client secret generated for the above app ID in AAD. */
-  clientSecret?: string | undefined;
+  clientSecret: string;
 }
 
 /**
@@ -237,11 +237,11 @@ export interface AzureUserDelegationSas {
  */
 export interface CloudflareApiToken {
   /** The access key ID associated with the API token. */
-  accessKeyId?: string | undefined;
+  accessKeyId: string;
   /** The secret access token generated for the above access key ID. */
-  secretAccessKey?: string | undefined;
+  secretAccessKey: string;
   /** The ID of the account associated with the API token. */
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 export interface CreateAccountsStorageCredential {
@@ -400,9 +400,9 @@ export interface CreateCredentialRequest {
 }
 
 export interface CreateCredentialsRequest {
-  accountId?: string | undefined;
+  accountId: string;
   /** The human-readable name of the credential configuration object. */
-  credentialsName?: string | undefined;
+  credentialsName: string;
   /** (-- NOTE(austin) This oneof is a future-looking definition when we add other clouds --) */
   cloudCredentials?:
     | {$case: 'awsCredentials'; awsCredentials: CreateCredentialAwsCredentials}
@@ -587,7 +587,7 @@ export interface DatabricksGcpServiceAccount {
 
 export interface DeleteCredentialRequest {
   /** Name of the credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /**
    * Force an update even if there are dependent services (when purpose is
    * **SERVICE**) or dependent external locations and external tables (when
@@ -601,13 +601,13 @@ export interface DeleteCredentialResponse {}
 
 export interface DeleteCredentialsRequest {
   /** Databricks Account API credential configuration ID */
-  credentialsId?: string | undefined;
-  accountId?: string | undefined;
+  credentialsId: string;
+  accountId: string;
 }
 
 export interface DeleteStorageCredentialRequest {
   /** Name of the storage credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /**
    * Force an update even if there are dependent external locations or external
    * tables (when purpose is **STORAGE**) or dependent services (when purpose is
@@ -642,9 +642,9 @@ export interface GcpServiceAccountKey {
 
 export interface GenerateTemporaryPathCredentialRequest {
   /** URL for path-based access. */
-  url?: string | undefined;
+  url: string;
   /** The operation being performed on the path. */
-  operation?: PathOperation | undefined;
+  operation: PathOperation;
   /**
    * Optional. When set to true, the service will not validate that the generated
    * credentials can perform write operations, therefore no new paths will be created
@@ -775,13 +775,13 @@ export interface GenerateTemporaryVolumeCredentialResponse {
 
 export interface GetCredentialRequest {
   /** Name of the credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 export interface GetCredentialsRequest {
   /** Credential configuration ID */
-  credentialsId?: string | undefined;
-  accountId?: string | undefined;
+  credentialsId: string;
+  accountId: string;
 }
 
 /**
@@ -791,11 +791,11 @@ export interface GetCredentialsRequest {
  */
 export interface GetStorageCredentialRequest {
   /** Name of the storage credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 export interface ListCredentialsPublicRequest {
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 /**
@@ -1074,7 +1074,7 @@ export interface UpdateAccountsStorageCredential {
 
 export interface UpdateCredentialRequest {
   /** Name of the credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name of credential. */
   newName?: string | undefined;
   /** Supply true to this argument to skip validation of the updated credential. */
@@ -1159,7 +1159,7 @@ export interface UpdateCredentialRequest {
 
 export interface UpdateStorageCredentialRequest {
   /** Name of the storage credential. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name for the storage credential. */
   newName?: string | undefined;
   /** Supplying true to this argument skips validation of the updated credential. */
@@ -1451,7 +1451,7 @@ export const unmarshalAzureActiveDirectoryTokenSchema: z.ZodType<AzureActiveDire
 export const unmarshalAzureManagedIdentitySchema: z.ZodType<AzureManagedIdentity> =
   z
     .object({
-      access_connector_id: z.string().optional(),
+      access_connector_id: z.string(),
       managed_identity_id: z.string().optional(),
       credential_id: z.string().optional(),
     })
@@ -1464,9 +1464,9 @@ export const unmarshalAzureManagedIdentitySchema: z.ZodType<AzureManagedIdentity
 export const unmarshalAzureServicePrincipalSchema: z.ZodType<AzureServicePrincipal> =
   z
     .object({
-      directory_id: z.string().optional(),
-      application_id: z.string().optional(),
-      client_secret: z.string().optional(),
+      directory_id: z.string(),
+      application_id: z.string(),
+      client_secret: z.string(),
     })
     .transform(d => ({
       directoryId: d.directory_id,
@@ -1486,9 +1486,9 @@ export const unmarshalAzureUserDelegationSasSchema: z.ZodType<AzureUserDelegatio
 export const unmarshalCloudflareApiTokenSchema: z.ZodType<CloudflareApiToken> =
   z
     .object({
-      access_key_id: z.string().optional(),
-      secret_access_key: z.string().optional(),
-      account_id: z.string().optional(),
+      access_key_id: z.string(),
+      secret_access_key: z.string(),
+      account_id: z.string(),
     })
     .transform(d => ({
       accessKeyId: d.access_key_id,
@@ -2048,8 +2048,8 @@ export const unmarshalValidateStorageCredentialResponseSchema: z.ZodType<Validat
 
 export const marshalAccountsCreateStorageCredentialRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    metastoreId: z.string().optional(),
+    accountId: z.string(),
+    metastoreId: z.string(),
     credentialInfo: z
       .lazy(() => marshalCreateAccountsStorageCredentialSchema)
       .optional(),
@@ -2064,9 +2064,9 @@ export const marshalAccountsCreateStorageCredentialRequestSchema: z.ZodType = z
 
 export const marshalAccountsUpdateStorageCredentialRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    metastoreId: z.string().optional(),
-    nameArg: z.string().optional(),
+    accountId: z.string(),
+    metastoreId: z.string(),
+    nameArg: z.string(),
     credentialInfo: z
       .lazy(() => marshalUpdateAccountsStorageCredentialSchema)
       .optional(),
@@ -2103,7 +2103,7 @@ export const marshalAwsIamRoleSchema: z.ZodType = z
 
 export const marshalAzureManagedIdentitySchema: z.ZodType = z
   .object({
-    accessConnectorId: z.string().optional(),
+    accessConnectorId: z.string(),
     managedIdentityId: z.string().optional(),
     credentialId: z.string().optional(),
   })
@@ -2115,9 +2115,9 @@ export const marshalAzureManagedIdentitySchema: z.ZodType = z
 
 export const marshalAzureServicePrincipalSchema: z.ZodType = z
   .object({
-    directoryId: z.string().optional(),
-    applicationId: z.string().optional(),
-    clientSecret: z.string().optional(),
+    directoryId: z.string(),
+    applicationId: z.string(),
+    clientSecret: z.string(),
   })
   .transform(d => ({
     directory_id: d.directoryId,
@@ -2127,9 +2127,9 @@ export const marshalAzureServicePrincipalSchema: z.ZodType = z
 
 export const marshalCloudflareApiTokenSchema: z.ZodType = z
   .object({
-    accessKeyId: z.string().optional(),
-    secretAccessKey: z.string().optional(),
-    accountId: z.string().optional(),
+    accessKeyId: z.string(),
+    secretAccessKey: z.string(),
+    accountId: z.string(),
   })
   .transform(d => ({
     access_key_id: d.accessKeyId,
@@ -2320,8 +2320,8 @@ export const marshalCreateCredentialRequestSchema: z.ZodType = z
 
 export const marshalCreateCredentialsRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    credentialsName: z.string().optional(),
+    accountId: z.string(),
+    credentialsName: z.string(),
     cloudCredentials: z
       .discriminatedUnion('$case', [
         z.object({
@@ -2451,8 +2451,8 @@ export const marshalGcpServiceAccountKeySchema: z.ZodType = z
 
 export const marshalGenerateTemporaryPathCredentialRequestSchema: z.ZodType = z
   .object({
-    url: z.string().optional(),
-    operation: z.string().optional(),
+    url: z.string(),
+    operation: z.string(),
     dryRun: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2619,7 +2619,7 @@ export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
 
 export const marshalUpdateCredentialRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     skipValidation: z.boolean().optional(),
     force: z.boolean().optional(),
@@ -2709,7 +2709,7 @@ export const marshalUpdateCredentialRequestSchema: z.ZodType = z
 
 export const marshalUpdateStorageCredentialRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     skipValidation: z.boolean().optional(),
     force: z.boolean().optional(),

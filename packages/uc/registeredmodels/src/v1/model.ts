@@ -61,9 +61,9 @@ export interface CredentialDependency {
 
 export interface DeleteModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The integer version number of the model version */
-  versionArg?: bigint | undefined;
+  versionArg: bigint;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -71,9 +71,9 @@ export interface DeleteModelVersionResponse {}
 
 export interface DeleteRegisteredModelAliasRequest {
   /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The name of the alias */
-  aliasArg?: string | undefined;
+  aliasArg: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -81,7 +81,7 @@ export interface DeleteRegisteredModelAliasResponse {}
 
 export interface DeleteRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -109,23 +109,23 @@ export interface DependencyList {
 /** A function that is dependent on a SQL object. */
 export interface FunctionDependency {
   /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
-  functionFullName?: string | undefined;
+  functionFullName: string;
 }
 
 export interface GetModelVersionByAliasRequest {
   /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The name of the alias */
-  aliasArg?: string | undefined;
+  aliasArg: string;
   /** Whether to include aliases associated with the model version in the response */
   includeAliases?: boolean | undefined;
 }
 
 export interface GetModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The integer version number of the model version */
-  versionArg?: bigint | undefined;
+  versionArg: bigint;
   /** Whether to include aliases associated with the model version in the response */
   includeAliases?: boolean | undefined;
   /** Whether to include model versions in the response for which the principal can only access selective metadata for */
@@ -134,7 +134,7 @@ export interface GetModelVersionRequest {
 
 export interface GetRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Whether to include registered model aliases in the response */
   includeAliases?: boolean | undefined;
   /** Whether to include registered models in the response for which the principal can only access selective metadata for */
@@ -143,7 +143,7 @@ export interface GetRegisteredModelRequest {
 
 export interface ListModelVersionsRequest {
   /** The full three-level name of the registered model under which to list model versions */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /**
    * Maximum number of model versions to return.
    * If not set, the page length is set to a server configured value (100, as of 1/3/2024).
@@ -305,24 +305,24 @@ export interface RegisteredModelInfo {
 
 export interface SetRegisteredModelAliasRequest {
   /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The name of the alias */
-  aliasArg?: string | undefined;
+  aliasArg: string;
   /** The version number of the model version to which the alias points */
-  versionNum?: bigint | undefined;
+  versionNum: bigint;
 }
 
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
   /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
-  tableFullName?: string | undefined;
+  tableFullName: string;
 }
 
 export interface UpdateModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The integer version number of the model version */
-  versionArg?: bigint | undefined;
+  versionArg: bigint;
   /** The name of the parent registered model of the model version, relative to parent schema */
   modelName?: string | undefined;
   /** The name of the catalog containing the model version */
@@ -372,7 +372,7 @@ export interface UpdateModelVersionRequest {
 
 export interface UpdateRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** New name for the registered model. */
   newName?: string | undefined;
   /** The name of the registered model */
@@ -463,7 +463,7 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
 export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
   z
     .object({
-      function_full_name: z.string().optional(),
+      function_full_name: z.string(),
     })
     .transform(d => ({
       functionFullName: d.function_full_name,
@@ -620,7 +620,7 @@ export const unmarshalRegisteredModelInfoSchema: z.ZodType<RegisteredModelInfo> 
 
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   .object({
-    table_full_name: z.string().optional(),
+    table_full_name: z.string(),
   })
   .transform(d => ({
     tableFullName: d.table_full_name,
@@ -718,7 +718,7 @@ export const marshalDependencyListSchema: z.ZodType = z
 
 export const marshalFunctionDependencySchema: z.ZodType = z
   .object({
-    functionFullName: z.string().optional(),
+    functionFullName: z.string(),
   })
   .transform(d => ({
     function_full_name: d.functionFullName,
@@ -744,9 +744,9 @@ export const marshalRegisteredModelAliasInfoSchema: z.ZodType = z
 
 export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
-    aliasArg: z.string().optional(),
-    versionNum: z.bigint().optional(),
+    fullNameArg: z.string(),
+    aliasArg: z.string(),
+    versionNum: z.bigint(),
   })
   .transform(d => ({
     full_name_arg: d.fullNameArg,
@@ -756,7 +756,7 @@ export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z
 
 export const marshalTableDependencySchema: z.ZodType = z
   .object({
-    tableFullName: z.string().optional(),
+    tableFullName: z.string(),
   })
   .transform(d => ({
     table_full_name: d.tableFullName,
@@ -764,8 +764,8 @@ export const marshalTableDependencySchema: z.ZodType = z
 
 export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
-    versionArg: z.bigint().optional(),
+    fullNameArg: z.string(),
+    versionArg: z.bigint(),
     modelName: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
@@ -814,7 +814,7 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
 
 export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
+    fullNameArg: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     catalogName: z.string().optional(),

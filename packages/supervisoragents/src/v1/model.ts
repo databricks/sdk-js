@@ -8,7 +8,7 @@ import {z} from 'zod';
 /** <Databricks> app. Supported app: custom mcp, custom agent. */
 export interface App {
   /** App name */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Create an example. */
@@ -17,14 +17,14 @@ export interface CreateExampleRequest {
    * Parent resource where this example will be created.
    * Format: supervisor-agents/{supervisor_agent_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** The example to create under the parent Supervisor Agent. */
-  example?: Example | undefined;
+  example: Example;
 }
 
 export interface CreateSupervisorAgentRequest {
   /** The Supervisor Agent to create. */
-  supervisorAgent?: SupervisorAgent | undefined;
+  supervisorAgent: SupervisorAgent;
 }
 
 export interface CreateToolRequest {
@@ -32,13 +32,13 @@ export interface CreateToolRequest {
    * Parent resource where this tool will be created.
    * Format: supervisor-agents/{supervisor_agent_id}
    */
-  parent?: string | undefined;
-  tool?: Tool | undefined;
+  parent: string;
+  tool: Tool;
   /**
    * The ID to use for the tool, which will become the final component of
    * the tool's resource name.
    */
-  toolId?: string | undefined;
+  toolId: string;
 }
 
 /** Delete an example. */
@@ -47,7 +47,7 @@ export interface DeleteExampleRequest {
    * The resource name of the example to delete.
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteSupervisorAgentRequest {
@@ -55,7 +55,7 @@ export interface DeleteSupervisorAgentRequest {
    * The resource name of the Supervisor Agent.
    * Format: supervisor-agents/{supervisor_agent_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteToolRequest {
@@ -63,7 +63,7 @@ export interface DeleteToolRequest {
    * The resource name of the Tool.
    * Format: supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -77,9 +77,9 @@ export interface Example {
    */
   name?: string | undefined;
   /** The example question. */
-  question?: string | undefined;
+  question: string;
   /** Guidelines for answering the question. */
-  guidelines?: string[] | undefined;
+  guidelines: string[];
   /** The universally unique identifier (UUID) of the example. */
   exampleId?: string | undefined;
 }
@@ -89,7 +89,7 @@ export interface GenieSpace {
    * Deprecated: use space_id instead. Still REQUIRED for backward compatibility
    * until a future API version removes it.
    */
-  id?: string | undefined;
+  id: string;
 }
 
 /** Get an example. */
@@ -98,7 +98,7 @@ export interface GetExampleRequest {
    * The resource name of the example.
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetSupervisorAgentRequest {
@@ -106,7 +106,7 @@ export interface GetSupervisorAgentRequest {
    * The resource name of the Supervisor Agent.
    * Format: supervisor-agents/{supervisor_agent_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetToolRequest {
@@ -114,14 +114,14 @@ export interface GetToolRequest {
    * The resource name of the Tool.
    * Format: supervisor-agents/{supervisor_agent_id}/tools/{tool_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface KnowledgeAssistant {
   /** Deprecated: use knowledge_assistant_id instead. */
   servingEndpointName?: string | undefined;
   /** The ID of the knowledge assistant. */
-  knowledgeAssistantId?: string | undefined;
+  knowledgeAssistantId: string;
 }
 
 /** List examples. */
@@ -130,7 +130,7 @@ export interface ListExamplesRequest {
    * Parent resource to list from.
    * Format: supervisor-agents/{supervisor_agent_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The maximum number of examples to return.
    * If unspecified, at most 100 examples will be returned.
@@ -180,7 +180,7 @@ export interface ListToolsRequest {
    * Parent resource to list from.
    * Format: supervisor-agents/{supervisor_agent_id}
    */
-  parent?: string | undefined;
+  parent: string;
   pageSize?: number | undefined;
   pageToken?: string | undefined;
 }
@@ -197,7 +197,7 @@ export interface SupervisorAgent {
    */
   name?: string | undefined;
   /** The display name of the Supervisor Agent, unique at workspace level. */
-  displayName?: string | undefined;
+  displayName: string;
   /** Description of what this agent can do (user-facing). */
   description?: string | undefined;
   /** Optional natural-language instructions for the supervisor agent. */
@@ -225,7 +225,7 @@ export interface Tool {
   /** Deprecated: Use tool_id instead. */
   id?: string | undefined;
   /** Tool type. Must be one of: "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "uc_mcp", "app", "volume", "dashboard", "serving_endpoint", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "databricks_web_search", "skill". The legacy values "lakeview_dashboard", "uc_table", and "web_search" are also accepted and remain equivalent to "dashboard", "table", and "databricks_web_search" respectively. The "databricks_web_search" tool_type maps to the `web_search` spec field. */
-  toolType?: string | undefined;
+  toolType: string;
   /** Specification for the tool type. */
   spec?:
     | {$case: 'genieSpace'; genieSpace: GenieSpace}
@@ -243,12 +243,12 @@ export interface Tool {
 
 /** Databricks UC connection. Supported connection: external mcp server. */
 export interface UcConnection {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface UcFunction {
   /** Full uc function name */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Update an example. */
@@ -257,8 +257,8 @@ export interface UpdateExampleRequest {
    * The resource name of the example to update.
    * Format: supervisor-agents/{supervisor_agent_id}/examples/{example_id}
    */
-  name?: string | undefined;
-  example?: Example | undefined;
+  name: string;
+  example: Example;
   /**
    * Comma-delimited list of fields to update on the example.
    * Allowed values: `question`, `guidelines`.
@@ -266,31 +266,31 @@ export interface UpdateExampleRequest {
    * - `question`
    * - `question,guidelines`
    */
-  updateMask?: FieldMask<Example> | undefined;
+  updateMask: FieldMask<Example>;
 }
 
 export interface UpdateSupervisorAgentRequest {
   /** The SupervisorAgent to update. */
-  supervisorAgent?: SupervisorAgent | undefined;
+  supervisorAgent: SupervisorAgent;
   /** Field mask for fields to be updated. */
-  updateMask?: FieldMask<SupervisorAgent> | undefined;
+  updateMask: FieldMask<SupervisorAgent>;
 }
 
 export interface UpdateToolRequest {
   /** The Tool to update. */
-  tool?: Tool | undefined;
+  tool: Tool;
   /** Field mask for fields to be updated. */
-  updateMask?: FieldMask<Tool> | undefined;
+  updateMask: FieldMask<Tool>;
 }
 
 export interface Volume {
   /** Full uc volume name */
-  name?: string | undefined;
+  name: string;
 }
 
 export const unmarshalAppSchema: z.ZodType<App> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -299,8 +299,8 @@ export const unmarshalAppSchema: z.ZodType<App> = z
 export const unmarshalExampleSchema: z.ZodType<Example> = z
   .object({
     name: z.string().optional(),
-    question: z.string().optional(),
-    guidelines: z.array(z.string()).optional(),
+    question: z.string(),
+    guidelines: z.array(z.string()),
     example_id: z.string().optional(),
   })
   .transform(d => ({
@@ -312,7 +312,7 @@ export const unmarshalExampleSchema: z.ZodType<Example> = z
 
 export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -322,7 +322,7 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
   z
     .object({
       serving_endpoint_name: z.string().optional(),
-      knowledge_assistant_id: z.string().optional(),
+      knowledge_assistant_id: z.string(),
     })
     .transform(d => ({
       servingEndpointName: d.serving_endpoint_name,
@@ -366,7 +366,7 @@ export const unmarshalListToolsResponseSchema: z.ZodType<ListToolsResponse> = z
 export const unmarshalSupervisorAgentSchema: z.ZodType<SupervisorAgent> = z
   .object({
     name: z.string().optional(),
-    display_name: z.string().optional(),
+    display_name: z.string(),
     description: z.string().optional(),
     instructions: z.string().optional(),
     id: z.string().optional(),
@@ -396,7 +396,7 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
   .object({
     name: z.string().optional(),
     id: z.string().optional(),
-    tool_type: z.string().optional(),
+    tool_type: z.string(),
     genie_space: z.lazy(() => unmarshalGenieSpaceSchema).optional(),
     knowledge_assistant: z
       .lazy(() => unmarshalKnowledgeAssistantSchema)
@@ -438,7 +438,7 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
 
 export const unmarshalUcConnectionSchema: z.ZodType<UcConnection> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -446,7 +446,7 @@ export const unmarshalUcConnectionSchema: z.ZodType<UcConnection> = z
 
 export const unmarshalUcFunctionSchema: z.ZodType<UcFunction> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -454,7 +454,7 @@ export const unmarshalUcFunctionSchema: z.ZodType<UcFunction> = z
 
 export const unmarshalVolumeSchema: z.ZodType<Volume> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -462,7 +462,7 @@ export const unmarshalVolumeSchema: z.ZodType<Volume> = z
 
 export const marshalAppSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -471,8 +471,8 @@ export const marshalAppSchema: z.ZodType = z
 export const marshalExampleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    question: z.string().optional(),
-    guidelines: z.array(z.string()).optional(),
+    question: z.string(),
+    guidelines: z.array(z.string()),
     exampleId: z.string().optional(),
   })
   .transform(d => ({
@@ -484,7 +484,7 @@ export const marshalExampleSchema: z.ZodType = z
 
 export const marshalGenieSpaceSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -493,7 +493,7 @@ export const marshalGenieSpaceSchema: z.ZodType = z
 export const marshalKnowledgeAssistantSchema: z.ZodType = z
   .object({
     servingEndpointName: z.string().optional(),
-    knowledgeAssistantId: z.string().optional(),
+    knowledgeAssistantId: z.string(),
   })
   .transform(d => ({
     serving_endpoint_name: d.servingEndpointName,
@@ -503,7 +503,7 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
 export const marshalSupervisorAgentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    displayName: z.string().optional(),
+    displayName: z.string(),
     description: z.string().optional(),
     instructions: z.string().optional(),
     id: z.string().optional(),
@@ -533,7 +533,7 @@ export const marshalToolSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     id: z.string().optional(),
-    toolType: z.string().optional(),
+    toolType: z.string(),
     spec: z
       .discriminatedUnion('$case', [
         z.object({
@@ -585,7 +585,7 @@ export const marshalToolSchema: z.ZodType = z
 
 export const marshalUcConnectionSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -593,7 +593,7 @@ export const marshalUcConnectionSchema: z.ZodType = z
 
 export const marshalUcFunctionSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -601,7 +601,7 @@ export const marshalUcFunctionSchema: z.ZodType = z
 
 export const marshalVolumeSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,

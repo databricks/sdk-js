@@ -78,7 +78,7 @@ export interface PublicTokenInfo {
 
 export interface RevokeTokenRequest {
   /** The ID of the token to be revoked. */
-  tokenId?: string | undefined;
+  tokenId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -90,10 +90,10 @@ export interface RevokeTokenResponse {}
  */
 export interface UpdateTokenRequest {
   /** The SHA-256 hash of the token to be updated. */
-  tokenId?: string | undefined;
-  token?: PublicTokenInfo | undefined;
+  tokenId: string;
+  token: PublicTokenInfo;
   /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
-  updateMask?: FieldMask<PublicTokenInfo> | undefined;
+  updateMask: FieldMask<PublicTokenInfo>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -193,7 +193,7 @@ export const marshalPublicTokenInfoSchema: z.ZodType = z
 
 export const marshalRevokeTokenRequestSchema: z.ZodType = z
   .object({
-    tokenId: z.string().optional(),
+    tokenId: z.string(),
   })
   .transform(d => ({
     token_id: d.tokenId,
@@ -201,12 +201,9 @@ export const marshalRevokeTokenRequestSchema: z.ZodType = z
 
 export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
-    tokenId: z.string().optional(),
-    token: z.lazy(() => marshalPublicTokenInfoSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    tokenId: z.string(),
+    token: z.lazy(() => marshalPublicTokenInfoSchema),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
   })
   .transform(d => ({
     token_id: d.tokenId,
